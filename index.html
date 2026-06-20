@@ -85,16 +85,142 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .modal{background:#0d0d1a;border:1px solid #c8a84b;padding:22px;max-width:300px;text-align:center;}
 .modal h2{font-family:'Press Start 2P',monospace;font-size:11px;color:#c8a84b;margin-bottom:14px;}
 .modal p{font-size:10px;color:#888;margin-bottom:18px;line-height:1.6;}
+/* LANDING */
+.landing{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#0a0a12;}
+.landing-title{font-family:'Press Start 2P',monospace;font-size:18px;color:#c8a84b;letter-spacing:4px;text-align:center;margin-bottom:8px;text-shadow:0 0 20px #c8a84b66;}
+.landing-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:#444;letter-spacing:6px;text-align:center;margin-bottom:32px;}
+.landing-btn{font-family:'Press Start 2P',monospace;font-size:9px;padding:14px 32px;border:1px solid #c8a84b44;background:transparent;color:#c8a84b;cursor:pointer;letter-spacing:2px;transition:all .2s;width:220px;text-align:center;}
+.landing-btn:hover{background:#c8a84b18;border-color:#c8a84b;box-shadow:0 0 12px #c8a84b33;}
+.landing-btn.secondary{color:#555;border-color:#333;font-size:8px;}
+.landing-btn.secondary:hover{color:#888;border-color:#555;background:#ffffff08;}
+/* RULES & LORE SCREENS */
+.screen{position:fixed;inset:0;z-index:201;background:#0a0a12;overflow-y:auto;padding:32px;display:none;}
+.screen.active{display:block;}
+.screen-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #c8a84b22;}
+.screen-title{font-family:'Press Start 2P',monospace;font-size:11px;color:#c8a84b;}
+.screen-back{font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 14px;border:1px solid #555;background:transparent;color:#888;cursor:pointer;}
+.screen-back:hover{color:#c8a84b;border-color:#c8a84b;}
+.screen-body{max-width:700px;margin:0 auto;font-size:11px;line-height:1.9;color:#888;}
+.screen-body h2{font-family:'Press Start 2P',monospace;font-size:9px;color:#c8a84b;margin:24px 0 10px;}
+.screen-body h3{font-family:'Press Start 2P',monospace;font-size:7px;color:#888;margin:16px 0 8px;letter-spacing:1px;}
+.screen-body p{margin-bottom:10px;}
+.screen-body ul{margin:8px 0 12px 20px;}
+.screen-body li{margin-bottom:6px;}
+.tag-inline{font-size:8px;padding:1px 5px;border:1px solid;display:inline;}
+.tag-inline.vanguard{border-color:#ff9933;color:#ff9933;}
+.tag-inline.provoke{border-color:#55aaff;color:#55aaff;}
+.tag-inline.fear{border-color:#aa44ff;color:#aa44ff;}
+.tag-inline.pierce{border-color:#ff4444;color:#ff4444;}
+.tag-inline.unique{border-color:#ffd700;color:#ffd700;}
 </style>
 </head>
 <body>
 <div class="stars"></div>
-<div class="game">
+
+<!-- LANDING -->
+<div class="landing" id="landing">
+  <div class="landing-title">HOME'S<br>JOURNEY</div>
+  <div class="landing-sub">· · · CCG · · ·</div>
+  <button class="landing-btn" onclick="startGame()">▶ Start Game</button>
+  <button class="landing-btn secondary" onclick="showScreen('rules')">Rules</button>
+  <button class="landing-btn secondary" onclick="showScreen('lore')">📖 Lore</button>
+</div>
+
+<!-- RULES SCREEN -->
+<div class="screen" id="rulesScreen">
+  <div class="screen-header">
+    <button class="screen-back" onclick="hideScreen('rules')">← Back</button>
+    <div class="screen-title">Rules</div>
+  </div>
+  <div class="screen-body">
+    <h2>Objective</h2>
+    <p>Destroy the enemy base. Tea defends the Tavern (20 HP), Jeet defends the Core (20 HP). First to bring the enemy base to 0 wins.</p>
+
+    <h2>Turn Structure</h2>
+    <ul>
+      <li>+1 Essence max (fully restored)</li>
+      <li>Draw 1 card from deck</li>
+      <li>Passive abilities trigger (Aslex, Phlegmor, etc.)</li>
+      <li>Play cards, attack, use abilities</li>
+      <li>End Turn</li>
+    </ul>
+
+    <h2>Essence</h2>
+    <p>Every card has a cost. You start with 1/1 Essence and gain +1 max each turn. Burning a card from your hand gives +1 max Essence permanently — but only once per turn. Burned cards are gone forever.</p>
+
+    <h2>Playing Cards</h2>
+    <p>Click a card in your hand to play it if you have enough Essence. Creatures enter sleeping (dashed border) and can act next turn unless they have Vanguard.</p>
+
+    <h2>Attacking</h2>
+    <p>Click a creature on your field to select it (gold glow), then click an enemy creature or press ⚔ Hit Base. Counter-attack always fires even if the target dies.</p>
+
+    <h2>Abilities</h2>
+    <ul>
+      <li><span class="tag-inline vanguard">VANGUARD</span> — attacks immediately on the turn it enters</li>
+      <li><span class="tag-inline provoke">PROVOKE</span> — all enemy attacks must target this creature</li>
+      <li><span class="tag-inline fear">FEAR</span> — attacked creature skips its next turn</li>
+      <li><span class="tag-inline pierce">PIERCE</span> — ignores Provoke, hits base directly. Cannot bypass Bushido.</li>
+      <li><span class="tag-inline unique">UNIQUE</span> — legendary card, only one copy per deck</li>
+    </ul>
+
+    <h2>Worlds & Artifacts</h2>
+    <p>Worlds and Artifacts are permanent cards placed on the field. Only one World can be active at a time — playing a new one replaces the old. Artifacts stack up to 2. Both are visible in the Worlds & Artifacts zone below each battlefield.</p>
+
+    <h2>Spells</h2>
+    <p>One-use cards with immediate effects. Sent to graveyard after use.</p>
+
+    <h2>Graveyard & Void</h2>
+    <p>Creatures killed in battle go to the Graveyard (☠ counter). Phlegmor and revival spells can raise cards from the Graveyard. Burned cards go to the Void and cannot be raised.</p>
+
+    <h2>Special Abilities</h2>
+    <h3>Orbiton</h3>
+    <p>Click to select, then click a wounded ally (green glow) to heal, or an enemy (red glow) to attack normally.</p>
+    <h3>Umbasir</h3>
+    <p>Select it, then press 🌀 Umbasir: Hit All to deal damage to all enemy creatures at once.</p>
+    <h3>Big Vardan</h3>
+    <p>Select it, then press ⚡ Dark Will: Hit All to deal 2 damage to all enemy creatures.</p>
+    <h3>Burn</h3>
+    <p>Press 🔥 Burn to sacrifice a card from your hand. Increases your Essence maximum by 1. Once per turn.</p>
+  </div>
+</div>
+
+<!-- LORE SCREEN -->
+<div class="screen" id="loreScreen">
+  <div class="screen-header">
+    <button class="screen-back" onclick="hideScreen('lore')">← Back</button>
+    <div class="screen-title">📖 Lore</div>
+  </div>
+  <div class="screen-body">
+
+    <h2>Before This</h2>
+    <p>The Archive exists. Somewhere in the Valley, Teantist still brews Chaetron and translates the Book — page by page, year by year. Shen still tends the Tavern at the crossroads of all Worlds. Travelers still walk the Path, collecting what remains of vanished civilizations.</p>
+    <p>That is the record. What follows is what the record did not anticipate.</p>
+
+    <h2>The Fracture</h2>
+    <p>No one knows exactly when Jeet stopped being a slow erosion and became something else. The change was not announced. It was noticed in gaps — a World that Shen stopped receiving reports from. A Traveler who returned speaking in patterns that did not belong to them. A section of the Archive that Teantist quietly sealed.</p>
+    <p>By the time the Tavern held a council, Jeet had already claimed a third of the known Worlds. Not destroyed them. Claimed them. The Travelers inside did not die. They remained — but they walked for Jeet now.</p>
+
+    <h2>Two Sides</h2>
+    <p>The line did not form cleanly. Some Travelers chose. Others were taken. A few — Ryvlen, the Reaper — had walked so close to Jeet for so long that no one was entirely surprised when they stopped returning to the Tavern.</p>
+    <p>What remained of the Path split into two currents. Those who still walked toward the Great Return, toward the Essence, toward Tea. And those who now walked deeper into dissolution — whether by choice, corruption, or something in between that the Archive had no word for.</p>
+
+    <h2>What Is at Stake</h2>
+    <p>The Worlds between them are the contested ground. Each one holds memories — fragments of what civilizations once knew, preserved in the imprints that Unique Travelers are built to carry. If Jeet claims enough of them, the Great Return becomes impossible. Not because the Essence disappears. Because there will be nothing left that remembers what it was.</p>
+    <p>Teantist has not sealed the Archive. He continues to send Schemes. Whatever he found in those pages he will not translate — he has apparently decided it does not change what must be done next.</p>
+
+    <h2>Now</h2>
+    <p>Two forces move through the remaining Worlds. One carries tea, memory, and the long patience of those who still believe the Path leads somewhere worth reaching. The other carries the strange clarity of dissolution — the knowledge that entropy, too, has its own direction.</p>
+    <p>The outcome of this is not recorded yet.</p>
+    <p style="color:#444;font-size:9px;margin-top:32px;font-style:italic;">— For the complete record of what preceded these events, consult the Archive at archive.trianglecirclesquare.org</p>
+  </div>
+</div>
+
+<div class="game" id="game" style="display:none">
 
 <div class="header">
   <div class="title">HOME'S JOURNEY</div>
   <div class="turn-info">Turn <span id="turnNum">1</span> · <span id="turnPlayer">TEA</span> · Essence: <span id="essDisplay">1/1</span></div>
-  <button class="btn btn-reset" onclick="resetGame()">↺ New Game</button>
+  <button class="btn btn-reset" onclick="resetGame()">← Menu</button>
 </div>
 
 <!-- JEET TOP -->
@@ -214,7 +340,7 @@ const DEFS = {
   j_meh_s:     {name:"Mechird+",     cost:3,hp:2,atk:2,art:"⚙️",f:"jeet",tags:["pierce"],        ab:""},
   j_ksi_s:     {name:"Xuitqr+",      cost:3,hp:5,atk:2,art:"🐙",f:"jeet",tags:["fear"],          ab:""},
   // JEET LEGENDARIES
-  j_reap:      {name:"REAPER",      cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique"],        ab:"On kill: restore 2 HP to Jeet base.",unique:true},
+  j_reap:      {name:"REAPER",      cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique"],        ab:"On kill: add 2 HP to Jeet base.",unique:true},
   j_ryv:       {name:"RYVLEN",      cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear"], ab:"On every attack: draw 1 card.",unique:true},
   j_mal:       {name:"MALTOR",      cost:4,hp:5,atk:2,art:"👹",f:"jeet",tags:["unique","fear"], ab:"On enter: 1 dmg to all enemies.",unique:true},
   j_phleg:     {name:"PHLEGMOR",    cost:5,hp:6,atk:2,art:"💀",f:"jeet",tags:["unique"],        ab:"Start of turn: raise top graveyard card at 1 HP.",unique:true},
@@ -744,10 +870,26 @@ function cancelAction(){G.sel=null;G.phase='action';render();}
 
 function resetGame(){
   document.getElementById('winModal').classList.add('hidden');
+  document.getElementById('game').style.display='none';
+  document.getElementById('landing').style.display='flex';
   initState();
   lg('─── NEW GAME ───','trn');
   lg('TEA goes first.','imp');
   render();
+}
+
+// ── LANDING ───────────────────────────────────────────────
+function startGame(){
+  document.getElementById('landing').style.display='none';
+  document.getElementById('game').style.display='flex';
+}
+function showScreen(name){
+  document.getElementById('landing').style.display='none';
+  document.getElementById(name+'Screen').classList.add('active');
+}
+function hideScreen(name){
+  document.getElementById(name+'Screen').classList.remove('active');
+  document.getElementById('landing').style.display='flex';
 }
 
 // ── BOOT ──────────────────────────────────────────────────
