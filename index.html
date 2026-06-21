@@ -29,7 +29,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .player-zone{border:1px solid;background:#0d0d1a;display:flex;flex-direction:row;align-items:stretch;overflow:visible;position:relative;z-index:10;}
 .player-art-placeholder{width:100%;height:56px;border:1px solid #ffffff11;display:flex;align-items:center;justify-content:center;font-size:10px;opacity:0.2;margin-top:2px;background:#06060e;flex-shrink:0;}
 .player-sidebar{width:90px;min-width:90px;padding:12px 4px 6px;border-right:1px solid #ffffff11;display:flex;flex-direction:column;justify-content:center;gap:4px;}
-.player-hand-wrap{flex:1;overflow:visible;padding:6px;position:relative;}
+.player-hand-wrap{flex:1;overflow:visible;padding:6px;position:relative;min-width:0;}
 .player-zone.jeet{border-color:#7b2d8b55;background:#0d0a12;position:relative;z-index:10;}
 .player-zone.base-targetable{cursor:pointer;border-color:#e05555 !important;box-shadow:0 0 8px #e0555533;}
 
@@ -877,7 +877,18 @@ function onClick(card,zone){
     if(card.f===G.turn){G.sel=null;G.phase='action';render();return;}
     if(zone==='field'&&card.f===opp){
       const att=findC(G.sel);
-      if(att)doAttack(att,card);
+      if(!att)return;
+      // Check Provoke/Bushido - must attack provoke card first
+      const oppField=G[opp].field;
+      const bushido=oppField.find(c=>c.key==='t_nab');
+      const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
+      if(bushido&&card.id!==bushido.id){
+        lg(`Must attack ${bushido.name} (Bushido) first!`,'dmg');return;
+      }
+      if(provoke&&card.id!==provoke.id&&!att.tags.includes('pierce')){
+        lg(`Must attack ${provoke.name} (Provoke) first!`,'dmg');return;
+      }
+      doAttack(att,card);
     }
   }
 
@@ -1228,32 +1239,35 @@ function adjustHandOverlap(){
     const el=document.getElementById(id);
     if(!el)return;
     // Measure the player-zone and subtract sidebar width
-    const zone=el.closest('.player-zone');
-    const sidebar=zone?zone.querySelector('.player-sidebar'):null;
-    const zoneW=zone?zone.getBoundingClientRect().width:0;
-    const sideW=sidebar?sidebar.getBoundingClientRect().width:120;
-    const containerW=zoneW - sideW - 12;
+    // clientWidth of hand element itself after CSS layout
+    let containerW=el.clientWidth-12;
+    if(containerW<=20){
+      // fallback
+      const zone=el.closest('.player-zone');
+      const sidebar=zone?zone.querySelector('.player-sidebar'):null;
+      containerW=window.innerWidth-(sidebar?sidebar.clientWidth:90)-24;
+    }
     if(containerW<=20)return;
 
     const cards=el.querySelectorAll('.card');
     if(cards.length>0){
       const cardW=118;
       const total=cards.length;
-      let margin=-20;
+      let margin=0;
       if(total>1){
-        const needed=cardW*total;
-        if(needed>containerW){
-          margin=-Math.floor((needed-containerW)/(total-1))-1;
-          margin=Math.max(margin,-cardW+30);
-        }
+        // Exact margin to fit all cards in container
+        margin=-Math.ceil((cardW*total - containerW)/(total-1));
+        // Cap: never hide more than 80% of card
+        margin=Math.max(margin, -Math.floor(cardW*0.8));
+        // Default slight overlap when fits
+        if(margin>-8) margin=-8;
       }
       cards.forEach((card,i)=>{
         card.style.marginRight=i===total-1?'0px':margin+'px';
-        // Previewed card gets highest z-index
         if(!G.previewCard||card.dataset.id!==G.previewCard){
           card.style.zIndex=String(i+1);
         } else {
-          card.style.zIndex=''; // let CSS z-index:2000!important take over
+          card.style.zIndex='';
         }
         card.style.flexShrink='0';
       });
