@@ -17,10 +17,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .player-zone{border:1px solid;padding:8px;background:#0d0d1a;}
 .player-zone.jeet{border-color:#7b2d8b55;background:#0d0a12;}
 .player-zone.tea{border-color:#2d7b3555;background:#0a0d0a;}
-.player-header{display:flex;justify-content:center;align-items:center;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #ffffff11;flex-direction:column;gap:6px;}
+.player-header{display:flex;justify-content:center;align-items:center;padding:6px;border-bottom:1px solid #ffffff11;}
 .player-name{font-family:'Press Start 2P',monospace;font-size:7px;}
 .jeet .player-name{color:#b44fd4;}.tea .player-name{color:#4db854;}
-.player-stats{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.player-stats{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;}
 .stat{display:flex;align-items:center;gap:4px;font-size:10px;}.stat-val{font-weight:bold;}
 .hp-val{color:#e05555;}.ess-val{color:#5599ff;}
 .base-hp-bar{width:100px;height:5px;background:#1a1a1a;border:1px solid #333;overflow:hidden;}
@@ -109,14 +109,16 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .log-panel-close:hover{color:#c8a84b;}
 .log-panel .log{height:180px;border:none;}
 /* ACTIONS */
-.actions{display:flex;gap:5px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
+.actions{display:flex;flex-direction:column;gap:6px;align-items:center;padding:8px;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
+.action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
+.hint{font-size:10px;color:#c8a84b;text-align:center;min-height:16px;}
 .btn{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
 .btn:hover{background:#ffffff11;}.btn:disabled{opacity:.3;cursor:not-allowed;}
 .btn-end{border-color:#c8a84b;color:#c8a84b;}.btn-end:hover{background:#c8a84b22;}
 .btn-burn{border-color:#e05555;color:#e05555;}.btn-burn:hover{background:#e0555522;}
 .btn-base{border-color:#ff6600;color:#ff6600;}.btn-base:hover{background:#ff660022;}
 .btn-cancel{border-color:#555;}.btn-reset{border-color:#444;font-size:8px;}
-.hint{font-size:10px;color:#c8a84b;flex:1;}
+
 /* LOG */
 .log{background:#06060e;border:1px solid #ffffff08;padding:7px;height:85px;overflow-y:auto;font-size:8px;line-height:1.9;}
 .le{color:#555;}.le.imp{color:#c8a84b;}.le.dmg{color:#e05555;}.le.hl{color:#44ff88;}.le.die{color:#ff6666;}.le.trn{color:#5599ff;border-top:1px solid #ffffff11;padding-top:3px;margin-top:3px;}
@@ -261,17 +263,20 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 <div class="header">
   <div class="title">HOME'S JOURNEY</div>
   <div class="turn-info" style="position:absolute;left:50%;transform:translateX(-50%);">Turn <span id="turnNum">1</span> · <span id="turnPlayer">TEA</span></div>
-  <div style="display:flex;gap:6px;margin-left:auto;">
-    <button class="btn" id="logBtn" style="border-color:#5599ff;color:#5599ff;font-size:10px;padding:5px 12px;" onclick="toggleLog()">📋 Log</button>
-    <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="askMenu()">← Menu</button>
+  <div style="position:relative;margin-left:auto;">
+    <button class="btn" id="hamburgerBtn" style="border-color:#c8a84b44;font-size:14px;padding:4px 10px;" onclick="toggleHamburger()">☰</button>
+    <div id="hamburgerMenu" style="display:none;position:absolute;right:0;top:100%;background:#0d0d1a;border:1px solid #c8a84b33;z-index:200;min-width:130px;margin-top:4px;">
+      <button class="btn" style="border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 12px;border-color:#5599ff;color:#5599ff;font-size:10px;" onclick="toggleLog();toggleHamburger()">📋 Log</button>
+      <button class="btn btn-reset" style="border:none;width:100%;text-align:left;padding:8px 12px;font-size:10px;" onclick="askMenu();toggleHamburger()">← Menu</button>
+    </div>
   </div>
 </div>
 
 <!-- JEET ZONE -->
 <div class="player-zone jeet" id="zoneJeet" style="order:0">
   <div class="player-header">
-    <div class="player-name">⬡ JEET — CORE</div>
     <div class="player-stats">
+      <span class="player-name" style="font-size:7px;margin-right:6px;">⬡ JEET CORE</span>
       <div class="stat">🖤 <span class="stat-val hp-val" id="jeetHp">20</span>/20</div>
       <div class="stat">💠 <span class="ess-val" id="jeetEss">1</span>/<span id="jeetEssMax">1</span></div>
       <div class="stat" style="font-size:9px;color:#555">Hand:<span id="jeetHandCount">5</span> Deck:<span id="jeetDeckCount">35</span> ☠:<span id="jeetGraveCount">0</span></div>
@@ -295,20 +300,22 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 <!-- ACTIONS - between arena and active player zone -->
 <div class="actions" id="zoneActions" style="order:2">
-  <button class="btn btn-end" onclick="endTurn()">End Turn ▶</button>
-  <button class="btn btn-burn" id="burnBtn" onclick="startBurn()">🔥 Burn</button>
-  <button class="btn btn-base" onclick="tryAttackBase()">⚔ Hit Base</button>
-  <button class="btn hidden" id="vardanBtn" style="border-color:#b44fd4;color:#b44fd4" onclick="doVardan()">⚡ Dark Will</button>
-  <button class="btn hidden" id="cancelBtn" onclick="cancelAction()">✕ Cancel</button>
-  <button class="btn hidden" id="umbBtn" style="border-color:#aa44ff;color:#aa44ff" onclick="doUmbAsir()">🌀 Hit All</button>
+  <div class="action-btns">
+    <button class="btn btn-end" onclick="endTurn()">End Turn ▶</button>
+    <button class="btn btn-burn" id="burnBtn" onclick="startBurn()">🔥 Burn</button>
+    <button class="btn btn-base" onclick="tryAttackBase()">⚔ Hit Base</button>
+    <button class="btn hidden" id="vardanBtn" style="border-color:#b44fd4;color:#b44fd4" onclick="doVardan()">⚡ Dark Will</button>
+    <button class="btn hidden" id="cancelBtn" onclick="cancelAction()">✕ Cancel</button>
+    <button class="btn hidden" id="umbBtn" style="border-color:#aa44ff;color:#aa44ff" onclick="doUmbAsir()">🌀 Hit All</button>
+  </div>
   <div class="hint" id="hint"></div>
 </div>
 
 <!-- TEA ZONE -->
 <div class="player-zone tea" id="zoneTea" style="order:3">
   <div class="player-header">
-    <div class="player-name">⬡ TEA — TAVERN</div>
     <div class="player-stats">
+      <span class="player-name" style="font-size:7px;margin-right:6px;">⬡ TAVERN</span>
       <div class="stat">🤍 <span class="stat-val hp-val" id="teaHp">20</span>/20</div>
       <div class="stat">💠 <span class="ess-val" id="teaEss">1</span>/<span id="teaEssMax">1</span></div>
       <div class="stat" style="font-size:9px;color:#555">Hand:<span id="teaHandCount">5</span> Deck:<span id="teaDeckCount">35</span> ☠:<span id="teaGraveCount">0</span></div>
@@ -1009,6 +1016,19 @@ function reorderZones(){
     if(jeetF)jeetF.style.order='2';
   }
 }
+
+function toggleHamburger(){
+  const m=document.getElementById('hamburgerMenu');
+  m.style.display=m.style.display==='none'?'block':'none';
+}
+// Close hamburger when clicking outside
+document.addEventListener('click',function(e){
+  const btn=document.getElementById('hamburgerBtn');
+  const menu=document.getElementById('hamburgerMenu');
+  if(menu&&btn&&!btn.contains(e.target)&&!menu.contains(e.target)){
+    menu.style.display='none';
+  }
+});
 
 function toggleLog(){
   const p=document.getElementById('logPanel');
