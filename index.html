@@ -657,9 +657,27 @@ function mkSmallEl(card){
   if(card.exhausted)d.classList.add('exhausted');
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
-  if(G.phase==='selectTarget'&&card.f!==G.turn)d.classList.add('targetable');
+  if(G.phase==='selectTarget'&&card.f!==G.turn){
+    const oppField=G[card.f].field;
+    const bushido=oppField.find(c=>c.key==='t_nab');
+    const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
+    const att=G.sel?findC(G.sel):null;
+    const hasPierce=att&&att.tags.includes('pierce');
+    if(bushido){if(card.id===bushido.id)d.classList.add('targetable');}
+    else if(provoke&&!hasPierce){if(card.id===provoke.id)d.classList.add('targetable');}
+    else d.classList.add('targetable');
+  }
   if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp)d.classList.add('healable');
-  if(G.phase==='healTarget'&&card.f!==G.turn)d.classList.add('targetable');
+  if(G.phase==='healTarget'&&card.f!==G.turn){
+    const oppField=G[card.f].field;
+    const bushido=oppField.find(c=>c.key==='t_nab');
+    const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
+    const att=G.sel?findC(G.sel):null;
+    const hasPierce=att&&att.tags.includes('pierce');
+    if(bushido){if(card.id===bushido.id)d.classList.add('targetable');}
+    else if(provoke&&!hasPierce){if(card.id===provoke.id)d.classList.add('targetable');}
+    else d.classList.add('targetable');
+  }
   if(G.phase==='vardanPick'&&card.f!==G.turn&&!card.sleeping&&!card.exhausted&&!card.feared)d.classList.add('targetable');
   if(G.phase==='vardanAttack'&&card.f===G.turn)d.classList.add('targetable');
   const isSW=card.spell||card.world||card.artifact;
@@ -1080,7 +1098,7 @@ function canAttackBase(){
   if(!att||att.exhausted||att.sleeping||att.feared) return false;
   const oppK=G.turn==='tea'?'jeet':'tea';
   const opp=G[oppK];
-  const bushido=opp.field.find(c=>c.key==='t_nab'&&!c.feared);
+  const bushido=opp.field.find(c=>c.key==='t_nab');
   if(bushido) return false;
   const provoke=opp.field.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
   if(provoke&&!att.tags.includes('pierce')) return false;
@@ -1092,7 +1110,7 @@ function tryAttackBase(){
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
   const atk=att.atk+att.atkBonus;
-  const bushido=opp.field.find(c=>c.key==='t_nab'&&!c.feared);
+  const bushido=opp.field.find(c=>c.key==='t_nab');
   const provoke=opp.field.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
   // Bushido blocks EVERYONE including Pierce
   if(bushido){lg(`${bushido.name} (Bushido) blocks all attacks — must attack it first!`,'dmg');return;}
