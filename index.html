@@ -31,7 +31,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .player-sidebar{width:90px;min-width:90px;padding:12px 4px 6px;border-right:1px solid #ffffff11;display:flex;flex-direction:column;justify-content:center;gap:4px;}
 .player-hand-wrap{flex:1;overflow:visible;padding:6px;position:relative;min-width:0;}
 .player-zone.jeet{border-color:#7b2d8b55;background:#0d0a12;position:relative;z-index:10;}
-.player-zone.base-targetable{cursor:pointer;border-color:#e05555 !important;box-shadow:0 0 8px #e0555533;}
+.player-zone.base-targetable .player-sidebar{cursor:pointer;border:1px solid #e05555;box-shadow:0 0 8px #e0555533;background:#1a0808;}
 
 .player-zone.tea{border-color:#2d7b3555;background:#0a0d0a;position:relative;z-index:10;}
 .player-header{display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;}
@@ -64,7 +64,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .cap-btn{font-family:'Share Tech Mono',monospace;font-size:8px;padding:4px 0;border:1px solid;background:#0a0a12;cursor:pointer;width:100%;text-align:center;transition:all .15s;}
 .cap-btn.play{border-color:#c8a84b;color:#c8a84b;}.cap-btn.play:hover{background:#c8a84b22;}
 .cap-btn.burn{border-color:#e05555;color:#e05555;}.cap-btn.burn:hover{background:#e0555522;}
-.hand-mini{display:flex;flex-wrap:nowrap;min-height:44px;padding:4px 8px;background:#06060e;border:1px solid #ffffff08;justify-content:center;overflow:hidden;align-items:center;}
+.hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 8px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
 .hand-mini .card-mini{flex-shrink:0;min-width:52px;width:52px;}
 .battlefield{min-height:70px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:6px;justify-content:center;}
 .persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:#06060e;border-top:1px solid #ffffff08;align-items:center;}
@@ -323,7 +323,6 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
     <div class="player-art-placeholder" id="jeetArtSlot">⬡</div>
     <div class="sidebar-btns" id="jeetSidebarBtns" style="display:none;flex-direction:column;gap:4px;margin-top:8px;">
       <button class="btn btn-base" id="hitBaseJ" style="font-size:8px;padding:6px 4px;width:100%;display:none;" onclick="tryAttackBase()">⚔ Hit Base</button>
-      <div class="hint" id="hintJ" style="font-size:7px;color:#c8a84b;text-align:center;min-height:12px;"></div>
     </div>
   </div>
   <div class="player-hand-wrap">
@@ -333,7 +332,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 <div class="bottom-bar" id="jeetBottomBar" style="display:none;order:0.5;flex-direction:column;align-items:center;gap:4px;padding:8px;">
   <button class="btn btn-end" style="padding:8px 32px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
-  <div id="hintJ2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;"></div>
+  <div id="hintJ2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;margin-top:8px;"></div>
 </div>
 
 <!-- ARENA -->
@@ -363,7 +362,6 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
     <div class="player-art-placeholder" id="teaArtSlot">⬡</div>
     <div class="sidebar-btns" id="teaSidebarBtns" style="display:none;flex-direction:column;gap:4px;margin-top:8px;">
       <button class="btn btn-base" id="hitBaseT" style="font-size:8px;padding:6px 4px;width:100%;display:none;" onclick="tryAttackBase()">⚔ Hit Base</button>
-      <div class="hint" id="hintT" style="font-size:7px;color:#c8a84b;text-align:center;min-height:12px;"></div>
     </div>
   </div>
   <div class="player-hand-wrap">
@@ -373,7 +371,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 <div class="bottom-bar" id="teaBottomBar" style="display:none;order:2.5;flex-direction:column;align-items:center;gap:4px;padding:8px;">
   <button class="btn btn-end" style="padding:8px 32px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
-  <div id="hintT2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;"></div>
+  <div id="hintT2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;margin-top:8px;"></div>
 </div>
 
 <div class="log-panel" id="logPanel">
@@ -584,6 +582,9 @@ function render(){
   if(inactArt)inactArt.style.display='none';
   const actArt=document.getElementById(G.turn+'ArtSlot');
   if(actArt)actArt.style.display='flex';
+  // Also hide inactive bottom bar
+  const inactBB2=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
+  if(inactBB2)inactBB2.style.display='none';
   // Bottom bars
   const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
   if(inactBB)inactBB.style.display='none';
@@ -612,8 +613,6 @@ function render(){
     burn:'Select card to burn.',
     healTarget:'Select ally to heal or enemy to attack.',
   };
-  const hintEl=document.getElementById('hint'+sfx);
-  if(hintEl)hintEl.textContent=hints[G.phase]||'';
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
 }
@@ -759,9 +758,36 @@ function mkEl(card,zone){
   if(card.sleeping)d.classList.add('sleeping');
   if(card.exhausted)d.classList.add('exhausted');
   if(card.feared)d.classList.add('feared');
-  if(G.phase==='selectTarget'&&card.f!==G.turn&&zone==='field')d.classList.add('targetable');
+  if(G.phase==='selectTarget'&&card.f!==G.turn&&zone==='field'){
+    // If enemy has provoke/bushido, only highlight that card
+    const oppField=G[card.f].field;
+    const bushido=oppField.find(c=>c.key==='t_nab');
+    const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
+    const att=G.sel?findC(G.sel):null;
+    const hasPierce=att&&att.tags.includes('pierce');
+    if(bushido){
+      if(card.id===bushido.id) d.classList.add('targetable');
+    } else if(provoke&&!hasPierce){
+      if(card.id===provoke.id) d.classList.add('targetable');
+    } else {
+      d.classList.add('targetable');
+    }
+  }
   if(G.phase==='healTarget'&&card.f===G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp)d.classList.add('healable');
-  if(G.phase==='healTarget'&&card.f!==G.turn&&zone==='field')d.classList.add('targetable');
+  if(G.phase==='healTarget'&&card.f!==G.turn&&zone==='field'){
+    const oppField=G[card.f].field;
+    const bushido=oppField.find(c=>c.key==='t_nab');
+    const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
+    const att=G.sel?findC(G.sel):null;
+    const hasPierce=att&&att.tags.includes('pierce');
+    if(bushido){
+      if(card.id===bushido.id) d.classList.add('targetable');
+    } else if(provoke&&!hasPierce){
+      if(card.id===provoke.id) d.classList.add('targetable');
+    } else {
+      d.classList.add('targetable');
+    }
+  }
 
   const isSW=card.spell||card.world||card.artifact;
   const tags=card.tags.map(t=>`<span class="tag ${t}">${t.toUpperCase()}</span>`).join('');
@@ -1089,6 +1115,8 @@ function killCard(card,faction){
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
   G[faction].grave.push(card);
   lg(`💀 ${card.name} dies.`,'die');
+  // Reset Tuborg ATK bonus if Tuborg dies
+  if(card.key==='t_tuborg'){G[faction].field.forEach(a=>{a.atkBonus=0;});lg('Tuborg died — ATK bonus removed.');}
   // Reaper
   if(card.f!==G.turn){
     const reap=G[G.turn].field.find(c=>c.key==='j_reap');
