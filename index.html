@@ -330,9 +330,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   </div>
 </div>
 
-<div class="bottom-bar" id="jeetBottomBar" style="display:none;order:0.5;flex-direction:column;align-items:center;gap:4px;padding:8px;">
-  <button class="btn btn-end" style="padding:8px 32px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
-  <div id="hintJ2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;margin-top:8px;"></div>
+<div class="bottom-bar" id="jeetBottomBar" style="display:none;order:0.5;flex-direction:column;align-items:center;gap:6px;padding:8px;">
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="btn btn-end" style="padding:10px 28px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
+    <button class="btn" id="mulliganBtnJ" style="padding:10px 16px;font-size:9px;border-color:#9966ff;color:#9966ff;display:none;" onclick="doMulligan('jeet')">🔀 Mulligan</button>
+  </div>
+  <div id="hintJ2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;"></div>
 </div>
 
 <!-- ARENA -->
@@ -369,9 +372,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   </div>
 </div>
 
-<div class="bottom-bar" id="teaBottomBar" style="display:none;order:2.5;flex-direction:column;align-items:center;gap:4px;padding:8px;">
-  <button class="btn btn-end" style="padding:8px 32px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
-  <div id="hintT2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;margin-top:8px;"></div>
+<div class="bottom-bar" id="teaBottomBar" style="display:none;order:2.5;flex-direction:column;align-items:center;gap:6px;padding:8px;">
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="btn btn-end" style="padding:10px 28px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
+    <button class="btn" id="mulliganBtnT" style="padding:10px 16px;font-size:9px;border-color:#9966ff;color:#9966ff;display:none;" onclick="doMulligan('tea')">🔀 Mulligan</button>
+  </div>
+  <div id="hintT2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;"></div>
 </div>
 
 <div class="log-panel" id="logPanel">
@@ -414,7 +420,7 @@ const DEFS = {
   t_meh_w:     {name:"Mechird",     cost:2,hp:2,atk:1,art:"🤖",f:"tea",tags:["pierce"],             ab:""},
   t_ksi_w:     {name:"Xuitqr",      cost:3,hp:3,atk:1,art:"🐙",f:"tea",tags:["fear"],               ab:""},
   // TEA LEGENDARIES
-  t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique","draw:1"],    ab:"Draw 1 extra card each turn.",unique:true},
+  t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique"],    ab:"Draw 1 extra card each turn.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique"],             ab:"+1 max HP to all allies each turn.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:6,atk:3,art:"👑",f:"tea",tags:["unique"],             ab:"+1 ATK to all allies while on field.",unique:true},
   t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:4,art:"🔥",f:"tea",tags:["unique","burn"],      ab:"On enter: 3 dmg to all. Attacks set target on fire.",unique:true},
@@ -438,8 +444,8 @@ const DEFS = {
   j_meh_w:     {name:"Mechird",    cost:2,hp:2,atk:1,art:"⚙️",f:"jeet",tags:["pierce"],            ab:""},
   j_ksi_w:     {name:"Xuitqr",     cost:3,hp:3,atk:1,art:"🐙",f:"jeet",tags:["fear"],              ab:""},
   // JEET LEGENDARIES
-  j_reap:      {name:"REAPER",     cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique"],            ab:"On kill: +2 HP/+2 maxHP to Jeet base.",unique:true},
-  j_ryv:       {name:"RYVLEN",     cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear","draw:1"], ab:"On every attack: draw 1 card.",unique:true},
+  j_reap:      {name:"REAPER",     cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique"],            ab:"On kill: restore 2 HP to Jeet base.",unique:true},
+  j_ryv:       {name:"RYVLEN",     cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear"], ab:"On every attack: draw 1 card.",unique:true},
   j_mal:       {name:"MALTOR",     cost:4,hp:5,atk:2,art:"👹",f:"jeet",tags:["unique","fear"],     ab:"On enter: 1 dmg to all enemies.",unique:true},
   j_phleg:     {name:"PHLEGMOR",   cost:5,hp:6,atk:2,art:"💀",f:"jeet",tags:["unique"],            ab:"Start of turn: raise top graveyard card at 1 HP.",unique:true},
   j_vard:      {name:"BIG VARDAN", cost:4,hp:5,atk:3,art:"🌑",f:"jeet",tags:["unique","aoe:2"],    ab:"Dark Will: deal 2 dmg to ALL enemies.",unique:true},
@@ -585,8 +591,8 @@ function triggerAbilities(card, timing, ctx={}){
         });
         lg(`${card.name}: all allies +${a.val} maxHP!`,'hl'); break;
       case 'hp_base':
-        G[curK].maxHp+=a.val; G[curK].hp+=a.val;
-        lg(`${card.name}: ${curK} base +${a.val}/+${a.val}!`,'hl'); break;
+        G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
+        lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl'); break;
       case 'hp_add':
         // heal: restore HP, not above maxHP
         if(a.target==='all'){
@@ -735,7 +741,7 @@ function initState(){
   UID=0;
   G={turn:'tea',turnNum:1,phase:'action',sel:null,
     tea:newPlayer('tea'),jeet:newPlayer('jeet'),
-    jeetFirstTurn:true,logs:[],previewCard:null};
+    jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}}};
 }
 
 // ── LOG ───────────────────────────────────────────────────
@@ -786,6 +792,7 @@ function render(){
   requestAnimationFrame(()=>{ adjustHandOverlap(); requestAnimationFrame(adjustHandOverlap); });
 
   const sfx=G.turn==='tea'?'T':'J';
+  updateMulliganBtn(G.turn);
   const oppSfx=G.turn==='tea'?'J':'T';
   // Sidebar buttons
   const inactSB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'SidebarBtns');
@@ -1558,6 +1565,58 @@ document.addEventListener('click',function(e){
 function toggleLog(){
   const p=document.getElementById('logPanel');
   p.classList.toggle('open');
+}
+
+function doMulligan(faction){
+  const m=G.mulligan[faction];
+  const p=G[faction];
+  const used=m.used;
+  if(used>=3){lg('No more mulligans!','dmg');return;}
+
+  const startSize=5; // always relative to starting hand size
+
+  // Return hand to deck and reshuffle
+  p.hand.forEach(card=>{resetC(card);p.deck.push(card);});
+  p.hand=[];
+  for(let i=p.deck.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];
+  }
+
+  let draw, msg;
+  if(used===0){
+    draw=startSize;
+    msg=`🔀 Mulligan (free): drew ${draw} new cards.`;
+  } else if(used===1){
+    draw=startSize-1;
+    msg=`🔀 Mulligan (−1): drew ${draw} cards.`;
+  } else {
+    draw=startSize-2;
+    msg=`🔀 Mulligan (−2): drew ${draw} cards. Last mulligan used.`;
+  }
+
+  for(let i=0;i<draw;i++) if(p.deck.length>0)p.hand.push(p.deck.shift());
+  lg(msg,'imp');
+  m.used++;
+
+  updateMulliganBtn(faction);
+  render();
+}
+
+function updateMulliganBtn(faction){
+  const m=G.mulligan[faction];
+  const sfx=faction==='tea'?'T':'J';
+  const btn=document.getElementById('mulliganBtn'+sfx);
+  if(!btn)return;
+  const used=m.used;
+  // Only show during turn 1 of that faction
+  const isTurn1=(faction==='tea'&&G.turnNum===1&&G.turn==='tea')||
+                (faction==='jeet'&&G.turnNum===1&&G.turn==='jeet');
+  if(!isTurn1||used>=3){btn.style.display='none';return;}
+  btn.style.display='block';
+  if(used===0) btn.textContent='🔀 Mulligan (free)';
+  else if(used===1) btn.textContent='🔀 Mulligan (−1 card)';
+  else if(used===2) btn.textContent='🔀 Mulligan (−2 cards)';
 }
 
 function doVardan(){
