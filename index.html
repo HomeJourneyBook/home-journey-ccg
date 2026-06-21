@@ -52,8 +52,9 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 .hand{display:flex;flex-wrap:nowrap;min-height:130px;padding:6px 6px 6px;background:transparent;justify-content:flex-start;align-items:flex-end;overflow:visible;position:relative;width:100%;}
 .hand .card{flex-shrink:0;transition:transform .2s;position:relative;width:118px!important;min-width:118px!important;}
-.hand .card:hover{transform:translateY(-12px);z-index:10;}
+
 .hand .card.previewed{transform:translateY(-54px)!important;z-index:2000!important;}
+.hand .card:not(.previewed):hover{transform:translateY(-6px);z-index:5;}
 .field-ability-popup{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px;z-index:2001;width:70px;pointer-events:all;}
 .fab-btn{font-family:'Share Tech Mono',monospace;font-size:7px;padding:3px 0;border:1px solid;background:#0a0a12;cursor:pointer;width:100%;text-align:center;transition:all .15s;}
 .fab-btn.umbasir{border-color:#aa44ff;color:#aa44ff;}.fab-btn.umbasir:hover{background:#aa44ff22;}
@@ -135,6 +136,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .log-panel-close{font-size:9px;color:#555;cursor:pointer;border:none;background:transparent;padding:2px 6px;}
 .log-panel-close:hover{color:#c8a84b;}
 .log-panel .log{height:180px;border:none;}
+/* BOTTOM BAR */
+.bottom-bar{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;background:#0d0d1a;border-top:1px solid #ffffff11;}
+.bottom-bar .btn-end{font-size:10px;padding:8px 32px;}
+.bottom-bar .hint-text{font-size:9px;color:#c8a84b;text-align:center;min-height:14px;}
 /* ACTIONS */
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;padding:8px;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
@@ -311,11 +316,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
       <div class="player-stats">
         <div class="stat">🖤 <span class="stat-val hp-val" id="jeetHp">20</span>/20</div>
         <div class="stat">💠 <span class="ess-val" id="jeetEss">1</span>/<span id="jeetEssMax">1</span></div>
-        <div class="stat" style="font-size:8px;color:#555">✋<span id="jeetHandCount">5</span> 🃏<span id="jeetDeckCount">35</span> ☠<span id="jeetGraveCount">0</span></div>
+        <div class="stat" style="font-size:8px;color:#555">🃏<span id="jeetDeckCount">35</span> ☠<span id="jeetGraveCount">0</span></div>
       </div>
     </div>
     <div class="sidebar-btns" id="jeetSidebarBtns" style="display:none;flex-direction:column;gap:4px;margin-top:8px;">
-      <button class="btn btn-end" style="font-size:8px;padding:6px 4px;width:100%;" onclick="endTurn()">End Turn ▶</button>
       <button class="btn btn-base" id="hitBaseJ" style="font-size:8px;padding:6px 4px;width:100%;display:none;" onclick="tryAttackBase()">⚔ Hit Base</button>
       <div class="hint" id="hintJ" style="font-size:7px;color:#c8a84b;text-align:center;min-height:12px;"></div>
     </div>
@@ -323,6 +327,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   <div class="player-hand-wrap">
     <div class="hand" id="jeetHand"></div>
   </div>
+</div>
+
+<div class="bottom-bar" id="jeetBottomBar" style="display:none;order:0.5">
+  <button class="btn btn-end" style="padding:8px 32px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
+  <div class="hint-text" id="hintJ2" style="font-size:9px;color:#c8a84b;text-align:center;"></div>
 </div>
 
 <!-- ARENA -->
@@ -346,11 +355,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
       <div class="player-stats">
         <div class="stat">🤍 <span class="stat-val hp-val" id="teaHp">20</span>/20</div>
         <div class="stat">💠 <span class="ess-val" id="teaEss">1</span>/<span id="teaEssMax">1</span></div>
-        <div class="stat" style="font-size:8px;color:#555">✋<span id="teaHandCount">5</span> 🃏<span id="teaDeckCount">35</span> ☠<span id="teaGraveCount">0</span></div>
+        <div class="stat" style="font-size:8px;color:#555">🃏<span id="teaDeckCount">35</span> ☠<span id="teaGraveCount">0</span></div>
       </div>
     </div>
     <div class="sidebar-btns" id="teaSidebarBtns" style="display:none;flex-direction:column;gap:4px;margin-top:8px;">
-      <button class="btn btn-end" style="font-size:8px;padding:6px 4px;width:100%;" onclick="endTurn()">End Turn ▶</button>
       <button class="btn btn-base" id="hitBaseT" style="font-size:8px;padding:6px 4px;width:100%;display:none;" onclick="tryAttackBase()">⚔ Hit Base</button>
       <div class="hint" id="hintT" style="font-size:7px;color:#c8a84b;text-align:center;min-height:12px;"></div>
     </div>
@@ -358,6 +366,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   <div class="player-hand-wrap">
     <div class="hand" id="teaHand"></div>
   </div>
+</div>
+
+<div class="bottom-bar" id="teaBottomBar" style="display:none;order:2.5">
+  <button class="btn btn-end" style="padding:8px 32px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
+  <div class="hint-text" id="hintT2" style="font-size:9px;color:#c8a84b;text-align:center;"></div>
 </div>
 
 <div class="log-panel" id="logPanel">
@@ -528,7 +541,8 @@ function render(){
     // hp bar removed
     document.getElementById(f+'Ess').textContent=p.ess;
     document.getElementById(f+'EssMax').textContent=p.essMax;
-    document.getElementById(f+'HandCount').textContent=p.hand.length;
+    const hc=document.getElementById(f+'HandCount');
+    if(hc)hc.textContent=p.hand.length;
     document.getElementById(f+'DeckCount').textContent=p.deck.length;
     const gc=document.getElementById(f+'GraveCount');
     if(gc)gc.textContent=p.grave.length;
@@ -555,14 +569,18 @@ function render(){
   });
   requestAnimationFrame(()=>{ adjustHandOverlap(); requestAnimationFrame(adjustHandOverlap); });
 
-  // Show correct sidebar buttons for active player
   const sfx=G.turn==='tea'?'T':'J';
   const oppSfx=G.turn==='tea'?'J':'T';
-  // Hide inactive player's buttons
+  // Sidebar buttons
   const inactSB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'SidebarBtns');
   if(inactSB)inactSB.style.display='none';
   const actSB=document.getElementById(G.turn+'SidebarBtns');
   if(actSB)actSB.style.display='flex';
+  // Bottom bars
+  const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
+  if(inactBB)inactBB.style.display='none';
+  const actBB=document.getElementById(G.turn+'BottomBar');
+  if(actBB)actBB.style.display='flex';
 
   const selCard=G.sel?findC(G.sel):null;
   const showHitBase=G.phase==='selectTarget';
@@ -582,12 +600,14 @@ function render(){
 
   const hints={
     action:'',
-    selectTarget:'Select enemy or ⚔ Hit Base.',
+    selectTarget:'Select enemy or tap their base.',
     burn:'Select card to burn.',
     healTarget:'Select ally to heal or enemy to attack.',
   };
   const hintEl=document.getElementById('hint'+sfx);
   if(hintEl)hintEl.textContent=hints[G.phase]||'';
+  const hintEl2=document.getElementById('hint'+sfx+'2');
+  if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
 }
 
 function mkSmallEl(card){
@@ -996,17 +1016,21 @@ function doUmbAsir(){
 }
 
 function onBaseClick(faction){
-  // Only attack if this is the enemy base and we have a card selected
-  if(faction===G.turn) return; // own base, ignore
-  if(G.phase==='selectTarget'&&canAttackBase()){
+  if(faction===G.turn) return;
+  if((G.phase==='selectTarget'||G.phase==='action')&&G.sel&&canAttackBase()){
     tryAttackBase();
+  }
+  // Orbiton in healTarget phase can also attack base
+  if(G.phase==='healTarget'&&G.sel){
+    const att=findC(G.sel);
+    if(att) tryAttackBase();
   }
 }
 
 function canAttackBase(){
   if(!G.sel) return false;
   const att=findC(G.sel);
-  if(!att) return false;
+  if(!att||att.exhausted||att.sleeping||att.feared) return false;
   const oppK=G.turn==='tea'?'jeet':'tea';
   const opp=G[oppK];
   const bushido=opp.field.find(c=>c.key==='t_nab'&&!c.feared);
@@ -1216,7 +1240,7 @@ function adjustHandOverlap(){
       cards.forEach((card,i)=>{
         card.style.marginRight=i===total-1?'0px':margin+'px';
         // Previewed card gets highest z-index
-        card.style.zIndex=(G.previewCard&&card.dataset.id===G.previewCard)?'2000':String(i+1);
+        if(!G.previewCard||card.dataset.id!==G.previewCard) card.style.zIndex=String(i+1);
         card.style.flexShrink='0';
       });
     }
@@ -1247,16 +1271,22 @@ function reorderZones(){
   const arena=document.getElementById('zoneArena');
   const jeetF=document.getElementById('jeetFieldWrap');
   const teaF=document.getElementById('teaFieldWrap');
+  const jeetBB=document.getElementById('jeetBottomBar');
+  const teaBB=document.getElementById('teaBottomBar');
   if(G.turn==='tea'){
     if(jeet)jeet.style.order='0';
-    if(arena)arena.style.order='1';
-    if(tea)tea.style.order='2';
+    if(jeetBB)jeetBB.style.order='1';
+    if(arena)arena.style.order='2';
+    if(tea)tea.style.order='3';
+    if(teaBB)teaBB.style.order='4';
     if(jeetF)jeetF.style.order='0';
     if(teaF)teaF.style.order='2';
   } else {
     if(tea)tea.style.order='0';
-    if(arena)arena.style.order='1';
-    if(jeet)jeet.style.order='2';
+    if(teaBB)teaBB.style.order='1';
+    if(arena)arena.style.order='2';
+    if(jeet)jeet.style.order='3';
+    if(jeetBB)jeetBB.style.order='4';
     if(teaF)teaF.style.order='0';
     if(jeetF)jeetF.style.order='2';
   }
