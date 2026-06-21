@@ -426,17 +426,17 @@ const DEFS = {
   t_sp4:       {name:"SCHEME",     cost:2,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
   // TEA WORLDS & ARTIFACTS
   t_w1:        {name:"VALLEY",     cost:3,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world","ess_add:1"],              ab:"+1 Essence each turn.",world:true},
-  t_w2:        {name:"DOMINIA",    cost:2,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","maxhp_add:1"],              ab:"+1 HP to all allies on field.",world:true},
+  t_w2:        {name:"DOMINIA",    cost:3,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","maxhp_add:1"],              ab:"+1 HP to all allies on field.",world:true},
   t_a1:        {name:"FOUND.BOOK", cost:3,hp:0,atk:0,art:"📖",f:"tea",tags:["artifact","draw:1"],  ab:"Draw 1 extra card per turn.",artifact:true},
   t_a2:        {name:"TEA FOUNT.", cost:3,hp:0,atk:0,art:"⛲",f:"tea",tags:["artifact","heal:1"],  ab:"Heal all allies 1 HP per turn.",artifact:true},
 
   // JEET CREATURES
   j_szarg_w:   {name:"Szarg",      cost:1,hp:1,atk:2,art:"🦈",f:"jeet",tags:["vanguard"],         ab:""},
   j_orb_w:     {name:"Orbiton",    cost:1,hp:2,atk:1,art:"🕳️",f:"jeet",tags:["heal:1"],            ab:"Active: heal ally 1 HP, remove debuffs."},
-  j_drig_w:    {name:"Dreegan",    cost:2,hp:4,atk:1,art:"🕸️",f:"jeet",tags:["provoke"],           ab:""},
+  j_drig_w:    {name:"Dreegan",    cost:3,hp:4,atk:1,art:"🕸️",f:"jeet",tags:["provoke"],           ab:""},
   j_umb_w:     {name:"Umbasir",    cost:2,hp:1,atk:1,art:"💜",f:"jeet",tags:["aoe:1"],             ab:"Active: deal 1 dmg to ALL enemies."},
-  j_meh_w:     {name:"Mechird",    cost:2,hp:1,atk:1,art:"⚙️",f:"jeet",tags:["pierce"],            ab:""},
-  j_ksi_w:     {name:"Xuitqr",     cost:2,hp:3,atk:1,art:"🐙",f:"jeet",tags:["fear"],              ab:""},
+  j_meh_w:     {name:"Mechird",    cost:2,hp:2,atk:1,art:"⚙️",f:"jeet",tags:["pierce"],            ab:""},
+  j_ksi_w:     {name:"Xuitqr",     cost:3,hp:3,atk:1,art:"🐙",f:"jeet",tags:["fear"],              ab:""},
   // JEET LEGENDARIES
   j_reap:      {name:"REAPER",     cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique"],            ab:"On kill: +2 HP/+2 maxHP to Jeet base.",unique:true},
   j_ryv:       {name:"RYVLEN",     cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear","draw:1"], ab:"On every attack: draw 1 card.",unique:true},
@@ -450,7 +450,7 @@ const DEFS = {
   j_sp4:       {name:"BLACK MAGIC",cost:2,hp:0,atk:0,art:"⚫",f:"jeet",tags:["spell","draw:2"],             ab:"Draw 2 cards.",spell:true},
   // JEET WORLDS & ARTIFACTS
   j_w1:        {name:"WEB",        cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world","ess_add:1"],             ab:"+1 Essence each turn.",world:true},
-  j_w2:        {name:"NORRIA",     cost:2,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","maxhp_add:1"],             ab:"+1 HP to all allies on field.",world:true},
+  j_w2:        {name:"NORRIA",     cost:3,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","maxhp_add:1"],             ab:"+1 HP to all allies on field.",world:true},
   j_a1:        {name:"DARK WRIT.", cost:3,hp:0,atk:0,art:"📕",f:"jeet",tags:["artifact","draw:1"], ab:"Draw 1 extra card per turn.",artifact:true},
   j_a2:        {name:"WORMHOLE",   cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["artifact","heal:1"], ab:"Heal all Jeet allies 1 HP per turn.",artifact:true},
   // NEUTRAL
@@ -699,7 +699,7 @@ function buildDeck(f) {
   const extra  = t ? [] : ['unseen'];
 
   let d = [];
-  weak.forEach(k=>{d.push(k);d.push(k);d.push(k);});
+  weak.forEach(k=>{d.push(k);d.push(k);d.push(k);d.push(k);d.push(k);}); // 5 copies each = 30 travelers
   // strong versions removed for now
   legs.forEach(k=>d.push(k));
   spells.forEach(k=>{d.push(k);d.push(k);});
