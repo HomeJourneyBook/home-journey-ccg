@@ -407,75 +407,290 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 // ── CARD DATA ──────────────────────────────────────────────
 const DEFS = {
   // TEA CREATURES
-  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["vanguard"],       ab:""},
-  t_orb_w:     {name:"Orbiton",     cost:1,hp:2,atk:1,art:"👁️",f:"tea",tags:["heal"],            ab:"Active: heal chosen ally 1 HP."},
-  t_drig_w:    {name:"Dreegan",      cost:2,hp:4,atk:1,art:"🌳",f:"tea",tags:["provoke"],         ab:""},
-  t_umb_w:     {name:"Umbasir",     cost:2,hp:1,atk:1,art:"🌀",f:"tea",tags:[],                  ab:"Active: deal 1 dmg to ALL enemies."},
-  t_meh_w:     {name:"Mechird",      cost:2,hp:1,atk:1,art:"🤖",f:"tea",tags:["pierce"],          ab:""},
-  t_ksi_w:     {name:"Xuitqr",       cost:2,hp:3,atk:1,art:"🐙",f:"tea",tags:["fear"],            ab:""},
-  t_szarg_s:   {name:"Szarg+",      cost:3,hp:3,atk:3,art:"🦈",f:"tea",tags:["vanguard"],        ab:""},
-  t_orb_s:     {name:"Orbiton+",    cost:2,hp:3,atk:1,art:"👁️",f:"tea",tags:["heal"],            ab:"Active: heal chosen ally 3 HP."},
-  t_drig_s:    {name:"Dreegan+",     cost:3,hp:7,atk:2,art:"🌳",f:"tea",tags:["provoke"],         ab:""},
-  t_umb_s:     {name:"Umbasir+",    cost:3,hp:2,atk:2,art:"🌀",f:"tea",tags:[],                  ab:"Active: deal 2 dmg to ALL enemies."},
-  t_meh_s:     {name:"Mechird+",     cost:3,hp:2,atk:2,art:"🤖",f:"tea",tags:["pierce"],          ab:""},
-  t_ksi_s:     {name:"Xuitqr+",      cost:3,hp:5,atk:2,art:"🐙",f:"tea",tags:["fear"],            ab:""},
+  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["vanguard"],          ab:""},
+  t_orb_w:     {name:"Orbiton",     cost:1,hp:2,atk:1,art:"👁️",f:"tea",tags:["heal:1"],             ab:"Active: heal ally 1 HP, remove debuffs."},
+  t_drig_w:    {name:"Dreegan",     cost:3,hp:4,atk:1,art:"🌳",f:"tea",tags:["provoke"],            ab:""},
+  t_umb_w:     {name:"Umbasir",     cost:2,hp:1,atk:1,art:"🌀",f:"tea",tags:["aoe:1"],              ab:"Active: deal 1 dmg to ALL enemies."},
+  t_meh_w:     {name:"Mechird",     cost:2,hp:2,atk:1,art:"🤖",f:"tea",tags:["pierce"],             ab:""},
+  t_ksi_w:     {name:"Xuitqr",      cost:3,hp:3,atk:1,art:"🐙",f:"tea",tags:["fear"],               ab:""},
   // TEA LEGENDARIES
-  t_tean:      {name:"TEANTIST",    cost:3,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique"],          ab:"Draw 1 extra card each turn.",unique:true},
-  t_aslex:     {name:"ASLEX",       cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique"],          ab:"+1 max HP to all allies each turn.",unique:true},
-  t_tuborg:    {name:"TUBORG",      cost:4,hp:6,atk:3,art:"👑",f:"tea",tags:["unique"],          ab:"+1 ATK to all allies while on field.",unique:true},
-  t_faeron:    {name:"FAERON",      cost:5,hp:5,atk:4,art:"🔥",f:"tea",tags:["unique"],          ab:"On enter: 3 dmg to all. Attacks set target on 🔥 (1 dmg/turn, removed by Orbiton heal).",unique:true},
-  t_nab:       {name:"NABUNAGI",    cost:5,hp:7,atk:3,art:"⛩️",f:"tea",tags:["unique","provoke"],ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
+  t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique","draw:1"],    ab:"Draw 1 extra card each turn.",unique:true},
+  t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique"],             ab:"+1 max HP to all allies each turn.",unique:true},
+  t_tuborg:    {name:"TUBORG",     cost:5,hp:6,atk:3,art:"👑",f:"tea",tags:["unique"],             ab:"+1 ATK to all allies while on field.",unique:true},
+  t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:4,art:"🔥",f:"tea",tags:["unique","burn"],      ab:"On enter: 3 dmg to all. Attacks set target on fire.",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:6,hp:7,atk:3,art:"⛩️",f:"tea",tags:["unique","provoke"],  ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
   // TEA SPELLS
-  t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell"],           ab:"Draw 2 cards.",spell:true},
-  t_sp2:       {name:"INF.JOURNEY", cost:3,hp:0,atk:0,art:"🌌",f:"tea",tags:["spell"],           ab:"Draw 3 cards.",spell:true},
-  t_sp3:       {name:"SHEN'S CALL", cost:4,hp:0,atk:0,art:"✨",f:"tea",tags:["spell"],           ab:"Revive last creature from your graveyard.",spell:true},
-  t_sp4:       {name:"SCHEME",      cost:2,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell"],           ab:"Draw 2 cards.",spell:true},
+  t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
+  t_sp2:       {name:"INF.JOURNEY",cost:3,hp:0,atk:0,art:"🌌",f:"tea",tags:["spell","draw:3"],              ab:"Draw 3 cards.",spell:true},
+  t_sp3:       {name:"SHEN'S CALL",cost:3,hp:0,atk:0,art:"✨",f:"tea",tags:["spell","revive:full"],              ab:"Revive last creature from your graveyard.",spell:true},
+  t_sp4:       {name:"SCHEME",     cost:2,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
   // TEA WORLDS & ARTIFACTS
-  t_w1:        {name:"VALLEY",      cost:3,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world"],           ab:"+1 Essence each turn.",world:true},
-  t_w2:        {name:"DOMINIA",     cost:2,hp:0,atk:0,art:"🌿",f:"tea",tags:["world"],           ab:"+1 HP to all allies on field.",world:true},
-  t_a1:        {name:"FOUND.BOOK",  cost:3,hp:0,atk:0,art:"📖",f:"tea",tags:["artifact"],        ab:"Draw 1 extra card per turn.",artifact:true},
-  t_a2:        {name:"TEA FOUNT.",  cost:3,hp:0,atk:0,art:"⛲",f:"tea",tags:["artifact"],        ab:"Heal all allies 1 HP per turn.",artifact:true},
+  t_w1:        {name:"VALLEY",     cost:3,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world","ess_add:1"],              ab:"+1 Essence each turn.",world:true},
+  t_w2:        {name:"DOMINIA",    cost:2,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","maxhp_add:1"],              ab:"+1 HP to all allies on field.",world:true},
+  t_a1:        {name:"FOUND.BOOK", cost:3,hp:0,atk:0,art:"📖",f:"tea",tags:["artifact","draw:1"],  ab:"Draw 1 extra card per turn.",artifact:true},
+  t_a2:        {name:"TEA FOUNT.", cost:3,hp:0,atk:0,art:"⛲",f:"tea",tags:["artifact","heal:1"],  ab:"Heal all allies 1 HP per turn.",artifact:true},
 
   // JEET CREATURES
-  j_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"jeet",tags:["vanguard"],      ab:""},
-  j_orb_w:     {name:"Orbiton",     cost:1,hp:2,atk:1,art:"🕳️",f:"jeet",tags:["heal"],          ab:"Active: heal chosen ally 1 HP."},
-  j_drig_w:    {name:"Dreegan",      cost:2,hp:4,atk:1,art:"🕸️",f:"jeet",tags:["provoke"],       ab:""},
-  j_umb_w:     {name:"Umbasir",     cost:2,hp:1,atk:1,art:"💜",f:"jeet",tags:[],                ab:"Active: deal 1 dmg to ALL enemies."},
-  j_meh_w:     {name:"Mechird",      cost:2,hp:1,atk:1,art:"⚙️",f:"jeet",tags:["pierce"],        ab:""},
-  j_ksi_w:     {name:"Xuitqr",       cost:2,hp:3,atk:1,art:"🐙",f:"jeet",tags:["fear"],          ab:""},
-  j_szarg_s:   {name:"Szarg+",      cost:3,hp:3,atk:3,art:"🦈",f:"jeet",tags:["vanguard"],      ab:""},
-  j_orb_s:     {name:"Orbiton+",    cost:2,hp:3,atk:1,art:"🕳️",f:"jeet",tags:["heal"],          ab:"Active: heal chosen ally 3 HP."},
-  j_drig_s:    {name:"Dreegan+",     cost:3,hp:7,atk:2,art:"🕸️",f:"jeet",tags:["provoke"],       ab:""},
-  j_umb_s:     {name:"Umbasir+",    cost:3,hp:2,atk:2,art:"💜",f:"jeet",tags:[],                ab:"Active: deal 2 dmg to ALL enemies."},
-  j_meh_s:     {name:"Mechird+",     cost:3,hp:2,atk:2,art:"⚙️",f:"jeet",tags:["pierce"],        ab:""},
-  j_ksi_s:     {name:"Xuitqr+",      cost:3,hp:5,atk:2,art:"🐙",f:"jeet",tags:["fear"],          ab:""},
+  j_szarg_w:   {name:"Szarg",      cost:1,hp:1,atk:2,art:"🦈",f:"jeet",tags:["vanguard"],         ab:""},
+  j_orb_w:     {name:"Orbiton",    cost:1,hp:2,atk:1,art:"🕳️",f:"jeet",tags:["heal:1"],            ab:"Active: heal ally 1 HP, remove debuffs."},
+  j_drig_w:    {name:"Dreegan",    cost:2,hp:4,atk:1,art:"🕸️",f:"jeet",tags:["provoke"],           ab:""},
+  j_umb_w:     {name:"Umbasir",    cost:2,hp:1,atk:1,art:"💜",f:"jeet",tags:["aoe:1"],             ab:"Active: deal 1 dmg to ALL enemies."},
+  j_meh_w:     {name:"Mechird",    cost:2,hp:1,atk:1,art:"⚙️",f:"jeet",tags:["pierce"],            ab:""},
+  j_ksi_w:     {name:"Xuitqr",     cost:2,hp:3,atk:1,art:"🐙",f:"jeet",tags:["fear"],              ab:""},
   // JEET LEGENDARIES
-  j_reap:      {name:"REAPER",      cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique"],        ab:"On kill: restore 2 HP to Jeet base.",unique:true},
-  j_ryv:       {name:"RYVLEN",      cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear"], ab:"On every attack: draw 1 card.",unique:true},
-  j_mal:       {name:"MALTOR",      cost:4,hp:5,atk:2,art:"👹",f:"jeet",tags:["unique","fear"], ab:"On enter: 1 dmg to all enemies.",unique:true},
-  j_phleg:     {name:"PHLEGMOR",    cost:5,hp:6,atk:2,art:"💀",f:"jeet",tags:["unique"],        ab:"Start of turn: raise top graveyard card at 1 HP.",unique:true},
-  j_vard:      {name:"BIG VARDAN",  cost:4,hp:5,atk:3,art:"🌑",f:"jeet",tags:["unique"],        ab:"Dark Will: deal 2 dmg to ALL enemies.",unique:true},
+  j_reap:      {name:"REAPER",     cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique"],            ab:"On kill: +2 HP/+2 maxHP to Jeet base.",unique:true},
+  j_ryv:       {name:"RYVLEN",     cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear","draw:1"], ab:"On every attack: draw 1 card.",unique:true},
+  j_mal:       {name:"MALTOR",     cost:4,hp:5,atk:2,art:"👹",f:"jeet",tags:["unique","fear"],     ab:"On enter: 1 dmg to all enemies.",unique:true},
+  j_phleg:     {name:"PHLEGMOR",   cost:5,hp:6,atk:2,art:"💀",f:"jeet",tags:["unique"],            ab:"Start of turn: raise top graveyard card at 1 HP.",unique:true},
+  j_vard:      {name:"BIG VARDAN", cost:4,hp:5,atk:3,art:"🌑",f:"jeet",tags:["unique","aoe:2"],    ab:"Dark Will: deal 2 dmg to ALL enemies.",unique:true},
   // JEET SPELLS
-  j_sp1:       {name:"JEET WAVE",   cost:2,hp:0,atk:0,art:"🌊",f:"jeet",tags:["spell"],         ab:"Draw 2 cards.",spell:true},
-  j_sp2:       {name:"OBLIVION",    cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["spell"],         ab:"Draw 3 cards.",spell:true},
-  j_sp3:       {name:"FORGETTING",  cost:4,hp:0,atk:0,art:"🖤",f:"jeet",tags:["spell"],         ab:"Revive last creature from any graveyard.",spell:true},
-  j_sp4:       {name:"BLACK MAGIC", cost:2,hp:0,atk:0,art:"⚫",f:"jeet",tags:["spell"],         ab:"Draw 2 cards.",spell:true},
+  j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊",f:"jeet",tags:["spell","draw:2"],             ab:"Draw 2 cards.",spell:true},
+  j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["spell","draw:3"],             ab:"Draw 3 cards.",spell:true},
+  j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤",f:"jeet",tags:["spell","revive:full","revive:any"],             ab:"Revive last creature from any graveyard.",spell:true},
+  j_sp4:       {name:"BLACK MAGIC",cost:2,hp:0,atk:0,art:"⚫",f:"jeet",tags:["spell","draw:2"],             ab:"Draw 2 cards.",spell:true},
   // JEET WORLDS & ARTIFACTS
-  j_w1:        {name:"WEB",         cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world"],         ab:"+1 Essence each turn.",world:true},
-  j_w2:        {name:"NORRIA",      cost:2,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world"],         ab:"+1 HP to all allies on field.",world:true},
-  j_a1:        {name:"DARK WRIT.",  cost:3,hp:0,atk:0,art:"📕",f:"jeet",tags:["artifact"],      ab:"Draw 1 extra card per turn.",artifact:true},
-  j_a2:        {name:"WORMHOLE",    cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["artifact"],      ab:"Heal all Jeet allies 1 HP per turn.",artifact:true},
+  j_w1:        {name:"WEB",        cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world","ess_add:1"],             ab:"+1 Essence each turn.",world:true},
+  j_w2:        {name:"NORRIA",     cost:2,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","maxhp_add:1"],             ab:"+1 HP to all allies on field.",world:true},
+  j_a1:        {name:"DARK WRIT.", cost:3,hp:0,atk:0,art:"📕",f:"jeet",tags:["artifact","draw:1"], ab:"Draw 1 extra card per turn.",artifact:true},
+  j_a2:        {name:"WORMHOLE",   cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["artifact","heal:1"], ab:"Heal all Jeet allies 1 HP per turn.",artifact:true},
   // NEUTRAL
-  unseen:      {name:"UNSEEN",      cost:2,hp:0,atk:0,art:"👁️",f:"jeet",tags:["spell"],         ab:"Return ALL field cards to their owners hands.",spell:true},
+  unseen:      {name:"UNSEEN",     cost:2,hp:0,atk:0,art:"👁️",f:"jeet",tags:["spell","bounce"],             ab:"Return ALL field cards to their owners hands.",spell:true},
 };
+
+
+// ── TAG HELPERS ────────────────────────────────────────────
+function getTagVal(card, tagName){
+  const t=(card.tags||[]).find(t=>t===tagName||t.startsWith(tagName+':'));
+  if(!t) return null;
+  const parts=t.split(':');
+  return parts.length>1 ? parseInt(parts[1]) : true;
+}
+function hasTag(card, tagName){ return getTagVal(card,tagName)!==null; }
+
+
+// ── ABILITY SYSTEM ─────────────────────────────────────────
+// Each card ability: {timing, effect, value, target}
+// timing: passive|on_turn|on_enter|on_attack|on_counter|on_kill|active|instant
+// effect: aoe|heal|draw|burn|fear|atk_all|hp_all|atk_one|revive|essence|raise
+
+function getAbilities(card){
+  const ab=[];
+  for(const tag of (card.tags||[])){
+    const [name,...rest]=tag.split(':');
+    const val=rest.length?parseInt(rest[0]):1;
+    switch(name){
+      case 'vanguard': ab.push({timing:'passive',effect:'vanguard'});break;
+      case 'provoke':  ab.push({timing:'passive',effect:'provoke'});break;
+      case 'pierce':   ab.push({timing:'passive',effect:'pierce'});break;
+      case 'fear':     ab.push({timing:'on_attack',effect:'fear'});break;
+      case 'burn':     ab.push({timing:'on_attack',effect:'burn'});break;
+      case 'aoe':      ab.push({timing:'active',effect:'aoe',val});break;
+      case 'heal':
+        if(card.artifact||card.world){
+          // artifact/world heal heals all allies
+          ab.push({timing:'on_turn',effect:'hp_add',val,target:'all'});
+        } else {
+          ab.push({timing:'active',effect:'hp_add',val});
+        } break;
+      case 'draw':
+        if(card.spell) ab.push({timing:'instant',effect:'draw',val});
+        else if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'draw',val});
+        else if(card.unique) ab.push({timing:'on_turn',effect:'draw',val});
+        else ab.push({timing:'on_attack',effect:'draw',val});
+        break;
+      case 'regen':    ab.push({timing:'on_turn',effect:'hp_add',val,self:true});break;
+      case 'revive':   ab.push({timing:'instant',effect:'revive',val});break;
+      case 'salvage':  ab.push({timing:'instant',effect:'salvage'});break;
+      case 'bounce':   ab.push({timing:'instant',effect:'bounce'});break;
+      case 'ess_max':  ab.push({timing:'instant',effect:'ess_max',val});break;
+      case 'ess_add':
+        if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'ess_add',val});
+        else ab.push({timing:'instant',effect:'ess_add',val});
+        break;
+      case 'revive':
+        if(val==='full'||val===1){
+          const isAny=card.tags.includes('revive:any');
+          ab.push({timing:'instant',effect:'revive',val:'full',any:isAny});
+        } break;
+      case 'maxhp_add':
+        if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'maxhp_add',val,target:'all'});
+        else ab.push({timing:'active',effect:'maxhp_add',val});
+        break;
+      case 'hp_add':
+        if(card.world) ab.push({timing:'on_enter',effect:'hp_add',val,target:'all'});
+        else if(card.artifact) ab.push({timing:'on_turn',effect:'hp_add',val,target:'all'});
+        else ab.push({timing:'active',effect:'hp_add',val});
+        break;
+      case 'unique':   break; // just a flag
+      case 'spell': case 'world': case 'artifact': break;
+    }
+  }
+  // Unique card special abilities by key
+  switch(card.key){
+    case 't_faeron': ab.push({timing:'on_enter',effect:'aoe',val:3,target:'enemies'});
+                     ab.push({timing:'on_attack',effect:'burn'}); break;
+    case 't_tuborg': ab.push({timing:'on_enter',effect:'atk_all',val:1});
+                     ab.push({timing:'passive',effect:'atk_all',val:1}); break;
+    case 't_aslex':  ab.push({timing:'on_turn',effect:'hp_all',val:1}); break;
+    case 't_tean':   ab.push({timing:'on_turn',effect:'draw',val:1}); break;
+    case 'j_reap':   ab.push({timing:'on_kill',effect:'hp_base',val:2}); break;
+    case 'j_ryv':    ab.push({timing:'on_attack',effect:'draw',val:1}); break;
+    case 'j_mal':    ab.push({timing:'on_enter',effect:'aoe',val:1,target:'enemies'}); break;
+    case 'j_phleg':  ab.push({timing:'on_turn',effect:'raise'}); break;
+    case 'j_vard':   ab.push({timing:'active',effect:'aoe',val:2}); break;
+  }
+  return ab;
+}
+
+function triggerAbilities(card, timing, ctx={}){
+  const abs=getAbilities(card).filter(a=>a.timing===timing);
+  const curK=G.turn;
+  const oppK=curK==='tea'?'jeet':'tea';
+  const cur=G[curK];
+  for(const a of abs){
+    switch(a.effect){
+      case 'aoe':
+        if(timing==='on_enter'||timing==='active'){
+          [...G[oppK].field].forEach(t=>dmgCard(t,a.val,oppK));
+          lg(`${card.name}: ${a.val} dmg to all enemies!`,'imp');
+        } break;
+      case 'burn':
+        if(ctx.target&&ctx.target.hp>0){
+          ctx.target.burning=true;
+          lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
+        } break;
+      case 'fear':
+        if(ctx.target&&ctx.target.hp>0){
+          ctx.target.feared=true;
+          lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
+        } break;
+      case 'draw':
+        for(let i=0;i<a.val;i++) if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
+        lg(`${card.name}: draw ${a.val} card(s).`,'imp'); break;
+      case 'heal':
+        // handled via active click
+        break;
+      case 'atk_all':
+        cur.field.forEach(ally=>{if(ally.id!==card.id)ally.atkBonus=(ally.atkBonus||0)+a.val;});
+        lg(`${card.name}: all allies +${a.val} ATK!`,'imp'); break;
+      case 'hp_all':
+        // maxhp_add for all allies (Aslex)
+        cur.field.forEach(ally=>{
+          if(!ally.spell&&!ally.world&&!ally.artifact){
+            const wasFull=ally.hp===ally.maxHp;
+            ally.maxHp+=a.val;
+            if(wasFull) ally.hp+=a.val;
+            else ally.hp=Math.min(ally.hp,ally.maxHp);
+          }
+        });
+        lg(`${card.name}: all allies +${a.val} maxHP!`,'hl'); break;
+      case 'hp_base':
+        G[curK].maxHp+=a.val; G[curK].hp+=a.val;
+        lg(`${card.name}: ${curK} base +${a.val}/+${a.val}!`,'hl'); break;
+      case 'hp_add':
+        // heal: restore HP, not above maxHP
+        if(a.target==='all'){
+          cur.field.forEach(ally=>{
+            if(!ally.spell&&!ally.world&&!ally.artifact)
+              ally.hp=Math.min(ally.maxHp,ally.hp+a.val);
+          });
+          lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
+        } else if(a.self){
+          // regen - heals the card itself
+          if(!card.spell&&!card.world&&!card.artifact){
+            card.hp=Math.min(card.maxHp,card.hp+a.val);
+            lg(`${card.name}: regen +${a.val} HP → ${card.hp}/${card.maxHp}.`,'hl');
+          }
+        } else if(ctx.target){
+          ctx.target.hp=Math.min(ctx.target.maxHp,ctx.target.hp+a.val);
+          lg(`${card.name}: +${a.val} HP to ${ctx.target.name} → ${ctx.target.hp}/${ctx.target.maxHp}.`,'hl');
+        } else {
+          // heal all allies
+          cur.field.forEach(ally=>{
+            if(!ally.spell&&!ally.world&&!ally.artifact)
+              ally.hp=Math.min(ally.maxHp,ally.hp+a.val);
+          });
+          lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
+        } break;
+      case 'maxhp_add':
+        if(ctx.target){
+          ctx.target.maxHp+=a.val;
+          if(ctx.target.hp===ctx.target.maxHp-a.val) ctx.target.hp+=a.val;
+          lg(`${card.name}: ${ctx.target.name} +${a.val} maxHP → ${ctx.target.hp}/${ctx.target.maxHp}.`,'hl');
+        } else {
+          // all allies
+          cur.field.forEach(ally=>{
+            if(!ally.spell&&!ally.world&&!ally.artifact){
+              const wasFull=ally.hp===ally.maxHp;
+              ally.maxHp+=a.val;
+              if(wasFull) ally.hp+=a.val;
+            }
+          });
+          lg(`${card.name}: all allies +${a.val} maxHP.`,'hl');
+        } break;
+      case 'bounce':
+        // return all field cards to hands (Unseen)
+        [...G.tea.field].forEach(x=>{resetC(x);G.tea.hand.push(x);});
+        [...G.jeet.field].forEach(x=>{resetC(x);G.jeet.hand.push(x);});
+        G.tea.field=[];G.jeet.field=[];
+        lg(`${card.name}: all cards return to hands!`,'imp'); break;
+      case 'revive':
+        {// Revive from graveyard - full HP or specific HP
+        const srcGrave=a.any
+          ? [...cur.grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided)
+          : cur.grave.filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
+        if(srcGrave.length>0){
+          const r=srcGrave[srcGrave.length-1];
+          cur.grave=cur.grave.filter(x=>x.id!==r.id);
+          G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
+          const def=DEFS[r.key];
+          r.hp=a.val==='full'?(def?def.hp:r.maxHp):Math.min(a.val||1,r.maxHp);
+          r.maxHp=def?def.hp:r.maxHp;
+          r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=curK;
+          cur.field.push(r);
+          lg(`${card.name}: revives ${r.name} with ${r.hp}/${r.maxHp} HP!`,'imp');
+        } else lg(`${card.name}: graveyard empty.`);} break;
+      case 'salvage':
+        // raise from graveyard to hand
+        {const grave2=cur.grave.filter(x=>!x.voided);
+        if(grave2.length>0){
+          const r=grave2[grave2.length-1];
+          cur.grave=cur.grave.filter(x=>x.id!==r.id);
+          resetC(r);cur.hand.push(r);
+          lg(`${card.name}: ${r.name} returned to hand!`,'imp');
+        } else lg(`${card.name}: graveyard empty.`);} break;
+      case 'ess_max':
+        cur.essMax+=a.val;
+        lg(`${card.name}: +${a.val} max Essence → ${cur.essMax}.`,'imp'); break;
+      case 'ess_add':
+        if(a.timing==='on_turn'){
+          cur.ess+=a.val; // worlds can exceed essMax temporarily? No - just add
+          cur.ess=Math.min(cur.essMax+a.val,cur.ess); // world adds on top
+          lg(`${card.name}: +${a.val} Essence.`,'imp');
+        } else {
+          cur.ess=Math.min(cur.essMax,cur.ess+a.val);
+          lg(`${card.name}: +${a.val} Essence → ${cur.ess}/${cur.essMax}.`,'imp');
+        } break;
+      case 'raise':
+        const all=[...G[curK].grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
+        if(all.length>0){
+          const r=all[all.length-1];
+          G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
+          G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
+          r.hp=1;r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=curK;
+          cur.field.push(r);
+          lg(`${card.name} raises ${r.name} at 1 HP!`,'imp');
+        } break;
+    }
+  }
+}
 
 // ── DECK ──────────────────────────────────────────────────
 function buildDeck(f) {
   const t = f==='tea';
   const weak   = t ? ['t_szarg_w','t_orb_w','t_drig_w','t_umb_w','t_meh_w','t_ksi_w']
                    : ['j_szarg_w','j_orb_w','j_drig_w','j_umb_w','j_meh_w','j_ksi_w'];
-  const strong = t ? ['t_szarg_s','t_orb_s','t_drig_s','t_umb_s','t_meh_s','t_ksi_s']
-                   : ['j_szarg_s','j_orb_s','j_drig_s','j_umb_s','j_meh_s','j_ksi_s'];
+  const strong = []; // + versions removed for now
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
   const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4'] : ['j_sp1','j_sp2','j_sp3','j_sp4'];
@@ -485,7 +700,7 @@ function buildDeck(f) {
 
   let d = [];
   weak.forEach(k=>{d.push(k);d.push(k);d.push(k);});
-  strong.forEach(k=>{d.push(k);d.push(k);d.push(k);});
+  // strong versions removed for now
   legs.forEach(k=>d.push(k));
   spells.forEach(k=>{d.push(k);d.push(k);});
   worlds.forEach(k=>d.push(k));
@@ -659,24 +874,16 @@ function mkSmallEl(card){
   if(card.burning)d.classList.add('burning');
   if(G.phase==='selectTarget'&&card.f!==G.turn){
     const oppField=G[card.f].field;
-    const bushido=oppField.find(c=>c.key==='t_nab');
-    const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
-    const att=G.sel?findC(G.sel):null;
-    const hasPierce=att&&att.tags.includes('pierce');
-    if(bushido){if(card.id===bushido.id)d.classList.add('targetable');}
-    else if(provoke&&!hasPierce){if(card.id===provoke.id)d.classList.add('targetable');}
-    else d.classList.add('targetable');
+    const attS=G.sel?findC(G.sel):null;
+    const targetableS=getTargetableCards(oppField,attS);
+    if(targetableS.includes(card.id))d.classList.add('targetable');
   }
   if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp)d.classList.add('healable');
   if(G.phase==='healTarget'&&card.f!==G.turn){
-    const oppField=G[card.f].field;
-    const bushido=oppField.find(c=>c.key==='t_nab');
-    const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
-    const att=G.sel?findC(G.sel):null;
-    const hasPierce=att&&att.tags.includes('pierce');
-    if(bushido){if(card.id===bushido.id)d.classList.add('targetable');}
-    else if(provoke&&!hasPierce){if(card.id===provoke.id)d.classList.add('targetable');}
-    else d.classList.add('targetable');
+    const oppField2=G[card.f].field;
+    const attH=G.sel?findC(G.sel):null;
+    const targetableH=getTargetableCards(oppField2,attH);
+    if(targetableH.includes(card.id))d.classList.add('targetable');
   }
   if(G.phase==='vardanPick'&&card.f!==G.turn&&!card.sleeping&&!card.exhausted&&!card.feared)d.classList.add('targetable');
   if(G.phase==='vardanAttack'&&card.f===G.turn)d.classList.add('targetable');
@@ -689,8 +896,8 @@ function mkSmallEl(card){
     ${!isSW?`<div class="card-small-stats"><span class="card-small-hp">❤${card.hp}</span><span class="card-small-atk">⚔${card.atk+card.atkBonus}</span></div>`:''}`;
   // Add ability popup only when this card is selected
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
-    const isUmb=card.key==='t_umb_w'||card.key==='t_umb_s'||card.key==='j_umb_w'||card.key==='j_umb_s';
-    const isVard=card.key==='j_vard';
+    const isUmb=hasTag(card,'aoe')&&!card.unique;
+    const isVard=hasTag(card,'aoe')&&card.unique;
     if(isUmb||isVard){
       const pop=document.createElement('div');
       pop.className='field-ability-popup';
@@ -779,32 +986,16 @@ function mkEl(card,zone){
   if(G.phase==='selectTarget'&&card.f!==G.turn&&zone==='field'){
     // If enemy has provoke/bushido, only highlight that card
     const oppField=G[card.f].field;
-    const bushido=oppField.find(c=>c.key==='t_nab');
-    const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
-    const att=G.sel?findC(G.sel):null;
-    const hasPierce=att&&att.tags.includes('pierce');
-    if(bushido){
-      if(card.id===bushido.id) d.classList.add('targetable');
-    } else if(provoke&&!hasPierce){
-      if(card.id===provoke.id) d.classList.add('targetable');
-    } else {
-      d.classList.add('targetable');
-    }
+    const attE=G.sel?findC(G.sel):null;
+    const targetableE=getTargetableCards(oppField,attE);
+    if(targetableE.includes(card.id))d.classList.add('targetable');
   }
   if(G.phase==='healTarget'&&card.f===G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp)d.classList.add('healable');
   if(G.phase==='healTarget'&&card.f!==G.turn&&zone==='field'){
-    const oppField=G[card.f].field;
-    const bushido=oppField.find(c=>c.key==='t_nab');
-    const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
-    const att=G.sel?findC(G.sel):null;
-    const hasPierce=att&&att.tags.includes('pierce');
-    if(bushido){
-      if(card.id===bushido.id) d.classList.add('targetable');
-    } else if(provoke&&!hasPierce){
-      if(card.id===provoke.id) d.classList.add('targetable');
-    } else {
-      d.classList.add('targetable');
-    }
+    const oppFieldH=G[card.f].field;
+    const attH=G.sel?findC(G.sel):null;
+    const targetableH2=getTargetableCards(oppFieldH,attH);
+    if(targetableH2.includes(card.id))d.classList.add('targetable');
   }
 
   const isSW=card.spell||card.world||card.artifact;
@@ -870,14 +1061,14 @@ function onClick(card,zone){
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
       const healer=findC(G.sel);
       if(healer){
-        const healAmt=healer.key.endsWith('_s')?3:1;
+        const healAmt=getTagVal(healer,'heal')||1;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
-        if(card.burning){
-          card.burning=false;
-          lg(`💚 ${healer.name} heals ${card.name} for ${healAmt} HP and puts out the fire!`,'hl');
-        } else {
-          lg(`💚 ${healer.name} heals ${card.name} for ${healAmt} HP → ${card.hp}/${card.maxHp}.`,'hl');
-        }
+        // Remove all debuffs
+        const debuffs=[];
+        if(card.burning){card.burning=false;debuffs.push('fire');}
+        if(card.feared){card.feared=false;debuffs.push('fear');}
+        const debuffStr=debuffs.length?` removes ${debuffs.join(' & ')}`:'';
+        lg(`💚 ${healer.name}: +${healAmt} HP to ${card.name}${debuffStr?', '+debuffStr:''}.`,'hl');
         healer.exhausted=true;
       }
       G.sel=null;G.phase='action';render();return;
@@ -887,11 +1078,13 @@ function onClick(card,zone){
       const healer=findC(G.sel);
       if(healer){
         const oppField=G[opp].field;
-        const bushido=oppField.find(c=>c.key==='t_nab');
-        const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
-        const hasPierce=healer.tags.includes('pierce');
-        if(bushido&&card.id!==bushido.id){lg(`Must attack ${bushido.name} (Bushido) first!`,'dmg');return;}
-        if(provoke&&card.id!==provoke.id&&!hasPierce){lg(`Must attack ${provoke.name} (Provoke) first!`,'dmg');return;}
+        const targetableHC=getTargetableCards(oppField,healer);
+        if(!targetableHC.includes(card.id)){
+          const bushidoHC=oppField.find(c=>c.key==='t_nab');
+          if(bushidoHC) lg(`Must attack ${bushidoHC.name} (Bushido) first!`,'dmg');
+          else lg(`Must attack the Provoke card first!`,'dmg');
+          return;
+        }
         doAttack(healer,card);
       }
       return;
@@ -914,7 +1107,7 @@ function onClick(card,zone){
       return;
     }
     if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.spell&&!card.world&&!card.artifact){
-      const isOrb=card.key==='t_orb_w'||card.key==='t_orb_s'||card.key==='j_orb_w'||card.key==='j_orb_s';
+      const isOrb=hasTag(card,'heal:1')||hasTag(card,'heal:3')||card.tags.some(t=>t.startsWith('heal:'));
       if(isOrb){
         // Orbiton enters special phase showing both heal targets and attack targets
         G.sel=card.id;G.phase='healTarget';
@@ -932,13 +1125,12 @@ function onClick(card,zone){
       if(!att)return;
       // Check Provoke/Bushido - must attack provoke card first
       const oppField=G[opp].field;
-      const bushido=oppField.find(c=>c.key==='t_nab');
-      const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
-      if(bushido&&card.id!==bushido.id){
-        lg(`Must attack ${bushido.name} (Bushido) first!`,'dmg');return;
-      }
-      if(provoke&&card.id!==provoke.id&&!att.tags.includes('pierce')){
-        lg(`Must attack ${provoke.name} (Provoke) first!`,'dmg');return;
+      const targetableClick=getTargetableCards(oppField,att);
+      if(!targetableClick.includes(card.id)){
+        const bushidoC=oppField.find(c=>c.key==='t_nab');
+        if(bushidoC) lg(`Must attack ${bushidoC.name} (Bushido) first!`,'dmg');
+        else lg(`Must attack the Provoke card first!`,'dmg');
+        return;
       }
       doAttack(att,card);
     }
@@ -946,6 +1138,16 @@ function onClick(card,zone){
 
 }
 
+
+function getTargetableCards(oppField, att){
+  // Returns list of card IDs that can be attacked
+  const bushido=oppField.find(c=>c.key==='t_nab');
+  if(bushido) return [bushido.id]; // only Nabunagi
+  const provokes=oppField.filter(c=>c.tags.includes('provoke'));
+  const hasPierce=att&&att.tags.includes('pierce');
+  if(provokes.length>0&&!hasPierce) return provokes.map(c=>c.id); // all provoke cards
+  return oppField.map(c=>c.id); // all cards
+}
 function findC(id){
   for(const f of['tea','jeet'])for(const arr of[G[f].hand,G[f].field,G[f].grave]){
     const c=arr.find(x=>x.id===id);if(c)return c;
@@ -980,8 +1182,8 @@ function doCreature(card){
     lg(`Maltor: 1 dmg to all enemies!`,'dmg');
     [...G.tea.field].forEach(c=>dmgCard(c,1,'tea'));
   }
-  if(card.key==='t_tean')cur.extraDraw+=1;
-  if(card.key==='t_a1'||card.key==='j_a1')cur.extraDraw+=1;
+  const drawTag=getTagVal(card,'draw');
+  if(drawTag)cur.extraDraw+=drawTag;
   // Tuborg: instant +1 ATK to all allies already on field
   if(card.key==='t_tuborg'){
     cur.field.forEach(a=>{if(a.id!==card.id)a.atkBonus=1;});
@@ -1004,31 +1206,9 @@ function doArtifact(card){
 }
 
 function doSpell(card){
-  const cur=G[G.turn];const opp=G[G.turn==='tea'?'jeet':'tea'];
+  const cur=G[G.turn];
   lg(`▶ Spell: ${card.name}.`,'imp');
-  const draw=(n)=>{for(let i=0;i<n;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());lg(`Drew ${n} card(s).`);};
-  if(['t_sp1','t_sp4','j_sp1','j_sp4'].includes(card.key))draw(2);
-  if(['t_sp2','j_sp2'].includes(card.key))draw(3);
-  if(card.key==='t_sp3'){
-    const dead=cur.grave.filter(c=>!c.spell&&!c.world&&!c.artifact);
-    if(dead.length>0){const r=dead[dead.length-1];cur.grave=cur.grave.filter(c=>c.id!==r.id);reviveCard(r,G.turn);}
-    else lg('Graveyard empty.');
-  }
-  if(card.key==='j_sp3'){
-    const all=[...G.tea.grave,...G.jeet.grave].filter(c=>!c.spell&&!c.world&&!c.artifact);
-    if(all.length>0){
-      const r=all[all.length-1];
-      G.tea.grave=G.tea.grave.filter(c=>c.id!==r.id);
-      G.jeet.grave=G.jeet.grave.filter(c=>c.id!==r.id);
-      reviveCard(r,G.turn);
-    }else lg('All graveyards empty.');
-  }
-  if(card.key==='unseen'){
-    lg('UNSEEN: All field cards return to hands!','imp');
-    [...G.tea.field].forEach(c=>{resetC(c);G.tea.hand.push(c);});
-    [...G.jeet.field].forEach(c=>{resetC(c);G.jeet.hand.push(c);});
-    G.tea.field=[];G.jeet.field=[];
-  }
+  triggerAbilities(card,'instant');
   cur.grave.push(card);
 }
 
@@ -1058,15 +1238,17 @@ function doAttack(att,target){
   if((att.tags.includes('fear')||att.key==='j_ryv'||att.key==='j_mal')&&target.hp>0){
     target.feared=true;lg(`${target.name} is Feared — skips next turn.`);
   }
-  // Faeron: set target on fire
-  if(att.key==='t_faeron'&&target.hp>0){
+  // Burn: set target on fire if attacker has burn tag
+  if(hasTag(att,'burn')&&target.hp>0){
     target.burning=true;
     lg(`🔥 ${target.name} is on fire!`,'imp');
   }
-  // Ryvlen: draw a card on attack
-  if(att.key==='j_ryv'){
+  // Draw on attack tag
+  const drawOnAtk=getTagVal(att,'draw');
+  if(drawOnAtk&&att.unique){
     const cur=G[curK];
-    if(cur.deck.length>0){cur.hand.push(cur.deck.shift());lg(`Ryvlen draws a card.`,'imp');}
+    for(let i=0;i<drawOnAtk;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
+    lg(`${att.name} draws ${drawOnAtk} card(s).`,'imp');
   }
   att.exhausted=true;G.sel=null;G.phase='action';
   checkWin();render();
@@ -1108,7 +1290,7 @@ function canAttackBase(){
   const opp=G[oppK];
   const bushido=opp.field.find(c=>c.key==='t_nab');
   if(bushido) return false;
-  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
+  const provoke=opp.field.find(c=>c.tags.includes('provoke'));
   if(provoke&&!att.tags.includes('pierce')) return false;
   return true;
 }
@@ -1119,10 +1301,8 @@ function tryAttackBase(){
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
   const atk=att.atk+att.atkBonus;
   const bushido=opp.field.find(c=>c.key==='t_nab');
-  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
-  // Bushido blocks EVERYONE including Pierce
-  if(bushido){lg(`${bushido.name} (Bushido) blocks all attacks — must attack it first!`,'dmg');return;}
-  // Regular Provoke blocks only non-Pierce
+  if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'dmg');return;}
+  const provoke=opp.field.find(c=>c.tags.includes('provoke'));
   if(provoke&&!att.tags.includes('pierce')){lg(`${provoke.name} has Provoke — attack it first!`,'dmg');return;}
   lg(`⚔ ${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
@@ -1148,7 +1328,8 @@ function killCard(card,faction){
     const reap=G[G.turn].field.find(c=>c.key==='j_reap');
     if(reap){G.jeet.maxHp+=2;G.jeet.hp+=2;lg(`Reaper: Jeet base +2/+2 → ${G.jeet.hp}/${G.jeet.maxHp}`,'hl');}
   }
-  if(card.key==='t_tean')G.tea.extraDraw=Math.max(0,G.tea.extraDraw-1);
+  const drawTagD=getTagVal(card,'draw');
+  if(drawTagD){const f=card.f;G[f].extraDraw=Math.max(0,G[f].extraDraw-drawTagD);}
 }
 
 // ── BURN ──────────────────────────────────────────────────
@@ -1197,22 +1378,11 @@ function endTurn(){
     cur.essMax+=1;cur.ess=cur.essMax;
   }
 
-  // World effects
-  if(cur.world){
-    if(cur.world.key==='t_w1'||cur.world.key==='j_w1'){cur.ess+=1;lg(`${cur.world.name}: +1 Essence.`);}
-    if(cur.world.key==='t_w2'||cur.world.key==='j_w2'){
-      cur.field.forEach(c=>{if(!c.spell&&!c.world&&!c.artifact)c.hp=Math.min(c.maxHp,c.hp+1);});
-      lg(`${cur.world.name}: +1 HP to all allies.`,'hl');
-    }
-  }
+  // World on_turn effects
+  if(cur.world) triggerAbilities(cur.world,'on_turn');
 
-  // Artifact effects
-  cur.artifacts.forEach(a=>{
-    if(a.key==='t_a2'||a.key==='j_a2'){
-      cur.field.forEach(c=>{if(!c.spell&&!c.world&&!c.artifact)c.hp=Math.min(c.maxHp,c.hp+1);});
-      lg(`${a.name}: Heal 1 HP to all.`,'hl');
-    }
-  });
+  // Artifact on_turn abilities
+  cur.artifacts.forEach(a=>triggerAbilities(a,'on_turn'));
 
   // Burning damage - applied to ALL fields at start of turn
   const oppKb=G.turn==='tea'?'jeet':'tea';
