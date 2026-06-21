@@ -1045,7 +1045,7 @@ function canAttackBase(){
   const opp=G[oppK];
   const bushido=opp.field.find(c=>c.key==='t_nab'&&!c.feared);
   if(bushido) return false;
-  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab'&&!c.feared);
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
   if(provoke&&!att.tags.includes('pierce')) return false;
   return true;
 }
@@ -1056,7 +1056,7 @@ function tryAttackBase(){
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
   const atk=att.atk+att.atkBonus;
   const bushido=opp.field.find(c=>c.key==='t_nab'&&!c.feared);
-  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab'&&!c.feared);
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
   // Bushido blocks EVERYONE including Pierce
   if(bushido){lg(`${bushido.name} (Bushido) blocks all attacks — must attack it first!`,'dmg');return;}
   // Regular Provoke blocks only non-Pierce
@@ -1212,10 +1212,10 @@ function showWin(w){
   document.getElementById('winModal').classList.remove('hidden');
 }
 function handleGameClick(e){
-  // If clicked on empty space (not a card) - clear preview
   if(!e.target.closest('.card')&&G.previewCard){
     G.previewCard=null;
     clearPreview();
+    render();
   }
 }
 
