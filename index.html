@@ -80,7 +80,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .card-back-symbol{font-size:22px;opacity:0.3;}
 .card-back-dots{font-size:7px;color:#333;letter-spacing:2px;}
 /* LOG PANEL */
-.log-panel{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);width:min(700px,95vw);background:#0a0a12;border:1px solid #c8a84b33;z-index:50;display:none;}
+.log-panel{position:fixed;top:44px;right:14px;width:320px;background:#0a0a12;border:1px solid #c8a84b33;z-index:50;display:none;box-shadow:0 4px 20px #000000aa;}
 .log-panel.open{display:block;}
 .log-panel-header{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #ffffff11;}
 .log-panel-title{font-size:9px;color:#c8a84b;}
@@ -242,7 +242,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   <div class="turn-info" style="position:absolute;left:50%;transform:translateX(-50%);">Turn <span id="turnNum">1</span> · <span id="turnPlayer">TEA</span></div>
   <div style="display:flex;gap:6px;margin-left:auto;">
     <button class="btn" id="logBtn" style="border-color:#5599ff;color:#5599ff;font-size:10px;padding:5px 12px;" onclick="toggleLog()">📋 Log</button>
-    <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="resetGame()">← Menu</button>
+    <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="askMenu()">← Menu</button>
   </div>
 </div>
 
@@ -306,6 +306,17 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   <div class="log" id="log"></div>
 </div>
 
+</div>
+
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal">
+    <h2 style="font-size:9px;">LEAVE GAME?</h2>
+    <p>Current game will be lost. Return to menu?</p>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-end" onclick="confirmMenu()">Yes, Exit</button>
+      <button class="btn" style="border-color:#555" onclick="document.getElementById('confirmModal').classList.add('hidden')">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay hidden" id="winModal">
@@ -946,6 +957,13 @@ function doVardan(){
 
 function cancelAction(){G.sel=null;G.phase='action';render();}
 
+function askMenu(){
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+function confirmMenu(){
+  document.getElementById('confirmModal').classList.add('hidden');
+  resetGame();
+}
 function resetGame(){
   document.getElementById('winModal').classList.add('hidden');
   document.getElementById('game').style.display='none';
