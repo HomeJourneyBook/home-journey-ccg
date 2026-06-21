@@ -52,6 +52,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .card.targetable{box-shadow:0 0 8px #e05555;border-color:#e05555;animation:pulse .8s infinite alternate;}
 .card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
 .card.feared{opacity:.4;border-style:dotted;}
+.card.burning{box-shadow:0 0 6px #ff6600 !important;}
+.burning-icon{position:absolute;top:-6px;right:-6px;font-size:10px;}
 @keyframes pulse{from{box-shadow:0 0 4px #e05555;}to{box-shadow:0 0 12px #e05555;}}
 .card-cost{position:absolute;top:-8px;left:-8px;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:6px;font-weight:bold;border:1px solid;}
 .tea-card .card-cost{background:#1a1200;border-color:#c8a84b;color:#c8a84b;}
@@ -347,7 +349,7 @@ const DEFS = {
   t_tean:      {name:"TEANTIST",    cost:3,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique"],          ab:"Draw 1 extra card each turn.",unique:true},
   t_aslex:     {name:"ASLEX",       cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique"],          ab:"+1 max HP to all allies each turn.",unique:true},
   t_tuborg:    {name:"TUBORG",      cost:4,hp:6,atk:3,art:"👑",f:"tea",tags:["unique"],          ab:"+1 ATK to all allies while on field.",unique:true},
-  t_faeron:    {name:"FAERON",      cost:5,hp:5,atk:4,art:"🔥",f:"tea",tags:["unique"],          ab:"On enter: deal 3 dmg to ALL enemies.",unique:true},
+  t_faeron:    {name:"FAERON",      cost:5,hp:5,atk:4,art:"🔥",f:"tea",tags:["unique"],          ab:"On enter: 3 dmg to all. Attacks set target on 🔥 (1 dmg/turn, removed by Orbiton heal).",unique:true},
   t_nab:       {name:"NABUNAGI",    cost:5,hp:7,atk:3,art:"⛩️",f:"tea",tags:["unique","provoke"],ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
   // TEA SPELLS
   t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell"],           ab:"Draw 2 cards.",spell:true},
@@ -428,7 +430,7 @@ function mkCard(key){
   return{id:'c'+UID,key,name:def.name,cost:def.cost,hp:def.hp,maxHp:def.hp,atk:def.atk,art:def.art,
     f:def.f,tags:[...(def.tags||[])],ab:def.ab||'',
     spell:!!def.spell,world:!!def.world,artifact:!!def.artifact,unique:!!def.unique,
-    sleeping:false,exhausted:false,feared:false,atkBonus:0};
+    sleeping:false,exhausted:false,feared:false,burning:false,atkBonus:0};
 }
 
 // ── STATE ─────────────────────────────────────────────────
@@ -558,6 +560,7 @@ function mkEl(card,zone){
   d.className=`card ${card.f}-card`;
   d.dataset.id=card.id;
   if(card.id===G.sel)d.classList.add('selected');
+  if(card.burning)d.classList.add('burning');
   if(card.sleeping)d.classList.add('sleeping');
   if(card.exhausted)d.classList.add('exhausted');
   if(card.feared)d.classList.add('feared');
@@ -569,6 +572,7 @@ function mkEl(card,zone){
   const tags=card.tags.map(t=>`<span class="tag ${t}">${t.toUpperCase()}</span>`).join('');
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
+    ${card.burning?'<div class="burning-icon">🔥</div>':''}
     <div class="card-art">${card.art}</div>
     <div class="card-name">${card.name}</div>
     ${!isSW?`<div class="card-stats"><span class="card-hp">❤${card.hp}/${card.maxHp}</span><span class="card-atk">⚔${card.atk+card.atkBonus}</span></div>`:''}
@@ -597,7 +601,12 @@ function onClick(card,zone){
       if(healer){
         const healAmt=healer.key.endsWith('_s')?3:1;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
-        lg(`💚 ${healer.name} heals ${card.name} for ${healAmt} HP → ${card.hp}/${card.maxHp}.`,'hl');
+        if(card.burning){
+          card.burning=false;
+          lg(`💚 ${healer.name} heals ${card.name} for ${healAmt} HP and puts out the fire!`,'hl');
+        } else {
+          lg(`💚 ${healer.name} heals ${card.name} for ${healAmt} HP → ${card.hp}/${card.maxHp}.`,'hl');
+        }
         healer.exhausted=true;
       }
       G.sel=null;G.phase='action';render();return;
@@ -748,6 +757,11 @@ function doAttack(att,target){
   if((att.tags.includes('fear')||att.key==='j_ryv'||att.key==='j_mal')&&target.hp>0){
     target.feared=true;lg(`${target.name} is Feared — skips next turn.`);
   }
+  // Faeron: set target on fire
+  if(att.key==='t_faeron'&&target.hp>0){
+    target.burning=true;
+    lg(`🔥 ${target.name} is on fire!`,'imp');
+  }
   // Ryvlen: draw a card on attack
   if(att.key==='j_ryv'){
     const cur=G[curK];
@@ -858,6 +872,20 @@ function endTurn(){
       lg(`${a.name}: Heal 1 HP to all.`,'hl');
     }
   });
+
+  // Burning damage - applied to ALL fields at start of turn
+  const oppKb=G.turn==='tea'?'jeet':'tea';
+  [...G[G.turn].field,...G[oppKb].field].forEach(card=>{
+    if(card.burning&&!card.spell&&!card.world&&!card.artifact){
+      card.hp-=1;
+      lg(`🔥 ${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
+      if(card.hp<=0){
+        const faction=G[G.turn].field.includes(card)?G.turn:oppKb;
+        killCard(card,faction);
+      }
+    }
+  });
+  checkWin();
 
   // Field passives
   const oppK=G.turn==='tea'?'jeet':'tea';
