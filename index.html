@@ -885,7 +885,15 @@ function onClick(card,zone){
     // Click enemy → attack instead
     if(zone==='field'&&card.f===opp){
       const healer=findC(G.sel);
-      if(healer){doAttack(healer,card);}
+      if(healer){
+        const oppField=G[opp].field;
+        const bushido=oppField.find(c=>c.key==='t_nab');
+        const provoke=oppField.find(c=>c.tags.includes('provoke')&&c.key!=='t_nab');
+        const hasPierce=healer.tags.includes('pierce');
+        if(bushido&&card.id!==bushido.id){lg(`Must attack ${bushido.name} (Bushido) first!`,'dmg');return;}
+        if(provoke&&card.id!==provoke.id&&!hasPierce){lg(`Must attack ${provoke.name} (Provoke) first!`,'dmg');return;}
+        doAttack(healer,card);
+      }
       return;
     }
     // Click own card again → cancel
@@ -1286,13 +1294,11 @@ function adjustHandOverlap(){
     if(!el)return;
     // Measure the player-zone and subtract sidebar width
     // clientWidth of hand element itself after CSS layout
-    let containerW=el.clientWidth-12;
-    if(containerW<=20){
-      // fallback
-      const zone=el.closest('.player-zone');
-      const sidebar=zone?zone.querySelector('.player-sidebar'):null;
-      containerW=window.innerWidth-(sidebar?sidebar.clientWidth:90)-24;
-    }
+    // Get container width reliably
+    const wrap=el.closest('.player-hand-wrap');
+    let containerW=wrap?wrap.getBoundingClientRect().width:el.getBoundingClientRect().width;
+    containerW=Math.floor(containerW)-12;
+    if(containerW<=20) containerW=window.innerWidth-90-24;
     if(containerW<=20)return;
 
     const cards=el.querySelectorAll('.card');
@@ -1304,7 +1310,7 @@ function adjustHandOverlap(){
         // Exact margin to fit all cards in container
         margin=-Math.ceil((cardW*total - containerW)/(total-1));
         // Cap: never hide more than 80% of card
-        margin=Math.max(margin, -Math.floor(cardW*0.8));
+        margin=Math.max(margin, -Math.floor(cardW*0.9));
         // Default slight overlap when fits
         if(margin>-8) margin=-8;
       }
