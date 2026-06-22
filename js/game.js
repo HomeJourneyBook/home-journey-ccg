@@ -3,7 +3,7 @@ function getTargetableCards(oppField, att){
   const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return [bushido.id];
   const provokes=oppField.filter(c=>c.tags.includes('provoke'));
-  const hasPierce=att&&att.tags.includes('pierce');
+  const hasPierce=att&&(att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce));
   if(provokes.length>0&&!hasPierce) return provokes.map(c=>c.id);
   return oppField.map(c=>c.id);
 }
@@ -238,7 +238,7 @@ function canAttackBase(){
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return false;
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
-  if(provoke&&!att.tags.includes('pierce')) return false;
+  if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)) return false;
   return true;
 }
 
@@ -250,7 +250,7 @@ function tryAttackBase(){
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
-  if(provoke&&!att.tags.includes('pierce')){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
+  if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
   lg(`⚔ ${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
   // Trigger on_attack abilities (rage, draw, etc) — no target
@@ -387,8 +387,10 @@ function applyAuras(faction){
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'maxhp', val:1},
   {gtype:'mch', count:3, effect:'atk',   val:1},
-  {gtype:'orb', count:3, effect:'param', param:'heal', val:2},
-  {gtype:'umb', count:3, effect:'param', param:'aoe',  val:2},
+  {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
+  {gtype:'umb', count:3, effect:'param', param:'aoe',    val:2},
+  {gtype:'szg', count:3, effect:'param', param:'pierce', val:true},
+  {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
 ];
 
 function checkSquadBonuses(faction){
