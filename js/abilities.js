@@ -68,12 +68,11 @@ function getAbilities(card){
     }
   }
 
-  // Fix revive:full + revive:any combo
+  // revive:full sets full HP flag
   const hasReviveFull=card.tags&&card.tags.some(t=>t==='revive:full');
   if(hasReviveFull){
-    const isAny=card.tags.includes('revive:any');
     const idx=ab.findIndex(a=>a.effect==='revive');
-    if(idx>=0) ab[idx]={timing:'instant',effect:'revive',val:'full',any:isAny};
+    if(idx>=0) ab[idx].val='full';
   }
 
   // Unique card special abilities — only truly unique mechanics remain here
@@ -275,7 +274,7 @@ function triggerAbilities(card, timing, ctx={}){
         lg(`${card.name}: +${a.val} max Essence → ${cur.essMax}.`,'imp'); break;
 
       case 'ess_add':
-        cur.ess=Math.min(cur.essMax,cur.ess+a.val);
+        cur.ess+=a.val; // can exceed essMax temporarily this turn
         lg(`${card.name}: +${a.val} Essence → ${cur.ess}/${cur.essMax}.`,'imp'); break;
 
       case 'rage':
