@@ -203,11 +203,10 @@ function doAttack(att,target){
   dmgCard(target,atk,oppK);
   dmgCard(att,target.atk+target.atkBonus,curK);
 
-  // All on_attack abilities: fear, burn, draw, etc.
-  // Only apply if target survived (no fear/burn on dead cards)
-  if(target.hp>0){
-    triggerAbilities(att,'on_attack',{target});
-  }
+  // on_attack abilities - split by whether target needs to be alive
+  // rage, draw - always trigger
+  // fear, burn - only if target survived
+  triggerAbilities(att,'on_attack',{target, requireAlive:false});
 
   att.exhausted=true;
   G.sel=null;
