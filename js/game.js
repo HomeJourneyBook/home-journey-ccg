@@ -39,7 +39,7 @@ function onClick(card,zone){
         const targetable=getTargetableCards(oppField,healer);
         if(!targetable.includes(card.id)){
           const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
-          lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'dmg');
+          lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'hint');
           return;
         }
         doAttack(healer,card);
@@ -62,11 +62,11 @@ function onClick(card,zone){
       const isHealer=card.tags.some(t=>t.startsWith('heal:'));
       if(isHealer){
         G.sel=card.id;G.phase='healTarget';
-        lg(`${card.name}: click an ALLY (green) to heal, or an ENEMY (red) to attack.`);
+        lg(`${card.name}: click an ALLY to heal, or an ENEMY to attack.`,'hint');
         render();return;
       }
       G.sel=card.id;G.phase='selectTarget';
-      lg(`Selected ${card.name} — click enemy to attack, or tap base.`);
+      lg(`Selected ${card.name} — click enemy to attack, or tap base.`,'hint');
       render();return;
     }
   }
@@ -80,7 +80,7 @@ function onClick(card,zone){
       const targetable=getTargetableCards(oppField,att);
       if(!targetable.includes(card.id)){
         const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
-        lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'dmg');
+        lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'hint');
         return;
       }
       doAttack(att,card);
@@ -91,7 +91,7 @@ function onClick(card,zone){
 // ── PLAY CARDS ─────────────────────────────────────────────
 function doPlay(card){
   const cur=G[G.turn];
-  if(cur.ess<card.cost){lg(`Need ${card.cost} essence, have ${cur.ess}.`,'dmg');return;}
+  if(cur.ess<card.cost){lg(`Need ${card.cost} essence (have ${cur.ess}).`,'hint');return;}
   cur.ess-=card.cost;
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   if(card.spell)doSpell(card);
@@ -201,7 +201,7 @@ function doAttack(att,target){
 
   lg(`⚔ ${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
-  dmgCard(att,target.atk+target.atkBonus,curK);
+  dmgCard(att,target.atk+(target.atkBonus||0)+(target.rageBonus||0),curK);
 
   // on_attack abilities - split by whether target needs to be alive
   // rage, draw - always trigger
@@ -219,7 +219,7 @@ function doAttack(att,target){
 function doUmbAsir(){
   const oppK=G.turn==='tea'?'jeet':'tea';
   const umb=findC(G.sel);
-  if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','dmg');return;}
+  if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
   const dmgAmt=getTagVal(umb,'aoe')||1;
   lg(`🌀 ${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
@@ -231,9 +231,9 @@ function doUmbAsir(){
 
 function doVardan(){
   const oppK=G.turn==='tea'?'jeet':'tea';
-  if(!G.sel){lg('No card selected — click Big Vardan first.','dmg');return;}
+  if(!G.sel){lg('No card selected — select an AOE card first.','hint');return;}
   const vard=findC(G.sel);
-  if(!vard||!hasTag(vard,'aoe')){lg('Select an AOE card first.','dmg');return;}
+  if(!vard||!hasTag(vard,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(vard.exhausted){lg(`${vard.name} already acted this turn.`,'dmg');return;}
   const dmgAmt=getTagVal(vard,'aoe')||2;
   lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
@@ -268,16 +268,18 @@ function canAttackBase(){
 }
 
 function tryAttackBase(){
-  if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.');return;}
+  if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.','hint');return;}
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0);
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
-  if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'dmg');return;}
+  if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
-  if(provoke&&!att.tags.includes('pierce')){lg(`${provoke.name} has Provoke — attack it first!`,'dmg');return;}
+  if(provoke&&!att.tags.includes('pierce')){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
   lg(`⚔ ${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
+  // Trigger on_attack abilities (rage, draw, etc) — no target
+  triggerAbilities(att,'on_attack',{target:null});
   att.exhausted=true;G.sel=null;G.phase='action';
   checkWin();render();
 }
@@ -325,7 +327,7 @@ function killCard(card,faction){
 // ── BURN ───────────────────────────────────────────────────
 function doBurnCard(card){
   const cur=G[G.turn];
-  if(cur.burned){lg('Already burned a card this turn!','dmg');return;}
+  if(cur.burned){lg('Already burned a card this turn.','hint');return;}
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   card.voided=true;
   cur.void.push(card);
