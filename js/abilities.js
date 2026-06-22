@@ -47,6 +47,11 @@ function getAbilities(card){
         else if(card.artifact) ab.push({timing:'on_turn',effect:'hp_add',val,target:'all'});
         else                   ab.push({timing:'active',effect:'hp_add',val});
         break;
+      case 'bushido':  ab.push({timing:'passive',effect:'bushido'}); break;
+      case 'aura':
+        // aura:atk:N or aura:maxhp:N
+        {const [,type,n]=tag.split(':');
+        ab.push({timing:'passive',effect:'aura',auraType:type,val:parseInt(n)||1});} break;
       case 'unique': case 'spell': case 'world': case 'artifact': break;
     }
   }
@@ -61,15 +66,7 @@ function getAbilities(card){
 
   // Unique card special abilities — only truly unique mechanics remain here
   switch(card.key){
-    // Tuborg: passive ATK bonus to all allies (maintained each turn)
-    case 't_tuborg':
-      ab.push({timing:'on_enter',effect:'atk_all',val:1});
-      ab.push({timing:'passive',effect:'atk_all',val:1});
-      break;
-    // Aslex: +1 maxHP to all allies each turn (hp_all = maxhp increase)
-    case 't_aslex':
-      ab.push({timing:'on_turn',effect:'hp_all',val:1});
-      break;
+    // Tuborg and Aslex now handled via aura tags in data.js
     // Reaper: restore HP to Jeet base on kill
     case 'j_reap':
       ab.push({timing:'on_kill',effect:'hp_base',val:2});
@@ -119,6 +116,14 @@ function triggerAbilities(card, timing, ctx={}){
             ally.atkBonus=(ally.atkBonus||0)+a.val;
         });
         lg(`${card.name}: all allies +${a.val} ATK!`,'imp'); break;
+
+      case 'aura':
+        // Applied passively each turn - handled in endTurn applyAuras()
+        break;
+
+      case 'bushido':
+        // Passive - handled in getTargetableCards() and canAttackBase()
+        break;
 
       case 'hp_all':
         // Increases maxHP; if at full HP also increases current HP (Aslex)
