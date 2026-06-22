@@ -5,7 +5,7 @@ const DEFS = {
   t_drig_w:    {name:"Dreegan",     cost:3,hp:4,atk:1,art:"🌳",f:"tea",tags:["provoke","traveler","gate:drg"],            ab:""},
   t_umb_w:     {name:"Umbasir",     cost:2,hp:1,atk:1,art:"🌀",f:"tea",tags:["aoe:1","traveler","gate:umb"],              ab:"Active: deal 1 dmg to ALL enemies."},
   t_meh_w:     {name:"Mechird",     cost:2,hp:2,atk:1,art:"🤖",f:"tea",tags:["pierce","traveler","gate:mch"],             ab:""},
-  t_ksi_w:     {name:"Xuitqr",      cost:3,hp:3,atk:1,art:"🐙",f:"tea",tags:["fear","traveler","gate:xui"],               ab:""},
+  t_ksi_w:     {name:"Xuitqr",      cost:3,hp:3,atk:1,art:"🐙",f:"tea",tags:["regen:1","fear","traveler","gate:xui"],               ab:""},
   // TEA LEGENDARIES
   t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique","draw:1"], ab:"Draw 1 extra card each turn.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique","aura:maxhp:1"], ab:"+1 maxHP to all allies each turn.",unique:true},
