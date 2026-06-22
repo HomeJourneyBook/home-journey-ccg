@@ -57,10 +57,11 @@ function getAbilities(card){
         {const [,type,n]=tag.split(':');
         const auraVal=parseInt(n)||1;
         if(type==='atk'){
-          // ATK aura: passive, maintained each turn via applyAuras()
+          // passive aura: ATK bonus maintained each turn via applyAuras()
           ab.push({timing:'passive',effect:'aura',auraType:'atk',val:auraVal});
         } else if(type==='maxhp'){
-          // maxHP aura: one-time on enter, removed on death
+          // passive aura: maxHP bonus applied on enter, removed on death
+          // technically on_enter but behaves like passive — same concept as ATK aura
           ab.push({timing:'on_enter',effect:'aura',auraType:'maxhp',val:auraVal});
         }} break;
       case 'unique': case 'spell': case 'world': case 'artifact': break;
