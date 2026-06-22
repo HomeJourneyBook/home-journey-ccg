@@ -8,7 +8,7 @@ const DEFS = {
   t_ksi_w:     {name:"Xuitqr",      cost:3,hp:3,atk:1,art:"🐙",f:"tea",tags:["regen:1","traveler","gate:xui"],               ab:""},
   // TEA LEGENDARIES
   t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique","draw:1"], ab:"Draw 1 extra card each turn.",unique:true},
-  t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique","heal:3"], ab:"Active: heal ally 3 HP, remove debuffs.",unique:true},
+  t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique","aura:maxhp:1"], ab:"+1 max HP to all allies while on field.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:6,atk:3,art:"👑",f:"tea",tags:["unique","aura:atk:1"], ab:"+1 ATK to all allies while on field.",unique:true},
   t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:2,art:"🔥",f:"tea",tags:["unique","burn","enter_aoe:2"], ab:"On enter: 2 dmg to all. Attacks set target on fire.",unique:true},
   t_nab:       {name:"NABUNAGI",   cost:6,hp:7,atk:2,art:"⛩️",f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
