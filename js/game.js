@@ -116,18 +116,22 @@ function doCreature(card){
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
 
-  // Reapply ATK auras — set flag so enter log shows
-  if(hasTag(card,'aura:atk')) cur._auraJustEntered=card.id;
+  // Aura:atk
+  if(hasTag(card,'aura:atk')) cur._auraAtkLog=card.id;
   applyAuras(G.turn);
-  // Apply maxHP aura to newly entered card if Aslex on field
-  if(!hasTag(card,'aura:maxhp')){
-    const maxHpAura=cur.field.find(c=>hasTag(c,'aura:maxhp')&&c.id!==card.id);
-    if(maxHpAura&&!card.spell&&!card.world&&!card.artifact){
-      const val=getTagVal(maxHpAura,'aura:maxhp')||1;
+
+  // Aura:maxhp
+  if(hasTag(card,'aura:maxhp')){
+    applyMaxHpAura(card,G.turn);
+  } else if(!card.spell&&!card.world&&!card.artifact){
+    const maxHpSrc=cur.field.find(c=>hasTag(c,'aura:maxhp')&&c.id!==card.id);
+    if(maxHpSrc){
+      const val=getTagVal(maxHpSrc,'aura:maxhp')||1;
       const wasFull=card.hp===card.maxHp;
       card.maxHp+=val;
       if(wasFull) card.hp+=val;
-      lg(`${maxHpAura.name}: ${card.name} +${val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
+      card.maxHpBonus=(card.maxHpBonus||0)+val;
+      lg(`${maxHpSrc.name}: ${card.name} +${val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
     }
   }
 
@@ -162,13 +166,13 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;
   card.f=toF;
   G[toF].field.push(card); // push first so applyAuras sees the card
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
 
   // Aura interactions on revive - card is now in field
-  if(hasTag(card,'aura:atk')) G[toF]._auraJustEntered=card.id;
+  if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')){
     // Aslex revived — give maxHP bonus to all allies
     applyMaxHpAura(card,toF);
@@ -306,9 +310,8 @@ function killCard(card,faction){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
     lg(`${card.name} died — ATK aura removed.`);
   }
-  if(hasTag(card,'aura:maxhp')){
-    removeMaxHpAura(card,faction);
-  }
+  if(hasTag(card,'aura:atk')){G[faction].field.forEach(a=>{a.atkBonus=0;});lg(`${card.name} died — ATK aura removed.`);}
+  if(hasTag(card,'aura:maxhp')) removeMaxHpAura(card,faction);
 
   // on_any_death_base — heal own base when ANY creature dies (ally or enemy)
   ['tea','jeet'].forEach(f=>{
@@ -339,6 +342,37 @@ function doBurnCard(card){
 }
 
 // ── AURAS ──────────────────────────────────────────────────
+function applyMaxHpAura(src, faction){
+  // Called ONCE when aura:maxhp card enters field
+  // Gives +N maxHP to all allies. If at full HP, current HP also rises.
+  const val=getTagVal(src,'aura:maxhp')||1;
+  const affected=[];
+  G[faction].field.forEach(a=>{
+    if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact&&!a.maxHpAuraApplied){
+      const wasFull=a.hp===a.maxHp;
+      a.maxHp+=val;
+      if(wasFull) a.hp+=val;
+      a.maxHpBonus=(a.maxHpBonus||0)+val;
+      affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
+    }
+  });
+  if(affected.length>0) lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
+  else lg(`${src.name}: no allies to buff.`,'hl');
+}
+
+function removeMaxHpAura(src, faction){
+  // Called when aura:maxhp card dies - remove the bonus
+  const val=getTagVal(src,'aura:maxhp')||1;
+  G[faction].field.forEach(a=>{
+    if(!a.spell&&!a.world&&!a.artifact&&(a.maxHpBonus||0)>0){
+      a.maxHp=Math.max(1,a.maxHp-val);
+      a.hp=Math.min(a.hp,a.maxHp);
+      a.maxHpBonus=Math.max(0,(a.maxHpBonus||0)-val);
+    }
+  });
+  lg(`${src.name} left — maxHP aura removed.`,'die');
+}
+
 function applyAuras(faction){
   const cur=G[faction];
   // Reset all atkBonus first, then reapply from active auras
