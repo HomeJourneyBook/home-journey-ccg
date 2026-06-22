@@ -179,16 +179,7 @@ function triggerAbilities(card, timing, ctx={}){
         // Passive - handled in getTargetableCards() and canAttackBase()
         break;
 
-      case 'hp_all':
-        // Increases maxHP; if at full HP also increases current HP (Aslex)
-        cur.field.forEach(ally=>{
-          if(!ally.spell&&!ally.world&&!ally.artifact){
-            const wasFull=ally.hp===ally.maxHp;
-            ally.maxHp+=a.val;
-            if(wasFull) ally.hp+=a.val;
-          }
-        });
-        lg(`${card.name}: all allies +${a.val} maxHP!`,'hl'); break;
+      // hp_all removed — replaced by applyMaxHpAura() via aura:maxhp tag
 
       case 'hp_base':
         // Heal base HP only, no maxHP increase
