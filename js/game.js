@@ -344,8 +344,8 @@ function doBurnCard(card){
 
 // ── AURAS ──────────────────────────────────────────────────
 function applyMaxHpAura(src, faction){
-  // Called ONCE when aura:maxhp card enters field
   const val=getTagVal(src,'aura:maxhp')||1;
+  lg(`[DEBUG] applyMaxHpAura called: ${src.name}, val=${val}, allies=${G[faction].field.filter(a=>a.id!==src.id&&!a.spell&&!a.world&&!a.artifact).length}`,'imp');
   const affected=[];
   G[faction].field.forEach(a=>{
     if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
