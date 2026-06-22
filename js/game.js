@@ -116,7 +116,8 @@ function doCreature(card){
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
 
-  // Reapply ATK auras
+  // Reapply ATK auras — set flag so enter log shows
+  if(hasTag(card,'aura:atk')) cur._auraJustEntered=card.id;
   applyAuras(G.turn);
   // Apply maxHP aura to newly entered card if Aslex on field
   if(!hasTag(card,'aura:maxhp')){
@@ -167,6 +168,7 @@ function reviveCard(card,toF){
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
 
   // Aura interactions on revive
+  if(hasTag(card,'aura:atk')) G[toF]._auraJustEntered=card.id;
   if(hasTag(card,'aura:maxhp')){
     // Aslex revived — give maxHP bonus to all allies
     applyMaxHpAura(card,toF);
@@ -205,10 +207,8 @@ function doAttack(att,target){
   dmgCard(target,atk,oppK);
   dmgCard(att,target.atk+(target.atkBonus||0)+(target.rageBonus||0),curK);
 
-  // on_attack abilities - split by whether target needs to be alive
-  // rage, draw - always trigger
-  // fear, burn - only if target survived
-  triggerAbilities(att,'on_attack',{target, requireAlive:false});
+  // on_attack abilities
+  triggerAbilities(att,'on_attack',{target});
 
   att.exhausted=true;
   G.sel=null;
