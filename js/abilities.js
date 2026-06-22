@@ -98,13 +98,13 @@ function triggerAbilities(card, timing, ctx={}){
         break;
 
       case 'burn':
-        if(ctx.target&&ctx.target.hp>0){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
           ctx.target.burning=true;
           lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
         } break;
 
       case 'fear':
-        if(ctx.target&&ctx.target.hp>0){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
           ctx.target.feared=true;
           lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
         } break;
@@ -240,8 +240,8 @@ function triggerAbilities(card, timing, ctx={}){
 
       case 'rage':
         // Permanently increase ATK each time this card attacks
-        att.rageBonus=(att.rageBonus||0)+a.val;
-        lg(`${card.name}: Rage! ATK +${a.val} (total rage: ${att.rageBonus}).`,'imp');
+        card.rageBonus=(card.rageBonus||0)+a.val;
+        lg(`${card.name}: Rage! +${a.val} ATK (total: ${card.atk+(card.atkBonus||0)+(card.rageBonus||0)}).`,'imp');
         break;
 
       case 'raise':
