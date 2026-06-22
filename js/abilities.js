@@ -2,7 +2,9 @@ function getTagVal(card, tagName){
   const t=(card.tags||[]).find(t=>t===tagName||t.startsWith(tagName+':'));
   if(!t) return null;
   const parts=t.split(':');
-  return parts.length>1 ? parseInt(parts[1]) : true;
+  if(parts.length===1) return true;
+  const num=parseInt(parts[1]);
+  return isNaN(num)?parts[1]:num; // string or number
 }
 function hasTag(card, tagName){ return getTagVal(card,tagName)!==null; }
 
