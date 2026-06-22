@@ -91,7 +91,8 @@ function onClick(card,zone){
 // ── PLAY CARDS ─────────────────────────────────────────────
 function doPlay(card){
   const cur=G[G.turn];
-  if(cur.ess<card.cost){lg(`Need ${card.cost} essence (have ${cur.ess}).`,'hint');return;}
+  if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');return;}
+  hint(''); // clear hint on successful action
   cur.ess-=card.cost;
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   if(card.spell)doSpell(card);
