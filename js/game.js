@@ -136,6 +136,7 @@ function doCreature(card){
   }
 
   if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
+  checkSquadBonuses(G.turn);
 }
 
 function doWorld(card){
@@ -170,6 +171,7 @@ function reviveCard(card,toF){
   card.f=toF;
   G[toF].field.push(card); // push first so applyAuras sees the card
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
+  checkSquadBonuses(toF);
 
   // aura:atk — set log flag then applyAuras (card is in field)
   if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
@@ -195,7 +197,7 @@ function reviveCard(card,toF){
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
-  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0);
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
 
   lg(`⚔ ${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
@@ -267,7 +269,7 @@ function tryAttackBase(){
   if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.','hint');return;}
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
-  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0);
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
@@ -290,9 +292,12 @@ function dmgCard(card,dmg,faction){
 
 function killCard(card,faction){
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
-  card.rageBonus=0; // reset rage on death
+  card.rageBonus=0;
+  card.squadMaxHpBonus=0;
+  card.squadAtkBonus=0;
   G[faction].grave.push(card);
   lg(`💀 ${card.name} dies.`,'die');
+  checkSquadBonuses(faction);
 
   // Tuborg death — remove ATK bonus from allies
   // If aura card dies - remove its bonuses
@@ -377,6 +382,47 @@ function applyAuras(faction){
       }
       // aura:maxhp handled only in applyMaxHpAura() - not here
     }
+  });
+}
+
+// ── SQUAD BONUSES ──────────────────────────────────────────
+// Squad definition: gtype, count needed, effect, value
+const SQUAD_DEFS = [
+  {gtype:'drg', count:3, effect:'maxhp', val:1},
+  // Add more squads here as needed:
+  // {gtype:'mch', count:3, effect:'atk', val:1},
+];
+
+function checkSquadBonuses(faction){
+  const field=G[faction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+  
+  SQUAD_DEFS.forEach(squad=>{
+    const members=field.filter(c=>getTagVal(c,'gtype')===squad.gtype);
+    const active=members.length>=squad.count;
+    
+    members.forEach(card=>{
+      if(squad.effect==='maxhp'){
+        if(active&&!card.squadMaxHpBonus){
+          // Activate bonus
+          card.maxHp+=squad.val;
+          if(card.hp===card.maxHp-squad.val) card.hp+=squad.val; // was at full
+          card.squadMaxHpBonus=squad.val;
+          lg(`⚔ Squad bonus! ${card.name} +${squad.val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
+        } else if(!active&&card.squadMaxHpBonus){
+          // Remove bonus
+          card.maxHp=Math.max(1,card.maxHp-card.squadMaxHpBonus);
+          card.hp=Math.min(card.hp,card.maxHp);
+          card.squadMaxHpBonus=0;
+        }
+      } else if(squad.effect==='atk'){
+        if(active&&!card.squadAtkBonus){
+          card.squadAtkBonus=squad.val;
+          lg(`⚔ Squad bonus! ${card.name} +${squad.val} ATK.`,'hl');
+        } else if(!active&&card.squadAtkBonus){
+          card.squadAtkBonus=0;
+        }
+      }
+    });
   });
 }
 
