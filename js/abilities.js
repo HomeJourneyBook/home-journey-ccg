@@ -1,262 +1,539 @@
-function getTagVal(card, tagName){
-  const t=(card.tags||[]).find(t=>t===tagName||t.startsWith(tagName+':'));
-  if(!t) return null;
-  // Remove tagName prefix to get value: 'aura:maxhp:1' with tagName='aura:maxhp' -> '1'
-  const rest=t.slice(tagName.length);
-  if(!rest||rest==='') return true;
-  const valStr=rest.startsWith(':')?rest.slice(1):rest;
-  const num=parseInt(valStr);
-  return isNaN(num)?valStr:num;
+// ── CLICK HANDLER ─────────────────────────────────────────
+function getTargetableCards(oppField, att){
+  const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
+  if(bushido) return [bushido.id];
+  const provokes=oppField.filter(c=>c.tags.includes('provoke'));
+  const hasPierce=att&&(att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce));
+  if(provokes.length>0&&!hasPierce) return provokes.map(c=>c.id);
+  return oppField.map(c=>c.id);
 }
-function hasTag(card, tagName){ return getTagVal(card,tagName)!==null; }
 
-function getAbilities(card){
-  const ab=[];
-  for(const tag of (card.tags||[])){
-    const [name,...rest]=tag.split(':');
-    const val=rest.length?parseInt(rest[0]):1;
-    switch(name){
-      case 'vanguard':   ab.push({timing:'passive',effect:'vanguard'}); break;
-      case 'provoke':    ab.push({timing:'passive',effect:'provoke'}); break;
-      case 'pierce':     ab.push({timing:'passive',effect:'pierce'}); break;
-      case 'fear':       ab.push({timing:'on_attack',effect:'fear'}); break;
-      case 'burn':       ab.push({timing:'on_attack',effect:'burn'}); break;
-      case 'aoe':        ab.push({timing:'active',effect:'aoe',val}); break;
-      case 'enter_aoe':  ab.push({timing:'on_enter',effect:'aoe',val}); break;
-      case 'draw':
-        if(card.spell)                    ab.push({timing:'instant',effect:'draw',val});
-        else if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'draw',val});
-        else if(card.unique)               ab.push({timing:'on_turn',effect:'draw',val});
-        else                               ab.push({timing:'on_attack',effect:'draw',val});
-        break;
-      case 'heal':
-        if(card.artifact||card.world) ab.push({timing:'on_turn',effect:'hp_add',val,target:'all'});
-        else                          ab.push({timing:'active',effect:'hp_add',val});
-        break;
-      case 'regen':      ab.push({timing:'on_turn',effect:'hp_add',val,self:true}); break;
-      case 'revive':     ab.push({timing:'instant',effect:'revive',val}); break;
-      case 'salvage':    ab.push({timing:'instant',effect:'salvage'}); break;
-      case 'bounce':     ab.push({timing:'instant',effect:'bounce'}); break;
-      case 'ess_max':
-        if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'ess_max',val});
-        else                          ab.push({timing:'instant',effect:'ess_max',val});
-        break;
-      case 'ess_add':
-        if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'ess_add',val});
-        else                          ab.push({timing:'instant',effect:'ess_add',val});
-        break;
-      // maxhp_add removed - use aura:maxhp for passive, active ability removed
-      case 'hp_add':
-        if(card.world)         ab.push({timing:'on_enter',effect:'hp_add',val,target:'all'});
-        else if(card.artifact) ab.push({timing:'on_turn',effect:'hp_add',val,target:'all'});
-        else                   ab.push({timing:'active',effect:'hp_add',val});
-        break;
-      case 'bushido':      ab.push({timing:'passive',effect:'bushido'}); break;
-      case 'on_kill_base':       ab.push({timing:'on_kill',effect:'hp_base',val}); break;
-      case 'on_any_death_base':  ab.push({timing:'on_any_death',effect:'hp_base',val}); break;
-      case 'raise':              ab.push({timing:'on_turn',effect:'raise',val}); break;
-      case 'rage':         ab.push({timing:'on_attack',effect:'rage',val}); break;
-      case 'draw_attack': ab.push({timing:'on_attack',effect:'draw',val}); break;
-      case 'aura':
-        {const [,type,n]=tag.split(':');
-        const auraVal=parseInt(n)||1;
-        if(type==='atk'){
-          // passive aura: ATK bonus maintained each turn via applyAuras()
-          ab.push({timing:'passive',effect:'aura',auraType:'atk',val:auraVal});
-        } else if(type==='maxhp'){
-          // maxhp aura applied manually via applyMaxHpAura() in game.js
-          // NOT through triggerAbilities to avoid double application
-          ab.push({timing:'_manual',effect:'aura',auraType:'maxhp',val:auraVal});
-        }} break;
-      case 'unique': case 'spell': case 'world': case 'artifact': break;
+function onClick(card,zone){
+  const opp=G.turn==='tea'?'jeet':'tea';
+
+  if(G.phase==='burn'){
+    if(zone==='hand'&&card.f===G.turn)doBurnCard(card);
+    return;
+  }
+
+  if(G.phase==='healTarget'){
+    // Click ally with missing HP → heal
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
+      const healer=findC(G.sel);
+      if(healer){
+        const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
+        card.hp=Math.min(card.maxHp,card.hp+healAmt);
+        const debuffs=[];
+        if(card.burning){card.burning=false;debuffs.push('fire');}
+        if(card.feared){card.feared=false;debuffs.push('fear');}
+        lg(`💚 ${healer.name}: +${healAmt} HP to ${card.name}${debuffs.length?', removes '+debuffs.join(' & '):''}.`,'hl');
+        healer.exhausted=true;
+      }
+      G.sel=null;G.phase='action';render();return;
+    }
+    // Click enemy → attack
+    if(zone==='field'&&card.f===opp){
+      const healer=findC(G.sel);
+      if(healer){
+        const oppField=G[opp].field;
+        const targetable=getTargetableCards(oppField,healer);
+        if(!targetable.includes(card.id)){
+          const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
+          lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'hint');
+          return;
+        }
+        doAttack(healer,card);
+      }
+      return;
+    }
+    // Click own card → cancel
+    if(card.f===G.turn){G.sel=null;G.phase='action';render();}
+    return;
+  }
+
+  if(G.phase==='action'){
+    // Hand card → preview
+    if(zone==='hand'&&card.f===G.turn){
+      G.previewCard=G.previewCard===card.id?null:card.id;
+      render();return;
+    }
+    // Field card → select for action
+    if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.spell&&!card.world&&!card.artifact){
+      const isHealer=card.tags.some(t=>t.startsWith('heal:'));
+      if(isHealer){
+        G.sel=card.id;G.phase='healTarget';
+        lg(`${card.name}: click an ALLY to heal, or an ENEMY to attack.`,'hint');
+        render();return;
+      }
+      G.sel=card.id;G.phase='selectTarget';
+      lg(`Selected ${card.name} — click enemy to attack, or tap base.`,'hint');
+      render();return;
     }
   }
 
-  // revive:full sets full HP flag
-  const hasReviveFull=card.tags&&card.tags.some(t=>t==='revive:full');
-  if(hasReviveFull){
-    const idx=ab.findIndex(a=>a.effect==='revive');
-    if(idx>=0) ab[idx].val='full';
-  }
-
-  // Unique card special abilities — only truly unique mechanics remain here
-  switch(card.key){
-    // All legendaries now handled via tags in data.js
-  }
-
-  return ab;
-}
-
-function applyMaxHpAura(src, faction){
-  const val=getTagVal(src,'aura:maxhp')||1;
-  const affected=[];
-  G[faction].field.forEach(a=>{
-    if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
-      const wasFull=a.hp===a.maxHp;
-      a.maxHp+=val;
-      if(wasFull) a.hp+=val;
-      a.maxHpBonus=(a.maxHpBonus||0)+val;
-      affected.push(`${a.name} (${a.hp}/${a.maxHp})`);
+  if(G.phase==='selectTarget'){
+    if(card.f===G.turn){G.sel=null;G.phase='action';render();return;}
+    if(zone==='field'&&card.f===opp){
+      const att=findC(G.sel);
+      if(!att)return;
+      const oppField=G[opp].field;
+      const targetable=getTargetableCards(oppField,att);
+      if(!targetable.includes(card.id)){
+        const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
+        lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'hint');
+        return;
+      }
+      doAttack(att,card);
     }
-  });
-  if(affected.length>0)
-    lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
-  else
-    lg(`${src.name}: no allies to buff.`,'hl');
+  }
 }
 
-function removeMaxHpAura(src, faction){
-  const val=getTagVal(src,'aura:maxhp')||1;
-  G[faction].field.forEach(a=>{
-    if(!a.spell&&!a.world&&!a.artifact){
-      a.maxHp=Math.max(1,a.maxHp-val);
-      a.hp=Math.min(a.hp,a.maxHp);
-      a.maxHpBonus=Math.max(0,(a.maxHpBonus||0)-val);
-    }
-  });
-  lg(`${src.name} died — maxHP aura removed.`,'die');
+// ── PLAY CARDS ─────────────────────────────────────────────
+function doPlay(card){
+  const cur=G[G.turn];
+  if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');return;}
+  hint(''); // clear hint on successful action
+  cur.ess-=card.cost;
+  cur.hand=cur.hand.filter(c=>c.id!==card.id);
+  if(card.spell)doSpell(card);
+  else if(card.world)doWorld(card);
+  else if(card.artifact)doArtifact(card);
+  else doCreature(card);
+  render();
 }
 
-function triggerAbilities(card, timing, ctx={}){
-  const abs=getAbilities(card).filter(a=>a.timing===timing);
+function doCreature(card){
+  const cur=G[G.turn];
+  card.sleeping=!card.tags.includes('vanguard');
+  card.exhausted=false;
+  cur.field.push(card);
+  lg(`▶ ${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
+
+  // on_enter abilities via ability system (Faeron AOE, Maltor AOE, World HP)
+  triggerAbilities(card,'on_enter');
+
+  // Track draw bonus for cards with draw tag
+  const drawTag=getTagVal(card,'draw');
+  if(drawTag) cur.extraDraw+=drawTag;
+
+  // Aura:atk
+  if(hasTag(card,'aura:atk')) cur._auraAtkLog=card.id;
+  if(hasTag(card,'aura:maxhp')) cur._auraMaxLog=card.id;
+  applyAuras(G.turn);
+  checkSquadBonuses(G.turn); // after applyAuras
+
+  if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
+}
+
+function doWorld(card){
+  const cur=G[G.turn];
+  if(cur.world){
+    const oldDraw=getTagVal(cur.world,'draw');
+    if(oldDraw) cur.extraDraw=Math.max(0,cur.extraDraw-oldDraw);
+    cur.grave.push(cur.world);
+    lg(`Replaced ${cur.world.name}.`);
+  }
+  cur.world=card;
+  const drawTag=getTagVal(card,'draw');
+  if(drawTag) cur.extraDraw+=drawTag;
+  lg(`▶ World: ${card.name} activated.`,'imp');
+}
+
+function doArtifact(card){
+  const cur=G[G.turn];
+  cur.artifacts.push(card);
+  lg(`▶ Artifact: ${card.name} placed.`,'imp');
+  // Track draw bonus via tag system
+  const drawTag=getTagVal(card,'draw');
+  if(drawTag) cur.extraDraw+=drawTag;
+}
+
+function doSpell(card){
+  const cur=G[G.turn];
+  lg(`▶ Spell: ${card.name}.`,'imp');
+  triggerAbilities(card,'instant');
+  cur.grave.push(card);
+}
+
+// ── REVIVE ─────────────────────────────────────────────────
+function reviveCard(card,toF){
+  const def=DEFS[card.key];
+  if(def){card.hp=def.hp;card.maxHp=def.hp;}
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
+  card.f=toF;
+  G[toF].field.push(card); // push first so applyAuras sees the card
+  lg(`✨ Revived ${card.name} at full HP.`,'hl');
+
+  if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
+  if(hasTag(card,'aura:maxhp')) G[toF]._auraMaxLog=card.id;
+  applyAuras(toF);
+  checkSquadBonuses(toF); // AFTER applyAuras so bonuses aren't reset
+}
+
+// ── ATTACK ─────────────────────────────────────────────────
+function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
-  const cur=G[curK];
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
 
-  for(const a of abs){
-    switch(a.effect){
+  lg(`⚔ ${att.name} attacks ${target.name}!`,'imp');
+  dmgCard(target,atk,oppK);
+  dmgCard(att,target.atk+(target.atkBonus||0)+(target.rageBonus||0),curK);
 
-      case 'aoe':
-        [...G[oppK].field].forEach(t=>dmgCard(t,a.val,oppK));
-        lg(`${card.name}: ${a.val} dmg to all enemies!`,'imp');
-        break;
+  // on_attack abilities
+  triggerAbilities(att,'on_attack',{target});
 
-      case 'burn':
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
-          ctx.target.burning=true;
-          lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
-        } break;
+  att.exhausted=true;
+  G.sel=null;
+  G.phase='action';
+  checkWin();
+  render();
+}
 
-      case 'fear':
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
-          ctx.target.feared=true;
-          lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
-        } break;
+// ── ACTIVE ABILITIES ───────────────────────────────────────
+function doUmbAsir(){
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  const umb=findC(G.sel);
+  if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','hint');return;}
+  if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
+  const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
+  lg(`🌀 ${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
+  [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
+  umb.exhausted=true;
+  G.sel=null;G.phase='action';
+  checkWin();render();
+}
 
-      case 'draw':
-        // instant draw (spells) - draw immediately
-        // on_turn draw is handled via extraDraw in game.js endTurn, not here
-        if(a.timing==='instant'){
-          for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
-          lg(`${card.name}: draw ${a.val} card(s).`,'imp');
-        }
-        break;
+function doVardan(){
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  if(!G.sel){lg('No card selected — select an AOE card first.','hint');return;}
+  const vard=findC(G.sel);
+  if(!vard||!hasTag(vard,'aoe')){lg('Select an AOE card first.','hint');return;}
+  if(vard.exhausted){lg(`${vard.name} already acted this turn.`,'dmg');return;}
+  const dmgAmt=getTagVal(vard,'aoe')||2;
+  lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
+  [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
+  vard.exhausted=true;G.sel=null;G.phase='action';
+  checkWin();render();
+}
 
-      // atk_all removed — replaced by aura:atk tag
-
-      case 'aura':
-        if(a.auraType==='maxhp'){
-          applyMaxHpAura(card,curK);
-        }
-        // atk aura applied via applyAuras() - no action needed here
-        break;
-
-      // aura_enter removed — replaced by applyMaxHpAura() via aura:maxhp tag
-
-      case 'bushido':
-        // Passive - handled in getTargetableCards() and canAttackBase()
-        break;
-
-      // hp_all removed — replaced by applyMaxHpAura() via aura:maxhp tag
-
-      case 'hp_base':
-        // Heal base HP only, no maxHP increase
-        G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
-        lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl'); break;
-
-      // on_any_death handled directly in killCard()
-
-      case 'hp_add':
-        if(a.target==='all'){
-          cur.field.forEach(ally=>{
-            if(!ally.spell&&!ally.world&&!ally.artifact)
-              ally.hp=Math.min(ally.maxHp,ally.hp+a.val);
-          });
-          lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
-        } else if(a.self){
-          if(!card.spell&&!card.world&&!card.artifact){
-            card.hp=Math.min(card.maxHp,card.hp+a.val);
-            lg(`${card.name}: regen +${a.val} HP → ${card.hp}/${card.maxHp}.`,'hl');
-          }
-        } else if(ctx.target){
-          ctx.target.hp=Math.min(ctx.target.maxHp,ctx.target.hp+a.val);
-          lg(`${card.name}: +${a.val} HP to ${ctx.target.name} → ${ctx.target.hp}/${ctx.target.maxHp}.`,'hl');
-        } else {
-          cur.field.forEach(ally=>{
-            if(!ally.spell&&!ally.world&&!ally.artifact)
-              ally.hp=Math.min(ally.maxHp,ally.hp+a.val);
-          });
-          lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
-        } break;
-
-      // maxhp_add removed — use aura:maxhp instead
-
-      case 'bounce':
-        [...G.tea.field].forEach(x=>{resetC(x);G.tea.hand.push(x);});
-        [...G.jeet.field].forEach(x=>{resetC(x);G.jeet.hand.push(x);});
-        G.tea.field=[];G.jeet.field=[];
-        lg(`${card.name}: all cards return to hands!`,'imp'); break;
-
-      case 'revive':
-        {const srcGrave=a.any
-          ? [...cur.grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided)
-          : cur.grave.filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
-        if(srcGrave.length>0){
-          const r=srcGrave[srcGrave.length-1];
-          cur.grave=cur.grave.filter(x=>x.id!==r.id);
-          G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
-          const def=DEFS[r.key];
-          if(a.val==='full'&&def){r.hp=def.hp;r.maxHp=def.hp;}
-          else{r.hp=Math.min(a.val||1,r.maxHp);}
-          reviveCard(r,curK); // use reviveCard for proper aura/squad checks
-          lg(`${card.name}: revives ${r.name}!`,'imp');
-        } else lg(`${card.name}: graveyard empty.`);} break;
-
-      case 'salvage':
-        {const grave2=cur.grave.filter(x=>!x.voided);
-        if(grave2.length>0){
-          const r=grave2[grave2.length-1];
-          cur.grave=cur.grave.filter(x=>x.id!==r.id);
-          resetC(r);cur.hand.push(r);
-          lg(`${card.name}: ${r.name} returned to hand!`,'imp');
-        } else lg(`${card.name}: graveyard empty.`);} break;
-
-      case 'ess_max':
-        cur.essMax+=a.val;
-        lg(`${card.name}: +${a.val} max Essence → ${cur.essMax}.`,'imp'); break;
-
-      case 'ess_add':
-        cur.ess+=a.val; // can exceed essMax temporarily this turn
-        lg(`${card.name}: +${a.val} Essence → ${cur.ess}/${cur.essMax}.`,'imp'); break;
-
-      case 'rage':
-        // Permanently increase ATK each time this card attacks
-        card.rageBonus=(card.rageBonus||0)+a.val;
-        lg(`${card.name}: Rage! +${a.val} ATK → total ${card.atk+(card.atkBonus||0)+(card.rageBonus||0)} ATK.`,'imp');
-        break;
-
-      case 'raise':
-        {const all=[...G[curK].grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
-        if(all.length>0){
-          const r=all[all.length-1];
-          G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
-          G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
-          r.hp=a.val||1;
-          reviveCard(r,curK); // use reviveCard for proper aura/squad checks
-          lg(`${card.name} raises ${r.name} at ${r.hp} HP!`,'imp');
-        } else {
-          lg(`${card.name}: both graveyards empty.`,'die');
-        }} break;
-    }
+// ── BASE ATTACK ────────────────────────────────────────────
+function onBaseClick(faction){
+  if(faction===G.turn) return;
+  if((G.phase==='selectTarget'||G.phase==='action')&&G.sel&&canAttackBase()){
+    tryAttackBase();
   }
+  if(G.phase==='healTarget'&&G.sel){
+    const att=findC(G.sel);
+    if(att) tryAttackBase();
+  }
+}
+
+function canAttackBase(){
+  if(!G.sel) return false;
+  const att=findC(G.sel);
+  if(!att||att.exhausted||att.sleeping||att.feared) return false;
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  const opp=G[oppK];
+  const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
+  if(bushido) return false;
+  const provoke=opp.field.find(c=>c.tags.includes('provoke'));
+  if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)) return false;
+  return true;
+}
+
+function tryAttackBase(){
+  if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.','hint');return;}
+  const att=findC(G.sel);if(!att)return;
+  const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
+  const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
+  if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
+  const provoke=opp.field.find(c=>c.tags.includes('provoke'));
+  if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
+  lg(`⚔ ${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
+  opp.hp=Math.max(0,opp.hp-atk);
+  // Trigger on_attack abilities (rage, draw, etc) — no target
+  triggerAbilities(att,'on_attack',{target:null});
+  att.exhausted=true;G.sel=null;G.phase='action';
+  checkWin();render();
+}
+
+// ── DAMAGE & DEATH ─────────────────────────────────────────
+function dmgCard(card,dmg,faction){
+  if(dmg<=0)return;
+  card.hp-=dmg;
+  lg(`${card.name} takes ${dmg} → ${card.hp}/${card.maxHp} HP.`,'dmg');
+  if(card.hp<=0)killCard(card,faction);
+}
+
+function killCard(card,faction){
+  G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
+  card.rageBonus=0;
+  card.squadMaxHpBonus=0;
+  card.squadAtkBonus=0;
+  card.squadParam=null;
+  G[faction].grave.push(card);
+  lg(`💀 ${card.name} dies.`,'die');
+  checkSquadBonuses(faction);
+
+  // Tuborg death — remove ATK bonus from allies
+  // If aura card dies - remove its bonuses
+  if(hasTag(card,'aura:atk')){
+    G[faction].field.forEach(a=>{a.atkBonus=0;});
+    lg(`${card.name} died — ATK aura removed.`);
+  }
+  if(hasTag(card,'aura:atk')){
+    G[faction].field.forEach(a=>{a.atkBonus=0;});
+    lg(`${card.name} died — ATK aura removed.`);
+  }
+  if(hasTag(card,'aura:maxhp')){
+    const val=getTagVal(card,'aura:maxhp')||1;
+    G[faction].field.forEach(a=>{
+      if(a.maxHpBonus){
+        a.maxHp=Math.max(1,a.maxHp-a.maxHpBonus);
+        a.hp=Math.min(a.hp,a.maxHp);
+        a.maxHpBonus=0;
+      }
+    });
+    lg(`${card.name} died — maxHP aura removed.`);
+  }
+
+  // on_any_death_base — heal own base when ANY creature dies (ally or enemy)
+  ['tea','jeet'].forEach(f=>{
+    G[f].field.forEach(ally=>{
+      const val=getTagVal(ally,'on_any_death_base');
+      if(val){
+        G[f].hp=Math.min(G[f].maxHp,G[f].hp+val);
+        lg(`${ally.name}: ${f} base +${val} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
+      }
+    });
+  });
+
+  // Remove draw bonus if card with draw tag dies
+  const drawTag=getTagVal(card,'draw');
+  if(drawTag){G[card.f].extraDraw=Math.max(0,G[card.f].extraDraw-drawTag);}
+}
+
+// ── BURN ───────────────────────────────────────────────────
+function doBurnCard(card){
+  const cur=G[G.turn];
+  if(cur.burned){lg('Already burned a card this turn.','hint');return;}
+  cur.hand=cur.hand.filter(c=>c.id!==card.id);
+  card.voided=true;
+  cur.void.push(card);
+  cur.essMax+=1;cur.ess+=1;cur.burned=true;
+  lg(`🔥 Burned ${card.name} → essence now ${cur.ess}/${cur.essMax}.`,'imp');
+  G.phase='action';render();
+}
+
+// ── AURAS ──────────────────────────────────────────────────
+
+
+function applyAuras(faction){
+  const cur=G[faction];
+
+  // Reset bonuses for non-aura cards
+  cur.field.forEach(a=>{
+    if(!hasTag(a,'aura:atk'))   a.atkBonus=0;
+    if(!hasTag(a,'aura:maxhp')) a.maxHpBonus=0;
+  });
+
+  cur.field.forEach(src=>{
+    if(src.spell||src.world||src.artifact) return;
+
+    // aura:atk
+    if(hasTag(src,'aura:atk')){
+      const val=getTagVal(src,'aura:atk')||1;
+      const affected=[];
+      cur.field.forEach(a=>{
+        if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
+          a.atkBonus=val;
+          if(cur._auraAtkLog===src.id) affected.push(a.name);
+        }
+      });
+      if(cur._auraAtkLog===src.id){
+        if(affected.length>0) lg(`${src.name}: +${val} ATK → ${affected.join(', ')}.`,'hl');
+        cur._auraAtkLog=null;
+      }
+    }
+
+    // aura:maxhp — same approach as aura:atk
+    if(hasTag(src,'aura:maxhp')){
+      const val=getTagVal(src,'aura:maxhp')||1;
+      const affected=[];
+      cur.field.forEach(a=>{
+        if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
+          if(!a.maxHpBonus){
+            const wasFull=a.hp===a.maxHp;
+            a.maxHp+=val;
+            if(wasFull) a.hp+=val;
+            a.maxHpBonus=val;
+            if(cur._auraMaxLog===src.id) affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
+          }
+        }
+      });
+      if(cur._auraMaxLog===src.id){
+        if(affected.length>0) lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
+        else lg(`${src.name}: no allies to buff.`,'hl');
+        cur._auraMaxLog=null;
+      }
+    }
+  });
+}
+
+// ── SQUAD BONUSES ──────────────────────────────────────────
+// Squad definition: gtype, count needed, effect, value
+const SQUAD_DEFS = [
+  {gtype:'drg', count:3, effect:'maxhp', val:1},
+  {gtype:'mch', count:3, effect:'atk',   val:1},
+  {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
+  {gtype:'umb', count:3, effect:'param', param:'aoe',    val:2},
+  {gtype:'szg', count:3, effect:'param', param:'pierce', val:true},
+  {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
+];
+
+function checkSquadBonuses(faction){
+  const field=G[faction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+  
+  SQUAD_DEFS.forEach(squad=>{
+    const members=field.filter(c=>getTagVal(c,'gtype')===squad.gtype);
+    const active=members.length>=squad.count;
+    
+    members.forEach(card=>{
+      if(squad.effect==='maxhp'){
+        if(active&&!card.squadMaxHpBonus){
+          card.maxHp+=squad.val;
+          if(card.hp===card.maxHp-squad.val) card.hp+=squad.val;
+          card.squadMaxHpBonus=squad.val;
+          lg(`⚔ Squad bonus! ${card.name} +${squad.val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
+        } else if(!active&&card.squadMaxHpBonus){
+          card.maxHp=Math.max(1,card.maxHp-card.squadMaxHpBonus);
+          card.hp=Math.min(card.hp,card.maxHp);
+          card.squadMaxHpBonus=0;
+          lg(`${card.name}: squad broken — maxHP bonus lost.`,'die');
+        }
+      } else if(squad.effect==='atk'){
+        if(active&&!card.squadAtkBonus){
+          card.squadAtkBonus=squad.val;
+          lg(`⚔ Squad bonus! ${card.name} +${squad.val} ATK.`,'hl');
+        } else if(!active&&card.squadAtkBonus){
+          card.squadAtkBonus=0;
+          lg(`${card.name}: squad broken — ATK bonus lost.`,'die');
+        }
+      } else if(squad.effect==='param'){
+        if(active&&!card.squadParam){
+          card.squadParam={[squad.param]:squad.val};
+          lg(`⚔ Squad bonus! ${card.name} ${squad.param} upgraded to ${squad.val}.`,'hl');
+        } else if(!active&&card.squadParam){
+          card.squadParam=null;
+          lg(`${card.name}: squad broken — ${squad.param} bonus lost.`,'die');
+        }
+      }
+    });
+  });
+}
+
+// ── END TURN ───────────────────────────────────────────────
+function endTurn(){
+  G.sel=null;G.phase='action';G.previewCard=null;
+  const next=G.turn==='tea'?'jeet':'tea';
+
+  // Wake current player's cards, clear their debuffs
+  G[G.turn].field.forEach(c=>{c.sleeping=false;c.exhausted=false;c.feared=false;});
+  G.turn=next;
+  const cur=G[G.turn];
+  cur.burned=false;
+
+  // Essence refresh
+  if(G.jeetFirstTurn&&G.turn==='jeet'){
+    cur.essMax=1;cur.ess=1;G.jeetFirstTurn=false;
+  } else {
+    cur.essMax+=1;cur.ess=cur.essMax; // ess resets to max each turn (ess_add is temporary)
+  }
+
+  const oppK=G.turn==='tea'?'jeet':'tea';
+
+  // 1. World & artifact on_turn effects (ess, draw, heal)
+  if(cur.world) triggerAbilities(cur.world,'on_turn');
+  cur.artifacts.forEach(a=>triggerAbilities(a,'on_turn'));
+
+  // 2. Apply auras + squad bonuses
+  applyAuras(G.turn);
+  checkSquadBonuses(G.turn);
+  // Trigger on_turn for all field cards (Phlegmor raise, regen, etc.)
+  [...cur.field].forEach(c=>triggerAbilities(c,'on_turn'));
+  cur.field.forEach(c=>{
+  });
+
+  // 3. Burning damage (after heals, before draw)
+  [...G[G.turn].field,...G[oppK].field].forEach(card=>{
+    if(card.burning&&!card.spell&&!card.world&&!card.artifact){
+      card.hp-=1;
+      lg(`🔥 ${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
+      if(card.hp<=0){
+        const f=G[G.turn].field.includes(card)?G.turn:oppK;
+        killCard(card,f);
+      }
+    }
+  });
+  checkWin();
+
+  // 4. Draw
+  const skipDraw=(G.turn==='jeet'&&G.turnNum===1);
+  if(!skipDraw){
+    const n=1+cur.extraDraw;
+    lg(`Drawing ${n} card(s) (extraDraw=${cur.extraDraw}).`);
+    for(let i=0;i<n;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
+  }
+
+  if(G.turn==='tea')G.turnNum++;
+  lg(`─── Turn ${G.turnNum}: ${G.turn.toUpperCase()} · ${cur.ess}/${cur.essMax} Essence ───`,'trn');
+  const lp=document.getElementById('logPanel');if(lp)lp.classList.remove('open');
+  render();
+}
+
+// ── WIN / MULLIGAN / UTILS ─────────────────────────────────
+function checkWin(){
+  if(G.tea.hp<=0)showWin('jeet');
+  if(G.jeet.hp<=0)showWin('tea');
+}
+
+function doMulligan(faction){
+  const m=G.mulligan[faction];
+  const p=G[faction];
+  if(m.used>=3){lg('No more mulligans!','dmg');return;}
+
+  // Return hand to deck and reshuffle
+  p.hand.forEach(card=>{resetC(card);p.deck.push(card);});
+  p.hand=[];
+  for(let i=p.deck.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];
+  }
+
+  const drawCounts=[5,4,3];
+  const draw=drawCounts[m.used];
+  const msgs=[
+    `🔀 Mulligan (free): drew ${draw} new cards.`,
+    `🔀 Mulligan (−1): drew ${draw} cards.`,
+    `🔀 Mulligan (−2): drew ${draw} cards. Last mulligan used.`,
+  ];
+  for(let i=0;i<draw;i++) if(p.deck.length>0)p.hand.push(p.deck.shift());
+  lg(msgs[m.used],'imp');
+  m.used++;
+  updateMulliganBtn(faction);
+  render();
+}
+
+function cancelAction(){G.previewCard=null;clearPreview();G.sel=null;G.phase='action';render();}
+
+function handleGameClick(e){
+  if(!e.target.closest('.card')&&G.previewCard){
+    G.previewCard=null;clearPreview();render();
+  }
+}
+
+function clearPreview(){
+  document.querySelectorAll('.hand .card.previewed').forEach(el=>el.classList.remove('previewed'));
 }
