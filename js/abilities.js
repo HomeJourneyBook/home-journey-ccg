@@ -51,13 +51,15 @@ function getAbilities(card){
       case 'on_kill_base': ab.push({timing:'on_kill',effect:'hp_base',val}); break;
       case 'rage':         ab.push({timing:'on_attack',effect:'rage',val}); break;
       case 'aura':
-        // aura:atk:N — passive ATK bonus to allies while on field
         {const [,type,n]=tag.split(':');
-        ab.push({timing:'passive',effect:'aura',auraType:type,val:parseInt(n)||1});} break;
-      case 'aura_enter':
-        // aura_enter:maxhp:N — one-time maxHP bonus to all allies on enter
-        {const [,type,n]=tag.split(':');
-        ab.push({timing:'on_enter',effect:'aura_enter',auraType:type,val:parseInt(n)||1});} break;
+        const auraVal=parseInt(n)||1;
+        if(type==='atk'){
+          // ATK aura: passive, maintained each turn via applyAuras()
+          ab.push({timing:'passive',effect:'aura',auraType:'atk',val:auraVal});
+        } else if(type==='maxhp'){
+          // maxHP aura: one-time on enter, removed on death
+          ab.push({timing:'on_enter',effect:'aura',auraType:'maxhp',val:auraVal});
+        }} break;
       case 'unique': case 'spell': case 'world': case 'artifact': break;
     }
   }
@@ -72,7 +74,7 @@ function getAbilities(card){
 
   // Unique card special abilities — only truly unique mechanics remain here
   switch(card.key){
-    // Tuborg and Aslex now handled via aura tags in data.js
+    // All legendaries now handled via tags in data.js
     // Reaper handled via on_kill_base tag
     // Phlegmor: raise last creature from any graveyard at 1 HP
     case 'j_phleg':
@@ -121,11 +123,11 @@ function triggerAbilities(card, timing, ctx={}){
         lg(`${card.name}: all allies +${a.val} ATK!`,'imp'); break;
 
       case 'aura':
-        if(a.auraType==='atk'){
-          // atk aura applied via applyAuras() after card enters
-        } else if(a.auraType==='maxhp'&&timing==='on_enter'){
+        if(a.auraType==='maxhp'){
           applyMaxHpAura(card,curK);
-        } break;
+        }
+        // atk aura applied via applyAuras() - no action needed here
+        break;
 
       case 'aura_enter':
         // One-time aura on enter (Aslex: +1 maxHP to all allies)
@@ -241,7 +243,7 @@ function triggerAbilities(card, timing, ctx={}){
       case 'rage':
         // Permanently increase ATK each time this card attacks
         card.rageBonus=(card.rageBonus||0)+a.val;
-        lg(`${card.name}: Rage! +${a.val} ATK (total: ${card.atk+(card.atkBonus||0)+(card.rageBonus||0)}).`,'imp');
+        lg(`${card.name}: Rage! +${a.val} ATK → total ${card.atk+(card.atkBonus||0)+(card.rageBonus||0)} ATK.`,'imp');
         break;
 
       case 'raise':
