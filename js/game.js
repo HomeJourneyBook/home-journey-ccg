@@ -397,7 +397,10 @@ function checkSquadBonuses(faction){
   const field=G[faction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
   
   SQUAD_DEFS.forEach(squad=>{
-    const members=field.filter(c=>getTagVal(c,'gtype')===squad.gtype);
+    const members=field.filter(c=>{
+      const t=(c.tags||[]).find(t=>t.startsWith('gtype:'));
+      return t&&t.split(':')[1]===squad.gtype;
+    });
     const active=members.length>=squad.count;
     
     members.forEach(card=>{
