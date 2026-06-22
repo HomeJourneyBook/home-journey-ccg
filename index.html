@@ -26,18 +26,18 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   .header-desktop-btns{display:flex!important;}
 }
 
-.player-zone{border:1px solid;background:#0d0d1a;display:flex;flex-direction:row;align-items:stretch;overflow:visible;position:relative;z-index:10;}
+.player-zone{border:1px solid;background:#0d0d1a;display:flex;flex-direction:column;overflow:visible;position:relative;z-index:10;}
 .player-art-placeholder{width:100%;height:56px;border:1px solid #ffffff11;display:flex;align-items:center;justify-content:center;font-size:10px;opacity:0.2;margin-top:2px;background:#06060e;flex-shrink:0;}
-.player-sidebar{width:90px;min-width:90px;padding:12px 4px 6px;border-right:1px solid #ffffff11;display:flex;flex-direction:column;justify-content:center;gap:4px;}
-.player-hand-wrap{flex:1;overflow:visible;padding:6px;position:relative;min-width:0;}
+.player-sidebar{display:none;}
+.player-hand-wrap{width:100%;overflow:visible;padding:4px 6px;position:relative;}
 .player-zone.jeet{border-color:#7b2d8b55;background:#0d0a12;position:relative;z-index:10;}
 .player-zone.base-targetable .player-sidebar{cursor:pointer;border:1px solid #e05555;box-shadow:0 0 8px #e0555533;background:#1a0808;}
 
 .player-zone.tea{border-color:#2d7b3555;background:#0a0d0a;position:relative;z-index:10;}
-.player-header{display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;}
-.player-name{font-family:'Press Start 2P',monospace;font-size:6px;line-height:1.4;}
+.player-header{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;padding:5px 10px;border-bottom:1px solid #ffffff11;flex-wrap:wrap;}
+.player-name{font-family:'Press Start 2P',monospace;font-size:7px;}
 .jeet .player-name{color:#b44fd4;}.tea .player-name{color:#4db854;}
-.player-stats{display:flex;flex-direction:column;gap:3px;align-items:center;}
+.player-stats{display:flex;flex-direction:row;gap:10px;align-items:center;}
 .stat{display:flex;align-items:center;gap:4px;font-size:10px;}.stat-val{font-weight:bold;}
 .hp-val{color:#e05555;}.ess-val{color:#5599ff;}
 .base-hp-bar{width:100px;height:5px;background:#1a1a1a;border:1px solid #333;overflow:hidden;}
@@ -48,7 +48,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .arena-half{flex:1;padding:6px;}
 .arena-half:first-child{border-right:1px solid #7b2d8b22;}
 .arena-half:last-child{border-left:1px solid #2d7b3522;}
-.arena-vs{padding:6px 8px;font-family:'Press Start 2P',monospace;font-size:6px;color:#444;letter-spacing:4px;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;text-align:center;order:1;background:#06060e;}
+.arena-vs{display:none;}
 .zone-label{font-size:8px;color:#444;margin-bottom:4px;}
 
 .hand{display:flex;flex-wrap:nowrap;min-height:130px;padding:6px 6px 6px;background:transparent;justify-content:center;align-items:flex-end;overflow:visible;position:relative;width:100%;}
@@ -67,7 +67,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 8px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
 .hand-mini .card-mini{flex-shrink:0;min-width:52px;width:52px;}
 .battlefield{min-height:70px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:6px;justify-content:center;}
-.persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:#06060e;border-top:1px solid #ffffff08;align-items:center;}
+.persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:#06060e;border-top:1px solid #ffffff08;align-items:center;justify-content:center;}
 .pcard{padding:3px 7px;border:1px solid;font-size:8px;display:flex;align-items:center;gap:4px;}
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
 .pcard.jcp{border-color:#7b2d8b44;color:#b44fd488;}
@@ -137,6 +137,15 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .log-panel-close{font-size:9px;color:#555;cursor:pointer;border:none;background:transparent;padding:2px 6px;}
 .log-panel-close:hover{color:#c8a84b;}
 .log-panel .log{height:180px;border:none;}
+/* NEW LAYOUT ZONES */
+.opp-hand-zone{padding:4px 6px;background:#06060e;border-bottom:1px solid #ffffff08;min-height:48px;display:flex;align-items:center;justify-content:center;}
+.stats-bar{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:5px 10px;flex-wrap:wrap;cursor:pointer;}
+.stats-bar.jeet{border-top:1px solid #7b2d8b33;border-bottom:1px solid #7b2d8b33;background:#0d0a12;}
+.stats-bar.tea{border-top:1px solid #2d7b3533;border-bottom:1px solid #2d7b3533;background:#0a0d0a;}
+.stats-bar.base-targetable{border-color:#e05555 !important;box-shadow:0 0 8px #e0555533;}
+.field-zone{min-height:80px;padding:6px;background:#06060e;}
+.field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
+.player-hand-zone{padding:4px 6px;background:#06060e;border-top:1px solid #ffffff08;}
 /* BOTTOM BAR */
 .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;background:#0d0d1a;border-top:1px solid #ffffff11;}
 .bottom-bar .btn-end{font-size:10px;padding:8px 32px;}
@@ -178,6 +187,45 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .screen-back:hover{color:#c8a84b;border-color:#c8a84b;}
 .screen-body{max-width:700px;margin:0 auto;font-size:11px;line-height:1.9;color:#888;}
 .screen-body h2{font-family:'Press Start 2P',monospace;font-size:9px;color:#c8a84b;margin:24px 0 10px;}
+/* CATALOG */
+.catalog-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.filter-group{display:flex;gap:4px;flex-wrap:wrap;}
+.filter-btn{font-family:'Share Tech Mono',monospace;font-size:9px;padding:4px 10px;border:1px solid #444;background:transparent;color:#666;cursor:pointer;transition:all .15s;}
+.filter-btn:hover{color:#c8a84b;border-color:#c8a84b;}
+.filter-btn.active{color:#c8a84b;border-color:#c8a84b;background:#c8a84b11;}
+.filter-btn.jeet-f.active{color:#b44fd4;border-color:#b44fd4;background:#b44fd411;}
+.search-input{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid #333;background:#06060e;color:#e8e0c8;flex:1;min-width:140px;}
+.search-input:focus{outline:none;border-color:#c8a84b;}
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+@media(max-width:600px){.catalog-grid{grid-template-columns:repeat(2,1fr);}}
+.cat-card{border:1px solid;padding:8px;background:#0d0d1a;cursor:default;position:relative;}
+.cat-card.tea-c{border-color:#c8a84b44;}.cat-card.jeet-c{border-color:#7b2d8b44;}
+.cat-card-art{font-size:28px;text-align:center;padding:8px 0;}
+.cat-card-name{font-family:'Press Start 2P',monospace;font-size:6px;text-align:center;margin:4px 0;line-height:1.4;}
+.tea-c .cat-card-name{color:#c8a84b;}.jeet-c .cat-card-name{color:#b44fd4;}
+.cat-card-cost{position:absolute;top:-8px;left:-8px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:6px;border:1px solid;}
+.tea-c .cat-card-cost{background:#1a1200;border-color:#c8a84b;color:#c8a84b;}
+.jeet-c .cat-card-cost{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
+.cat-card-stats{display:flex;justify-content:space-between;font-size:9px;margin:3px 0;}
+.cat-card-hp{color:#e05555;}.cat-card-atk{color:#55aaff;}
+.cat-card-ab{font-size:7px;color:#666;text-align:center;line-height:1.4;min-height:20px;margin-top:3px;}
+.cat-card-tags{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:3px;}
+.cat-count{font-size:9px;color:#555;margin-bottom:8px;}
+.card-detail-overlay{position:fixed;inset:0;background:#000000cc;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+.card-detail{background:#0d0d1a;border:1px solid #c8a84b;padding:20px;max-width:300px;width:100%;position:relative;}
+.card-detail.jeet-detail{border-color:#b44fd4;}
+.card-detail-close{position:absolute;top:8px;right:10px;font-size:14px;cursor:pointer;color:#555;background:none;border:none;}
+.card-detail-close:hover{color:#c8a84b;}
+.card-detail-art{font-size:60px;text-align:center;padding:16px 0;}
+.card-detail-name{font-family:'Press Start 2P',monospace;font-size:11px;text-align:center;margin-bottom:8px;}
+.tea-detail .card-detail-name{color:#c8a84b;}.jeet-detail .card-detail-name{color:#b44fd4;}
+.card-detail-stats{display:flex;justify-content:center;gap:20px;font-size:14px;margin:8px 0;}
+.card-detail-ab{font-size:11px;color:#888;text-align:center;line-height:1.7;margin:10px 0;}
+.card-detail-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+.card-detail-cost{text-align:center;margin-bottom:8px;}
+.card-detail-cost span{font-family:'Press Start 2P',monospace;font-size:9px;padding:3px 10px;border:1px solid;display:inline-block;}
+.tea-detail .card-detail-cost span{border-color:#c8a84b;color:#c8a84b;}
+.jeet-detail .card-detail-cost span{border-color:#b44fd4;color:#b44fd4;}
 .screen-body h3{font-family:'Press Start 2P',monospace;font-size:7px;color:#888;margin:16px 0 8px;letter-spacing:1px;}
 .screen-body p{margin-bottom:10px;}
 .screen-body ul{margin:8px 0 12px 20px;}
@@ -199,6 +247,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   <div class="landing-sub">· · · CCG · · ·</div>
   <button class="landing-btn" onclick="startGame()">▶ Start Game</button>
   <button class="landing-btn secondary" onclick="showScreen('rules')">Rules</button>
+  <button class="landing-btn secondary" onclick="showScreen('catalog')">📚 Card Catalog</button>
   <button class="landing-btn secondary" onclick="showScreen('lore')">📖 Lore</button>
 </div>
 
@@ -209,54 +258,68 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
     <div class="screen-title">Rules</div>
   </div>
   <div class="screen-body">
+
     <h2>Objective</h2>
-    <p>Destroy the enemy base. Tea defends the Tavern (20 HP), Jeet defends the Core (20 HP). First to bring the enemy base to 0 wins.</p>
+    <p>Two players face off — Tea defends the Tavern, Jeet defends the Core. Each base starts at 20 HP. Reduce your opponent's base to zero to win. The game is played on a single device, passing it between turns.</p>
+
+    <h2>Setup & Mulligan</h2>
+    <p>Each player starts with 5 cards drawn from their shuffled deck. Before taking your first turn, you may mulligan — reshuffle your hand into the deck and redraw.</p>
+    <p>You get up to 3 mulligans per game: the first is free (draw 5 cards), the second costs 1 card (draw 4), the third costs 2 cards (draw 3). The Mulligan button appears only on your first turn.</p>
 
     <h2>Turn Structure</h2>
-    <ul>
-      <li>+1 Essence max (fully restored)</li>
-      <li>Draw 1 card from deck</li>
-      <li>Passive abilities trigger (Aslex, Phlegmor, etc.)</li>
-      <li>Play cards, attack, use abilities</li>
-      <li>End Turn</li>
-    </ul>
+    <p>Each turn follows this order: your Essence maximum increases by 1 and fully refills. Passive abilities trigger (Worlds, Artifacts, field cards). You draw 1 card. Then you may play cards, attack, and use abilities in any order. Press End Turn when done.</p>
 
     <h2>Essence</h2>
-    <p>Every card has a cost. You start with 1/1 Essence and gain +1 max each turn. Burning a card from your hand gives +1 max Essence permanently — but only once per turn. Burned cards are gone forever.</p>
+    <p>Every card has an Essence cost shown in the top corner. You start with 1 Essence on turn 1 and gain +1 maximum each turn — so on turn 3 you have 3/3. Essence fully refills every turn. You can never have more Essence than your current maximum.</p>
+    <p>Once per turn, you may <strong>Burn</strong> a card from your hand to permanently increase your Essence maximum by 1. Burned cards go to the Void and are gone forever — they cannot be revived.</p>
 
-    <h2>Playing Cards</h2>
-    <p>Click a card in your hand to play it if you have enough Essence. Creatures enter sleeping (dashed border) and can act next turn unless they have Vanguard.</p>
+    <h2>Your Hand</h2>
+    <p>Tap a card to preview it. While previewed, you'll see two buttons above it: <strong>Play</strong> (if you can afford it) and <strong>Burn</strong> (if you haven't burned yet this turn). Tap the card again to put it back. Tap elsewhere to cancel.</p>
 
-    <h2>Attacking</h2>
-    <p>Click a creature on your field to select it (gold glow), then click an enemy creature or press ⚔ Hit Base. Counter-attack always fires even if the target dies.</p>
+    <h2>Playing Creatures</h2>
+    <p>Creatures enter the battlefield in a Sleeping state — they cannot act on the turn they are played (shown with a dashed border). On your next turn they wake up and can attack or use abilities. Exception: creatures with <strong>Vanguard</strong> can act immediately.</p>
+    <p>When a creature attacks, the defender always strikes back — even if it dies from the attack. Both creatures deal their ATK as damage simultaneously.</p>
 
-    <h2>Abilities</h2>
-    <ul>
-      <li><span class="tag-inline vanguard">VANGUARD</span> — attacks immediately on the turn it enters</li>
-      <li><span class="tag-inline provoke">PROVOKE</span> — all enemy attacks must target this creature</li>
-      <li><span class="tag-inline fear">FEAR</span> — attacked creature skips its next turn</li>
-      <li><span class="tag-inline pierce">PIERCE</span> — ignores Provoke, hits base directly. Cannot bypass Bushido.</li>
-      <li><span class="tag-inline unique">UNIQUE</span> — legendary card, only one copy per deck</li>
-    </ul>
-
-    <h2>Worlds & Artifacts</h2>
-    <p>Worlds and Artifacts are permanent cards placed on the field. Only one World can be active at a time — playing a new one replaces the old. Artifacts stack up to 2. Both are visible in the Worlds & Artifacts zone below each battlefield.</p>
-
-    <h2>Spells</h2>
-    <p>One-use cards with immediate effects. Sent to graveyard after use.</p>
+    <h2>Attacking the Base</h2>
+    <p>To attack the enemy base, select a creature on your field then tap the opponent's stats bar (it glows red when available). The base cannot be attacked if the enemy has a creature with Provoke or Bushido on the field.</p>
 
     <h2>Graveyard & Void</h2>
-    <p>Creatures killed in battle go to the Graveyard (☠ counter). Phlegmor and revival spells can raise cards from the Graveyard. Burned cards go to the Void and cannot be raised.</p>
+    <p>Creatures killed in battle go to the <strong>Graveyard</strong> (☠ counter). Some cards can revive creatures from the graveyard. Burned cards and cards discarded by spells go to the <strong>Void</strong> — they cannot be retrieved by any means.</p>
 
-    <h2>Special Abilities</h2>
-    <h3>Orbiton</h3>
-    <p>Click to select, then click a wounded ally (green glow) to heal, or an enemy (red glow) to attack normally.</p>
-    <h3>Umbasir</h3>
-    <p>Select it, then press 🌀 Umbasir: Hit All to deal damage to all enemy creatures at once.</p>
-    <h3>Big Vardan</h3>
-    <p>Select it, then press ⚡ Dark Will: Hit All to deal 2 damage to all enemy creatures.</p>
-    <h3>Burn</h3>
-    <p>Press 🔥 Burn to sacrifice a card from your hand. Increases your Essence maximum by 1. Once per turn.</p>
+    <h2>Worlds & Artifacts</h2>
+    <p>Worlds and Artifacts are permanent cards placed on the battlefield. You can only have one World active at a time — playing a new one replaces the old. Artifacts stack (up to 2). Both trigger their effects at the start of your turn.</p>
+
+    <h2>Spells</h2>
+    <p>Spells trigger instantly when played and go to the graveyard. They have no body on the battlefield.</p>
+
+    <h2>Keywords</h2>
+    <h3>Vanguard</h3>
+    <p>This creature can attack on the same turn it enters the battlefield.</p>
+    <h3>Provoke</h3>
+    <p>All enemy attacks — including attacks on the base — must target this creature first. A feared Provoke creature still blocks. Multiple Provoke creatures each draw attacks.</p>
+    <h3>Bushido (Nabunagi only)</h3>
+    <p>All attacks — including Pierce — must target this creature. Bushido overrides Provoke and applies even while Feared.</p>
+    <h3>Pierce</h3>
+    <p>This creature ignores Provoke and can attack the base directly. Pierce does not bypass Bushido.</p>
+    <h3>Fear</h3>
+    <p>When this creature attacks, the target skips its next turn. A Feared creature cannot attack but Provoke still applies — it still blocks attacks.</p>
+    <h3>Burn 🔥</h3>
+    <p>When this creature attacks, the target catches fire. Burning creatures lose 1 HP at the start of every turn. The fire is permanent until removed. An Orbiton heal removes Burn.</p>
+    <h3>Heal: X</h3>
+    <p>Active ability. Select this creature, then tap a wounded ally to restore X HP and remove all debuffs (Fear and Burn). Can also attack normally instead.</p>
+    <h3>AOE: X</h3>
+    <p>Active ability. Select this creature, then use the ability button to deal X damage to all enemy creatures at once.</p>
+    <h3>Draw: X</h3>
+    <p>Draw X extra cards — either each turn (passive) or on attack (trigger), depending on the card.</p>
+    <h3>Regen: X</h3>
+    <p>This creature restores X HP to itself at the start of each turn.</p>
+
+    <h2>HP vs Max HP</h2>
+    <p>Some abilities increase Max HP. If a creature is at full HP when its Max HP increases, its current HP also increases (e.g. 3/3 becomes 4/4). If it is wounded, only the maximum grows (e.g. 2/3 becomes 2/4).</p>
+
+    <h2>Empty Deck</h2>
+    <p>If your deck is empty, you simply do not draw cards. There is no penalty — the game continues until a base reaches zero.</p>
+
   </div>
 </div>
 
@@ -293,6 +356,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 <div class="game" id="game" style="display:none;flex-direction:column;" onclick="handleGameClick(event)">
 
+<!-- HEADER -->
 <div class="header">
   <div class="title">HOME'S JOURNEY</div>
   <div class="turn-info" id="turnInfo">Turn <span id="turnNum">1</span> · <span id="turnPlayer">TEA</span></div>
@@ -309,28 +373,53 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   </div>
 </div>
 
-<!-- JEET ZONE -->
-<div class="player-zone jeet" id="zoneJeet" style="order:0" onclick="onBaseClick('jeet')">
-  <div class="player-sidebar" id="jeetSidebar">
-    <div class="player-header">
-      <div class="player-name jeet">⬡ JEET CORE</div>
-      <div class="player-stats">
-        <div class="stat">🖤 <span class="stat-val hp-val" id="jeetHp">20</span>/20</div>
-        <div class="stat">💠 <span class="ess-val" id="jeetEss">1</span>/<span id="jeetEssMax">1</span></div>
-        <div class="stat" style="font-size:8px;color:#555">🃏<span id="jeetDeckCount">35</span> ☠<span id="jeetGraveCount">0</span></div>
-      </div>
-    </div>
-    <div class="player-art-placeholder" id="jeetArtSlot">⬡</div>
-    <div class="sidebar-btns" id="jeetSidebarBtns" style="display:none;flex-direction:column;gap:4px;margin-top:8px;">
-      <button class="btn btn-base" id="hitBaseJ" style="font-size:8px;padding:6px 4px;width:100%;display:none;" onclick="tryAttackBase()">⚔ Hit Base</button>
-    </div>
-  </div>
-  <div class="player-hand-wrap">
-    <div class="hand" id="jeetHand"></div>
-  </div>
+<!-- OPP HAND (hidden) -->
+<div class="opp-hand-zone" id="oppHandZone">
+  <div class="hand-mini" id="jeetHand"></div>
 </div>
 
-<div class="bottom-bar" id="jeetBottomBar" style="display:none;order:0.5;flex-direction:column;align-items:center;gap:6px;padding:8px;">
+<!-- OPP STATS -->
+<div class="stats-bar jeet" id="oppStats" onclick="onBaseClick('jeet')">
+  <span class="player-name jeet">⬡ JEET CORE</span>
+  <span class="stat">🖤 <span class="stat-val hp-val" id="jeetHp">20</span>/20</span>
+  <span class="stat">💠 <span class="ess-val" id="jeetEss">1</span>/<span id="jeetEssMax">1</span></span>
+  <span class="stat" style="font-size:8px;color:#555">🃏<span id="jeetDeckCount">35</span> ☠<span id="jeetGraveCount">0</span></span>
+</div>
+
+<!-- OPP FIELD -->
+<div class="field-zone" id="oppFieldZone">
+  <div class="battlefield" id="jeetField"></div>
+  <div class="persist" id="jeetPersist"></div>
+</div>
+
+<!-- PLAYER FIELD -->
+<div class="field-zone" id="playerFieldZone">
+  <div class="battlefield" id="teaField"></div>
+  <div class="persist" id="teaPersist"></div>
+</div>
+
+<!-- PLAYER STATS -->
+<div class="stats-bar tea" id="playerStats" onclick="onBaseClick('tea')">
+  <span class="player-name tea">⬡ TAVERN</span>
+  <span class="stat">🤍 <span class="stat-val hp-val" id="teaHp">20</span>/20</span>
+  <span class="stat">💠 <span class="ess-val" id="teaEss">1</span>/<span id="teaEssMax">1</span></span>
+  <span class="stat" style="font-size:8px;color:#555">🃏<span id="teaDeckCount">35</span> ☠<span id="teaGraveCount">0</span></span>
+</div>
+
+<!-- PLAYER HAND -->
+<div class="player-hand-zone" id="playerHandZone">
+  <div class="hand" id="teaHand"></div>
+</div>
+
+<!-- BOTTOM BAR - End Turn + Mulligan -->
+<div class="bottom-bar" id="teaBottomBar" style="display:none;flex-direction:column;align-items:center;gap:6px;padding:8px;">
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="btn btn-end" style="padding:10px 28px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
+    <button class="btn" id="mulliganBtnT" style="padding:10px 16px;font-size:9px;border-color:#9966ff;color:#9966ff;display:none;" onclick="doMulligan('tea')">🔀 Mulligan</button>
+  </div>
+  <div id="hintT2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;"></div>
+</div>
+<div class="bottom-bar" id="jeetBottomBar" style="display:none;flex-direction:column;align-items:center;gap:6px;padding:8px;">
   <div style="display:flex;gap:8px;align-items:center;">
     <button class="btn btn-end" style="padding:10px 28px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
     <button class="btn" id="mulliganBtnJ" style="padding:10px 16px;font-size:9px;border-color:#9966ff;color:#9966ff;display:none;" onclick="doMulligan('jeet')">🔀 Mulligan</button>
@@ -338,48 +427,19 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   <div id="hintJ2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;"></div>
 </div>
 
-<!-- ARENA -->
-<div class="arena" id="zoneArena" style="order:1">
-  <div class="arena-half" id="jeetFieldWrap" style="order:0">
-    <div class="battlefield" id="jeetField"></div>
-    <div class="persist" id="jeetPersist"></div>
-  </div>
-  <div class="arena-vs" style="order:1">· VS ·</div>
-  <div class="arena-half" id="teaFieldWrap" style="order:2">
-    <div class="battlefield" id="teaField"></div>
-    <div class="persist" id="teaPersist"></div>
-  </div>
+<!-- HINT -->
+<div style="font-size:9px;color:#c8a84b;text-align:center;padding:4px 8px;min-height:16px;" id="hintGlobal"></div>
+
+<!-- HIDDEN LOGIC ELEMENTS -->
+<div style="display:none;">
+  <button id="hitBaseT"></button><button id="hitBaseJ"></button>
+  <button id="umbBtnT" class="hidden"></button><button id="umbBtnJ" class="hidden"></button>
+  <button id="vardanBtnT" class="hidden"></button><button id="vardanBtnJ" class="hidden"></button>
+  <div id="hintT"></div><div id="hintJ"></div>
+  <div id="jeetSidebarBtns"></div><div id="teaSidebarBtns"></div>
 </div>
 
-<!-- TEA ZONE -->
-<div class="player-zone tea" id="zoneTea" style="order:2" onclick="onBaseClick('tea')">
-  <div class="player-sidebar" id="teaSidebar">
-    <div class="player-header">
-      <div class="player-name tea">⬡ TAVERN</div>
-      <div class="player-stats">
-        <div class="stat">🤍 <span class="stat-val hp-val" id="teaHp">20</span>/20</div>
-        <div class="stat">💠 <span class="ess-val" id="teaEss">1</span>/<span id="teaEssMax">1</span></div>
-        <div class="stat" style="font-size:8px;color:#555">🃏<span id="teaDeckCount">35</span> ☠<span id="teaGraveCount">0</span></div>
-      </div>
-    </div>
-    <div class="player-art-placeholder" id="teaArtSlot">⬡</div>
-    <div class="sidebar-btns" id="teaSidebarBtns" style="display:none;flex-direction:column;gap:4px;margin-top:8px;">
-      <button class="btn btn-base" id="hitBaseT" style="font-size:8px;padding:6px 4px;width:100%;display:none;" onclick="tryAttackBase()">⚔ Hit Base</button>
-    </div>
-  </div>
-  <div class="player-hand-wrap">
-    <div class="hand" id="teaHand"></div>
-  </div>
-</div>
-
-<div class="bottom-bar" id="teaBottomBar" style="display:none;order:2.5;flex-direction:column;align-items:center;gap:6px;padding:8px;">
-  <div style="display:flex;gap:8px;align-items:center;">
-    <button class="btn btn-end" style="padding:10px 28px;font-size:10px;" onclick="endTurn()">End Turn ▶</button>
-    <button class="btn" id="mulliganBtnT" style="padding:10px 16px;font-size:9px;border-color:#9966ff;color:#9966ff;display:none;" onclick="doMulligan('tea')">🔀 Mulligan</button>
-  </div>
-  <div id="hintT2" style="font-size:9px;color:#c8a84b;text-align:center;min-height:14px;"></div>
-</div>
-
+<!-- LOG -->
 <div class="log-panel" id="logPanel">
   <div class="log-panel-header">
     <span class="log-panel-title">⚔ Battle Log</span>
@@ -388,6 +448,53 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   <div class="log" id="log"></div>
 </div>
 
+</div>
+<!-- CARD DETAIL MODAL -->
+<div class="card-detail-overlay" id="cardDetailOverlay" style="display:none" onclick="closeCardDetail(event)">
+  <div class="card-detail" id="cardDetailBox">
+    <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
+    <div class="card-detail-art" id="cdArt"></div>
+    <div class="card-detail-name" id="cdName"></div>
+    <div class="card-detail-cost"><span id="cdCost"></span></div>
+    <div class="card-detail-stats" id="cdStats"></div>
+    <div class="card-detail-ab" id="cdAb"></div>
+    <div class="card-detail-tags" id="cdTags"></div>
+  </div>
+</div>
+
+<!-- CATALOG SCREEN -->
+<div class="screen" id="catalogScreen">
+  <div class="screen-header">
+    <button class="screen-back" onclick="hideScreen('catalog')">← Back</button>
+    <div class="screen-title">📚 Card Catalog</div>
+  </div>
+  <div style="max-width:900px;margin:0 auto;padding:0 8px;">
+    <div class="catalog-filters">
+      <input class="search-input" id="catalogSearch" placeholder="Search cards..." oninput="renderCatalog()">
+      <div class="filter-group" id="factionFilters">
+        <button class="filter-btn active" data-faction="all" onclick="setFilter('faction','all',this)">All</button>
+        <button class="filter-btn" data-faction="tea" onclick="setFilter('faction','tea',this)">🍵 Tea</button>
+        <button class="filter-btn jeet-f" data-faction="jeet" onclick="setFilter('faction','jeet',this)">🖤 Jeet</button>
+      </div>
+      <div class="filter-group" id="typeFilters">
+        <button class="filter-btn active" data-type="all" onclick="setFilter('type','all',this)">All Types</button>
+        <button class="filter-btn" data-type="creature" onclick="setFilter('type','creature',this)">Creatures</button>
+        <button class="filter-btn" data-type="unique" onclick="setFilter('type','unique',this)">1/1 Unique</button>
+        <button class="filter-btn" data-type="spell" onclick="setFilter('type','spell',this)">Spells</button>
+        <button class="filter-btn" data-type="world" onclick="setFilter('type','world',this)">Worlds</button>
+        <button class="filter-btn" data-type="artifact" onclick="setFilter('type','artifact',this)">Artifacts</button>
+      </div>
+    </div>
+    <div class="filter-group" id="sortFilters" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+      <span style="font-size:8px;color:#555;align-self:center;">Sort:</span>
+      <button class="filter-btn active" onclick="setSort('name',this)">A-Z</button>
+      <button class="filter-btn" onclick="setSort('cost',this)">Cost ↑</button>
+      <button class="filter-btn" onclick="setSort('hp',this)">HP ↓</button>
+      <button class="filter-btn" onclick="setSort('atk',this)">ATK ↓</button>
+    </div>
+    <div class="cat-count" id="catalogCount"></div>
+    <div class="catalog-grid" id="catalogGrid"></div>
+  </div>
 </div>
 
 <div class="modal-overlay hidden" id="confirmModal">
@@ -431,7 +538,7 @@ const DEFS = {
   t_sp3:       {name:"SHEN'S CALL",cost:3,hp:0,atk:0,art:"✨",f:"tea",tags:["spell","revive:full"],              ab:"Revive last creature from your graveyard.",spell:true},
   t_sp4:       {name:"SCHEME",     cost:2,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
   // TEA WORLDS & ARTIFACTS
-  t_w1:        {name:"VALLEY",     cost:3,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world","ess_add:1"],              ab:"+1 Essence each turn.",world:true},
+  t_w1:        {name:"VALLEY",     cost:3,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world","draw:1"],                 ab:"Draw 1 extra card each turn.",world:true},
   t_w2:        {name:"DOMINIA",    cost:3,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","maxhp_add:1"],              ab:"+1 HP to all allies on field.",world:true},
   t_a1:        {name:"FOUND.BOOK", cost:3,hp:0,atk:0,art:"📖",f:"tea",tags:["artifact","draw:1"],  ab:"Draw 1 extra card per turn.",artifact:true},
   t_a2:        {name:"TEA FOUNT.", cost:3,hp:0,atk:0,art:"⛲",f:"tea",tags:["artifact","heal:1"],  ab:"Heal all allies 1 HP per turn.",artifact:true},
@@ -455,7 +562,7 @@ const DEFS = {
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤",f:"jeet",tags:["spell","revive:full","revive:any"],             ab:"Revive last creature from any graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:2,hp:0,atk:0,art:"⚫",f:"jeet",tags:["spell","draw:2"],             ab:"Draw 2 cards.",spell:true},
   // JEET WORLDS & ARTIFACTS
-  j_w1:        {name:"WEB",        cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world","ess_add:1"],             ab:"+1 Essence each turn.",world:true},
+  j_w1:        {name:"WEB",        cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world","draw:1"],                ab:"Draw 1 extra card each turn.",world:true},
   j_w2:        {name:"NORRIA",     cost:3,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","maxhp_add:1"],             ab:"+1 HP to all allies on field.",world:true},
   j_a1:        {name:"DARK WRIT.", cost:3,hp:0,atk:0,art:"📕",f:"jeet",tags:["artifact","draw:1"], ab:"Draw 1 extra card per turn.",artifact:true},
   j_a2:        {name:"WORMHOLE",   cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["artifact","heal:1"], ab:"Heal all Jeet allies 1 HP per turn.",artifact:true},
@@ -772,12 +879,15 @@ function render(){
   rZone('teaField',G.tea.field,'field');
   rZone('jeetField',G.jeet.field,'field');
   // Active player sees their hand, opponent sees face-down cards
+  // Active player hand
   if(G.turn==='tea'){
-    document.getElementById('teaHand').className='hand';
+    const th=document.getElementById('teaHand');
+    if(th) th.className='hand';
     rZone('teaHand',G.tea.hand,'hand');
     rHiddenHand('jeetHand',G.jeet.hand,'jeet');
   } else {
-    document.getElementById('jeetHand').className='hand';
+    const jh=document.getElementById('jeetHand');
+    if(jh) jh.className='hand';
     rZone('jeetHand',G.jeet.hand,'hand');
     rHiddenHand('teaHand',G.tea.hand,'tea');
   }
@@ -799,11 +909,7 @@ function render(){
   if(inactSB)inactSB.style.display='none';
   const actSB=document.getElementById(G.turn+'SidebarBtns');
   if(actSB)actSB.style.display='flex';
-  // Art placeholder - show only for active player
-  const inactArt=document.getElementById((G.turn==='tea'?'jeet':'tea')+'ArtSlot');
-  if(inactArt)inactArt.style.display='none';
-  const actArt=document.getElementById(G.turn+'ArtSlot');
-  if(actArt)actArt.style.display='flex';
+
   // Also hide inactive bottom bar
   const inactBB2=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
   if(inactBB2)inactBB2.style.display='none';
@@ -817,14 +923,15 @@ function render(){
   const showHitBase=G.phase==='selectTarget';
 
   const oppKey=G.turn==='tea'?'jeet':'tea';
-  const oppZoneEl=document.getElementById('zone'+oppKey.charAt(0).toUpperCase()+oppKey.slice(1));
+  const oppZoneEl=document.getElementById('oppStats');
   if(oppZoneEl){
     const canHitBase=(G.phase==='selectTarget'||G.phase==='healTarget')&&G.sel&&canAttackBase();
     oppZoneEl.classList.toggle('base-targetable', canHitBase);
   }
   // Always remove from own zone
   const ownZoneEl=document.getElementById('zone'+G.turn.charAt(0).toUpperCase()+G.turn.slice(1));
-  if(ownZoneEl) ownZoneEl.classList.remove('base-targetable');
+  const playerStatsEl=document.getElementById('playerStats');
+  if(playerStatsEl) playerStatsEl.classList.remove('base-targetable');
 
   // Hit Base is now done by clicking enemy zone - hide button
   const hitEl=document.getElementById('hitBase'+sfx);if(hitEl)hitEl.style.display='none';
@@ -1523,30 +1630,174 @@ function adjustHandOverlap(){
 }
 
 function reorderZones(){
-  const jeet=document.getElementById('zoneJeet');
-  const tea=document.getElementById('zoneTea');
-  const arena=document.getElementById('zoneArena');
-  const jeetF=document.getElementById('jeetFieldWrap');
-  const teaF=document.getElementById('teaFieldWrap');
-  const jeetBB=document.getElementById('jeetBottomBar');
-  const teaBB=document.getElementById('teaBottomBar');
-  if(G.turn==='tea'){
-    if(jeet)jeet.style.order='0';
-    if(jeetBB)jeetBB.style.order='1';
-    if(arena)arena.style.order='2';
-    if(tea)tea.style.order='3';
-    if(teaBB)teaBB.style.order='4';
-    if(jeetF)jeetF.style.order='0';
-    if(teaF)teaF.style.order='2';
-  } else {
-    if(tea)tea.style.order='0';
-    if(teaBB)teaBB.style.order='1';
-    if(arena)arena.style.order='2';
-    if(jeet)jeet.style.order='3';
-    if(jeetBB)jeetBB.style.order='4';
-    if(teaF)teaF.style.order='0';
-    if(jeetF)jeetF.style.order='2';
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  const playerK=G.turn;
+  const oppP=G[oppK];
+  const playerP=G[playerK];
+
+  // Update opp stats bar content
+  const oppStats=document.getElementById('oppStats');
+  const playerStats=document.getElementById('playerStats');
+  if(oppStats){
+    oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
+    oppStats.innerHTML=`
+      <span class="player-name ${oppK}">${oppK==='jeet'?'⬡ JEET CORE':'⬡ TAVERN'}</span>
+      <span class="stat">${oppK==='jeet'?'🖤':'🤍'} <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span>/20</span>
+      <span class="stat">💠 <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>
+      <span class="stat" style="font-size:8px;color:#555">🃏<span id="${oppK}DeckCount">${oppP.deck.length}</span> ☠<span id="${oppK}GraveCount">${oppP.grave.length}</span></span>`;
+    oppStats.onclick=()=>onBaseClick(oppK);
   }
+  if(playerStats){
+    playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
+    playerStats.innerHTML=`
+      <span class="player-name ${playerK}">${playerK==='jeet'?'⬡ JEET CORE':'⬡ TAVERN'}</span>
+      <span class="stat">${playerK==='jeet'?'🖤':'🤍'} <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span>/20</span>
+      <span class="stat">💠 <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>
+      <span class="stat" style="font-size:8px;color:#555">🃏<span id="${playerK}DeckCount">${playerP.deck.length}</span> ☠<span id="${playerK}GraveCount">${playerP.grave.length}</span></span>`;
+    playerStats.onclick=()=>onBaseClick(playerK);
+  }
+
+  // Move fields to correct zones
+  const oppFieldZone=document.getElementById('oppFieldZone');
+  const playerFieldZone=document.getElementById('playerFieldZone');
+  const jeetField=document.getElementById('jeetField');
+  const jeetPersist=document.getElementById('jeetPersist');
+  const teaField=document.getElementById('teaField');
+  const teaPersist=document.getElementById('teaPersist');
+
+  if(oppFieldZone&&playerFieldZone){
+    if(oppK==='jeet'){
+      if(jeetField&&jeetField.parentElement!==oppFieldZone) oppFieldZone.appendChild(jeetField);
+      if(jeetPersist&&jeetPersist.parentElement!==oppFieldZone) oppFieldZone.appendChild(jeetPersist);
+      if(teaField&&teaField.parentElement!==playerFieldZone) playerFieldZone.appendChild(teaField);
+      if(teaPersist&&teaPersist.parentElement!==playerFieldZone) playerFieldZone.appendChild(teaPersist);
+    } else {
+      if(teaField&&teaField.parentElement!==oppFieldZone) oppFieldZone.appendChild(teaField);
+      if(teaPersist&&teaPersist.parentElement!==oppFieldZone) oppFieldZone.appendChild(teaPersist);
+      if(jeetField&&jeetField.parentElement!==playerFieldZone) playerFieldZone.appendChild(jeetField);
+      if(jeetPersist&&jeetPersist.parentElement!==playerFieldZone) playerFieldZone.appendChild(jeetPersist);
+    }
+  }
+
+  // Move hands
+  const oppHandZone=document.getElementById('oppHandZone');
+  const playerHandZone=document.getElementById('playerHandZone');
+  const jeetHand=document.getElementById('jeetHand');
+  const teaHand=document.getElementById('teaHand');
+  if(oppHandZone&&playerHandZone){
+    if(oppK==='jeet'){
+      if(jeetHand&&jeetHand.parentElement!==oppHandZone) oppHandZone.appendChild(jeetHand);
+      if(teaHand&&teaHand.parentElement!==playerHandZone) playerHandZone.appendChild(teaHand);
+    } else {
+      if(teaHand&&teaHand.parentElement!==oppHandZone) oppHandZone.appendChild(teaHand);
+      if(jeetHand&&jeetHand.parentElement!==playerHandZone) playerHandZone.appendChild(jeetHand);
+    }
+  }
+
+  // Show correct bottom bar
+  const teaBB=document.getElementById('teaBottomBar');
+  const jeetBB=document.getElementById('jeetBottomBar');
+  if(teaBB) teaBB.style.display=G.turn==='tea'?'flex':'none';
+  if(jeetBB) jeetBB.style.display=G.turn==='jeet'?'flex':'none';
+}
+
+// ── CATALOG ────────────────────────────────────────────────
+const catalogFilters={faction:'all',type:'all',sort:'name'};
+
+function setSort(val,btn){
+  catalogFilters.sort=val;
+  const group=btn.parentElement;
+  group.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCatalog();
+}
+
+function setFilter(key,val,btn){
+  catalogFilters[key]=val;
+  // Update active button in group
+  const group=btn.parentElement;
+  group.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCatalog();
+}
+
+function getCardType(def){
+  if(def.unique) return 'unique';
+  if(def.spell) return 'spell';
+  if(def.world) return 'world';
+  if(def.artifact) return 'artifact';
+  return 'creature';
+}
+
+function renderCatalog(){
+  const grid=document.getElementById('catalogGrid');
+  const search=(document.getElementById('catalogSearch')?.value||'').toLowerCase();
+  if(!grid)return;
+
+  let cards=Object.entries(DEFS).filter(([key,def])=>{
+    if(catalogFilters.faction!=='all'&&def.f!==catalogFilters.faction) return false;
+    const type=getCardType(def);
+    if(catalogFilters.type!=='all'&&type!==catalogFilters.type) return false;
+    if(search&&!def.name.toLowerCase().includes(search)&&!def.ab.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  // Sort
+  cards.sort(([,a],[,b])=>{
+    if(catalogFilters.sort==='name') return a.name.localeCompare(b.name);
+    if(catalogFilters.sort==='cost') return a.cost-b.cost;
+    if(catalogFilters.sort==='hp') return b.hp-a.hp;
+    if(catalogFilters.sort==='atk') return b.atk-a.atk;
+    return 0;
+  });
+
+  document.getElementById('catalogCount').textContent=`${cards.length} cards`;
+
+  grid.innerHTML='';
+  cards.forEach(([key,def])=>{
+    const isSW=def.spell||def.world||def.artifact;
+    const tags=(def.tags||[]).filter(t=>!['spell','world','artifact','unique'].includes(t));
+    const tagHtml=tags.map(t=>{
+      const base=t.split(':')[0];
+      return `<span class="tag ${base}" style="font-size:5px;padding:1px 3px;">${t.toUpperCase()}</span>`;
+    }).join('');
+
+    const div=document.createElement('div');
+    div.className=`cat-card ${def.f==='tea'?'tea-c':'jeet-c'}`;
+    div.style.cursor='pointer';
+    div.onclick=()=>openCardDetail(def);
+    div.innerHTML=`
+      <div class="cat-card-cost">${def.cost}</div>
+      <div class="cat-card-art">${def.art}</div>
+      <div class="cat-card-name">${def.name}</div>
+      ${!isSW?`<div class="cat-card-stats"><span class="cat-card-hp">❤${def.hp}</span><span class="cat-card-atk">⚔${def.atk}</span></div>`:''}
+      <div class="cat-card-ab">${def.ab||''}</div>
+      <div class="cat-card-tags">${tagHtml}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function openCardDetail(def){
+  const overlay=document.getElementById('cardDetailOverlay');
+  const box=document.getElementById('cardDetailBox');
+  box.className=`card-detail ${def.f==='tea'?'tea-detail':'jeet-detail'}`;
+  document.getElementById('cdArt').textContent=def.art;
+  document.getElementById('cdName').textContent=def.name;
+  document.getElementById('cdCost').textContent=`${def.cost} Essence`;
+  const isSW=def.spell||def.world||def.artifact;
+  document.getElementById('cdStats').innerHTML=isSW?''
+    :`<span class="cat-card-hp">❤ ${def.hp} HP</span><span class="cat-card-atk">⚔ ${def.atk} ATK</span>`;
+  document.getElementById('cdAb').textContent=def.ab||'—';
+  const tags=(def.tags||[]).filter(t=>!['spell','world','artifact','unique'].includes(t));
+  document.getElementById('cdTags').innerHTML=tags.map(t=>{
+    const base=t.split(':')[0];
+    return `<span class="tag ${base}" style="font-size:8px;padding:2px 6px;">${t.toUpperCase()}</span>`;
+  }).join('');
+  overlay.style.display='flex';
+}
+
+function closeCardDetail(e){
+  if(e&&e.target!==document.getElementById('cardDetailOverlay')&&!e.target.classList.contains('card-detail-close')) return;
+  document.getElementById('cardDetailOverlay').style.display='none';
 }
 
 function toggleHamburger(){
@@ -1662,6 +1913,7 @@ function startGame(){
 function showScreen(name){
   document.getElementById('landing').style.display='none';
   document.getElementById(name+'Screen').classList.add('active');
+  if(name==='catalog') setTimeout(renderCatalog, 0);
 }
 function hideScreen(name){
   document.getElementById(name+'Screen').classList.remove('active');
