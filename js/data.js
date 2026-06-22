@@ -32,7 +32,7 @@ const DEFS = {
   j_ksi_w:     {name:"Xuitqr",     cost:3,hp:3,atk:1,art:"🐙",f:"jeet",tags:["fear","dark_traveler","dgate:xui"],              ab:""},
   // JEET LEGENDARIES
   j_reap:      {name:"REAPER",     cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique","on_kill_base:2"], ab:"On kill: restore 2 HP to Jeet base.",unique:true},
-  j_ryv:       {name:"RYVLEN",     cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear","draw:1"], ab:"Fear on attack. Draw 1 card on every attack.",unique:true},
+  j_ryv:       {name:"RYVLEN",     cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear","draw_attack:1"], ab:"Fear on attack. Draw 1 card on every attack.",unique:true},
   j_mal:       {name:"MALTOR",     cost:4,hp:5,atk:2,art:"👹",f:"jeet",tags:["unique","fear","enter_aoe:1"], ab:"On enter: 1 dmg to all enemies. Fear on attack.",unique:true},
   j_phleg:     {name:"PHLEGMOR",   cost:5,hp:6,atk:2,art:"💀",f:"jeet",tags:["unique"],            ab:"Start of turn: raise top graveyard card at 1 HP.",unique:true},
   j_vard:      {name:"BIG VARDAN", cost:4,hp:5,atk:3,art:"🌑",f:"jeet",tags:["unique","aoe:2"],    ab:"Active: deal 2 dmg to ALL enemies.",unique:true},
