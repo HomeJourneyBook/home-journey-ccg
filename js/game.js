@@ -309,16 +309,16 @@ function killCard(card,faction){
     removeMaxHpAura(card,faction);
   }
 
-  // on_kill_base — heal own base when killing enemy
-  if(card.f!==G.turn){
-    G[G.turn].field.forEach(ally=>{
-      const val=getTagVal(ally,'on_kill_base');
+  // on_any_death_base — heal own base when ANY creature dies (ally or enemy)
+  ['tea','jeet'].forEach(f=>{
+    G[f].field.forEach(ally=>{
+      const val=getTagVal(ally,'on_any_death_base');
       if(val){
-        G[G.turn].hp=Math.min(G[G.turn].maxHp,G[G.turn].hp+val);
-        lg(`${ally.name}: ${G.turn} base +${val} HP → ${G[G.turn].hp}/${G[G.turn].maxHp}`,'hl');
+        G[f].hp=Math.min(G[f].maxHp,G[f].hp+val);
+        lg(`${ally.name}: ${f} base +${val} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
       }
     });
-  }
+  });
 
   // Remove draw bonus if card with draw tag dies
   const drawTag=getTagVal(card,'draw');
@@ -396,7 +396,6 @@ function endTurn(){
   // Trigger on_turn for all field cards (Phlegmor raise, regen, etc.)
   [...cur.field].forEach(c=>triggerAbilities(c,'on_turn'));
   cur.field.forEach(c=>{
-    // raise handled via triggerAbilities on_turn in abilities.js
   });
 
   // 3. Burning damage (after heals, before draw)
