@@ -19,7 +19,7 @@ const DEFS = {
   t_sp4:       {name:"SCHEME",     cost:1,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell","ess_add:3"],              ab:"Get 3 essence for this turn.",spell:true},
   // TEA WORLDS & ARTIFACTS
   t_w1:        {name:"VALLEY",     cost:3,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world","draw:1"],                 ab:"Draw 1 extra card each turn.",world:true},
-  t_w2:        {name:"DOMINIA",    cost:3,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","ess_max"],              ab:"+1 extra essence per turn.",world:true},
+  t_w2:        {name:"DOMINIA",    cost:3,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","ess_max:1"],              ab:"+1 extra essence per turn.",world:true},
   t_a1:        {name:"FOUND.BOOK", cost:3,hp:0,atk:0,art:"📖",f:"tea",tags:["artifact","draw:1"],  ab:"Draw 1 extra card per turn.",artifact:true},
   t_a2:        {name:"TEA FOUNT.", cost:3,hp:0,atk:0,art:"⛲",f:"tea",tags:["artifact","heal:1"],  ab:"Heal all allies 1 HP per turn.",artifact:true},
 
@@ -43,7 +43,7 @@ const DEFS = {
   j_sp4:       {name:"BLACK MAGIC",cost:1,hp:0,atk:0,art:"⚫",f:"jeet",tags:["spell","ess_add:3"],             ab:"Get 3 essence for this turn.",spell:true},
   // JEET WORLDS & ARTIFACTS
   j_w1:        {name:"WEB",        cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world","draw:1"],                ab:"Draw 1 extra card each turn.",world:true},
-  j_w2:        {name:"NORRIA",     cost:3,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","ess_max"],             ab:"+1 extra essence per turn.",world:true},
+  j_w2:        {name:"NORRIA",     cost:3,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","ess_max:1"],             ab:"+1 extra essence per turn.",world:true},
   j_a1:        {name:"DARK WRIT.", cost:3,hp:0,atk:0,art:"📕",f:"jeet",tags:["artifact","draw:1"], ab:"Draw 1 extra card per turn.",artifact:true},
   j_a2:        {name:"WORMHOLE",   cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["artifact","heal:1"], ab:"Heal all Jeet allies 1 HP per turn.",artifact:true},
   // NEUTRAL
