@@ -50,9 +50,13 @@ function getAbilities(card){
       case 'bushido':      ab.push({timing:'passive',effect:'bushido'}); break;
       case 'on_kill_base': ab.push({timing:'on_kill',effect:'hp_base',val}); break;
       case 'aura':
-        // aura:atk:N or aura:maxhp:N
+        // aura:atk:N — passive ATK bonus to allies while on field
         {const [,type,n]=tag.split(':');
         ab.push({timing:'passive',effect:'aura',auraType:type,val:parseInt(n)||1});} break;
+      case 'aura_enter':
+        // aura_enter:maxhp:N — one-time maxHP bonus to all allies on enter
+        {const [,type,n]=tag.split(':');
+        ab.push({timing:'on_enter',effect:'aura_enter',auraType:type,val:parseInt(n)||1});} break;
       case 'unique': case 'spell': case 'world': case 'artifact': break;
     }
   }
@@ -116,8 +120,24 @@ function triggerAbilities(card, timing, ctx={}){
         lg(`${card.name}: all allies +${a.val} ATK!`,'imp'); break;
 
       case 'aura':
-        // Applied passively each turn - handled in endTurn applyAuras()
-        break;
+        if(a.auraType==='atk'){
+          // atk aura applied via applyAuras() after card enters
+        } else if(a.auraType==='maxhp'&&timing==='on_enter'){
+          applyMaxHpAura(card,curK);
+        } break;
+
+      case 'aura_enter':
+        // One-time aura on enter (Aslex: +1 maxHP to all allies)
+        if(a.auraType==='maxhp'){
+          cur.field.forEach(ally=>{
+            if(ally.id!==card.id&&!ally.spell&&!ally.world&&!ally.artifact){
+              const wasFull=ally.hp===ally.maxHp;
+              ally.maxHp+=a.val;
+              if(wasFull) ally.hp+=a.val;
+            }
+          });
+          lg(`${card.name}: all allies +${a.val} maxHP!`,'hl');
+        } break;
 
       case 'bushido':
         // Passive - handled in getTargetableCards() and canAttackBase()
