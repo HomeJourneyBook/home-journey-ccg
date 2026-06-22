@@ -49,6 +49,7 @@ function getAbilities(card){
         break;
       case 'bushido':      ab.push({timing:'passive',effect:'bushido'}); break;
       case 'on_kill_base': ab.push({timing:'on_kill',effect:'hp_base',val}); break;
+      case 'rage':         ab.push({timing:'on_attack',effect:'rage',val}); break;
       case 'aura':
         // aura:atk:N — passive ATK bonus to allies while on field
         {const [,type,n]=tag.split(':');
@@ -236,6 +237,12 @@ function triggerAbilities(card, timing, ctx={}){
       case 'ess_add':
         cur.ess=Math.min(cur.essMax,cur.ess+a.val);
         lg(`${card.name}: +${a.val} Essence → ${cur.ess}/${cur.essMax}.`,'imp'); break;
+
+      case 'rage':
+        // Permanently increase ATK each time this card attacks
+        att.rageBonus=(att.rageBonus||0)+a.val;
+        lg(`${card.name}: Rage! ATK +${a.val} (total rage: ${att.rageBonus}).`,'imp');
+        break;
 
       case 'raise':
         {const all=[...G[curK].grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
