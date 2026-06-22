@@ -118,22 +118,8 @@ function doCreature(card){
 
   // Aura:atk
   if(hasTag(card,'aura:atk')) cur._auraAtkLog=card.id;
+  if(hasTag(card,'aura:maxhp')) cur._auraMaxLog=card.id;
   applyAuras(G.turn);
-
-  // Aura:maxhp
-  if(hasTag(card,'aura:maxhp')){
-    applyMaxHpAura(card,G.turn);
-  } else if(!card.spell&&!card.world&&!card.artifact){
-    const maxHpSrc=cur.field.find(c=>hasTag(c,'aura:maxhp')&&c.id!==card.id);
-    if(maxHpSrc){
-      const val=getTagVal(maxHpSrc,'aura:maxhp')||1;
-      const wasFull=card.hp===card.maxHp;
-      card.maxHp+=val;
-      if(wasFull) card.hp+=val;
-      card.maxHpBonus=(card.maxHpBonus||0)+val;
-      lg(`${maxHpSrc.name}: ${card.name} +${val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
-    }
-  }
 
   if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
   checkSquadBonuses(G.turn);
@@ -179,24 +165,9 @@ function reviveCard(card,toF){
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
   checkSquadBonuses(toF);
 
-  // aura:atk — set log flag then applyAuras (card is in field)
   if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
+  if(hasTag(card,'aura:maxhp')) G[toF]._auraMaxLog=card.id;
   applyAuras(toF);
-
-  // aura:maxhp — apply or receive bonus
-  if(hasTag(card,'aura:maxhp')){
-    applyMaxHpAura(card,toF);
-  } else if(!card.spell&&!card.world&&!card.artifact){
-    const maxHpSrc=G[toF].field.find(c=>hasTag(c,'aura:maxhp')&&c.id!==card.id);
-    if(maxHpSrc){
-      const val=getTagVal(maxHpSrc,'aura:maxhp')||1;
-      const wasFull=card.hp===card.maxHp;
-      card.maxHp+=val;
-      if(wasFull) card.hp+=val;
-      card.maxHpBonus=(card.maxHpBonus||0)+val;
-      lg(`${maxHpSrc.name}: ${card.name} +${val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
-    }
-  }
 }
 
 // ── ATTACK ─────────────────────────────────────────────────
@@ -311,8 +282,21 @@ function killCard(card,faction){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
     lg(`${card.name} died — ATK aura removed.`);
   }
-  if(hasTag(card,'aura:atk')){G[faction].field.forEach(a=>{a.atkBonus=0;});lg(`${card.name} died — ATK aura removed.`);}
-  if(hasTag(card,'aura:maxhp')) removeMaxHpAura(card,faction);
+  if(hasTag(card,'aura:atk')){
+    G[faction].field.forEach(a=>{a.atkBonus=0;});
+    lg(`${card.name} died — ATK aura removed.`);
+  }
+  if(hasTag(card,'aura:maxhp')){
+    const val=getTagVal(card,'aura:maxhp')||1;
+    G[faction].field.forEach(a=>{
+      if(a.maxHpBonus){
+        a.maxHp=Math.max(1,a.maxHp-a.maxHpBonus);
+        a.hp=Math.min(a.hp,a.maxHp);
+        a.maxHpBonus=0;
+      }
+    });
+    lg(`${card.name} died — maxHP aura removed.`);
+  }
 
   // on_any_death_base — heal own base when ANY creature dies (ally or enemy)
   ['tea','jeet'].forEach(f=>{
@@ -343,35 +327,7 @@ function doBurnCard(card){
 }
 
 // ── AURAS ──────────────────────────────────────────────────
-function applyMaxHpAura(src, faction){
-  const val=getTagVal(src,'aura:maxhp')||1;
-  lg(`[DEBUG] applyMaxHpAura called: ${src.name}, val=${val}, allies=${G[faction].field.filter(a=>a.id!==src.id&&!a.spell&&!a.world&&!a.artifact).length}`,'imp');
-  const affected=[];
-  G[faction].field.forEach(a=>{
-    if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
-      const wasFull=a.hp===a.maxHp;
-      a.maxHp+=val;
-      if(wasFull) a.hp+=val;
-      a.maxHpBonus=(a.maxHpBonus||0)+val;
-      affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
-    }
-  });
-  if(affected.length>0) lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
-  else lg(`${src.name}: enters with no allies to buff.`,'hl');
-}
 
-function removeMaxHpAura(src, faction){
-  // Called when aura:maxhp card dies - remove the bonus
-  const val=getTagVal(src,'aura:maxhp')||1;
-  G[faction].field.forEach(a=>{
-    if(!a.spell&&!a.world&&!a.artifact&&(a.maxHpBonus||0)>0){
-      a.maxHp=Math.max(1,a.maxHp-val);
-      a.hp=Math.min(a.hp,a.maxHp);
-      a.maxHpBonus=Math.max(0,(a.maxHpBonus||0)-val);
-    }
-  });
-  lg(`${src.name} left — maxHP aura removed.`,'die');
-}
 
 function applyAuras(faction){
   const cur=G[faction];
