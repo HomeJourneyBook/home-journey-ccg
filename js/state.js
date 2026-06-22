@@ -16,10 +16,25 @@ function initState(){
 }
 
 function lg(msg,cls=''){
+  // 'hint' class goes only to comment bar, not to battle log
+  if(cls==='hint'){
+    hint(msg);return;
+  }
   G.logs.push({msg,cls});
   const el=document.getElementById('log');
-  el.innerHTML=G.logs.slice(-50).map(e=>`<div class="le ${e.cls}">${e.msg}</div>`).join('');
-  el.scrollTop=el.scrollHeight;
+  if(el){
+    el.innerHTML=G.logs.slice(-50).map(e=>`<div class="le ${e.cls}">${e.msg}</div>`).join('');
+    el.scrollTop=el.scrollHeight;
+  }
+}
+
+function hint(msg){
+  // Show in comment bar only, not in battle log
+  ['hintT2','hintJ2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.closest('.bottom-bar')&&el.closest('.bottom-bar').style.display!=='none')
+      el.textContent=msg;
+  });
 }
 
 function findC(id){
