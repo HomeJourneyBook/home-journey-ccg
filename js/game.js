@@ -1,6 +1,6 @@
 // ── CLICK HANDLER ─────────────────────────────────────────
 function getTargetableCards(oppField, att){
-  const bushido=oppField.find(c=>c.key==='t_nab');
+  const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return [bushido.id];
   const provokes=oppField.filter(c=>c.tags.includes('provoke'));
   const hasPierce=att&&att.tags.includes('pierce');
@@ -38,7 +38,7 @@ function onClick(card,zone){
         const oppField=G[opp].field;
         const targetable=getTargetableCards(oppField,healer);
         if(!targetable.includes(card.id)){
-          const bushido=oppField.find(c=>c.key==='t_nab');
+          const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
           lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'dmg');
           return;
         }
@@ -79,7 +79,7 @@ function onClick(card,zone){
       const oppField=G[opp].field;
       const targetable=getTargetableCards(oppField,att);
       if(!targetable.includes(card.id)){
-        const bushido=oppField.find(c=>c.key==='t_nab');
+        const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
         lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'dmg');
         return;
       }
@@ -115,10 +115,11 @@ function doCreature(card){
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
 
-  // Apply Tuborg bonus to newly entered card if Tuborg already on field
-  if(card.key!=='t_tuborg'){
-    const tuborg=cur.field.find(c=>c.key==='t_tuborg'&&c.id!==card.id);
-    if(tuborg&&!card.spell&&!card.world&&!card.artifact) card.atkBonus=1;
+  // Apply aura:atk bonus to newly entered card if aura card on field
+  if(!hasTag(card,'aura:atk')){
+    const auraCard=cur.field.find(c=>hasTag(c,'aura:atk')&&c.id!==card.id);
+    if(auraCard&&!card.spell&&!card.world&&!card.artifact)
+      card.atkBonus=(getTagVal(auraCard,'aura:atk')||1);
   }
 
   if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
@@ -157,17 +158,19 @@ function reviveCard(card,toF){
   G[toF].field.push(card);
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
 
-  // Tuborg interaction on revive
-  if(card.key==='t_tuborg'){
-    // Tuborg revived — give +1 ATK to all allies on field
+  // Aura interaction on revive
+  if(hasTag(card,'aura:atk')){
+    // Aura card revived — give ATK bonus to all allies
+    const auraVal=getTagVal(card,'aura:atk')||1;
     G[toF].field.forEach(a=>{
-      if(a.id!==card.id&&!a.spell&&!a.world&&!a.artifact) a.atkBonus=1;
+      if(a.id!==card.id&&!a.spell&&!a.world&&!a.artifact) a.atkBonus=auraVal;
     });
-    lg(`Tuborg: all allies get +1 ATK!`,'imp');
+    lg(`${card.name}: all allies +${auraVal} ATK!`,'imp');
   } else {
-    // Someone else revived — check if Tuborg is on field
-    const tuborg=G[toF].field.find(c=>c.key==='t_tuborg'&&c.id!==card.id);
-    if(tuborg&&!card.spell&&!card.world&&!card.artifact) card.atkBonus=1;
+    // Someone else revived — check if aura card on field
+    const auraCard=G[toF].field.find(c=>hasTag(c,'aura:atk')&&c.id!==card.id);
+    if(auraCard&&!card.spell&&!card.world&&!card.artifact)
+      card.atkBonus=getTagVal(auraCard,'aura:atk')||1;
   }
 }
 
@@ -239,7 +242,7 @@ function canAttackBase(){
   if(!att||att.exhausted||att.sleeping||att.feared) return false;
   const oppK=G.turn==='tea'?'jeet':'tea';
   const opp=G[oppK];
-  const bushido=opp.field.find(c=>c.key==='t_nab');
+  const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return false;
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
   if(provoke&&!att.tags.includes('pierce')) return false;
@@ -251,7 +254,7 @@ function tryAttackBase(){
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
   const atk=att.atk+att.atkBonus;
-  const bushido=opp.field.find(c=>c.key==='t_nab');
+  const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'dmg');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
   if(provoke&&!att.tags.includes('pierce')){lg(`${provoke.name} has Provoke — attack it first!`,'dmg');return;}
@@ -275,9 +278,10 @@ function killCard(card,faction){
   lg(`💀 ${card.name} dies.`,'die');
 
   // Tuborg death — remove ATK bonus from allies
-  if(card.key==='t_tuborg'){
+  // If an aura:atk card dies, recalculate ATK bonuses
+  if(hasTag(card,'aura:atk')){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
-    lg('Tuborg died — ATK bonus removed.');
+    lg(`${card.name} died — ATK aura removed.`);
   }
 
   // Reaper on_kill — heal base HP only (no maxHp increase)
@@ -306,6 +310,36 @@ function doBurnCard(card){
   G.phase='action';render();
 }
 
+// ── AURAS ──────────────────────────────────────────────────
+function applyAuras(faction){
+  const cur=G[faction];
+  // Reset all atkBonus first, then reapply from active auras
+  cur.field.forEach(a=>{if(!hasTag(a,'aura:atk')) a.atkBonus=0;});
+  cur.field.forEach(src=>{
+    if(!src.spell&&!src.world&&!src.artifact){
+      // aura:atk - give ATK bonus to all other allies
+      if(hasTag(src,'aura:atk')){
+        const val=getTagVal(src,'aura:atk')||1;
+        cur.field.forEach(a=>{
+          if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact) a.atkBonus=val;
+        });
+      }
+      // aura:maxhp - increase maxHP of all allies (Aslex)
+      if(hasTag(src,'aura:maxhp')){
+        const val=getTagVal(src,'aura:maxhp')||1;
+        cur.field.forEach(a=>{
+          if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
+            const wasFull=a.hp===a.maxHp;
+            a.maxHp+=val;
+            if(wasFull) a.hp+=val;
+          }
+        });
+        lg(`${src.name}: all allies +${val} maxHP!`,'hl');
+      }
+    }
+  });
+}
+
 // ── END TURN ───────────────────────────────────────────────
 function endTurn(){
   G.sel=null;G.phase='action';G.previewCard=null;
@@ -330,22 +364,9 @@ function endTurn(){
   if(cur.world) triggerAbilities(cur.world,'on_turn');
   cur.artifacts.forEach(a=>triggerAbilities(a,'on_turn'));
 
-  // 2. Field on_turn effects (Aslex, Phlegmor, Tuborg passive)
+  // 2. Apply auras (Tuborg atk, Aslex maxhp) + field on_turn effects
+  applyAuras(G.turn);
   cur.field.forEach(c=>{
-    if(c.key==='t_aslex'){
-      cur.field.forEach(a=>{
-        if(!a.spell&&!a.world&&!a.artifact){
-          const wasFull=a.hp===a.maxHp;
-          a.maxHp+=1;
-          if(wasFull) a.hp+=1;
-        }
-      });
-      lg(`Aslex: +1 maxHP to all allies.`,'hl');
-    }
-    // Tuborg passive — maintain ATK bonus each turn
-    if(c.key==='t_tuborg'){
-      cur.field.forEach(a=>{if(a.id!==c.id&&!a.spell&&!a.world&&!a.artifact)a.atkBonus=1;});
-    }
     // Phlegmor — raise last creature from any graveyard at 1 HP
     if(c.key==='j_phleg'){
       const all=[...G[G.turn].grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
