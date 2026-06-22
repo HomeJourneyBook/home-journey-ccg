@@ -126,6 +126,7 @@ function doCreature(card){
       const wasFull=card.hp===card.maxHp;
       card.maxHp+=val;
       if(wasFull) card.hp+=val;
+      lg(`${maxHpAura.name}: ${card.name} +${val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
     }
   }
 
