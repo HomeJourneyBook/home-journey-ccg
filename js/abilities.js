@@ -1,10 +1,12 @@
 function getTagVal(card, tagName){
   const t=(card.tags||[]).find(t=>t===tagName||t.startsWith(tagName+':'));
   if(!t) return null;
-  const parts=t.split(':');
-  if(parts.length===1) return true;
-  const num=parseInt(parts[1]);
-  return isNaN(num)?parts[1]:num; // string or number
+  // Remove tagName prefix to get value: 'aura:maxhp:1' with tagName='aura:maxhp' -> '1'
+  const rest=t.slice(tagName.length);
+  if(!rest||rest==='') return true;
+  const valStr=rest.startsWith(':')?rest.slice(1):rest;
+  const num=parseInt(valStr);
+  return isNaN(num)?valStr:num;
 }
 function hasTag(card, tagName){ return getTagVal(card,tagName)!==null; }
 
