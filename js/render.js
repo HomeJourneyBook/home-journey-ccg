@@ -99,7 +99,7 @@ function mkSmallEl(card){
     ${card.burning?'<div class="card-small-burning">🔥</div>':''}
     <div class="card-small-art">${card.art}</div>
     <div class="card-small-name">${card.name}</div>
-    ${!isSW?`<div class="card-small-stats"><span class="card-small-hp">❤${card.hp}</span><span class="card-small-atk">⚔${card.atk+(card.atkBonus||0)+(card.rageBonus||0)}</span></div>`:''}`;
+    ${!isSW?`<div class="card-small-stats"><span class="card-small-hp">❤${card.hp}</span><span class="card-small-atk">⚔${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
@@ -161,7 +161,7 @@ function mkEl(card,zone){
     ${card.burning?'<div class="burning-icon">🔥</div>':''}
     <div class="card-art">${card.art}</div>
     <div class="card-name">${card.name}</div>
-    ${!isSW?`<div class="card-stats"><span class="card-hp">❤${card.hp}/${card.maxHp}</span><span class="card-atk">⚔${card.atk+(card.atkBonus||0)+(card.rageBonus||0)}</span></div>`:''}
+    ${!isSW?`<div class="card-stats"><span class="card-hp">❤${card.hp}/${card.maxHp}</span><span class="card-atk">⚔${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}
     <div class="card-ability">${card.ab}</div>
     <div class="card-tags">${tags}</div>`;
   if(card.id===G.previewCard&&zone==='hand'){
