@@ -284,13 +284,15 @@ function killCard(card,faction){
     lg(`${card.name} died — ATK aura removed.`);
   }
 
-  // Reaper on_kill — heal base HP only (no maxHp increase)
+  // on_kill_base — heal own base when killing enemy
   if(card.f!==G.turn){
-    const reap=G[G.turn].field.find(c=>c.key==='j_reap');
-    if(reap){
-      G.jeet.hp=Math.min(G.jeet.maxHp,G.jeet.hp+2);
-      lg(`Reaper: Jeet base +2 HP → ${G.jeet.hp}/${G.jeet.maxHp}`,'hl');
-    }
+    G[G.turn].field.forEach(ally=>{
+      const val=getTagVal(ally,'on_kill_base');
+      if(val){
+        G[G.turn].hp=Math.min(G[G.turn].maxHp,G[G.turn].hp+val);
+        lg(`${ally.name}: ${G.turn} base +${val} HP → ${G[G.turn].hp}/${G[G.turn].maxHp}`,'hl');
+      }
+    });
   }
 
   // Remove draw bonus if card with draw tag dies
@@ -367,21 +369,7 @@ function endTurn(){
   // 2. Apply auras (Tuborg atk, Aslex maxhp) + field on_turn effects
   applyAuras(G.turn);
   cur.field.forEach(c=>{
-    // Phlegmor — raise last creature from any graveyard at 1 HP
-    if(c.key==='j_phleg'){
-      const all=[...G[G.turn].grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
-      if(all.length>0){
-        const r=all[all.length-1];
-        G[G.turn].grave=G[G.turn].grave.filter(x=>x.id!==r.id);
-        G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
-        r.hp=1;r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=G.turn;
-        // Apply Tuborg bonus if on field
-        const tuborg=cur.field.find(t=>t.key==='t_tuborg');
-        if(tuborg) r.atkBonus=1;
-        cur.field.push(r);
-        lg(`Phlegmor raises ${r.name} at 1 HP!`,'imp');
-      }
-    }
+    // raise handled via triggerAbilities on_turn in abilities.js
   });
 
   // 3. Burning damage (after heals, before draw)
