@@ -159,7 +159,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;
   card.f=toF;
   G[toF].field.push(card);
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
@@ -197,7 +197,7 @@ function reviveCard(card,toF){
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
-  const atk=att.atk+att.atkBonus;
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0);
 
   lg(`⚔ ${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
@@ -272,7 +272,7 @@ function tryAttackBase(){
   if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.');return;}
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
-  const atk=att.atk+att.atkBonus;
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0);
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'dmg');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
@@ -293,6 +293,7 @@ function dmgCard(card,dmg,faction){
 
 function killCard(card,faction){
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
+  card.rageBonus=0; // reset rage on death
   G[faction].grave.push(card);
   lg(`💀 ${card.name} dies.`,'die');
 
