@@ -253,5 +253,6 @@ Recommended export: 62×87px from Aseprite, ×4 scale = 248×348px PNG.
 - [ ] Sound effects (Web Audio API, no external files)
 - [ ] Animations (CSS transitions + JS)
 - [ ] Deckbuilding screen
+- [ ] AI opponent
 - [ ] Web3: wallet connect + NFT ownership verification (Vercel serverless)
 - [ ] Online multiplayer (WebSocket, separate infrastructure)
