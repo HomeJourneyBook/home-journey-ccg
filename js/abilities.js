@@ -216,11 +216,10 @@ function triggerAbilities(card, timing, ctx={}){
           cur.grave=cur.grave.filter(x=>x.id!==r.id);
           G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
           const def=DEFS[r.key];
-          r.hp=a.val==='full'?(def?def.hp:r.maxHp):Math.min(a.val||1,r.maxHp);
-          r.maxHp=def?def.hp:r.maxHp;
-          r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=curK;
-          cur.field.push(r);
-          lg(`${card.name}: revives ${r.name} with ${r.hp}/${r.maxHp} HP!`,'imp');
+          if(a.val==='full'&&def){r.hp=def.hp;r.maxHp=def.hp;}
+          else{r.hp=Math.min(a.val||1,r.maxHp);}
+          reviveCard(r,curK); // use reviveCard for proper aura/squad checks
+          lg(`${card.name}: revives ${r.name}!`,'imp');
         } else lg(`${card.name}: graveyard empty.`);} break;
 
       case 'salvage':
@@ -252,13 +251,9 @@ function triggerAbilities(card, timing, ctx={}){
           const r=all[all.length-1];
           G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
           G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
-          const raiseHp=a.val||1;
-          r.hp=raiseHp;r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=curK;
-          // Apply aura:atk bonus if aura card on field
-          const auraCard=cur.field.find(a=>hasTag(a,'aura:atk'));
-          if(auraCard) r.atkBonus=getTagVal(auraCard,'aura:atk')||1;
-          cur.field.push(r);
-          lg(`${card.name} raises ${r.name} at ${raiseHp} HP!`,'imp');
+          r.hp=a.val||1;
+          reviveCard(r,curK); // use reviveCard for proper aura/squad checks
+          lg(`${card.name} raises ${r.name} at ${r.hp} HP!`,'imp');
         } else {
           lg(`${card.name}: both graveyards empty.`,'die');
         }} break;
