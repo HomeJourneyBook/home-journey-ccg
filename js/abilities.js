@@ -47,7 +47,8 @@ function getAbilities(card){
         else if(card.artifact) ab.push({timing:'on_turn',effect:'hp_add',val,target:'all'});
         else                   ab.push({timing:'active',effect:'hp_add',val});
         break;
-      case 'bushido':  ab.push({timing:'passive',effect:'bushido'}); break;
+      case 'bushido':      ab.push({timing:'passive',effect:'bushido'}); break;
+      case 'on_kill_base': ab.push({timing:'on_kill',effect:'hp_base',val}); break;
       case 'aura':
         // aura:atk:N or aura:maxhp:N
         {const [,type,n]=tag.split(':');
@@ -67,10 +68,7 @@ function getAbilities(card){
   // Unique card special abilities — only truly unique mechanics remain here
   switch(card.key){
     // Tuborg and Aslex now handled via aura tags in data.js
-    // Reaper: restore HP to Jeet base on kill
-    case 'j_reap':
-      ab.push({timing:'on_kill',effect:'hp_base',val:2});
-      break;
+    // Reaper handled via on_kill_base tag
     // Phlegmor: raise last creature from any graveyard at 1 HP
     case 'j_phleg':
       ab.push({timing:'on_turn',effect:'raise'});
@@ -226,6 +224,9 @@ function triggerAbilities(card, timing, ctx={}){
           G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
           G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
           r.hp=1;r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=curK;
+          // Apply aura:atk bonus if aura card on field
+          const auraCard=cur.field.find(a=>hasTag(a,'aura:atk'));
+          if(auraCard) r.atkBonus=getTagVal(auraCard,'aura:atk')||1;
           cur.field.push(r);
           lg(`${card.name} raises ${r.name} at 1 HP!`,'imp');
         }} break;
