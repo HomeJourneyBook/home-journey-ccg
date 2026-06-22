@@ -141,9 +141,15 @@ function doCreature(card){
 
 function doWorld(card){
   const cur=G[G.turn];
-  if(cur.world){cur.grave.push(cur.world);lg(`Replaced ${cur.world.name}.`);}
+  if(cur.world){
+    const oldDraw=getTagVal(cur.world,'draw');
+    if(oldDraw) cur.extraDraw=Math.max(0,cur.extraDraw-oldDraw);
+    cur.grave.push(cur.world);
+    lg(`Replaced ${cur.world.name}.`);
+  }
   cur.world=card;
-  triggerAbilities(card,'on_enter');
+  const drawTag=getTagVal(card,'draw');
+  if(drawTag) cur.extraDraw+=drawTag;
   lg(`▶ World: ${card.name} activated.`,'imp');
 }
 
@@ -389,33 +395,28 @@ function applyAuras(faction){
 // Squad definition: gtype, count needed, effect, value
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'maxhp', val:1},
-  // Add more squads here as needed:
-  // {gtype:'mch', count:3, effect:'atk', val:1},
+  {gtype:'mch', count:3, effect:'atk',   val:1},
 ];
 
 function checkSquadBonuses(faction){
   const field=G[faction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
   
   SQUAD_DEFS.forEach(squad=>{
-    const members=field.filter(c=>{
-      const t=(c.tags||[]).find(t=>t.startsWith('gtype:'));
-      return t&&t.split(':')[1]===squad.gtype;
-    });
+    const members=field.filter(c=>getTagVal(c,'gtype')===squad.gtype);
     const active=members.length>=squad.count;
     
     members.forEach(card=>{
       if(squad.effect==='maxhp'){
         if(active&&!card.squadMaxHpBonus){
-          // Activate bonus
           card.maxHp+=squad.val;
-          if(card.hp===card.maxHp-squad.val) card.hp+=squad.val; // was at full
+          if(card.hp===card.maxHp-squad.val) card.hp+=squad.val;
           card.squadMaxHpBonus=squad.val;
           lg(`⚔ Squad bonus! ${card.name} +${squad.val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
         } else if(!active&&card.squadMaxHpBonus){
-          // Remove bonus
           card.maxHp=Math.max(1,card.maxHp-card.squadMaxHpBonus);
           card.hp=Math.min(card.hp,card.maxHp);
           card.squadMaxHpBonus=0;
+          lg(`${card.name}: squad broken — maxHP bonus lost.`,'die');
         }
       } else if(squad.effect==='atk'){
         if(active&&!card.squadAtkBonus){
@@ -423,6 +424,7 @@ function checkSquadBonuses(faction){
           lg(`⚔ Squad bonus! ${card.name} +${squad.val} ATK.`,'hl');
         } else if(!active&&card.squadAtkBonus){
           card.squadAtkBonus=0;
+          lg(`${card.name}: squad broken — ATK bonus lost.`,'die');
         }
       }
     });
