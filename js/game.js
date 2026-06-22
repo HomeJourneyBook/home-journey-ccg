@@ -108,19 +108,16 @@ function doCreature(card){
   cur.field.push(card);
   lg(`▶ ${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
 
-  // on_enter abilities via ability system (Faeron AOE, Maltor AOE, Tuborg ATK, World HP)
+  // on_enter abilities via ability system (Faeron AOE, Maltor AOE, World HP)
   triggerAbilities(card,'on_enter');
 
   // Track draw bonus for cards with draw tag
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
 
-  // Apply aura:atk bonus to newly entered card if aura card on field
-  if(!hasTag(card,'aura:atk')){
-    const auraCard=cur.field.find(c=>hasTag(c,'aura:atk')&&c.id!==card.id);
-    if(auraCard&&!card.spell&&!card.world&&!card.artifact)
-      card.atkBonus=(getTagVal(auraCard,'aura:atk')||1);
-  }
+  // Reapply all auras after new card enters (covers Tuborg giving bonus to others
+  // and new card receiving bonus from existing Tuborg)
+  applyAuras(G.turn);
 
   if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
 }
@@ -368,6 +365,8 @@ function endTurn(){
 
   // 2. Apply auras (Tuborg atk, Aslex maxhp) + field on_turn effects
   applyAuras(G.turn);
+  // Trigger on_turn for all field cards (Phlegmor raise, regen, etc.)
+  [...cur.field].forEach(c=>triggerAbilities(c,'on_turn'));
   cur.field.forEach(c=>{
     // raise handled via triggerAbilities on_turn in abilities.js
   });
