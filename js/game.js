@@ -1,3 +1,4 @@
+// ── CLICK HANDLER ─────────────────────────────────────────
 function getTargetableCards(oppField, att){
   const bushido=oppField.find(c=>c.key==='t_nab');
   if(bushido) return [bushido.id];
@@ -9,11 +10,14 @@ function getTargetableCards(oppField, att){
 
 function onClick(card,zone){
   const opp=G.turn==='tea'?'jeet':'tea';
+
   if(G.phase==='burn'){
-    if(zone==='hand'&&card.f===G.turn)doBurn(card);
+    if(zone==='hand'&&card.f===G.turn)doBurnCard(card);
     return;
   }
+
   if(G.phase==='healTarget'){
+    // Click ally with missing HP → heal
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
       const healer=findC(G.sel);
       if(healer){
@@ -27,51 +31,56 @@ function onClick(card,zone){
       }
       G.sel=null;G.phase='action';render();return;
     }
+    // Click enemy → attack
     if(zone==='field'&&card.f===opp){
       const healer=findC(G.sel);
       if(healer){
         const oppField=G[opp].field;
-        const targetableHC=getTargetableCards(oppField,healer);
-        if(!targetableHC.includes(card.id)){
-          const bushidoHC=oppField.find(c=>c.key==='t_nab');
-          if(bushidoHC) lg(`Must attack ${bushidoHC.name} (Bushido) first!`,'dmg');
-          else lg(`Must attack the Provoke card first!`,'dmg');
+        const targetable=getTargetableCards(oppField,healer);
+        if(!targetable.includes(card.id)){
+          const bushido=oppField.find(c=>c.key==='t_nab');
+          lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'dmg');
           return;
         }
         doAttack(healer,card);
       }
       return;
     }
+    // Click own card → cancel
     if(card.f===G.turn){G.sel=null;G.phase='action';render();}
     return;
   }
+
   if(G.phase==='action'){
+    // Hand card → preview
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
-      render();
-      return;
+      render();return;
     }
+    // Field card → select for action
     if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.spell&&!card.world&&!card.artifact){
-      const isOrb=card.tags.some(t=>t.startsWith('heal:'));
-      if(isOrb){
+      const isHealer=card.tags.some(t=>t.startsWith('heal:'));
+      if(isHealer){
         G.sel=card.id;G.phase='healTarget';
-        lg(`${card.name}: click an ALLY (green) to heal, or an ENEMY (red) to attack.`);render();return;
+        lg(`${card.name}: click an ALLY (green) to heal, or an ENEMY (red) to attack.`);
+        render();return;
       }
       G.sel=card.id;G.phase='selectTarget';
-      lg(`Selected ${card.name} — click enemy to attack, or ⚔ Hit Base.`);render();return;
+      lg(`Selected ${card.name} — click enemy to attack, or tap base.`);
+      render();return;
     }
   }
+
   if(G.phase==='selectTarget'){
     if(card.f===G.turn){G.sel=null;G.phase='action';render();return;}
     if(zone==='field'&&card.f===opp){
       const att=findC(G.sel);
       if(!att)return;
       const oppField=G[opp].field;
-      const targetableClick=getTargetableCards(oppField,att);
-      if(!targetableClick.includes(card.id)){
-        const bushidoC=oppField.find(c=>c.key==='t_nab');
-        if(bushidoC) lg(`Must attack ${bushidoC.name} (Bushido) first!`,'dmg');
-        else lg(`Must attack the Provoke card first!`,'dmg');
+      const targetable=getTargetableCards(oppField,att);
+      if(!targetable.includes(card.id)){
+        const bushido=oppField.find(c=>c.key==='t_nab');
+        lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'dmg');
         return;
       }
       doAttack(att,card);
@@ -79,6 +88,7 @@ function onClick(card,zone){
   }
 }
 
+// ── PLAY CARDS ─────────────────────────────────────────────
 function doPlay(card){
   const cur=G[G.turn];
   if(cur.ess<card.cost){lg(`Need ${card.cost} essence, have ${cur.ess}.`,'dmg');return;}
@@ -92,39 +102,43 @@ function doPlay(card){
 }
 
 function doCreature(card){
-  const cur=G[G.turn];const opp=G[G.turn==='tea'?'jeet':'tea'];
+  const cur=G[G.turn];
   card.sleeping=!card.tags.includes('vanguard');
   card.exhausted=false;
   cur.field.push(card);
   lg(`▶ ${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
-  if(card.key==='t_faeron'){
-    lg(`Faeron: 3 dmg to all enemies!`,'dmg');
-    [...opp.field].forEach(c=>dmgCard(c,3,G.turn==='tea'?'jeet':'tea'));
-  }
-  if(card.key==='j_mal'){
-    lg(`Maltor: 1 dmg to all enemies!`,'dmg');
-    [...G.tea.field].forEach(c=>dmgCard(c,1,'tea'));
-  }
+
+  // on_enter abilities via ability system (Faeron AOE, Maltor AOE, Tuborg ATK, World HP)
+  triggerAbilities(card,'on_enter');
+
+  // Track draw bonus for cards with draw tag
   const drawTag=getTagVal(card,'draw');
-  if(drawTag)cur.extraDraw+=drawTag;
-  if(card.key==='t_tuborg'){
-    cur.field.forEach(a=>{if(a.id!==card.id)a.atkBonus=1;});
-    lg(`Tuborg: all allies get +1 ATK!`,'imp');
+  if(drawTag) cur.extraDraw+=drawTag;
+
+  // Apply Tuborg bonus to newly entered card if Tuborg already on field
+  if(card.key!=='t_tuborg'){
+    const tuborg=cur.field.find(c=>c.key==='t_tuborg'&&c.id!==card.id);
+    if(tuborg&&!card.spell&&!card.world&&!card.artifact) card.atkBonus=1;
   }
-  if(card.tags.includes('vanguard'))lg(`${card.name} has Vanguard!`);
+
+  if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
 }
 
 function doWorld(card){
   const cur=G[G.turn];
   if(cur.world){cur.grave.push(cur.world);lg(`Replaced ${cur.world.name}.`);}
-  cur.world=card;lg(`▶ World: ${card.name} activated.`,'imp');
+  cur.world=card;
+  triggerAbilities(card,'on_enter');
+  lg(`▶ World: ${card.name} activated.`,'imp');
 }
 
 function doArtifact(card){
   const cur=G[G.turn];
   cur.artifacts.push(card);
   lg(`▶ Artifact: ${card.name} placed.`,'imp');
-  if(card.key==='t_a1'||card.key==='j_a1')cur.extraDraw+=1;
+  // Track draw bonus via tag system
+  const drawTag=getTagVal(card,'draw');
+  if(drawTag) cur.extraDraw+=drawTag;
 }
 
 function doSpell(card){
@@ -134,44 +148,59 @@ function doSpell(card){
   cur.grave.push(card);
 }
 
+// ── REVIVE ─────────────────────────────────────────────────
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.atkBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;
+  card.f=toF;
   G[toF].field.push(card);
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
+
+  // Tuborg interaction on revive
+  if(card.key==='t_tuborg'){
+    // Tuborg revived — give +1 ATK to all allies on field
+    G[toF].field.forEach(a=>{
+      if(a.id!==card.id&&!a.spell&&!a.world&&!a.artifact) a.atkBonus=1;
+    });
+    lg(`Tuborg: all allies get +1 ATK!`,'imp');
+  } else {
+    // Someone else revived — check if Tuborg is on field
+    const tuborg=G[toF].field.find(c=>c.key==='t_tuborg'&&c.id!==card.id);
+    if(tuborg&&!card.spell&&!card.world&&!card.artifact) card.atkBonus=1;
+  }
 }
 
+// ── ATTACK ─────────────────────────────────────────────────
 function doAttack(att,target){
-  const curK=G.turn;const oppK=curK==='tea'?'jeet':'tea';
+  const curK=G.turn;
+  const oppK=curK==='tea'?'jeet':'tea';
   const atk=att.atk+att.atkBonus;
+
   lg(`⚔ ${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
   dmgCard(att,target.atk+target.atkBonus,curK);
-  if((att.tags.includes('fear')||att.key==='j_ryv'||att.key==='j_mal')&&target.hp>0){
-    target.feared=true;lg(`${target.name} is Feared — skips next turn.`);
+
+  // All on_attack abilities: fear, burn, draw, etc.
+  // Only apply if target survived (no fear/burn on dead cards)
+  if(target.hp>0){
+    triggerAbilities(att,'on_attack',{target});
   }
-  if(hasTag(att,'burn')&&target.hp>0){
-    target.burning=true;
-    lg(`🔥 ${target.name} is on fire!`,'imp');
-  }
-  const drawOnAtk=getTagVal(att,'draw');
-  if(drawOnAtk&&att.unique){
-    const cur=G[curK];
-    for(let i=0;i<drawOnAtk;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
-    lg(`${att.name} draws ${drawOnAtk} card(s).`,'imp');
-  }
-  att.exhausted=true;G.sel=null;G.phase='action';
-  checkWin();render();
+
+  att.exhausted=true;
+  G.sel=null;
+  G.phase='action';
+  checkWin();
+  render();
 }
 
+// ── ACTIVE ABILITIES ───────────────────────────────────────
 function doUmbAsir(){
-  const cur=G[G.turn];const oppK=G.turn==='tea'?'jeet':'tea';
+  const oppK=G.turn==='tea'?'jeet':'tea';
   const umb=findC(G.sel);
-  if(!umb||(umb.key!=='t_umb_w'&&umb.key!=='t_umb_s'&&umb.key!=='j_umb_w'&&umb.key!=='j_umb_s')){
-    lg('Select Umbасir first.','dmg');return;
-  }
-  const dmgAmt=umb.key.endsWith('_s')?2:1;
+  if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','dmg');return;}
+  if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
+  const dmgAmt=getTagVal(umb,'aoe')||1;
   lg(`🌀 ${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
   umb.exhausted=true;
@@ -183,17 +212,16 @@ function doVardan(){
   const oppK=G.turn==='tea'?'jeet':'tea';
   if(!G.sel){lg('No card selected — click Big Vardan first.','dmg');return;}
   const vard=findC(G.sel);
-  if(!vard){lg('Could not find selected card.','dmg');return;}
-  if(vard.key!=='j_vard'){lg(`${vard.name} is not Big Vardan.`,'dmg');return;}
-  if(vard.exhausted){lg('Big Vardan already acted this turn.','dmg');return;}
-  lg(`⚡ ${vard.name} — Dark Will: 2 dmg to ALL enemies!`,'imp');
-  const targets=[...G[oppK].field];
-  if(targets.length===0){lg('No enemies on field to hit.','dmg');}
-  targets.forEach(c=>dmgCard(c,2,oppK));
+  if(!vard||!hasTag(vard,'aoe')){lg('Select an AOE card first.','dmg');return;}
+  if(vard.exhausted){lg(`${vard.name} already acted this turn.`,'dmg');return;}
+  const dmgAmt=getTagVal(vard,'aoe')||2;
+  lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
+  [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
   vard.exhausted=true;G.sel=null;G.phase='action';
   checkWin();render();
 }
 
+// ── BASE ATTACK ────────────────────────────────────────────
 function onBaseClick(faction){
   if(faction===G.turn) return;
   if((G.phase==='selectTarget'||G.phase==='action')&&G.sel&&canAttackBase()){
@@ -233,6 +261,7 @@ function tryAttackBase(){
   checkWin();render();
 }
 
+// ── DAMAGE & DEATH ─────────────────────────────────────────
 function dmgCard(card,dmg,faction){
   if(dmg<=0)return;
   card.hp-=dmg;
@@ -244,15 +273,28 @@ function killCard(card,faction){
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
   G[faction].grave.push(card);
   lg(`💀 ${card.name} dies.`,'die');
-  if(card.key==='t_tuborg'){G[faction].field.forEach(a=>{a.atkBonus=0;});lg('Tuborg died — ATK bonus removed.');}
+
+  // Tuborg death — remove ATK bonus from allies
+  if(card.key==='t_tuborg'){
+    G[faction].field.forEach(a=>{a.atkBonus=0;});
+    lg('Tuborg died — ATK bonus removed.');
+  }
+
+  // Reaper on_kill — heal base HP only (no maxHp increase)
   if(card.f!==G.turn){
     const reap=G[G.turn].field.find(c=>c.key==='j_reap');
-    if(reap){G.jeet.maxHp+=2;G.jeet.hp+=2;lg(`Reaper: Jeet base +2/+2 → ${G.jeet.hp}/${G.jeet.maxHp}`,'hl');}
+    if(reap){
+      G.jeet.hp=Math.min(G.jeet.maxHp,G.jeet.hp+2);
+      lg(`Reaper: Jeet base +2 HP → ${G.jeet.hp}/${G.jeet.maxHp}`,'hl');
+    }
   }
-  const drawTagD=getTagVal(card,'draw');
-  if(drawTagD){const f=card.f;G[f].extraDraw=Math.max(0,G[f].extraDraw-drawTagD);}
+
+  // Remove draw bonus if card with draw tag dies
+  const drawTag=getTagVal(card,'draw');
+  if(drawTag){G[card.f].extraDraw=Math.max(0,G[card.f].extraDraw-drawTag);}
 }
 
+// ── BURN ───────────────────────────────────────────────────
 function doBurnCard(card){
   const cur=G[G.turn];
   if(cur.burned){lg('Already burned a card this turn!','dmg');return;}
@@ -264,66 +306,77 @@ function doBurnCard(card){
   G.phase='action';render();
 }
 
-function doBurn(card){
-  const cur=G[G.turn];
-  cur.hand=cur.hand.filter(c=>c.id!==card.id);
-  card.voided=true;
-  cur.void.push(card);
-  cur.essMax+=1;cur.ess+=1;cur.burned=true;
-  lg(`🔥 Burned ${card.name} → essence now ${cur.ess}/${cur.essMax}.`,'imp');
-  G.phase='action';render();
-}
-
+// ── END TURN ───────────────────────────────────────────────
 function endTurn(){
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
+
+  // Wake current player's cards, clear their debuffs
   G[G.turn].field.forEach(c=>{c.sleeping=false;c.exhausted=false;c.feared=false;});
   G.turn=next;
   const cur=G[G.turn];
   cur.burned=false;
 
+  // Essence refresh
   if(G.jeetFirstTurn&&G.turn==='jeet'){
     cur.essMax=1;cur.ess=1;G.jeetFirstTurn=false;
-  }else{
+  } else {
     cur.essMax+=1;cur.ess=cur.essMax;
   }
 
+  const oppK=G.turn==='tea'?'jeet':'tea';
+
+  // 1. World & artifact on_turn effects (ess, draw, heal)
   if(cur.world) triggerAbilities(cur.world,'on_turn');
   cur.artifacts.forEach(a=>triggerAbilities(a,'on_turn'));
 
-  const oppKb=G.turn==='tea'?'jeet':'tea';
-  [...G[G.turn].field,...G[oppKb].field].forEach(card=>{
-    if(card.burning&&!card.spell&&!card.world&&!card.artifact){
-      card.hp-=1;
-      lg(`🔥 ${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
-      if(card.hp<=0){
-        const faction=G[G.turn].field.includes(card)?G.turn:oppKb;
-        killCard(card,faction);
-      }
-    }
-  });
-  checkWin();
-
-  const oppK=G.turn==='tea'?'jeet':'tea';
+  // 2. Field on_turn effects (Aslex, Phlegmor, Tuborg passive)
   cur.field.forEach(c=>{
     if(c.key==='t_aslex'){
-      cur.field.forEach(a=>{if(!a.spell&&!a.world&&!a.artifact){a.maxHp+=1;a.hp=Math.min(a.hp+1,a.maxHp);}});
-      lg(`Aslex: +1 max HP & HP to all allies.`,'hl');
+      cur.field.forEach(a=>{
+        if(!a.spell&&!a.world&&!a.artifact){
+          const wasFull=a.hp===a.maxHp;
+          a.maxHp+=1;
+          if(wasFull) a.hp+=1;
+        }
+      });
+      lg(`Aslex: +1 maxHP to all allies.`,'hl');
     }
-    if(c.key==='t_tuborg'){cur.field.forEach(a=>{if(a.id!==c.id)a.atkBonus=1;});}
+    // Tuborg passive — maintain ATK bonus each turn
+    if(c.key==='t_tuborg'){
+      cur.field.forEach(a=>{if(a.id!==c.id&&!a.spell&&!a.world&&!a.artifact)a.atkBonus=1;});
+    }
+    // Phlegmor — raise last creature from any graveyard at 1 HP
     if(c.key==='j_phleg'){
       const all=[...G[G.turn].grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
       if(all.length>0){
         const r=all[all.length-1];
         G[G.turn].grave=G[G.turn].grave.filter(x=>x.id!==r.id);
         G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
-        r.hp=1;r.sleeping=true;r.exhausted=false;r.feared=false;r.atkBonus=0;
-        r.f=G.turn;
-        cur.field.push(r);lg(`Phlegmor raises ${r.name} at 1 HP!`,'imp');
+        r.hp=1;r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=G.turn;
+        // Apply Tuborg bonus if on field
+        const tuborg=cur.field.find(t=>t.key==='t_tuborg');
+        if(tuborg) r.atkBonus=1;
+        cur.field.push(r);
+        lg(`Phlegmor raises ${r.name} at 1 HP!`,'imp');
       }
     }
   });
 
+  // 3. Burning damage (after heals, before draw)
+  [...G[G.turn].field,...G[oppK].field].forEach(card=>{
+    if(card.burning&&!card.spell&&!card.world&&!card.artifact){
+      card.hp-=1;
+      lg(`🔥 ${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
+      if(card.hp<=0){
+        const f=G[G.turn].field.includes(card)?G.turn:oppK;
+        killCard(card,f);
+      }
+    }
+  });
+  checkWin();
+
+  // 4. Draw
   const skipDraw=(G.turn==='jeet'&&G.turnNum===1);
   if(!skipDraw){
     const n=1+cur.extraDraw;
@@ -336,6 +389,7 @@ function endTurn(){
   render();
 }
 
+// ── WIN / MULLIGAN / UTILS ─────────────────────────────────
 function checkWin(){
   if(G.tea.hp<=0)showWin('jeet');
   if(G.jeet.hp<=0)showWin('tea');
@@ -344,9 +398,9 @@ function checkWin(){
 function doMulligan(faction){
   const m=G.mulligan[faction];
   const p=G[faction];
-  const used=m.used;
-  if(used>=3){lg('No more mulligans!','dmg');return;}
+  if(m.used>=3){lg('No more mulligans!','dmg');return;}
 
+  // Return hand to deck and reshuffle
   p.hand.forEach(card=>{resetC(card);p.deck.push(card);});
   p.hand=[];
   for(let i=p.deck.length-1;i>0;i--){
@@ -354,26 +408,28 @@ function doMulligan(faction){
     [p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];
   }
 
-  let draw, msg;
-  if(used===0){draw=5;msg=`🔀 Mulligan (free): drew ${draw} new cards.`;}
-  else if(used===1){draw=4;msg=`🔀 Mulligan (−1): drew ${draw} cards.`;}
-  else{draw=3;msg=`🔀 Mulligan (−2): drew ${draw} cards. Last mulligan used.`;}
-
+  const drawCounts=[5,4,3];
+  const draw=drawCounts[m.used];
+  const msgs=[
+    `🔀 Mulligan (free): drew ${draw} new cards.`,
+    `🔀 Mulligan (−1): drew ${draw} cards.`,
+    `🔀 Mulligan (−2): drew ${draw} cards. Last mulligan used.`,
+  ];
   for(let i=0;i<draw;i++) if(p.deck.length>0)p.hand.push(p.deck.shift());
-  lg(msg,'imp');
+  lg(msgs[m.used],'imp');
   m.used++;
   updateMulliganBtn(faction);
   render();
 }
 
 function cancelAction(){G.previewCard=null;clearPreview();G.sel=null;G.phase='action';render();}
+
 function handleGameClick(e){
   if(!e.target.closest('.card')&&G.previewCard){
-    G.previewCard=null;
-    clearPreview();
-    render();
+    G.previewCard=null;clearPreview();render();
   }
 }
+
 function clearPreview(){
   document.querySelectorAll('.hand .card.previewed').forEach(el=>el.classList.remove('previewed'));
 }
