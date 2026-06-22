@@ -10,8 +10,8 @@ const DEFS = {
   t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique","draw:1"], ab:"Draw 1 extra card each turn.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique","aura:maxhp:1"], ab:"+1 maxHP to all allies each turn.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:6,atk:3,art:"👑",f:"tea",tags:["unique","aura:atk:1"], ab:"+1 ATK to all allies while on field.",unique:true},
-  t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:4,art:"🔥",f:"tea",tags:["unique","burn","enter_aoe:3"], ab:"On enter: 3 dmg to all. Attacks set target on fire.",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:6,hp:7,atk:3,art:"⛩️",f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
+  t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:2,art:"🔥",f:"tea",tags:["unique","burn","enter_aoe:3"], ab:"On enter: 3 dmg to all. Attacks set target on fire.",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:6,hp:7,atk:2,art:"⛩️",f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
   // TEA SPELLS
   t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
   t_sp2:       {name:"INF.JOURNEY",cost:3,hp:0,atk:0,art:"🌌",f:"tea",tags:["spell","draw:3"],              ab:"Draw 3 cards.",spell:true},
