@@ -50,6 +50,7 @@ function getAbilities(card){
       case 'bushido':      ab.push({timing:'passive',effect:'bushido'}); break;
       case 'on_kill_base': ab.push({timing:'on_kill',effect:'hp_base',val}); break;
       case 'rage':         ab.push({timing:'on_attack',effect:'rage',val}); break;
+      case 'draw_attack': ab.push({timing:'on_attack',effect:'draw',val}); break;
       case 'aura':
         {const [,type,n]=tag.split(':');
         const auraVal=parseInt(n)||1;
