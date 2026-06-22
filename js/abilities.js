@@ -34,7 +34,7 @@ function getAbilities(card){
       case 'salvage':    ab.push({timing:'instant',effect:'salvage'}); break;
       case 'bounce':     ab.push({timing:'instant',effect:'bounce'}); break;
       case 'ess_max':
-        if(card.world||card.artifact) ab.push({timing:'on_enter',effect:'ess_max',val});
+        if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'ess_max',val});
         else                          ab.push({timing:'instant',effect:'ess_max',val});
         break;
       case 'ess_add':
@@ -60,9 +60,9 @@ function getAbilities(card){
           // passive aura: ATK bonus maintained each turn via applyAuras()
           ab.push({timing:'passive',effect:'aura',auraType:'atk',val:auraVal});
         } else if(type==='maxhp'){
-          // passive aura: maxHP bonus applied on enter, removed on death
-          // technically on_enter but behaves like passive — same concept as ATK aura
-          ab.push({timing:'on_enter',effect:'aura',auraType:'maxhp',val:auraVal});
+          // maxhp aura applied manually via applyMaxHpAura() in game.js
+          // NOT through triggerAbilities to avoid double application
+          ab.push({timing:'_manual',effect:'aura',auraType:'maxhp',val:auraVal});
         }} break;
       case 'unique': case 'spell': case 'world': case 'artifact': break;
     }
@@ -148,12 +148,7 @@ function triggerAbilities(card, timing, ctx={}){
         }
         break;
 
-      case 'atk_all':
-        cur.field.forEach(ally=>{
-          if(ally.id!==card.id&&!ally.spell&&!ally.world&&!ally.artifact)
-            ally.atkBonus=(ally.atkBonus||0)+a.val;
-        });
-        lg(`${card.name}: all allies +${a.val} ATK!`,'imp'); break;
+      // atk_all removed — replaced by aura:atk tag
 
       case 'aura':
         if(a.auraType==='maxhp'){
@@ -162,18 +157,7 @@ function triggerAbilities(card, timing, ctx={}){
         // atk aura applied via applyAuras() - no action needed here
         break;
 
-      case 'aura_enter':
-        // One-time aura on enter (Aslex: +1 maxHP to all allies)
-        if(a.auraType==='maxhp'){
-          cur.field.forEach(ally=>{
-            if(ally.id!==card.id&&!ally.spell&&!ally.world&&!ally.artifact){
-              const wasFull=ally.hp===ally.maxHp;
-              ally.maxHp+=a.val;
-              if(wasFull) ally.hp+=a.val;
-            }
-          });
-          lg(`${card.name}: all allies +${a.val} maxHP!`,'hl');
-        } break;
+      // aura_enter removed — replaced by applyMaxHpAura() via aura:maxhp tag
 
       case 'bushido':
         // Passive - handled in getTargetableCards() and canAttackBase()
@@ -186,9 +170,7 @@ function triggerAbilities(card, timing, ctx={}){
         G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
         lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl'); break;
 
-      case 'on_any_death':
-        // handled in killCard - triggered for any death on field
-        break;
+      // on_any_death handled directly in killCard()
 
       case 'hp_add':
         if(a.target==='all'){
@@ -213,21 +195,7 @@ function triggerAbilities(card, timing, ctx={}){
           lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
         } break;
 
-      case 'maxhp_add':
-        if(ctx.target){
-          ctx.target.maxHp+=a.val;
-          if(ctx.target.hp===ctx.target.maxHp-a.val) ctx.target.hp+=a.val;
-          lg(`${card.name}: ${ctx.target.name} +${a.val} maxHP → ${ctx.target.hp}/${ctx.target.maxHp}.`,'hl');
-        } else {
-          cur.field.forEach(ally=>{
-            if(!ally.spell&&!ally.world&&!ally.artifact){
-              const wasFull=ally.hp===ally.maxHp;
-              ally.maxHp+=a.val;
-              if(wasFull) ally.hp+=a.val;
-            }
-          });
-          lg(`${card.name}: all allies +${a.val} maxHP.`,'hl');
-        } break;
+      // maxhp_add removed — use aura:maxhp instead
 
       case 'bounce':
         [...G.tea.field].forEach(x=>{resetC(x);G.tea.hand.push(x);});
