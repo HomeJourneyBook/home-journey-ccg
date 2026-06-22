@@ -120,9 +120,9 @@ function doCreature(card){
   if(hasTag(card,'aura:atk')) cur._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) cur._auraMaxLog=card.id;
   applyAuras(G.turn);
+  checkSquadBonuses(G.turn); // after applyAuras
 
   if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
-  checkSquadBonuses(G.turn);
 }
 
 function doWorld(card){
@@ -163,11 +163,11 @@ function reviveCard(card,toF){
   card.f=toF;
   G[toF].field.push(card); // push first so applyAuras sees the card
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
-  checkSquadBonuses(toF);
 
   if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) G[toF]._auraMaxLog=card.id;
   applyAuras(toF);
+  checkSquadBonuses(toF); // AFTER applyAuras so bonuses aren't reset
 }
 
 // ── ATTACK ─────────────────────────────────────────────────
@@ -411,8 +411,9 @@ function endTurn(){
   if(cur.world) triggerAbilities(cur.world,'on_turn');
   cur.artifacts.forEach(a=>triggerAbilities(a,'on_turn'));
 
-  // 2. Apply auras (Tuborg atk, Aslex maxhp) + field on_turn effects
+  // 2. Apply auras + squad bonuses
   applyAuras(G.turn);
+  checkSquadBonuses(G.turn);
   // Trigger on_turn for all field cards (Phlegmor raise, regen, etc.)
   [...cur.field].forEach(c=>triggerAbilities(c,'on_turn'));
   cur.field.forEach(c=>{
