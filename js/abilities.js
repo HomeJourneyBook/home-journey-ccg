@@ -48,7 +48,9 @@ function getAbilities(card){
         else                   ab.push({timing:'active',effect:'hp_add',val});
         break;
       case 'bushido':      ab.push({timing:'passive',effect:'bushido'}); break;
-      case 'on_kill_base': ab.push({timing:'on_kill',effect:'hp_base',val}); break;
+      case 'on_kill_base':       ab.push({timing:'on_kill',effect:'hp_base',val}); break;
+      case 'on_any_death_base':  ab.push({timing:'on_any_death',effect:'hp_base',val}); break;
+      case 'raise':              ab.push({timing:'on_turn',effect:'raise',val}); break;
       case 'rage':         ab.push({timing:'on_attack',effect:'rage',val}); break;
       case 'draw_attack': ab.push({timing:'on_attack',effect:'draw',val}); break;
       case 'aura':
@@ -76,11 +78,6 @@ function getAbilities(card){
   // Unique card special abilities — only truly unique mechanics remain here
   switch(card.key){
     // All legendaries now handled via tags in data.js
-    // Reaper handled via on_kill_base tag
-    // Phlegmor: raise last creature from any graveyard at 1 HP
-    case 'j_phleg':
-      ab.push({timing:'on_turn',effect:'raise'});
-      break;
   }
 
   return ab;
@@ -198,6 +195,10 @@ function triggerAbilities(card, timing, ctx={}){
         G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
         lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl'); break;
 
+      case 'on_any_death':
+        // handled in killCard - triggered for any death on field
+        break;
+
       case 'hp_add':
         if(a.target==='all'){
           cur.field.forEach(ally=>{
@@ -288,12 +289,15 @@ function triggerAbilities(card, timing, ctx={}){
           const r=all[all.length-1];
           G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
           G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
-          r.hp=1;r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=curK;
+          const raiseHp=a.val||1;
+          r.hp=raiseHp;r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;r.atkBonus=0;r.f=curK;
           // Apply aura:atk bonus if aura card on field
           const auraCard=cur.field.find(a=>hasTag(a,'aura:atk'));
           if(auraCard) r.atkBonus=getTagVal(auraCard,'aura:atk')||1;
           cur.field.push(r);
-          lg(`${card.name} raises ${r.name} at 1 HP!`,'imp');
+          lg(`${card.name} raises ${r.name} at ${raiseHp} HP!`,'imp');
+        } else {
+          lg(`${card.name}: both graveyards empty.`,'die');
         }} break;
     }
   }
