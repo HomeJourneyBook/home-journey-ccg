@@ -1,6 +1,6 @@
 const DEFS = {
   // TEA CREATURES
-  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["vanguard","traveler","gate:szg"],          ab:""},
+  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["rage","vanguard","traveler","gate:szg"],          ab:""},
   t_orb_w:     {name:"Orbiton",     cost:1,hp:2,atk:1,art:"👁️",f:"tea",tags:["heal:1","traveler","gate:orb"],             ab:"Active: heal ally 1 HP, remove debuffs."},
   t_drig_w:    {name:"Dreegan",     cost:3,hp:4,atk:1,art:"🌳",f:"tea",tags:["provoke","traveler","gate:drg"],            ab:""},
   t_umb_w:     {name:"Umbasir",     cost:2,hp:1,atk:1,art:"🌀",f:"tea",tags:["aoe:1","traveler","gate:umb"],              ab:"Active: deal 1 dmg to ALL enemies."},
@@ -10,7 +10,7 @@ const DEFS = {
   t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique","draw:1"], ab:"Draw 1 extra card each turn.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique","aura:maxhp:1"], ab:"+1 maxHP to all allies each turn.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:6,atk:3,art:"👑",f:"tea",tags:["unique","aura:atk:1"], ab:"+1 ATK to all allies while on field.",unique:true},
-  t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:3,art:"🔥",f:"tea",tags:["unique","burn","enter_aoe:2"], ab:"On enter: 2 dmg to all. Attacks set target on fire.",unique:true},
+  t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:2,art:"🔥",f:"tea",tags:["unique","burn","enter_aoe:2"], ab:"On enter: 2 dmg to all. Attacks set target on fire.",unique:true},
   t_nab:       {name:"NABUNAGI",   cost:6,hp:7,atk:2,art:"⛩️",f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
   // TEA SPELLS
   t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
