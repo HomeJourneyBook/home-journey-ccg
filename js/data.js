@@ -1,16 +1,16 @@
 const DEFS = {
   // TEA CREATURES
-  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["vanguard"],          ab:""},
-  t_orb_w:     {name:"Orbiton",     cost:1,hp:2,atk:1,art:"👁️",f:"tea",tags:["heal:1"],             ab:"Active: heal ally 1 HP, remove debuffs."},
-  t_drig_w:    {name:"Dreegan",     cost:3,hp:4,atk:1,art:"🌳",f:"tea",tags:["provoke"],            ab:""},
-  t_umb_w:     {name:"Umbasir",     cost:2,hp:1,atk:1,art:"🌀",f:"tea",tags:["aoe:1"],              ab:"Active: deal 1 dmg to ALL enemies."},
-  t_meh_w:     {name:"Mechird",     cost:2,hp:2,atk:1,art:"🤖",f:"tea",tags:["pierce"],             ab:""},
-  t_ksi_w:     {name:"Xuitqr",      cost:3,hp:3,atk:1,art:"🐙",f:"tea",tags:["fear"],               ab:""},
+  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["vanguard","traveler","gate:szg"],          ab:""},
+  t_orb_w:     {name:"Orbiton",     cost:1,hp:2,atk:1,art:"👁️",f:"tea",tags:["heal:1","traveler","gate:orb"],             ab:"Active: heal ally 1 HP, remove debuffs."},
+  t_drig_w:    {name:"Dreegan",     cost:3,hp:4,atk:1,art:"🌳",f:"tea",tags:["provoke","traveler","gate:drg"],            ab:""},
+  t_umb_w:     {name:"Umbasir",     cost:2,hp:1,atk:1,art:"🌀",f:"tea",tags:["aoe:1","traveler","gate:umb"],              ab:"Active: deal 1 dmg to ALL enemies."},
+  t_meh_w:     {name:"Mechird",     cost:2,hp:2,atk:1,art:"🤖",f:"tea",tags:["pierce","traveler","gate:mch"],             ab:""},
+  t_ksi_w:     {name:"Xuitqr",      cost:3,hp:3,atk:1,art:"🐙",f:"tea",tags:["fear","traveler","gate:xui"],               ab:""},
   // TEA LEGENDARIES
   t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique","draw:1"], ab:"Draw 1 extra card each turn.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique","aura:maxhp:1"], ab:"+1 maxHP to all allies each turn.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:6,atk:3,art:"👑",f:"tea",tags:["unique","aura:atk:1"], ab:"+1 ATK to all allies while on field.",unique:true},
-  t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:2,art:"🔥",f:"tea",tags:["unique","burn","enter_aoe:3"], ab:"On enter: 3 dmg to all. Attacks set target on fire.",unique:true},
+  t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:3,art:"🔥",f:"tea",tags:["unique","burn","enter_aoe:2"], ab:"On enter: 2 dmg to all. Attacks set target on fire.",unique:true},
   t_nab:       {name:"NABUNAGI",   cost:6,hp:7,atk:2,art:"⛩️",f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
   // TEA SPELLS
   t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
@@ -24,12 +24,12 @@ const DEFS = {
   t_a2:        {name:"TEA FOUNT.", cost:3,hp:0,atk:0,art:"⛲",f:"tea",tags:["artifact","heal:1"],  ab:"Heal all allies 1 HP per turn.",artifact:true},
 
   // JEET CREATURES
-  j_szarg_w:   {name:"Szarg",      cost:1,hp:1,atk:2,art:"🦈",f:"jeet",tags:["vanguard"],         ab:""},
-  j_orb_w:     {name:"Orbiton",    cost:1,hp:2,atk:1,art:"🕳️",f:"jeet",tags:["heal:1"],            ab:"Active: heal ally 1 HP, remove debuffs."},
-  j_drig_w:    {name:"Dreegan",    cost:3,hp:4,atk:1,art:"🕸️",f:"jeet",tags:["provoke"],           ab:""},
-  j_umb_w:     {name:"Umbasir",    cost:2,hp:1,atk:1,art:"💜",f:"jeet",tags:["aoe:1"],             ab:"Active: deal 1 dmg to ALL enemies."},
-  j_meh_w:     {name:"Mechird",    cost:2,hp:2,atk:1,art:"⚙️",f:"jeet",tags:["pierce"],            ab:""},
-  j_ksi_w:     {name:"Xuitqr",     cost:3,hp:3,atk:1,art:"🐙",f:"jeet",tags:["fear"],              ab:""},
+  j_szarg_w:   {name:"Szarg",      cost:1,hp:1,atk:2,art:"🦈",f:"jeet",tags:["dark_traveler","dgate:szg"],         ab:""},
+  j_orb_w:     {name:"Orbiton",    cost:1,hp:2,atk:1,art:"🕳️",f:"jeet",tags:["heal:1","dark_traveler","dgate:orb"],            ab:"Active: heal ally 1 HP, remove debuffs."},
+  j_drig_w:    {name:"Dreegan",    cost:3,hp:4,atk:1,art:"🕸️",f:"jeet",tags:["provoke","dark_traveler","dgate:drg"],           ab:""},
+  j_umb_w:     {name:"Umbasir",    cost:2,hp:1,atk:1,art:"💜",f:"jeet",tags:["aoe:1","dark_traveler","dgate:umb"],             ab:"Active: deal 1 dmg to ALL enemies."},
+  j_meh_w:     {name:"Mechird",    cost:2,hp:2,atk:1,art:"⚙️",f:"jeet",tags:["pierce","dark_traveler","dgate:mch"],            ab:""},
+  j_ksi_w:     {name:"Xuitqr",     cost:3,hp:3,atk:1,art:"🐙",f:"jeet",tags:["fear","dark_traveler","dgate:xui"],              ab:""},
   // JEET LEGENDARIES
   j_reap:      {name:"REAPER",     cost:4,hp:4,atk:4,art:"☠️",f:"jeet",tags:["unique","on_kill_base:2"], ab:"On kill: restore 2 HP to Jeet base.",unique:true},
   j_ryv:       {name:"RYVLEN",     cost:4,hp:4,atk:3,art:"🎭",f:"jeet",tags:["unique","fear","draw:1"], ab:"Fear on attack. Draw 1 card on every attack.",unique:true},
