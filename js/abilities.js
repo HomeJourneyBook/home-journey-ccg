@@ -86,6 +86,36 @@ function getAbilities(card){
   return ab;
 }
 
+function applyMaxHpAura(src, faction){
+  const val=getTagVal(src,'aura:maxhp')||1;
+  const affected=[];
+  G[faction].field.forEach(a=>{
+    if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
+      const wasFull=a.hp===a.maxHp;
+      a.maxHp+=val;
+      if(wasFull) a.hp+=val;
+      a.maxHpBonus=(a.maxHpBonus||0)+val;
+      affected.push(`${a.name} (${a.hp}/${a.maxHp})`);
+    }
+  });
+  if(affected.length>0)
+    lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
+  else
+    lg(`${src.name}: no allies to buff.`,'hl');
+}
+
+function removeMaxHpAura(src, faction){
+  const val=getTagVal(src,'aura:maxhp')||1;
+  G[faction].field.forEach(a=>{
+    if(!a.spell&&!a.world&&!a.artifact){
+      a.maxHp=Math.max(1,a.maxHp-val);
+      a.hp=Math.min(a.hp,a.maxHp);
+      a.maxHpBonus=Math.max(0,(a.maxHpBonus||0)-val);
+    }
+  });
+  lg(`${src.name} died — maxHP aura removed.`,'die');
+}
+
 function triggerAbilities(card, timing, ctx={}){
   const abs=getAbilities(card).filter(a=>a.timing===timing);
   const curK=G.turn;
@@ -113,8 +143,13 @@ function triggerAbilities(card, timing, ctx={}){
         } break;
 
       case 'draw':
-        for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
-        lg(`${card.name}: draw ${a.val} card(s).`,'imp'); break;
+        // instant draw (spells) - draw immediately
+        // on_turn draw is handled via extraDraw in game.js endTurn, not here
+        if(a.timing==='instant'){
+          for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
+          lg(`${card.name}: draw ${a.val} card(s).`,'imp');
+        }
+        break;
 
       case 'atk_all':
         cur.field.forEach(ally=>{
