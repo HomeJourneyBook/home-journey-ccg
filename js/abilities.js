@@ -33,15 +33,15 @@ function getAbilities(card){
       case 'revive':     ab.push({timing:'instant',effect:'revive',val}); break;
       case 'salvage':    ab.push({timing:'instant',effect:'salvage'}); break;
       case 'bounce':     ab.push({timing:'instant',effect:'bounce'}); break;
-      case 'ess_max':    ab.push({timing:'instant',effect:'ess_max',val}); break;
+      case 'ess_max':
+        if(card.world||card.artifact) ab.push({timing:'on_enter',effect:'ess_max',val});
+        else                          ab.push({timing:'instant',effect:'ess_max',val});
+        break;
       case 'ess_add':
         if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'ess_add',val});
         else                          ab.push({timing:'instant',effect:'ess_add',val});
         break;
-      case 'maxhp_add':
-        if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'maxhp_add',val,target:'all'});
-        else                          ab.push({timing:'active',effect:'maxhp_add',val});
-        break;
+      // maxhp_add removed - use aura:maxhp for passive, active ability removed
       case 'hp_add':
         if(card.world)         ab.push({timing:'on_enter',effect:'hp_add',val,target:'all'});
         else if(card.artifact) ab.push({timing:'on_turn',effect:'hp_add',val,target:'all'});
