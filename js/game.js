@@ -21,7 +21,7 @@ function onClick(card,zone){
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
       const healer=findC(G.sel);
       if(healer){
-        const healAmt=getTagVal(healer,'heal')||1;
+        const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
         const debuffs=[];
         if(card.burning){card.burning=false;debuffs.push('fire');}
@@ -159,7 +159,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
   card.f=toF;
   G[toF].field.push(card); // push first so applyAuras sees the card
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
@@ -196,7 +196,7 @@ function doUmbAsir(){
   const umb=findC(G.sel);
   if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
-  const dmgAmt=getTagVal(umb,'aoe')||1;
+  const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
   lg(`🌀 ${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
   umb.exhausted=true;
@@ -272,6 +272,7 @@ function killCard(card,faction){
   card.rageBonus=0;
   card.squadMaxHpBonus=0;
   card.squadAtkBonus=0;
+  card.squadParam=null;
   G[faction].grave.push(card);
   lg(`💀 ${card.name} dies.`,'die');
   checkSquadBonuses(faction);
@@ -331,18 +332,52 @@ function doBurnCard(card){
 
 function applyAuras(faction){
   const cur=G[faction];
-  // Reset all atkBonus first, then reapply from active auras
-  cur.field.forEach(a=>{if(!hasTag(a,'aura:atk')) a.atkBonus=0;});
+
+  // Reset bonuses for non-aura cards
+  cur.field.forEach(a=>{
+    if(!hasTag(a,'aura:atk'))   a.atkBonus=0;
+    if(!hasTag(a,'aura:maxhp')) a.maxHpBonus=0;
+  });
+
   cur.field.forEach(src=>{
-    if(!src.spell&&!src.world&&!src.artifact){
-      // aura:atk - give ATK bonus to all other allies
-      if(hasTag(src,'aura:atk')){
-        const val=getTagVal(src,'aura:atk')||1;
-        cur.field.forEach(a=>{
-          if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact) a.atkBonus=val;
-        });
+    if(src.spell||src.world||src.artifact) return;
+
+    // aura:atk
+    if(hasTag(src,'aura:atk')){
+      const val=getTagVal(src,'aura:atk')||1;
+      const affected=[];
+      cur.field.forEach(a=>{
+        if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
+          a.atkBonus=val;
+          if(cur._auraAtkLog===src.id) affected.push(a.name);
+        }
+      });
+      if(cur._auraAtkLog===src.id){
+        if(affected.length>0) lg(`${src.name}: +${val} ATK → ${affected.join(', ')}.`,'hl');
+        cur._auraAtkLog=null;
       }
-      // aura:maxhp handled only in applyMaxHpAura() - not here
+    }
+
+    // aura:maxhp — same approach as aura:atk
+    if(hasTag(src,'aura:maxhp')){
+      const val=getTagVal(src,'aura:maxhp')||1;
+      const affected=[];
+      cur.field.forEach(a=>{
+        if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
+          if(!a.maxHpBonus){
+            const wasFull=a.hp===a.maxHp;
+            a.maxHp+=val;
+            if(wasFull) a.hp+=val;
+            a.maxHpBonus=val;
+            if(cur._auraMaxLog===src.id) affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
+          }
+        }
+      });
+      if(cur._auraMaxLog===src.id){
+        if(affected.length>0) lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
+        else lg(`${src.name}: no allies to buff.`,'hl');
+        cur._auraMaxLog=null;
+      }
     }
   });
 }
@@ -352,6 +387,8 @@ function applyAuras(faction){
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'maxhp', val:1},
   {gtype:'mch', count:3, effect:'atk',   val:1},
+  {gtype:'orb', count:3, effect:'param', param:'heal', val:2},
+  {gtype:'umb', count:3, effect:'param', param:'aoe',  val:2},
 ];
 
 function checkSquadBonuses(faction){
@@ -381,6 +418,14 @@ function checkSquadBonuses(faction){
         } else if(!active&&card.squadAtkBonus){
           card.squadAtkBonus=0;
           lg(`${card.name}: squad broken — ATK bonus lost.`,'die');
+        }
+      } else if(squad.effect==='param'){
+        if(active&&!card.squadParam){
+          card.squadParam={[squad.param]:squad.val};
+          lg(`⚔ Squad bonus! ${card.name} ${squad.param} upgraded to ${squad.val}.`,'hl');
+        } else if(!active&&card.squadParam){
+          card.squadParam=null;
+          lg(`${card.name}: squad broken — ${squad.param} bonus lost.`,'die');
         }
       }
     });
