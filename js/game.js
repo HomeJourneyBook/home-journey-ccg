@@ -115,9 +115,18 @@ function doCreature(card){
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
 
-  // Reapply all auras after new card enters (covers Tuborg giving bonus to others
-  // and new card receiving bonus from existing Tuborg)
+  // Reapply ATK auras
   applyAuras(G.turn);
+  // Apply maxHP aura to newly entered card if Aslex on field
+  if(!hasTag(card,'aura:maxhp')){
+    const maxHpAura=cur.field.find(c=>hasTag(c,'aura:maxhp')&&c.id!==card.id);
+    if(maxHpAura&&!card.spell&&!card.world&&!card.artifact){
+      const val=getTagVal(maxHpAura,'aura:maxhp')||1;
+      const wasFull=card.hp===card.maxHp;
+      card.maxHp+=val;
+      if(wasFull) card.hp+=val;
+    }
+  }
 
   if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
 }
@@ -155,7 +164,20 @@ function reviveCard(card,toF){
   G[toF].field.push(card);
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
 
-  // Aura interaction on revive
+  // Aura interactions on revive
+  if(hasTag(card,'aura:maxhp')){
+    // Aslex revived — give maxHP bonus to all allies
+    applyMaxHpAura(card,toF);
+  } else {
+    // Someone else revived — check if Aslex on field
+    const maxHpAura=G[toF].field.find(c=>hasTag(c,'aura:maxhp')&&c.id!==card.id);
+    if(maxHpAura&&!card.spell&&!card.world&&!card.artifact){
+      const val=getTagVal(maxHpAura,'aura:maxhp')||1;
+      const wasFull=card.hp===card.maxHp;
+      card.maxHp+=val;
+      if(wasFull) card.hp+=val;
+    }
+  }
   if(hasTag(card,'aura:atk')){
     // Aura card revived — give ATK bonus to all allies
     const auraVal=getTagVal(card,'aura:atk')||1;
@@ -275,10 +297,13 @@ function killCard(card,faction){
   lg(`💀 ${card.name} dies.`,'die');
 
   // Tuborg death — remove ATK bonus from allies
-  // If an aura:atk card dies, recalculate ATK bonuses
+  // If aura card dies - remove its bonuses
   if(hasTag(card,'aura:atk')){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
     lg(`${card.name} died — ATK aura removed.`);
+  }
+  if(hasTag(card,'aura:maxhp')){
+    removeMaxHpAura(card,faction);
   }
 
   // on_kill_base — heal own base when killing enemy
