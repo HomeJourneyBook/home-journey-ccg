@@ -479,6 +479,7 @@ function endTurn(){
   const skipDraw=(G.turn==='jeet'&&G.turnNum===1);
   if(!skipDraw){
     const n=1+cur.extraDraw;
+    lg(`Drawing ${n} card(s) (extraDraw=${cur.extraDraw}).`);
     for(let i=0;i<n;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
   }
 
