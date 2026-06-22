@@ -164,10 +164,10 @@ function reviveCard(card,toF){
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
   card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;
   card.f=toF;
-  G[toF].field.push(card);
+  G[toF].field.push(card); // push first so applyAuras sees the card
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
 
-  // Aura interactions on revive
+  // Aura interactions on revive - card is now in field
   if(hasTag(card,'aura:atk')) G[toF]._auraJustEntered=card.id;
   if(hasTag(card,'aura:maxhp')){
     // Aslex revived — give maxHP bonus to all allies
@@ -383,7 +383,7 @@ function endTurn(){
   if(G.jeetFirstTurn&&G.turn==='jeet'){
     cur.essMax=1;cur.ess=1;G.jeetFirstTurn=false;
   } else {
-    cur.essMax+=1;cur.ess=cur.essMax;
+    cur.essMax+=1;cur.ess=cur.essMax; // ess resets to max each turn (ess_add is temporary)
   }
 
   const oppK=G.turn==='tea'?'jeet':'tea';
