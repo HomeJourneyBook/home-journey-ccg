@@ -16,7 +16,7 @@ const DEFS = {
   t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
   t_sp2:       {name:"INF.JOURNEY",cost:3,hp:0,atk:0,art:"🌌",f:"tea",tags:["spell","draw:3"],              ab:"Draw 3 cards.",spell:true},
   t_sp3:       {name:"SHEN'S CALL",cost:3,hp:0,atk:0,art:"✨",f:"tea",tags:["spell","revive:full"],              ab:"Revive last creature from your graveyard.",spell:true},
-  t_sp4:       {name:"SCHEME",     cost:1,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell","ess_add:3"],              ab:"Get 3 essence for this turn.",spell:true},
+  t_sp4:       {name:"SCHEME",     cost:1,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell","ess_add:2"],              ab:"Get 2 essence for this turn.",spell:true},
   // TEA WORLDS & ARTIFACTS
   t_w1:        {name:"VALLEY",     cost:3,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world","draw:1"],                 ab:"Draw 1 extra card each turn.",world:true},
   t_w2:        {name:"DOMINIA",    cost:3,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","ess_max:1"],              ab:"+1 extra essence per turn.",world:true},
@@ -40,7 +40,7 @@ const DEFS = {
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊",f:"jeet",tags:["spell","draw:2"],             ab:"Draw 2 cards.",spell:true},
   j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["spell","draw:3"],             ab:"Draw 3 cards.",spell:true},
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤",f:"jeet",tags:["spell","revive:full"],             ab:"Revive last creature from your graveyard.",spell:true},
-  j_sp4:       {name:"BLACK MAGIC",cost:1,hp:0,atk:0,art:"⚫",f:"jeet",tags:["spell","ess_add:3"],             ab:"Get 3 essence for this turn.",spell:true},
+  j_sp4:       {name:"BLACK MAGIC",cost:1,hp:0,atk:0,art:"⚫",f:"jeet",tags:["spell","ess_add:2"],             ab:"Get 2 essence for this turn.",spell:true},
   // JEET WORLDS & ARTIFACTS
   j_w1:        {name:"WEB",        cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world","draw:1"],                ab:"Draw 1 extra card each turn.",world:true},
   j_w2:        {name:"NORRIA",     cost:3,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","ess_max:1"],             ab:"+1 extra essence per turn.",world:true},
