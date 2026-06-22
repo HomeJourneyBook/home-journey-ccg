@@ -159,7 +159,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
   card.f=toF;
   G[toF].field.push(card); // push first so applyAuras sees the card
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
@@ -288,12 +288,11 @@ function killCard(card,faction){
     lg(`${card.name} died — ATK aura removed.`);
   }
   if(hasTag(card,'aura:maxhp')){
-    const val=getTagVal(card,'aura:maxhp')||1;
     G[faction].field.forEach(a=>{
-      if(a.maxHpBonus){
-        a.maxHp=Math.max(1,a.maxHp-a.maxHpBonus);
+      if(a.baseMaxHp){
+        a.maxHp=a.baseMaxHp;
         a.hp=Math.min(a.hp,a.maxHp);
-        a.maxHpBonus=0;
+        a.baseMaxHp=null;
       }
     });
     lg(`${card.name} died — maxHP aura removed.`);
@@ -335,8 +334,14 @@ function applyAuras(faction){
 
   // Reset bonuses for non-aura cards
   cur.field.forEach(a=>{
-    if(!hasTag(a,'aura:atk'))   a.atkBonus=0;
-    if(!hasTag(a,'aura:maxhp')) a.maxHpBonus=0;
+    if(!hasTag(a,'aura:atk')) a.atkBonus=0;
+    // Restore maxHp to base if no aura:maxhp source will buff this card
+    const hasMaxHpSrc=cur.field.some(s=>s.id!==a.id&&hasTag(s,'aura:maxhp')&&!s.spell&&!s.world&&!s.artifact);
+    if(!hasMaxHpSrc&&a.baseMaxHp){
+      a.maxHp=a.baseMaxHp;
+      a.hp=Math.min(a.hp,a.maxHp);
+      a.baseMaxHp=null;
+    }
   });
 
   cur.field.forEach(src=>{
@@ -358,17 +363,20 @@ function applyAuras(faction){
       }
     }
 
-    // aura:maxhp — same approach as aura:atk
+    // aura:maxhp — recalculate from baseMaxHp each time (like atkBonus from base atk)
     if(hasTag(src,'aura:maxhp')){
       const val=getTagVal(src,'aura:maxhp')||1;
       const affected=[];
       cur.field.forEach(a=>{
         if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
-          if(!a.maxHpBonus){
+          // Store base maxHp first time
+          if(!a.baseMaxHp) a.baseMaxHp=a.maxHp;
+          const newMaxHp=a.baseMaxHp+val;
+          if(a.maxHp!==newMaxHp){
             const wasFull=a.hp===a.maxHp;
-            a.maxHp+=val;
-            if(wasFull) a.hp+=val;
-            a.maxHpBonus=val;
+            a.maxHp=newMaxHp;
+            if(wasFull) a.hp=a.maxHp;
+            else a.hp=Math.min(a.hp,a.maxHp);
             if(cur._auraMaxLog===src.id) affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
           }
         }
