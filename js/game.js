@@ -3,7 +3,7 @@ function getTargetableCards(oppField, att){
   const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return [bushido.id];
   const visible=oppField.filter(c=>!hasTag(c,'invisible')||oppField.length===1);
-  lg(`[INV] field:${oppField.map(c=>c.name+'(inv:'+hasTag(c,'invisible')+')').join(',')} → visible:${visible.map(c=>c.name).join(',')}`);
+
   const provokes=visible.filter(c=>c.tags.includes('provoke'));
   const hasPierce=att&&(att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce));
   if(provokes.length>0&&!hasPierce) return provokes.map(c=>c.id);
@@ -95,7 +95,9 @@ function onClick(card,zone){
       const targetable=getTargetableCards(oppField,att);
       if(!targetable.includes(card.id)){
         const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
-        lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'hint');
+        if(bushido) lg(`Must attack ${bushido.name} (Bushido) first!`,'hint');
+        else if(hasTag(card,'invisible')) lg(`${card.name} is invisible — pick another target.`,'hint');
+        else lg(`Must attack the Provoke card first!`,'hint');
         return;
       }
       doAttack(att,card);
