@@ -395,31 +395,47 @@ function applyAuras(faction){
       }
     }
 
-    // aura:maxhp — recalculate from baseMaxHp each time (like atkBonus from base atk)
-    if(hasTag(src,'aura:maxhp')){
-      const val=getTagVal(src,'aura:maxhp')||1;
-      const affected=[];
-      cur.field.forEach(a=>{
-        if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
-          // Store base maxHp first time
-          if(!a.baseMaxHp) a.baseMaxHp=a.maxHp;
-          const newMaxHp=a.baseMaxHp+val;
-          if(a.maxHp!==newMaxHp){
-            const wasFull=a.hp===a.maxHp;
-            a.maxHp=newMaxHp;
-            if(wasFull) a.hp=a.maxHp;
-            else a.hp=Math.min(a.hp,a.maxHp);
-            if(cur._auraMaxLog===src.id) affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
-          }
+  }); // end auraSources.forEach
+
+  // aura:maxhp — sum ALL sources and apply once
+  {
+    // Calculate total maxhp bonus from all aura sources
+    const totalMaxHpBonus=auraSources.reduce((sum,src)=>{
+      if(!hasTag(src,'aura:maxhp')) return sum;
+      return sum+(getTagVal(src,'aura:maxhp')||1);
+    },0);
+
+    cur.field.forEach(a=>{
+      if(a.spell||a.world||a.artifact) return;
+      if(totalMaxHpBonus>0){
+        if(!a.baseMaxHp) a.baseMaxHp=a.maxHp;
+        const newMaxHp=a.baseMaxHp+totalMaxHpBonus;
+        if(a.maxHp!==newMaxHp){
+          const wasFull=a.hp===a.maxHp;
+          a.maxHp=newMaxHp;
+          if(wasFull) a.hp=a.maxHp;
+          else a.hp=Math.min(a.hp,a.maxHp);
         }
-      });
-      if(cur._auraMaxLog===src.id){
-        if(affected.length>0) lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
-        else lg(`${src.name}: no allies to buff.`,'hl');
-        cur._auraMaxLog=null;
+      } else if(a.baseMaxHp){
+        // No more aura sources - restore base
+        a.maxHp=a.baseMaxHp;
+        a.hp=Math.min(a.hp,a.maxHp);
+        a.baseMaxHp=null;
       }
+    });
+
+    // Log if new aura source just entered
+    if(cur._auraMaxLog){
+      const logSrc=auraSources.find(s=>s.id===cur._auraMaxLog);
+      if(logSrc){
+        const affected=cur.field.filter(a=>!a.spell&&!a.world&&!a.artifact&&a.id!==logSrc.id);
+        if(affected.length>0)
+          lg(`${logSrc.name}: +${getTagVal(logSrc,'aura:maxhp')||1} maxHP → ${affected.map(a=>a.name+'('+a.hp+'/'+a.maxHp+')').join(', ')}.`,'hl');
+        else lg(`${logSrc.name}: no allies to buff.`,'hl');
+      }
+      cur._auraMaxLog=null;
     }
-  });
+  }
 }
 
 // ── SQUAD BONUSES ──────────────────────────────────────────
