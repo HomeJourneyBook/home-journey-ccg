@@ -4,7 +4,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .stars{position:fixed;inset:0;background:#0a0a12 url('../img/space_bg.png') center center/cover no-repeat;z-index:0;}
 
 .game{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:6px;min-height:100vh;}
-.header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border:1px solid #c8a84b33;background:#0d0d1a;position:relative;}
+.header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border:1px solid #c8a84b33;background:#0d0d1a url('../img/header.png') center/cover no-repeat;position:relative;}
 .title{font-family:'Press Start 2P',monospace;font-size:9px;color:#c8a84b;letter-spacing:2px;}
 #turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:10px;color:#888;}
 #turnInfo span{color:#c8a84b;font-weight:bold;}
@@ -139,8 +139,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 /* LAYOUT ZONES */
 .opp-hand-zone{padding:4px 6px;background:rgba(6,6,14,0.30);border-bottom:none;min-height:48px;display:flex;align-items:center;justify-content:center;}
 .stats-bar{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:5px 10px;flex-wrap:wrap;cursor:pointer;}
-.stats-bar.jeet{border-top:1px solid #7b2d8b33;border-bottom:1px solid #7b2d8b33;background:#0d0a12;}
-.stats-bar.tea{border-top:1px solid #2d7b3533;border-bottom:1px solid #2d7b3533;background:#0a0d0a;}
+.stats-bar.jeet{border-top:1px solid #7b2d8b33;border-bottom:1px solid #7b2d8b33;background:#0d0a12 url('../img/statbar_jeet.png') center/cover no-repeat;}
+.stats-bar.tea{border-top:1px solid #2d7b3533;border-bottom:1px solid #2d7b3533;background:#0a0d0a url('../img/statbar_tea.png') center/cover no-repeat;}
 .stats-bar.base-targetable{border-color:#e05555 !important;box-shadow:0 0 8px #e0555533;}
 .field-zone{min-height:80px;padding:6px;background:rgba(6,6,14,0.50);}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
