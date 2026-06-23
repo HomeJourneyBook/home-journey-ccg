@@ -45,7 +45,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .arena-vs{display:none;}
 .zone-label{font-size:8px;color:#444;margin-bottom:4px;}
 
-.hand{display:flex;flex-wrap:nowrap;min-height:130px;padding:6px 6px 6px;background:transparent;justify-content:center;align-items:flex-end;overflow:visible;position:relative;width:100%;}
+.hand{display:flex;flex-wrap:nowrap;min-height:130px;padding:6px;background:transparent;justify-content:space-between;align-items:flex-end;overflow:visible;position:relative;width:100%;box-sizing:border-box;}
 .hand .card{flex-shrink:0;transition:transform .2s;position:relative;width:93px!important;min-width:93px!important;}
 
 .hand .card.previewed{transform:translateY(-54px)!important;z-index:2000!important;}
@@ -148,7 +148,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .player-hand-zone{padding:4px 6px;background:transparent;border:1px solid transparent;}
 
 /* BOTTOM BAR */
-.bottom-bar{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:8px;background:transparent;border:none;position:relative;}
+.bottom-bar{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:8px;background:transparent;border:none;position:relative;min-height:50px;}
 .bottom-bar .btn-end{}
 .bottom-bar .hint-text{font-size:9px;color:#c8a84b;text-align:center;min-height:14px;}
 
@@ -277,20 +277,13 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 #oppFieldZone{border:1px solid #d83c88;border-top:none;}
 #playerFieldZone{border:1px solid #1b641b;margin-top:6px;}
 
-@media(max-width:600px){
-  .hand{
-    display:flex;
-    justify-content:center;
-    align-items:flex-end;
-    padding:4px 2px;
-    overflow:visible;
-    width:100%;
-  }
-  .hand .card{
-    flex-shrink:0;
-    width:93px!important;
-    min-width:93px!important;
-    transition:transform .2s;
-  }
+
   /* Dynamic overlap based on card count handled by JS */
+}
+
+@media(max-width:600px){
+  .hand{justify-content:center;}
+  .hand .card{margin-right:-20px;}
+  .hand .card:last-child{margin-right:0;}
+  .hand .card.previewed{margin-right:0;}
 }
