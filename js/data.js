@@ -45,7 +45,7 @@ const DEFS = {
   j_w1:        {name:"WEB",        cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world","draw:1"],                ab:"Draw 1 extra card each turn.",world:true},
   j_w2:        {name:"NORRIA",     cost:3,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","aura:atk:1"],            ab:"+1 ATK to all allies while active.",world:true},
   j_a1:        {name:"DARK WRIT.", cost:3,hp:0,atk:0,art:"📕",f:"jeet",tags:["artifact","draw:1"], ab:"Draw 1 extra card per turn.",artifact:true},
-  j_a2:        {name:"WORMHOLE",   cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["artifact","heal:1"], ab:"Heal all Jeet allies 1 HP per turn.",artifact:true},
+  j_a2:        {name:"ALTAR",      cost:3,hp:0,atk:0,art:"🗿",f:"jeet",tags:["artifact","sacrifice"], ab:"Active: sacrifice one of your creatures to heal Jeet base 2 HP.",artifact:true},
   // NEUTRAL
   unseen:      {name:"UNSEEN",     cost:2,hp:0,atk:0,art:"👁️",f:"jeet",tags:["spell","bounce"],             ab:"Return ALL field cards to their owners hands.",spell:true},
 };
