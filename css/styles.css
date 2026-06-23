@@ -4,10 +4,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .stars{position:fixed;inset:0;background:#0a0a12 url('../img/space_bg.png') center center/cover no-repeat;z-index:0;}
 
 .game{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 10px;display:flex;flex-direction:column;gap:0;min-height:100vh;}
-.header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border:3px solid #f4c37d;background:#322030;position:relative;box-shadow:inset 0 0 8px #1f1822,inset 0 0 4px #0c1113;image-rendering:pixelated;}
-.title{font-family:'Press Start 2P',monospace;font-size:9px;color:#c8a84b;letter-spacing:2px;}
-#turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:10px;color:#888;}
-#turnInfo span{color:#c8a84b;font-weight:bold;}
+.header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border:2px solid #D5943F;background:#0A0C18;position:relative;box-shadow:inset 0 0 8px #1f1822,inset 0 0 4px #0c1113;image-rendering:pixelated;}
+.title{font-family:'Press Start 2P',monospace;font-size:9px;color:#D5943F;letter-spacing:2px;}
+#turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:10px;color:#D6CBC2;}
+#turnInfo span{color:#D5943F;font-weight:bold;}
 @media(max-width:600px){
   .header-desktop-btns{display:none!important;}
   .header-mobile-btn{display:block!important;}
