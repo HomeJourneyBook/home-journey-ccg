@@ -376,17 +376,16 @@ function applyAuras(faction){
 
   auraSources.forEach(src=>{
 
-    // aura:atk
+    // aura:atk - accumulate (multiple sources stack)
     if(hasTag(src,'aura:atk')){
       const val=getTagVal(src,'aura:atk')||1;
-      const affected=[];
       cur.field.forEach(a=>{
         if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
-          a.atkBonus=val;
-          if(cur._auraAtkLog===src.id) affected.push(a.name);
+          a.atkBonus=(a.atkBonus||0)+val; // accumulate from all sources
         }
       });
       if(cur._auraAtkLog===src.id){
+        const affected=cur.field.filter(a=>a.id!==src.id&&!a.spell&&!a.world&&!a.artifact).map(a=>a.name);
         if(affected.length>0) lg(`${src.name}: +${val} ATK → ${affected.join(', ')}.`,'hl');
         cur._auraAtkLog=null;
       }
