@@ -1,6 +1,6 @@
 const DEFS = {
   // TEA CREATURES
-  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["vanguard","gtype:szg"],          ab:""},
+  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["invisible","vanguard","gtype:szg"],          ab:""},
   t_orb_w:     {name:"Orbiton",     cost:1,hp:2,atk:1,art:"👁️",f:"tea",tags:["heal:1","gtype:orb"],             ab:"Active: heal ally 1 HP, remove debuffs."},
   t_drig_w:    {name:"Dreegan",     cost:3,hp:4,atk:1,art:"🌳",f:"tea",tags:["provoke","gtype:drg"],            ab:""},
   t_umb_w:     {name:"Umbasir",     cost:2,hp:1,atk:1,art:"🌀",f:"tea",tags:["aoe:1","gtype:umb"],              ab:"Active: deal 1 dmg to ALL enemies."},
