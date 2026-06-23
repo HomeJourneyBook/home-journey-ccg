@@ -53,6 +53,14 @@ function onClick(card,zone){
     return;
   }
 
+  // Shard phase - handle outside action block
+  if(G.phase==='shardTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doShardTarget(card);return;
+    }
+    G.phase='action';G.sel=null;render();return; // cancel
+  }
+
   // Sacrifice phase - handle outside action block
   if(G.phase==='sacrificeTarget'){
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
@@ -333,6 +341,16 @@ function killCard(card,faction){
     applyAuras(faction); // immediately recalculate with remaining sources
   }
 
+  // on_own_death — when YOUR creature dies, draw a card (Hunger world)
+  if(!card.spell&&!card.world&&!card.artifact){
+    const world=G[faction].world;
+    if(world&&hasTag(world,'on_own_death')){
+      const val=getTagVal(world,'on_own_death')||1;
+      for(let i=0;i<val;i++) if(G[faction].deck.length>0) G[faction].hand.push(G[faction].deck.shift());
+      lg(`${world.name}: ${card.name} died — draw ${val} card(s).`,'hl');
+    }
+  }
+
   // on_any_death_base — heal own base when ANY creature dies (ally or enemy)
   ['tea','jeet'].forEach(f=>{
     G[f].field.forEach(ally=>{
@@ -549,6 +567,32 @@ function doSacrifice(){
   lg(`🗿 ${card.name} sacrificed to the Altar!`,'die');
   killCard(card,G.turn);
   G.sel=null;G.phase='action';
+  checkWin();render();
+}
+
+
+function doShard(artifact){
+  // Deal damage to selected enemy creature (ignores provoke/bushido)
+  if(G.phase==='shardTarget'){
+    G.phase='action';G.sel=null;render();return; // cancel
+  }
+  G.phase='shardTarget';
+  G.sel=artifact.id;
+  lg(`🔪 ${artifact.name}: select an enemy creature to deal ${getTagVal(artifact,'shard')||2} damage.`,'hint');
+  render();
+}
+
+function doShardTarget(card){
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  if(card.f===G.turn||card.spell||card.world||card.artifact){
+    lg('Select an enemy creature.','hint');return;
+  }
+  const artifact=G[G.turn].artifacts.find(a=>hasTag(a,'shard'));
+  const dmg=getTagVal(artifact,'shard')||2;
+  lg(`🔪 ${artifact.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  dmgCard(card,dmg,oppK);
+  if(artifact) artifact.exhausted=true;
+  G.phase='action';G.sel=null;
   checkWin();render();
 }
 
