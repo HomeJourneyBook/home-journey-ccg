@@ -55,6 +55,7 @@ function getAbilities(card){
       case 'on_kill_base':         ab.push({timing:'on_kill',effect:'hp_base',val}); break;
       case 'on_any_death_base':    ab.push({timing:'on_any_death',effect:'hp_base',val}); break;
       case 'on_play_creature':     ab.push({timing:'on_play_creature',effect:'hp_base',val}); break;
+      case 'sacrifice':            ab.push({timing:'active',effect:'sacrifice'}); break;
       case 'raise':              ab.push({timing:'on_turn',effect:'raise',val}); break;
       case 'rage':         ab.push({timing:'on_attack',effect:'rage',val}); break;
       case 'draw_attack': ab.push({timing:'on_attack',effect:'draw',val}); break;
