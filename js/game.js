@@ -66,7 +66,7 @@ function onClick(card,zone){
       render();return;
     }
     // Altar: click artifact to enter sacrifice mode
-    if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping){
+    if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping&&!card.exhausted){
       G.phase='sacrificeTarget';
       lg(`🗿 ${card.name}: select a creature to sacrifice.`,'hint');
       render();return;
