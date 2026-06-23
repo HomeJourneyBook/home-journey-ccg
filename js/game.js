@@ -139,6 +139,15 @@ function doCreature(card){
   // Aura:atk
   if(hasTag(card,'aura:atk')) cur._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) cur._auraMaxLog=card.id;
+  // Give world_maxhp bonus to newly entered card
+  if(cur.world&&hasTag(cur.world,'world_maxhp')&&!card.worldMaxHpSet&&!card.spell&&!card.world&&!card.artifact){
+    const val=getTagVal(cur.world,'world_maxhp')||1;
+    const wasFull=card.hp===card.maxHp;
+    card.maxHp+=val;
+    if(wasFull) card.hp=card.maxHp;
+    card.worldMaxHpBonus=(card.worldMaxHpBonus||0)+val;
+    card.worldMaxHpSet=true;
+  }
   applyAuras(G.turn);
   checkSquadBonuses(G.turn); // after applyAuras
 
@@ -189,7 +198,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
   card.f=toF;
   G[toF].field.push(card); // push first so applyAuras sees the card
   lg(`✨ Revived ${card.name} at full HP.`,'hl');
@@ -354,7 +363,7 @@ function applyAuras(faction){
 
   // Collect all aura sources: field cards + world
   const auraSources=[...cur.field.filter(c=>!c.spell&&!c.world&&!c.artifact)];
-  if(cur.world&&(hasTag(cur.world,'aura:atk')||hasTag(cur.world,'aura:maxhp'))) auraSources.push(cur.world);
+  if(cur.world&&hasTag(cur.world,'aura:atk')) auraSources.push(cur.world); // world_maxhp handled separately
 
   // Reset bonuses for non-aura cards
   cur.field.forEach(a=>{
@@ -429,6 +438,31 @@ function applyAuras(faction){
     if(!auraSources.some(s=>hasTag(s,'aura:maxhp'))){
       cur.field.forEach(a=>{a.baseMaxHp=null;});
     }
+
+    // world_maxhp — separate from aura:maxhp, buffs ALL field creatures including Aslex
+    if(cur.world&&hasTag(cur.world,'world_maxhp')){
+      const val=getTagVal(cur.world,'world_maxhp')||1;
+      cur.field.forEach(a=>{
+        if(a.spell||a.world||a.artifact) return;
+        if(!a.worldMaxHpSet){
+          const wasFull=a.hp===a.maxHp;
+          a.maxHp+=val;
+          if(wasFull) a.hp=a.maxHp;
+          a.worldMaxHpBonus=(a.worldMaxHpBonus||0)+val;
+          a.worldMaxHpSet=true; // prevent re-applying each turn
+        }
+      });
+    } else {
+      // World gone - remove worldMaxHpBonus
+      cur.field.forEach(a=>{
+        if(a.worldMaxHpBonus){
+          a.maxHp=Math.max(1,a.maxHp-a.worldMaxHpBonus);
+          a.hp=Math.min(a.hp,a.maxHp);
+          a.worldMaxHpBonus=0;
+          a.worldMaxHpSet=false;
+        }
+      });
+    }
   }
 }
 
@@ -491,7 +525,8 @@ function doSacrifice_target(card){
   }
   // Mark altar as exhausted
   const altar=G[G.turn].artifacts.find(a=>hasTag(a,'sacrifice'));
-  if(altar) altar.exhausted=true;
+  if(altar){altar.exhausted=true;lg('🗿 Altar exhausted until next turn.','die');}
+  else lg('[DBG] Altar not found in artifacts!');
   lg(`🗿 ${card.name} sacrificed to the Altar!`,'die');
   killCard(card,G.turn);
   G.phase='action';
