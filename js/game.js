@@ -598,6 +598,31 @@ function doShardTarget(card){
   checkWin();render();
 }
 
+
+function openGraveModal(faction){
+  const grave = G[faction].grave.filter(c=>!c.voided);
+  const modal = document.getElementById('graveModal');
+  const title = document.getElementById('graveModalTitle');
+  const cards = document.getElementById('graveModalCards');
+  title.textContent = (faction==='tea'?'☠ Tavern':'☠ Jeet Core') + ' Graveyard ('+grave.length+')';
+  cards.innerHTML = '';
+  if(grave.length===0){
+    cards.innerHTML='<div style="color:#555;font-size:9px;padding:20px;">Empty</div>';
+  } else {
+    grave.forEach(card=>{
+      const d = mkEl(card,'grave');
+      d.style.cursor='default';
+      d.style.transform='none';
+      cards.appendChild(d);
+    });
+  }
+  modal.classList.remove('hidden');
+}
+
+function closeGraveModal(){
+  document.getElementById('graveModal').classList.add('hidden');
+}
+
 // ── END TURN ───────────────────────────────────────────────
 function endTurn(){
   G.sel=null;G.phase='action';G.previewCard=null;
