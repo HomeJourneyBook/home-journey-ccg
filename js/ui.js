@@ -58,9 +58,15 @@ function updateMulliganBtn(faction){
   const used=m.used;
   const isTurn1=(faction==='tea'&&G.turnNum===1&&G.turn==='tea')||
                 (faction==='jeet'&&G.turnNum===1&&G.turn==='jeet');
-  if(!isTurn1||used>=3){btn.style.display='none';return;}
+  const placeholder=document.getElementById('deckPlaceholder'+sfx);
+  if(!isTurn1||used>=3){
+    btn.style.display='none';
+    if(placeholder)placeholder.style.display='block';
+    return;
+  }
   btn.style.display='flex'; // flex keeps 34x34 size
   btn.textContent=''; // no text - PNG button
+  if(placeholder)placeholder.style.display='none';
 }
 
 function startBurn(){
