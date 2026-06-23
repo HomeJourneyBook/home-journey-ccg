@@ -3,30 +3,27 @@
 Two-player hotseat collectible card game. Tea (Tavern) vs Jeet (Core), each defending a 20 HP base.
 Built with vanilla HTML/CSS/JS. Hosted on GitHub Pages. No build step required.
 
+-----
+
 ## Project Structure
 
 ```
-index.html          # Markup: landing, game field, rules/lore/catalog screens, modals
+index.html          # Markup: landing, game field, rules/lore/catalog screens
 css/
   styles.css        # All styles
 js/
   data.js           # Card definitions — DEFS object + buildDeck()
-  abilities.js      # Ability system: getAbilities(), triggerAbilities()
-  deck.js           # mkCard() — card instance creation
-  state.js          # Game state G, initState(), findC(), resetC(), lg()
-  render.js         # All rendering: render(), mkEl(), mkSmallEl(), reorderZones(), adjustHandOverlap()
-  game.js           # Game logic: onClick(), doAttack(), endTurn(), doBurn(), checkWin()...
-  catalog.js        # Card catalog: renderCatalog(), filters, sort, openCardDetail()
-  ui.js             # UI: startGame(), showScreen(), toggleLog(), updateMulliganBtn() + boot
-assets/
-  cards/            # Card art (PNG, 62×87px base, ×4 export from Aseprite recommended)
-    tea/
-    jeet/
-  ui/               # UI assets (card backs, backgrounds, icons)
-  audio/            # Sound effects and music (planned)
+  abilities.js      # getTagVal(), hasTag(), getAbilities(), triggerAbilities()
+  deck.js           # mkCard() — creates card instances from DEFS keys
+  state.js          # Game state G, initState(), findC(), resetC(), lg(), hint()
+  render.js         # render(), mkEl(), mkSmallEl(), reorderZones()
+  game.js           # onClick(), doAttack(), endTurn(), killCard(), applyAuras(),
+                    # checkSquadBonuses(), doSacrifice_target(), doShardTarget()...
+  catalog.js        # renderCatalog(), filters, openCardDetail()
+  ui.js             # startGame(), showScreen(), boot
 ```
 
-Scripts load in strict order in `index.html`:
+Scripts load in this exact order in `index.html`:
 `data → abilities → deck → state → render → game → catalog → ui`
 
 -----
@@ -36,65 +33,118 @@ Scripts load in strict order in `index.html`:
 All cards live in `js/data.js` in the `DEFS` object.
 
 ```js
-// Key format: {faction}_{id}
-t_example: {
-  name: "EXAMPLE",     // display name (all caps for legendaries)
-  cost: 2,             // essence cost
-  hp: 3,               // HP (0 for spells/worlds/artifacts)
-  atk: 1,              // ATK (0 for spells/worlds/artifacts)
-  art: "🐉",           // emoji placeholder until real art is ready
+trvlr_001: {
+  name: "Szarg",       // display name
+  cost: 1,             // essence cost to play
+  hp: 1,               // starting HP (0 for spells/worlds/artifacts)
+  atk: 2,              // attack value (0 for spells/worlds/artifacts)
+  art: "🦈",           // emoji placeholder until PNG art is ready
   f: "tea",            // faction: "tea" or "jeet"
-  tags: ["vanguard"],  // ability tags — see Tag System below
-  ab: "Ability description shown in catalog and on card.",
-  // One optional type flag:
-  // spell: true      — instant effect, goes to graveyard
-  // world: true      — permanent, only one active at a time
-  // artifact: true   — permanent, up to 2 active
-  // unique: true     — legendary, 1 copy per deck
+  tags: ["vanguard", "gtype:szg"],  // ability tags
+  ab: "Vanguard.",     // text shown in catalog and on card preview
+  // Optional type flags (omit for creatures):
+  // spell: true       — instant, goes to void after use
+  // world: true       — permanent passive, one active at a time
+  // artifact: true    — permanent, up to 2 active, sleeps first turn
+  // unique: true      — legendary, 1 copy per deck
 },
 ```
 
-Then add the key to `buildDeck()` in `data.js` — in the appropriate array:
-`weak` (common travelers), `legs` (legendaries), `spells`, `worlds`, `arts`, `extra`.
+Then add the key to `buildDeck()` in `deck.js`:
 
-Unique cards with special mechanics not covered by tags need an explicit `switch` case in `getAbilities()` in `abilities.js`.
+- `weak` — common travelers (×5 copies)
+- `legs` — legendaries (×1)
+- `spells` — spells (×2)
+- `worlds` — worlds (×1)
+- `arts` — artifacts (×1)
+- `extra` — neutral cards (×1)
 
 -----
 
 ## Tag System
 
-Tags are strings in a card’s `tags` array. Simple (`"vanguard"`) or with a numeric value (`"heal:2"`).
+Tags are strings in `card.tags`. Simple (`"vanguard"`) or with value (`"heal:2"`).
+Multi-segment tags like `"aura:maxhp:1"` are parsed correctly by `getTagVal()`.
 
-### All Available Tags
+### getTagVal(card, tagName)
 
-|Tag          |Effect                                                 |
-|-------------|-------------------------------------------------------|
-|`vanguard`   |Can attack the turn it enters the field                |
-|`provoke`    |All enemy attacks must target this card                |
-|`pierce`     |Ignores Provoke, can hit base directly                 |
-|`fear`       |On attack: target skips its next turn                  |
-|`burn`       |On attack: target ignites (−1 HP each turn start)      |
-|`heal:N`     |Active: heal an ally N HP and remove all debuffs       |
-|`aoe:N`      |Active: deal N damage to ALL enemies                   |
-|`draw:N`     |Draw N cards (timing depends on card type — see below) |
-|`regen:N`    |On turn start: restore N HP to self                    |
-|`revive:full`|Instant: revive last creature from graveyard at full HP|
-|`revive:any` |Modifier for `revive:full`: revive from any graveyard  |
-|`bounce`     |Instant: return all field cards to their owners’ hands |
-|`maxhp_add:N`|Add N to max HP (timing depends on card type)          |
-|`ess_add:N`  |Add N Essence (timing depends on card type)            |
-|`ess_max:N`  |Permanently increase Essence maximum by N              |
+Returns the value after the tag name. Examples:
 
-### How `draw` Timing Is Determined
+- `getTagVal(card, 'heal')` on `"heal:2"` → `2`
+- `getTagVal(card, 'aura:maxhp')` on `"aura:maxhp:1"` → `1`
+- `getTagVal(card, 'gtype')` on `"gtype:drg"` → `"drg"` (string)
+- `getTagVal(card, 'vanguard')` on `"vanguard"` → `true`
 
-Timing for `draw` is auto-resolved in `getAbilities()` based on card type:
+### All Tags
 
-- `spell` → `instant` (on play)
-- `world` or `artifact` → `on_turn` (each turn start)
-- `unique` → `on_turn` (each turn start)
-- regular creature → `on_attack` (on each attack)
+**Passive (constant while on field):**
 
-Same for `heal`: `artifact`/`world` → `on_turn` (heals all allies), creature → `active` (manual).
+|Tag            |Effect                                                         |
+|---------------|---------------------------------------------------------------|
+|`vanguard`     |Attacks the turn it enters                                     |
+|`provoke`      |All enemy attacks must target this                             |
+|`pierce`       |Ignores Provoke                                                |
+|`bushido`      |All attacks must target this (overrides Pierce)                |
+|`invisible`    |Cannot be targeted while allies exist; no counter when attacked|
+|`aura:atk:N`   |All allies except self get +N ATK                              |
+|`aura:maxhp:N` |All allies except self get +N maxHP                            |
+|`world_maxhp:N`|All allies including aura sources get +N maxHP (world only)    |
+|`gtype:xxx`    |Traveler type for squad bonuses (szg/orb/drg/umb/mch/xui)      |
+
+**On Enter:**
+
+|Tag          |Effect                             |
+|-------------|-----------------------------------|
+|`enter_aoe:N`|N damage to all enemies when played|
+
+**On Turn Start:**
+
+|Tag             |Who                  |Effect                                     |
+|----------------|---------------------|-------------------------------------------|
+|`draw:N`        |world/artifact/unique|Draw N cards                               |
+|`heal:N`        |artifact             |Heal all allies N HP                       |
+|`regen:N`       |creature             |Restore N HP to self                       |
+|`raise:N`       |creature             |Revive top graveyard card at N HP          |
+|`ess_add:N`     |world/artifact       |Add N Essence                              |
+|`ess_max:N`     |world/artifact       |+N to Essence max permanently              |
+|`world_maxhp:N` |world                |Handled in applyAuras, not triggerAbilities|
+|`on_own_death:N`|world                |Draw N when your creature dies (Hunger)    |
+
+**On Attack:**
+
+|Tag            |Effect                                   |
+|---------------|-----------------------------------------|
+|`fear`         |Target skips next turn, no counter-attack|
+|`burn`         |Target takes 1 dmg each turn start       |
+|`rage`         |Self gets +1 ATK permanently             |
+|`draw_attack:N`|Draw N cards                             |
+
+**On Kill / Death:**
+
+|Tag                  |Effect                                    |
+|---------------------|------------------------------------------|
+|`on_kill_base:N`     |+N HP to own base on kill                 |
+|`on_any_death_base:N`|+N HP to own base on any creature death   |
+|`on_play_creature:N` |+N HP to own base when you play a creature|
+
+**Instant (spells):**
+
+|Tag          |Effect                                        |
+|-------------|----------------------------------------------|
+|`draw:N`     |Draw N cards immediately                      |
+|`revive:full`|Revive last creature from graveyard at full HP|
+|`bounce`     |Return all field cards to hands               |
+|`ess_add:N`  |+N Essence this turn                          |
+|`ess_max:N`  |+N to Essence max                             |
+
+**Active (button/click):**
+
+|Tag        |Effect                                                                |
+|-----------|----------------------------------------------------------------------|
+|`aoe:N`    |N damage to all enemies (button on card)                              |
+|`heal:N`   |Heal ally N HP + remove debuffs (creature)                            |
+|`sacrifice`|Altar: kill one of your creatures                                     |
+|`shard:N`  |N damage to any enemy creature (+1 if Feared), ignores Provoke/Bushido|
 
 -----
 
@@ -102,76 +152,95 @@ Same for `heal`: `artifact`/`world` → `on_turn` (heals all allies), creature �
 
 ### getAbilities(card) → [{timing, effect, val, …}]
 
-Parses a card’s tags and returns an array of ability objects. Each object contains:
-
-- `timing` — when it fires
-- `effect` — what it does
-- `val` — numeric value (if any)
-- `target: 'all'` — for mass effects
-- `self: true` — for self-effects (regen)
-- `any: true` — for `revive` from any graveyard
+Parses tags and returns ability objects. Each has `timing`, `effect`, `val`.
 
 ### Timings
 
-|Timing     |When it fires                                      |
-|-----------|---------------------------------------------------|
-|`passive`  |Constant while on field (provoke, pierce, vanguard)|
-|`instant`  |Immediately on play (spells)                       |
-|`on_enter` |When played to field                               |
-|`on_turn`  |At the start of the owner’s turn                   |
-|`on_attack`|On each attack                                     |
-|`on_kill`  |When this card kills an enemy                      |
-|`active`   |Manual player activation (button appears on card)  |
+|Timing            |When it fires                                               |
+|------------------|------------------------------------------------------------|
+|`passive`         |Constant (provoke, pierce, invisible, vanguard, aura, gtype)|
+|`_manual`         |Handled directly in game.js, not via triggerAbilities       |
+|`instant`         |On play (spells)                                            |
+|`on_enter`        |When played to field                                        |
+|`on_turn`         |Start of owner’s turn                                       |
+|`on_attack`       |On each attack                                              |
+|`on_kill`         |When this card kills an enemy                               |
+|`on_any_death`    |When any creature dies                                      |
+|`on_play_creature`|When you play any creature                                  |
+|`active`          |Manual player activation                                    |
 
 ### triggerAbilities(card, timing, ctx)
 
-Called from `game.js` and `endTurn()`. Filters abilities by timing and executes effects.
-`ctx` is context object: `{target}` for attacks and heals, `{killed}` for on_kill.
+Called from game.js. Filters abilities by timing and executes effects.
+`ctx` = `{target}` for attacks/heals.
 
-Call sites:
+Key call sites:
 
-- `triggerAbilities(card, 'instant')` — when a spell is played
-- `triggerAbilities(card, 'on_turn')` — in `endTurn()` for worlds and artifacts
-- `triggerAbilities(card, 'on_enter')` — when a creature enters (Faeron, Maltor)
-- `triggerAbilities(card, 'active')` — when AOE button is pressed
-- `triggerAbilities(ally, 'on_kill', {killed})` — after a kill
+- `triggerAbilities(card, 'instant')` — spell played
+- `triggerAbilities(card, 'on_turn')` — in endTurn for worlds/artifacts/field cards
+- `triggerAbilities(card, 'on_enter')` — creature enters (Faeron, Maltor AOE)
+- `triggerAbilities(card, 'on_attack', {target})` — after attack
+- `triggerAbilities(card, 'on_play_creature')` — after creature played (Faeron)
 
-### Effects
+-----
 
-|Effect     |What it does                                          |
-|-----------|------------------------------------------------------|
-|`aoe`      |Deal N damage to all enemies                          |
-|`burn`     |Set `ctx.target.burning = true`                       |
-|`fear`     |Set `ctx.target.feared = true`                        |
-|`draw`     |Draw N cards for the current player                   |
-|`hp_add`   |Heal: target / all allies / self (regen)              |
-|`hp_all`   |Increase maxHP and HP for all allies (Aslex)          |
-|`hp_base`  |Restore HP to own base (Reaper)                       |
-|`maxhp_add`|Increase max HP of target or all allies               |
-|`atk_all`  |Give ATK bonus to all allies (Tuborg)                 |
-|`bounce`   |Return all field cards to hands (Unseen)              |
-|`revive`   |Revive a creature from graveyard                      |
-|`salvage`  |Move a card from graveyard to hand                    |
-|`raise`    |Revive last card from any graveyard at 1 HP (Phlegmor)|
-|`ess_max`  |Increase Essence maximum                              |
-|`ess_add`  |Add Essence this turn                                 |
+## Aura System
+
+### applyAuras(faction)
+
+Called after any field change. Handles both `aura:atk` and `aura:maxhp`.
+Sources include field creatures AND world (if world has aura tag).
+
+- `aura:atk` — resets all `atkBonus` to 0, then each source adds its val to all others
+- `aura:maxhp` — resets to `baseMaxHp + squadMaxHpBonus`, then each source adds val to all others
+- `world_maxhp` — applied separately, buffs ALL including aura sources themselves
+
+### baseMaxHp
+
+Stored on card to track original maxHP before any aura bonuses.
+Used by applyAuras to recalculate correctly each turn.
+
+-----
+
+## Squad System
+
+### SQUAD_DEFS (in game.js)
+
+```js
+const SQUAD_DEFS = [
+  {gtype:'drg', count:3, effect:'maxhp', val:1},
+  {gtype:'mch', count:3, effect:'atk',   val:1},
+  {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
+  {gtype:'umb', count:3, effect:'param', param:'aoe',    val:2},
+  {gtype:'szg', count:3, effect:'param', param:'pierce', val:true},
+  {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
+];
+```
+
+### checkSquadBonuses(faction)
+
+Called after every field change (doCreature, killCard, reviveCard, endTurn).
+Must be called AFTER applyAuras to avoid maxHp conflicts.
+
+Effects:
+
+- `maxhp` — adds `squadMaxHpBonus` to card
+- `atk` — adds `squadAtkBonus` to card
+- `param` — sets `card.squadParam = {param: val}` (read by heal/aoe/regen/pierce logic)
 
 -----
 
 ## Game State (G)
 
-Global object in `js/state.js`:
-
 ```js
 G = {
   turn: 'tea' | 'jeet',
   turnNum: Number,
-  phase: 'action' | 'selectTarget' | 'healTarget' | 'burn',
-  sel: cardId | null,          // selected field card
-  previewCard: cardId | null,  // previewed hand card
-  jeetFirstTurn: Boolean,
+  phase: 'action' | 'selectTarget' | 'healTarget' | 'burn' |
+          'sacrificeTarget' | 'shardTarget',
+  sel: cardId | null,
+  previewCard: cardId | null,
   logs: [{msg, cls}],
-  mulligan: { tea: {used: 0}, jeet: {used: 0} },
   tea: PlayerState,
   jeet: PlayerState,
 }
@@ -182,77 +251,103 @@ PlayerState = {
   hand: [Card],
   field: [Card],
   deck: [Card],
-  grave: [Card],   // killed cards — can be revived
-  void: [Card],    // burned cards — gone forever
+  grave: [Card],     // creatures only — can be revived
+  void: [Card],      // spells, replaced worlds, burned — gone forever
   world: Card | null,
   artifacts: [Card],
   extraDraw: Number,
   burned: Boolean,
+  _auraAtkLog: cardId | null,   // flag to log ATK aura on enter
+  _auraMaxLog: cardId | null,   // flag to log maxHP aura on enter
 }
 ```
 
-### Game Phases
+### Card Instance Fields
 
-|Phase         |Description                                                  |
-|--------------|-------------------------------------------------------------|
-|`action`      |Normal turn: play cards, select creatures to attack          |
-|`selectTarget`|Creature selected, waiting for attack target or base click   |
-|`healTarget`  |Orbiton selected, waiting for ally to heal or enemy to attack|
-|`burn`        |Waiting for a hand card to burn for Essence                  |
+Beyond DEFS values, each card instance has:
+
+```js
+{
+  id, key, name, cost, hp, maxHp, atk, art, f, tags, ab,
+  spell, world, artifact, unique,
+  sleeping, exhausted, feared, burning,
+  atkBonus,        // from aura:atk sources
+  rageBonus,       // accumulated from rage tag
+  maxHpBonus,      // legacy, kept for compatibility
+  baseMaxHp,       // original maxHp before aura buffs
+  worldMaxHpBonus, // bonus from world_maxhp
+  worldMaxHpSet,   // flag to prevent re-applying each turn
+  squadAtkBonus,   // from squad atk bonus
+  squadMaxHpBonus, // from squad maxhp bonus
+  squadParam,      // {heal:2} or {aoe:2} or {pierce:true} or {regen:2}
+}
+```
 
 -----
 
-## Balance Reference
+## Game Phases
 
-### Common Travelers (6 types × 5 copies each = 30 per deck)
-
-|Card   |Cost|HP|ATK|Tags    |
-|-------|----|--|---|--------|
-|Szarg  |1   |1 |2  |vanguard|
-|Orbiton|1   |2 |1  |heal:1  |
-|Dreegan|3   |4 |1  |provoke |
-|Umbasir|2   |1 |1  |aoe:1   |
-|Mechird|2   |2 |1  |pierce  |
-|Xuitqr |3   |3 |1  |fear    |
-
-### Legendaries (1/1 Unique, 1 copy each)
-
-**Tea:** Teantist (4), Aslex (5), Tuborg (5), Faeron (5), Nabunagi (6)
-**Jeet:** Reaper (4), Ryvlen (4), Maltor (4), Phlegmor (5), Big Vardan (4)
-
-### Value Formula
-
-- 1 Essence ≈ 2 stat points (HP + ATK)
-- Ability costs: vanguard/provoke/pierce +0.5, fear/burn +0.75–1.0, aoe:1 +1.0, draw on_turn +2.0
-- Legendaries get ~1.25 Essence discount for being unique/narrative
+|Phase            |Description                                          |
+|-----------------|-----------------------------------------------------|
+|`action`         |Normal turn                                          |
+|`selectTarget`   |Creature selected, waiting for attack target         |
+|`healTarget`     |Orbiton selected, waiting for heal/attack target     |
+|`burn`           |Waiting for hand card to burn                        |
+|`sacrificeTarget`|Altar activated, waiting for creature to sacrifice   |
+|`shardTarget`    |Shard activated, waiting for enemy creature to damage|
 
 -----
 
-## Art Integration
+## Graveyard Rules
 
-When card art is ready, replace emoji in `data.js`:
+- Creatures → `grave` (revivable)
+- Spells → `void` after cast
+- Replaced worlds → `void`
+- Burned cards → `void`
+- Cards in `void` have `voided: true` and are excluded from raise/revive
+
+-----
+
+## Traveler Structure (NFT)
+
+60 total travelers planned. Each is a unique card (`trvlr_001` through `trvlr_060`).
+All share base mechanics of their type but may have additional tags.
+
+Example:
 
 ```js
-art: "assets/cards/tea/teantist.png"
+trvlr_001: {name:"Szarg #001", cost:1, hp:1, atk:2, tags:["vanguard","gtype:szg"], ...},
+trvlr_042: {name:"Szarg #042", cost:2, hp:1, atk:2, tags:["vanguard","gtype:szg","burn"], ...},
 ```
 
-In `render.js`, `mkEl()` and `mkSmallEl()` handle both emoji and image paths:
+Deck composition per starter: 30 travelers + 5 legendaries + 8 spells + 2 worlds + 2 artifacts + extras.
+
+-----
+
+## Art Integration (Planned)
+
+Place PNGs in `/img/`:
+
+- `card_tea.png` — Tea card background
+- `card_jeet.png` — Jeet card background
+- `runaha.png` — Card back for opponent’s hand
+
+In `data.js`, art field will accept image path:
 
 ```js
-// art field is checked — if ends with image extension, renders as <img>
+art: "img/travelers/szarg_001.png"
 ```
 
-Recommended export: 62×87px from Aseprite, ×4 scale = 248×348px PNG.
+Render checks file extension to decide `<img>` vs emoji display.
 
 -----
 
 ## Planned Features
 
-- [ ] Custom card art (in progress)
-- [ ] Custom pixel font + UI redesign
-- [ ] Sound effects (Web Audio API, no external files)
-- [ ] Animations (CSS transitions + JS)
-- [ ] Deckbuilding screen
+- [ ] 60 NFT traveler cards with unique art
+- [ ] PNG card art integration
+- [ ] Deckbuilder screen
 - [ ] AI opponent
-- [ ] Web3: wallet connect + NFT ownership verification (Vercel serverless)
-- [ ] Online multiplayer (WebSocket, separate infrastructure)
+- [ ] Sound effects
+- [ ] Web3: NFT ownership verification
+- [ ] Online multiplayer
