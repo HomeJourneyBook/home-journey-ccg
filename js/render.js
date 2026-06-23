@@ -219,11 +219,13 @@ function rHiddenHand(id,cards,faction){
   const el=document.getElementById(id);
   el.innerHTML='';
   el.className='hand-mini';
-  const sym=faction==='tea'?'🍵':'🖤';
   cards.forEach(()=>{
     const d=document.createElement('div');
     d.className=`card-mini ${faction}-mini`;
-    d.innerHTML=`<span>${sym}</span>`;
+    d.style.backgroundImage="url('img/runaha.png')";
+    d.style.backgroundSize='cover';
+    d.style.backgroundPosition='center';
+    d.innerHTML='';
     el.appendChild(d);
   });
 }
