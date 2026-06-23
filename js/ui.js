@@ -59,10 +59,8 @@ function updateMulliganBtn(faction){
   const isTurn1=(faction==='tea'&&G.turnNum===1&&G.turn==='tea')||
                 (faction==='jeet'&&G.turnNum===1&&G.turn==='jeet');
   if(!isTurn1||used>=3){btn.style.display='none';return;}
-  btn.style.display='block';
-  if(used===0) btn.textContent='🔀 Mulligan (free)';
-  else if(used===1) btn.textContent='🔀 Mulligan (−1 card)';
-  else if(used===2) btn.textContent='🔀 Mulligan (−2 cards)';
+  btn.style.display='flex'; // flex keeps 34x34 size
+  btn.textContent=''; // no text - PNG button
 }
 
 function startBurn(){
