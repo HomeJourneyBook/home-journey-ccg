@@ -58,6 +58,18 @@ function onClick(card,zone){
       render();return;
     }
     // Field card → select for action
+    // Altar: click artifact to enter sacrifice mode
+    if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')){
+      G.sel=null;G.phase='sacrificeTarget';
+      lg(`🗿 ${card.name}: select a creature to sacrifice.`,'hint');
+      render();return;
+    }
+    if(G.phase==='sacrificeTarget'&&zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doSacrifice_target(card);return;
+    }
+    if(G.phase==='sacrificeTarget'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')){
+      G.phase='action';render();return; // cancel
+    }
     if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.spell&&!card.world&&!card.artifact){
       const isHealer=card.tags.some(t=>t.startsWith('heal:'));
       if(isHealer){
@@ -463,19 +475,25 @@ function checkSquadBonuses(faction){
 }
 
 
+function doSacrifice_target(card){
+  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
+    lg('Select one of your creatures.','hint');return;
+  }
+  lg(`🗿 ${card.name} sacrificed to the Altar!`,'die');
+  killCard(card,G.turn);
+  G.phase='action';
+  checkWin();render();
+}
+
 function doSacrifice(){
-  // Player selects one of their creatures to sacrifice
+  // Sacrifice selected creature - Reaper handles the heal via on_any_death_base
   if(!G.sel){lg('Select a creature to sacrifice.','hint');return;}
   const card=findC(G.sel);
   if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
     lg('Select one of your creatures.','hint');return;
   }
-  const faction=G.turn;
-  lg(`🗿 ${card.name} is sacrificed!`,'die');
-  killCard(card,faction);
-  // Heal Jeet base 2 HP
-  G.jeet.hp=Math.min(G.jeet.maxHp,G.jeet.hp+2);
-  lg(`🗿 Altar: Jeet base +2 HP → ${G.jeet.hp}/${G.jeet.maxHp}.`,'hl');
+  lg(`🗿 ${card.name} sacrificed to the Altar!`,'die');
+  killCard(card,G.turn);
   G.sel=null;G.phase='action';
   checkWin();render();
 }
