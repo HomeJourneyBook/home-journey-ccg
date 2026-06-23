@@ -488,6 +488,9 @@ function doSacrifice_target(card){
   if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
     lg('Select one of your creatures.','hint');return;
   }
+  // Mark altar as exhausted
+  const altar=G[G.turn].artifacts.find(a=>hasTag(a,'sacrifice'));
+  if(altar) altar.exhausted=true;
   lg(`🗿 ${card.name} sacrificed to the Altar!`,'die');
   killCard(card,G.turn);
   G.phase='action';
@@ -514,7 +517,7 @@ function endTurn(){
 
   // Wake current player's cards, clear their debuffs
   G[G.turn].field.forEach(c=>{c.sleeping=false;c.exhausted=false;c.feared=false;});
-  G[G.turn].artifacts.forEach(a=>{a.sleeping=false;}); // wake artifacts
+  G[G.turn].artifacts.forEach(a=>{a.sleeping=false;a.exhausted=false;}); // wake artifacts
   G.turn=next;
   const cur=G[G.turn];
   cur.burned=false;
