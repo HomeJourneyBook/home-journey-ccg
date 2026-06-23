@@ -275,6 +275,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 
 @media(max-width:600px){
+  .hand{justify-content:center;}
+  .hand .card{margin-right:-20px;}
+  .hand .card:last-child{margin-right:0;}
+  .hand .card.previewed{margin-right:0;}
+}
 
 /* Header buttons: hamburger always, desktop btns hidden */
 .header-desktop-btns{display:none;}
