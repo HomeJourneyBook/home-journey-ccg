@@ -137,7 +137,8 @@ function doWorld(card){
   if(cur.world){
     const oldDraw=getTagVal(cur.world,'draw');
     if(oldDraw) cur.extraDraw=Math.max(0,cur.extraDraw-oldDraw);
-    cur.grave.push(cur.world);
+    cur.world.voided=true;
+    cur.void.push(cur.world); // replaced worlds go to void
     lg(`Replaced ${cur.world.name}.`);
     // Remove old world aura
     if(hasTag(cur.world,'aura:atk')||hasTag(cur.world,'aura:maxhp')) applyAuras(G.turn);
@@ -167,7 +168,8 @@ function doSpell(card){
   const cur=G[G.turn];
   lg(`▶ Spell: ${card.name}.`,'imp');
   triggerAbilities(card,'instant');
-  cur.grave.push(card);
+  card.voided=true;
+  cur.void.push(card); // spells go to void, not graveyard
 }
 
 // ── REVIVE ─────────────────────────────────────────────────
@@ -458,6 +460,24 @@ function checkSquadBonuses(faction){
       }
     });
   });
+}
+
+
+function doSacrifice(){
+  // Player selects one of their creatures to sacrifice
+  if(!G.sel){lg('Select a creature to sacrifice.','hint');return;}
+  const card=findC(G.sel);
+  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
+    lg('Select one of your creatures.','hint');return;
+  }
+  const faction=G.turn;
+  lg(`🗿 ${card.name} is sacrificed!`,'die');
+  killCard(card,faction);
+  // Heal Jeet base 2 HP
+  G.jeet.hp=Math.min(G.jeet.maxHp,G.jeet.hp+2);
+  lg(`🗿 Altar: Jeet base +2 HP → ${G.jeet.hp}/${G.jeet.maxHp}.`,'hl');
+  G.sel=null;G.phase='action';
+  checkWin();render();
 }
 
 // ── END TURN ───────────────────────────────────────────────
