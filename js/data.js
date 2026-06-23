@@ -10,7 +10,7 @@ const DEFS = {
   t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙",f:"tea",tags:["unique","draw:1"], ab:"Draw 1 extra card each turn.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique","aura:maxhp:1"], ab:"+1 max HP to all allies while on field.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:6,atk:3,art:"👑",f:"tea",tags:["unique","aura:atk:1"], ab:"+1 ATK to all allies while on field.",unique:true},
-  t_faeron:    {name:"FAERON",     cost:5,hp:5,atk:2,art:"🔥",f:"tea",tags:["unique","burn","enter_aoe:2"], ab:"On enter: 2 dmg to all. Attacks set target on fire.",unique:true},
+  t_faeron:    {name:"FAERON",     cost:4,hp:5,atk:2,art:"🔥",f:"tea",tags:["unique","on_play_creature:1"], ab:"Each time you play a creature, heal your base 1 HP.",unique:true},
   t_nab:       {name:"NABUNAGI",   cost:6,hp:7,atk:2,art:"⛩️",f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
   // TEA SPELLS
   t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
