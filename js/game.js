@@ -221,8 +221,8 @@ function doAttack(att,target){
 
   lg(`⚔ ${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
-  // No counter if attacker or target has invisible
-  if(!hasTag(att,'invisible')&&!hasTag(target,'invisible'))
+  // No counter if attacker is invisible, target is invisible, or target is feared
+  if(!hasTag(att,'invisible')&&!hasTag(target,'invisible')&&!target.feared)
     dmgCard(att,target.atk+(target.atkBonus||0)+(target.rageBonus||0)+(target.squadAtkBonus||0),curK);
 
   // on_attack abilities
