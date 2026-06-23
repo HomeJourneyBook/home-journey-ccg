@@ -144,11 +144,12 @@ function triggerAbilities(card, timing, ctx={}){
         } break;
 
       case 'draw':
-        // instant draw (spells) - draw immediately
-        // on_turn draw is handled via extraDraw in game.js endTurn, not here
-        if(a.timing==='instant'){
+        // instant: spells draw immediately
+        // on_attack: Ryvlen draws on each attack
+        // on_turn: handled via extraDraw in endTurn — skip here
+        if(a.timing==='instant'||a.timing==='on_attack'){
           for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
-          lg(`${card.name}: draw ${a.val} card(s).`,'imp');
+          lg(`${card.name}: draws ${a.val} card(s).`,'imp');
         }
         break;
 
