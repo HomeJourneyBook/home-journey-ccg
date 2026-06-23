@@ -588,8 +588,10 @@ function doShardTarget(card){
     lg('Select an enemy creature.','hint');return;
   }
   const artifact=G[G.turn].artifacts.find(a=>hasTag(a,'shard'));
-  const dmg=getTagVal(artifact,'shard')||2;
-  lg(`🔪 ${artifact.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  const baseDmg=getTagVal(artifact,'shard')||2;
+  const dmg=card.feared?baseDmg+1:baseDmg;
+  const fearNote=card.feared?' (feared +1)':'';
+  lg(`🔪 ${artifact.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
   dmgCard(card,dmg,oppK);
   if(artifact) artifact.exhausted=true;
   G.phase='action';G.sel=null;
