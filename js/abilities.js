@@ -255,8 +255,20 @@ function triggerAbilities(card, timing, ctx={}){
           const r=all[all.length-1];
           G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
           G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
-          r.hp=a.val||1;
-          reviveCard(r,curK); // use reviveCard for proper aura/squad checks
+          // Reset state but keep base stats, set hp to raise value (NOT full)
+          r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;
+          r.atkBonus=0;r.rageBonus=0;r.maxHpBonus=0;r.baseMaxHp=null;
+          r.squadParam=null;r.squadAtkBonus=0;r.squadMaxHpBonus=0;
+          r.f=curK;
+          const def=DEFS[r.key];
+          if(def) r.maxHp=def.hp; // restore base maxHp
+          r.hp=a.val||1; // raise at 1 HP, not full
+          G[curK].field.push(r);
+          // Apply auras and squad bonuses
+          if(hasTag(r,'aura:atk')) G[curK]._auraAtkLog=r.id;
+          if(hasTag(r,'aura:maxhp')) G[curK]._auraMaxLog=r.id;
+          applyAuras(curK);
+          checkSquadBonuses(curK);
           lg(`${card.name} raises ${r.name} at ${r.hp} HP!`,'imp');
         } else {
           lg(`${card.name}: both graveyards empty.`,'die');
