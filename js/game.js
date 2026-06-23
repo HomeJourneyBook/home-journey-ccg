@@ -65,6 +65,7 @@ function onClick(card,zone){
       render();return;
     }
     if(G.phase==='sacrificeTarget'&&zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
+      lg(`🗿 Sacrificing ${card.name}...`);
       doSacrifice_target(card);return;
     }
     if(G.phase==='sacrificeTarget'&&(zone==='hand'||card.f!==G.turn)){
