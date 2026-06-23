@@ -229,6 +229,17 @@ function rPersist(id,player){
     d.className=`pcard ${cls}`;
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
+    // Active artifacts (sacrifice) get click handler
+    if(hasTag(a,'sacrifice')&&a.f===G.turn){
+      d.style.cursor='pointer';
+      d.style.border='1px solid #b44fd4';
+      if(G.phase==='sacrificeTarget') d.style.boxShadow='0 0 6px #b44fd4';
+      d.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        if(G.phase==='sacrificeTarget'){G.phase='action';render();}
+        else{G.phase='sacrificeTarget';lg(`🗿 ${a.name}: select a creature to sacrifice.`,'hint');render();}
+      });
+    }
     el.appendChild(d);
   });
   if(!player.world&&player.artifacts.length===0){
