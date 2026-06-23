@@ -395,10 +395,14 @@ function applyAuras(faction){
       return sum+(getTagVal(src,'aura:maxhp')||1);
     },0);
 
-    // Reset to baseMaxHp first
+    // Reset to baseMaxHp + squadMaxHpBonus (squad bonus is separate from aura)
     cur.field.forEach(a=>{
       if(a.spell||a.world||a.artifact) return;
-      if(a.baseMaxHp){a.maxHp=a.baseMaxHp;a.hp=Math.min(a.hp,a.maxHp);}
+      if(a.baseMaxHp){
+        const squadBonus=a.squadMaxHpBonus||0;
+        a.maxHp=a.baseMaxHp+squadBonus; // restore base + keep squad bonus
+        a.hp=Math.min(a.hp,a.maxHp);
+      }
     });
 
     // Each source gives bonus to everyone EXCEPT itself (same as aura:atk)
@@ -408,7 +412,7 @@ function applyAuras(faction){
       const affected=[];
       cur.field.forEach(a=>{
         if(a.spell||a.world||a.artifact||a.id===src.id) return;
-        if(!a.baseMaxHp) a.baseMaxHp=a.maxHp;
+        if(!a.baseMaxHp) a.baseMaxHp=a.maxHp-(a.squadMaxHpBonus||0); // store pure base
         const wasFull=a.hp===a.maxHp;
         a.maxHp+=val;
         if(wasFull) a.hp=a.maxHp;
