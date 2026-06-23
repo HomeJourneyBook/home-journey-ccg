@@ -67,6 +67,9 @@ function onClick(card,zone){
     if(G.phase==='sacrificeTarget'&&zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
       doSacrifice_target(card);return;
     }
+    if(G.phase==='sacrificeTarget'&&(zone==='hand'||card.f!==G.turn)){
+      G.phase='action';render();return; // cancel if clicking elsewhere
+    }
     if(G.phase==='sacrificeTarget'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')){
       G.phase='action';render();return; // cancel
     }
@@ -317,14 +320,8 @@ function killCard(card,faction){
     lg(`${card.name} died — ATK aura removed.`);
   }
   if(hasTag(card,'aura:maxhp')){
-    G[faction].field.forEach(a=>{
-      if(a.baseMaxHp){
-        a.maxHp=a.baseMaxHp;
-        a.hp=Math.min(a.hp,a.maxHp);
-        a.baseMaxHp=null;
-      }
-    });
-    lg(`${card.name} died — maxHP aura removed.`);
+    lg(`${card.name} died — maxHP aura recalculating.`);
+    // applyAuras below will recalculate correctly using remaining sources (e.g. Dominia)
   }
 
   // on_any_death_base — heal own base when ANY creature dies (ally or enemy)
