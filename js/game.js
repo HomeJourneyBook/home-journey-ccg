@@ -109,6 +109,13 @@ function doCreature(card){
   cur.field.push(card);
   lg(`▶ ${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
 
+  // Trigger on_play_creature for all field cards of active player
+  G[G.turn].field.forEach(c=>{
+    if(c.id!==card.id) triggerAbilities(c,'on_play_creature');
+  });
+  // Also check the card itself (if it has on_play_creature)
+  triggerAbilities(card,'on_play_creature');
+
   // on_enter abilities via ability system (Faeron AOE, Maltor AOE, World HP)
   triggerAbilities(card,'on_enter');
 
