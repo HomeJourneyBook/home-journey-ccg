@@ -78,6 +78,7 @@ function mkSmallEl(card){
   if(card.exhausted)d.classList.add('exhausted');
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
+  if(G.phase==='sacrificeTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable');
   if(G.phase==='selectTarget'&&card.f!==G.turn){
     const oppField=G[card.f].field;
     const attS=G.sel?findC(G.sel):null;
@@ -230,15 +231,21 @@ function rPersist(id,player){
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
     // Active artifacts (sacrifice) get click handler
-    if(hasTag(a,'sacrifice')&&a.f===G.turn){
+    if(hasTag(a,'sacrifice')&&a.f===G.turn&&G.phase==='action'){
       d.style.cursor='pointer';
       d.style.border='1px solid #b44fd4';
-      if(G.phase==='sacrificeTarget') d.style.boxShadow='0 0 6px #b44fd4';
       d.addEventListener('click',(e)=>{
         e.stopPropagation();
-        if(G.phase==='sacrificeTarget'){G.phase='action';render();}
-        else{G.phase='sacrificeTarget';lg(`🗿 ${a.name}: select a creature to sacrifice.`,'hint');render();}
+        G.phase='sacrificeTarget';
+        G.sel=a.id;
+        lg(`🗿 ${a.name}: select a creature to sacrifice.`,'hint');
+        render();
       });
+    } else if(hasTag(a,'sacrifice')&&G.phase==='sacrificeTarget'){
+      d.style.cursor='pointer';
+      d.style.border='1px solid #b44fd4';
+      d.style.boxShadow='0 0 6px #b44fd4';
+      d.addEventListener('click',(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();});
     }
     el.appendChild(d);
   });
