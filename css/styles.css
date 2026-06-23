@@ -148,7 +148,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 /* BOTTOM BAR */
 .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;background:transparent;border-top:none;}
-.bottom-bar .btn-end{font-size:10px;padding:8px 32px;}
+.bottom-bar .btn-end{font-size:10px;padding:0;}
 .bottom-bar .hint-text{font-size:9px;color:#c8a84b;text-align:center;min-height:14px;}
 
 /* ACTIONS */
@@ -157,7 +157,26 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .hint{font-size:10px;color:#c8a84b;text-align:center;min-height:16px;}
 .btn{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
 .btn:hover{background:#ffffff11;}.btn:disabled{opacity:.3;cursor:not-allowed;}
-.btn-end{border-color:#c8a84b;color:#c8a84b;}.btn-end:hover{background:#c8a84b22;}
+.btn-end{
+  border:none;
+  background:url('../img/button_1.png') center/contain no-repeat;
+  color:transparent;
+  width:200px;
+  height:50px;
+  padding:0;
+  transition:transform .1s, filter .1s;
+}
+.btn-end:hover{
+  background-image:url('../img/button_2.png');
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+  filter:brightness(1.1);
+}
+.btn-end:active{
+  transform:scale(0.95) translateY(2px);
+  filter:brightness(0.9);
+}
 .btn-burn{border-color:#e05555;color:#e05555;}.btn-burn:hover{background:#e0555522;}
 .btn-base{border-color:#ff6600;color:#ff6600;}.btn-base:hover{background:#ff660022;}
 .btn-cancel{border-color:#555;}.btn-reset{border-color:#444;font-size:8px;}
