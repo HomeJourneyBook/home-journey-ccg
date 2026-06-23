@@ -1,4 +1,19 @@
+function updateTurnColors(){
+  if(!G) return;
+  const isTea=G.turn==='tea';
+  const teaBright='#1b641b', teaDim='#1b641b44';
+  const jeetBright='#d83c88', jeetDim='#d83c8844';
+  const set=(id,col)=>{const el=document.getElementById(id);if(el)el.style.borderColor=col;};
+  // Tea always green, Jeet always pink - active is bright, inactive is dim
+  set('playerFieldZone', isTea ? teaBright : teaDim);
+  set('playerStats',     isTea ? teaBright : teaDim);
+  set('oppFieldZone',    isTea ? jeetDim : jeetBright);
+  set('oppStats',        isTea ? jeetDim : jeetBright);
+  set('oppHandZone',     isTea ? jeetDim : jeetBright);
+}
+
 function render(){
+  updateTurnColors();
   const cur=G[G.turn];
   document.getElementById('turnNum').textContent=G.turnNum;
   document.getElementById('turnPlayer').textContent=G.turn.toUpperCase();
