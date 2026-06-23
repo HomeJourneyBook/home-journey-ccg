@@ -2,8 +2,8 @@
 function getTargetableCards(oppField, att){
   const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return [bushido.id];
-  // Filter invisible cards if there are other targets
   const visible=oppField.filter(c=>!hasTag(c,'invisible')||oppField.length===1);
+  console.log('[INV] oppField:', oppField.map(c=>c.name), 'visible:', visible.map(c=>c.name));
   const provokes=visible.filter(c=>c.tags.includes('provoke'));
   const hasPierce=att&&(att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce));
   if(provokes.length>0&&!hasPierce) return provokes.map(c=>c.id);
