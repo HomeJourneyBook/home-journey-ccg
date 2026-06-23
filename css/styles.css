@@ -254,13 +254,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .card.jeet-card,.card-small.jeet-card{background-image:url('img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;}
 
 
-.card-art{background:#06060e!important;border:1px solid #ffffff11!important;}
-.card-small-art{background:#06060e!important;border:1px solid #ffffff08!important;}
+.card-art{background:#06060e;border:1px solid #ffffff11;}
+.card-small-art{background:#06060e;border:1px solid #ffffff08;}
 
 
-  .hand .card:last-child{margin-right:0;}
-  .hand .card.previewed{margin-right:0;z-index:2000!important;}
-}
 
 /* Bottom bar square buttons - PNG based */
 .btn-square{width:34px;height:34px;padding:0;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
@@ -276,15 +273,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 #playerFieldZone{border:1px solid #1b641b;margin-top:6px;}
 
 
-  /* Dynamic overlap based on card count handled by JS */
-}
 
 @media(max-width:600px){
-  .hand{justify-content:center;}
-  .hand .card{margin-right:-20px;}
-  .hand .card:last-child{margin-right:0;}
-  .hand .card.previewed{margin-right:0;}
-}
 
 /* Header buttons: hamburger always, desktop btns hidden */
 .header-desktop-btns{display:none;}
