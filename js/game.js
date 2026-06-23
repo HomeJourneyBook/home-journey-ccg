@@ -51,28 +51,25 @@ function onClick(card,zone){
     return;
   }
 
+  // Sacrifice phase - handle outside action block
+  if(G.phase==='sacrificeTarget'){
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doSacrifice_target(card);return;
+    }
+    G.phase='action';G.sel=null;render();return; // cancel on any other click
+  }
+
   if(G.phase==='action'){
     // Hand card → preview
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
       render();return;
     }
-    // Field card → select for action
     // Altar: click artifact to enter sacrifice mode
-    if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')){
-      G.sel=null;G.phase='sacrificeTarget';
+    if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping){
+      G.phase='sacrificeTarget';
       lg(`🗿 ${card.name}: select a creature to sacrifice.`,'hint');
       render();return;
-    }
-    if(G.phase==='sacrificeTarget'&&zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
-      lg(`🗿 Sacrificing ${card.name}...`);
-      doSacrifice_target(card);return;
-    }
-    if(G.phase==='sacrificeTarget'&&(zone==='hand'||card.f!==G.turn)){
-      G.phase='action';render();return; // cancel if clicking elsewhere
-    }
-    if(G.phase==='sacrificeTarget'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')){
-      G.phase='action';render();return; // cancel
     }
     if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.spell&&!card.world&&!card.artifact){
       const isHealer=card.tags.some(t=>t.startsWith('heal:'));
@@ -173,9 +170,9 @@ function doWorld(card){
 
 function doArtifact(card){
   const cur=G[G.turn];
+  card.sleeping=true; // artifacts sleep on first turn like creatures
   cur.artifacts.push(card);
   lg(`▶ Artifact: ${card.name} placed.`,'imp');
-  // Track draw bonus via tag system
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
 }
@@ -316,13 +313,9 @@ function killCard(card,faction){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
     lg(`${card.name} died — ATK aura removed.`);
   }
-  if(hasTag(card,'aura:atk')){
-    G[faction].field.forEach(a=>{a.atkBonus=0;});
-    lg(`${card.name} died — ATK aura removed.`);
-  }
-  if(hasTag(card,'aura:maxhp')){
-    lg(`${card.name} died — maxHP aura recalculating.`);
-    // applyAuras below will recalculate correctly using remaining sources (e.g. Dominia)
+  if(hasTag(card,'aura:atk')||hasTag(card,'aura:maxhp')){
+    lg(`${card.name} died — recalculating auras.`);
+    applyAuras(faction); // immediately recalculate with remaining sources
   }
 
   // on_any_death_base — heal own base when ANY creature dies (ally or enemy)
@@ -521,6 +514,7 @@ function endTurn(){
 
   // Wake current player's cards, clear their debuffs
   G[G.turn].field.forEach(c=>{c.sleeping=false;c.exhausted=false;c.feared=false;});
+  G[G.turn].artifacts.forEach(a=>{a.sleeping=false;}); // wake artifacts
   G.turn=next;
   const cur=G[G.turn];
   cur.burned=false;
@@ -619,6 +613,9 @@ document.addEventListener('keydown',(e)=>{
 function cancelAction(){G.previewCard=null;clearPreview();G.sel=null;G.phase='action';render();}
 
 function handleGameClick(e){
+  if(G.phase==='sacrificeTarget'&&!e.target.closest('.card')&&!e.target.closest('.pcard')){
+    G.phase='action';G.sel=null;render();return;
+  }
   if(!e.target.closest('.card')&&G.previewCard){
     G.previewCard=null;clearPreview();render();
   }
