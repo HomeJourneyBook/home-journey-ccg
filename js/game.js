@@ -132,10 +132,18 @@ function doWorld(card){
     if(oldDraw) cur.extraDraw=Math.max(0,cur.extraDraw-oldDraw);
     cur.grave.push(cur.world);
     lg(`Replaced ${cur.world.name}.`);
+    // Remove old world aura
+    if(hasTag(cur.world,'aura:atk')||hasTag(cur.world,'aura:maxhp')) applyAuras(G.turn);
   }
   cur.world=card;
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
+  // Apply world auras immediately
+  if(hasTag(card,'aura:atk')||hasTag(card,'aura:maxhp')){
+    G[G.turn]._auraAtkLog=hasTag(card,'aura:atk')?card.id:null;
+    G[G.turn]._auraMaxLog=hasTag(card,'aura:maxhp')?card.id:null;
+    applyAuras(G.turn);
+  }
   lg(`▶ World: ${card.name} activated.`,'imp');
 }
 
@@ -332,11 +340,15 @@ function doBurnCard(card){
 function applyAuras(faction){
   const cur=G[faction];
 
+  // Collect all aura sources: field cards + world
+  const auraSources=[...cur.field.filter(c=>!c.spell&&!c.world&&!c.artifact)];
+  if(cur.world&&(hasTag(cur.world,'aura:atk')||hasTag(cur.world,'aura:maxhp'))) auraSources.push(cur.world);
+
   // Reset bonuses for non-aura cards
   cur.field.forEach(a=>{
     if(!hasTag(a,'aura:atk')) a.atkBonus=0;
-    // Restore maxHp to base if no aura:maxhp source will buff this card
-    const hasMaxHpSrc=cur.field.some(s=>s.id!==a.id&&hasTag(s,'aura:maxhp')&&!s.spell&&!s.world&&!s.artifact);
+    // Restore maxHp to base if no aura:maxhp source exists
+    const hasMaxHpSrc=auraSources.some(s=>s.id!==a.id&&hasTag(s,'aura:maxhp'));
     if(!hasMaxHpSrc&&a.baseMaxHp){
       a.maxHp=a.baseMaxHp;
       a.hp=Math.min(a.hp,a.maxHp);
@@ -344,8 +356,7 @@ function applyAuras(faction){
     }
   });
 
-  cur.field.forEach(src=>{
-    if(src.spell||src.world||src.artifact) return;
+  auraSources.forEach(src=>{
 
     // aura:atk
     if(hasTag(src,'aura:atk')){
