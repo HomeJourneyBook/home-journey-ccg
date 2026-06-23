@@ -78,7 +78,7 @@ function mkSmallEl(card){
   if(card.exhausted)d.classList.add('exhausted');
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
-  if(G.phase==='sacrificeTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable');
+  if(G.phase==='sacrificeTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='selectTarget'&&card.f!==G.turn){
     const oppField=G[card.f].field;
     const attS=G.sel?findC(G.sel):null;
@@ -141,7 +141,7 @@ function mkEl(card,zone){
   if(card.sleeping)d.classList.add('sleeping');
   if(card.exhausted)d.classList.add('exhausted');
   if(card.feared)d.classList.add('feared');
-  if(G.phase==='sacrificeTarget'&&card.f===G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable');
+  if(G.phase==='sacrificeTarget'&&card.f===G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='selectTarget'&&card.f!==G.turn&&zone==='field'){
     const oppField=G[card.f].field;
     const attE=G.sel?findC(G.sel):null;
