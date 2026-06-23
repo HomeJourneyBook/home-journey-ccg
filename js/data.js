@@ -19,7 +19,7 @@ const DEFS = {
   t_sp4:       {name:"SCHEME",     cost:1,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell","ess_add:2"],              ab:"Get 2 essence for this turn.",spell:true},
   // TEA WORLDS & ARTIFACTS
   t_w1:        {name:"VALLEY",     cost:3,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world","draw:1"],                 ab:"Draw 1 extra card each turn.",world:true},
-  t_w2:        {name:"DOMINIA",    cost:3,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","aura:maxhp:1"],           ab:"+1 max HP to all allies while active.",world:true},
+  t_w2:        {name:"DOMINIA",    cost:3,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","world_maxhp:1"],           ab:"+1 max HP to all allies while active.",world:true},
   t_a1:        {name:"FOUND.BOOK", cost:3,hp:0,atk:0,art:"📖",f:"tea",tags:["artifact","draw:1"],  ab:"Draw 1 extra card per turn.",artifact:true},
   t_a2:        {name:"TEA FOUNT.", cost:3,hp:0,atk:0,art:"⛲",f:"tea",tags:["artifact","heal:1"],  ab:"Heal all allies 1 HP per turn.",artifact:true},
 
