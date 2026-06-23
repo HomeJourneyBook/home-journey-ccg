@@ -23,7 +23,7 @@ function lg(msg,cls=''){
   G.logs.push({msg,cls});
   const el=document.getElementById('log');
   if(el){
-    el.innerHTML=G.logs.slice(-50).map(e=>`<div class="le ${e.cls}">${e.msg}</div>`).join('');
+    el.innerHTML=G.logs.map(e=>`<div class="le ${e.cls}">${e.msg}</div>`).join('');
     el.scrollTop=el.scrollHeight;
   }
 }
