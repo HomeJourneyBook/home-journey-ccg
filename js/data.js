@@ -42,9 +42,9 @@ const DEFS = {
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤",f:"jeet",tags:["spell","revive:full"],             ab:"Revive last creature from your graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:1,hp:0,atk:0,art:"⚫",f:"jeet",tags:["spell","ess_add:2"],             ab:"Get 2 essence for this turn.",spell:true},
   // JEET WORLDS & ARTIFACTS
-  j_w1:        {name:"WEB",        cost:3,hp:0,atk:0,art:"🕸️",f:"jeet",tags:["world","draw:1"],                ab:"Draw 1 extra card each turn.",world:true},
+  j_w1:        {name:"HUNGER",     cost:3,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","on_own_death:1"],         ab:"When your creature dies, draw 1 card.",world:true},
   j_w2:        {name:"NORRIA",     cost:3,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","aura:atk:1"],            ab:"+1 ATK to all allies while active.",world:true},
-  j_a1:        {name:"DARK WRIT.", cost:3,hp:0,atk:0,art:"📕",f:"jeet",tags:["artifact","draw:1"], ab:"Draw 1 extra card per turn.",artifact:true},
+  j_a1:        {name:"SHARD",      cost:2,hp:0,atk:0,art:"🔪",f:"jeet",tags:["artifact","shard:2"], ab:"Active: deal 2 damage to any enemy creature.",artifact:true},
   j_a2:        {name:"ALTAR",      cost:3,hp:0,atk:0,art:"🗿",f:"jeet",tags:["artifact","sacrifice"], ab:"Active: sacrifice one of your creatures to heal Jeet base 2 HP.",artifact:true},
   // NEUTRAL
   unseen:      {name:"UNSEEN",     cost:2,hp:0,atk:0,art:"👁️",f:"jeet",tags:["spell","bounce"],             ab:"Return ALL field cards to their owners hands.",spell:true},
