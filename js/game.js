@@ -404,10 +404,10 @@ function applyAuras(faction){
       if(!hasTag(src,'aura:maxhp')) return sum;
       return sum+(getTagVal(src,'aura:maxhp')||1);
     },0);
-    if(cur._auraMaxLog) lg(`[DBG] aura sources: ${auraSources.map(s=>s.name+'('+s.id+')').join(',')}, total bonus: ${totalMaxHpBonus}`);
 
     cur.field.forEach(a=>{
       if(a.spell||a.world||a.artifact) return;
+      if(hasTag(a,'aura:maxhp')) return; // aura sources don't buff themselves
       if(totalMaxHpBonus>0){
         if(!a.baseMaxHp) a.baseMaxHp=a.maxHp;
         const newMaxHp=a.baseMaxHp+totalMaxHpBonus;
@@ -607,6 +607,17 @@ function doMulligan(faction){
   updateMulliganBtn(faction);
   render();
 }
+
+// Spacebar = End Turn
+document.addEventListener('keydown',(e)=>{
+  if(e.code==='Space'&&document.getElementById('game')&&document.getElementById('game').style.display!=='none'){
+    e.preventDefault();
+    const teaBB=document.getElementById('teaBottomBar');
+    const jeetBB=document.getElementById('jeetBottomBar');
+    if(teaBB&&teaBB.style.display!=='none') endTurn();
+    else if(jeetBB&&jeetBB.style.display!=='none') endTurn();
+  }
+});
 
 function cancelAction(){G.previewCard=null;clearPreview();G.sel=null;G.phase='action';render();}
 
