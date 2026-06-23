@@ -1,8 +1,7 @@
-:root{
-  --cs: 1.15; /* card scale - change this one number to resize all cards */
-}
-
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap');
+:root{
+  --cs: 1.15;
+}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;min-height:100vh;}
 .stars{position:fixed;inset:0;background:#0a0a12 url('img/space_bg.png') center center/cover no-repeat;z-index:0;}
@@ -253,10 +252,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 
 /* === CARD ART BACKGROUNDS === */
-.card.tea-card{background-image:url('img/card_tea.png');background-size:cover;background-position:center;}
-.card.jeet-card{background-image:url('img/card_jeet.png');background-size:cover;background-position:center;}
-.card-small.tea-card{background-image:url('img/card_tea.png');background-size:cover;background-position:center;}
-.card-small.jeet-card{background-image:url('img/card_jeet.png');background-size:cover;background-position:center;}
+.card.tea-card,.card-small.tea-card{background-image:url('img/card_tea.png')!important;background-size:cover!important;background-position:center!important;}
+.card.jeet-card,.card-small.jeet-card{background-image:url('img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;}
+
+
 .card-art{background:#06060e!important;border:1px solid #ffffff11!important;}
 .card-small-art{background:#06060e!important;border:1px solid #ffffff08!important;}
 
@@ -272,7 +271,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-mulligan-sq{background-image:url('img/button_mul_1.png');opacity:1!important;}
 .btn-mulligan-sq:hover{background-image:url('img/button_mul_2.png');}
-.btn-deck-placeholder{background-image:url('img/deck.png');width:34px;height:34px;background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.7;flex-shrink:0;}
+.btn-deck-placeholder{background-image:url('img/deck.png');width:34px;height:34px;background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.7;position:absolute;top:0;left:0;}
 
 /* Faction field borders */
 #oppFieldZone{border:1px solid #d83c88;border-top:none;}
