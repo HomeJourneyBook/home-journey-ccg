@@ -154,6 +154,7 @@ function mkEl(card,zone){
   }
   if(card.feared)d.classList.add('feared');
   if(G.phase==='sacrificeTarget'&&card.f===G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
+  if(G.phase==='shardTarget'&&card.f!==G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='selectTarget'&&card.f!==G.turn&&zone==='field'){
     const oppField=G[card.f].field;
     const attE=G.sel?findC(G.sel):null;
@@ -242,6 +243,21 @@ function rPersist(id,player){
     d.className=`pcard ${cls}`;
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
+    // Shard damage logic
+    if(hasTag(a,'shard')&&a.f===G.turn){
+      if(a.exhausted||a.sleeping){
+        d.style.opacity='0.5';
+      } else if(G.phase==='shardTarget'){
+        d.style.cursor='pointer';
+        d.style.border='2px solid #e05050';
+        d.style.boxShadow='0 0 8px #e05050';
+        d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
+      } else if(G.phase==='action'){
+        d.style.cursor='pointer';
+        d.style.border='1px solid #e05050';
+        d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
+      }
+    }
     // Altar sacrifice logic
     if(hasTag(a,'sacrifice')&&a.f===G.turn){
       if(a.exhausted||a.sleeping){
