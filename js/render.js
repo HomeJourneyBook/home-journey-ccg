@@ -91,6 +91,7 @@ function mkSmallEl(card){
     const targetableS=getTargetableCards(oppField,attS);
     if(targetableS.includes(card.id))d.classList.add('targetable');
   }
+  if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp)d.classList.add('healable');
   if(G.phase==='healTarget'&&card.f!==G.turn){
     const oppField2=G[card.f].field;
@@ -248,13 +249,14 @@ function rPersist(id,player){
       if(a.exhausted||a.sleeping){
         d.style.opacity='0.5';
       } else if(G.phase==='shardTarget'){
+        // Active and waiting for target
         d.style.cursor='pointer';
         d.style.border='2px solid #e05050';
         d.style.boxShadow='0 0 8px #e05050';
         d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
       } else if(G.phase==='action'){
+        // Ready but no highlight until clicked
         d.style.cursor='pointer';
-        d.style.border='1px solid #e05050';
         d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
       }
     }
