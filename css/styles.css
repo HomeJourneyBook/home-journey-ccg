@@ -137,7 +137,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .log-panel .log{height:180px;border:none;}
 
 /* LAYOUT ZONES */
-.opp-hand-zone{padding:4px 6px;background:rgba(6,6,14,0.50);border-bottom:none;min-height:48px;display:flex;align-items:center;justify-content:center;margin-top:-6px;}
+.opp-hand-zone{padding:4px 6px;background:rgba(6,6,14,0.50);border-bottom:none;min-height:48px;display:flex;align-items:center;justify-content:center;margin-top:-16px;}
 .stats-bar{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:5px 10px;flex-wrap:wrap;cursor:pointer;}
 .stats-bar.jeet{border-top:1px solid #7b2d8b33;border-bottom:1px solid #7b2d8b33;background:#0d0a12 url('../img/statbar_jeet.png') center/cover no-repeat;}
 .stats-bar.tea{border-top:1px solid #2d7b3533;border-bottom:1px solid #2d7b3533;background:#0a0d0a url('../img/statbar_tea.png') center/cover no-repeat;}
@@ -276,4 +276,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
   .hand .card{margin-right:-22px;flex-shrink:1;}
   .hand .card:last-child{margin-right:0;}
   .hand .card.previewed{margin-right:0;z-index:2000!important;}
+}
+
+@media(min-width:601px){
+  .card{height:169px;}
+  .card-small{height:104px;}
+  .card-art{height:69px;}
+  .card-small-art{height:42px;}
+  .hand{min-height:180px;}
 }
