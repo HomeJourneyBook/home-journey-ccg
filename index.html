@@ -215,16 +215,20 @@
   <div class="bottom-bar" id="teaBottomBar" style="display:none;">
     <button class="btn-square btn-graveyard" disabled title="Graveyard"></button>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
-    <button class="btn-square btn-mulligan-sq" id="mulliganBtnT" style="display:none;" onclick="doMulligan('tea')" title="Mulligan"></button>
-    <div class="btn-deck-placeholder" id="deckPlaceholderT"></div>
-    <div id="hintT2" style="position:absolute;bottom:-18px;font-size:9px;color:#c8a84b;text-align:center;width:100%;"></div>
+    <div style="position:relative;width:34px;height:34px;">
+      <button class="btn-square btn-mulligan-sq" id="mulliganBtnT" style="display:none;width:34px;height:34px;" onclick="doMulligan('tea')" title="Mulligan"></button>
+      <div class="btn-deck-placeholder" id="deckPlaceholderT" style="position:absolute;top:0;left:0;"></div>
+    </div>
+    <div id="hintT2" style="position:absolute;bottom:-18px;font-size:9px;color:#c8a84b;text-align:center;width:100%;left:0;"></div>
   </div>
   <div class="bottom-bar" id="jeetBottomBar" style="display:none;">
     <button class="btn-square btn-graveyard" disabled title="Graveyard"></button>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
-    <button class="btn-square btn-mulligan-sq" id="mulliganBtnJ" style="display:none;" onclick="doMulligan('jeet')" title="Mulligan"></button>
-    <div class="btn-deck-placeholder" id="deckPlaceholderJ"></div>
-    <div id="hintJ2" style="position:absolute;bottom:-18px;font-size:9px;color:#c8a84b;text-align:center;width:100%;"></div>
+    <div style="position:relative;width:34px;height:34px;">
+      <button class="btn-square btn-mulligan-sq" id="mulliganBtnJ" style="display:none;width:34px;height:34px;" onclick="doMulligan('jeet')" title="Mulligan"></button>
+      <div class="btn-deck-placeholder" id="deckPlaceholderJ" style="position:absolute;top:0;left:0;"></div>
+    </div>
+    <div id="hintJ2" style="position:absolute;bottom:-18px;font-size:9px;color:#c8a84b;text-align:center;width:100%;left:0;"></div>
   </div>
 
   <!-- GLOBAL HINT -->
