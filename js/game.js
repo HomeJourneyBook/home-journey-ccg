@@ -404,6 +404,7 @@ function applyAuras(faction){
       if(!hasTag(src,'aura:maxhp')) return sum;
       return sum+(getTagVal(src,'aura:maxhp')||1);
     },0);
+    if(cur._auraMaxLog) lg(`[DBG] aura sources: ${auraSources.map(s=>s.name+'('+s.id+')').join(',')}, total bonus: ${totalMaxHpBonus}`);
 
     cur.field.forEach(a=>{
       if(a.spell||a.world||a.artifact) return;
@@ -428,10 +429,12 @@ function applyAuras(faction){
     if(cur._auraMaxLog){
       const logSrc=auraSources.find(s=>s.id===cur._auraMaxLog);
       if(logSrc){
-        const affected=cur.field.filter(a=>!a.spell&&!a.world&&!a.artifact&&a.id!==logSrc.id);
+        const val=getTagVal(logSrc,'aura:maxhp')||1;
+        // Show all buffed allies (everyone except aura sources themselves)
+        const affected=cur.field.filter(a=>!a.spell&&!a.world&&!a.artifact&&!hasTag(a,'aura:maxhp'));
         if(affected.length>0)
-          lg(`${logSrc.name}: +${getTagVal(logSrc,'aura:maxhp')||1} maxHP → ${affected.map(a=>a.name+'('+a.hp+'/'+a.maxHp+')').join(', ')}.`,'hl');
-        else lg(`${logSrc.name}: no allies to buff.`,'hl');
+          lg(`${logSrc.name}: +${val} maxHP → ${affected.map(a=>a.name+'('+a.hp+'/'+a.maxHp+')').join(', ')}.`,'hl');
+        else lg(`${logSrc.name}: no non-aura allies to buff.`,'hl');
       }
       cur._auraMaxLog=null;
     }
