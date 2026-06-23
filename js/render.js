@@ -230,22 +230,29 @@ function rPersist(id,player){
     d.className=`pcard ${cls}`;
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
-    // Active artifacts (sacrifice) get click handler
-    if(hasTag(a,'sacrifice')&&a.f===G.turn&&G.phase==='action'&&!a.sleeping){
-      d.style.cursor='pointer';
-      d.style.border='1px solid #b44fd4';
-      d.addEventListener('click',(e)=>{
-        e.stopPropagation();
-        G.phase='sacrificeTarget';
-        G.sel=a.id;
-        lg(`🗿 ${a.name}: select a creature to sacrifice.`,'hint');
-        render();
-      });
-    } else if(hasTag(a,'sacrifice')&&G.phase==='sacrificeTarget'){
-      d.style.cursor='pointer';
-      d.style.border='1px solid #b44fd4';
-      d.style.boxShadow='0 0 6px #b44fd4';
-      d.addEventListener('click',(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();});
+    // Altar sacrifice logic
+    if(hasTag(a,'sacrifice')&&a.f===G.turn){
+      if(a.exhausted||a.sleeping){
+        // Inactive - grey out
+        d.style.opacity='0.5';
+      } else if(G.phase==='sacrificeTarget'){
+        // Active and waiting for target - pulse border, click cancels
+        d.style.cursor='pointer';
+        d.style.border='2px solid #b44fd4';
+        d.style.boxShadow='0 0 8px #b44fd4';
+        d.addEventListener('click',(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();});
+      } else if(G.phase==='action'){
+        // Ready to use
+        d.style.cursor='pointer';
+        d.style.border='1px solid #b44fd4';
+        d.addEventListener('click',(e)=>{
+          e.stopPropagation();
+          G.phase='sacrificeTarget';
+          G.sel=a.id;
+          lg('🗿 Altar: select a creature to sacrifice.','hint');
+          render();
+        });
+      }
     }
     el.appendChild(d);
   });
