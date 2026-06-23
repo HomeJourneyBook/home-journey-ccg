@@ -76,6 +76,12 @@ function mkSmallEl(card){
   if(card.id===G.sel)d.classList.add('selected');
   if(card.sleeping)d.classList.add('sleeping');
   if(card.exhausted)d.classList.add('exhausted');
+  if(hasTag(card,'invisible')){
+    const inv=document.createElement('span');
+    inv.className='tag-label';
+    inv.textContent='👻 Invis';
+    d.appendChild(inv);
+  }
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
   if(G.phase==='sacrificeTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
@@ -140,6 +146,12 @@ function mkEl(card,zone){
   if(card.burning)d.classList.add('burning');
   if(card.sleeping)d.classList.add('sleeping');
   if(card.exhausted)d.classList.add('exhausted');
+  if(hasTag(card,'invisible')){
+    const inv=document.createElement('span');
+    inv.className='tag-label';
+    inv.textContent='👻 Invis';
+    d.appendChild(inv);
+  }
   if(card.feared)d.classList.add('feared');
   if(G.phase==='sacrificeTarget'&&card.f===G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='selectTarget'&&card.f!==G.turn&&zone==='field'){
