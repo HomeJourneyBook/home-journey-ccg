@@ -224,7 +224,7 @@ function rHiddenHand(id,cards,faction){
     d.className=`card-mini ${faction}-mini`;
     d.style.backgroundImage="url('img/runaha.png')";
     d.style.backgroundSize='cover';
-    d.style.backgroundPosition='center';
+    d.style.backgroundPosition='bottom';
     d.innerHTML='';
     el.appendChild(d);
   });
