@@ -231,7 +231,7 @@ function rPersist(id,player){
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
     // Active artifacts (sacrifice) get click handler
-    if(hasTag(a,'sacrifice')&&a.f===G.turn&&G.phase==='action'){
+    if(hasTag(a,'sacrifice')&&a.f===G.turn&&G.phase==='action'&&!a.sleeping){
       d.style.cursor='pointer';
       d.style.border='1px solid #b44fd4';
       d.addEventListener('click',(e)=>{
