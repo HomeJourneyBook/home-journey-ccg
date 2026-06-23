@@ -148,7 +148,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .player-hand-zone{padding:4px 6px;background:transparent;border:1px solid transparent;}
 
 /* BOTTOM BAR */
-.bottom-bar{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:8px;background:transparent;border:none;position:relative;min-height:50px;}
+.bottom-bar{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:8px;background:transparent;border:none;position:relative;min-height:50px;}
 .bottom-bar .btn-end{}
 .bottom-bar .hint-text{font-size:9px;color:#c8a84b;text-align:center;min-height:14px;}
 
@@ -265,13 +265,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 }
 
 /* Bottom bar square buttons - PNG based */
-.btn-square{width:34px;height:34px;padding:0;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;position:absolute;}
+.btn-square{width:34px;height:34px;padding:0;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
 .btn-square:active{transform:scale(0.92) translateY(1px);}
-.btn-graveyard{left:8px;background-image:url('../img/button_grav_1.png');opacity:0.5;cursor:default;}
-.btn-mulligan-sq{right:8px;background-image:url('../img/button_mul_1.png');}
+.btn-graveyard{background-image:url('../img/button_grav_1.png');opacity:0.5;cursor:default;}
+.btn-mulligan-sq{background-image:url('../img/button_mul_1.png');}
 .btn-mulligan-sq:hover{background-image:url('../img/button_mul_2.png');}
-/* Deck placeholder - same position as mulligan, shown when mulligan hidden */
-.btn-deck-placeholder{right:8px;background-image:url('../img/deck.png');position:absolute;width:34px;height:34px;background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.7;}
+.btn-deck-placeholder{background-image:url('../img/deck.png');width:34px;height:34px;background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.7;flex-shrink:0;}
 
 /* Faction field borders */
 #oppFieldZone{border:1px solid #d83c88;border-top:none;}
