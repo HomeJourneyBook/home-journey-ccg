@@ -70,7 +70,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 @keyframes pulseG{from{box-shadow:0 0 4px #44ff88;}to{box-shadow:0 0 12px #44ff88;}}
 
 /* SMALL CARDS - on battlefield */
-.card-small{width:58px;border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:#0d0d1a;font-size:6px;}
+.card-small{width:58px;height:80px;border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:#0d0d1a;background-size:cover;background-position:center;font-size:6px;}
 .card-small.tea-card{border-color:#c8a84b55;}.card-small.jeet-card{border-color:#7b2d8b55;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
@@ -90,7 +90,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .card-small-burning{position:absolute;top:-5px;right:-5px;font-size:8px;}
 
 /* CARDS */
-.card{width:93px;border:1px solid;padding:5px;cursor:pointer;transition:transform .2s;position:relative;background:#0d0d1a;font-size:8px;}
+.card{width:93px;height:130px;border:1px solid;padding:5px;cursor:pointer;transition:transform .2s;position:relative;background:#0d0d1a;background-size:cover;background-position:center;font-size:8px;}
 .card.tea-card{border-color:#c8a84b55;}.card.jeet-card{border-color:#7b2d8b55;}
 .card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
 .card.targetable{box-shadow:0 0 8px #e05555;border-color:#e05555;animation:pulse .8s infinite alternate;}
@@ -242,11 +242,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .tag-inline.pierce{border-color:#ff4444;color:#ff4444;}
 .tag-inline.unique{border-color:#ffd700;color:#ffd700;}
 
-/* Card backgrounds by faction - applied to whole card */
-.card.tea-card,
+
+
+/* === CARD ART BACKGROUNDS === */
+.card.tea-card{background-image:url('../img/card_tea.png');background-size:cover;background-position:center;}
+.card.jeet-card{background-image:url('../img/card_jeet.png');background-size:cover;background-position:center;}
 .card-small.tea-card{background-image:url('../img/card_tea.png');background-size:cover;background-position:center;}
-.card.jeet-card,
 .card-small.jeet-card{background-image:url('../img/card_jeet.png');background-size:cover;background-position:center;}
-/* Card art zone stays dark/transparent so text is readable */
-.card-art{background:#00000066!important;}
-.card-small-art{background:#00000066!important;}
+.card-art{background:transparent!important;border-color:#ffffff11!important;}
+.card-small-art{background:transparent!important;border:none!important;}
