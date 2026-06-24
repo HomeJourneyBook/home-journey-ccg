@@ -245,10 +245,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .search-input{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid #333;background:#06060e;color:#e8e0c8;flex:1;min-width:140px;}
 .search-input:focus{outline:none;border-color:#c8a84b;}
 .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;}
-.cat-card{width:var(--cat-card-w);height:var(--cat-card-h);border:1px solid;padding:8px;background:transparent;cursor:default;position:relative;overflow:hidden;}
+.cat-card{width:var(--card-w)!important;height:var(--card-h)!important;padding:0 0 5px 0!important;cursor:pointer!important;}
 
 @media(max-width:600px){.catalog-grid{grid-template-columns:repeat(2,1fr);}}
-.cat-card.tea-c{border-color:transparent;}.cat-card.jeet-c{border-color:transparent;}
+
 .cat-card-art{font-size:28px;text-align:center;padding:0;height:70px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .cat-card-name{font-family:'Press Start 2P',monospace;font-size:6px;text-align:center;margin:4px 0;line-height:1.4;}
 .tea-c .cat-card-name{color:#c8a84b;}.jeet-c .cat-card-name{color:#b44fd4;}
@@ -284,8 +284,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 
 /* === CARD ART BACKGROUNDS === */
-.card.tea-card,.card-small.tea-card,.cat-card.tea-c{background-image:url('../img/card_tea.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
-.card.jeet-card,.card-small.jeet-card,.cat-card.jeet-c{background-image:url('../img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
+.card.tea-card,.card-small.tea-card,.cat-card.tea-card{background-image:url('../img/card_tea.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
+.card.jeet-card,.card-small.jeet-card,.cat-card.jeet-card{background-image:url('../img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
 
 
 /* Bottom bar square buttons - PNG based */
