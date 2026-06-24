@@ -32,7 +32,6 @@ function render(){
     document.getElementById(f+'DeckCount').textContent=p.deck.length;
     const gc=document.getElementById(f+'GraveCount');
     if(gc)gc.textContent=p.grave.length;
-    // Update bottom bar badges
     const graveBadge=document.getElementById(f+'GraveBadge');
     if(graveBadge)graveBadge.textContent=p.grave.length;
     const deckBadge=document.getElementById(f+'DeckBadge');
@@ -163,9 +162,6 @@ function mkSmallEl(card){
 function mkEl(card,zone){
   const d=document.createElement('div');
   d.className=`card ${card.f}-card`;
-  d.style.width='118px';
-  d.style.minWidth='118px';
-  d.style.maxWidth='118px';
   d.style.flexShrink='0';
   d.dataset.id=card.id;
   if(card.id===G.sel)d.classList.add('selected');
@@ -401,13 +397,16 @@ function adjustHandOverlap(){
 
     const cards=el.querySelectorAll('.card');
     if(cards.length>0){
-      const cardW=118;
+      const firstCard=cards[0];
+      const cardW=firstCard.getBoundingClientRect().width||parseFloat(getComputedStyle(firstCard).width)||118;
       const total=cards.length;
       let margin=0;
       if(total>1){
-        margin=-Math.ceil((cardW*total - containerW)/(total-1));
-        margin=Math.max(margin, -Math.floor(cardW*0.9));
-        if(margin>-8) margin=-8;
+        const totalW=cardW*total;
+        if(totalW>containerW){
+          margin=-Math.ceil((totalW-containerW)/(total-1));
+          margin=Math.max(margin,-Math.floor(cardW*0.85));
+        }
       }
       cards.forEach((card,i)=>{
         card.style.marginRight=i===total-1?'0px':margin+'px';
