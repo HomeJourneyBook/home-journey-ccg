@@ -444,3 +444,19 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   background:url('../img/card_atk_bg.png') center/100% 100% no-repeat;
   display:flex;align-items:center;justify-content:center;padding:1px;
 }
+.card-tag-icons{
+  position:absolute;
+  right:-10px;
+  top:calc(var(--card-pad) + var(--card-art-size)/2);
+  transform:translateY(-50%);
+  display:flex;flex-direction:column;
+  gap:2px;
+  z-index:3;
+}
+.card-tag-icon{
+  width:14px;height:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;
+  background:#0a0a12cc;
+  border-radius:2px;
+}
