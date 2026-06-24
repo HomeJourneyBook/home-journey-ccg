@@ -4,22 +4,22 @@
 /* === CARD SIZE CONSTANTS === */
 /* Меняй здесь: */
 :root {
-  --card-w: 112px;       /* ширина карты в руке */
-  --card-h: 156px;       /* высота карты в руке */
-  --card-art-h: 64px;    /* высота арт-зоны */
-  --card-small-w: 70px;  /* ширина карты на поле */
-  --card-small-h: 96px;  /* высота карты на поле */
-  --card-small-art-h: 38px;
+  --card-w: 134px;       /* ширина карты в руке (+20%) */
+  --card-h: 187px;       /* высота карты в руке (+20%) */
+  --card-art-h: 77px;    /* высота арт-зоны (+20%) */
+  --card-small-w: 77px;  /* ширина карты на поле (+10%) */
+  --card-small-h: 106px; /* высота карты на поле (+10%) */
+  --card-small-art-h: 42px;
 }
 /* Мобильная версия (до 600px) */
 @media(max-width:600px){
   :root {
-    --card-w: 99px;        /* +10% */
-    --card-h: 139px;       /* +10% */
-    --card-art-h: 55px;    /* +10% */
-    --card-small-w: 62px;  /* +10% */
-    --card-small-h: 86px;  /* +10% */
-    --card-small-art-h: 33px;
+    --card-w: 90px;
+    --card-h: 126px;
+    --card-art-h: 50px;
+    --card-small-w: 56px;
+    --card-small-h: 78px;
+    --card-small-art-h: 30px;
   }
 }
 
@@ -178,13 +178,13 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .hint{font-size:10px;color:#c8a84b;text-align:center;min-height:16px;}
 .btn{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
-.btn:hover{background:#ffffff11;}.btn.btn-end:hover{background:none;}.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn:not(.btn-end):hover{background:#ffffff11;}.btn:disabled{opacity:.3;cursor:not-allowed;}
 .btn-end{
   border:none;background:url('../img/button_1.png') center/contain no-repeat;
   color:transparent;width:134px;height:34px;padding:0;
   transition:transform .1s,filter .1s;flex-shrink:0;
 }
-.btn-end:hover{background:url('../img/button_2.png') center/contain no-repeat;}
+.btn-end:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .btn-end:active{transform:scale(0.95) translateY(2px);}
 .btn-burn{border-color:#e05555;color:#e05555;}.btn-burn:hover{background:#e0555522;}
 .btn-base{border-color:#ff6600;color:#ff6600;}.btn-base:hover{background:#ff660022;}
@@ -288,7 +288,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-mulligan-sq{background-image:url('../img/button_mul_1.png');opacity:1!important;}
-.btn-mulligan-sq:hover{background-image:url('../img/button_mul_2.png');}
+.btn-mulligan-sq:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:34px;height:34px;background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.7;position:absolute;top:0;left:0;}
 
 /* Faction field borders */
@@ -298,8 +298,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 
 @media(max-width:600px){
-  .hand{justify-content:center;gap:0;}
-  .hand .card{margin-right:-18px;}
+  .hand{justify-content:center;}
+  .hand .card{margin-right:-20px;}
   .hand .card:last-child{margin-right:0;}
   .hand .card.previewed{margin-right:0;}
 }
@@ -307,3 +307,26 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 /* Header buttons: hamburger always, desktop btns hidden */
 .header-desktop-btns{display:none;}
 .header-mobile-btn{display:block;}
+
+/* Badge counters on bottom bar buttons */
+.btn-badge{
+  position:absolute;
+  top:-6px;right:-6px;
+  min-width:14px;height:14px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Press Start 2P',monospace;
+  font-size:5px;
+  font-weight:bold;
+  border:1px solid;
+  padding:0 2px;
+  pointer-events:none;
+  line-height:1;
+  z-index:10;
+}
+#teaBottomBar .btn-badge{
+  background:#1a1200;border-color:#c8a84b;color:#c8a84b;
+}
+#jeetBottomBar .btn-badge{
+  background:#1a001a;border-color:#b44fd4;color:#b44fd4;
+}
