@@ -350,7 +350,7 @@ function reorderZones(){
   if(oppStats){
     oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
     oppStats.innerHTML=`
-  <span class="stat"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span>/20</span>
+  <span class="stat"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
   <span class="player-name ${oppK}">${oppK==='jeet'?'JEET CORE':'TAVERN'}</span>
   <span class="stat"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>`;
     oppStats.onclick=()=>onBaseClick(oppK);
@@ -358,7 +358,7 @@ function reorderZones(){
   if(playerStats){
     playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
     playerStats.innerHTML=`
-  <span class="stat"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span>/20</span>
+  <span class="stat"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
   <span class="player-name ${playerK}">${playerK==='jeet'?'JEET CORE':'TAVERN'}</span>
   <span class="stat"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>`;
     playerStats.onclick=()=>onBaseClick(playerK);
