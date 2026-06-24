@@ -76,10 +76,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 .player-zone.tea{border-color:#2d7b3555;background:#0a0d0a;position:relative;z-index:10;}
 .player-header{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;padding:5px 10px;border-bottom:1px solid #ffffff11;flex-wrap:wrap;}
-.player-name{font-family:'MEK',monospace;font-size:14px;}
+.player-name{font-family:'MEK',monospace;font-size:20px;}
 .jeet .player-name{color:#b44fd4;}.tea .player-name{color:#4db854;}
 .player-stats{display:flex;flex-direction:row;gap:10px;align-items:center;}
-.stat{display:flex;align-items:center;gap:4px;font-size:20px;}.stat-val{font-weight:bold;}
+.stat{display:flex;align-items:center;gap:4px;font-size:16px;}.stat-val{font-weight:bold;}
 .hp-val{color:#e05555;}.ess-val{color:#5599ff;}
 .base-hp-bar{width:100px;height:5px;background:#1a1a1a;border:1px solid #333;overflow:hidden;}
 .base-hp-fill{height:100%;transition:width .3s;}
