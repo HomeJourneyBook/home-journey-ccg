@@ -73,7 +73,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .zone-label{font-size:8px;color:#444;margin-bottom:4px;}
 
 
-.hand{display:flex;flex-wrap:nowrap;min-height:130px;padding:6px;background:transparent;justify-content:center;gap:8px;align-items:flex-end;overflow:visible;position:relative;width:100%;box-sizing:border-box;}
+.hand{display:flex;flex-wrap:nowrap;min-height:130px;padding:6px;background:transparent;justify-content:space-between;align-items:flex-end;overflow:visible;position:relative;width:100%;box-sizing:border-box;}
 .hand .card{flex-shrink:0;transition:transform .2s;position:relative;width:var(--card-w)!important;min-width:var(--card-w)!important;}
 
 .hand .card.previewed{transform:translateY(-54px)!important;z-index:2000!important;}
@@ -333,6 +333,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 }
 #jeetBottomBar .btn-badge{
   background:#1a001a;border-color:#b44fd4;color:#b44fd4;
+}
+
+@media(min-width:601px){
+  .hand{justify-content:center !important;gap:8px;}
 }
 
 
