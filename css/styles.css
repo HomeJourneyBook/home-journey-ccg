@@ -133,7 +133,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .tea-card .card-small-name{color:#FFFFFF;}.jeet-card .card-small-name{color:#FFFFFF;}
 .card-small-stats{display:flex;justify-content:space-between;margin-bottom:1px;}
 .card-small-hp{color:#e05555;font-size:14px;}.card-small-atk{color:#55aaff;font-size:14px;}
-.card-small-cost{position:absolute;top:-3px;left:-3px;width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:10px;font-weight:bold;border:1px solid;}
+.card-small-cost{position:absolute;top:3px;left:3px;width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:10px;font-weight:bold;border:1px solid;}
 .tea-card .card-small-cost{background:#1a1200;border-color:#c8a84b;color:#c8a84b;}
 .jeet-card .card-small-cost{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
 .card-small-burning{position:absolute;top:-5px;right:-5px;font-size:16px;}
@@ -153,7 +153,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .jeet-card .card-cost{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
 /* Type indicator dot */
 .card-type-dot{position:absolute;top:-6px;right:-6px;width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,0.3);pointer-events:none;z-index:2;}
-.card-small .card-type-dot{width:8px;height:8px;top:-4px;right:-4px;}
+.card-small .card-type-dot{width:8px;height:8px;top:3px;right:3px;}
 .cat-card .card-type-dot{width:10px;height:10px;top:-5px;right:-5px;}
 
 .card-art{width:var(--card-art-size);height:var(--card-art-size);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto;border:none;background:transparent;overflow:hidden;flex-shrink:0;}
@@ -446,7 +446,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 .card-tag-icons{
   position:absolute;
-  right:-10px;
+  right:4px;
   top:calc(var(--card-pad) + var(--card-art-size)/2);
   transform:translateY(-50%);
   display:flex;flex-direction:column;
