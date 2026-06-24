@@ -35,7 +35,7 @@ const DEFS = {
   j_ryv:       {name:"RYVLEN",     cost:5,hp:4,atk:2,art:"🎭",f:"jeet",tags:["unique","fear","draw_attack:1"], ab:"Fear on attack. On attack: draw 1 card.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1"], ab:"On enter: 1 dmg to all enemies. Rage on attack.",unique:true},
   j_phleg:     {name:"PHLEGMOR",   cost:5,hp:6,atk:1,art:"💀",f:"jeet",tags:["unique","raise:1"],  ab:"Start of turn: raise top graveyard card at 1 HP.",unique:true},
-  j_vard:      {name:"SEEKER",     cost:4,hp:4,atk:2,art:"🌑",f:"jeet",tags:["unique","invisible","fear"], ab:"Invisible. Fear on attack.",unique:true},
+  j_vard:      {name:"SEEKER",     cost:4,hp:4,atk:2,art:"🌑", img:"003_Seeker.png", f:"jeet",tags:["unique","invisible","fear"], ab:"Invisible. Fear on attack.",unique:true},
   // JEET SPELLS
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊",f:"jeet",tags:["spell","draw:2"],             ab:"Draw 2 cards.",spell:true},
   j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀",f:"jeet",tags:["spell","draw:3"],             ab:"Draw 3 cards.",spell:true},
