@@ -174,7 +174,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .stats-bar.jeet{border:1px solid #d83c88;background:rgba(35,31,58,0.70);}
 .stats-bar.tea{border:1px solid #1b641b;background:rgba(20,36,50,0.70);}
 .stats-bar.base-targetable{border-color:#e05555 !important;box-shadow:0 0 8px #e0555533;}
-.field-zone{min-height:80px;padding:0;background:rgba(12,16,19,0.70);}
+.field-zone{min-height:80px;padding:6px;background:rgba(12,16,19,0.70);}
 #playerFieldZone{margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
 .player-hand-zone{padding:4px 6px;background:transparent;border:1px solid transparent;}
