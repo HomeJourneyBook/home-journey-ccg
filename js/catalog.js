@@ -73,6 +73,7 @@ function renderCatalog(){
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
       ${!isSW?`<div class="card-stats">
         <div class="card-hp-box"><span class="card-hp">❤${def.hp}</span></div>
+          <img src="img/chel.png" class="card-stats-icon">
         <div class="card-atk-box"><span class="card-atk">⚔${def.atk}</span></div>
       </div>`:''}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
