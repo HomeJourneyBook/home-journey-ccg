@@ -143,7 +143,7 @@ function mkSmallEl(card){
     ${card.burning?'<div class="card-small-burning">🔥</div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name">${card.name}</div>
-    ${!isSW?`<div class="card-small-stats"><span class="card-small-hp">❤${card.hp}</span><span class="card-small-atk">⚔${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}`;
+${!isSW?`<div class="card-small-stats"><span class="card-small-hp"><img src="./img/heart.png" class="stat-icon">${card.hp}</span><span class="card-small-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
@@ -211,7 +211,7 @@ function mkEl(card,zone){
     ${card.burning?'<div class="burning-icon">🔥</div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-name">${card.name}</div>
-    ${!isSW?`<div class="card-stats"><span class="card-hp">❤${card.hp}/${card.maxHp}</span><span class="card-atk">⚔${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}
+    ${!isSW?`<div class="card-stats"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.hp}/${card.maxHp}</span><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}
     <div class="card-ability">${card.ab}</div>`;
   if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
@@ -340,18 +340,17 @@ function reorderZones(){
   if(oppStats){
     oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
     oppStats.innerHTML=`
-      <span class="player-name ${oppK}">${oppK==='jeet'?'⬡ JEET CORE':'⬡ TAVERN'}</span>
-      <span class="stat">${oppK==='jeet'?'🖤':'🤍'} <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span>/20</span>
-      <span class="stat">💠 <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>
-      <span class="stat" style="font-size:8px;color:#555">🃏<span id="${oppK}DeckCount">${oppP.deck.length}</span> ☠<span id="${oppK}GraveCount">${oppP.grave.length}</span></span>`;
+  <span class="stat"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span>/20</span>
+  <span class="player-name ${oppK}">${oppK==='jeet'?'JEET CORE':'TAVERN'}</span>
+  <span class="stat"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>`;
     oppStats.onclick=()=>onBaseClick(oppK);
   }
   if(playerStats){
     playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
     playerStats.innerHTML=`
-      <span class="player-name ${playerK}">${playerK==='jeet'?'⬡ JEET CORE':'⬡ TAVERN'}</span>
-      <span class="stat">${playerK==='jeet'?'🖤':'🤍'} <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span>/20</span>
-      <span class="stat">💠 <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>`;
+  <span class="stat"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span>/20</span>
+  <span class="player-name ${playerK}">${playerK==='jeet'?'JEET CORE':'TAVERN'}</span>
+  <span class="stat"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>`;
     playerStats.onclick=()=>onBaseClick(playerK);
   }
 
