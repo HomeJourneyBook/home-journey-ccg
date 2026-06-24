@@ -178,7 +178,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .hint{font-size:10px;color:#c8a84b;text-align:center;min-height:16px;}
 .btn{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
-.btn:hover{background:#ffffff11;}.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn:not(.btn-end):hover{background:#ffffff11;}.btn:disabled{opacity:.3;cursor:not-allowed;}
 .btn-end{
   border:none;background:url('../img/button_1.png') center/contain no-repeat;
   color:transparent;width:134px;height:34px;padding:0;
