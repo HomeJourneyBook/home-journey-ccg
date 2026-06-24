@@ -396,13 +396,12 @@ function adjustHandOverlap(){
 
     const cards=el.querySelectorAll('.card');
     if(cards.length>0){
-      const cardW=cards[0].getBoundingClientRect().width||parseFloat(getComputedStyle(cards[0]).width)||118;
+      const cardW=118;
       const total=cards.length;
       let margin=0;
       if(total>1){
         margin=-Math.ceil((cardW*total - containerW)/(total-1));
         margin=Math.max(margin, -Math.floor(cardW*0.9));
-        if(margin>-8) margin=-8;
       }
       cards.forEach((card,i)=>{
         card.style.marginRight=i===total-1?'0px':margin+'px';
