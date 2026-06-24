@@ -1,3 +1,11 @@
+function getTypeDotColorDef(def){
+  if(def.world) return '#e05555';
+  if(def.unique) return '#c8a84b';
+  if(def.artifact) return '#5599ff';
+  if(def.spell) return '#88ccff';
+  return '#888888';
+}
+
 const catalogFilters={faction:'all',type:'all',sort:'name'};
 
 function setSort(val,btn){
@@ -58,13 +66,14 @@ function renderCatalog(){
     div.className=`cat-card ${def.f==='tea'?'tea-c':'jeet-c'}`;
     div.style.cursor='pointer';
     div.onclick=()=>openCardDetail(def);
+    const typeDot=getTypeDotColorDef(def);
     div.innerHTML=`
       <div class="cat-card-cost">${def.cost}</div>
+      <div class="card-type-dot" style="background:${typeDot};"></div>
       <div class="cat-card-art">${def.art}</div>
       <div class="cat-card-name">${def.name}</div>
       ${!isSW?`<div class="cat-card-stats"><span class="cat-card-hp">❤${def.hp}</span><span class="cat-card-atk">⚔${def.atk}</span></div>`:''}
-      <div class="cat-card-ab">${def.ab||''}</div>
-      <div class="cat-card-tags">${tagHtml}</div>`;
+      <div class="cat-card-ab">${def.ab||''}</div>`;
     grid.appendChild(div);
   });
 }
