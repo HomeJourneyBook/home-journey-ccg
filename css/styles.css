@@ -95,7 +95,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 @keyframes pulseG{from{box-shadow:0 0 4px #44ff88;}to{box-shadow:0 0 12px #44ff88;}}
 
 /* SMALL CARDS - on battlefield */
-.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:#0d0d1a;background-size:cover;background-position:center;font-size:6px;}
+.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:6px;}
 .card-small.tea-card{border-color:transparent;}.card-small.jeet-card{border-color:transparent;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
@@ -115,7 +115,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .card-small-burning{position:absolute;top:-5px;right:-5px;font-size:8px;}
 
 /* CARDS */
-.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:5px;cursor:pointer;transition:transform .2s;position:relative;background:#0d0d1a;background-size:cover;background-position:center;font-size:8px;}
+.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:5px;cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:8px;}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
 .card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
 .card.targetable{box-shadow:0 0 8px #e05555;border-color:#e05555;animation:pulse .8s infinite alternate;}
@@ -242,7 +242,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 @media(max-width:600px){.catalog-grid{grid-template-columns:repeat(2,1fr);}}
 .cat-card{border:1px solid;padding:8px;background:#0d0d1a;cursor:default;position:relative;}
-.cat-card.tea-c{border-color:#transparent;}.cat-card.jeet-c{border-color:#transparent;}
+.cat-card.tea-c{border-color:#transparent;}.cat-card.jeet-c{border-color:transparent;}
 .cat-card-art{font-size:28px;text-align:center;padding:8px 0;background:#000000;}
 .cat-card-name{font-family:'Press Start 2P',monospace;font-size:6px;text-align:center;margin:4px 0;line-height:1.4;}
 .tea-c .cat-card-name{color:#c8a84b;}.jeet-c .cat-card-name{color:#b44fd4;}
@@ -276,16 +276,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .tag-inline.pierce{border-color:#ff4444;color:#ff4444;}
 .tag-inline.unique{border-color:#ffd700;color:#ffd700;}
 
-/* === CARD ART BACKGROUNDS === */
 
-.card.tea-card,.card-small.tea-card,.cat-card.tea-c{background-image:url('../img/card_tea.png')!important;background-size:cover!important;background-position:center!important;}
-.card.jeet-card,.card-small.jeet-card,.cat-card.jeet-c{background-image:url('../img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;}
-.card.tea-card,.card-small.tea-card,.cat-card.tea-c{
-  background-image:url('../img/card_tea.png')!important;
-  background-size:cover!important;
-  background-position:center!important;
-  background-repeat:no-repeat!important;
-}
+/* === CARD ART BACKGROUNDS === */
+.card.tea-card,.card-small.tea-card,.cat-card.tea-c{background-image:url('../img/card_tea.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
+.card.jeet-card,.card-small.jeet-card,.cat-card.jeet-c{background-image:url('../img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
+
 
 /* Bottom bar square buttons - PNG based */
 .btn-square{width:34px;height:34px;padding:0;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
