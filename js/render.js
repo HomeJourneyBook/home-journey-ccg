@@ -210,9 +210,12 @@ function mkEl(card,zone){
     <div class="card-type-dot" style="background:${typeDotColor};"></div>
     ${card.burning?'<div class="burning-icon">🔥</div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
-    <div class="card-name">${card.name}</div>
-    ${!isSW?`<div class="card-stats"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.hp}/${card.maxHp}</span><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}
-    <div class="card-ability">${card.ab}</div>`;
+    <div class="card-name-box"><div class="card-name">${card.name}</div></div>
+    ${!isSW?`<div class="card-stats">
+      <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.hp}/${card.maxHp}</span></div>
+      <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
+    </div>`:''}
+    <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
   if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
