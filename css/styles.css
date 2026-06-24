@@ -6,11 +6,11 @@
 :root {
   --card-w: 134px;       /* ширина карты в руке (+20%) */
   --card-h: 187px;       /* высота карты в руке (+20%) */
-  --card-art-h: 77px;    /* высота арт-зоны (+20%) */
+  --card-art-h: 90px;    /* высота арт-зоны (+20%) */
   --card-small-w: 77px;  /* ширина карты на поле (+10%) */
   --card-small-h: 106px; /* высота карты на поле (+10%) */
   --card-small-art-h: 42px;
-  --card-art-size: 77px;
+  --card-art-size: 90px;
   --cat-card-w: 130px;
   --cat-card-h: 182px;
 }
@@ -19,11 +19,11 @@
   :root {
     --card-w: 99px;        /* +10% */
     --card-h: 139px;       /* +10% */
-    --card-art-h: 55px;    /* +10% */
+    --card-art-h: 68px;    /* +10% */
     --card-small-w: 62px;  /* +10% */
     --card-small-h: 86px;  /* +10% */
     --card-small-art-h: 33px;
-    --card-art-size: 55px;
+    --card-art-size: 68px;
         --cat-card-w: 150px;
     --cat-card-h: 210px;
   }
@@ -134,7 +134,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .card-small .card-type-dot{width:8px;height:8px;top:-4px;right:-4px;}
 .cat-card .card-type-dot{width:10px;height:10px;top:-5px;right:-5px;}
 
-.card-art{width:var(--card-art-size,77px);height:var(--card-art-size,77px);display:flex;align-items:center;justify-content:center;font-size:24px;margin: 2px auto 3px auto;border:none;background:#000000;overflow:hidden;}
+.card-art{width:var(--card-art-size,77px);height:var(--card-art-size,77px);display:flex;align-items:center;justify-content:center;font-size:24px;margin: 4px auto 3px auto;border:none;background:#000000;overflow:hidden;}
 .card-name{font-family:'Press Start 2P',monospace;font-size:6px;text-align:center;margin:2px 5px;line-height:1.4;min-height:18px;display:flex;align-items:center;justify-content:center;}
 .tea-card .card-name{color:#c8a84b;}.jeet-card .card-name{color:#b44fd4;}
 .card-stats{display:flex;justify-content:space-between;margin-bottom:2px;padding:0 5px;}
