@@ -153,7 +153,7 @@ ${!isSW?`<div class="card-small-stats"><span class="card-small-hp"><img src="./i
       if(isUmb){
         const btn=document.createElement('button');
         btn.className='fab-btn umbasir';
-        btn.textContent='🌀 Hit All';
+        btn.textContent='Spell';
         btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doUmbAsir();};
         pop.appendChild(btn);
       }
@@ -212,7 +212,8 @@ function mkEl(card,zone){
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     ${!isSW?`<div class="card-stats">
-      <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.hp}/${card.maxHp}</span></div>
+      <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.maxHp}</span></div>
+        <img src="img/chel.png" class="card-stats-icon">
       <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
     </div>`:''}
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
@@ -225,14 +226,14 @@ function mkEl(card,zone){
     if(cur.ess>=card.cost){
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.textContent='▶ Play';
+      playBtn.textContent='Play';
       playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
     }
     if(!cur.burned){
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
-      burnBtn.textContent='🔥 Burn';
+      burnBtn.textContent='Burn';
       burnBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doBurnCard(card);};
       popup.appendChild(burnBtn);
     }
