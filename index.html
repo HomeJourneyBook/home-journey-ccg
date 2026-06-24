@@ -165,7 +165,7 @@
       <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="askMenu()">← Menu</button>
     </div>
     <div class="header-mobile-btn" style="position:relative;margin-left:auto;">
-      <button class="btn" id="hamburgerBtn" style="border-color:#D5943F;color:#D5943F;font-size:14px;padding:4px;" onclick="toggleHamburger()">☰</button>
+      <button class="btn" id="hamburgerBtn" style="border-color:#D5943F;color:#D5943F;font-size:14px;padding:2px 8px;" onclick="toggleHamburger()">☰</button>
       <div id="hamburgerMenu" style="display:none;position:absolute;right:0;top:100%;background:#0d0d1a;border:1px solid #c8a84b33;z-index:200;min-width:130px;margin-top:4px;">
         <button class="btn" style="border:none;border-bottom:1px solid #ffffff22;width:100%;text-align:left;padding:8px 12px;color:#fff;font-size:10px;" onclick="toggleLog();toggleHamburger()">Log</button>
         <button class="btn" style="border:none;width:100%;text-align:left;padding:8px 12px;color:#fff;font-size:10px;" onclick="askMenu();toggleHamburger()">Menu</button>
@@ -178,7 +178,7 @@
     <span class="player-name jeet">⬡ JEET CORE</span>
     <span class="stat">🖤 <span class="stat-val hp-val" id="jeetHp">20</span>/20</span>
     <span class="stat">💠 <span class="ess-val" id="jeetEss">1</span>/<span id="jeetEssMax">1</span></span>
-    <span class="stat" style="font-size:8px;color:#555">🃏<span id="jeetDeckCount">35</span> ☠<span id="jeetGraveCount">0</span></span>
+    <span class="stat" style="font-size:8px;color:#555">🃏<span id="jeetDeckBadge">35</span> ☠<span id="jeetGraveBadge">0</span></span>
   </div>
 
   <!-- OPP HAND -->
@@ -203,7 +203,7 @@
     <span class="player-name tea">⬡ TAVERN</span>
     <span class="stat">🤍 <span class="stat-val hp-val" id="teaHp">20</span>/20</span>
     <span class="stat">💠 <span class="ess-val" id="teaEss">1</span>/<span id="teaEssMax">1</span></span>
-    <span class="stat" style="font-size:8px;color:#555">🃏<span id="teaDeckCount">35</span> ☠<span id="teaGraveCount">0</span></span>
+    <span class="stat" style="font-size:8px;color:#555">🃏<span id="teaDeckBadge">35</span> ☠<span id="teaGraveBadge">0</span></span>
   </div>
 
   <!-- PLAYER HAND -->
@@ -213,20 +213,28 @@
 
   <!-- BOTTOM BARS -->
   <div class="bottom-bar" id="teaBottomBar" style="display:none;">
-    <button class="btn-square btn-graveyard" onclick="openGraveModal('tea')" title="Graveyard"></button>
+    <div style="position:relative;width:34px;height:34px;flex-shrink:0;">
+      <button class="btn-square btn-graveyard" onclick="openGraveModal('tea')" title="Graveyard"></button>
+      <span class="btn-badge" id="teaGraveBadge">0</span>
+    </div>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
     <div style="position:relative;width:34px;height:34px;">
       <button class="btn-square btn-mulligan-sq" id="mulliganBtnT" style="display:none;width:34px;height:34px;" onclick="doMulligan('tea')" title="Mulligan"></button>
       <div class="btn-deck-placeholder" id="deckPlaceholderT" style="position:absolute;top:0;left:0;"></div>
+      <span class="btn-badge" id="teaDeckBadge">0</span>
     </div>
     <div id="hintT2" style="position:absolute;bottom:-18px;font-size:9px;color:#c8a84b;text-align:center;width:100%;left:0;"></div>
   </div>
   <div class="bottom-bar" id="jeetBottomBar" style="display:none;">
-    <button class="btn-square btn-graveyard" onclick="openGraveModal('jeet')" title="Graveyard"></button>
+    <div style="position:relative;width:34px;height:34px;flex-shrink:0;">
+      <button class="btn-square btn-graveyard" onclick="openGraveModal('jeet')" title="Graveyard"></button>
+      <span class="btn-badge" id="jeetGraveBadge">0</span>
+    </div>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
     <div style="position:relative;width:34px;height:34px;">
       <button class="btn-square btn-mulligan-sq" id="mulliganBtnJ" style="display:none;width:34px;height:34px;" onclick="doMulligan('jeet')" title="Mulligan"></button>
       <div class="btn-deck-placeholder" id="deckPlaceholderJ" style="position:absolute;top:0;left:0;"></div>
+      <span class="btn-badge" id="jeetDeckBadge">0</span>
     </div>
     <div id="hintJ2" style="position:absolute;bottom:-18px;font-size:9px;color:#c8a84b;text-align:center;width:100%;left:0;"></div>
   </div>
