@@ -270,18 +270,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .tag-inline.pierce{border-color:#ff4444;color:#ff4444;}
 .tag-inline.unique{border-color:#ffd700;color:#ffd700;}
 
-
-
 /* === CARD ART BACKGROUNDS === */
 
 .card.tea-card,.card-small.tea-card,.cat-card.tea-c{background-image:url('../img/card_tea.png')!important;background-size:cover!important;background-position:center!important;}
 .card.jeet-card,.card-small.jeet-card,.cat-card.jeet-c{background-image:url('../img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;}
-
-
-.card-art{background:transparent;border:1px solid #ffffff11;}
-.card-small-art{background:transparent;border:1px solid #ffffff08;}
-
-
 
 /* Bottom bar square buttons - PNG based */
 .btn-square{width:34px;height:34px;padding:0;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
