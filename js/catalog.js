@@ -82,7 +82,12 @@ function openCardDetail(def){
   const overlay=document.getElementById('cardDetailOverlay');
   const box=document.getElementById('cardDetailBox');
   box.className=`card-detail ${def.f==='tea'?'tea-detail':'jeet-detail'}`;
-  document.getElementById('cdArt').textContent=def.art;
+  const cdArt=document.getElementById('cdArt');
+  if(def.img){
+    cdArt.innerHTML=`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`;
+  } else {
+    cdArt.textContent=def.art;
+  }
   document.getElementById('cdName').textContent=def.name;
   document.getElementById('cdCost').textContent=`${def.cost} Essence`;
   const isSW=def.spell||def.world||def.artifact;
