@@ -2,7 +2,7 @@ const DEFS = {
   // TEA CREATURES
   t_szarg_w:   {name:"SZARG",       cost:1,hp:1,atk:2,art:"🦈", img:"014_Sz.png", f:"tea",tags:["vanguard","gtype:szg"],          ab:"Vanguard. Squad: Pierce."},
   t_orb_w:     {name:"ORBITON",     cost:1,hp:2,atk:1,art:"👁️", img:"015_Orb.png", f:"tea",tags:["heal:1","gtype:orb"],             ab:"Active: Heal on 1 HP and remove debuffs. Squad: Heal 2."},
-  t_drig_w:    {name:"DREEGAN",     cost:3,hp:4,atk:1,art:"🌳", img:"017_D.png", f:"tea",tags:["provoke","gtype:drg"],            ab:"Squad: +1 HP."},
+  t_drig_w:    {name:"DREEGAN",     cost:3,hp:4,atk:1,art:"🌳", img:"017_Dr.png", f:"tea",tags:["provoke","gtype:drg"],            ab:"Squad: +1 HP."},
   t_umb_w:     {name:"UMBASIR",     cost:2,hp:2,atk:1,art:"🌀", img:"013_Umb.png", f:"tea",tags:["aoe:1","gtype:umb"],              ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
   t_meh_w:     {name:"MECHIRD",     cost:2,hp:2,atk:1,art:"🤖", img:"016_M.png", f:"tea",tags:["pierce","gtype:mch"],             ab:"Squad: +1 ATK."},
   t_ksi_w:     {name:"XUIQTR",      cost:3,hp:4,atk:1,art:"🐙", img:"012_Xui.png", f:"tea",tags:["regen:1","gtype:xui"],               ab:"Squad: Regen 2."},
