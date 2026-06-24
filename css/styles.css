@@ -247,7 +247,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 
 @media(max-width:600px){.catalog-grid{grid-template-columns:repeat(2,1fr);}}
 .cat-card.tea-c{border-color:transparent;}.cat-card.jeet-c{border-color:transparent;}
-.cat-card-art{font-size:28px;text-align:center;padding:8px 0;background:#000000;}
+.cat-card-art{font-size:28px;text-align:center;padding:0;height:70px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .cat-card-name{font-family:'Press Start 2P',monospace;font-size:6px;text-align:center;margin:4px 0;line-height:1.4;}
 .tea-c .cat-card-name{color:#c8a84b;}.jeet-c .cat-card-name{color:#b44fd4;}
 .cat-card-cost{position:absolute;top:-8px;left:-8px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:6px;border:1px solid;}
