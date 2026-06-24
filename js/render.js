@@ -32,6 +32,10 @@ function render(){
     document.getElementById(f+'DeckCount').textContent=p.deck.length;
     const gc=document.getElementById(f+'GraveCount');
     if(gc)gc.textContent=p.grave.length;
+    const graveBadge=document.getElementById(f+'GraveBadge');
+    if(graveBadge)graveBadge.textContent=p.grave.length;
+    const deckBadge=document.getElementById(f+'DeckBadge');
+    if(deckBadge)deckBadge.textContent=p.deck.length;
   });
   rZone('teaField',G.tea.field,'field');
   rZone('jeetField',G.jeet.field,'field');
@@ -396,7 +400,7 @@ function adjustHandOverlap(){
 
     const cards=el.querySelectorAll('.card');
     if(cards.length>0){
-      const cardW=118;
+      const cardW=cards[0].getBoundingClientRect().width||parseFloat(getComputedStyle(cards[0]).width)||118;
       const total=cards.length;
       let margin=0;
       if(total>1){
