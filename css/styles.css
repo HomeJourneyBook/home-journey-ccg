@@ -10,6 +10,8 @@
   --card-small-w: 77px;  /* ширина карты на поле (+10%) */
   --card-small-h: 106px; /* высота карты на поле (+10%) */
   --card-small-art-h: 42px;
+  --cat-card-w: 130px;
+--cat-card-h: 182px;
 }
 /* Мобильная версия (до 600px) */
 @media(max-width:600px){
@@ -20,6 +22,8 @@
     --card-small-w: 62px;  /* +10% */
     --card-small-h: 86px;  /* +10% */
     --card-small-art-h: 33px;
+        --cat-card-w: 150px;
+    --cat-card-h: 210px;
   }
 }
 
@@ -233,7 +237,9 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .filter-btn.jeet-f.active{color:#b44fd4;border-color:#b44fd4;background:#b44fd411;}
 .search-input{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid #333;background:#06060e;color:#e8e0c8;flex:1;min-width:140px;}
 .search-input:focus{outline:none;border-color:#c8a84b;}
-.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;}
+.cat-card{width:var(--cat-card-w);height:var(--cat-card-h);border:1px solid;padding:8px;background:#0d0d1a;cursor:default;position:relative;overflow:hidden;}
+
 @media(max-width:600px){.catalog-grid{grid-template-columns:repeat(2,1fr);}}
 .cat-card{border:1px solid;padding:8px;background:#0d0d1a;cursor:default;position:relative;}
 .cat-card.tea-c{border-color:#transparent;}.cat-card.jeet-c{border-color:#transparent;}
