@@ -23,7 +23,7 @@
   /* 187 - 100 - 8 = 79px total */
   --card-name-h: 18px;
   --card-stats-h: 16px;
-  --card-stats-w: 60%;
+  --card-stats-w: 70%;
   --card-text-h: 45px;
   --card-small-name-h: 12px;
 --card-small-stats-h: 11px;
@@ -43,7 +43,7 @@
     /* 139 - 74 - 8 = 57px total */
     --card-name-h: 14px;
     --card-stats-h: 13px;
-    --card-stats-w: 60%;
+    --card-stats-w: 70%;
     --card-text-h: 30px;
     --card-small-name-h: 10px;
 --card-small-stats-h: 9px;
@@ -398,15 +398,15 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 
 .stat-icon{
-  width:1em;
-  height:1em;
+  width:8px;
+  height:8px;
   vertical-align:middle;
   margin-right:0.5px;
   image-rendering:pixelated;
 }
 .stats-bar .stat-icon{
-  width:1.2em;
-  height:1.2em;
+  width:1em;
+  height:1em;
 }
 .card-stats-icon{
   width:var(--card-stats-h);
