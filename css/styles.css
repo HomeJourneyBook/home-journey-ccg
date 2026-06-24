@@ -333,3 +333,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 #jeetBottomBar .btn-badge{
   background:#1a001a;border-color:#b44fd4;color:#b44fd4;
 }
+
+@media(min-width:601px){
+  .hand{justify-content:center;gap:8px;}
+}
+
