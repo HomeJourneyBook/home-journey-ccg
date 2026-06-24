@@ -33,7 +33,7 @@ const DEFS = {
   // JEET LEGENDARIES
   j_reap:      {name:"REAPER",     cost:5,hp:4,atk:3,art:"☠️",f:"jeet",tags:["unique","on_any_death_base:1"], ab:"Any creature death: restore 1 HP to Jeet base.",unique:true},
   j_ryv:       {name:"RYVLEN",     cost:5,hp:4,atk:2,art:"🎭",f:"jeet",tags:["unique","fear","draw_attack:1"], ab:"Fear on attack. On attack: draw 1 card.",unique:true},
-  j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abyssaalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1"], ab:"On enter: 1 dmg to all enemies. Rage on attack.",unique:true},
+  j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1"], ab:"On enter: 1 dmg to all enemies. Rage on attack.",unique:true},
   j_phleg:     {name:"PHLEGMOR",   cost:5,hp:6,atk:1,art:"💀",f:"jeet",tags:["unique","raise:1"],  ab:"Start of turn: raise top graveyard card at 1 HP.",unique:true},
   j_vard:      {name:"SEEKER",     cost:4,hp:4,atk:2,art:"🌑",f:"jeet",tags:["unique","invisible","fear"], ab:"Invisible. Fear on attack.",unique:true},
   // JEET SPELLS
