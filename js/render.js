@@ -210,11 +210,25 @@ function mkEl(card,zone){
 
   const isSW=card.spell||card.world||card.artifact;
   const typeDotColor=getTypeDotColor(card);
+  const TAG_ICONS = {
+  'fear':    '👻',
+  'pierce':  '🗡️',
+  'regen':   '💚',
+  'burn':    '🔥',
+  'rage':    '💢',
+  'provoke': '🛡️',
+};
+const tagIcons = (card.tags||[])
+  .map(t=>t.split(':')[0])
+  .filter(t=>TAG_ICONS[t])
+  .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
+  .join('');
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" style="background:${typeDotColor};"></div>
     ${card.burning?'<div class="burning-icon">🔥</div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
+    ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     ${!isSW?`<div class="card-stats">
       <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.maxHp}</span></div>
