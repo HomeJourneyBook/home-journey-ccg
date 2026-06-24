@@ -9,7 +9,7 @@
   --card-art-h: 100px;    /* высота арт-зоны (+20%) */
   --card-small-w: 77px;  /* ширина карты на поле (+10%) */
   --card-small-h: 106px; /* высота карты на поле (+10%) */
-  --card-small-art-h: 42px;
+  --card-small-art-h: 56px;
   --card-art-size: 100px;
   --cat-card-w: 130px;
   --cat-card-h: 182px;
@@ -19,11 +19,11 @@
   :root {
     --card-w: 99px;        /* +10% */
     --card-h: 139px;       /* +10% */
-    --card-art-h: 68px;    /* +10% */
+    --card-art-h: 74px;    /* +10% */
     --card-small-w: 62px;  /* +10% */
     --card-small-h: 86px;  /* +10% */
-    --card-small-art-h: 33px;
-    --card-art-size: 68px;
+    --card-small-art-h: 45px;
+    --card-art-size: 74px;
         --cat-card-w: 150px;
     --cat-card-h: 210px;
   }
@@ -87,7 +87,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .cap-btn.burn{border-color:#e05555;color:#e05555;}.cap-btn.burn:hover{background:#e0555522;}
 .hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 8px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
 .hand-mini .card-mini{flex-shrink:0;min-width:52px;width:52px;}
-.battlefield{min-height:113px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:2px;justify-content:center;}
+.battlefield{height:113px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:2px;justify-content:center;}
 .persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
 .pcard{padding:3px 7px;border:1px solid;font-size:8px;display:flex;align-items:center;gap:4px;}
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
