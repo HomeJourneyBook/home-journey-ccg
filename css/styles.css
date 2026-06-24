@@ -95,7 +95,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 @keyframes pulseG{from{box-shadow:0 0 4px #44ff88;}to{box-shadow:0 0 12px #44ff88;}}
 
 /* SMALL CARDS - on battlefield */
-.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:6px;}
+.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:6px;overflow:visible;}
 .card-small.tea-card{border-color:transparent;}.card-small.jeet-card{border-color:transparent;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
@@ -115,7 +115,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .card-small-burning{position:absolute;top:-5px;right:-5px;font-size:8px;}
 
 /* CARDS */
-.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:5px;cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:8px;}
+.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:5px;cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:8px;overflow:visible;}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
 .card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
 .card.targetable{box-shadow:0 0 8px #e05555;border-color:#e05555;animation:pulse .8s infinite alternate;}
@@ -127,11 +127,6 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .card-cost{position:absolute;top:-8px;left:-8px;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:6px;font-weight:bold;border:1px solid;}
 .tea-card .card-cost{background:#1a1200;border-color:#c8a84b;color:#c8a84b;}
 .jeet-card .card-cost{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
-/* Type indicator dot */
-.card-type-dot{position:absolute;top:-6px;right:-6px;width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,0.3);pointer-events:none;z-index:2;}
-.card-small .card-type-dot{width:8px;height:8px;top:-4px;right:-4px;}
-.cat-card .card-type-dot{width:10px;height:10px;top:-5px;right:-5px;}
-
 .card-art{width:100%;height:var(--card-art-h);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:3px;border:1px solid #ffffff11;background:#000000;background-size:cover;background-position:center;}
 .card-name{font-family:'Press Start 2P',monospace;font-size:6px;text-align:center;margin:2px 0;line-height:1.4;min-height:18px;display:flex;align-items:center;justify-content:center;}
 .tea-card .card-name{color:#c8a84b;}.jeet-card .card-name{color:#b44fd4;}
@@ -243,11 +238,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'Share Tech Mono',monospace;mi
 .search-input{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid #333;background:#06060e;color:#e8e0c8;flex:1;min-width:140px;}
 .search-input:focus{outline:none;border-color:#c8a84b;}
 .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;}
-.cat-card{width:var(--cat-card-w);height:var(--cat-card-h);border:1px solid;padding:8px;background:transparent;cursor:default;position:relative;overflow:hidden;}
+.cat-card{width:var(--cat-card-w);height:var(--cat-card-h);border:1px solid;padding:8px;background:transparent;cursor:default;position:relative;overflow:visible;}
 
 @media(max-width:600px){.catalog-grid{grid-template-columns:repeat(2,1fr);}}
 .cat-card.tea-c{border-color:transparent;}.cat-card.jeet-c{border-color:transparent;}
-.cat-card-art{font-size:28px;text-align:center;padding:8px 0;background:#000000;}
+.cat-card-art{font-size:28px;text-align:center;padding:0;height:70px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .cat-card-name{font-family:'Press Start 2P',monospace;font-size:6px;text-align:center;margin:4px 0;line-height:1.4;}
 .tea-c .cat-card-name{color:#c8a84b;}.jeet-c .cat-card-name{color:#b44fd4;}
 .cat-card-cost{position:absolute;top:-8px;left:-8px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:6px;border:1px solid;}
