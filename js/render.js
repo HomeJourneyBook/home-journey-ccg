@@ -142,8 +142,13 @@ function mkSmallEl(card){
     <div class="card-type-dot" style="background:${getTypeDotColor(card)};"></div>
     ${card.burning?'<div class="card-small-burning">🔥</div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
-    <div class="card-small-name">${card.name}</div>
-${!isSW?`<div class="card-small-stats"><span class="card-small-hp"><img src="./img/heart.png" class="stat-icon">${card.hp}</span><span class="card-small-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}`;
+    <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
+${!isSW?`<div class="card-small-stats">
+  <div class="card-small-hp-box"><span class="card-small-hp"><img src="./img/heart.png" class="stat-icon">${card.hp}</span></div>
+  <img src="img/chel.png" class="card-stats-icon">
+  <div class="card-small-atk-box"><span class="card-small-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
+</div>`
+:`<div class="card-small-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`};
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
