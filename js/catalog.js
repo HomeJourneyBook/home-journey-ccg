@@ -70,9 +70,12 @@ function renderCatalog(){
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" style="background:${getTypeDotColorDef(def)};"></div>
       <div class="card-art">${def.img?`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:def.art}</div>
-      <div class="card-name">${def.name}</div>
-      ${!isSW?`<div class="card-stats"><span class="card-hp">❤${def.hp}</span><span class="card-atk">⚔${def.atk}</span></div>`:''}
-      <div class="card-ability">${def.ab||''}</div>
+      <div class="card-name-box"><div class="card-name">${def.name}</div></div>
+      ${!isSW?`<div class="card-stats">
+        <div class="card-hp-box"><span class="card-hp">❤${def.hp}</span></div>
+        <div class="card-atk-box"><span class="card-atk">⚔${def.atk}</span></div>
+      </div>`:''}
+      <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
 `;
     grid.appendChild(div);
   });
