@@ -63,16 +63,16 @@ function renderCatalog(){
     }).join('');
 
     const div=document.createElement('div');
-    div.className=`cat-card ${def.f==='tea'?'tea-c':'jeet-c'}`;
+    div.className=`card cat-card ${def.f==='tea'?'tea-card':'jeet-card'}`;
     div.style.cursor='pointer';
     div.onclick=()=>openCardDetail(def);
     div.innerHTML=`
-      <div class="cat-card-cost">${def.cost}</div>
+      <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" style="background:${getTypeDotColorDef(def)};"></div>
-      <div class="cat-card-art">${def.img?`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:def.art}</div>
-      <div class="cat-card-name">${def.name}</div>
-      ${!isSW?`<div class="cat-card-stats"><span class="cat-card-hp">❤${def.hp}</span><span class="cat-card-atk">⚔${def.atk}</span></div>`:''}
-      <div class="cat-card-ab">${def.ab||''}</div>
+      <div class="card-art">${def.img?`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:def.art}</div>
+      <div class="card-name">${def.name}</div>
+      ${!isSW?`<div class="card-stats"><span class="card-hp">❤${def.hp}</span><span class="card-atk">⚔${def.atk}</span></div>`:''}
+      <div class="card-ability">${def.ab||''}</div>
 `;
     grid.appendChild(div);
   });
