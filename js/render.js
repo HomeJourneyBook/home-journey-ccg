@@ -141,7 +141,7 @@ function mkSmallEl(card){
     <div class="card-small-cost">${card.cost}</div>
     <div class="card-type-dot" style="background:${getTypeDotColor(card)};"></div>
     ${card.burning?'<div class="card-small-burning">🔥</div>':''}
-    <div class="card-small-art">${card.art}</div>
+    <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name">${card.name}</div>
     ${!isSW?`<div class="card-small-stats"><span class="card-small-hp">❤${card.hp}</span><span class="card-small-atk">⚔${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
@@ -209,7 +209,7 @@ function mkEl(card,zone){
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" style="background:${typeDotColor};"></div>
     ${card.burning?'<div class="burning-icon">🔥</div>':''}
-    <div class="card-art">${card.art}</div>
+    <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-name">${card.name}</div>
     ${!isSW?`<div class="card-stats"><span class="card-hp">❤${card.hp}/${card.maxHp}</span><span class="card-atk">⚔${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>`:''}
     <div class="card-ability">${card.ab}</div>
