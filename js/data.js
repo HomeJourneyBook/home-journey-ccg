@@ -1,17 +1,17 @@
 const DEFS = {
   // TEA CREATURES
-  t_szarg_w:   {name:"Szarg",       cost:1,hp:1,atk:2,art:"🦈",f:"tea",tags:["vanguard","gtype:szg"],          ab:""},
-  t_orb_w:     {name:"Orbiton",     cost:1,hp:2,atk:1,art:"👁️",f:"tea",tags:["heal:1","gtype:orb"],             ab:"Active: heal ally 1 HP, remove debuffs."},
-  t_drig_w:    {name:"Dreegan",     cost:3,hp:4,atk:1,art:"🌳",f:"tea",tags:["provoke","gtype:drg"],            ab:""},
-  t_umb_w:     {name:"Umbasir",     cost:2,hp:2,atk:1,art:"🌀",f:"tea",tags:["aoe:1","gtype:umb"],              ab:"Active: deal 1 dmg to ALL enemies."},
-  t_meh_w:     {name:"Mechird",     cost:2,hp:2,atk:1,art:"🤖",f:"tea",tags:["pierce","gtype:mch"],             ab:""},
-  t_ksi_w:     {name:"Xuitqr",      cost:3,hp:4,atk:1,art:"🐙",f:"tea",tags:["regen:1","gtype:xui"],               ab:""},
+  t_szarg_w:   {name:"SZARG",       cost:1,hp:1,atk:2,art:"🦈", img:"014_Sz.png", f:"tea",tags:["vanguard","gtype:szg"],          ab:"Vanguard. Squad: Pierce."},
+  t_orb_w:     {name:"ORBITON",     cost:1,hp:2,atk:1,art:"👁️", img:"015_Orb.png", f:"tea",tags:["heal:1","gtype:orb"],             ab:"Active: Heal on 1 HP and remove debuffs. Squad: Heal 2."},
+  t_drig_w:    {name:"DREEGAN",     cost:3,hp:4,atk:1,art:"🌳", img:"017_D.png", f:"tea",tags:["provoke","gtype:drg"],            ab:"Squad: +1 HP."},
+  t_umb_w:     {name:"UMBASIR",     cost:2,hp:2,atk:1,art:"🌀", img:"013_Umb.png", f:"tea",tags:["aoe:1","gtype:umb"],              ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
+  t_meh_w:     {name:"MECHIRD",     cost:2,hp:2,atk:1,art:"🤖", img:"016_M.png", f:"tea",tags:["pierce","gtype:mch"],             ab:"Squad: +1 ATK."},
+  t_ksi_w:     {name:"XUIQTR",      cost:3,hp:4,atk:1,art:"🐙", img:"012_Xui.png", f:"tea",tags:["regen:1","gtype:xui"],               ab:"Squad: Regen 2."},
   // TEA LEGENDARIES
-  t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1"], ab:"Draw 1 extra card each turn.",unique:true},
-  t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵",f:"tea",tags:["unique","aura:maxhp:1"], ab:"+1 max HP to all allies while on field.",unique:true},
-  t_tuborg:    {name:"TUBORG",     cost:5,hp:5,atk:2,art:"👑",f:"tea",tags:["unique","aura:atk:1"], ab:"+1 ATK to all allies while on field.",unique:true},
-  t_faeron:    {name:"FAERON",     cost:4,hp:5,atk:2,art:"🔥",f:"tea",tags:["unique","on_play_creature:1"], ab:"Each time you play a creature, heal your base 1 HP.",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️",f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target this (incl. Pierce).",unique:true},
+  t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1"], ab:"On turn: Draw 1 card.",unique:true},
+  t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵", img:"008_Aslex.png", f:"tea",tags:["unique","aura:maxhp:1"], ab:"Aura: +1 maxHP.",unique:true},
+  t_tuborg:    {name:"TUBORG",     cost:5,hp:5,atk:2,art:"👑", img:"011_Tuborg.png", f:"tea",tags:["unique","aura:atk:1"], ab:"Aura: +1 ATK.",unique:true},
+  t_faeron:    {name:"FAERON",     cost:4,hp:5,atk:2,art:"🔥", img:"010_Faeron.png", f:"tea",tags:["unique","on_play_creature:1"], ab:"Each time you play a creature, heal your base 1 HP.",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda", f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target Oda (incl. Pierce).",unique:true},
   // TEA SPELLS
   t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜",f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
   t_sp2:       {name:"INF.JOURNEY",cost:3,hp:0,atk:0,art:"🌌",f:"tea",tags:["spell","draw:3"],              ab:"Draw 3 cards.",spell:true},
@@ -31,10 +31,10 @@ const DEFS = {
   j_meh_w:     {name:"Mechird",    cost:2,hp:2,atk:1,art:"⚙️",f:"jeet",tags:["pierce","gtype:mch"],            ab:""},
   j_ksi_w:     {name:"Xuitqr",     cost:3,hp:4,atk:1,art:"🐙",f:"jeet",tags:["regen:1","gtype:xui"],              ab:""},
   // JEET LEGENDARIES
-  j_reap:      {name:"REAPER",     cost:5,hp:4,atk:3,art:"☠️",f:"jeet",tags:["unique","on_any_death_base:1"], ab:"Any creature death: restore 1 HP to Jeet base.",unique:true},
-  j_ryv:       {name:"RYVLEN",     cost:5,hp:4,atk:2,art:"🎭",f:"jeet",tags:["unique","fear","draw_attack:1"], ab:"Fear on attack. On attack: draw 1 card.",unique:true},
-  j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1"], ab:"On enter: 1 dmg to all enemies. Rage on attack.",unique:true},
-  j_phleg:     {name:"PHLEGMOR",   cost:5,hp:6,atk:1,art:"💀",f:"jeet",tags:["unique","raise:1"],  ab:"Start of turn: raise top graveyard card at 1 HP.",unique:true},
+  j_reap:      {name:"REAPER",     cost:5,hp:4,atk:3,art:"☠️", img:"004_Reaper.png", f:"jeet",tags:["unique","on_any_death_base:1"], ab:"Any creature death: restore 1 HP to Jeet base.",unique:true},
+  j_ryv:       {name:"RYVLEN",     cost:5,hp:4,atk:2,art:"🎭", img:"007_Ryvlen.png", f:"jeet",tags:["unique","fear","draw_attack:1"], ab:"On attack: Draw 1 card.",unique:true},
+  j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1"], ab:"On enter: AOE 1 dmg.",unique:true},
+  j_phleg:     {name:"PHLEGMOR",   cost:5,hp:6,atk:1,art:"💀", img:"005_Phelgmor.png", f:"jeet",tags:["unique","raise:1"],  ab:"On turn: Raise top graveyard card at 1 HP.",unique:true},
   j_vard:      {name:"SEEKER",     cost:4,hp:4,atk:2,art:"🌑", img:"003_Seeker.png", f:"jeet",tags:["unique","invisible","fear"], ab:"Invisible. Fear on attack.",unique:true},
   // JEET SPELLS
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊",f:"jeet",tags:["spell","draw:2"],             ab:"Draw 2 cards.",spell:true},
