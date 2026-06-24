@@ -29,10 +29,12 @@ function render(){
     document.getElementById(f+'EssMax').textContent=p.essMax;
     const hc=document.getElementById(f+'HandCount');
     if(hc)hc.textContent=p.hand.length;
-    document.getElementById(f+'DeckCount').textContent=p.deck.length;
-    const gc=document.getElementById(f+'GraveCount');
+    // Stats bar counters
+    const dc=document.getElementById(f+'DeckCountStat');
+    if(dc)dc.textContent=p.deck.length;
+    const gc=document.getElementById(f+'GraveCountStat');
     if(gc)gc.textContent=p.grave.length;
-    // Update bottom bar badges
+    // Bottom bar badges
     const graveBadge=document.getElementById(f+'GraveBadge');
     if(graveBadge)graveBadge.textContent=p.grave.length;
     const deckBadge=document.getElementById(f+'DeckBadge');
