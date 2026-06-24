@@ -171,12 +171,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 .card-hp-box{
   width:48%;height:100%;
-  background:url('../img/card_hp_bg.png') center/100% 100% no-repeat;
+  background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
   display:flex;align-items:center;justify-content:center;padding:1px;overflow:hidden;
 }
 .card-atk-box{
   width:48%;height:100%;
-  background:url('../img/card_atk_bg.png') center/100% 100% no-repeat;
+  background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
   display:flex;align-items:center;justify-content:center;padding:1px;overflow:hidden;
 }
 .card-hp{color:#e05555;font-size:9px;display:flex;align-items:center;gap:1px;}
@@ -398,4 +398,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .stats-bar .stat-icon{
   width:1.2em;
   height:1.2em;
+}
+.card-stats-icon{
+  width:var(--card-stats-h);
+  height:var(--card-stats-h);
+  object-fit:cover;
+  flex-shrink:0;
 }
