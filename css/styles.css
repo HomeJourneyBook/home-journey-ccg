@@ -34,7 +34,7 @@
     --card-w: 99px;
     --card-h: 139px;
     --card-small-w: 62px;
-    --card-small-h: 80px;
+    --card-small-h: 75px;
     --card-small-art-h: 45px;
     --card-art-size: 74px;
     --cat-card-w: 150px;
@@ -119,7 +119,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 @keyframes pulseG{from{box-shadow:0 0 4px #44ff88;}to{box-shadow:0 0 12px #44ff88;}}
 
 /* SMALL CARDS - on battlefield */
-.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;}
+.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:4px;overflow:hidden;}
 .card-small.tea-card{border-color:transparent;}.card-small.jeet-card{border-color:transparent;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
