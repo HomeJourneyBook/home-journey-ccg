@@ -132,7 +132,7 @@ function doCreature(card){
   card.sleeping=!card.tags.includes('vanguard');
   card.exhausted=false;
   cur.field.push(card);
-  lg(`▶ ${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
+  lg(`${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
 
   // Trigger on_play_creature for all field cards of active player
   G[G.turn].field.forEach(c=>{
