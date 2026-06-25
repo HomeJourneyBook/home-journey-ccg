@@ -140,7 +140,7 @@ function mkSmallEl(card){
   d.innerHTML=`
     <div class="card-small-cost">${card.cost}</div>
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
-    ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;"></div>':''}
+    ${card.burning?'<div class="card-small-burning"></div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
 ${!isSW?`<div class="card-small-stats">
@@ -210,12 +210,12 @@ function mkEl(card,zone){
 
   const isSW=card.spell||card.world||card.artifact;
   const TAG_ICONS = {
-  'fear':    '<img src="img/ico_fear.png" style="width:70%;height:70%;">',
-  'pierce':  '<img src="img/ico_pierce.png" style="width:70%;height:70%;">',
-  'regen':   '<img src="img/ico_regen.png" style="width:70%;height:70%;">',
-  'burn':    '<img src="img/ico_burn.png" style="width:70%;height:70%;">',
-  'rage':    '<img src="img/ico_rage.png" style="width:70%;height:70%;">',
-  'provoke': '<img src="img/ico_provoke.png" style="width:70%;height:70%;">',
+  'fear':    '<img src="img/ico_fear.png" style="width:60%;height:60%;">',
+  'pierce':  '<img src="img/ico_pierce.png" style="width:60%;height:60%;">',
+  'regen':   '<img src="img/ico_regen.png" style="width:60%;height:60%;">',
+  'burn':    '<img src="img/ico_burn.png" style="width:60%;height:60%;">',
+  'rage':    '<img src="img/ico_rage.png" style="width:60%;height:60%;">',
+  'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
 };
 const tagIcons = (card.tags||[])
   .map(t=>t.split(':')[0])
@@ -225,7 +225,7 @@ const tagIcons = (card.tags||[])
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
-    ${card.burning?'<div class="burning-icon"><img src="img/ef_burn.png" style="width:100%;height:100%;"></div>':''}
+    ${card.burning?'<div class="burning-icon"></div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
