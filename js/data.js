@@ -18,7 +18,7 @@ const DEFS = {
   t_sp3:       {name:"SHEN'S CALL",cost:3,hp:0,atk:0,art:"✨",f:"tea",tags:["spell","revive:full"],              ab:"Revive last creature from your graveyard.",spell:true},
   t_sp4:       {name:"SCHEME",     cost:1,hp:0,atk:0,art:"🗺️",f:"tea",tags:["spell","ess_add:2"],              ab:"Get 2 essence.",spell:true},
   // TEA WORLDS & ARTIFACTS
-  t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"🏔️",f:"tea",tags:["world","draw:1"],                 ab:"On turn: Draw 1.",world:true},
+  t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"",f:"tea",tags:["world","draw:1"],                 ab:"On turn: Draw 1.",world:true},
   t_w2:        {name:"DOMINIA",    cost:4,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","world_maxhp:1"],           ab:"Aura: +1 maxHP.",world:true},
   t_a1:        {name:"FOUND.BOOK", cost:3,hp:0,atk:0,art:"📖",f:"tea",tags:["artifact","draw:1"],  ab:"On turn: Draw 1 card.",artifact:true},
   t_a2:        {name:"TEA FOUNT.", cost:3,hp:0,atk:0,art:"⛲",f:"tea",tags:["artifact","heal:1"],  ab:"On turn: Restore all allies 1 HP.",artifact:true},
