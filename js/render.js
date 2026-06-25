@@ -210,12 +210,12 @@ function mkEl(card,zone){
 
   const isSW=card.spell||card.world||card.artifact;
   const TAG_ICONS = {
-  'fear':    '<img src="img/ico_fear.png" style="width:100%;height:100%;">',
-  'pierce':  '<img src="img/ico_pierce.png" style="width:100%;height:100%;">',
-  'regen':   '<img src="img/ico_regen.png" style="width:100%;height:100%;">',
-  'burn':    '<img src="img/ico_burn.png" style="width:100%;height:100%;">',
-  'rage':    '<img src="img/ico_rage.png" style="width:100%;height:100%;">',
-  'provoke': '<img src="img/ico_provoke.png" style="width:100%;height:100%;">',
+  'fear':    '<img src="img/ico_fear.png" style="width:70%;height:70%;">',
+  'pierce':  '<img src="img/ico_pierce.png" style="width:70%;height:70%;">',
+  'regen':   '<img src="img/ico_regen.png" style="width:70%;height:70%;">',
+  'burn':    '<img src="img/ico_burn.png" style="width:70%;height:70%;">',
+  'rage':    '<img src="img/ico_rage.png" style="width:70%;height:70%;">',
+  'provoke': '<img src="img/ico_provoke.png" style="width:70%;height:70%;">',
 };
 const tagIcons = (card.tags||[])
   .map(t=>t.split(':')[0])
