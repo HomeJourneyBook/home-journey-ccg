@@ -96,12 +96,12 @@ function render(){
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
 }
 
-function getTypeDotColor(card){
-  if(card.world) return '#e05555';
-  if(card.unique) return '#c8a84b';
-  if(card.artifact) return '#5599ff';
-  if(card.spell) return '#88ccff';
-  return '#888888';
+function getTypeDotImg(card){
+  if(card.world) return 'img/type_world.png';
+  if(card.unique) return 'img/type_unique.png';
+  if(card.artifact) return 'img/type_artifact.png';
+  if(card.spell) return 'img/type_spell.png';
+  return 'img/type_creature.png';
 }
 
 function mkSmallEl(card){
