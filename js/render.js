@@ -211,12 +211,12 @@ function mkEl(card,zone){
   const isSW=card.spell||card.world||card.artifact;
   const typeDotColor=getTypeDotColor(card);
   const TAG_ICONS = {
-  'fear':    '👻',
-  'pierce':  '🗡️',
-  'regen':   '💚',
-  'burn':    '🔥',
-  'rage':    '💢',
-  'provoke': '🛡️',
+  'fear':    '<img src="img/ico_fear.png" style="width:100%;height:100%;">',
+  'pierce':  '<img src="img/ico_pierce.png" style="width:100%;height:100%;">',
+  'regen':   '<img src="img/ico_regen.png" style="width:100%;height:100%;">',
+  'burn':    '<img src="img/ico_burn.png" style="width:100%;height:100%;">',
+  'rage':    '<img src="img/ico_rage.png" style="width:100%;height:100%;">',
+  'provoke': '<img src="img/ico_provoke.png" style="width:100%;height:100%;">',
 };
 const tagIcons = (card.tags||[])
   .map(t=>t.split(':')[0])
@@ -226,7 +226,7 @@ const tagIcons = (card.tags||[])
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" style="background:${typeDotColor};"></div>
-    ${card.burning?'<div class="burning-icon">🔥</div>':''}
+    ${card.burning?'<div class="burning-icon"><img src="img/ef_burn.png" style="width:100%;height:100%;"></div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
