@@ -153,7 +153,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
 .card.feared{opacity:.4;border-style:dotted;}
 .card.burning{box-shadow:0 0 6px #ff6600 !important;}
-.burning-icon{position:absolute;top:-6px;right:-6px;font-size:20px;}
+.burning-icon{position:absolute;top:-6px;right:-6px;width:20px;height:20px;}
 @keyframes pulse{from{box-shadow:0 0 4px #e05555;}to{box-shadow:0 0 12px #e05555;}}
 .card-cost{position:absolute;top:-4px;left:-4px;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:12px;font-weight:bold;border:1px solid;}
 .tea-card .card-cost{background:#1a1200;border-color:#c8a84b;color:#c8a84b;}
