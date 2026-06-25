@@ -195,7 +195,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-ability-box{
   width:100%;height:var(--card-text-h);
   background:url('../img/card_text_bg.png') center/100% 100% no-repeat;
-  overflow:hidden;flex-shrink:0;padding:0;
+  overflow:hidden;flex-shrink:0;padding:1.5px;
   display:flex;align-items:center;justify-content:center;
 }
 .card-ability{font-size:10px;color:#FFFFFF;text-align:center;line-height:1.4;width:100%;}
