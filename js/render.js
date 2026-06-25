@@ -469,7 +469,7 @@ function adjustHandOverlap(){
       const total=cards.length;
       let margin=0;
       if(total>1){
-        const totalW=cardW*total;
+        const totalW=cardW*total + (total-1)*8;
         if(totalW>containerW){
           margin=-Math.ceil((totalW-containerW)/(total-1));
           margin=Math.max(margin,-Math.floor(cardW*0.85));
