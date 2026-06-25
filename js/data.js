@@ -16,7 +16,7 @@ const DEFS = {
   t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
   t_sp2:       {name:"JOURNEY",cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","draw:3"],              ab:"Draw 3 cards.",spell:true},
   t_sp3:       {name:"SHEN'S CALL",cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png", f:"tea",tags:["spell","revive:full"],              ab:"Revive last creature from your graveyard.",spell:true},
-  t_sp4:       {name:"SCHEME",     cost:1,hp:0,atk:0,art:"🗺️", img:"1_Scheme.png", f:"tea",tags:["spell","ess_add:2"],              ab:"Get 2 essence.",spell:true},
+  t_sp4:       {name:"SCHEME",     cost:1,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png", f:"tea",tags:["spell","ess_add:2"],              ab:"Get 2 essence.",spell:true},
   // TEA WORLDS & ARTIFACTS
   t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"",f:"tea",tags:["world","draw:1"],                 ab:"On turn: Draw 1.",world:true},
   t_w2:        {name:"DOMINIA",    cost:4,hp:0,atk:0,art:"🌿",f:"tea",tags:["world","world_maxhp:1"],           ab:"Aura: +1 maxHP.",world:true},
