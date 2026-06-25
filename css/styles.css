@@ -174,7 +174,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 .card-name{font-family:'MEK',monospace;font-size:15px;text-align:center;line-height:1.2;width:100%;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tea-card .card-name{color:#FFFFFF;}.jeet-card .card-name{color:#FFFFFF;}
+.tea-card .card-name{color:#c8a84b;}.jeet-card .card-name{color:#b44fd4;}
 
 /* STATS BOX */
 .card-stats{
@@ -206,7 +206,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   overflow:hidden;flex-shrink:0;padding:1.5px;
   display:flex;align-items:center;justify-content:center;
 }
-.card-ability{font-size:10px;color:#FFFFFF;text-align:center;line-height:1.4;width:100%;}
+.card-ability{font-size:10px;color:#CCCCCC;text-align:center;line-height:1.4;width:100%;}
 .card-tags{display:flex;gap:2px;flex-wrap:wrap;margin-top:2px;justify-content:center;}
 .tag{font-size:10px;padding:1px 2px;border:1px solid #555;color:#aaa;}
 .tag.vanguard{border-color:#ff9933;color:#ff9933;}.tag.provoke{border-color:#55aaff;color:#55aaff;}
@@ -483,10 +483,10 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .pcard.tcp{
   background:url('../img/pcard_tea_bg.png') center/100% 100% no-repeat;
   border-color:transparent;
-  color:transparent;
+  color:#c8a84b;
 }
 .pcard.jcp{
   background:url('../img/pcard_jeet_bg.png') center/100% 100% no-repeat;
   border-color:transparent;
-  color:transparent;
+  color:#b44fd4;
 }
