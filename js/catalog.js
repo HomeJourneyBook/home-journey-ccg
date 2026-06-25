@@ -1,9 +1,9 @@
-function getTypeDotColorDef(def){
-  if(def.world) return '#e05555';
-  if(def.unique) return '#c8a84b';
-  if(def.artifact) return '#5599ff';
-  if(def.spell) return '#88ccff';
-  return '#888888';
+function getCardType(def){
+  if(def.unique) return 'unique';
+  if(def.spell) return 'spell';
+  if(def.world) return 'world';
+  if(def.artifact) return 'artifact';
+  return 'creature';
 }
 
 const catalogFilters={faction:'all',type:'all',sort:'name'};
@@ -22,14 +22,6 @@ function setFilter(key,val,btn){
   group.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderCatalog();
-}
-
-function getCardType(def){
-  if(def.unique) return 'unique';
-  if(def.spell) return 'spell';
-  if(def.world) return 'world';
-  if(def.artifact) return 'artifact';
-  return 'creature';
 }
 
 function renderCatalog(){
@@ -56,11 +48,20 @@ function renderCatalog(){
   grid.innerHTML='';
   cards.forEach(([key,def])=>{
     const isSW=def.spell||def.world||def.artifact;
-    const tags=(def.tags||[]).filter(t=>!['spell','world','artifact','unique'].includes(t));
-    const tagHtml=tags.map(t=>{
-      const base=t.split(':')[0];
-      return `<span class="tag ${base}" style="font-size:5px;padding:1px 3px;">${t.toUpperCase()}</span>`;
-    }).join('');
+
+    const TAG_ICONS = {
+      'fear':    '<img src="img/ico_fear.png" style="width:60%;height:60%;">',
+      'pierce':  '<img src="img/ico_pierce.png" style="width:60%;height:60%;">',
+      'regen':   '<img src="img/ico_regen.png" style="width:60%;height:60%;">',
+      'burn':    '<img src="img/ico_burn.png" style="width:60%;height:60%;">',
+      'rage':    '<img src="img/ico_rage.png" style="width:60%;height:60%;">',
+      'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
+    };
+    const tagIcons=(def.tags||[])
+      .map(t=>t.split(':')[0])
+      .filter(t=>TAG_ICONS[t])
+      .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
+      .join('');
 
     const div=document.createElement('div');
     div.className=`card cat-card ${def.f==='tea'?'tea-card':'jeet-card'}`;
@@ -68,17 +69,18 @@ function renderCatalog(){
     div.onclick=()=>openCardDetail(def);
     div.innerHTML=`
       <div class="card-cost">${def.cost}</div>
-      <div class="card-type-dot" style="background:${getTypeDotColorDef(def)};"></div>
+      <div class="card-type-dot" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img?`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:def.art}</div>
+      ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
       ${!isSW?`<div class="card-stats">
         <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
-          <img src="img/chel.png" class="card-stats-icon">
+        <img src="img/chel.png" class="card-stats-icon">
         <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
       </div>`
-:`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
+      :`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
-`;
+    `;
     grid.appendChild(div);
   });
 }
