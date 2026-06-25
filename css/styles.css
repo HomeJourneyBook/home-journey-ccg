@@ -29,6 +29,8 @@
   --pcard-h: 20px;
     --card-small-name-fs: 14px;
   --card-small-stat-fs: 12px;
+  --card-world-name-h: 18px;
+--card-world-text-h: 40px;
 }
 
 /* Мобильная версия (до 600px) */
@@ -505,3 +507,13 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   justify-content:center;
   font-size:48px;
 }
+.card.world-card .card-name-box{
+  height:var(--card-world-name-h);
+}
+.card.world-card .card-ability-box{
+  height:var(--card-world-text-h);
+}
+.card.world-card{
+  padding:0;
+}
+
