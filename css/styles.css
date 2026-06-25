@@ -175,7 +175,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   height:var(--card-stats-h);
   margin:0 auto;
   display:flex;justify-content:space-between;
-  flex-shrink:0;padding:0 0;
+  flex-shrink:0;padding:1px;
 }
 
 .card-hp-box{
@@ -188,8 +188,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
   display:flex;align-items:center;justify-content:center;padding:1px;overflow:hidden;
 }
-.card-hp{color:#e05555;font-size:18px;display:flex;align-items:center;gap:1px;}
-.card-atk{color:#55aaff;font-size:18px;display:flex;align-items:center;gap:1px;}
+.card-hp{color:#e05555;font-size:20px;display:flex;align-items:center;gap:1px;}
+.card-atk{color:#55aaff;font-size:20px;display:flex;align-items:center;gap:1px;}
 
 /* ABILITY BOX */
 .card-ability-box{
@@ -374,14 +374,14 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .btn-badge{
   position:absolute;
   top:-6px;right:-6px;
-  min-width:14px;height:14px;
+  min-width:20px;height:20px;
   border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-family:'MEK',monospace;
-  font-size:10px;
+  font-size:15px;
   font-weight:bold;
   border:1px solid;
-  padding:0 2px;
+  padding:1px 1px;
   pointer-events:none;
   line-height:1;
   z-index:10;
@@ -446,7 +446,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 .card-tag-icons{
   position:absolute;
-  right:4px;
+  right:5px;
   top:calc(var(--card-pad) + var(--card-art-size)/2);
   transform:translateY(-50%);
   display:flex;flex-direction:column;
@@ -454,7 +454,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   z-index:3;
 }
 .card-tag-icon{
-  width:14px;height:14px;
+  width:16px;height:16px;
   display:flex;align-items:center;justify-content:center;
   font-size:10px;
   background:#0a0a12cc;
