@@ -6,17 +6,13 @@
 }
 
 
-/* === CARD SIZE CONSTANTS === */
-/* Меняй здесь: */
 :root {
-  --card-w: 134px;       /* ширина карты в руке */
-  --card-h: 187px;       /* высота карты в руке */
-  --card-small-w: 77px;  /* ширина карты на поле */
-  --card-small-h: 90px; /* высота карты на поле */
+  --card-w: 134px;       
+  --card-h: 187px;       
+  --card-small-w: 77px;  
+  --card-small-h: 90px; 
   --card-small-art-h: 56px;
   --card-art-size: 100px;
-  --cat-card-w: 130px;
-  --cat-card-h: 182px;
   --card-pad: 4px;
   --card-name-h: 18px;
   --card-stats-h: 16px;
@@ -24,13 +20,13 @@
   --card-small-stats-w: 55%;
   --card-text-h: 45px;
   --card-small-name-h: 12px;
---card-small-stats-h: 11px;
-    --pcard-w: 80px;
+  --card-small-stats-h: 11px;
+  --pcard-w: 80px;
   --pcard-h: 20px;
-    --card-small-name-fs: 14px;
-  --card-small-stat-fs: 12px;
+  --card-small-name-fs: 14px;
+  --card-small-stat-fs: 13px;
   --card-world-name-h: 18px;
---card-world-text-h: 40px;
+  --card-world-text-h: 40px;
 }
 
 /* Мобильная версия (до 600px) */
@@ -42,8 +38,6 @@
     --card-small-h: 75px;
     --card-small-art-h: 45px;
     --card-art-size: 74px;
-    --cat-card-w: 150px;
-    --cat-card-h: 210px;
     --card-pad: 4px;
     --card-name-h: 14px;
     --card-stats-h: 13px;
@@ -51,11 +45,13 @@
     --card-small-stats-w: 70%;
     --card-text-h: 30px;
     --card-small-name-h: 10px;
---card-small-stats-h: 9px;
+    --card-small-stats-h: 9px;
     --pcard-w: 65px;
---pcard-h: 22px;
+    --pcard-h: 22px;
     --card-small-name-fs: 5px;
---card-small-stat-fs: 7px;
+    --card-small-stat-fs: 7px;
+    --card-world-name-h: 14px;
+    --card-world-text-h: 30px;
   }
 }
 
@@ -139,7 +135,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-small.healable{box-shadow:0 0 6px #44ff88 !important;border-color:#44ff88 !important;opacity:1 !important;}
 .card-small-art{width:var(--card-small-art-h);height:var(--card-small-art-h);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 2px auto;border:1px solid #ffffff11;background:#000000;overflow:hidden;}
 .card-small-name{font-family:'MEK',monospace;font-size: var(--card-small-name-fs);text-align:center;margin:0.5px 0;line-height:1.3;min-height:12px;display:flex;align-items:center;justify-content:center;}
-.tea-card .card-small-name{color:#FFFFFF;}.jeet-card .card-small-name{color:#FFFFFF;}
+.tea-card .card-small-name{color:#c8a84b;}.jeet-card .card-small-name{color:#b44fd4;}
 .card-small-stats{width:var(--card-small-stats-w);height:var(--card-small-stats-h);margin:0 auto;display:flex;justify-content:space-between;flex-shrink:0;padding:0;}
 .card-small-hp{color:#e05555;font-size: var(--card-small-stat-fs);}.card-small-atk{color:#55aaff;font-size: var(--card-small-stat-fs);}
 .card-small-cost{position:absolute;top:2.5px;left:3px;width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:10px;font-weight:bold;border:1px solid;}
@@ -232,10 +228,15 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .log-panel{position:fixed;top:44px;right:14px;width:320px;background:#0a0a12;border:1px solid #c8a84b33;z-index:50;display:none;box-shadow:0 4px 20px #000000aa;}
 .log-panel.open{display:block;}
 .log-panel-header{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #ffffff11;}
-.log-panel-title{font-size:18px;color:#c8a84b;}
-.log-panel-close{font-size:18px;color:#555;cursor:pointer;border:none;background:transparent;padding:2px 6px;}
+.log-panel-title{font-size:14px;color:#c8a84b;}
+.log-panel-close{font-size:14px;color:#555;cursor:pointer;border:none;background:transparent;padding:2px 6px;}
 .log-panel-close:hover{color:#c8a84b;}
 .log-panel .log{height:180px;border:none;}
+
+.log::-webkit-scrollbar{width:4px;}
+.log::-webkit-scrollbar-track{background:#0a0a12;}
+.log::-webkit-scrollbar-thumb{background:#c8a84b44;border-radius:2px;}
+.log::-webkit-scrollbar-thumb:hover{background:#c8a84b;}
 
 /* LAYOUT ZONES */
 .opp-hand-zone{padding:0 6px 0 6px;background:rgba(12,16,19,0.70);border:1px solid #d83c88;border-bottom:none;min-height:48px;display:flex;align-items:flex-end;justify-content:center;}
@@ -507,12 +508,6 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   justify-content:center;
   font-size:48px;
 }
-.card.world-card .card-name-box{
-  height:var(--card-world-name-h);
-}
-.card.world-card .card-ability-box{
-  height:var(--card-world-text-h);
-}
 .card.world-card{
   padding:0;
   justify-content:space-between;
@@ -520,7 +515,18 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   background-position:center;
   background-repeat:no-repeat;
 }
-
+.card.world-card .card-name-box{
+  height:var(--card-world-name-h);
+  margin-top:4px;
+}
+.card.world-card .card-ability-box{
+  height:var(--card-world-text-h);
+  margin-bottom:4px;
+}
+.card.world-card.tea-card,
+.card.world-card.jeet-card{
+  background-image:none !important;
+}
 .card.world-card.tea-card.world-img-1_Valley_png,
 .card.world-card.jeet-card.world-img-1_Valley_png{
   background-image:url('../img/cards/1_Valley.png') !important;
