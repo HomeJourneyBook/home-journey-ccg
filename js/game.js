@@ -28,7 +28,7 @@ function onClick(card,zone){
         const debuffs=[];
         if(card.burning){card.burning=false;debuffs.push('fire');}
         if(card.feared){card.feared=false;debuffs.push('fear');}
-        lg(`💚 ${healer.name}: +${healAmt} HP to ${card.name}${debuffs.length?', removes '+debuffs.join(' & '):''}.`,'hl');
+        lg(`${healer.name}: +${healAmt} HP to ${card.name}${debuffs.length?', removes '+debuffs.join(' & '):''}.`,'hl');
         healer.exhausted=true;
       }
       G.sel=null;G.phase='action';render();return;
@@ -78,7 +78,7 @@ function onClick(card,zone){
     // Altar: click artifact to enter sacrifice mode
     if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping&&!card.exhausted){
       G.phase='sacrificeTarget';
-      lg(`🗿 ${card.name}: select a creature to sacrifice.`,'hint');
+      lg(`${card.name}: select a creature to sacrifice.`,'hint');
       render();return;
     }
     if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.spell&&!card.world&&!card.artifact){
@@ -186,21 +186,21 @@ function doWorld(card){
     G[G.turn]._auraMaxLog=hasTag(card,'aura:maxhp')?card.id:null;
     applyAuras(G.turn);
   }
-  lg(`▶ World: ${card.name} activated.`,'imp');
+  lg(`World: ${card.name} activated.`,'imp');
 }
 
 function doArtifact(card){
   const cur=G[G.turn];
   card.sleeping=true; // artifacts sleep on first turn like creatures
   cur.artifacts.push(card);
-  lg(`▶ Artifact: ${card.name} placed.`,'imp');
+  lg(`Artifact: ${card.name} placed.`,'imp');
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
 }
 
 function doSpell(card){
   const cur=G[G.turn];
-  lg(`▶ Spell: ${card.name}.`,'imp');
+  lg(`Spell: ${card.name}.`,'imp');
   triggerAbilities(card,'instant');
   card.voided=true;
   cur.void.push(card); // spells go to void, not graveyard
@@ -213,7 +213,7 @@ function reviveCard(card,toF){
   card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
   card.f=toF;
   G[toF].field.push(card); // push first so applyAuras sees the card
-  lg(`✨ Revived ${card.name} at full HP.`,'hl');
+  lg(`Revived ${card.name} at full HP.`,'hl');
 
   if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) G[toF]._auraMaxLog=card.id;
@@ -227,7 +227,7 @@ function doAttack(att,target){
   const oppK=curK==='tea'?'jeet':'tea';
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
 
-  lg(`⚔ ${att.name} attacks ${target.name}!`,'imp');
+  lg(`${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
   // No counter if attacker is invisible, or target is invisible/feared
   if(!hasTag(att,'invisible')&&!hasTag(target,'invisible')&&!target.feared)
@@ -250,7 +250,7 @@ function doUmbAsir(){
   if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
   const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
-  lg(`🌀 ${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
+  lg(`${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
   umb.exhausted=true;
   G.sel=null;G.phase='action';
@@ -304,7 +304,7 @@ function tryAttackBase(){
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
   if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
-  lg(`⚔ ${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
+  lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
   // Trigger on_attack abilities (rage, draw, etc) — no target
   triggerAbilities(att,'on_attack',{target:null});
@@ -327,7 +327,7 @@ function killCard(card,faction){
   card.squadAtkBonus=0;
   card.squadParam=null;
   G[faction].grave.push(card);
-  lg(`💀 ${card.name} dies.`,'die');
+  lg(`${card.name} dies.`,'die');
   checkSquadBonuses(faction);
 
   // Tuborg death — remove ATK bonus from allies
@@ -375,7 +375,7 @@ function doBurnCard(card){
   card.voided=true;
   cur.void.push(card);
   cur.essMax+=1;cur.ess+=1;cur.burned=true;
-  lg(`🔥 Burned ${card.name} → essence now ${cur.ess}/${cur.essMax}.`,'imp');
+  lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax}.`,'imp');
   G.phase='action';render();
 }
 
@@ -514,7 +514,7 @@ function checkSquadBonuses(faction){
           card.maxHp+=squad.val;
           if(card.hp===card.maxHp-squad.val) card.hp+=squad.val;
           card.squadMaxHpBonus=squad.val;
-          lg(`⚔ Squad bonus! ${card.name} +${squad.val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
+          lg(`Squad bonus! ${card.name} +${squad.val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
         } else if(!active&&card.squadMaxHpBonus){
           card.maxHp=Math.max(1,card.maxHp-card.squadMaxHpBonus);
           card.hp=Math.min(card.hp,card.maxHp);
@@ -524,7 +524,7 @@ function checkSquadBonuses(faction){
       } else if(squad.effect==='atk'){
         if(active&&!card.squadAtkBonus){
           card.squadAtkBonus=squad.val;
-          lg(`⚔ Squad bonus! ${card.name} +${squad.val} ATK.`,'hl');
+          lg(`Squad bonus! ${card.name} +${squad.val} ATK.`,'hl');
         } else if(!active&&card.squadAtkBonus){
           card.squadAtkBonus=0;
           lg(`${card.name}: squad broken — ATK bonus lost.`,'die');
@@ -532,7 +532,7 @@ function checkSquadBonuses(faction){
       } else if(squad.effect==='param'){
         if(active&&!card.squadParam){
           card.squadParam={[squad.param]:squad.val};
-          lg(`⚔ Squad bonus! ${card.name} ${squad.param} upgraded to ${squad.val}.`,'hl');
+          lg(`Squad bonus! ${card.name} ${squad.param} upgraded to ${squad.val}.`,'hl');
         } else if(!active&&card.squadParam){
           card.squadParam=null;
           lg(`${card.name}: squad broken — ${squad.param} bonus lost.`,'die');
@@ -549,9 +549,9 @@ function doSacrifice_target(card){
   }
   // Mark altar as exhausted
   const altar=G[G.turn].artifacts.find(a=>hasTag(a,'sacrifice'));
-  if(altar){altar.exhausted=true;lg('🗿 Altar exhausted until next turn.','die');}
+  if(altar){altar.exhausted=true;lg('Altar exhausted until next turn.','die');}
   else lg('[DBG] Altar not found in artifacts!');
-  lg(`🗿 ${card.name} sacrificed to the Altar!`,'die');
+  lg(`${card.name} sacrificed to the Altar!`,'die');
   killCard(card,G.turn);
   G.phase='action';
   checkWin();render();
@@ -564,7 +564,7 @@ function doSacrifice(){
   if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
     lg('Select one of your creatures.','hint');return;
   }
-  lg(`🗿 ${card.name} sacrificed to the Altar!`,'die');
+  lg(`${card.name} sacrificed to the Altar!`,'die');
   killCard(card,G.turn);
   G.sel=null;G.phase='action';
   checkWin();render();
@@ -578,7 +578,7 @@ function doShard(artifact){
   }
   G.phase='shardTarget';
   G.sel=artifact.id;
-  lg(`🔪 ${artifact.name}: select an enemy creature to deal ${getTagVal(artifact,'shard')||2} damage.`,'hint');
+  lg(`${artifact.name}: select an enemy creature to deal ${getTagVal(artifact,'shard')||2} damage.`,'hint');
   render();
 }
 
@@ -591,7 +591,7 @@ function doShardTarget(card){
   const baseDmg=getTagVal(artifact,'shard')||2;
   const dmg=card.feared?baseDmg+1:baseDmg;
   const fearNote=card.feared?' (feared +1)':'';
-  lg(`🔪 ${artifact.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
+  lg(`${artifact.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
   dmgCard(card,dmg,oppK);
   if(artifact) artifact.exhausted=true;
   G.phase='action';G.sel=null;
@@ -660,7 +660,7 @@ function endTurn(){
   [...G[G.turn].field,...G[oppK].field].forEach(card=>{
     if(card.burning&&!card.spell&&!card.world&&!card.artifact){
       card.hp-=1;
-      lg(`🔥 ${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
+      lg(`${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
       if(card.hp<=0){
         const f=G[G.turn].field.includes(card)?G.turn:oppK;
         killCard(card,f);
@@ -677,7 +677,7 @@ function endTurn(){
   }
 
   if(G.turn==='tea')G.turnNum++;
-  lg(`─── Turn ${G.turnNum}: ${G.turn.toUpperCase()} · ${cur.ess}/${cur.essMax} Essence ───`,'trn');
+  lg(`─ Turn ${G.turnNum}: ${G.turn.toUpperCase()} · ${cur.ess}/${cur.essMax} Essence ─`,'trn');
   const lp=document.getElementById('logPanel');if(lp)lp.classList.remove('open');
   render();
 }
@@ -704,9 +704,9 @@ function doMulligan(faction){
   const drawCounts=[5,4,3];
   const draw=drawCounts[m.used];
   const msgs=[
-    `🔀 Mulligan (free): drew ${draw} new cards.`,
-    `🔀 Mulligan (−1): drew ${draw} cards.`,
-    `🔀 Mulligan (−2): drew ${draw} cards. Last mulligan used.`,
+    `1st Mulligan: drew ${draw} new cards.`,
+    `2nd Mulligan: drew ${draw} cards.`,
+    `3rd Mulligan: drew ${draw} cards. Last mulligan used.`,
   ];
   for(let i=0;i<draw;i++) if(p.deck.length>0)p.hand.push(p.deck.shift());
   lg(msgs[m.used],'imp');
