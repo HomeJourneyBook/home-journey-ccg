@@ -67,6 +67,17 @@ function renderCatalog(){
     div.className=`card cat-card ${def.f==='tea'?'tea-card':'jeet-card'}`;
     div.style.cursor='pointer';
     div.onclick=()=>openCardDetail(def);
+    if(def.world){
+  div.classList.add('world-card');
+  if(def.img) div.classList.add('world-img-' + def.img.replace('.','_'));
+  div.innerHTML=`
+    <div class="card-cost">${def.cost}</div>
+    <div class="card-type-dot" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+    <div class="card-name-box"><div class="card-name">${def.name}</div></div>
+    <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>`;
+  grid.appendChild(div);
+  return;
+}
     div.innerHTML=`
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
