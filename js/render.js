@@ -223,12 +223,15 @@ const tagIcons = (card.tags||[])
   .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
   .join('');
   if(card.world){
-    d.classList.add('world-card');
-  if(card.worldBg) d.style.backgroundImage=`url('img/${card.worldBg}')`;
+  d.classList.add('world-card');
+  if(card.img){
+    d.style.backgroundImage=`url('img/cards/${card.img}')`;
+    d.style.backgroundSize='cover';
+    d.style.backgroundPosition='center';
+  }
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
-    <div class="card-world-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
