@@ -523,5 +523,6 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 
 .card.world-card.tea-card,
 .card.world-card.jeet-card{
-  background-image:none;
+  background-image:none !important;
 }
+.world-img-1_Valley_png{ background-image:url('../img/cards/1_Valley.png') !important; }
