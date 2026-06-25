@@ -88,6 +88,10 @@ function onClick(card,zone){
         lg(`${card.name}: click an ALLY to heal, or an ENEMY to attack.`,'hint');
         render();return;
       }
+      if(hasTag(card,'aoe')){
+  G.sel=card.id;
+  render();return;
+}
       G.sel=card.id;G.phase='selectTarget';
       lg(`Selected ${card.name} — click enemy to attack, or tap base.`,'hint');
       render();return;
