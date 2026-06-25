@@ -188,8 +188,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
   display:flex;align-items:center;justify-content:center;padding:1px;overflow:hidden;
 }
-.card-hp{color:#e05555;font-size:14px;display:flex;align-items:center;gap:1px;}
-.card-atk{color:#55aaff;font-size:14px;display:flex;align-items:center;gap:1px;}
+.card-hp{color:#e05555;font-size:18px;display:flex;align-items:center;gap:1px;}
+.card-atk{color:#55aaff;font-size:18px;display:flex;align-items:center;gap:1px;}
 
 /* ABILITY BOX */
 .card-ability-box{
@@ -398,10 +398,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 
 .stat-icon{
-  width:10px;
-  height:10px;
+  width:12px;
+  height:12px;
   vertical-align:middle;
-  margin-right:0.5px;
+  margin-right:1px;
   image-rendering:pixelated;
 }
 .stats-bar .stat-icon{
