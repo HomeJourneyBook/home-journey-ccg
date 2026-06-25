@@ -158,7 +158,7 @@
 
   <!-- HEADER -->
   <div class="header">
-    <div class="title">HOME'S JOURNEY</div>
+    <div class="title"><img src="img/brand.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;">HOME'S JOURNEY</div>
     <div class="turn-info" id="turnInfo">Turn <span id="turnNum">1</span> · <span id="turnPlayer">TEA</span></div>
     <div class="header-desktop-btns" style="gap:6px;margin-left:auto;">
       <button class="btn" style="border-color:#5599ff;color:#5599ff;font-size:10px;padding:5px 12px;" onclick="toggleLog()">📋 Log</button>
@@ -241,11 +241,11 @@
 
   
 <!-- GRAVEYARD MODAL -->
-<div class="modal-overlay hidden" id="graveModal" onclick="closeGraveModal()">
+  <div class="modal-overlay hidden" id="graveModal" onclick="closeGraveModal()" style="align-items:flex-end;justify-content:flex-start;padding:10px;">
   <div class="modal" style="max-width:500px;max-height:80vh;overflow-y:auto;" onclick="event.stopPropagation()">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <span style="font-family:'Press Start 2P',monospace;font-size:9px;color:#c8a84b;" id="graveModalTitle">☠ Graveyard</span>
-      <button class="btn" style="border-color:#555;font-size:8px;padding:3px 8px;" onclick="closeGraveModal()">✕</button>
+      <span style="font-family:'MEK',monospace;font-size:9px;color:#FFFFFF;" id="graveModalTitle">Graveyard</span>
+      <button class="btn" style="border-color:transparent;font-size:12px;padding:3px 3px;" onclick="closeGraveModal()">X</button>
     </div>
     <div id="graveModalCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
   </div>
@@ -266,8 +266,8 @@
   <!-- LOG PANEL -->
   <div class="log-panel" id="logPanel">
     <div class="log-panel-header">
-      <span class="log-panel-title">⚔ Battle Log</span>
-      <button class="log-panel-close" onclick="toggleLog()">✕ Close</button>
+      <span class="log-panel-title">Battle Log</span>
+      <button class="log-panel-close" onclick="toggleLog()">X</button>
     </div>
     <div class="log" id="log"></div>
   </div>
@@ -291,15 +291,15 @@
 <div class="screen" id="catalogScreen">
   <div class="screen-header">
     <button class="screen-back" onclick="hideScreen('catalog')">← Back</button>
-    <div class="screen-title">📚 Card Catalog</div>
+    <div class="screen-title">Card Catalog</div>
   </div>
   <div style="max-width:900px;margin:0 auto;padding:0 8px;">
     <div class="catalog-filters">
       <input class="search-input" id="catalogSearch" placeholder="Search cards..." oninput="renderCatalog()">
       <div class="filter-group" id="factionFilters">
         <button class="filter-btn active" data-faction="all" onclick="setFilter('faction','all',this)">All</button>
-        <button class="filter-btn" data-faction="tea" onclick="setFilter('faction','tea',this)">🍵 Tea</button>
-        <button class="filter-btn jeet-f" data-faction="jeet" onclick="setFilter('faction','jeet',this)">🖤 Jeet</button>
+        <button class="filter-btn" data-faction="tea" onclick="setFilter('faction','tea',this)">Tea</button>
+        <button class="filter-btn jeet-f" data-faction="jeet" onclick="setFilter('faction','jeet',this)">Jeet</button>
       </div>
       <div class="filter-group" id="typeFilters">
         <button class="filter-btn active" data-type="all" onclick="setFilter('type','all',this)">All Types</button>
@@ -325,10 +325,10 @@
 <!-- MODALS -->
 <div class="modal-overlay hidden" id="confirmModal">
   <div class="modal">
-    <h2 style="font-size:9px;">LEAVE GAME?</h2>
+    <h2 style="font-size:18px;">LEAVE GAME?</h2>
     <p>Current game will be lost. Return to menu?</p>
     <div style="display:flex;gap:10px;justify-content:center;">
-      <button class="btn" style="border-color:#e05555;color:#e05555;padding:6px 20px;font-size:9px;" onclick="confirmMenu()">Yes, Exit</button>
+      <button class="btn" style="border-color:#e05555;color:#e05555;padding:6px 20px;font-size:18px;" onclick="confirmMenu()">Yes, Exit</button>
       <button class="btn" style="border-color:#555" onclick="document.getElementById('confirmModal').classList.add('hidden')">Cancel</button>
     </div>
   </div>
