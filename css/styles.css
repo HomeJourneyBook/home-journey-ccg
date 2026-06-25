@@ -17,7 +17,7 @@
   --card-name-h: 18px;
   --card-stats-h: 16px;
   --card-stats-w: 70%;
-  --card-small-stats-w: 70%;
+  --card-small-stats-w: 85%;
   --card-text-h: 45px;
   --card-small-name-h: 12px;
   --card-small-stats-h: 11px;
@@ -446,11 +446,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   overflow:hidden;flex-shrink:0;padding:0;
   display:flex;align-items:center;justify-content:center;
 }
-.card-small-stats{
-  width:var(--card-small-stats-w);height:var(--card-small-stats-h);
-  display:flex;justify-content:space-between;flex-shrink:0;padding:0 0;
-  
-}
+
   .card-small-hp-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
