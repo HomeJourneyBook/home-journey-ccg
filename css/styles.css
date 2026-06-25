@@ -254,7 +254,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 /* BOTTOM BAR */
 .bottom-bar{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:8px;background:transparent;border:none;position:relative;min-height:50px;}
 .bottom-bar .btn-end{}
-.bottom-bar .hint-text{font-size:25px;color:#c8a84b;text-align:center;min-height:14px;}
+.bottom-bar .hint-text{font-size:18px;color:#c8a84b;text-align:center;min-height:14px;}
 
 /* ACTIONS */
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;padding:8px;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
