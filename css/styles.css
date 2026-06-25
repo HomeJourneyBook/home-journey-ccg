@@ -8,7 +8,9 @@
 
 :root {
   --card-w: 134px;       
-  --card-h: 187px;       
+  --card-h: 187px; 
+  --cat-card-w: 134px;       
+  --cat-card-h: 187px; 
   --card-small-w: 77px;  
   --card-small-h: 90px; 
   --card-small-art-h: 56px;
