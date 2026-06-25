@@ -42,7 +42,7 @@ const DEFS = {
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤", img:"1_Forgetting.png", f:"jeet",tags:["spell","revive:full"],             ab:"Revive last creature from your graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:1,hp:0,atk:0,art:"⚫", img:"1_Spell1.png", f:"jeet",tags:["spell","ess_add:2"],             ab:"Get 2 essence.",spell:true},
   // JEET WORLDS & ARTIFACTS
-  j_w1:        {name:"HUNGER",     cost:4,hp:0,atk:0,art:"🩸",f:"jeet",tags:["world","on_own_death:1"],         ab:"When your creature dies: draw 1 card.",world:true},
+  j_w1:        {name:"HUNGER",     cost:4,hp:0,atk:0,art:"🩸", img:"1_Valley.png", f:"jeet",tags:["world","on_own_death:1"],         ab:"When your creature dies: draw 1 card.",world:true},
   j_w2:        {name:"NORRIA",     cost:4,hp:0,atk:0,art:"🌑",f:"jeet",tags:["world","aura:atk:1"],            ab:"Aura: +1 ATK.",world:true},
   j_a1:        {name:"SHARD",      cost:3,hp:0,atk:0,art:"", img:"1_Shard.png", f:"jeet",tags:["artifact","shard:2"], ab:"Active: deal 2 damage to any enemy creature.",artifact:true},
   j_a2:        {name:"ALTAR",      cost:3,hp:0,atk:0,art:"", img:"1_Altar.png", f:"jeet",tags:["artifact","sacrifice"], ab:"Active: sacrifice 1 of your creatures.",artifact:true},
