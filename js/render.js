@@ -223,6 +223,7 @@ const tagIcons = (card.tags||[])
   .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
   .join('');
   if(card.world){
+    d.classList.add('world-card');
   if(card.worldBg) d.style.backgroundImage=`url('img/${card.worldBg}')`;
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
