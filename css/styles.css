@@ -188,13 +188,13 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-hp-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
-  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 2px 1px;
+  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 3px 1px;
 }
 
 .card-atk-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
-display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 2px 1px;
+display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 3px 1px;
 }
 .card-hp{color:#e05555;font-size:21px;display:flex;align-items:center;gap:1px;}
 .card-atk{color:#55aaff;font-size:21px;display:flex;align-items:center;gap:1px;}
@@ -412,6 +412,11 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   margin-right:1px;
   image-rendering:pixelated;
 }
+.card-small .stat-icon{
+  width:0.6em;
+  height:0.6em;
+}
+
 .stats-bar .stat-icon{
   width:0.8em;
   height:0.8em;
@@ -474,7 +479,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   height:var(--pcard-h);
   padding:1px 1px;
   border:1px solid;
-  font-size:14px;
+  font-size:15px;
   display:flex;
   align-items:center;
   gap:4px;
