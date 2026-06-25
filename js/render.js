@@ -139,8 +139,8 @@ function mkSmallEl(card){
   const isSW=card.spell||card.world||card.artifact;
   d.innerHTML=`
     <div class="card-small-cost">${card.cost}</div>
-    <div class="card-type-dot" style="background:${getTypeDotColor(card)};"></div>
-    ${card.burning?'<div class="card-small-burning">🔥</div>':''}
+    <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+    ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;"></div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
 ${!isSW?`<div class="card-small-stats">
