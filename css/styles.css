@@ -159,7 +159,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .tea-card .card-cost{background:#1a1200;border-color:#c8a84b;color:#c8a84b;}
 .jeet-card .card-cost{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
 /* Type indicator dot */
-.card-type-dot{position:absolute;top:-6px;right:-6px;width:11px;height:11px;border:1px solid rgba(255,255,255,0.3);pointer-events:none;z-index:2;}
+.card-type-dot{position:absolute;top:-4px;right:-4px;width:15px;height:15px;border:none;pointer-events:none;z-index:2;}
 .card-small .card-type-dot{width:8px;height:8px;top:3px;right:3px;}
 .cat-card .card-type-dot{width:10px;height:10px;top:-5px;right:-5px;}
 
@@ -188,13 +188,13 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-hp-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
-  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px;
+  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 2px 1px;
 }
 
 .card-atk-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
-display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px;
+display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 2px 1px;
 }
 .card-hp{color:#e05555;font-size:22px;display:flex;align-items:center;gap:1px;}
 .card-atk{color:#55aaff;font-size:22px;display:flex;align-items:center;gap:1px;}
@@ -406,8 +406,8 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 }
 
 .stat-icon{
-  width:0.3em;
-  height:0.3em;
+  width:0.4em;
+  height:0.4em;
   vertical-align:middle;
   margin-right:1px;
   image-rendering:pixelated;
@@ -464,7 +464,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   z-index:3;
 }
 .card-tag-icon{
-  width:12px;height:12px;
+  width:20px;height:20px;
   display:flex;align-items:center;justify-content:center;
   font-size:10px;
   background:url('../img/tag_bg.png') center/100% 100% no-repeat;
