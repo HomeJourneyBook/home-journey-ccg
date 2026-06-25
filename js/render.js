@@ -225,13 +225,35 @@ const tagIcons = (card.tags||[])
   if(card.world){
   d.classList.add('world-card');
   if(card.img){
-   d.classList.add('world-img-' + card.img.replace('.','_'));
+    d.classList.add('world-img-' + card.img.replace('.','_'));
   }
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
+  if(card.id===G.previewCard&&zone==='hand'){
+    d.classList.add('previewed');
+    d.style.zIndex='';
+    const popup=document.createElement('div');
+    popup.className='card-actions-popup';
+    const cur=G[G.turn];
+    if(cur.ess>=card.cost){
+      const playBtn=document.createElement('button');
+      playBtn.className='cap-btn play';
+      playBtn.textContent='Play';
+      playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
+      popup.appendChild(playBtn);
+    }
+    if(!cur.burned){
+      const burnBtn=document.createElement('button');
+      burnBtn.className='cap-btn burn';
+      burnBtn.textContent='Burn';
+      burnBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doBurnCard(card);};
+      popup.appendChild(burnBtn);
+    }
+    d.appendChild(popup);
+  }
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
