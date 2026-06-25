@@ -604,10 +604,10 @@ function openGraveModal(faction){
   const modal = document.getElementById('graveModal');
   const title = document.getElementById('graveModalTitle');
   const cards = document.getElementById('graveModalCards');
-  title.textContent = (faction==='tea'?'☠ Tavern':'☠ Jeet Core') + ' Graveyard ('+grave.length+')';
+  title.textContent = (faction==='tea'?'Tavern':'Jeet Core') + 'Graveyard';
   cards.innerHTML = '';
   if(grave.length===0){
-    cards.innerHTML='<div style="color:#555;font-size:9px;padding:20px;">Empty</div>';
+    cards.innerHTML='<div style="color:#555;font-size:20px;padding:20px;">Empty</div>';
   } else {
     grave.forEach(card=>{
       const d = mkEl(card,'grave');
