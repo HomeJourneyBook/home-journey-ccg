@@ -496,3 +496,12 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   border-color:transparent;
   color:#b44fd4;
 }
+.card-world-art{
+  width:100%;
+  flex:1;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:48px;
+}
