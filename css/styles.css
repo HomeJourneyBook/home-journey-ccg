@@ -21,7 +21,7 @@
   --card-name-h: 18px;
   --card-stats-h: 16px;
   --card-stats-w: 70%;
-  --card-small-stats-w: 70%;
+  --card-small-stats-w: 55%;
   --card-text-h: 45px;
   --card-small-name-h: 12px;
 --card-small-stats-h: 11px;
@@ -196,8 +196,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
 display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px;
 }
-.card-hp{color:#e05555;font-size:20px;display:flex;align-items:center;gap:1px;}
-.card-atk{color:#55aaff;font-size:20px;display:flex;align-items:center;gap:1px;}
+.card-hp{color:#e05555;font-size:22px;display:flex;align-items:center;gap:1px;}
+.card-atk{color:#55aaff;font-size:22px;display:flex;align-items:center;gap:1px;}
 
 /* ABILITY BOX */
 .card-ability-box{
@@ -406,8 +406,8 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 }
 
 .stat-icon{
-  width:0.5em;
-  height:0.5em;
+  width:0.3em;
+  height:0.3em;
   vertical-align:middle;
   margin-right:1px;
   image-rendering:pixelated;
@@ -464,30 +464,29 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   z-index:3;
 }
 .card-tag-icon{
-  width:20px;height:20px;
+  width:12px;height:12px;
   display:flex;align-items:center;justify-content:center;
   font-size:10px;
-  background:url('../img/tag_bg.png');
-  border-radius:2px;
+  background:url('../img/tag_bg.png') center/100% 100% no-repeat;
 }
 .pcard{
   width:var(--pcard-w);
   height:var(--pcard-h);
   padding:1px 1px;
   border:1px solid;
-  font-size:16px;
+  font-size:14px;
   display:flex;
   align-items:center;
   gap:4px;
   background:url('../img/pcard_bg.png') center/100% 100% no-repeat;
 }
 .pcard.tcp{
-  background-image:url('../img/pcard_tea_bg.png');
-  border-color:#c8a84b44;
-  color:#c8a84b88;
+  background-image:url('../img/pcard_tea_bg.png') center/100% 100% no-repeat;
+  border-color:transparent;
+  color:transparent;
 }
 .pcard.jcp{
-  background-image:url('../img/pcard_jeet_bg.png');
-  border-color:#7b2d8b44;
-  color:#b44fd488;
+  background-image:url('../img/pcard_jeet_bg.png') center/100% 100% no-repeat;
+  border-color:transparent;
+  color:transparent;
 }
