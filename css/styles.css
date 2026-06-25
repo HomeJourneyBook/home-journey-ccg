@@ -481,12 +481,12 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   background:url('../img/pcard_bg.png') center/100% 100% no-repeat;
 }
 .pcard.tcp{
-  background-image:url('../img/pcard_tea_bg.png') center/100% 100% no-repeat;
+  background:url('../img/pcard_tea_bg.png') center/100% 100% no-repeat;
   border-color:transparent;
   color:transparent;
 }
 .pcard.jcp{
-  background-image:url('../img/pcard_jeet_bg.png') center/100% 100% no-repeat;
+  background:url('../img/pcard_jeet_bg.png') center/100% 100% no-repeat;
   border-color:transparent;
   color:transparent;
 }
