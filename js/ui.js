@@ -17,14 +17,22 @@ function startMulliganFor(faction){
   // Показать карты
   const container = document.getElementById('mulliganCards');
   container.innerHTML='';
-  G[faction].hand.forEach(card=>{
-    const el = mkEl(card,'hand');
-    el.style.cursor='default';
-    el.style.pointerEvents='none';
-    el.style.transform = 'scale(0.7)';
-    el.style.transformOrigin = 'top left';
-    container.appendChild(el);
-  });
+  // card-h = 24vh, scale = 0.7, лишнее = 24vh * 0.3
+const cardH = window.innerHeight * 0.24;
+const cardW = cardH * 0.716;
+const negH = -Math.floor(cardH * 0.3);
+const negW = -Math.floor(cardW * 0.3);
+
+G[faction].hand.forEach(card=>{
+  const el = mkEl(card,'hand');
+  el.style.cursor='default';
+  el.style.pointerEvents='none';
+  el.style.transform='scale(0.7)';
+  el.style.transformOrigin='top left';
+  el.style.marginRight=negW+'px';
+  el.style.marginBottom=negH+'px';
+  container.appendChild(el);
+});
   
   document.getElementById('passScreen').classList.add('hidden');
   document.getElementById('mulliganScreen').classList.remove('hidden');
