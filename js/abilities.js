@@ -255,6 +255,8 @@ function triggerAbilities(card, timing, ctx={}){
       case 'rage':
         // Permanently increase ATK each time this card attacks
         card.rageBonus=(card.rageBonus||0)+a.val;
+        const rageId=card.id;
+requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} ATK`,'atk')));
         lg(`${card.name}: Rage! +${a.val} ATK → total ${card.atk+(card.atkBonus||0)+(card.rageBonus||0)} ATK.`,'imp');
         break;
 
