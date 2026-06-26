@@ -319,7 +319,8 @@ function dmgCard(card,dmg,faction){
   if(dmg<=0)return;
   card.hp-=dmg;
   const cardId=card.id;
-  setTimeout(()=>showFloat(cardId, `-${dmg}`, 'dmg'), 50);
+  const dmgAmt=dmg;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,`-${dmgAmt}`,'dmg')));
   lg(`${card.name} takes ${dmg} → ${card.hp}/${card.maxHp} HP.`,'dmg');
   if(card.hp<=0)killCard(card,faction);
 }
