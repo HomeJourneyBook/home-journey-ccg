@@ -666,7 +666,7 @@ function endTurn(){
   });
 
   // 3. Burning damage (after heals, before draw)
-  [...G[G.turn].field,...G[oppK].field].forEach(card=>{
+    [...G[G.turn].field].forEach(card=>{
     if(card.burning&&!card.spell&&!card.world&&!card.artifact){
       card.hp-=1;
       lg(`${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
