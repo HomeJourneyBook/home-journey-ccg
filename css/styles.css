@@ -89,7 +89,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .cap-btn.play{border-color:#c8a84b;color:#c8a84b;}.cap-btn.play:hover{background:#c8a84b22;}
 .cap-btn.burn{border-color:#e05555;color:#e05555;}.cap-btn.burn:hover{background:#e0555522;}
 .hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 8px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
-.hand-mini .card-mini{flex-shrink:0;min-width:52px;width:52px;}
+.hand-mini .card-mini{flex-shrink:0;min-width:calc(6vh * 0.9);width:calc(6vh * 0.9);}
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:2px;justify-content:center;flex:1;}
 .persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
 .pcard{
@@ -200,9 +200,11 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .tag.artifact{border-color:#ddaa44;color:#ddaa44;}
 
 /* HIDDEN HAND - opponent cards face down */
-.card-back{width:106px;border:1px solid #ffffff11;padding:5px;background:#0d0d1a;height:155px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
+/* HIDDEN HAND - opponent cards face down */
+.card-back{width:calc(6vh * 1.4);border:1px solid #ffffff11;padding:5px;background:#0d0d1a;height:6vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
 /* Small hidden hand - opponent cards, half visible */
-.card-mini{width:52px;height:42px;border:1px solid #ffffff11;background:#0d0d1a;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:28px;overflow:hidden;flex-shrink:0;}
+/* Small hidden hand - opponent cards, half visible */
+.card-mini{width:calc(6vh * 0.9);height:6vh;border:1px solid #ffffff11;background:#0d0d1a;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:calc(6vh * 0.5);overflow:hidden;flex-shrink:0;}
 .card-mini.tea-mini{border-color:#c8a84b22;background:linear-gradient(180deg,#1a1200,#0d0d1a);}
 .card-mini.jeet-mini{border-color:#7b2d8b22;background:linear-gradient(180deg,#1a001a,#0d0d1a);}
 .card-back.tea-back{border-color:#c8a84b22;background:linear-gradient(135deg,#0d0d1a,#1a1200);}
@@ -249,9 +251,9 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   display:flex;
   flex-direction:column;
 }
-#oppFieldZone{height:20vh;border:1px solid #d83c88;border-top:none;}
+#oppFieldZone{min-height:20vh;height:auto;max-height:30vh;overflow:visible;border:1px solid #d83c88;border-top:none;}
 #playerFieldZone{
-    height:20vh;
+    min-height:20vh;height:auto;max-height:30vh;overflow:visible;
     border:1px solid #1b641b66;
     box-shadow:
     inset 0 0 8px #1b641b22,
@@ -507,6 +509,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .card.world-card.jeet-card.world-img-1_Valley_png{
   background-image:url('../img/cards/1_Valley.png') !important;
 }
+
 .hamburger-btn{
   width:36px;height:36px;
   border:1px solid #D5943F44;
@@ -517,6 +520,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   gap:5px;padding:6px;
   transition:all .2s;
   position:relative;
+  margin:2px;
 }
 .hamburger-btn:hover{border-color:#D5943F;box-shadow:0 0 8px #D5943F44;}
 .hamburger-btn:active{transform:scale(0.92) translateY(1px);}
