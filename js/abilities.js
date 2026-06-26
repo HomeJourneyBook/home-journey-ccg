@@ -193,15 +193,14 @@ function triggerAbilities(card, timing, ctx={}){
   }
 });
           lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
-     } else if(a.self){
-  if(!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
-    const regenVal=(card.squadParam&&card.squadParam.regen)||a.val;
-    card.hp=Math.min(card.maxHp,card.hp+regenVal);
-    const regenId=card.id;
-    requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(regenId,`+${regenVal}`,'heal')));
-    lg(`${card.name}: regen +${regenVal} HP → ${card.hp}/${card.maxHp}.`,'hl');
-  }
-}
+        } else if(a.self){
+          if(!card.spell&&!card.world&&!card.artifact){
+            const regenVal=(card.squadParam&&card.squadParam.regen)||a.val;
+            card.hp=Math.min(card.maxHp,card.hp+regenVal);
+            const regenId=card.id;
+            requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(regenId,`+${regenVal}`,'heal')));
+            lg(`${card.name}: regen +${regenVal} HP → ${card.hp}/${card.maxHp}.`,'hl');
+          }
         } else if(ctx.target){
           ctx.target.hp=Math.min(ctx.target.maxHp,ctx.target.hp+a.val);
           lg(`${card.name}: +${a.val} HP to ${ctx.target.name} → ${ctx.target.hp}/${ctx.target.maxHp}.`,'hl');
