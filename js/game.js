@@ -25,6 +25,7 @@ function onClick(card,zone){
       if(healer){
         const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
+        activateCard(healer.id);
         const healedId=card.id;
         setTimeout(()=>showFloat(healedId, `+${healAmt}`, 'heal'), 50);
         const debuffs=[];
@@ -228,6 +229,7 @@ function doAttack(att,target){
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
 
   lg(`${att.name} attacks ${target.name}!`,'imp');
+  activateCard(att.id);
   dmgCard(target,atk,oppK);
   // No counter if attacker is invisible, or target is invisible/feared
   if(!hasTag(att,'invisible')&&!hasTag(target,'invisible')&&!target.feared)
@@ -251,6 +253,7 @@ function doUmbAsir(){
   if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
   const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
   lg(`${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
+  activateCard(umb.id); // или vard.id
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
   umb.exhausted=true;
   G.sel=null;G.phase='action';
@@ -305,6 +308,7 @@ function tryAttackBase(){
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
   if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
+  activateCard(att.id);
   opp.hp=Math.max(0,opp.hp-atk);
   // Trigger on_attack abilities (rage, draw, etc) — no target
   triggerAbilities(att,'on_attack',{target:null});
@@ -757,4 +761,12 @@ function showFloat(cardId, text, type){
   num.textContent = text;
   el.appendChild(num);
   setTimeout(()=>num.remove(), 900);
+}
+function activateCard(cardId){
+  const el = document.querySelector(`.card-small[data-id="${cardId}"]`);
+  if(!el) return;
+  el.classList.remove('activating');
+  void el.offsetWidth; // перезапуск анимации если уже играла
+  el.classList.add('activating');
+  setTimeout(()=>el.classList.remove('activating'), 500);
 }
