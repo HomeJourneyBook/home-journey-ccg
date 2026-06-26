@@ -1,3 +1,42 @@
+function preloadAssets(){
+  const images = [
+    // Фоны карт
+    'img/card_tea.png', 'img/card_jeet.png',
+    // UI элементы
+    'img/card_name_bg.png', 'img/card_text_bg.png', 'img/card_stat_bg.png',
+    'img/pcard_tea_bg.png', 'img/pcard_jeet_bg.png', 'img/pcard_bg.png',
+    'img/tag_bg.png', 'img/space_bg.png', 'img/brand.png',
+    // Кнопки
+    'img/button_1.png', 'img/button_grav_1.png', 'img/button_mul_1.png',
+    'img/deck.png', 'img/runaha.png',
+    // Иконки статов
+    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/ess.png',
+    'img/hp_tea.png', 'img/hp_jeet.png',
+    // Иконки типов
+    'img/type_creature.png', 'img/type_spell.png', 'img/type_world.png',
+    'img/type_artifact.png', 'img/type_unique.png',
+    // Иконки тегов
+    'img/ico_fear.png', 'img/ico_pierce.png', 'img/ico_regen.png',
+    'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png',
+    // Эффекты
+    'img/ef_burn.png',
+    // Кнопки попапов
+    'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
+  ];
+
+  // Добавляем арт всех карт из DEFS
+  if(typeof DEFS !== 'undefined'){
+    Object.values(DEFS).forEach(def=>{
+      if(def.img) images.push(`img/cards/${def.img}`);
+    });
+  }
+
+  images.forEach(src=>{
+    const img = new Image();
+    img.src = src;
+  });
+}
+
 function startGame(){
   document.getElementById('landing').style.display='none';
   document.getElementById('game').style.display='flex';
@@ -157,6 +196,7 @@ document.addEventListener('click',function(e){
 window.addEventListener('resize', adjustHandOverlap);
 
 // Boot
+preloadAssets();
 initState();
 lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
