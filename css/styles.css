@@ -625,13 +625,13 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .field-ability-popup {
   animation: popupSlideUp 0.18s ease-out forwards;
 }
+
 /* hp and dmg numbers animation */
 @keyframes floatUp {
   0%   { opacity:1; transform:translateY(0) scale(1); }
   60%  { opacity:1; transform:translateY(-20px) scale(1.1); }
   100% { opacity:0; transform:translateY(-25px) scale(1); }
 }
-
 .float-number {
   position:absolute;
   font-family:'MEK',monospace;
@@ -651,8 +651,19 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   0%   { opacity:1; transform:scale(1); }
   100% { opacity:0; transform:scale(0); }
 }
-
 .card-small.dying {
   animation: cardDie 0.4s ease-in forwards;
   pointer-events:none;
+}
+
+/* up and down active card */
+@keyframes cardActivate {
+  0%   { transform: translateY(0); }
+  40%  { transform: translateY(-10px); }
+  70%  { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+.card-small.activating {
+  animation: cardActivate 1.5s ease-in-out forwards;
+  z-index: 10;
 }
