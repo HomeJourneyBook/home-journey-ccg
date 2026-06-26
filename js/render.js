@@ -472,7 +472,8 @@ function adjustHandOverlap(){
         const totalW=cardW*total + (total-1)*8;
         if(totalW>containerW){
           margin=-Math.ceil((totalW-containerW)/(total-1));
-          margin=Math.max(margin,-Math.floor(cardW*0.85));
+          const minVisible=Math.floor(cardW*0.12);
+          margin=Math.max(margin,-(cardW-minVisible));
         }
       }
       cards.forEach((card,i)=>{
@@ -488,14 +489,15 @@ function adjustHandOverlap(){
 
     const mini=el.querySelectorAll('.card-mini');
     if(mini.length>0){
-      const cardW=52;
+      const cardW=mini[0].getBoundingClientRect().width||parseFloat(getComputedStyle(mini[0]).width)||36;
       const total=mini.length;
       let margin=-8;
       if(total>1){
         const needed=cardW*total;
         if(needed>containerW){
           margin=-Math.floor((needed-containerW)/(total-1))-1;
-          margin=Math.max(margin,-cardW+12);
+          const minVisible=Math.floor(cardW*0.12);
+          margin=Math.max(margin,-(cardW-minVisible));
         }
       }
       mini.forEach((card,i)=>{
