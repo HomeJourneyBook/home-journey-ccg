@@ -10,7 +10,7 @@ const DEFS = {
   t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1"], ab:"On turn: Draw 1 card.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵", img:"008_Aslex.png", f:"tea",tags:["unique","aura:maxhp:1"], ab:"Aura: +1 maxHP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:5,atk:2,art:"👑", img:"011_Tuborg.png", f:"tea",tags:["unique","aura:atk:1"], ab:"Aura: +1 ATK.",unique:true},
-  t_faeron:    {name:"FAERON",     cost:4,hp:5,atk:2,art:"🔥", img:"010_Faeron.png", f:"tea",tags:["unique","on_play_creature:1"], ab:"Each On play: Heal base 1 HP.",unique:true},
+  t_faeron:    {name:"FAERON",     cost:4,hp:5,atk:2,art:"🔥", img:"010_Faeron.png", f:"tea",tags:["unique","burn","on_play_creature:1"], ab:"Each On play: Heal base 1 HP.",unique:true},
   t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png", f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target Oda.",unique:true},
   // TEA SPELLS
   t_sp1:       {name:"ARCHIVE",    cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","draw:2"],              ab:"Draw 2 cards.",spell:true},
