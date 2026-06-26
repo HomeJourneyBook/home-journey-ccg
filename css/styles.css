@@ -592,21 +592,36 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   from { opacity:0; transform: translateX(-50%) translateY(16px); }
   to   { opacity:1; transform: translateX(-50%) translateY(0); }
 }
-
 @keyframes popupSlideUpLifted {
   from { opacity:0; transform: translateX(-50%) translateY(calc(var(--card-h) * 0.34 + 16px)); }
   to   { opacity:1; transform: translateX(-50%) translateY(calc(var(--card-h) * 0.34)); }
 }
-
 .hand .card.previewed .card-actions-popup {
   animation: popupSlideUpLifted 0.18s ease-out forwards;
 }
-
 .card-actions-popup {
   animation: popupSlideUp 0.18s ease-out forwards;
 }
-
-
 .field-ability-popup {
   animation: popupSlideUp 0.18s ease-out forwards;
 }
+@keyframes floatUp {
+  0%   { opacity:1; transform:translateY(0) scale(1); }
+  70%  { opacity:1; transform:translateY(-30px) scale(1.2); }
+  100% { opacity:0; transform:translateY(-60px) scale(0.8); }
+}
+
+.float-number {
+  position:absolute;
+  left:50%;
+  top:30%;
+  transform:translateX(-50%);
+  font-family:'MEK',monospace;
+  font-weight:bold;
+  font-size:20px;
+  pointer-events:none;
+  z-index:9999;
+  animation: floatUp 0.9s ease-out forwards;
+}
+.float-number.dmg { color:#e05555; }
+.float-number.heal { color:#44ff88; }
