@@ -257,7 +257,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
     background:rgba(20,36,50,0.70);
 }
 .stats-bar.base-targetable{border-color:#e05555 !important;box-shadow:0 0 4px #e0555522,0 0 10px #e0555511 !important;}
-.field-zone{min-height:85px;padding:6px;background:rgba(12,16,19,0.70);overflow:visible;}
+.field-zone{min-height:85px;padding:6px;background:rgba(12,16,19,0.70);overflow:visible;flex:1}
 #playerFieldZone{margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
 .player-hand-zone{padding:4px 6px;background:transparent;border:1px solid transparent;}
