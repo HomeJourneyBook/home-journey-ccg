@@ -217,26 +217,24 @@
 
   <!-- BOTTOM BARS -->
   <div class="bottom-bar" id="teaBottomBar" style="display:none;">
-    <div style="position:relative;width:34px;height:34px;flex-shrink:0;">
+    <div style="position:relative;width:calc(7vh*0.57);height:calc(7vh*0.57);flex-shrink:0;">
       <button class="btn-square btn-graveyard" onclick="openGraveModal('tea')" title="Graveyard"></button>
       <span class="btn-badge" id="teaGraveBadge">0</span>
     </div>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
-    <div style="position:relative;width:34px;height:34px;">
-      <button class="btn-square btn-mulligan-sq" id="mulliganBtnT" style="display:none;width:34px;height:34px;" onclick="doMulligan('tea')" title="Mulligan"></button>
+    <div style="position:relative;width:calc(7vh*0.57);height:calc(7vh*0.57);">
       <div class="btn-deck-placeholder" id="deckPlaceholderT" style="position:absolute;top:0;left:0;"></div>
       <span class="btn-badge" id="teaDeckBadge">0</span>
     </div>
     <div id="hintT2" style="position:absolute;bottom:calc(7vh * -0.3);font-size:calc(7vh * 0.18);color:#c8a84b;text-align:center;width:100%;left:0;"></div>
   </div>
   <div class="bottom-bar" id="jeetBottomBar" style="display:none;">
-    <div style="position:relative;width:34px;height:34px;flex-shrink:0;">
+    <div style="position:relative;width:calc(7vh*0.57);height:calc(7vh*0.57);flex-shrink:0;">
       <button class="btn-square btn-graveyard" onclick="openGraveModal('jeet')" title="Graveyard"></button>
       <span class="btn-badge" id="jeetGraveBadge">0</span>
     </div>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
-    <div style="position:relative;width:34px;height:34px;">
-      <button class="btn-square btn-mulligan-sq" id="mulliganBtnJ" style="display:none;width:34px;height:34px;" onclick="doMulligan('jeet')" title="Mulligan"></button>
+    <div style="position:relative;width:calc(7vh*0.57);height:calc(7vh*0.57);">
       <div class="btn-deck-placeholder" id="deckPlaceholderJ" style="position:absolute;top:0;left:0;"></div>
       <span class="btn-badge" id="jeetDeckBadge">0</span>
     </div>
