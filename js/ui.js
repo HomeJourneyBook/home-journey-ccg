@@ -1,7 +1,52 @@
 function startGame(){
   document.getElementById('landing').style.display='none';
   document.getElementById('game').style.display='flex';
-  setTimeout(()=>{ render(); requestAnimationFrame(adjustHandOverlap); },50);
+  // Не рендерим сразу — запускаем фазу мулигана
+  setTimeout(()=>{ startMulliganFor('tea'); }, 50);
+}
+
+function startMulliganFor(faction){
+  G.mulliganTurn = faction;
+  const name = faction==='tea' ? 'TAVERN — YOUR HAND' : 'JEET CORE — YOUR HAND';
+  document.getElementById('mulliganTitle').textContent = name;
+  const m = G.mulligan[faction];
+  document.getElementById('mulliganInfo').textContent =
+    m.used===0 ? 'Mulligans left: 3' :
+    m.used===1 ? 'Mulligans left: 2 (next draw: 4 cards)' :
+    m.used===2 ? 'Mulligans left: 1 (next draw: 3 cards)' : 'No mulligans left';
+  // Показать карты
+  const container = document.getElementById('mulliganCards');
+  container.innerHTML='';
+  G[faction].hand.forEach(card=>{
+    const el = mkEl(card,'hand');
+    el.style.cursor='default';
+    el.style.pointerEvents='none';
+    container.appendChild(el);
+  });
+  document.getElementById('passScreen').classList.add('hidden');
+  document.getElementById('mulliganScreen').classList.remove('hidden');
+}
+
+function doMulliganPhase(){
+  doMulligan(G.mulliganTurn);
+  // Обновить карты на экране
+  startMulliganFor(G.mulliganTurn);
+}
+
+function readyFromMulligan(){
+  document.getElementById('mulliganScreen').classList.add('hidden');
+  if(G.mulliganTurn==='tea'){
+    // Показать экран передачи устройства
+    document.getElementById('passTitle').textContent='PASS THE DEVICE';
+    document.getElementById('passText').textContent='Hand the device to Player 2 — Jeet Core.';
+    document.getElementById('passScreen').classList.remove('hidden');
+  } else {
+    // Оба готовы — начать игру
+    G.phase='action';
+    G.mulliganTurn=null;
+    render();
+    requestAnimationFrame(adjustHandOverlap);
+  }
 }
 
 function showScreen(name){
@@ -29,16 +74,16 @@ function confirmMenu(){
   document.getElementById('confirmModal').classList.add('hidden');
   resetGame();
 }
-
 function resetGame(){
   document.getElementById('winModal').classList.add('hidden');
-  document.getElementById('game').style.display='none';
-  document.getElementById('landing').style.display='flex';
+  document.getElementById('game').style.display='flex';
+  document.getElementById('landing').style.display='none';
   initState();
-  lg('─── NEW GAME ───','trn');
+  lg('─ NEW GAME ─','trn');
   lg('TEA goes first.','imp');
-  render();
+  setTimeout(()=>{ startMulliganFor('tea'); }, 50);
 }
+
 
 function toggleLog(){
   const p=document.getElementById('logPanel');
@@ -57,8 +102,7 @@ function updateMulliganBtn(faction){
   const btn=document.getElementById('mulliganBtn'+sfx);
   if(!btn)return;
   const used=m.used;
-  const isTurn1=(faction==='tea'&&G.turnNum===1&&G.turn==='tea')||
-                (faction==='jeet'&&G.turnNum===1&&G.turn==='jeet');
+const isTurn1 = false; // mulligan теперь только в pre-game фазе
   const placeholder=document.getElementById('deckPlaceholder'+sfx);
   if(!isTurn1||used>=3){
     btn.style.display='none';
@@ -90,6 +134,5 @@ window.addEventListener('resize', adjustHandOverlap);
 
 // Boot
 initState();
-lg('─── Game Start ───','trn');
+lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
-render();
