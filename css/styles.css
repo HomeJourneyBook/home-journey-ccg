@@ -507,3 +507,46 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .card.world-card.jeet-card.world-img-1_Valley_png{
   background-image:url('../img/cards/1_Valley.png') !important;
 }
+.hamburger-btn{
+  width:36px;height:36px;
+  border:1px solid #D5943F44;
+  background:transparent;
+  cursor:pointer;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:5px;padding:6px;
+  transition:all .2s;
+  position:relative;
+}
+.hamburger-btn:hover{border-color:#D5943F;box-shadow:0 0 8px #D5943F44;}
+.hamburger-btn:active{transform:scale(0.92) translateY(1px);}
+.ham-line{
+  width:100%;height:2px;
+  background:#D5943F;
+  border-radius:1px;
+  transition:transform .3s,opacity .3s;
+  transform-origin:center;
+}
+.hamburger-btn.open .ham-line:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger-btn.open .ham-line:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.ham-menu{
+  position:absolute;top:100%;right:0;
+  background:#0d0d1a;
+  border:1px solid #D5943F44;
+  min-width:130px;
+  overflow:hidden;
+  max-height:0;opacity:0;
+  transition:max-height .3s ease,opacity .2s ease;
+  z-index:200;
+}
+.ham-menu.open{max-height:200px;opacity:1;}
+.ham-item{
+  border:none;
+  border-bottom:1px solid #ffffff11;
+  width:100%;text-align:left;
+  padding:10px 14px;
+  font-size:16px;color:#e8e0c8;display:block;
+}
+.ham-item:last-child{border-bottom:none;}
+.ham-item:hover{background:#D5943F11;color:#D5943F;}
