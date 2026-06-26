@@ -18,15 +18,13 @@ function startMulliganFor(faction){
   const container = document.getElementById('mulliganCards');
   container.innerHTML='';
   G[faction].hand.forEach(card=>{
-  const el = mkEl(card,'hand');
-  el.style.cursor='default';
-  el.style.pointerEvents='none';
-  el.style.width='90px';
-  el.style.minWidth='90px';
-  el.style.height='126px';
-  el.style.fontSize='10px';
-  container.appendChild(el);
-});
+    const el = mkEl(card,'hand');
+    el.style.cursor='default';
+    el.style.pointerEvents='none';
+    el.style.transform = 'scale(0.7)';
+    el.style.transformOrigin = 'top left';
+    container.appendChild(el);
+  });
   
   document.getElementById('passScreen').classList.add('hidden');
   document.getElementById('mulliganScreen').classList.remove('hidden');
