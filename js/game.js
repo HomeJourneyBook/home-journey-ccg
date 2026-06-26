@@ -395,21 +395,14 @@ function applyAuras(faction){
   if(cur.world&&hasTag(cur.world,'aura:atk')) auraSources.push(cur.world); // world_maxhp handled separately
 
   // Reset bonuses for non-aura cards
-cur.field.forEach(a=>{
-    const hadAtkBonus=a.atkBonus>0;
-    const hasAtkSrc=auraSources.some(s=>s.id!==a.id&&hasTag(s,'aura:atk'));
+  cur.field.forEach(a=>{
     if(!hasTag(a,'aura:atk')) a.atkBonus=0;
-    if(hadAtkBonus&&a.atkBonus===0&&!hasAtkSrc){
-      const lostId=a.id;
-      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(lostId,`-1 ATK`,'dmg')));
-    }
+    // Restore maxHp to base if no aura:maxhp source exists
     const hasMaxHpSrc=auraSources.some(s=>s.id!==a.id&&hasTag(s,'aura:maxhp'));
     if(!hasMaxHpSrc&&a.baseMaxHp){
       a.maxHp=a.baseMaxHp;
       a.hp=Math.min(a.hp,a.maxHp);
       a.baseMaxHp=null;
-      const lostId=a.id;
-      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(lostId,`-1 maxHP`,'dmg')));
     }
   });
 
@@ -457,28 +450,21 @@ cur.field.forEach(a=>{
     });
 
     // Each source gives bonus to everyone EXCEPT itself (same as aura:atk)
-auraSources.forEach(src=>{
+    auraSources.forEach(src=>{
       if(!hasTag(src,'aura:maxhp')) return;
       const val=getTagVal(src,'aura:maxhp')||1;
-      const affectedCards=[];
+      const affected=[];
       cur.field.forEach(a=>{
         if(a.spell||a.world||a.artifact||a.id===src.id) return;
-        if(!a.baseMaxHp) a.baseMaxHp=a.maxHp-(a.squadMaxHpBonus||0);
+        if(!a.baseMaxHp) a.baseMaxHp=a.maxHp-(a.squadMaxHpBonus||0); // store pure base
         const wasFull=a.hp===a.maxHp;
         a.maxHp+=val;
         if(wasFull) a.hp=a.maxHp;
-        if(cur._auraMaxLog===src.id) affectedCards.push(a);
+        if(cur._auraMaxLog===src.id) affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
       });
       if(cur._auraMaxLog===src.id){
-        if(affectedCards.length>0){
-          lg(`${src.name}: +${val} maxHP → ${affectedCards.map(a=>a.name+'('+a.hp+'/'+a.maxHp+')').join(', ')}.`,'hl');
-          affectedCards.forEach(a=>{
-            const aId=a.id;
-            requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,`+${val} maxHP`,'heal')));
-          });
-        } else {
-          lg(`${src.name}: no allies to buff.`,'hl');
-        }
+        if(affected.length>0) lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
+        else lg(`${src.name}: no allies to buff.`,'hl');
         cur._auraMaxLog=null;
       }
     });
