@@ -629,8 +629,8 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 /* hp and dmg numbers animation */
 @keyframes floatUp {
   0%   { opacity:1; transform:translateY(0) scale(1); }
-  60%  { opacity:1; transform:translateY(-20px) scale(1.1); }
-  100% { opacity:0; transform:translateY(-25px) scale(1); }
+  60%  { opacity:1; transform:translateY(-20px) scale(1.2); }
+  100% { opacity:0; transform:translateY(-30px) scale(1); }
 }
 .float-number {
   position:absolute;
@@ -639,7 +639,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   font-size:20px;
   pointer-events:none;
   z-index:9999;
-  animation: floatUp 0.9s ease-out forwards;
+  animation: floatUp 1.5s ease-out forwards;
 }
 .float-number.dmg { color:#e05555; left:20%; top:40%; }
 .float-number.heal { color:#44ff88; left:50%; top:20%; transform:translateX(-50%); }
@@ -673,18 +673,30 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   70%  { opacity:0.45; transform:scale(1.08); }
   100% { opacity:0.45; transform:scale(1); }
 }
-
 @keyframes cardEnterAwake {
   0%   { opacity:0; transform:scale(0); }
   70%  { opacity:1; transform:scale(1.08); }
   100% { opacity:1; transform:scale(1); }
 }
-
 .card-small.entering {
   animation: cardEnter 0.35s ease-out forwards;
 }
-
 .card-small.entering:not(.sleeping) {
   animation: cardEnterAwake 0.35s ease-out forwards;
 }
 
+/* dmg/heal base */
+@keyframes flashRed {
+  0%   { background-color: rgba(224,85,85,0.4); }
+  100% { background-color: transparent; }
+}
+@keyframes flashGreen {
+  0%   { background-color: rgba(68,255,136,0.4); }
+  100% { background-color: transparent; }
+}
+.stats-bar.flash-red {
+  animation: flashRed 0.5s ease-out forwards;
+}
+.stats-bar.flash-green {
+  animation: flashGreen 0.5s ease-out forwards;
+}
