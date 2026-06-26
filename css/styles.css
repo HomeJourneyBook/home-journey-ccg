@@ -117,6 +117,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
 .fab-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .fab-btn:active{transform:scale(0.95) translateY(2px);}
+.btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
+.btn:active{transform:scale(0.95) translateY(2px);}
 
 .hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 8px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
 .hand-mini .card-mini{flex-shrink:0;min-width:calc(6vh * 0.9);width:calc(6vh * 0.9);}
