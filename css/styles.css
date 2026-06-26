@@ -116,7 +116,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .cap-btn.burn{border-color:#e05555;color:#e05555;}.cap-btn.burn:hover{background:#e0555522;}
 .hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 8px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
 .hand-mini .card-mini{flex-shrink:0;min-width:52px;width:52px;}
-.battlefield{min-height:80px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:2px;justify-content:center;flex:1;}
+.battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:2px;justify-content:center;flex:1;}
 .persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
 .pcard{padding:3px 7px;border:1px solid;font-size:16px;display:flex;align-items:center;gap:4px;}
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
