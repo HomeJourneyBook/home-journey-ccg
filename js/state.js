@@ -10,7 +10,7 @@ function newPlayer(f){
 
 function initState(){
   UID=0;
-  G={turn:'tea',turnNum:1,phase:'action',sel:null,
+  G={turn:'tea',turnNum:1,phase:'mulligan',mulliganTurn:'tea',sel:null,
     tea:newPlayer('tea'),jeet:newPlayer('jeet'),
     jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}}};
 }
