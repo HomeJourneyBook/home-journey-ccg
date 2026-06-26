@@ -293,6 +293,25 @@ const tagIcons = (card.tags||[])
 
 function rZone(id,cards,zone){
   const el=document.getElementById(id);
+  if(zone==='field'){
+    const dying=[];
+    el.querySelectorAll('.card-small').forEach(cardEl=>{
+      const stillExists=cards.find(c=>String(c.id)===cardEl.dataset.id);
+      if(!stillExists) dying.push(cardEl);
+    });
+    dying.forEach(cardEl=>{
+      cardEl.classList.add('dying');
+      cardEl.style.pointerEvents='none';
+    });
+    if(dying.length>0){
+      setTimeout(()=>{
+        dying.forEach(cardEl=>{if(cardEl.parentElement)cardEl.remove();});
+      }, 400);
+      el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>cardEl.remove());
+      cards.forEach(c=>el.appendChild(mkSmallEl(c)));
+      return;
+    }
+  }
   el.innerHTML='';
   cards.forEach(c=>{
     if(zone==='field') el.appendChild(mkSmallEl(c));
