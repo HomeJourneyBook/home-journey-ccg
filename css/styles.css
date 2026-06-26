@@ -227,7 +227,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .log::-webkit-scrollbar-thumb:hover{background:#c8a84b;}
 
 /* LAYOUT ZONES */
-.opp-hand-zone{height:6vh;padding:0 6px 0 6px;background:rgba(12,16,19,0.70);border:1px solid #d83c8866;border-bottom:none;display:flex;align-items:flex-end;justify-content:center;}
+.opp-hand-zone{height:6vh;padding:0 6px 0 6px;background:rgba(12,16,19,0.70);border:1px solid #d83c8866;border-bottom:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .stats-bar{height:4vh;font-size:calc(4vh * 0.4);display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;cursor:pointer;}
 .stats-bar.jeet{
     border:1px solid #d83c8866;
