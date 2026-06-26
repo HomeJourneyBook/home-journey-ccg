@@ -664,7 +664,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   100% { transform: translateY(0); }
 }
 .card-small.activating {
-  animation: cardActivate 3s ease-in-out forwards;
+  animation: cardActivate 1.5s ease-in-out forwards;
   z-index: 10;
 }
 /* enter on bg */
