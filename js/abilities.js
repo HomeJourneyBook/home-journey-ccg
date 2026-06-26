@@ -184,7 +184,7 @@ function triggerAbilities(card, timing, ctx={}){
       // on_any_death handled directly in killCard()
 
       case 'hp_add':
-        if(a.target==='all'){
+        if(a.target==='all'&&card.hp<card.maxHp){
           cur.field.forEach(ally=>{
   if(!ally.spell&&!ally.world&&!ally.artifact){
     ally.hp=Math.min(ally.maxHp,ally.hp+a.val);
