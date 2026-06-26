@@ -165,8 +165,6 @@ function doCreature(card){
   applyAuras(G.turn);
   checkSquadBonuses(G.turn); // after applyAuras
 
-  if(card.tags.includes('vanguard')) lg(`${card.name} has Vanguard!`);
-}
 
 function doWorld(card){
   const cur=G[G.turn];
@@ -188,7 +186,7 @@ function doWorld(card){
     G[G.turn]._auraMaxLog=hasTag(card,'aura:maxhp')?card.id:null;
     applyAuras(G.turn);
   }
-  lg(`World: ${card.name} activated.`,'imp');
+  lg(`World: ${card.name} landed.`,'imp');
 }
 
 function doArtifact(card){
