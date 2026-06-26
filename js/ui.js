@@ -18,16 +18,17 @@ function startMulliganFor(faction){
   const container = document.getElementById('mulliganCards');
   container.innerHTML='';
   // card-h = 24vh, scale = 0.7, лишнее = 24vh * 0.3
+const scale = window.innerWidth < 600 ? 0.7 : 1;
 const cardH = window.innerHeight * 0.24;
 const cardW = cardH * 0.716;
-const negH = -Math.floor(cardH * 0.3);
-const negW = -Math.floor(cardW * 0.3);
+const negH = -Math.floor(cardH * (1 - scale));
+const negW = -Math.floor(cardW * (1 - scale));
 
 G[faction].hand.forEach(card=>{
   const el = mkEl(card,'hand');
   el.style.cursor='default';
   el.style.pointerEvents='none';
-  el.style.transform='scale(0.7)';
+  el.style.transform=`scale(${scale})`;
   el.style.transformOrigin='top left';
   el.style.marginRight=negW+'px';
   el.style.marginBottom=negH+'px';
