@@ -161,6 +161,15 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .tea-card .card-small-cost{background:#1a1200;border-color:#c8a84b;color:#c8a84b;}
 .jeet-card .card-small-cost{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
 .card-small-burning{position:absolute;top:-5px;right:-5px;font-size:calc(var(--card-small-h)*0.18);}
+.card-small .card-tag-icons{
+  right:3px;
+  top:calc(var(--card-small-h) * 0.25);
+  gap:1px;
+}
+.card-small .card-tag-icon{
+  width:calc(var(--card-small-h)*0.107);
+  height:calc(var(--card-small-h)*0.107);
+}
 
 /* CARDS */
 .card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;}
