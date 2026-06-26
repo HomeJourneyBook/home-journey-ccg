@@ -37,13 +37,13 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 .game{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 10px;display:flex;flex-direction:column;gap:0;min-height:100vh;}
 .header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:1px solid #D5943F;background:#0B0F17;position:relative;box-shadow:inset 0 0 8px #0c1013;margin:4px 0;height:5vh;}
-.title{font-family:'MEK',monospace;font-size:18px;color:#c8a84b;letter-spacing:2px;padding-left:14px; display:flex; align-items:center;}
-#turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:20px;color:#888;}
+.title{font-family:'MEK',monospace;font-size:calc(5vh * 0.38);color:#c8a84b;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
+#turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:calc(5vh * 0.35);;color:#888;}
 #turnInfo span{color:#c8a84b;font-weight:bold;}
 @media(max-width:600px){
   .header-desktop-btns{display:none!important;}
   .header-mobile-btn{display:block!important;}
-  #turnInfo{position:static;transform:none;margin-left:auto;margin-right:8px;font-size:18px;}
+  #turnInfo{position:static;transform:none;margin-left:auto;margin-right:8px;font-size:(5vh * 0.32);}
   .header{position:relative;}
 }
 
@@ -511,7 +511,8 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 }
 
 .hamburger-btn{
-  width:36px;height:36px;
+  width: calc(5vh * 0.8);
+  height: calc(5vh * 0.8);
   border:1px solid #D5943F44;
   background:transparent;
   cursor:pointer;
@@ -520,7 +521,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   gap:5px;padding:6px;
   transition:all .2s;
   position:relative;
-  margin:2px;
+  margin:1px;
 }
 .hamburger-btn:hover{border-color:#D5943F;box-shadow:0 0 8px #D5943F44;}
 .hamburger-btn:active{transform:scale(0.92) translateY(1px);}
