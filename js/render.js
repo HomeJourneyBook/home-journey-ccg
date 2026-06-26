@@ -323,14 +323,24 @@ function rZone(id,cards,zone){
         dying.forEach(cardEl=>{if(cardEl.parentElement)cardEl.remove();});
       }, 400);
       el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>cardEl.remove());
-      cards.forEach(c=>el.appendChild(mkSmallEl(c)));
+      cards.forEach(c=>{
+        const cardEl=mkSmallEl(c);
+        cardEl.classList.add('entering');
+        el.appendChild(cardEl);
+      });
       return;
     }
   }
+  const existingIds=new Set([...el.querySelectorAll('.card-small')].map(e=>e.dataset.id));
   el.innerHTML='';
   cards.forEach(c=>{
-    if(zone==='field') el.appendChild(mkSmallEl(c));
-    else el.appendChild(mkEl(c,zone));
+    if(zone==='field'){
+      const cardEl=mkSmallEl(c);
+      if(!existingIds.has(String(c.id))) cardEl.classList.add('entering');
+      el.appendChild(cardEl);
+    } else {
+      el.appendChild(mkEl(c,zone));
+    }
   });
 }
 
