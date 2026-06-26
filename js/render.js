@@ -114,7 +114,7 @@ function mkSmallEl(card){
   if(hasTag(card,'invisible')){
     const inv=document.createElement('span');
     inv.className='tag-label';
-    inv.textContent='👻 Invis';
+    inv.textContent='Invis';
     d.appendChild(inv);
   }
   if(card.feared)d.classList.add('feared');
@@ -140,7 +140,7 @@ function mkSmallEl(card){
   d.innerHTML=`
     <div class="card-small-cost">${card.cost}</div>
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
-    ${card.burning?'<div class="card-small-burning"></div>':''}
+    ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
 ${!isSW?`<div class="card-small-stats">
@@ -158,14 +158,12 @@ ${!isSW?`<div class="card-small-stats">
       if(isUmb){
         const btn=document.createElement('button');
         btn.className='fab-btn umbasir';
-        btn.textContent='Spell';
         btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doUmbAsir();};
         pop.appendChild(btn);
       }
       if(isVard){
         const btn=document.createElement('button');
         btn.className='fab-btn vardan';
-        btn.textContent='⚡ Hit All';
         btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doVardan();};
         pop.appendChild(btn);
       }
@@ -241,14 +239,12 @@ const tagIcons = (card.tags||[])
     if(cur.ess>=card.cost){
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.textContent='Play';
       playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
     }
     if(!cur.burned){
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
-      burnBtn.textContent='Burn';
       burnBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doBurnCard(card);};
       popup.appendChild(burnBtn);
     }
@@ -280,14 +276,12 @@ const tagIcons = (card.tags||[])
     if(cur.ess>=card.cost){
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.textContent='Play';
       playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
     }
     if(!cur.burned){
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
-      burnBtn.textContent='Burn';
       burnBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doBurnCard(card);};
       popup.appendChild(burnBtn);
     }
@@ -372,7 +366,7 @@ function rPersist(id,player){
           e.stopPropagation();
           G.phase='sacrificeTarget';
           G.sel=a.id;
-          lg('🗿 Altar: select a creature to sacrifice.','hint');
+          lg('Altar: select a creature to sacrifice.','hint');
           render();
         });
       }
