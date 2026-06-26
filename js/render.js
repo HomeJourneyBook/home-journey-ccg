@@ -1,7 +1,7 @@
 function updateTurnColors(){
   if(!G) return;
   const isTea=G.turn==='tea';
-  const green='#1b641b', greenDim='#1b641b55';
+  const green='#2d8b3a', greenDim='#1b641b55';
   const pink='#d83c88',  pinkDim='#d83c8855';
   const set=(id,col)=>{const el=document.getElementById(id);if(el)el.style.borderColor=col;};
   // Tea turn: bottom=green bright, top=pink dim
