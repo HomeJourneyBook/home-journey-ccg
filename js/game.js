@@ -325,16 +325,6 @@ function dmgCard(card,dmg,faction){
 }
 
 function killCard(card,faction){
-  const dyingEl = document.querySelector(`.card-small[data-id="${card.id}"]`);
-  if(dyingEl){
-    dyingEl.classList.add('dying');
-    setTimeout(()=>_doKill(card,faction), 400);
-  } else {
-    _doKill(card,faction);
-  }
-}
-
-function _doKill(card,faction){
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
   card.rageBonus=0;
   card.squadMaxHpBonus=0;
@@ -343,41 +333,6 @@ function _doKill(card,faction){
   G[faction].grave.push(card);
   lg(`${card.name} dies.`,'die');
   checkSquadBonuses(faction);
-
-  if(hasTag(card,'aura:atk')){
-    G[faction].field.forEach(a=>{a.atkBonus=0;});
-    lg(`${card.name} died — ATK aura removed.`);
-  }
-  if(hasTag(card,'aura:atk')||hasTag(card,'aura:maxhp')){
-    lg(`${card.name} died — recalculating auras.`);
-    applyAuras(faction);
-  }
-
-  if(!card.spell&&!card.world&&!card.artifact){
-    const world=G[faction].world;
-    if(world&&hasTag(world,'on_own_death')){
-      const val=getTagVal(world,'on_own_death')||1;
-      for(let i=0;i<val;i++) if(G[faction].deck.length>0) G[faction].hand.push(G[faction].deck.shift());
-      lg(`${world.name}: ${card.name} died — draw ${val} card(s).`,'hl');
-    }
-  }
-
-  ['tea','jeet'].forEach(f=>{
-    G[f].field.forEach(ally=>{
-      const val=getTagVal(ally,'on_any_death_base');
-      if(val){
-        G[f].hp=Math.min(G[f].maxHp,G[f].hp+val);
-        lg(`${ally.name}: ${f} base +${val} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
-      }
-    });
-  });
-
-  const drawTag=getTagVal(card,'draw');
-  if(drawTag){G[card.f].extraDraw=Math.max(0,G[card.f].extraDraw-drawTag);}
-  
-  checkWin();
-  render();
-}
 
   // Tuborg death — remove ATK bonus from allies
   // If aura card dies - remove its bonuses
