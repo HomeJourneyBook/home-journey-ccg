@@ -587,3 +587,20 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 }
 .ham-item:last-child{border-bottom:none;}
 .ham-item:hover{background:#D5943F11;color:#D5943F;}
+
+@keyframes popupSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.card-actions-popup {
+  animation: popupSlideUp 0.18s ease-out forwards;
+}
+.field-ability-popup {
+  animation: popupSlideUp 0.18s ease-out forwards;
+}
