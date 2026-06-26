@@ -163,7 +163,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-small-burning{position:absolute;top:-5px;left:50%;transform:translateX(-50%);font-size:calc(var(--card-small-h)*0.18);}
 .card-small .card-type-dot{width:calc(var(--card-small-h)*0.13);height:calc(var(--card-small-h)*0.13);top:-4px;right:-4px;}
 .card-small .card-tag-icons{
-  right:8px;
+  right:6px;
   top:calc(var(--card-small-h) * 0.25);
   gap:1px;
 }
@@ -175,7 +175,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 /* CARDS */
 .card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
-.card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;animation:pulse .8s infinite alternate;}
+.card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
 .card.targetable{box-shadow:0 0 8px #e05555;border-color:#e05555;animation:pulse .8s infinite alternate;}
 .card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
 .card.feared{opacity:.4;border-style:dotted;}
