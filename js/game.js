@@ -399,9 +399,9 @@ cur.field.forEach(a=>{
     const hadAtkBonus=a.atkBonus>0;
     const hasAtkSrc=auraSources.some(s=>s.id!==a.id&&hasTag(s,'aura:atk'));
     if(!hasTag(a,'aura:atk')) a.atkBonus=0;
-    if(hadAtkBonus&&a.atkBonus===0){
+    if(hadAtkBonus&&a.atkBonus===0&&!hasAtkSrc){
       const lostId=a.id;
-      setTimeout(()=>showFloat(lostId,`-1 ATK`,'dmg'), 200);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(lostId,`-1 ATK`,'dmg')));
     }
     const hasMaxHpSrc=auraSources.some(s=>s.id!==a.id&&hasTag(s,'aura:maxhp'));
     if(!hasMaxHpSrc&&a.baseMaxHp){
@@ -409,7 +409,7 @@ cur.field.forEach(a=>{
       a.hp=Math.min(a.hp,a.maxHp);
       a.baseMaxHp=null;
       const lostId=a.id;
-      setTimeout(()=>showFloat(lostId,`-1 maxHP`,'dmg'), 200);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(lostId,`-1 maxHP`,'dmg')));
     }
   });
 
@@ -474,7 +474,7 @@ auraSources.forEach(src=>{
           lg(`${src.name}: +${val} maxHP → ${affectedCards.map(a=>a.name+'('+a.hp+'/'+a.maxHp+')').join(', ')}.`,'hl');
           affectedCards.forEach(a=>{
             const aId=a.id;
-            setTimeout(()=>showFloat(aId,`+${val} HP`,'heal'), 400);
+            requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,`+${val} maxHP`,'heal')));
           });
         } else {
           lg(`${src.name}: no allies to buff.`,'hl');
