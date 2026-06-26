@@ -243,7 +243,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
         0 0 8px #1b641b11;
     background:rgba(20,36,50,0.70);
 }
-.stats-bar.base-targetable{border-color:#e05555 background:#e05555 !important;box-shadow:0 0 4px #e0555522,0 0 10px #e0555511 !important;}
+.stats-bar.base-targetable{border-color:#e05555 !important;box-shadow:0 0 4px #e0555522,0 0 10px #e0555511 !important;}
 .field-zone{
   padding:6px;
   background:rgba(12,16,19,0.70);
