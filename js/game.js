@@ -397,6 +397,7 @@ function applyAuras(faction){
   // Reset bonuses for non-aura cards
 cur.field.forEach(a=>{
     const hadAtkBonus=a.atkBonus>0;
+    const hasAtkSrc=auraSources.some(s=>s.id!==a.id&&hasTag(s,'aura:atk'));
     if(!hasTag(a,'aura:atk')) a.atkBonus=0;
     if(hadAtkBonus&&a.atkBonus===0){
       const lostId=a.id;
@@ -408,7 +409,7 @@ cur.field.forEach(a=>{
       a.hp=Math.min(a.hp,a.maxHp);
       a.baseMaxHp=null;
       const lostId=a.id;
-      setTimeout(()=>showFloat(lostId,`-1 HP`,'dmg'), 200);
+      setTimeout(()=>showFloat(lostId,`-1 maxHP`,'dmg'), 200);
     }
   });
 
