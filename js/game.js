@@ -1,9 +1,7 @@
-// ── CLICK HANDLER ─────────────────────────────────────────
 function getTargetableCards(oppField, att){
   const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return [bushido.id];
   const visible=oppField.filter(c=>!hasTag(c,'invisible')||oppField.length===1);
-
   const provokes=visible.filter(c=>c.tags.includes('provoke'));
   const hasPierce=att&&(att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce));
   if(provokes.length>0&&!hasPierce) return provokes.map(c=>c.id);
@@ -12,20 +10,16 @@ function getTargetableCards(oppField, att){
 
 function onClick(card,zone){
   const opp=G.turn==='tea'?'jeet':'tea';
-
   if(G.phase==='burn'){
     if(zone==='hand'&&card.f===G.turn)doBurnCard(card);
     return;
   }
-
   if(G.phase==='healTarget'){
-    // Click ally with missing HP → heal
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
       const healer=findC(G.sel);
       if(healer){
         const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
-        activateCard(healer.id);
         const healedId=card.id;
         setTimeout(()=>showFloat(healedId, `+${healAmt}`, 'heal'), 50);
         const debuffs=[];
@@ -34,9 +28,11 @@ function onClick(card,zone){
         lg(`${healer.name}: +${healAmt} HP to ${card.name}${debuffs.length?', removes '+debuffs.join(' & '):''}.`,'hl');
         healer.exhausted=true;
       }
-      G.sel=null;G.phase='action';render();return;
+      G.sel=null;G.phase='action';
+      render();
+      activateCard(healer.id);
+      return;
     }
-    // Click enemy → attack
     if(zone==='field'&&card.f===opp){
       const healer=findC(G.sel);
       if(healer){
@@ -51,34 +47,26 @@ function onClick(card,zone){
       }
       return;
     }
-    // Click own card → cancel
     if(card.f===G.turn){G.sel=null;G.phase='action';render();}
     return;
   }
-
-  // Shard phase - handle outside action block
   if(G.phase==='shardTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       doShardTarget(card);return;
     }
     G.phase='action';G.sel=null;render();return; // cancel
   }
-
-  // Sacrifice phase - handle outside action block
   if(G.phase==='sacrificeTarget'){
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
       doSacrifice_target(card);return;
     }
     G.phase='action';G.sel=null;render();return; // cancel on any other click
   }
-
   if(G.phase==='action'){
-    // Hand card → preview
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
       render();return;
     }
-    // Altar: click artifact to enter sacrifice mode
     if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping&&!card.exhausted){
       G.phase='sacrificeTarget';
       lg(`${card.name}: select a creature to sacrifice.`,'hint');
@@ -96,7 +84,6 @@ function onClick(card,zone){
       render();return;
     }
   }
-
   if(G.phase==='selectTarget'){
     if(card.f===G.turn){G.sel=null;G.phase='action';render();return;}
     if(zone==='field'&&card.f===opp){
@@ -116,11 +103,9 @@ function onClick(card,zone){
   }
 }
 
-// ── PLAY CARDS ─────────────────────────────────────────────
 function doPlay(card){
   const cur=G[G.turn];
   if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');return;}
-  hint(''); // clear hint on successful action
   cur.ess-=card.cost;
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   if(card.spell)doSpell(card);
@@ -137,24 +122,16 @@ function doCreature(card){
   cur.field.push(card);
   lg(`${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
 
-  // Trigger on_play_creature for all field cards of active player
   G[G.turn].field.forEach(c=>{
     if(c.id!==card.id) triggerAbilities(c,'on_play_creature');
   });
-  // Also check the card itself (if it has on_play_creature)
   triggerAbilities(card,'on_play_creature');
-
-  // on_enter abilities via ability system (Faeron AOE, Maltor AOE, World HP)
   triggerAbilities(card,'on_enter');
 
-  // Track draw bonus for cards with draw tag
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
-
-  // Aura:atk
   if(hasTag(card,'aura:atk')) cur._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) cur._auraMaxLog=card.id;
-  // Give world_maxhp bonus to newly entered card
   if(cur.world&&hasTag(cur.world,'world_maxhp')&&!card.worldMaxHpSet&&!card.spell&&!card.world&&!card.artifact){
     const val=getTagVal(cur.world,'world_maxhp')||1;
     const wasFull=card.hp===card.maxHp;
@@ -164,19 +141,19 @@ function doCreature(card){
     card.worldMaxHpSet=true;
   }
   applyAuras(G.turn);
-  checkSquadBonuses(G.turn); // after applyAuras
+  checkSquadBonuses(G.turn);
 }
 
 function doWorld(card){
   const cur=G[G.turn];
   if(cur.world){
     const oldDraw=getTagVal(cur.world,'draw');
-    if(oldDraw) cur.extraDraw=Math.max(0,cur.extraDraw-oldDraw);
+  if(oldDraw) cur.extraDraw=Math.max(0,cur.extraDraw-oldDraw);
     cur.world.voided=true;
-    cur.void.push(cur.world); // replaced worlds go to void
+    cur.void.push(cur.world); 
     lg(`Replaced ${cur.world.name}.`);
-    // Remove old world aura
-    if(hasTag(cur.world,'aura:atk')||hasTag(cur.world,'aura:maxhp')) applyAuras(G.turn);
+  if(hasTag(cur.world,'aura:atk')||hasTag(cur.world,'aura:maxhp')) 
+    applyAuras(G.turn);
   }
   cur.world=card;
   const drawTag=getTagVal(card,'draw');
