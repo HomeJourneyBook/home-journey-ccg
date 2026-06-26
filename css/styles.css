@@ -628,3 +628,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .float-number.dmg { color:#e05555; }
 .float-number.heal { color:#44ff88; }
 .float-number.atk { color:#55aaff; }
+
+@media(max-width:600px){
+  .game{padding:0 2px;}
+}
