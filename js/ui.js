@@ -21,12 +21,27 @@ function startMulliganFor(faction){
     const el = mkEl(card,'hand');
     el.style.cursor='default';
     el.style.pointerEvents='none';
+    el.style.transform = 'scale(0.7)';
+    el.style.transformOrigin = 'top left';
     container.appendChild(el);
   });
+  
   document.getElementById('passScreen').classList.add('hidden');
   document.getElementById('mulliganScreen').classList.remove('hidden');
-}
 
+const mulliganBtn = document.querySelector('#mulliganScreen .btn[onclick="doMulliganPhase()"]');
+if(mulliganBtn){
+  if(m.used >= 3){
+    mulliganBtn.disabled = true;
+    mulliganBtn.style.opacity = '0.3';
+    mulliganBtn.style.cursor = 'not-allowed';
+  } else {
+    mulliganBtn.disabled = false;
+    mulliganBtn.style.opacity = '1';
+    mulliganBtn.style.cursor = 'pointer';
+  }
+}
+  }
 function doMulliganPhase(){
   doMulligan(G.mulliganTurn);
   // Обновить карты на экране
