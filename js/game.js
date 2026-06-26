@@ -25,7 +25,8 @@ function onClick(card,zone){
       if(healer){
         const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
-        showFloat(card.id, `+${healAmt}`, 'heal');
+        const healedId=card.id;
+        setTimeout(()=>showFloat(healedId, `+${healAmt}`, 'heal'), 50);
         const debuffs=[];
         if(card.burning){card.burning=false;debuffs.push('fire');}
         if(card.feared){card.feared=false;debuffs.push('fear');}
@@ -317,7 +318,8 @@ function tryAttackBase(){
 function dmgCard(card,dmg,faction){
   if(dmg<=0)return;
   card.hp-=dmg;
-  showFloat(card.id, `-${dmg}`, 'dmg');
+  const cardId=card.id;
+  setTimeout(()=>showFloat(cardId, `-${dmg}`, 'dmg'), 50);
   lg(`${card.name} takes ${dmg} → ${card.hp}/${card.maxHp} HP.`,'dmg');
   if(card.hp<=0)killCard(card,faction);
 }
