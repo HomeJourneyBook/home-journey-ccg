@@ -409,16 +409,22 @@ function applyAuras(faction){
   auraSources.forEach(src=>{
 
     // aura:atk - accumulate (multiple sources stack)
-    if(hasTag(src,'aura:atk')){
+ if(hasTag(src,'aura:atk')){
       const val=getTagVal(src,'aura:atk')||1;
       cur.field.forEach(a=>{
         if(a.id!==src.id&&!a.spell&&!a.world&&!a.artifact){
-          a.atkBonus=(a.atkBonus||0)+val; // accumulate from all sources
+          a.atkBonus=(a.atkBonus||0)+val;
         }
       });
       if(cur._auraAtkLog===src.id){
-        const affected=cur.field.filter(a=>a.id!==src.id&&!a.spell&&!a.world&&!a.artifact).map(a=>a.name);
-        if(affected.length>0) lg(`${src.name}: +${val} ATK → ${affected.join(', ')}.`,'hl');
+        const affected=cur.field.filter(a=>a.id!==src.id&&!a.spell&&!a.world&&!a.artifact);
+        if(affected.length>0){
+          lg(`${src.name}: +${val} ATK → ${affected.map(a=>a.name).join(', ')}.`,'hl');
+          affected.forEach(a=>{
+            const aId=a.id;
+            requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,`+${val} ATK`,'atk')));
+          });
+        }
         cur._auraAtkLog=null;
       }
     }
