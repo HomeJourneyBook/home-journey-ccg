@@ -46,10 +46,11 @@ function toggleLog(){
 }
 
 function toggleHamburger(){
-  const m=document.getElementById('hamburgerMenu');
-  m.style.display=m.style.display==='none'?'block':'none';
+  const btn=document.getElementById('hamburgerBtn');
+  const menu=document.getElementById('hamburgerMenu');
+  btn.classList.toggle('open');
+  menu.classList.toggle('open');
 }
-
 function updateMulliganBtn(faction){
   const m=G.mulligan[faction];
   const sfx=faction==='tea'?'T':'J';
@@ -80,7 +81,8 @@ document.addEventListener('click',function(e){
   const btn=document.getElementById('hamburgerBtn');
   const menu=document.getElementById('hamburgerMenu');
   if(menu&&btn&&!btn.contains(e.target)&&!menu.contains(e.target)){
-    menu.style.display='none';
+    btn.classList.remove('open');
+    menu.classList.remove('open');
   }
 });
 
