@@ -626,12 +626,8 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .float-number.heal { color:#44ff88; left:50%; top:20%; transform:translateX(-50%); }
 .float-number.atk { color:#55aaff; left:60%; top:40%; }
 
-@media(max-width:600px){
-  .game{padding:0 2px;}
-}
 
 /* fade death */
-
 @keyframes cardDie {
   0%   { opacity:1; transform:scale(1); }
   100% { opacity:0; transform:scale(0); }
