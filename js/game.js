@@ -158,7 +158,6 @@ function doWorld(card){
   cur.world=card;
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
-  // Apply world auras immediately
   if(hasTag(card,'aura:atk')||hasTag(card,'aura:maxhp')){
     G[G.turn]._auraAtkLog=hasTag(card,'aura:atk')?card.id:null;
     G[G.turn]._auraMaxLog=hasTag(card,'aura:maxhp')?card.id:null;
@@ -169,7 +168,7 @@ function doWorld(card){
 
 function doArtifact(card){
   const cur=G[G.turn];
-  card.sleeping=true; // artifacts sleep on first turn like creatures
+  card.sleeping=true; 
   cur.artifacts.push(card);
   lg(`Artifact: ${card.name} placed.`,'imp');
   const drawTag=getTagVal(card,'draw');
@@ -181,25 +180,23 @@ function doSpell(card){
   lg(`Spell: ${card.name}.`,'imp');
   triggerAbilities(card,'instant');
   card.voided=true;
-  cur.void.push(card); // spells go to void, not graveyard
+  cur.void.push(card); 
 }
 
-// ── REVIVE ─────────────────────────────────────────────────
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
   card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
   card.f=toF;
-  G[toF].field.push(card); // push first so applyAuras sees the card
+  G[toF].field.push(card); 
   lg(`Revived ${card.name} at full HP.`,'hl');
 
   if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) G[toF]._auraMaxLog=card.id;
   applyAuras(toF);
-  checkSquadBonuses(toF); // AFTER applyAuras so bonuses aren't reset
+  checkSquadBonuses(toF); 
 }
 
-// ── ATTACK ─────────────────────────────────────────────────
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
@@ -207,11 +204,8 @@ function doAttack(att,target){
 
   lg(`${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
-  // No counter if attacker is invisible, or target is invisible/feared
   if(!hasTag(att,'invisible')&&!hasTag(target,'invisible')&&!target.feared)
     dmgCard(att,target.atk+(target.atkBonus||0)+(target.rageBonus||0)+(target.squadAtkBonus||0),curK);
-
-  // on_attack abilities
   triggerAbilities(att,'on_attack',{target});
 
   att.exhausted=true;
@@ -222,7 +216,6 @@ function doAttack(att,target){
   activateCard(att.id);
 }
 
-// ── ACTIVE ABILITIES ───────────────────────────────────────
 function doUmbAsir(){
   const oppK=G.turn==='tea'?'jeet':'tea';
   const umb=findC(G.sel);
@@ -250,7 +243,6 @@ function doVardan(){
   checkWin();render();
 }
 
-// ── BASE ATTACK ────────────────────────────────────────────
 function onBaseClick(faction){
   if(faction===G.turn) return;
   if((G.phase==='selectTarget'||G.phase==='action')&&G.sel&&canAttackBase()){
@@ -286,14 +278,13 @@ function tryAttackBase(){
   if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
-  // Trigger on_attack abilities (rage, draw, etc) — no target
   triggerAbilities(att,'on_attack',{target:null});
   att.exhausted=true;G.sel=null;G.phase='action';
   checkWin();render();
+  flashBase(oppK, 'dmg');
   activateCard(att.id); 
 }
 
-// ── DAMAGE & DEATH ─────────────────────────────────────────
 function dmgCard(card,dmg,faction){
   if(dmg<=0)return;
   card.hp-=dmg;
@@ -313,19 +304,13 @@ function killCard(card,faction){
   G[faction].grave.push(card);
   lg(`${card.name} dies.`,'die');
   checkSquadBonuses(faction);
-
-  // Tuborg death — remove ATK bonus from allies
-  // If aura card dies - remove its bonuses
   if(hasTag(card,'aura:atk')){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
     lg(`${card.name} died — ATK aura removed.`);
   }
   if(hasTag(card,'aura:atk')||hasTag(card,'aura:maxhp')){
-    lg(`${card.name} died — recalculating auras.`);
-    applyAuras(faction); // immediately recalculate with remaining sources
+    applyAuras(faction); 
   }
-
-  // on_own_death — when YOUR creature dies, draw a card (Hunger world)
   if(!card.spell&&!card.world&&!card.artifact){
     const world=G[faction].world;
     if(world&&hasTag(world,'on_own_death')){
@@ -335,23 +320,21 @@ function killCard(card,faction){
     }
   }
 
-  // on_any_death_base — heal own base when ANY creature dies (ally or enemy)
   ['tea','jeet'].forEach(f=>{
     G[f].field.forEach(ally=>{
       const val=getTagVal(ally,'on_any_death_base');
       if(val){
         G[f].hp=Math.min(G[f].maxHp,G[f].hp+val);
         lg(`${ally.name}: ${f} base +${val} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
+        flashBase(faction, 'heal');
       }
     });
   });
 
-  // Remove draw bonus if card with draw tag dies
   const drawTag=getTagVal(card,'draw');
   if(drawTag){G[card.f].extraDraw=Math.max(0,G[card.f].extraDraw-drawTag);}
 }
 
-// ── BURN ───────────────────────────────────────────────────
 function doBurnCard(card){
   const cur=G[G.turn];
   if(cur.burned){lg('Already burned a card this turn.','hint');return;}
@@ -363,20 +346,12 @@ function doBurnCard(card){
   G.phase='action';render();
 }
 
-// ── AURAS ──────────────────────────────────────────────────
-
-
 function applyAuras(faction){
   const cur=G[faction];
-
-  // Collect all aura sources: field cards + world
   const auraSources=[...cur.field.filter(c=>!c.spell&&!c.world&&!c.artifact)];
-  if(cur.world&&hasTag(cur.world,'aura:atk')) auraSources.push(cur.world); // world_maxhp handled separately
-
-  // Reset bonuses for non-aura cards
+  if(cur.world&&hasTag(cur.world,'aura:atk')) auraSources.push(cur.world);
   cur.field.forEach(a=>{
     if(!hasTag(a,'aura:atk')) a.atkBonus=0;
-    // Restore maxHp to base if no aura:maxhp source exists
     const hasMaxHpSrc=auraSources.some(s=>s.id!==a.id&&hasTag(s,'aura:maxhp'));
     if(!hasMaxHpSrc&&a.baseMaxHp){
       a.maxHp=a.baseMaxHp;
@@ -386,8 +361,6 @@ function applyAuras(faction){
   });
 
   auraSources.forEach(src=>{
-
-    // aura:atk - accumulate (multiple sources stack)
  if(hasTag(src,'aura:atk')){
       const val=getTagVal(src,'aura:atk')||1;
       cur.field.forEach(a=>{
@@ -407,35 +380,30 @@ function applyAuras(faction){
         cur._auraAtkLog=null;
       }
     }
+  }); 
 
-  }); // end auraSources.forEach
 
-  // aura:maxhp — sum ALL sources and apply once
   {
-    // Calculate total maxhp bonus from all aura sources
     const totalMaxHpBonus=auraSources.reduce((sum,src)=>{
       if(!hasTag(src,'aura:maxhp')) return sum;
       return sum+(getTagVal(src,'aura:maxhp')||1);
     },0);
-
-    // Reset to baseMaxHp + squadMaxHpBonus (squad bonus is separate from aura)
     cur.field.forEach(a=>{
       if(a.spell||a.world||a.artifact) return;
       if(a.baseMaxHp){
         const squadBonus=a.squadMaxHpBonus||0;
-        a.maxHp=a.baseMaxHp+squadBonus; // restore base + keep squad bonus
+        a.maxHp=a.baseMaxHp+squadBonus; 
         a.hp=Math.min(a.hp,a.maxHp);
       }
     });
 
-    // Each source gives bonus to everyone EXCEPT itself (same as aura:atk)
     auraSources.forEach(src=>{
       if(!hasTag(src,'aura:maxhp')) return;
       const val=getTagVal(src,'aura:maxhp')||1;
       const affected=[];
       cur.field.forEach(a=>{
         if(a.spell||a.world||a.artifact||a.id===src.id) return;
-        if(!a.baseMaxHp) a.baseMaxHp=a.maxHp-(a.squadMaxHpBonus||0); // store pure base
+        if(!a.baseMaxHp) a.baseMaxHp=a.maxHp-(a.squadMaxHpBonus||0); 
         const wasFull=a.hp===a.maxHp;
         a.maxHp+=val;
         if(wasFull) a.hp=a.maxHp;
@@ -447,13 +415,10 @@ function applyAuras(faction){
         cur._auraMaxLog=null;
       }
     });
-
-    // If no aura sources, clear baseMaxHp
+    
     if(!auraSources.some(s=>hasTag(s,'aura:maxhp'))){
       cur.field.forEach(a=>{a.baseMaxHp=null;});
     }
-
-    // world_maxhp — separate from aura:maxhp, buffs ALL field creatures including Aslex
     if(cur.world&&hasTag(cur.world,'world_maxhp')){
       const val=getTagVal(cur.world,'world_maxhp')||1;
       cur.field.forEach(a=>{
@@ -463,11 +428,10 @@ function applyAuras(faction){
           a.maxHp+=val;
           if(wasFull) a.hp=a.maxHp;
           a.worldMaxHpBonus=(a.worldMaxHpBonus||0)+val;
-          a.worldMaxHpSet=true; // prevent re-applying each turn
+          a.worldMaxHpSet=true; 
         }
       });
     } else {
-      // World gone - remove worldMaxHpBonus
       cur.field.forEach(a=>{
         if(a.worldMaxHpBonus){
           a.maxHp=Math.max(1,a.maxHp-a.worldMaxHpBonus);
@@ -480,8 +444,6 @@ function applyAuras(faction){
   }
 }
 
-// ── SQUAD BONUSES ──────────────────────────────────────────
-// Squad definition: gtype, count needed, effect, value
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'maxhp', val:1},
   {gtype:'mch', count:3, effect:'atk',   val:1},
@@ -537,7 +499,6 @@ function doSacrifice_target(card){
   if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
     lg('Select one of your creatures.','hint');return;
   }
-  // Mark altar as exhausted
   const altar=G[G.turn].artifacts.find(a=>hasTag(a,'sacrifice'));
   if(altar){altar.exhausted=true;lg('Altar exhausted until next turn.','die');}
   else lg('[DBG] Altar not found in artifacts!');
@@ -548,7 +509,6 @@ function doSacrifice_target(card){
 }
 
 function doSacrifice(){
-  // Sacrifice selected creature - Reaper handles the heal via on_any_death_base
   if(!G.sel){lg('Select a creature to sacrifice.','hint');return;}
   const card=findC(G.sel);
   if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
@@ -562,9 +522,8 @@ function doSacrifice(){
 
 
 function doShard(artifact){
-  // Deal damage to selected enemy creature (ignores provoke/bushido)
   if(G.phase==='shardTarget'){
-    G.phase='action';G.sel=null;render();return; // cancel
+    G.phase='action';G.sel=null;render();return;
   }
   G.phase='shardTarget';
   G.sel=artifact.id;
@@ -587,7 +546,6 @@ function doShardTarget(card){
   G.phase='action';G.sel=null;
   checkWin();render();
 }
-
 
 function openGraveModal(faction){
   const grave = G[faction].grave.filter(c=>!c.voided);
@@ -613,40 +571,30 @@ function closeGraveModal(){
   document.getElementById('graveModal').classList.add('hidden');
 }
 
-// ── END TURN ───────────────────────────────────────────────
 function endTurn(){
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
 
-  // Wake current player's cards, clear their debuffs
   G[G.turn].field.forEach(c=>{c.sleeping=false;c.exhausted=false;c.feared=false;});
-  G[G.turn].artifacts.forEach(a=>{a.sleeping=false;a.exhausted=false;}); // wake artifacts
+  G[G.turn].artifacts.forEach(a=>{a.sleeping=false;a.exhausted=false;});
   G.turn=next;
   const cur=G[G.turn];
   cur.burned=false;
-
-  // Essence refresh
   if(G.jeetFirstTurn&&G.turn==='jeet'){
     cur.essMax=1;cur.ess=1;G.jeetFirstTurn=false;
   } else {
-    cur.essMax+=1;cur.ess=cur.essMax; // ess resets to max each turn (ess_add is temporary)
+    cur.essMax+=1;cur.ess=cur.essMax;
   }
-
   const oppK=G.turn==='tea'?'jeet':'tea';
-
-  // 1. World & artifact on_turn effects (ess, draw, heal)
   if(cur.world) triggerAbilities(cur.world,'on_turn');
   cur.artifacts.forEach(a=>triggerAbilities(a,'on_turn'));
-
-  // 2. Apply auras + squad bonuses
   applyAuras(G.turn);
   checkSquadBonuses(G.turn);
-  // Trigger on_turn for all field cards (Phlegmor raise, regen, etc.)
+  
   [...cur.field].forEach(c=>triggerAbilities(c,'on_turn'));
   cur.field.forEach(c=>{
   });
 
-  // 3. Burning damage (after heals, before draw)
     [...G[G.turn].field].forEach(card=>{
     if(card.burning&&!card.spell&&!card.world&&!card.artifact){
       card.hp-=1;
@@ -659,7 +607,6 @@ function endTurn(){
   });
   checkWin();
 
-  // 4. Draw
   const skipDraw=(G.turn==='jeet'&&G.turnNum===1);
   if(!skipDraw){
     const n=1+cur.extraDraw;
@@ -743,7 +690,15 @@ function activateCard(cardId){
   const el = document.querySelector(`.card-small[data-id="${cardId}"]`);
   if(!el) return;
   el.classList.remove('activating');
-  void el.offsetWidth; // перезапуск анимации если уже играла
+  void el.offsetWidth; 
   el.classList.add('activating');
   setTimeout(()=>el.classList.remove('activating'), 500);
+}
+function flashBase(faction, type){
+  const el=document.getElementById(faction==='tea'?'playerStats':'oppStats');
+  if(!el) return;
+  el.classList.remove('flash-red','flash-green');
+  void el.offsetWidth;
+  el.classList.add(type==='dmg'?'flash-red':'flash-green');
+  setTimeout(()=>el.classList.remove('flash-red','flash-green'), 500);
 }
