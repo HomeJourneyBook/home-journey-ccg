@@ -137,9 +137,23 @@ function mkSmallEl(card){
   if(G.phase==='vardanPick'&&card.f!==G.turn&&!card.sleeping&&!card.exhausted&&!card.feared)d.classList.add('targetable');
   if(G.phase==='vardanAttack'&&card.f===G.turn)d.classList.add('targetable');
   const isSW=card.spell||card.world||card.artifact;
+  const TAG_ICONS = {
+  'fear':    '<img src="img/ico_fear.png" style="width:60%;height:60%;">',
+  'pierce':  '<img src="img/ico_pierce.png" style="width:60%;height:60%;">',
+  'regen':   '<img src="img/ico_regen.png" style="width:60%;height:60%;">',
+  'burn':    '<img src="img/ico_burn.png" style="width:60%;height:60%;">',
+  'rage':    '<img src="img/ico_rage.png" style="width:60%;height:60%;">',
+  'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
+};
+const tagIcons=(card.tags||[])
+  .map(t=>t.split(':')[0])
+  .filter(t=>TAG_ICONS[t])
+  .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
+  .join('');
   d.innerHTML=`
     <div class="card-small-cost">${card.cost}</div>
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+    ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
