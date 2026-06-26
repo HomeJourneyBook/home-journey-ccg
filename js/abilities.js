@@ -194,7 +194,7 @@ function triggerAbilities(card, timing, ctx={}){
 });
           lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
         } else if(a.self){
-          if(!card.spell&&!card.world&&!card.artifact){
+         if(!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
             const regenVal=(card.squadParam&&card.squadParam.regen)||a.val;
             card.hp=Math.min(card.maxHp,card.hp+regenVal);
             const regenId=card.id;
