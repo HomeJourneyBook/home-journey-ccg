@@ -1,26 +1,20 @@
 function updateTurnColors(){
-  if(!G) return;
-  const isTea=G.turn==='tea';
-  const green='#1b641b', greenDim='#1b641b55';
-  const pink='#d83c88',  pinkDim='#d83c8855';
-
-  const set=(id,col)=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.style.borderColor=col+'55';
-    el.style.boxShadow=`inset 0 0 8px ${col}22, 0 0 8px ${col}11`;
-  };
-
-  const bottomColor = isTea ? green : pink;
-  const bottomDim   = isTea ? greenDim : pinkDim;
-  const topColor    = isTea ? pink : green;
-  const topDim      = isTea ? pinkDim : greenDim;
-
-  set('playerFieldZone', bottomColor);
-  set('playerStats',     bottomColor);
-  set('oppFieldZone',    topDim);
-  set('oppStats',        topDim);
-  set('oppHandZone',     topDim);
+if(!G) return;
+const isTea=G.turn===‘tea’;
+const green=’#1b641b’, greenDim=’#1b641b55’;
+const pink=’#d83c88’,  pinkDim=’#d83c8855’;
+const set=(id,col)=>{const el=document.getElementById(id);if(el)el.style.borderColor=col;};
+// Tea turn: bottom=green bright, top=pink dim
+// Jeet turn: bottom=pink bright, top=green dim
+const bottomColor = isTea ? green : pink;
+const bottomDim   = isTea ? greenDim : pinkDim;
+const topColor    = isTea ? pink : green;
+const topDim      = isTea ? pinkDim : greenDim;
+set(‘playerFieldZone’, bottomColor);
+set(‘playerStats’,     bottomColor);
+set(‘oppFieldZone’,    topDim);
+set(‘oppStats’,        topDim);
+set(‘oppHandZone’,     topDim);
 }
 
 function render(){
