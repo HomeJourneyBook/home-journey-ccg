@@ -164,7 +164,7 @@ function doCreature(card){
   }
   applyAuras(G.turn);
   checkSquadBonuses(G.turn); // after applyAuras
-
+}
 
 function doWorld(card){
   const cur=G[G.turn];
