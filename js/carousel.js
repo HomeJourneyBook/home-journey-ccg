@@ -6,8 +6,8 @@
 
 (function () {
   const MOBILE_BREAKPOINT = 600;
-  const FRICTION = 0.92;        // замедление инерции (0–1)
-  const SNAP_DURATION = 320;    // мс анимации snap
+  const FRICTION = 0.92;
+  const SNAP_DURATION = 320;
   const SCALE_CENTER = 1.0;
   const SCALE_NEAR = 0.92;
   const SCALE_FAR = 0.82;
@@ -15,10 +15,9 @@
   const OPACITY_NEAR = 0.7;
   const OPACITY_FAR = 0.45;
 
-  let hand = null;          // DOM элемент #teaHand
-  let cards = [];           // текущие карточки в руке
-  let offset = 0;           // текущий сдвиг в пикселях
-  let targetOffset = 0;     // куда едем при snap
+  let hand = null;
+  let cards = [];
+  let offset = 0;       // смещение в единицах "шаг карты", 0 = первая карта по центру
   let velocity = 0;
   let isDragging = false;
   let dragStartX = 0;
@@ -29,105 +28,111 @@
   let snapRafId = null;
   let centerIndex = 0;
   let active = false;
+  let cardW = 0;
+  let cardGap = 10;
 
   function isMobile() {
     return window.innerWidth <= MOBILE_BREAKPOINT;
   }
 
-  function getCardWidth() {
-    if (cards.length === 0) return 0;
-    return cards[0].getBoundingClientRect().width;
+  function measureCard() {
+    if (cards.length === 0) return;
+    const rect = cards[0].getBoundingClientRect();
+    if (rect.width > 0) cardW = rect.width;
+    // gap из CSS переменной
+    const cs = getComputedStyle(document.documentElement);
+    // fallback 10
+    cardGap = 10;
   }
 
-  function getGap() {
-    // gap между картами — берём из стилей или дефолт
-    const style = window.getComputedStyle(hand);
-    const gap = parseFloat(style.gap || style.columnGap) || 10;
-    return gap;
+  function getStep() {
+    return cardW + cardGap;
   }
 
-  function getCardStep() {
-    return getCardWidth() + getGap();
+  // offset=0 → карта[0] по центру экрана
+  // offset=step → карта[1] по центру экрана
+  // Физический translateX = screenCenter - cardW/2 - index*step - offset_pixels
+  // Но мы двигаем весь #teaHand, поэтому:
+  // hand.left изначально = 0 (левый край экрана)
+  // чтобы карта[0] была по центру: translateX = screenCenter - cardW/2
+  // затем вычитаем текущий pixel-offset
+
+  function getBaseTranslate() {
+    // позиция при offset=0: первая карта по центру
+    return window.innerWidth / 2 - cardW / 2;
+  }
+
+  function getPixelOffset() {
+    return offset; // offset уже в пикселях
   }
 
   function getMaxOffset() {
     if (cards.length === 0) return 0;
-    return (cards.length - 1) * getCardStep();
+    return (cards.length - 1) * getStep();
   }
 
-  // Применяем трансформы ко всем картам исходя из offset
   function updateTransforms() {
     if (!hand || cards.length === 0) return;
 
-    const step = getCardStep();
-    const handRect = hand.getBoundingClientRect();
-    const viewCenter = handRect.left + handRect.width / 2;
+    const base = getBaseTranslate();
+    const px = getPixelOffset();
+    const screenCenter = window.innerWidth / 2;
+    const step = getStep();
 
     cards.forEach((card, i) => {
-      const cardCenter = handRect.left + (i * step) - offset + getCardWidth() / 2;
-      const dist = Math.abs(cardCenter - viewCenter) / step;
+      // позиция центра этой карты на экране
+      const cardScreenCenter = base - px + i * step + cardW / 2;
+      const dist = Math.abs(cardScreenCenter - screenCenter) / step;
 
       let scale, opacity;
       if (dist < 0.5) {
-        // почти центр
-        scale = SCALE_CENTER - (SCALE_CENTER - SCALE_NEAR) * dist * 2;
+        scale   = SCALE_CENTER   - (SCALE_CENTER   - SCALE_NEAR)   * dist * 2;
         opacity = OPACITY_CENTER - (OPACITY_CENTER - OPACITY_NEAR) * dist * 2;
       } else if (dist < 1.5) {
-        scale = SCALE_NEAR - (SCALE_NEAR - SCALE_FAR) * (dist - 0.5);
+        scale   = SCALE_NEAR   - (SCALE_NEAR   - SCALE_FAR)   * (dist - 0.5);
         opacity = OPACITY_NEAR - (OPACITY_NEAR - OPACITY_FAR) * (dist - 0.5);
       } else {
-        scale = SCALE_FAR;
+        scale   = SCALE_FAR;
         opacity = OPACITY_FAR;
       }
 
-      scale = Math.max(SCALE_FAR, Math.min(SCALE_CENTER, scale));
+      scale   = Math.max(SCALE_FAR,   Math.min(SCALE_CENTER,   scale));
       opacity = Math.max(OPACITY_FAR, Math.min(OPACITY_CENTER, opacity));
 
-      // Не трогаем карту в состоянии previewed — у неё своя трансформация
       if (!card.classList.contains('previewed')) {
         card.style.transform = `scale(${scale.toFixed(3)})`;
-        card.style.opacity = opacity.toFixed(3);
+        card.style.opacity   = opacity.toFixed(3);
       }
-
-      // z-index: центральная выше
       card.style.zIndex = String(Math.round(10 - dist * 3));
     });
 
-    // Двигаем весь контейнер
-    hand.style.transform = `translateX(${-offset}px)`;
+    hand.style.transform = `translateX(${(base - px).toFixed(2)}px)`;
   }
 
-  // Найти индекс ближайшей к центру карты
   function getNearestIndex() {
     if (cards.length === 0) return 0;
-    const step = getCardStep();
-    const idx = Math.round(offset / step);
+    const idx = Math.round(offset / getStep());
     return Math.max(0, Math.min(cards.length - 1, idx));
   }
 
-  // Easing — iOS-style ease out
   function easeOutQuart(t) {
     return 1 - Math.pow(1 - t, 4);
   }
 
-  // Анимированный snap к индексу
   function snapTo(idx) {
     cancelAnimationFrame(snapRafId);
     cancelAnimationFrame(rafId);
 
-    const step = getCardStep();
     const from = offset;
-    const to = idx * step;
+    const to   = idx * getStep();
     const diff = to - from;
     const start = performance.now();
     centerIndex = idx;
 
     function animate(now) {
-      const elapsed = now - start;
-      const t = Math.min(elapsed / SNAP_DURATION, 1);
+      const t = Math.min((now - start) / SNAP_DURATION, 1);
       offset = from + diff * easeOutQuart(t);
       updateTransforms();
-
       if (t < 1) {
         snapRafId = requestAnimationFrame(animate);
       } else {
@@ -138,18 +143,15 @@
     snapRafId = requestAnimationFrame(animate);
   }
 
-  // Инерция после отпускания
   function runMomentum() {
     cancelAnimationFrame(rafId);
-
     function step() {
       if (Math.abs(velocity) < 0.5) {
-        // Скорость упала — snap к ближайшей карте
         snapTo(getNearestIndex());
         return;
       }
       offset += velocity;
-      offset = Math.max(0, Math.min(getMaxOffset(), offset));
+      offset = Math.max(-cardW * 0.3, Math.min(getMaxOffset() + cardW * 0.3, offset));
       velocity *= FRICTION;
       updateTransforms();
       rafId = requestAnimationFrame(step);
@@ -157,7 +159,7 @@
     rafId = requestAnimationFrame(step);
   }
 
-  // ── Touch handlers ──────────────────────────────────────────────
+  // ── Touch ────────────────────────────────────────────────────────
 
   function onTouchStart(e) {
     if (!active) return;
@@ -176,18 +178,14 @@
     if (!active || !isDragging) return;
     e.preventDefault();
     const touch = e.touches[0];
-    const dx = touch.clientX - dragStartX;
+    const dx  = touch.clientX - dragStartX;
     const now = performance.now();
-    const dt = now - lastDragTime;
-
-    if (dt > 0) {
-      velocity = (lastDragX - touch.clientX) / dt * 16; // нормализуем к ~60fps
-    }
-    lastDragX = touch.clientX;
+    const dt  = now - lastDragTime;
+    if (dt > 0) velocity = (lastDragX - touch.clientX) / dt * 16;
+    lastDragX   = touch.clientX;
     lastDragTime = now;
-
     offset = dragStartOffset - dx;
-    offset = Math.max(-getCardWidth() * 0.3, Math.min(getMaxOffset() + getCardWidth() * 0.3, offset));
+    offset = Math.max(-cardW * 0.5, Math.min(getMaxOffset() + cardW * 0.5, offset));
     updateTransforms();
   }
 
@@ -197,7 +195,7 @@
     runMomentum();
   }
 
-  // ── Mouse handlers (для теста на десктопе) ──────────────────────
+  // ── Mouse (тест на десктопе) ─────────────────────────────────────
 
   function onMouseDown(e) {
     if (!active) return;
@@ -213,14 +211,14 @@
 
   function onMouseMove(e) {
     if (!active || !isDragging) return;
-    const dx = e.clientX - dragStartX;
+    const dx  = e.clientX - dragStartX;
     const now = performance.now();
-    const dt = now - lastDragTime;
+    const dt  = now - lastDragTime;
     if (dt > 0) velocity = (lastDragX - e.clientX) / dt * 16;
-    lastDragX = e.clientX;
+    lastDragX   = e.clientX;
     lastDragTime = now;
     offset = dragStartOffset - dx;
-    offset = Math.max(-getCardWidth() * 0.3, Math.min(getMaxOffset() + getCardWidth() * 0.3, offset));
+    offset = Math.max(-cardW * 0.5, Math.min(getMaxOffset() + cardW * 0.5, offset));
     updateTransforms();
   }
 
@@ -230,26 +228,22 @@
     runMomentum();
   }
 
-  // ── Инициализация и обновление ──────────────────────────────────
+  // ── Инициализация ────────────────────────────────────────────────
 
   function setupHand() {
     hand = document.getElementById('teaHand');
     if (!hand) return;
-
-    // Переопределяем стили контейнера для карусели
-    hand.style.transform = '';
-    hand.style.willChange = 'transform';
-    hand.style.touchAction = 'none'; // предотвращаем нативный скролл
+    hand.style.willChange  = 'transform';
+    hand.style.touchAction = 'none';
 
     hand.addEventListener('touchstart', onTouchStart, { passive: true });
-    hand.addEventListener('touchmove', onTouchMove, { passive: false });
-    hand.addEventListener('touchend', onTouchEnd);
-    hand.addEventListener('mousedown', onMouseDown);
+    hand.addEventListener('touchmove',  onTouchMove,  { passive: false });
+    hand.addEventListener('touchend',   onTouchEnd);
+    hand.addEventListener('mousedown',  onMouseDown);
     document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mouseup',   onMouseUp);
   }
 
-  // Вызывается после каждого render() — обновляем список карт
   function refresh() {
     if (!isMobile()) {
       if (active) deactivate();
@@ -264,10 +258,12 @@
     const countChanged = newCards.length !== cards.length;
     cards = newCards;
 
+    // Измеряем карту после рендера — размер известен только тут
+    measureCard();
+
     if (countChanged) {
-      // При изменении количества карт — сброс к ближайшей или 0
       const nearest = Math.max(0, Math.min(cards.length - 1, centerIndex));
-      offset = nearest * getCardStep();
+      offset = nearest * getStep();
       centerIndex = nearest;
     }
 
@@ -282,20 +278,21 @@
 
   function deactivate() {
     active = false;
+    cancelAnimationFrame(rafId);
+    cancelAnimationFrame(snapRafId);
     if (hand) {
-      hand.style.transform = '';
+      hand.style.transform   = '';
       hand.style.touchAction = '';
-      hand.style.willChange = '';
+      hand.style.willChange  = '';
       cards.forEach(card => {
         card.style.transform = '';
-        card.style.opacity = '';
-        card.style.zIndex = '';
+        card.style.opacity   = '';
+        card.style.zIndex    = '';
       });
     }
     removeCarouselCSS();
   }
 
-  // Инжектим стили карусели динамически
   function applyCarouselCSS() {
     if (document.getElementById('carousel-style')) return;
     const style = document.createElement('style');
@@ -314,16 +311,17 @@
           align-items: flex-end !important;
           overflow: visible !important;
           gap: 10px !important;
-          padding: 10px calc(50vw - var(--card-w) * 0.5) 16px !important;
+          padding: 10px 0 16px !important;
           min-height: var(--card-h) !important;
+          position: relative !important;
+          left: 0 !important;
           will-change: transform !important;
           user-select: none !important;
           -webkit-user-select: none !important;
         }
         #teaHand .card {
           flex-shrink: 0 !important;
-          transition: opacity 0.15s, box-shadow 0.15s !important;
-          /* transform управляется JS */
+          transition: opacity 0.12s !important;
         }
         #teaHand .card.previewed {
           transform: translateY(calc(var(--card-h) * -0.34)) scale(1.05) !important;
@@ -340,38 +338,24 @@
     if (el) el.remove();
   }
 
-  // ── Хук на render ───────────────────────────────────────────────
-  // Патчим глобальный render так чтобы carousel.refresh() вызывался после
-
   function hookRender() {
-    // render.js должен уже быть загружен
     if (typeof render === 'function') {
-      const origRender = render;
+      const orig = render;
       window.render = function () {
-        origRender.apply(this, arguments);
+        orig.apply(this, arguments);
         requestAnimationFrame(refresh);
       };
     }
   }
 
-  // ── Запуск ──────────────────────────────────────────────────────
-
   window.addEventListener('resize', () => {
-    if (isMobile()) {
-      if (!active) activate();
-      refresh();
-    } else {
-      if (active) deactivate();
-    }
+    if (isMobile()) { if (!active) activate(); refresh(); }
+    else { if (active) deactivate(); }
   });
 
-  // Ждём загрузки всего и патчим render
   window.addEventListener('load', () => {
     hookRender();
-    if (isMobile()) {
-      activate();
-      refresh();
-    }
+    if (isMobile()) { activate(); refresh(); }
   });
 
 })();
