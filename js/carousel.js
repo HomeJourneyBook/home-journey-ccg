@@ -245,11 +245,13 @@
         }
       }
 
-      // Найти карту под пальцем
+      // Найти карту под пальцем — с расширенной зоной для крайних карт
       let tappedIdx = -1;
       cards.forEach((card, i) => {
-        const left  = BASE_TX - offset + i * STEP;
-        const right = left + CARD_W;
+        const isFirst = i === 0;
+        const isLast  = i === cards.length - 1;
+        const left  = BASE_TX - offset + i * STEP - (isFirst ? CARD_W * 0.5 : 0);
+        const right = BASE_TX - offset + i * STEP + CARD_W + (isLast ? CARD_W * 0.5 : 0);
         if (endX >= left && endX <= right) tappedIdx = i;
       });
       if (tappedIdx < 0) return;
@@ -398,6 +400,7 @@
         }
         #playerHandZone #teaHand .card.previewed,
         #playerHandZone #jeetHand .card.previewed {
+        transform: translateY(calc(var(--card-h) * -0.34)) scale(1.2) !important;
           transition: transform 0.15s, opacity 0.15s !important;
           transform: translateY(calc(var(--card-h) * -0.34)) scale(1.05) !important;
           z-index: 2000 !important;
