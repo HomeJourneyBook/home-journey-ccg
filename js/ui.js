@@ -265,15 +265,6 @@ lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
 
 
-// ── Rules language toggle ────────────────────────────────────────
-let rulesLang = 'ENG';
-function toggleRulesLang() {
-  rulesLang = rulesLang === 'ENG' ? 'RUS' : 'ENG';
-  document.getElementById('rulesENG').style.display = rulesLang === 'ENG' ? '' : 'none';
-  document.getElementById('rulesRUS').style.display = rulesLang === 'RUS' ? '' : 'none';
-  document.getElementById('rulesLangBtn').textContent  = rulesLang === 'ENG' ? 'RUS' : 'ENG';
-  document.getElementById('rulesTitleLabel').textContent = rulesLang === 'ENG' ? 'Rules' : 'Правила';
-}
 
 // ── Rules language toggle (v2 — 4 languages) ────────────────────
 const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VIE:'Luật Chơi' };
