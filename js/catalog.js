@@ -99,24 +99,55 @@ function renderCatalog(){
 function openCardDetail(def){
   const overlay=document.getElementById('cardDetailOverlay');
   const box=document.getElementById('cardDetailBox');
-  box.className=`card-detail ${def.f==='tea'?'tea-detail':'jeet-detail'}`;
-  const cdArt=document.getElementById('cdArt');
-  if(def.img){
-    cdArt.innerHTML=`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`;
-  } else {
-    cdArt.textContent=def.art;
-  }
-  document.getElementById('cdName').textContent=def.name;
-  document.getElementById('cdCost').textContent=`${def.cost} Essence`;
-  const isSW=def.spell||def.world||def.artifact;
-  document.getElementById('cdStats').innerHTML=isSW?''
-    :`<span class="cat-card-hp">❤ ${def.hp} HP</span><span class="cat-card-atk">⚔ ${def.atk} ATK</span>`;
-  document.getElementById('cdAb').textContent=def.ab||'—';
-  const tags=(def.tags||[]).filter(t=>!['spell','world','artifact','unique'].includes(t));
-  document.getElementById('cdTags').innerHTML=tags.map(t=>{
-    const base=t.split(':')[0];
-    return `<span class="tag ${base}" style="font-size:8px;padding:2px 6px;">${t.toUpperCase()}</span>`;
-  }).join('');
+
+  const isSW = def.spell||def.world||def.artifact;
+  const faction = def.f==='tea'?'tea':'jeet';
+
+  const TAG_ICONS = {
+    'fear':    '<img src="img/ico_fear.png" style="width:60%;height:60%;">',
+    'pierce':  '<img src="img/ico_pierce.png" style="width:60%;height:60%;">',
+    'regen':   '<img src="img/ico_regen.png" style="width:60%;height:60%;">',
+    'burn':    '<img src="img/ico_burn.png" style="width:60%;height:60%;">',
+    'rage':    '<img src="img/ico_rage.png" style="width:60%;height:60%;">',
+    'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
+  };
+  const tagIcons = (def.tags||[])
+    .map(t=>t.split(':')[0])
+    .filter(t=>TAG_ICONS[t])
+    .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
+    .join('');
+
+  const typeDot = def.world?'img/type_world.png'
+    : def.unique?'img/type_unique.png'
+    : def.artifact?'img/type_artifact.png'
+    : def.spell?'img/type_spell.png'
+    : 'img/type_creature.png';
+
+  const bgClass = faction==='tea'?'tea-card':'jeet-card';
+  const worldClass = def.world?'world-card':'';
+
+  box.className = 'card-detail-box';
+  box.innerHTML = `
+    <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
+    <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;">
+      <div class="card-cost">${def.cost}</div>
+      <div class="card-type-dot" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+      <div class="card-art">${def.img
+        ? `<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+        : def.art}</div>
+      ${tagIcons ? `<div class="card-tag-icons">${tagIcons}</div>` : ''}
+      <div class="card-name-box"><div class="card-name">${def.name}</div></div>
+      ${!isSW
+        ? `<div class="card-stats" style="width:var(--card-stats-w);">
+             <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
+             <img src="img/chel.png" class="card-stats-icon">
+             <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
+           </div>`
+        : `<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
+      <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
+    </div>
+  `;
+
   overlay.style.display='flex';
 }
 
