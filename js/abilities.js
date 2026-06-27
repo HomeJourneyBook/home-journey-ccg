@@ -177,10 +177,12 @@ function triggerAbilities(card, timing, ctx={}){
       // hp_all removed — replaced by applyMaxHpAura() via aura:maxhp tag
 
       case 'hp_base':
-        // Heal base HP only, no maxHP increase
-        G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
-        lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl');
-        flashBase(curK, 'heal');
+        // Heal base HP only, no maxHP increase - only if wounded
+        if(G[curK].hp<G[curK].maxHp){
+          G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
+          lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl');
+          flashBase(curK, 'heal');
+        }
         break;
       // on_any_death handled directly in killCard()
 
