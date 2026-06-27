@@ -585,7 +585,7 @@ grave.slice().reverse().forEach(card=>{
   if(graveBtn && innerModal){
     const r = graveBtn.getBoundingClientRect();
     innerModal.style.left   = r.left + 'px';
-    innerModal.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+    innerModal.style.bottom = (window.innerHeight - r.top + 14) + 'px';
     innerModal.style.top    = '';
   }
 
