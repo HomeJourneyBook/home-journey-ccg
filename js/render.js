@@ -239,7 +239,10 @@ const tagIcons = (card.tags||[])
   if(card.world){
   d.classList.add('world-card');
   if(card.img){
-    d.classList.add('world-img-' + card.img.replace('.','_'));
+    d.style.backgroundImage = `url('img/cards/${card.img}')`;
+    d.style.backgroundSize = 'cover';
+    d.style.backgroundPosition = 'center';
+    d.style.backgroundRepeat = 'no-repeat';
   }
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
