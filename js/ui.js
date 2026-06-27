@@ -255,8 +255,34 @@ document.addEventListener('click',function(e){
     menu.classList.remove('open');
   }
 });
+// ── Loading screen ───────────────────────────────────────────────
+(function(){
+  const dotsEl = document.getElementById('ldots');
+  let dotCount = 1;
+  const dotsInterval = setInterval(() => {
+    dotCount = dotCount >= 3 ? 1 : dotCount + 1;
+    if(dotsEl) dotsEl.textContent = '.'.repeat(dotCount);
+  }, 400);
 
-window.addEventListener('resize', adjustHandOverlap);
+  function hideLoading(){
+    clearInterval(dotsInterval);
+    const ls = document.getElementById('loadingScreen');
+    const landing = document.getElementById('landing');
+    if(!ls) return;
+    ls.style.transition = 'opacity 0.4s ease';
+    ls.style.opacity = '0';
+    setTimeout(() => {
+      ls.style.display = 'none';
+      if(landing) landing.style.display = 'flex';
+    }, 400);
+  }
+
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(() => setTimeout(hideLoading, 600));
+  } else {
+    window.addEventListener('load', () => setTimeout(hideLoading, 600));
+  }
+})();
 
 // Boot
 preloadAssets();
@@ -264,7 +290,7 @@ initState();
 lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
 
-
+window.addEventListener('resize', adjustHandOverlap);
 
 // ── Rules language toggle (v2 — 4 languages) ────────────────────
 const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VN:'Luật Chơi' };
