@@ -398,13 +398,21 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .card-detail-close{position:absolute;top:-32px;right:-8px;font-size:28px;cursor:pointer;color:#888;background:none;border:none;z-index:10;}
 .card-detail-close:hover{color:#c8a84b;}
 .card-detail-scaled{
-  --card-h: min(70vw, 55vh);
+  --card-h: min(68vw, 52vh);
   --card-w: calc(var(--card-h) * 0.716);
+  --card-art-size: calc(var(--card-h) * 0.535);
+  --card-pad: calc(var(--card-h) * 0.021);
+  --card-name-h: calc(var(--card-h) * 0.096);
+  --card-stats-h: calc(var(--card-h) * 0.085);
+  --card-text-h: calc(var(--card-h) * 0.24);
+  --card-world-name-h: calc(var(--card-h) * 0.096);
+  --card-world-text-h: calc(var(--card-h) * 0.16);
   width: var(--card-w) !important;
   height: var(--card-h) !important;
   cursor: default !important;
   transform: none !important;
   opacity: 1 !important;
+  font-size: calc(var(--card-h) * 0.05) !important;
 }
 .tag-inline{font-size:16px;padding:1px 5px;border:1px solid;display:inline;}
 .tag-inline.vanguard{border-color:#ff9933;color:#ff9933;}
