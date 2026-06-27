@@ -1,6 +1,6 @@
 const DEFS = {
   // TEA CREATURES
-  t_szarg_w:   {name:"SZARG",       cost:1,hp:1,atk:2,art:"🦈", img:"014_Sz.png", f:"tea",tags:["vanguard","gtype:szg"],          ab:"Vanguard. Squad: Pierce."},
+  t_trvl7_w:   {name:"TRAVELER #7",       cost:1,hp:1,atk:2,art:"🦈", img:"7.png", f:"tea",tags:["vanguard","gtype:szg"],          ab:"Vanguard. Squad: Pierce."},
   t_orb_w:     {name:"ORBITON",     cost:1,hp:2,atk:1,art:"👁️", img:"015_Orb.png", f:"tea",tags:["heal:1","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
   t_drig_w:    {name:"DREEGAN",     cost:3,hp:4,atk:1,art:"🌳", img:"017_Dr.png", f:"tea",tags:["provoke","gtype:drg"],            ab:"Squad: +1 HP."},
   t_umb_w:     {name:"UMBASIR",     cost:2,hp:2,atk:1,art:"🌀", img:"013_Umb.png", f:"tea",tags:["aoe:1","gtype:umb"],              ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
