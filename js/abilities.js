@@ -179,8 +179,9 @@ function triggerAbilities(card, timing, ctx={}){
       case 'hp_base':
         // Heal base HP only, no maxHP increase
         G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
-        lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl'); break;
-flashBase(faction, 'heal');
+        lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl');
+        flashBase(curK, 'heal');
+        break;
       // on_any_death handled directly in killCard()
 
       case 'hp_add':
