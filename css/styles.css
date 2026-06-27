@@ -55,8 +55,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .player-sidebar{display:none;}
 .player-hand-wrap{width:100%;overflow:visible;padding:4px 6px;position:relative;}
 .player-zone.jeet{border-color:#7b2d8b55;background:#0d0a12;position:relative;z-index:10;}
-
-
+.player-zone.base-targetable .player-sidebar{cursor:pointer;border:1px solid #e05555;box-shadow:0 0 8px #e0555533;background:#1a0808;background-color: rgba(224,85,85,0.4);}
 
 .player-zone.tea{border-color:#2d7b3555;background:#0a0d0a;position:relative;z-index:10;}
 .player-header{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;padding:5px 10px;border-bottom:1px solid #ffffff11;flex-wrap:wrap;}
@@ -289,9 +288,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
         0 0 8px #1b641b11;
     background:rgba(20,36,50,0.70);
 }
-
-.stats-bar.base-targetable{border-color:#e05555 !important;box-shadow:0 0 4px #e0555522,0 0 10px #e0555511 !important;background:rgba(224,85,85,0.08) !important;}
-
+.stats-bar.base-targetable{border-color:#e05555 !important;box-shadow:0 0 4px #e0555522,0 0 10px #e0555511 !important;}
 .field-zone{
   padding:6px;
   background:rgba(12,16,19,0.70);
@@ -543,13 +540,13 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   .card-small-hp-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
-  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 3.5px 1px;
+  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 2px 1px;
 }
 
 .card-small-atk-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
-display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 3.5px 1px;
+display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 2px 1px;
 }
 .card-tag-icons{
   position:absolute;
@@ -612,19 +609,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 }
 .card.world-card.tea-card,
 .card.world-card.jeet-card{
-  background-image:none !important;
-}
-.card.world-card.tea-card.world-img-1_Valley_png,
-.card.world-card.jeet-card.world-img-1_Valley_png{background-image:url('../img/cards/1_Valley.png') !important;
-}
-.card.world-card.tea-card.world-img-1_Domus_png,
-.card.world-card.jeet-card.world-img-1_Domus_png{background-image:url('../img/cards/1_Domus.png') !important;
-}
-.card.world-card.tea-card.world-img-1_Norria_png,
-.card.world-card.jeet-card.world-img-1_Norria_png{background-image:url('../img/cards/1_Norria.png') !important;
-}
-.card.world-card.tea-card.world-img-1_Hunger_png,
-.card.world-card.jeet-card.world-img-1_Hunger_png{background-image:url('../img/cards/1_Hunger.png') !important;
+  background-image:none;
 }
 
 .hamburger-btn{
