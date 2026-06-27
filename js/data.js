@@ -4,7 +4,7 @@ const DEFS = {
   t_orb_w:     {name:"ORBITON",     cost:1,hp:2,atk:1,art:"👁️", img:"015_Orb.png", f:"tea",tags:["heal:1","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
   t_drig_w:    {name:"DREEGAN",     cost:3,hp:4,atk:1,art:"🌳", img:"017_Dr.png", f:"tea",tags:["provoke","gtype:drg"],            ab:"Squad: +1 HP."},
   t_umb_w:     {name:"UMBASIR",     cost:2,hp:2,atk:1,art:"🌀", img:"013_Umb.png", f:"tea",tags:["aoe:1","gtype:umb"],              ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
-  t_meh_w:     {name:"MECHIRD",     cost:2,hp:2,atk:1,art:"🤖", img:"016_M.png", f:"tea",tags:["pierce","gtype:mch"],             ab:"Squad: +1 ATK."},
+  t_meh_w:     {name:"MECHIRD",     cost:2,hp:3,atk:1,art:"🤖", img:"016_M.png", f:"tea",tags:["pierce","gtype:mch"],             ab:"Squad: +1 ATK."},
   t_ksi_w:     {name:"XUIQTR",      cost:3,hp:4,atk:1,art:"🐙", img:"012_Xui.png", f:"tea",tags:["regen:1","gtype:xui"],               ab:"Squad: Regen 2."},
   // TEA LEGENDARIES
   t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1"], ab:"On turn: Draw 1 card.",unique:true},
@@ -28,14 +28,14 @@ j_szarg_w:   {name:"SZARG",       cost:1,hp:1,atk:2,art:"🦈", img:"014_Sz.png"
   j_orb_w:     {name:"ORBITON",     cost:1,hp:2,atk:1,art:"👁️", img:"015_Orb.png", f:"jeet",tags:["heal:1","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
   j_drig_w:    {name:"DREEGAN",     cost:3,hp:4,atk:1,art:"🌳", img:"017_Dr.png", f:"jeet",tags:["provoke","gtype:drg"],            ab:"Squad: +1 HP."},
   j_umb_w:     {name:"UMBASIR",     cost:2,hp:2,atk:1,art:"🌀", img:"013_Umb.png", f:"jeet",tags:["aoe:1","gtype:umb"],              ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
-  j_meh_w:     {name:"MECHIRD",     cost:2,hp:2,atk:1,art:"🤖", img:"016_M.png", f:"jeet",tags:["pierce","gtype:mch"],             ab:"Squad: +1 ATK."},
+  j_meh_w:     {name:"MECHIRD",     cost:2,hp:3,atk:1,art:"🤖", img:"016_M.png", f:"jeet",tags:["pierce","gtype:mch"],             ab:"Squad: +1 ATK."},
   j_ksi_w:     {name:"XUIQTR",      cost:3,hp:4,atk:1,art:"🐙", img:"012_Xui.png", f:"jeet",tags:["regen:1","gtype:xui"],               ab:"Squad: Regen 2."},
   // JEET LEGENDARIES
   j_reap:      {name:"REAPER",     cost:5,hp:4,atk:3,art:"☠️", img:"004_Reaper.png", f:"jeet",tags:["unique","on_any_death_base:1"], ab:"Any creature death: restore base 1 HP.",unique:true},
   j_ryv:       {name:"RYVLEN",     cost:5,hp:4,atk:2,art:"🎭", img:"007_Ryvlen.png", f:"jeet",tags:["unique","fear","draw_attack:1"], ab:"On attack: Draw 1 card.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1"], ab:"On enter: AOE 1 dmg.",unique:true},
   j_phleg:     {name:"PHLEGMOR",   cost:5,hp:6,atk:1,art:"💀", img:"005_Phelgmor.png", f:"jeet",tags:["unique","raise:1"],  ab:"On turn: Raise top graveyard card at 1 HP.",unique:true},
-  j_vard:      {name:"SEEKER",     cost:4,hp:4,atk:2,art:"🌑", img:"003_Seeker.png", f:"jeet",tags:["unique","invisible","fear"], ab:"Invisible.",unique:true},
+  j_vard:      {name:"SEEKER",     cost:4,hp:4,atk:2,art:"🌑", img:"003_Seeker.png", f:"jeet",tags:["unique","invisible","fear","pierce"], ab:"Invisible.",unique:true},
   // JEET SPELLS
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png", f:"jeet",tags:["spell","draw:2"],             ab:"Draw 2 cards.",spell:true},
   j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png", f:"jeet",tags:["spell","draw:3"],             ab:"Draw 3 cards.",spell:true},
