@@ -423,37 +423,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:calc(7vh*0.57);height:calc(7vh*0.57);background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.7;position:absolute;top:0;left:0;}
 
 @media(max-width:600px){
-  /* Карусель карт в руке - только на мобильном */
-  .player-hand-zone{
-    height:auto;
-    padding:0;
-    overflow:visible;
-  }
-  .hand{
-    display:flex;
-    flex-wrap:nowrap;
-    justify-content:flex-start !important;
-    align-items:flex-end;
-    overflow-x:auto;
-    overflow-y:visible;
-    -webkit-overflow-scrolling:touch;
-    scroll-snap-type:x mandatory;
-    /* Боковые padding центрируют первую и последнюю карту */
-    padding:12px calc(50vw - var(--card-w) * 0.5) 16px;
-    gap:10px;
-    min-height:var(--card-h);
-    scrollbar-width:none;
-    -ms-overflow-style:none;
-  }
-  .hand::-webkit-scrollbar{display:none;}
-  .hand .card{
-    flex-shrink:0;
-    scroll-snap-align:center;
-  }
-  .hand .card.previewed{
-    transform:translateY(calc(var(--card-h) * -0.34)) !important;
-    z-index:2000 !important;
-  }
+  /* Карусель управляется carousel.js */
 }
 
 /* Header buttons: hamburger always, desktop btns hidden */
