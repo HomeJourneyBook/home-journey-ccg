@@ -566,7 +566,7 @@ function openGraveModal(faction){
   if(grave.length===0){
     cards.innerHTML='<div style="color:#555;font-size:20px;padding:20px;">Empty</div>';
   } else {
-    grave.forEach(card=>{
+grave.slice().reverse().forEach(card=>{
       const d = mkEl(card,'grave');
       d.style.cursor='default';
       d.style.transform='none';
