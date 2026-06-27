@@ -570,13 +570,25 @@ function openGraveModal(faction){
       const d = mkEl(card,'grave');
       d.style.cursor='default';
       d.style.transform='none';
-      // На кладбище карты всегда выглядят одинаково — без состояний
       d.classList.remove('exhausted','sleeping','feared','burning','selected','targetable');
       d.style.opacity='1';
       d.style.borderStyle='';
       cards.appendChild(d);
     });
   }
+
+  // Позиционируем над кнопкой кладбища — левая грань совпадает
+  const btnId = faction==='tea' ? 'teaBottomBar' : 'jeetBottomBar';
+  const bar = document.getElementById(btnId);
+  const graveBtn = bar ? bar.querySelector('.btn-graveyard') : null;
+  const innerModal = modal.querySelector('.modal');
+  if(graveBtn && innerModal){
+    const r = graveBtn.getBoundingClientRect();
+    innerModal.style.left   = r.left + 'px';
+    innerModal.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+    innerModal.style.top    = '';
+  }
+
   modal.classList.remove('hidden');
 }
 
