@@ -294,9 +294,9 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   display:flex;
   flex-direction:column;
 }
-#oppFieldZone{min-height:20vh;height:auto;max-height:30vh;overflow:visible;border:1px solid #d83c88;border-top:none;}
+#oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #d83c88;border-top:none;}
 #playerFieldZone{
-    min-height:20vh;height:auto;max-height:30vh;overflow:visible;
+    min-height:20vh;height:auto;overflow:visible;
     border:1px solid #1b641b66;
     box-shadow:
     inset 0 0 8px #1b641b22,
@@ -423,7 +423,33 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:calc(7vh*0.57);height:calc(7vh*0.57);background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.7;position:absolute;top:0;left:0;}
 
 @media(max-width:600px){
-  .hand{justify-content:center;}
+  /* Карусель карт в руке - только на мобильном */
+  .player-hand-zone{
+    height:auto;
+    padding:0;
+    overflow:hidden;
+  }
+  .hand{
+    display:flex;
+    flex-wrap:nowrap;
+    justify-content:flex-start !important;
+    align-items:center;
+    overflow-x:auto;
+    overflow-y:visible;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x mandatory;
+    gap:8px;
+    padding:8px 12px;
+    padding-bottom:12px;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  .hand::-webkit-scrollbar{display:none;}
+  .hand .card{
+    flex-shrink:0;
+    scroll-snap-align:center;
+  }
+  .hand .card.previewed{transform:translateY(-20px) !important;}
 }
 
 /* Header buttons: hamburger always, desktop btns hidden */
