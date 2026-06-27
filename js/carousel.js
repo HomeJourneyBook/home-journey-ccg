@@ -5,14 +5,14 @@
   const MOBILE_BREAKPOINT = 600;
   const FRICTION          = 0.82;
   const SNAP_DURATION     = 160;
-  const GAP               = 16;    // воздух между картами
+  const GAP               = 6;     // воздух между картами
 
   const SCALE_CENTER   = 1.00;
-  const SCALE_NEAR     = 0.92;
-  const SCALE_FAR      = 0.84;
+  const SCALE_NEAR     = 0.94;
+  const SCALE_FAR      = 0.88;
   const OPACITY_CENTER = 1.00;
-  const OPACITY_NEAR   = 0.40;
-  const OPACITY_FAR    = 0.20;
+  const OPACITY_NEAR   = 0.75;   // соседи 75%
+  const OPACITY_FAR    = 0.50;   // дальние 50%
 
   let hand         = null;
   let cards        = [];
@@ -110,10 +110,16 @@
     if (!hand || cards.length === 0) { layoutReady = false; return false; }
     const r = cards[0].getBoundingClientRect();
     if (r.width < 10) { layoutReady = false; return false; }
+    const wasReady = layoutReady;
     CARD_W   = r.width;
     STEP     = CARD_W + GAP;
     BASE_TX  = window.innerWidth / 2 - CARD_W / 2;
     layoutReady = true;
+    // При первой инициализации — ставим центральную карту по центру
+    if (!wasReady) {
+      centerIndex = Math.floor(cards.length / 2);
+      offset      = centerIndex * STEP;
+    }
     return true;
   }
 
@@ -395,7 +401,10 @@
         #teaHand .card, #jeetHand .card {
           flex-shrink: 0 !important;
           margin-right: 0 !important;
-          transition: opacity 0.1s !important;
+          transition: none !important;
+        }
+        #teaHand .card.previewed, #jeetHand .card.previewed {
+          transition: transform 0.15s, opacity 0.15s !important;
         }
         #teaHand .card.previewed, #jeetHand .card.previewed {
           transform: translateY(calc(var(--card-h) * -0.34)) scale(1.05) !important;
