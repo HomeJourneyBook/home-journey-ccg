@@ -30,123 +30,237 @@
 <div class="screen" id="rulesScreen">
   <div class="screen-header">
     <button class="screen-back" onclick="hideScreen('rules')">← Back</button>
-    <div class="screen-title">Rules</div>
+    <div class="screen-title" id="rulesTitleLabel">Rules</div>
+    <button class="screen-lang-btn" id="rulesLangBtn" onclick="toggleRulesLang()">RUS</button>
   </div>
-  <div class="screen-body">
 
-    <h2>The Idea</h2>
-    <p>Two players. One device. Tea defends the Tavern, Jeet defends the Core — each with 20 HP. You build a field of Travelers and Legendaries, cast spells, activate artifacts and worlds. Bring your opponent's base to zero first.</p>
+  <!-- ENGLISH -->
+  <div class="screen-body" id="rulesENG">
+
+    <h2>The Game</h2>
+    <p>Two factions: the Tavern and the Jeet Core. Each faction has its own followers, Artifacts, Worlds, and Spells to claim victory in the Great Confrontation. Currently the first game mode is available — Hot Seat — along with a starter set of 91 cards. In the future: AI opponent, Online play, and new card expansions.</p>
+
+    <h2>Hot Seat Mode</h2>
+    <p>Two players take turns on one device. Player 1 plays as the Tavern and receives 45 cards, Player 2 plays as the Jeet Core and has 46 cards in their deck. Each player's base starts at 20 HP. You build a field of Common and Unique Travelers, cast spells, activate artifacts and worlds. The first to bring the opponent's base to zero wins.</p>
 
     <h2>What's On a Card</h2>
-    <p>Every card shows: its <strong>cost</strong> (top left corner — how much Essence to play it), its <strong>art</strong> in the center, its <strong>name</strong>, and for creatures — <strong>HP</strong> (heart) and <strong>ATK</strong> (sword) at the bottom. Below that is its <strong>ability text</strong> describing what it does.</p>
-    <p>Example: a Szarg costs 1 Essence, has 1 HP and 2 ATK, and the text reads <em>"Vanguard"</em> — meaning it can act the turn it arrives.</p>
+    <p>Every card shows: cost (top left — how much Essence to play it), card type (top right), art in the center, tags nearby indicating the card's abilities, then the name, and for creatures — Health/HP (heart) and Attack/ATK (sword) at the bottom. Below that is the ability text describing what the card does.</p>
 
     <h2>Mulligan</h2>
-    <p>Before the game begins, each player is shown their opening hand and may redraw it up to <strong>3 times</strong>. Each redraw shuffles your current hand back into the deck and deals you a fresh one. You are not required to mulligan — if you're happy with your opening hand, simply press Ready. Once both players confirm, the game starts.</p>
+    <p>Before the game begins, each player sees their opening hand of 5 cards and may shuffle it back and draw a new one — up to 3 times. The first reshuffle has no penalty. After the 2nd you receive 1 card fewer, after the 3rd attempt 2 fewer. Mulligan is optional: if you're happy with your hand, just press Ready. Once both players confirm — the game begins.</p>
 
     <h2>Essence</h2>
-    <p>Essence is your resource. You start with a maximum of 1 and gain +1 each turn — so by turn 5 you have 5 Essence to spend. It fully refills at the start of every turn. You can never gain more than your current maximum in a single turn (unless a card says otherwise).</p>
-    <p>Once per turn you may <strong>burn</strong> a card from your hand: it goes to the Void forever, but your Essence maximum permanently increases by 1. Useful when you have cards you don't need and want to reach expensive cards faster.</p>
+    <p>Essence is your resource. You start with a maximum of 1 and gain +1 each turn — so by turn 5 you have 5 Essence to spend. It fully refills at the start of every turn. Spend your Essence to play a chosen card by pressing Play.</p>
 
-    <h2>A Turn, Step by Step</h2>
-    <p><strong>1.</strong> Your Essence refills. Worlds, Artifacts, and field effects trigger automatically (draws, heals, regen, etc.).</p>
-    <p><strong>2.</strong> You act freely — play cards, attack with creatures, use active abilities — in any order, as many times as you have Essence and available creatures.</p>
-    <p><strong>3.</strong> Press <strong>End Turn</strong> (or hit Space) when done. You draw 1 card (plus any extras granted by your effects), then your opponent takes over.</p>
+    <h2>Burning</h2>
+    <p>Once per turn you may burn a card from your hand: it goes to the Void forever, but your Essence maximum permanently increases by 1. Press Burn above the chosen card to do so.</p>
 
-    <h2>Creatures</h2>
-    <p>Travelers and Legendaries are creatures. When played, they enter the battlefield in a <em>sleeping</em> state (dashed border) and cannot act until your next turn. To attack with a creature: tap it to select it, then tap the enemy you want to hit.</p>
-    <p>When a creature attacks, the defender hits back simultaneously — unless it's <em>Feared</em> or <em>Invisible</em>. Creatures killed in battle go to the <strong>Graveyard</strong> (☠ counter) and may be revived. Burned cards go to the <strong>Void</strong> and are lost forever.</p>
+    <h2>Deck</h2>
+    <p>You draw 1 card from your deck at the start of each turn.</p>
 
     <h2>Active Abilities</h2>
-    <p>Some creatures and artifacts have <strong>active abilities</strong> — a special action you trigger manually by tapping the card and selecting the ability button that appears. Active abilities cost no Essence but can only be used once per turn, and only when the card is not sleeping or exhausted. Examples: Orbiton heals a chosen ally; Shard deals damage to a chosen enemy; AOE creatures deal damage to all enemies at once.</p>
+    <p>Some Travelers and Artifacts have a special action you trigger manually by tapping the card and selecting the ability button that appears. Active abilities cost no Essence, but can only be used once per turn instead of attacking — after which the creature is considered exhausted.</p>
 
-    <h2>Spells</h2>
-    <p>Spells take effect the moment they're played — draw cards, revive a fallen ally, add bonus Essence, return all field cards to their owners' hands — then disappear into the Void. They leave no card on the battlefield.</p>
+    <h2>Graveyard and Void</h2>
+    <p>The Graveyard holds only creatures killed in battle. They can be revived. The Void holds burned cards, played spells, and replaced worlds — nothing can retrieve them.</p>
 
-    <h2>Worlds</h2>
-    <p>A World is a permanent card that sits below your battlefield and passively affects the game as long as it's active. You can only have one World at a time. Playing a second World replaces the first — the old one goes to the Void. Worlds activate at the start of each turn.</p>
+    <h2>Card Types</h2>
 
-    <h2>Artifacts</h2>
-    <p>Artifacts also sit below the battlefield, but up to two can be active at once. Some trigger automatically each turn (draw, heal). Others are <em>active</em> — tap them to use their ability once per turn. Artifacts sleep their first turn, just like creatures.</p>
+    <h3>Common and Unique Travelers</h3>
+    <p>These are creature cards placed on the field. When played, they enter in a sleeping state and cannot act until your next turn. To attack: tap the creature, then tap an available enemy card or the opponent's Base at the top — after which the creature becomes exhausted and can act again next turn. When a creature attacks, the defender strikes back simultaneously. Creatures killed in battle go to the Graveyard and may be revived.</p>
 
-    <h2>Graveyard vs Void</h2>
-    <p>The <strong>Graveyard</strong> (☠) holds only creatures killed in battle. They can be revived by certain cards. The <strong>Void</strong> holds burned cards, played spells, and replaced worlds — nothing can retrieve them.</p>
+    <h3>Spells</h3>
+    <p>Spells take effect the moment they're played — drawing cards, reviving a fallen ally, bonus Essence, returning all field cards to hand — then disappear into the Void. They leave nothing on the battlefield.</p>
+
+    <h3>Worlds</h3>
+    <p>A World is a permanent card that sits below your field and passively affects the game while active. Only one World can be active at a time. Playing a second replaces the first — the old one goes to the Void.</p>
+
+    <h3>Artifacts</h3>
+    <p>Artifacts also sit below the field, but up to two can be active at once. Some trigger automatically each turn (draw, heal). Others are active — tap them to use their ability once per turn. Artifacts sleep their first turn, just like creatures.</p>
 
     <hr style="border-color:#ffffff11;margin:24px 0;">
-    <h2>Glossary of Terms</h2>
-    <p style="color:#888;font-size:8px;margin-bottom:16px;">Terms appear on cards in plain language.</p>
+    <h2>Glossary</h2>
 
     <h3>Vanguard</h3>
-    <p>This creature can act — attack or use abilities — on the same turn it enters the field. It skips the sleeping state entirely.</p>
+    <p>The creature can act on the same turn it enters the field. It skips the sleeping state.</p>
 
     <h3>Sleeping</h3>
-    <p>A creature that entered the field this turn and cannot act yet. Shown with a dashed border. It wakes up at the start of your next turn. Vanguard creatures skip the sleeping state entirely.</p>
+    <p>The creature entered the field this turn and cannot act. It wakes up at the start of your next turn.</p>
 
     <h3>Exhausted</h3>
-    <p>A creature that has already attacked or used its active ability this turn. Exhausted creatures cannot act again until the next turn. Shown with reduced opacity.</p>
+    <p>The creature has already attacked or used an active ability this turn. It cannot act again until next turn. Shown with reduced opacity.</p>
 
     <h3>Provoke</h3>
-    <p>All enemy attacks must target this creature. A Feared Provoke creature still blocks — it cannot attack but enemies must still target it. Pierce bypasses Provoke; Bushido does not.</p>
+    <p>All enemy attacks must target this creature.</p>
 
     <h3>Bushido</h3>
-    <p>All attacks — including Pierce creatures — must target this creature. Bushido is absolute and cannot be bypassed by any other passive ability. Only one Bushido creature can be on the field at a time.</p>
+    <p>All attacks, including creatures with Pierce, must target this creature.</p>
 
     <h3>Pierce</h3>
-    <p>This creature ignores Provoke and can attack the enemy base or any enemy creature directly. Pierce does not bypass Bushido.</p>
+    <p>This creature ignores Provoke and can attack the base or any enemy directly.</p>
 
     <h3>Fear</h3>
-    <p>When this creature attacks, the target is Feared: it skips its next turn and deals no counter-attack damage. A Feared creature cannot attack but Provoke still applies to it.</p>
+    <p>When this creature attacks, the target becomes Feared: it skips its next turn and deals no counter-attack damage.</p>
 
     <h3>Invisible</h3>
-    <p>This creature cannot be chosen as an attack target as long as other allies are on the field. When it becomes the last creature standing, it can be targeted normally. It also takes no counter-attack damage when attacked.</p>
+    <p>This creature cannot be targeted while other allies are on the field. When it becomes the last one standing, it can be targeted normally. It also takes no counter-attack damage when attacked.</p>
 
     <h3>Rage</h3>
-    <p>Each time this creature attacks, it permanently gains +1 ATK. The bonus accumulates across turns but resets if the creature dies and is revived.</p>
+    <p>Each time this creature attacks, it permanently gains +1 ATK. The bonus accumulates but resets if the creature dies and is revived.</p>
 
     <h3>Burn</h3>
-    <p>When this creature attacks, the target catches fire. Burning creatures lose 1 HP at the start of every turn. The effect is permanent until the creature dies.</p>
+    <p>When this creature attacks, the target catches fire. Burning creatures lose 1 HP at the start of each of their turns. The effect is permanent until death. A creature that dies from burning goes to the Void.</p>
 
     <h3>Regen</h3>
-    <p>This creature restores X HP to itself at the start of each of your turns, up to its maximum HP.</p>
+    <p>The creature restores X HP to itself at the start of each of your turns, up to its maximum.</p>
 
     <h3>Aura</h3>
-    <p>A passive field effect that benefits all allies while this card is on the field. The bonus disappears immediately when the aura card leaves the field. Multiple aura sources stack. Aura does not buff the aura source itself — only its allies.</p>
+    <p>A passive field effect that buffs all allies while the aura card is on the field. The bonus disappears immediately when the card leaves. Multiple aura sources stack. An aura does not buff itself — only allies.</p>
 
     <h3>Squad</h3>
-    <p>When 3 or more Travelers of the same type are on your field simultaneously, they all receive a bonus automatically. The bonus activates the moment the third one arrives and is lost the moment the squad drops below 3. Each Traveler type has its own squad bonus — for example, three Dreegan-types gain +1 Max HP each, while three Mechird-types gain +1 ATK.</p>
+    <p>When 3 or more Travelers of the same Gate type are on your field simultaneously, they all automatically receive a bonus. The bonus activates the moment the third arrives and disappears as soon as the squad drops below three. Each squad has its own type of bonus.</p>
+
+    <h3>Gates</h3>
+    <p>The different forms of Travelers. You can easily tell them apart by their shape. There are 6 main Gate types: Szarg, Xuiqtr, Umbasir, Mechird, Orbiton, Dreegan.</p>
 
     <h3>Max HP</h3>
-    <p>Some abilities increase a creature's maximum HP. If the creature is at full health when this happens, its current HP also rises (3/3 becomes 4/4). If it's already wounded, only the maximum grows (2/3 becomes 2/4).</p>
+    <p>Some abilities increase a creature's maximum HP. If the creature is at full health, current HP rises too (3/3 becomes 4/4). If already wounded, only the maximum grows (2/3 becomes 2/4).</p>
 
     <h3>Revive</h3>
-    <p>Bring a creature back from the Graveyard at full HP. It enters the field in a sleeping state and is ready to act next turn. Revived creatures do not trigger On Enter effects.</p>
-
-    <h3>Raise</h3>
-    <p>A special form of revival — the creature returns with only 1 HP, all its abilities intact, in a sleeping state. Unlike Revive, Raise does not restore full health. Used by Phlegmor each turn automatically.</p>
+    <p>Returns a creature from the Graveyard to the field with X HP. It enters in a sleeping state and can act next turn. Revived creatures do not trigger On Enter effects.</p>
 
     <h3>Bounce</h3>
-    <p>Returns all creatures from both sides of the battlefield back to their owners' hands simultaneously. Buffs, debuffs, and sleeping states are reset. A powerful reset when the field is against you.</p>
+    <p>Returns a card from the battlefield to the player's hand.</p>
 
     <h3>Sacrifice</h3>
-    <p>Destroy one of your own creatures willingly. The creature goes to the Graveyard as normal and can be revived. Some artifacts require a sacrifice to activate their effect.</p>
+    <p>Intentionally destroy one of your own creatures. It goes to the Graveyard and can be revived. Some artifacts require a sacrifice to activate.</p>
 
     <h3>On Turn Start</h3>
-    <p>This effect triggers automatically at the start of your turn, before you take any actions. Examples: Regen restores HP, Worlds and Artifacts provide their bonuses, Phlegmor raises a creature.</p>
+    <p>The effect triggers automatically at the start of your turn, before any actions.</p>
 
     <h3>On Enter</h3>
-    <p>This effect triggers the moment the card is played from hand to the field. It does NOT trigger when a creature is revived or raised from the graveyard.</p>
+    <p>The effect triggers the moment the card is played from hand to the field. Does not trigger on revives or raises from the graveyard.</p>
 
     <h3>On Attack</h3>
-    <p>This effect triggers each time this creature attacks — whether targeting an enemy creature or the base.</p>
+    <p>The effect triggers each time this creature attacks — whether targeting an enemy creature or the base.</p>
 
     <h3>On Kill</h3>
-    <p>This effect triggers when this creature's attack kills an enemy creature directly.</p>
+    <p>The effect triggers when this creature's attack kills an enemy creature directly.</p>
 
-    <h3>On Any / Own Death</h3>
-    <p>This effect triggers whenever a creature dies on the battlefield — by any cause. <em>On Any Death</em> counts all creatures on both sides; <em>On Own Death</em> counts only your creatures.</p>
+  </div>
 
-    <h3>On Play Creature</h3>
-    <p>This effect triggers each time you play a creature card from your hand to the field. Does not trigger on revives or raises.</p>
+  <!-- RUSSIAN -->
+  <div class="screen-body" id="rulesRUS" style="display:none;">
+
+    <h2>Суть игры</h2>
+    <p>Два фракции: Таверна и Ядро Джит. Каждая из фракций имеет своих последователей, а также Артефакты, Миры и Заклинания, чтобы одержать победу в Великом противоборстве. На данный момент реализован первый режим игры — Горячий стул и стартовая колода включающая 91 карту. В будущем будет добавлена возможность играть против ИИ, игра Онлайн, а также новые дополнительные издания карт.</p>
+
+    <h2>Механика игры «Горячий стул»</h2>
+    <p>Два игрока на одном устройстве ходят по очереди. Игрок 1 играет за Таверну и получает 45 карт, Игрок 2 играет за Ядро Джит и имеет 46 карт в своей колоде. У каждого база с 20 максимального здоровья. Вы строите поле из Рядовых и Уникальных Путешественников, разыгрываете заклинания, активируете артефакты и миры. Первый кто сведёт базу противника к нулю — побеждает.</p>
+
+    <h2>Что изображено на карте</h2>
+    <p>Каждая карта показывает: стоимость (верхний левый угол — сколько Эссенции нужно для игры), Тип карты (верхний правый угол), Арт в центре, рядом могут быть Тэги обозначающие присущие карте Способности, далее Название, для существ — Здоровье/HP (сердце) и Атака/ATK (меч) внизу. Ниже — текст способности, описывающий что делает карта.</p>
+
+    <h2>Мулиган</h2>
+    <p>До начала игры каждый игрок видит свою начальную руку из 5 карт и может перетасовать её обратно в колоду и взять новую — до 3х раз. Первая перетасовка не имеет штрафа, после 2й вы получите на 1 карту меньше, после 3й попытки на 2 меньше. Мулиган не обязателен: если рука устраивает, просто нажмите Ready. Когда оба игрока подтверждают готовность — игра начинается.</p>
+
+    <h2>Эссенция</h2>
+    <p>Эссенция — ваш ресурс. Вы начинаете с максимумом 1 и получаете +1 каждый ход — то есть к 5-му ходу у вас 5 Эссенции. Она полностью восполняется в начале каждого хода. Вы можете тратить ваш запас Эссенции, чтобы сыграть выбранную вами карту — нажав Play.</p>
+
+    <h2>Сжигание</h2>
+    <p>Один раз за ход вы можете сжечь карту из руки: она уходит в Пустоту навсегда, но максимум Эссенции будет увеличен на 1. Нажмите Burn над выбранной картой для этого.</p>
+
+    <h2>Колода</h2>
+    <p>Вы будете получать в начале каждого хода 1 карту из колоды.</p>
+
+    <h2>Активные способности</h2>
+    <p>У некоторых Путешественников и Артефактов есть специальное действие, которое вы запускаете вручную нажав на карту и выбрав появившуюся кнопку способности. Активные способности не стоят Эссенции, но могут использоваться лишь раз за ход, вместо атаки — после этого существо будет считаться уставшим.</p>
+
+    <h2>Кладбище и Пустота</h2>
+    <p>Кладбище хранит только существ убитых в бою. Их можно воскресить. Пустота хранит сожжённые карты, сыгранные заклинания и заменённые миры — ничто не может их вернуть.</p>
+
+    <h2>Типы карт</h2>
+
+    <h3>Рядовые и Уникальные Путешественники</h3>
+    <p>Это карты-существа выставляемые на поле. При игре они выходят на поле в состоянии сна и не могут действовать до следующего вашего хода. Чтобы атаковать существом: нажмите на него, затем на доступную для атаки карту противника или его Базу сверху — после этого существо будет считаться уставшим и сможет действовать в свой следующий ход. Когда существо атакует, защитник бьёт в ответ одновременно. Существа убитые в бою уходят на Кладбище и могут быть воскрешены.</p>
+
+    <h3>Заклинания</h3>
+    <p>Заклинания срабатывают в момент розыгрыша — добор карт, воскрешение павшего союзника, бонусная Эссенция, возврат всех карт с поля в руки — после чего уходят в Пустоту. На поле они не остаются.</p>
+
+    <h3>Миры</h3>
+    <p>Мир — постоянная карта, которая лежит под вашим полем и пассивно влияет на игру пока активна. Одновременно может быть только один Мир. Если сыграть второй — первый уходит в Пустоту.</p>
+
+    <h3>Артефакты</h3>
+    <p>Артефакты тоже лежат под полем, но одновременно может быть активно до двух. Одни срабатывают автоматически каждый ход (добор, лечение). Другие — активные: нажмите на них чтобы использовать способность раз за ход. Артефакты спят в первый ход, как существа.</p>
+
+    <hr style="border-color:#ffffff11;margin:24px 0;">
+    <h2>Глоссарий</h2>
+
+    <h3>Авангард</h3>
+    <p>Существо может действовать в тот же ход когда вышло на поле. Оно пропускает состояние сна.</p>
+
+    <h3>Сон</h3>
+    <p>Существо вышло на поле в этот ход и не может действовать. Просыпается в начале вашего следующего хода.</p>
+
+    <h3>Истощение</h3>
+    <p>Существо уже атаковало или использовало активную способность в этот ход. Не может действовать снова до следующего хода. Отображается сниженной прозрачностью.</p>
+
+    <h3>Провокация</h3>
+    <p>Все атаки врагов должны быть направлены на это существо.</p>
+
+    <h3>Бусидо</h3>
+    <p>Все атаки, включая существ с Пронзанием, обязаны нацеливаться на это существо.</p>
+
+    <h3>Пронзание</h3>
+    <p>Существо игнорирует Провокацию и может атаковать базу или любого врага напрямую.</p>
+
+    <h3>Страх</h3>
+    <p>Когда это существо атакует, цель оказывается в Страхе: пропускает следующий ход и не наносит ответного урона. Существо в Страхе не может контратаковать.</p>
+
+    <h3>Невидимость</h3>
+    <p>Существо не может быть выбрано целью для атаки пока на поле есть другие союзники. Когда оно становится последним — его можно атаковать. Также не получает ответного урона при атаке на него.</p>
+
+    <h3>Ярость</h3>
+    <p>Каждый раз когда это существо атакует, оно навсегда получает +1 ATK. Бонус накапливается, но сбрасывается если существо умирает и воскресает.</p>
+
+    <h3>Горение</h3>
+    <p>Когда это существо атакует, цель загорается. Горящие существа теряют 1 HP в начале каждого своего хода. Эффект постоянный до смерти существа. Умерев от горения карта попадает в Пустоту.</p>
+
+    <h3>Реген</h3>
+    <p>Существо восстанавливает себе X HP в начале каждого вашего хода, до максимума.</p>
+
+    <h3>Аура</h3>
+    <p>Пассивный эффект поля, который усиливает всех союзников пока карта с аурой на поле. Бонус исчезает немедленно когда карта покидает поле. Несколько источников ауры складываются. Аура не усиливает саму себя — только союзников.</p>
+
+    <h3>Отряд</h3>
+    <p>Когда на вашем поле одновременно стоят 3 и более Путешественника одного типа Врат, все они автоматически получают бонус. Бонус активируется в момент выхода третьего и исчезает как только отряд становится меньше трёх. У каждого отряда свой тип бонуса.</p>
+
+    <h3>Врата</h3>
+    <p>Разные виды формы Путешественников. Вы можете легко отличить их друг от друга по форме. Всего 6 типов основных Врат: Szarg, Xuiqtr, Umbasir, Mechird, Orbiton, Dreegan.</p>
+
+    <h3>Макс. HP</h3>
+    <p>Некоторые способности увеличивают максимальное HP существа. Если существо полностью здорово — текущее HP тоже растёт (3/3 становится 4/4). Если уже ранено — растёт только максимум (2/3 становится 2/4).</p>
+
+    <h3>Воскрешение</h3>
+    <p>Возвращение существа с Кладбища на поле с X HP. Оно выходит в состоянии сна и готово действовать в следующий ход. Воскрешённые существа не запускают эффекты «При выходе».</p>
+
+    <h3>Отброс</h3>
+    <p>Возвращение карты с поля боя в руку игрока.</p>
+
+    <h3>Жертва</h3>
+    <p>Уничтожить одно из своих существ намеренно. Оно уходит на Кладбище и может быть воскрешено. Некоторые артефакты требуют жертвы для активации.</p>
+
+    <h3>В начале хода</h3>
+    <p>Эффект срабатывает автоматически в начале вашего хода, до любых действий.</p>
+
+    <h3>При выходе</h3>
+    <p>Эффект срабатывает в момент игры карты из руки на поле. Не срабатывает при воскрешении или подъёме с кладбища.</p>
+
+    <h3>При атаке</h3>
+    <p>Эффект срабатывает каждый раз когда это существо атакует — будь то вражеское существо или база.</p>
+
+    <h3>При убийстве</h3>
+    <p>Эффект срабатывает когда атака этого существа убивает вражеское существо напрямую.</p>
 
   </div>
 </div>
