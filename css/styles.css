@@ -394,20 +394,18 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .cat-card-tags{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:3px;}
 .cat-count{font-size:18px;color:#555;margin-bottom:8px;}
 .card-detail-overlay{position:fixed;inset:0;background:#000000cc;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
-.card-detail{background:#0d0d1a;border:1px solid #c8a84b;padding:20px;max-width:300px;width:100%;position:relative;}
-.card-detail.jeet-detail{border-color:#b44fd4;}
-.card-detail-close{position:absolute;top:8px;right:10px;font-size:28px;cursor:pointer;color:#555;background:none;border:none;}
+.card-detail-box{position:relative;display:flex;align-items:center;justify-content:center;}
+.card-detail-close{position:absolute;top:-32px;right:-8px;font-size:28px;cursor:pointer;color:#888;background:none;border:none;z-index:10;}
 .card-detail-close:hover{color:#c8a84b;}
-.card-detail-art{font-size:120px;text-align:center;padding:16px 0;}
-.card-detail-name{font-family:'MEK',monospace;font-size:22px;text-align:center;margin-bottom:8px;}
-.tea-detail .card-detail-name{color:#c8a84b;}.jeet-detail .card-detail-name{color:#b44fd4;}
-.card-detail-stats{display:flex;justify-content:center;gap:20px;font-size:28px;margin:8px 0;}
-.card-detail-ab{font-size:22px;color:#888;text-align:center;line-height:1.7;margin:10px 0;}
-.card-detail-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
-.card-detail-cost{text-align:center;margin-bottom:8px;}
-.card-detail-cost span{font-family:'MEK',monospace;font-size:18px;padding:3px 10px;border:1px solid;display:inline-block;}
-.tea-detail .card-detail-cost span{border-color:#c8a84b;color:#c8a84b;}
-.jeet-detail .card-detail-cost span{border-color:#b44fd4;color:#b44fd4;}
+.card-detail-scaled{
+  --card-h: min(70vw, 55vh);
+  --card-w: calc(var(--card-h) * 0.716);
+  width: var(--card-w) !important;
+  height: var(--card-h) !important;
+  cursor: default !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
 .tag-inline{font-size:16px;padding:1px 5px;border:1px solid;display:inline;}
 .tag-inline.vanguard{border-color:#ff9933;color:#ff9933;}
 .tag-inline.provoke{border-color:#55aaff;color:#55aaff;}
