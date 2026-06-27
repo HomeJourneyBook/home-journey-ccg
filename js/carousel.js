@@ -20,6 +20,7 @@
   let velocity     = 0;
   let isDragging   = false;
   let dragStartX   = 0;
+  let dragStartY   = 0;
   let dragStartOff = 0;
   let lastDragX    = 0;
   let lastDragTime = 0;
@@ -214,9 +215,14 @@
 
   function onTouchStart(e) {
     if (!active) return;
+
+    // Если тап по попапу или его кнопкам — не перехватываем вообще
+    if (e.target.closest('.card-actions-popup')) return;
+
     const touch  = e.touches[0];
     isDragging   = true;
     dragStartX   = touch.clientX;
+    dragStartY   = touch.clientY;
     dragStartOff = offset;
     lastDragX    = touch.clientX;
     lastDragTime = performance.now();
@@ -227,15 +233,25 @@
 
   function onTouchMove(e) {
     if (!active || !isDragging) return;
-    e.preventDefault();
+
+    // Блокируем только если движение преимущественно горизонтальное
     const touch = e.touches[0];
-    const dx    = touch.clientX - dragStartX;
-    const now   = performance.now();
-    const dt    = now - lastDragTime;
+    const dx = Math.abs(touch.clientX - dragStartX);
+    const dy = Math.abs(touch.clientY - dragStartY);
+    if (dy > dx && dy > 10) {
+      // Вертикальный свайп — отпускаем контроль
+      isDragging = false;
+      snapTo(getNearestIndex());
+      return;
+    }
+
+    e.preventDefault();
+    const now = performance.now();
+    const dt  = now - lastDragTime;
     if (dt > 0) velocity = (lastDragX - touch.clientX) / dt * 16;
     lastDragX    = touch.clientX;
     lastDragTime = now;
-    offset = dragStartOff - dx;
+    offset = dragStartOff - (touch.clientX - dragStartX);
     offset = Math.max(0, Math.min(getMaxOffset(), offset));
     updateTransforms();
   }
@@ -247,18 +263,38 @@
     const dx   = Math.abs(endX - dragStartX);
 
     if (dx < 8) {
-      // Тап — найти карту под пальцем
+      // Тап — найти карту или попап под пальцем
+      const tapX = endX;
+      const tapY = e.changedTouches[0]?.clientY ?? 0;
+
+      // Проверяем попал ли тап в попап (он выше карты)
+      const popup = hand.querySelector('.card-actions-popup');
+      if (popup) {
+        const pr = popup.getBoundingClientRect();
+        if (tapX >= pr.left && tapX <= pr.right && tapY >= pr.top && tapY <= pr.bottom) {
+          // Тап по попапу — найти кнопку и кликнуть
+          const btn = document.elementFromPoint(tapX, tapY);
+          if (btn) btn.click();
+          return;
+        }
+      }
+
+      // Найти карту под пальцем
       let tappedIdx = -1;
       cards.forEach((card, i) => {
         const left  = BASE_TX - offset + i * STEP;
         const right = left + CARD_W;
-        if (endX >= left && endX <= right) tappedIdx = i;
+        if (tapX >= left && tapX <= right) tappedIdx = i;
       });
       if (tappedIdx < 0) return;
+
       if (tappedIdx === centerIndex) {
         cards[tappedIdx].click();
       } else {
-        snapTo(tappedIdx, () => cards[tappedIdx].click());
+        // Snap к карте — карта поднимется только после завершения snap
+        snapTo(tappedIdx, () => {
+          setTimeout(() => cards[tappedIdx]?.click(), 20);
+        });
       }
       return;
     }
