@@ -117,7 +117,15 @@ function startMulliganFor(faction){
     container.appendChild(el);
   });
   document.getElementById('passScreen').classList.add('hidden');
-  document.getElementById('mulliganScreen').classList.remove('hidden');
+  const mulliganEl = document.getElementById('mulliganScreen');
+  mulliganEl.classList.remove('hidden');
+  // pop-in анимация
+  const mulliganModal = mulliganEl.querySelector('.modal');
+  if(mulliganModal){
+    mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
+    void mulliganModal.offsetWidth; // reflow
+    mulliganModal.classList.add('modal-pop-in');
+  }
   const mulliganBtn = document.querySelector('#mulliganScreen .btn[onclick="doMulliganPhase()"]');
   if(mulliganBtn){
     if(m.used >= 3){
@@ -138,16 +146,42 @@ function doMulliganPhase(){
 }
 
 function readyFromMulligan(){
-  document.getElementById('mulliganScreen').classList.add('hidden');
-  if(G.mulliganTurn==='tea'){
-    document.getElementById('passTitle').textContent='PASS THE DEVICE';
-    document.getElementById('passText').textContent='Hand the device to Player 2 — Jeet Core.';
-    document.getElementById('passScreen').classList.remove('hidden');
+  const mulliganEl = document.getElementById('mulliganScreen');
+  const mulliganModal = mulliganEl.querySelector('.modal');
+
+  const proceed = () => {
+    mulliganEl.classList.add('hidden');
+    if(G.mulliganTurn==='tea'){
+      document.getElementById('passTitle').textContent='PASS THE DEVICE';
+      document.getElementById('passText').textContent='Hand the device to Player 2 — Jeet Core.';
+      const passEl = document.getElementById('passScreen');
+      passEl.classList.remove('hidden');
+      const passModal = passEl.querySelector('.modal');
+      if(passModal){
+        passModal.classList.remove('modal-pop-in','modal-pop-out');
+        void passModal.offsetWidth;
+        passModal.classList.add('modal-pop-in');
+      }
+    } else {
+      G.phase='action';
+      G.mulliganTurn=null;
+      // Fade-in игрового поля
+      const game = document.getElementById('game');
+      game.classList.remove('game-fade-in');
+      void game.offsetWidth;
+      game.classList.add('game-fade-in');
+      render();
+      requestAnimationFrame(adjustHandOverlap);
+    }
+  };
+
+  if(mulliganModal){
+    mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
+    void mulliganModal.offsetWidth;
+    mulliganModal.classList.add('modal-pop-out');
+    setTimeout(proceed, 150);
   } else {
-    G.phase='action';
-    G.mulliganTurn=null;
-    render();
-    requestAnimationFrame(adjustHandOverlap);
+    proceed();
   }
 }
 
@@ -231,7 +265,15 @@ lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
 
 
-
+// ── Rules language toggle ────────────────────────────────────────
+let rulesLang = 'ENG';
+function toggleRulesLang() {
+  rulesLang = rulesLang === 'ENG' ? 'RUS' : 'ENG';
+  document.getElementById('rulesENG').style.display = rulesLang === 'ENG' ? '' : 'none';
+  document.getElementById('rulesRUS').style.display = rulesLang === 'RUS' ? '' : 'none';
+  document.getElementById('rulesLangBtn').textContent  = rulesLang === 'ENG' ? 'RUS' : 'ENG';
+  document.getElementById('rulesTitleLabel').textContent = rulesLang === 'ENG' ? 'Rules' : 'Правила';
+}
 
 // ── Rules language toggle (v2 — 4 languages) ────────────────────
 const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VIE:'Luật Chơi' };
@@ -250,4 +292,22 @@ function setRulesLang(lang) {
   }
   const screen = document.getElementById('rulesScreen');
   if (screen) screen.scrollTop = 0;
+}
+
+// ── Pass screen transition ───────────────────────────────────────
+function passReady(){
+  const passEl = document.getElementById('passScreen');
+  const passModal = passEl.querySelector('.modal');
+  const proceed = () => {
+    passEl.classList.add('hidden');
+    startMulliganFor('jeet');
+  };
+  if(passModal){
+    passModal.classList.remove('modal-pop-in','modal-pop-out');
+    void passModal.offsetWidth;
+    passModal.classList.add('modal-pop-out');
+    setTimeout(proceed, 150);
+  } else {
+    proceed();
+  }
 }
