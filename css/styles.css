@@ -367,6 +367,18 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   .rules-lang-btn{font-size:0.9vw;padding:0.4vw 0.8vw;}
 }
 #rulesRUS,#rulesRUS h2,#rulesRUS h3{font-family:'Press Start 2P',monospace;}
+#rulesRUS{font-size:calc(3.8vw * 0.65);}
+#rulesRUS h2{font-size:calc(5vw * 0.65);}
+#rulesRUS h3{font-size:calc(3.8vw * 0.65);}
+@media(min-width:600px){
+  #rulesRUS{font-size:calc(1.1vw * 0.65);}
+  #rulesRUS h2{font-size:calc(1.8vw * 0.65);}
+  #rulesRUS h3{font-size:calc(1.1vw * 0.65);}
+}
+.screen-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(6vw * 0.65);}
+@media(min-width:600px){
+  .screen-title.rus-title{font-size:calc(2.2vw * 0.65);}
+}
 @media(min-width:600px){
   .screen-lang-btn{font-size:1.1vw;padding:0.4vw 1vw;}
 }
@@ -513,6 +525,7 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   background:url('../img/card_name_bg.png') center/100% 100% no-repeat;
   overflow:hidden;flex-shrink:0;padding:0;
   display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:2;
 }
 
   .card-small-hp-box{
