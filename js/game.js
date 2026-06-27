@@ -298,14 +298,20 @@ function dmgCard(card,dmg,faction){
   if(card.hp<=0)killCard(card,faction);
 }
 
-function killCard(card,faction){
+function killCard(card,faction,toVoid=false){
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
   card.rageBonus=0;
   card.squadMaxHpBonus=0;
   card.squadAtkBonus=0;
   card.squadParam=null;
-  G[faction].grave.push(card);
-  lg(`${card.name} dies.`,'die');
+  if(toVoid){
+    card.voided=true;
+    G[faction].void.push(card);
+    lg(`${card.name} burned to ash — lost forever.`,'die');
+  } else {
+    G[faction].grave.push(card);
+    lg(`${card.name} dies.`,'die');
+  }
   checkSquadBonuses(faction);
   if(hasTag(card,'aura:atk')){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
@@ -604,7 +610,7 @@ function endTurn(){
       lg(`${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
       if(card.hp<=0){
         const f=G[G.turn].field.includes(card)?G.turn:oppK;
-        killCard(card,f);
+        killCard(card,f,true); // true = burned to death → void
       }
     }
   });
