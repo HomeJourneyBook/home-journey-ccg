@@ -158,11 +158,14 @@ function doWorld(card){
   cur.world=card;
   const drawTag=getTagVal(card,'draw');
   if(drawTag) cur.extraDraw+=drawTag;
-  if(hasTag(card,'aura:atk')||hasTag(card,'aura:maxhp')){
-    G[G.turn]._auraAtkLog=hasTag(card,'aura:atk')?card.id:null;
-    G[G.turn]._auraMaxLog=hasTag(card,'aura:maxhp')?card.id:null;
-    applyAuras(G.turn);
+  if(hasTag(card,'aura:atk')){
+    G[G.turn]._auraAtkLog=card.id;
   }
+  if(hasTag(card,'aura:maxhp')){
+    G[G.turn]._auraMaxLog=card.id;
+  }
+  applyAuras(G.turn);
+  checkSquadBonuses(G.turn);
   lg(`World: ${card.name} landed.`,'imp');
 }
 
@@ -696,19 +699,27 @@ function activateCard(cardId){
   setTimeout(()=>el.classList.remove('activating'), 500);
 }
 function flashBase(who, type){
-  // who = 'opp' or 'player' (positional, top/bottom), OR legacy faction name
-  let elId;
-  if(who==='opp'||who==='player'){
-    elId=who==='opp'?'oppStats':'playerStats';
-  } else {
-    // legacy: faction-based (opp faction is always oppStats)
-    const oppK=G.turn==='tea'?'jeet':'tea';
-    elId=who===oppK?'oppStats':'playerStats';
-  }
-  const el=document.getElementById(elId);
-  if(!el) return;
-  el.classList.remove('flash-red','flash-green');
-  void el.offsetWidth;
-  el.classList.add(type==='dmg'?'flash-red':'flash-green');
-  setTimeout(()=>el.classList.remove('flash-red','flash-green'), 500);
+  // Queue flash to apply after render/reorderZones rewrites innerHTML
+  if(!G._pendingFlash) G._pendingFlash=[];
+  G._pendingFlash.push({who,type});
+}
+function _applyPendingFlash(){
+  if(!G._pendingFlash||G._pendingFlash.length===0) return;
+  const flashes=G._pendingFlash;
+  G._pendingFlash=[];
+  flashes.forEach(({who,type})=>{
+    let elId;
+    if(who==='opp'||who==='player'){
+      elId=who==='opp'?'oppStats':'playerStats';
+    } else {
+      const oppK=G.turn==='tea'?'jeet':'tea';
+      elId=who===oppK?'oppStats':'playerStats';
+    }
+    const el=document.getElementById(elId);
+    if(!el) return;
+    el.classList.remove('flash-red','flash-green');
+    void el.offsetWidth;
+    el.classList.add(type==='dmg'?'flash-red':'flash-green');
+    setTimeout(()=>el.classList.remove('flash-red','flash-green'), 500);
+  });
 }
