@@ -54,7 +54,7 @@ const DEFS = {
   t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1.",world:true},
   t_w2:        {name:"DOMUS",      cost:4,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_maxhp:1"],ab:"Aura: +1 maxHP.",world:true},
   t_a1:        {name:"THE BOOK",   cost:3,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","draw:1"],   ab:"On turn: Draw 1 card.",artifact:true},
-  t_a2:        {name:"TEA FOUNT.", cost:3,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Restore all allies 1 HP.",artifact:true},
+  t_a2:        {name:"FOUNTAIN", cost:3,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Restore all allies 1 HP.",artifact:true},
 
   // ── JEET CREATURES ──────────────────────────────────────────────
 
