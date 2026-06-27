@@ -323,10 +323,16 @@ function rZone(id,cards,zone){
       setTimeout(()=>{
         dying.forEach(cardEl=>{if(cardEl.parentElement)cardEl.remove();});
       }, 400);
-      // During death animation: only add truly new cards, leave existing live cards in place
-      const presentIds=new Set([...el.querySelectorAll('.card-small:not(.dying)')].map(e=>e.dataset.id));
+      // Build map of live (non-dying) existing elements
+      const existingMap={};
+      el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>{
+        existingMap[cardEl.dataset.id]=cardEl;
+      });
+      // Update live cards in-place (fixes targetable staying lit), add new ones with entering
       cards.forEach(c=>{
-        if(!presentIds.has(String(c.id))){
+        if(existingMap[String(c.id)]){
+          existingMap[String(c.id)].replaceWith(mkSmallEl(c));
+        } else {
           const cardEl=mkSmallEl(c);
           cardEl.classList.add('entering');
           el.appendChild(cardEl);
@@ -385,13 +391,14 @@ function rPersist(id,player){
         d.style.opacity='0.5';
       } else if(G.phase==='shardTarget'){
         // Active and waiting for target
-        d.style.cursor='pointer';
+        d.classList.add('pcard-active');
         d.style.border='2px solid #e05050';
         d.style.boxShadow='0 0 8px #e05050';
+        d.style.borderRadius='6px';
         d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
       } else if(G.phase==='action'){
-        // Ready but no highlight until clicked
-        d.style.cursor='pointer';
+        // Ready - hover/press via CSS class only
+        d.classList.add('pcard-active');
         d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
       }
     }
@@ -402,14 +409,14 @@ function rPersist(id,player){
         d.style.opacity='0.5';
       } else if(G.phase==='sacrificeTarget'){
         // Active and waiting for target - pulse border, click cancels
-        d.style.cursor='pointer';
+        d.classList.add('pcard-active');
         d.style.border='2px solid #b44fd4';
         d.style.boxShadow='0 0 8px #b44fd4';
+        d.style.borderRadius='6px';
         d.addEventListener('click',(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();});
       } else if(G.phase==='action'){
-        // Ready to use
-        d.style.cursor='pointer';
-        d.style.border='1px solid #b44fd4';
+        // Ready - hover/press via CSS class, no border in idle
+        d.classList.add('pcard-active');
         d.addEventListener('click',(e)=>{
           e.stopPropagation();
           G.phase='sacrificeTarget';
