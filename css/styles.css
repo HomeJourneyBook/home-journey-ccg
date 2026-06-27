@@ -359,6 +359,13 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
 .screen-back:hover{color:#c8a84b;border-color:#c8a84b;}
 .screen-lang-btn{font-family:'MEK',monospace;font-size:3.5vw;padding:1vw 2.5vw;border:1px solid #c8a84b44;background:transparent;color:#c8a84b;cursor:pointer;position:absolute;right:0;}
 .screen-lang-btn:hover{border-color:#c8a84b;background:#c8a84b18;}
+.rules-lang-btns{display:flex;gap:2px;position:absolute;right:0;}
+.rules-lang-btn{font-family:'MEK',monospace;font-size:2.8vw;padding:1vw 1.5vw;border:1px solid #444;background:transparent;color:#555;cursor:pointer;}
+.rules-lang-btn:hover{color:#c8a84b;border-color:#c8a84b55;}
+.rules-lang-btn.active{border-color:#c8a84b;color:#c8a84b;background:#c8a84b11;}
+@media(min-width:600px){
+  .rules-lang-btn{font-size:0.9vw;padding:0.4vw 0.8vw;}
+}
 #rulesRUS,#rulesRUS h2,#rulesRUS h3{font-family:'Press Start 2P',monospace;}
 @media(min-width:600px){
   .screen-lang-btn{font-size:1.1vw;padding:0.4vw 1vw;}
