@@ -27,7 +27,7 @@
   --card-small-stats-h: calc(var(--card-small-h) * 0.122);
   --pcard-w: calc(var(--card-small-h) * 0.8);
   --pcard-h: calc(var(--card-small-h) * 0.22);
-  --card-small-name-fs: calc(var(--card-small-h) * 0.15);
+  --card-small-name-fs: calc(var(--card-small-h) * 0.1);
   --card-small-stat-fs: calc(var(--card-small-h) * 0.15);
   --card-world-name-h: calc(var(--card-h) * 0.096);
   --card-world-text-h: calc(var(--card-h) * 0.16);
@@ -540,13 +540,13 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   .card-small-hp-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
-  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 2px 1px;
+  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 3.5px 1px;
 }
 
 .card-small-atk-box{
   width:48%;height:100%;
   background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;
-display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 2px 1px;
+display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 3.5px 1px;
 }
 .card-tag-icons{
   position:absolute;
