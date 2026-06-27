@@ -26,8 +26,35 @@ function preloadAssets(){
   });
 }
 
+// ── Start menu expand / collapse ──────────────────────────────
+let _expandTimer = null;
+
+function collapseStart(){
+  document.getElementById('startMainBtn').classList.remove('hidden');
+  document.getElementById('startOptions').classList.add('hidden');
+  if(_expandTimer){ clearTimeout(_expandTimer); _expandTimer=null; }
+}
+
+function expandStart(){
+  document.getElementById('startMainBtn').classList.add('hidden');
+  document.getElementById('startOptions').classList.remove('hidden');
+  // Auto-collapse after 30s of no interaction
+  if(_expandTimer) clearTimeout(_expandTimer);
+  _expandTimer = setTimeout(collapseStart, 30000);
+}
+
+// ── Navigation ────────────────────────────────────────────────
 function showLanding(){
+  // Hide game and all overlays
   document.getElementById('game').style.display='none';
+  document.getElementById('mulliganScreen').classList.add('hidden');
+  document.getElementById('passScreen').classList.add('hidden');
+  document.getElementById('winModal').classList.add('hidden');
+  document.getElementById('confirmModal').classList.add('hidden');
+  // Reset game state so next Start is fresh
+  initState();
+  // Always return start menu to collapsed state
+  collapseStart();
   document.getElementById('landing').style.display='flex';
 }
 
@@ -49,14 +76,10 @@ function askRestart(){
   showConfirm('Current game will be lost.','Yes, Restart',()=>resetGame());
 }
 
-function expandStart(){
-  document.getElementById('startMainBtn').classList.add('hidden');
-  document.getElementById('startOptions').classList.remove('hidden');
-}
-
 function startGame(){
   document.getElementById('landing').style.display='none';
   document.getElementById('game').style.display='flex';
+  collapseStart();
   setTimeout(()=>{ startMulliganFor('tea'); }, 50);
 }
 
