@@ -371,20 +371,30 @@ function rHiddenHand(id,cards,faction){
 
 function rPersist(id,player){
   const el=document.getElementById(id);
+
+  // Запоминаем какие pcard уже были отображены
+  const prevIds=new Set(
+    Array.from(el.querySelectorAll('.pcard[data-pid]')).map(e=>e.dataset.pid)
+  );
+
   el.innerHTML='';
   const cls=player===G.tea?'tcp':'jcp';
   if(player.world){
     const d=document.createElement('div');
     d.className=`pcard ${cls}`;
+    d.dataset.pid=player.world.id;
     d.textContent=`${player.world.art} ${player.world.name}`;
     d.title=player.world.ab;
+    if(!prevIds.has(player.world.id)) d.classList.add('pcard-entering');
     el.appendChild(d);
   }
   player.artifacts.forEach(a=>{
     const d=document.createElement('div');
     d.className=`pcard ${cls}`;
+    d.dataset.pid=a.id;
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
+    if(!prevIds.has(a.id)) d.classList.add('pcard-entering');
     // Shard damage logic
     if(hasTag(a,'shard')&&a.f===G.turn){
       if(a.exhausted||a.sleeping){
