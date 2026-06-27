@@ -224,6 +224,7 @@ lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
 
 
+
 // ── Rules language toggle (v2 — 4 languages) ────────────────────
 const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VIE:'Luật Chơi' };
 function setRulesLang(lang) {
@@ -235,7 +236,10 @@ function setRulesLang(lang) {
     btn.classList.toggle('active', btn.textContent === lang);
   });
   const title = document.getElementById('rulesTitleLabel');
-  if (title) title.textContent = RULES_TITLES[lang] || 'Rules';
+  if (title) {
+    title.textContent = RULES_TITLES[lang] || 'Rules';
+    title.classList.toggle('rus-title', lang === 'RUS');
+  }
   const screen = document.getElementById('rulesScreen');
   if (screen) screen.scrollTop = 0;
 }
