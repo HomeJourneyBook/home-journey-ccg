@@ -10,7 +10,12 @@
 <div class="stars"></div>
 
 <!-- LANDING -->
-<div class="landing" id="landing">
+<div id="loadingScreen" style="position:fixed;inset:0;background:#06060e;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="font-family:'MEK',monospace;font-size:clamp(18px,5vw,32px);color:#c8a84b;letter-spacing:4px;">HOME'S JOURNEY</div>
+  <div id="loadingDots" style="font-family:'MEK',monospace;font-size:clamp(12px,3vw,18px);color:#555;letter-spacing:2px;">Brewing<span id="ldots">.</span></div>
+</div>
+
+<div class="landing" id="landing" style="display:none;">
   <div class="landing-title">HOME'S<br>JOURNEY</div>
   <div class="landing-sub">· · · CCG · · ·</div>
   <div class="start-group" id="startGroup">
@@ -383,7 +388,7 @@
   
 <!-- GRAVEYARD MODAL -->
 <div class="modal-overlay hidden" id="graveModal" style="background:transparent;pointer-events:none;">
- <div class="modal" style="pointer-events:all;position:fixed;bottom:44px;left:14px;max-width:320px;max-height:60vh;overflow-y:auto;padding:0;border:1px solid #c8a84b33;background:#0a0a12;box-shadow:0 4px 20px #000000aa;" onclick="event.stopPropagation()">
+ <div class="modal" style="pointer-events:all;position:fixed;max-width:320px;max-height:60vh;overflow-y:auto;padding:0;border:1px solid #c8a84b33;background:#0a0a12;box-shadow:0 4px 20px #000000aa;" onclick="event.stopPropagation()">
    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #ffffff11;">
      <span style="font-family:'MEK',monospace;font-size:18px;color:#c8a84b;" id="graveModalTitle">Graveyard</span>
      <button class="log-panel-close" onclick="closeGraveModal()">X</button>
