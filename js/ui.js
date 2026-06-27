@@ -1,5 +1,6 @@
 function preloadAssets(){
-  const images = [
+  // Только критичные UI ассеты — грузим сразу
+  const criticalImages = [
     'img/card_tea.png', 'img/card_jeet.png',
     'img/card_name_bg.png', 'img/card_text_bg.png', 'img/card_stat_bg.png',
     'img/pcard_tea_bg.png', 'img/pcard_jeet_bg.png', 'img/pcard_bg.png',
@@ -15,15 +16,21 @@ function preloadAssets(){
     'img/ef_burn.png',
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
   ];
-  if(typeof DEFS !== 'undefined'){
-    Object.values(DEFS).forEach(def=>{
-      if(def.img) images.push(`img/cards/${def.img}`);
-    });
-  }
-  images.forEach(src=>{
+  criticalImages.forEach(src => {
     const img = new Image();
     img.src = src;
   });
+
+  // Карты путешественников — грузим с задержкой после загрузки страницы
+  setTimeout(() => {
+    if(typeof DEFS === 'undefined') return;
+    Object.values(DEFS).forEach(def => {
+      if(def.img){
+        const img = new Image();
+        img.src = `img/cards/${def.img}`;
+      }
+    });
+  }, 2000);
 }
 
 // ── Start menu expand / collapse ──────────────────────────────
@@ -222,6 +229,7 @@ preloadAssets();
 initState();
 lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
+
 
 
 
