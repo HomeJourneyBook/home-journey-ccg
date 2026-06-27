@@ -69,7 +69,7 @@ function renderCatalog(){
     div.onclick=()=>openCardDetail(def);
     if(def.world){
   div.classList.add('world-card');
-  if(def.img) div.classList.add('world-img-' + def.img.replace('.','_'));
+  if(def.img) div.style.cssText += ';background-image:url(\'img/cards/'+def.img+'\')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;';
   div.innerHTML=`
     <div class="card-cost">${def.cost}</div>
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
@@ -125,11 +125,12 @@ function openCardDetail(def){
 
   const bgClass = faction==='tea'?'tea-card':'jeet-card';
   const worldClass = def.world?'world-card':'';
+  const worldBg = def.world && def.img ? `background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;` : '';
 
   box.className = 'card-detail-box';
   box.innerHTML = `
     <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
-    <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;">
+    <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;${worldBg}">
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img
