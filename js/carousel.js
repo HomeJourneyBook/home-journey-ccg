@@ -1,24 +1,23 @@
 /**
  * CardCarousel — мобильная карусель для руки активного игрока.
- * Работает с #teaHand и #jeetHand (горячий стул).
- * Активен только на мобильном (max-width: 600px).
  */
-
 (function () {
   const MOBILE_BREAKPOINT = 600;
-  const FRICTION           = 0.88;   // инерция
-  const SNAP_DURATION      = 280;    // мс snap-анимации
-  const SCALE_CENTER       = 1.0;
-  const SCALE_NEAR         = 0.93;   // ближайшие соседи
-  const SCALE_FAR          = 0.86;   // дальние
-  const OPACITY_CENTER     = 1.0;
-  const OPACITY_NEAR       = 0.75;   // мягкая прозрачность соседей
-  const OPACITY_FAR        = 0.5;
-  const GAP                = 10;     // px между картами
+  const FRICTION          = 0.84;   // быстрее останавливается
+  const SNAP_DURATION     = 180;    // мс — короткий snap
+  const GAP               = 10;     // px между картами
 
-  let hand        = null;   // текущий активный DOM-элемент руки
+  // Визуал соседних карт
+  const SCALE_CENTER  = 1.00;
+  const SCALE_NEAR    = 0.90;
+  const SCALE_FAR     = 0.82;
+  const OPACITY_CENTER = 1.00;
+  const OPACITY_NEAR   = 0.45;   // заметно темнее
+  const OPACITY_FAR    = 0.25;
+
+  let hand        = null;
   let cards       = [];
-  let offset      = 0;      // px, 0 = карта[0] по центру экрана
+  let offset      = 0;      // px от нулевой позиции (карта[0] по центру)
   let velocity    = 0;
   let isDragging  = false;
   let dragStartX  = 0;
@@ -29,98 +28,103 @@
   let snapRafId   = null;
   let centerIndex = 0;
   let active      = false;
-  let cardW       = 0;
-  // сохраняем обработчики чтобы снять при смене руки
+
+  // Фиксированные значения — пересчитываются только при init/resize
+  let CARD_W  = 0;   // ширина одной карты
+  let STEP    = 0;   // шаг карусели = CARD_W + GAP
+  let BASE_TX = 0;   // translateX при offset=0: карта[0] строго по центру
+
   let boundTouchStart, boundTouchMove, boundTouchEnd;
-  let boundMouseDown, boundMouseMove, boundMouseUp;
+  let boundMouseMove, boundMouseUp;
 
   function isMobile() {
     return window.innerWidth <= MOBILE_BREAKPOINT;
   }
 
-  // Определяем какой #*Hand сейчас в #playerHandZone
   function getActiveHand() {
     const zone = document.getElementById('playerHandZone');
     if (!zone) return null;
-    const h = zone.querySelector('#teaHand, #jeetHand');
-    return h || null;
+    return zone.querySelector('#teaHand, #jeetHand') || null;
   }
 
-  function measureCard() {
-    if (cards.length === 0) return;
+  // Вызывается один раз после рендера или resize — фиксируем геометрию
+  function recalcLayout() {
+    if (!hand || cards.length === 0) return false;
     const r = cards[0].getBoundingClientRect();
-    if (r.width > 0) cardW = r.width;
+    if (r.width <= 0) return false;
+    CARD_W  = r.width;
+    STEP    = CARD_W + GAP;
+    BASE_TX = window.innerWidth / 2 - CARD_W / 2;
+    return true;
   }
 
-  function getStep()      { return cardW + GAP; }
-  function getMaxOffset() { return Math.max(0, (cards.length - 1) * getStep()); }
-
-  // translateX контейнера: при offset=0 карта[0] стоит по центру экрана
-  function getTranslateX() {
-    const base = window.innerWidth / 2 - cardW / 2;
-    return base - offset;
+  function getMaxOffset() {
+    return Math.max(0, (cards.length - 1) * STEP);
   }
 
   function updateTransforms() {
-    if (!hand || cards.length === 0) return;
+    if (!hand || cards.length === 0 || STEP === 0) return;
 
     const screenCenter = window.innerWidth / 2;
-    const base = window.innerWidth / 2 - cardW / 2;
-    const step = getStep();
 
     cards.forEach((card, i) => {
-      const cardCenter = base - offset + i * step + cardW / 2;
-      const dist = Math.abs(cardCenter - screenCenter) / step;
+      const cardCenter = BASE_TX - offset + i * STEP + CARD_W / 2;
+      const dist = Math.abs(cardCenter - screenCenter) / STEP;
 
       let scale, opacity;
       if (dist < 0.5) {
-        scale   = SCALE_CENTER - (SCALE_CENTER - SCALE_NEAR) * dist * 2;
-        opacity = OPACITY_CENTER - (OPACITY_CENTER - OPACITY_NEAR) * dist * 2;
+        const t = dist * 2;
+        scale   = SCALE_CENTER   - (SCALE_CENTER   - SCALE_NEAR)   * t;
+        opacity = OPACITY_CENTER - (OPACITY_CENTER - OPACITY_NEAR) * t;
       } else if (dist < 1.5) {
-        scale   = SCALE_NEAR - (SCALE_NEAR - SCALE_FAR) * (dist - 0.5);
-        opacity = OPACITY_NEAR - (OPACITY_NEAR - OPACITY_FAR) * (dist - 0.5);
+        const t = dist - 0.5;
+        scale   = SCALE_NEAR   - (SCALE_NEAR   - SCALE_FAR)   * t;
+        opacity = OPACITY_NEAR - (OPACITY_NEAR - OPACITY_FAR) * t;
       } else {
         scale   = SCALE_FAR;
         opacity = OPACITY_FAR;
       }
 
-      scale   = Math.max(SCALE_FAR,   Math.min(SCALE_CENTER,   scale));
-      opacity = Math.max(OPACITY_FAR, Math.min(OPACITY_CENTER, opacity));
-
       if (!card.classList.contains('previewed')) {
         card.style.transform = `scale(${scale.toFixed(3)})`;
         card.style.opacity   = opacity.toFixed(3);
       }
-      // центральная карта всегда поверх соседей
-      card.style.zIndex = String(Math.round(20 - dist * 5));
+      card.style.zIndex = String(Math.round(20 - dist * 6));
     });
 
-    hand.style.transform = `translateX(${getTranslateX().toFixed(2)}px)`;
+    hand.style.transform = `translateX(${(BASE_TX - offset).toFixed(1)}px)`;
   }
 
   function getNearestIndex() {
-    if (cards.length === 0) return 0;
-    const idx = Math.round(offset / getStep());
+    if (STEP === 0) return 0;
+    const idx = Math.round(offset / STEP);
     return Math.max(0, Math.min(cards.length - 1, idx));
   }
 
-  function easeOutQuart(t) {
-    return 1 - Math.pow(1 - t, 4);
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
   }
 
   function snapTo(idx, callback) {
     cancelAnimationFrame(snapRafId);
     cancelAnimationFrame(rafId);
-
-    const from  = offset;
-    const to    = idx * getStep();
-    const diff  = to - from;
-    const start = performance.now();
+    velocity    = 0;
     centerIndex = idx;
 
+    const from  = offset;
+    const to    = idx * STEP;
+    const diff  = to - from;
+    if (Math.abs(diff) < 0.5) {
+      offset = to;
+      updateTransforms();
+      if (callback) callback();
+      return;
+    }
+
+    const start = performance.now();
     function animate(now) {
       const t = Math.min((now - start) / SNAP_DURATION, 1);
-      offset = from + diff * easeOutQuart(t);
+      offset = from + diff * easeOutCubic(t);
       updateTransforms();
       if (t < 1) {
         snapRafId = requestAnimationFrame(animate);
@@ -141,8 +145,7 @@
         return;
       }
       offset += velocity;
-      // жёсткий лимит — не уезжаем за крайние карты
-      offset = Math.max(0, Math.min(getMaxOffset(), offset));
+      offset   = Math.max(0, Math.min(getMaxOffset(), offset));
       velocity *= FRICTION;
       updateTransforms();
       rafId = requestAnimationFrame(step);
@@ -154,7 +157,7 @@
 
   function onTouchStart(e) {
     if (!active) return;
-    const touch = e.touches[0];
+    const touch  = e.touches[0];
     isDragging   = true;
     dragStartX   = touch.clientX;
     dragStartOff = offset;
@@ -176,7 +179,6 @@
     lastDragX    = touch.clientX;
     lastDragTime = now;
     offset = dragStartOff - dx;
-    // жёсткий лимит при драге
     offset = Math.max(0, Math.min(getMaxOffset(), offset));
     updateTransforms();
   }
@@ -184,47 +186,34 @@
   function onTouchEnd(e) {
     if (!active || !isDragging) return;
     isDragging = false;
+    const endX = e.changedTouches[0]?.clientX ?? dragStartX;
+    const dx   = Math.abs(endX - dragStartX);
 
-    // Если это был тап (почти без движения) — проверяем тапнули ли не по центральной
-    const dx = Math.abs((e.changedTouches[0]?.clientX || dragStartX) - dragStartX);
     if (dx < 8) {
-      handleTap(e.changedTouches[0]?.clientX || dragStartX);
+      // Тап — найти карту под пальцем
+      const tapX = endX;
+      let tappedIdx = -1;
+      cards.forEach((card, i) => {
+        const left  = BASE_TX - offset + i * STEP;
+        const right = left + CARD_W;
+        if (tapX >= left && tapX <= right) tappedIdx = i;
+      });
+
+      if (tappedIdx < 0) return;
+
+      if (tappedIdx === centerIndex) {
+        cards[tappedIdx].click();
+      } else {
+        // Snap к карте, потом клик
+        snapTo(tappedIdx, () => cards[tappedIdx].click());
+      }
       return;
     }
+
     runMomentum();
   }
 
-  // Тап по карте — если не центральная, сначала snap, потом клик
-  function handleTap(tapX) {
-    if (!hand || cards.length === 0) return;
-
-    const base = window.innerWidth / 2 - cardW / 2;
-    const step = getStep();
-
-    // Найдём карту под пальцем
-    let tappedIdx = -1;
-    cards.forEach((card, i) => {
-      const cardLeft  = base - offset + i * step;
-      const cardRight = cardLeft + cardW;
-      if (tapX >= cardLeft && tapX <= cardRight) {
-        tappedIdx = i;
-      }
-    });
-
-    if (tappedIdx < 0) return;
-
-    if (tappedIdx === centerIndex) {
-      // Центральная — пускаем клик как обычно
-      cards[tappedIdx].click();
-    } else {
-      // Не центральная — snap к ней, потом клик
-      snapTo(tappedIdx, () => {
-        cards[tappedIdx].click();
-      });
-    }
-  }
-
-  // ── Mouse (тест на десктопе) ─────────────────────────────────────
+  // ── Mouse ────────────────────────────────────────────────────────
 
   function onMouseDown(e) {
     if (!active) return;
@@ -257,18 +246,16 @@
     runMomentum();
   }
 
-  // ── Управление обработчиками ─────────────────────────────────────
+  // ── Смена/инициализация руки ─────────────────────────────────────
 
   function attachHandlers(el) {
     boundTouchStart = onTouchStart;
     boundTouchMove  = onTouchMove;
     boundTouchEnd   = onTouchEnd;
-    boundMouseDown  = onMouseDown;
-
     el.addEventListener('touchstart', boundTouchStart, { passive: true });
     el.addEventListener('touchmove',  boundTouchMove,  { passive: false });
     el.addEventListener('touchend',   boundTouchEnd);
-    el.addEventListener('mousedown',  boundMouseDown);
+    el.addEventListener('mousedown',  onMouseDown);
   }
 
   function detachHandlers(el) {
@@ -276,17 +263,68 @@
     el.removeEventListener('touchstart', boundTouchStart);
     el.removeEventListener('touchmove',  boundTouchMove);
     el.removeEventListener('touchend',   boundTouchEnd);
-    el.removeEventListener('mousedown',  boundMouseDown);
+    el.removeEventListener('mousedown',  onMouseDown);
+  }
+
+  function resetHandState() {
+    offset      = 0;
+    centerIndex = 0;
+    velocity    = 0;
+    CARD_W      = 0;
+    STEP        = 0;
+    BASE_TX     = 0;
+  }
+
+  // ── Refresh — после каждого render() ────────────────────────────
+
+  function refresh() {
+    if (!isMobile()) {
+      if (active) deactivate();
+      return;
+    }
+    if (!active) { activate(); return; }
+
+    const newHand = getActiveHand();
+    if (!newHand) return;
+
+    if (newHand !== hand) {
+      // Смена руки (смена хода)
+      if (hand) {
+        detachHandlers(hand);
+        hand.style.transform   = '';
+        hand.style.touchAction = '';
+        cards.forEach(c => { c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; });
+      }
+      hand = newHand;
+      hand.style.touchAction = 'none';
+      attachHandlers(hand);
+      resetHandState();
+    }
+
+    const newCards     = Array.from(hand.querySelectorAll('.card'));
+    const countChanged = newCards.length !== cards.length;
+    cards = newCards;
+
+    // Пересчитываем геометрию после рендера
+    if (!recalcLayout()) return;
+
+    if (countChanged) {
+      const nearest = Math.max(0, Math.min(cards.length - 1, centerIndex));
+      offset      = nearest * STEP;
+      centerIndex = nearest;
+    }
+
+    updateTransforms();
   }
 
   // ── CSS ──────────────────────────────────────────────────────────
 
-  function applyCarouselCSS() {
+  function applyCSS() {
     if (document.getElementById('carousel-style')) return;
-    const style = document.createElement('style');
-    style.id = 'carousel-style';
-    style.textContent = `
-      @media (max-width: 600px) {
+    const s = document.createElement('style');
+    s.id = 'carousel-style';
+    s.textContent = `
+      @media (max-width: ${MOBILE_BREAKPOINT}px) {
         .player-hand-zone {
           height: auto !important;
           padding: 0 !important;
@@ -307,7 +345,7 @@
         }
         #teaHand .card, #jeetHand .card {
           flex-shrink: 0 !important;
-          transition: opacity 0.15s !important;
+          transition: opacity 0.1s, transform 0.1s !important;
         }
         #teaHand .card.previewed, #jeetHand .card.previewed {
           transform: translateY(calc(var(--card-h) * -0.34)) scale(1.05) !important;
@@ -316,71 +354,20 @@
         }
       }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(s);
   }
 
-  function removeCarouselCSS() {
-    const el = document.getElementById('carousel-style');
-    if (el) el.remove();
-  }
-
-  // ── Refresh — вызывается после каждого render() ──────────────────
-
-  function refresh() {
-    if (!isMobile()) {
-      if (active) deactivate();
-      return;
-    }
-    if (!active) {
-      activate();
-      return;
-    }
-
-    const newHand = getActiveHand();
-    if (!newHand) return;
-
-    // Если рука сменилась (переход хода) — переключаемся
-    if (newHand !== hand) {
-      if (hand) {
-        detachHandlers(hand);
-        hand.style.transform   = '';
-        hand.style.touchAction = '';
-        hand.style.willChange  = '';
-      }
-      hand = newHand;
-      hand.style.willChange  = 'transform';
-      hand.style.touchAction = 'none';
-      attachHandlers(hand);
-      // сброс позиции при смене игрока
-      offset      = 0;
-      centerIndex = 0;
-    }
-
-    const newCards    = Array.from(hand.querySelectorAll('.card'));
-    const countChanged = newCards.length !== cards.length;
-    cards = newCards;
-    measureCard();
-
-    if (countChanged) {
-      const nearest = Math.max(0, Math.min(cards.length - 1, centerIndex));
-      offset      = nearest * getStep();
-      centerIndex = nearest;
-    }
-
-    updateTransforms();
+  function removeCSS() {
+    document.getElementById('carousel-style')?.remove();
   }
 
   function activate() {
     active = true;
-    applyCarouselCSS();
-
-    if (!boundMouseMove) {
-      boundMouseMove = onMouseMove;
-      boundMouseUp   = onMouseUp;
-      document.addEventListener('mousemove', boundMouseMove);
-      document.addEventListener('mouseup',   boundMouseUp);
-    }
-
+    applyCSS();
+    boundMouseMove = onMouseMove;
+    boundMouseUp   = onMouseUp;
+    document.addEventListener('mousemove', boundMouseMove);
+    document.addEventListener('mouseup',   boundMouseUp);
     refresh();
   }
 
@@ -392,20 +379,13 @@
       detachHandlers(hand);
       hand.style.transform   = '';
       hand.style.touchAction = '';
-      hand.style.willChange  = '';
-      cards.forEach(card => {
-        card.style.transform = '';
-        card.style.opacity   = '';
-        card.style.zIndex    = '';
-      });
+      cards.forEach(c => { c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; });
       hand = null;
     }
     cards = [];
-    removeCarouselCSS();
+    removeCSS();
     document.removeEventListener('mousemove', boundMouseMove);
     document.removeEventListener('mouseup',   boundMouseUp);
-    boundMouseMove = null;
-    boundMouseUp   = null;
   }
 
   // ── Хук на render ────────────────────────────────────────────────
@@ -420,11 +400,12 @@
     }
   }
 
-  // ── Запуск ───────────────────────────────────────────────────────
-
   window.addEventListener('resize', () => {
-    if (isMobile()) { if (!active) activate(); else refresh(); }
-    else            { if (active)  deactivate(); }
+    if (isMobile()) {
+      if (recalcLayout()) updateTransforms();
+    } else {
+      if (active) deactivate();
+    }
   });
 
   window.addEventListener('load', () => {
