@@ -283,8 +283,8 @@ function tryAttackBase(){
   opp.hp=Math.max(0,opp.hp-atk);
   triggerAbilities(att,'on_attack',{target:null});
   att.exhausted=true;G.sel=null;G.phase='action';
-  checkWin();render();
   flashBase('opp', 'dmg');
+  checkWin();render();
   activateCard(att.id); 
 }
 
@@ -311,9 +311,8 @@ function killCard(card,faction){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
     lg(`${card.name} died — ATK aura removed.`);
   }
-  if(hasTag(card,'aura:atk')||hasTag(card,'aura:maxhp')){
-    applyAuras(faction); 
-  }
+  // Always reapply auras so squad maxHP loss is immediately reflected
+  applyAuras(faction);
   if(!card.spell&&!card.world&&!card.artifact){
     const world=G[faction].world;
     if(world&&hasTag(world,'on_own_death')){
@@ -326,7 +325,7 @@ function killCard(card,faction){
   ['tea','jeet'].forEach(f=>{
     G[f].field.forEach(ally=>{
       const val=getTagVal(ally,'on_any_death_base');
-      if(val){
+      if(val&&G[f].hp<G[f].maxHp){
         G[f].hp=Math.min(G[f].maxHp,G[f].hp+val);
         lg(`${ally.name}: ${f} base +${val} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
         flashBase(f, 'heal');
