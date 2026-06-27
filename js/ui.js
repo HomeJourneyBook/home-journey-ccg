@@ -267,9 +267,9 @@ lg('TEA goes first. Good luck!','imp');
 
 
 // ── Rules language toggle (v2 — 4 languages) ────────────────────
-const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VIE:'Luật Chơi' };
+const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VN:'Luật Chơi' };
 function setRulesLang(lang) {
-  ['ENG','RUS','POR','VIE'].forEach(l => {
+  ['ENG','RUS','POR','VN'].forEach(l => {
     const body = document.getElementById('rules' + l);
     if (body) body.style.display = l === lang ? '' : 'none';
   });
