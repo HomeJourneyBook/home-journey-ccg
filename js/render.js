@@ -94,6 +94,7 @@ function render(){
   };
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
+  if(typeof _applyPendingFlash==='function') _applyPendingFlash();
 }
 
 function getTypeDotImg(card){
@@ -322,16 +323,10 @@ function rZone(id,cards,zone){
       setTimeout(()=>{
         dying.forEach(cardEl=>{if(cardEl.parentElement)cardEl.remove();});
       }, 400);
-      // Update existing live cards in-place to preserve exhausted/feared visual state
-      const existingMap={};
-      el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>{
-        existingMap[cardEl.dataset.id]=cardEl;
-      });
+      // During death animation: only add truly new cards, leave existing live cards in place
+      const presentIds=new Set([...el.querySelectorAll('.card-small:not(.dying)')].map(e=>e.dataset.id));
       cards.forEach(c=>{
-        if(existingMap[String(c.id)]){
-          const newEl=mkSmallEl(c);
-          existingMap[String(c.id)].replaceWith(newEl);
-        } else {
+        if(!presentIds.has(String(c.id))){
           const cardEl=mkSmallEl(c);
           cardEl.classList.add('entering');
           el.appendChild(cardEl);
