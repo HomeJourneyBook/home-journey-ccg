@@ -224,12 +224,18 @@ lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
 
 
-// ── Rules language toggle ────────────────────────────────────────
-let rulesLang = 'ENG';
-function toggleRulesLang() {
-  rulesLang = rulesLang === 'ENG' ? 'RUS' : 'ENG';
-  document.getElementById('rulesENG').style.display = rulesLang === 'ENG' ? '' : 'none';
-  document.getElementById('rulesRUS').style.display = rulesLang === 'RUS' ? '' : 'none';
-  document.getElementById('rulesLangBtn').textContent  = rulesLang === 'ENG' ? 'RUS' : 'ENG';
-  document.getElementById('rulesTitleLabel').textContent = rulesLang === 'ENG' ? 'Rules' : 'Правила';
+// ── Rules language toggle (v2 — 4 languages) ────────────────────
+const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VIE:'Luật Chơi' };
+function setRulesLang(lang) {
+  ['ENG','RUS','POR','VIE'].forEach(l => {
+    const body = document.getElementById('rules' + l);
+    if (body) body.style.display = l === lang ? '' : 'none';
+  });
+  document.querySelectorAll('.rules-lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === lang);
+  });
+  const title = document.getElementById('rulesTitleLabel');
+  if (title) title.textContent = RULES_TITLES[lang] || 'Rules';
+  const screen = document.getElementById('rulesScreen');
+  if (screen) screen.scrollTop = 0;
 }
