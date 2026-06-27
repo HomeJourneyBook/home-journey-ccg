@@ -322,11 +322,20 @@ function rZone(id,cards,zone){
       setTimeout(()=>{
         dying.forEach(cardEl=>{if(cardEl.parentElement)cardEl.remove();});
       }, 400);
-      el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>cardEl.remove());
+      // Update existing live cards in-place to preserve exhausted/feared visual state
+      const existingMap={};
+      el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>{
+        existingMap[cardEl.dataset.id]=cardEl;
+      });
       cards.forEach(c=>{
-        const cardEl=mkSmallEl(c);
-        cardEl.classList.add('entering');
-        el.appendChild(cardEl);
+        if(existingMap[String(c.id)]){
+          const newEl=mkSmallEl(c);
+          existingMap[String(c.id)].replaceWith(newEl);
+        } else {
+          const cardEl=mkSmallEl(c);
+          cardEl.classList.add('entering');
+          el.appendChild(cardEl);
+        }
       });
       return;
     }
