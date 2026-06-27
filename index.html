@@ -40,7 +40,7 @@
     <h2>What's On a Card</h2>
     <p>Every card shows: its <strong>cost</strong> (top left corner — how much Essence to play it), its <strong>art</strong> in the center, its <strong>name</strong>, and for creatures — <strong>HP</strong> (heart) and <strong>ATK</strong> (sword) at the bottom. Below that is its <strong>ability text</strong> describing what it does.</p>
     <p>Example: a Szarg costs 1 Essence, has 1 HP and 2 ATK, and the text reads <em>"Vanguard"</em> — meaning it can act the turn it arrives.</p>
- 
+
     <h2>Essence</h2>
     <p>Essence is your resource. You start with a maximum of 1 and gain +1 each turn — so by turn 5 you have 5 Essence to spend. It fully refills at the start of every turn. You can never gain more than your current maximum in a single turn (unless a card says otherwise).</p>
     <p>Once per turn you may <strong>burn</strong> a card from your hand: it goes to the Void forever, but your Essence maximum permanently increases by 1. Useful when you have cards you don't need and want to reach expensive cards faster.</p>
@@ -48,20 +48,14 @@
     <h2>A Turn, Step by Step</h2>
     <p><strong>1.</strong> Your Essence refills. Worlds, Artifacts, and field effects trigger automatically (draws, heals, regen, etc.).</p>
     <p><strong>2.</strong> You act freely — play cards, attack with creatures, use active abilities — in any order, as many times as you have Essence and available creatures.</p>
-    <p><strong>3.</strong> Press <strong>End Turn</strong> (or hit Space) when done. You draw 1 card (plus any extras granted by your effects), then your opponent takes over.</p>
-
-    <h2>Mulligan</h2>
-    <p>Before the game begins, each player is shown their opening hand and may redraw it up to <strong>3 times</strong>. Each redraw shuffles your current hand back into the deck and deals you a fresh one. You are not required to mulligan — if you're happy with your opening hand, simply press Ready. Once both players confirm, the game starts.</p>
+    <p><strong>3.</strong> Press <strong>End Turn</strong> (or hit Space) when done. You draw 1 card (plus any extras from your effects), then your opponent takes over.</p>
 
     <h2>Creatures</h2>
     <p>Travelers and Legendaries are creatures. When played, they enter the battlefield in a <em>sleeping</em> state (dashed border) and cannot act until your next turn. To attack with a creature: tap it to select it, then tap the enemy you want to hit.</p>
     <p>When a creature attacks, the defender hits back simultaneously — unless it's <em>Feared</em> or <em>Invisible</em>. Creatures killed in battle go to the <strong>Graveyard</strong> (☠ counter) and may be revived. Burned cards go to the <strong>Void</strong> and are lost forever.</p>
 
-    <h2>Active Abilities</h2>
-    <p>Some creatures and artifacts have <strong>active abilities</strong> — a special action you trigger manually by tapping the card and selecting the ability button that appears. Active abilities cost no Essence but can only be used once per turn, and only when the card is not sleeping or exhausted. Examples: Orbiton heals a chosen ally; Shard deals damage to a chosen enemy; AOE creatures deal damage to all enemies at once.</p>
-
     <h2>Spells</h2>
-    <p>Spells take effect the moment they're played — draw cards, revive a fallen ally, add bonus Essence, return all field cards to their owners' hands — then disappear into the Void. They leave no card on the battlefield.</p>
+    <p>Spells take effect the moment they're played — draw cards, revive a fallen ally, add bonus Essence — then disappear into the Void. They leave no card on the battlefield.</p>
 
     <h2>Worlds</h2>
     <p>A World is a permanent card that sits below your battlefield and passively affects the game as long as it's active. You can only have one World at a time. Playing a second World replaces the first — the old one goes to the Void. Worlds activate at the start of each turn.</p>
@@ -70,65 +64,53 @@
     <p>Artifacts also sit below the battlefield, but up to two can be active at once. Some trigger automatically each turn (draw, heal). Others are <em>active</em> — tap them to use their ability once per turn. Artifacts sleep their first turn, just like creatures.</p>
 
     <h2>Graveyard vs Void</h2>
-    <p>The <strong>Graveyard</strong> holds only creatures killed in battle. They can be revived by certain cards. The <strong>Void</strong> holds burned cards, played spells, and replaced worlds — nothing can retrieve them.</p>
+    <p>The <strong>Graveyard</strong> (☠) holds only creatures killed in battle. They can be revived by certain cards. The <strong>Void</strong> holds burned cards, played spells, and replaced worlds — nothing can retrieve them.</p>
 
     <hr style="border-color:#ffffff11;margin:24px 0;">
     <h2>Glossary of Terms</h2>
     <p style="color:#888;font-size:8px;margin-bottom:16px;">Terms appear on cards in plain language.</p>
 
     <h3>Vanguard</h3>
-    <p>This creature can act — attack or use abilities — on the same turn it enters the field. It skips the sleeping state entirely.</p>
+    <p>This creature can act — attack or use abilities — on the same turn it enters the field.</p>
 
     <h3>Sleeping</h3>
     <p>A creature that entered the field this turn and cannot act yet. Shown with a dashed border. It wakes up at the start of your next turn. Vanguard creatures skip the sleeping state entirely.</p>
 
-    <h3>Exhausted</h3>
-    <p>A creature that has already attacked or used its active ability this turn. Exhausted creatures cannot act again until the next turn. Shown with reduced opacity.</p>
-
     <h3>Provoke</h3>
-    <p>All enemy attacks must target this creature. A Feared Provoke creature still blocks — it cannot attack but enemies must still target it. Pierce bypasses Provoke; Bushido does not.</p>
-
-    <h3>Bushido</h3>
-    <p>All attacks — including Pierce creatures — must target this creature. Bushido is absolute and cannot be bypassed by any other passive ability. Only one Bushido creature can be on the field at a time.</p>
+    <p>All enemy attacks must target this creature. A Feared Provoke creature still blocks — it cannot attack but enemies must still target it.</p>
 
     <h3>Pierce</h3>
-    <p>This creature ignores Provoke and can attack the enemy base or any enemy creature directly. Pierce does not bypass Bushido.</p>
+    <p>This creature ignores Provoke and can attack the enemy base or any enemy directly. Pierce does not bypass Bushido.</p>
 
     <h3>Fear</h3>
-    <p>When this creature attacks, the target is Feared: it skips its next turn and deals no counter-attack damage. A Feared creature cannot attack but Provoke still applies to it.</p>
+    <p>When this creature attacks, the target is Feared: it skips its next turn and deals no counter-attack damage. A Feared creature cannot attack but Provoke still applies.</p>
 
     <h3>Invisible</h3>
-    <p>This creature cannot be chosen as an attack target as long as other allies are on the field. When it becomes the last creature standing, it can be targeted normally. It also takes no counter-attack damage when attacked.</p>
+    <p>This creature cannot be chosen as an attack target as long as other allies are on the field. When it becomes the last creature, it can be targeted normally. It also takes no counter-attack damage when attacked.</p>
 
     <h3>Rage</h3>
-    <p>Each time this creature attacks, it permanently gains +1 ATK. The bonus accumulates across turns but resets if the creature dies and is revived.</p>
+    <p>Each time this creature attacks, it permanently gains +1 ATK. The bonus resets if it dies and is revived.</p>
 
     <h3>Burn</h3>
-    <p>When this creature attacks, the target catches fire. Burning creatures lose 1 HP at the start of every turn. The effect is permanent until the creature dies.</p>
+    <p>When this creature attacks, the target catches fire. Burning creatures lose 1 HP at the start of every turn. Fire is permanent until removed or death.</p>
 
     <h3>Regen</h3>
-    <p>This creature restores X HP to itself at the start of each of your turns, up to its maximum HP.</p>
+    <p>This creature restores X HP to itself at the start of each turn, up to its maximum HP.</p>
 
     <h3>Aura</h3>
-    <p>A passive field effect that benefits all allies while this card is on the field. The bonus disappears immediately when the aura card leaves the field. Multiple aura sources stack. Aura does not buff the aura source itself — only its allies.</p>
-
-    <h3>Squad</h3>
-    <p>When 3 or more Travelers of the same type are on your field simultaneously, they all receive a bonus automatically. The bonus activates the moment the third one arrives and is lost the moment the squad drops below 3. Each Traveler type has its own squad bonus — for example, three Dreegan-types gain +1 Max HP each, while three Mechird-types gain +1 ATK.</p>
+    <p>A passive field effect that benefits all allies while this card is on the field. The bonus disappears immediately when the aura card leaves the field. Multiple aura sources stack.</p>
 
     <h3>Max HP</h3>
     <p>Some abilities increase a creature's maximum HP. If the creature is at full health when this happens, its current HP also rises (3/3 becomes 4/4). If it's already wounded, only the maximum grows (2/3 becomes 2/4).</p>
+
+    <h3>Squad</h3>
+    <p>When 3 or more Travelers of the same type of Gate are on your field simultaneously, they all receive a squad bonus. The bonus activates automatically and is lost the moment the squad drops below 3.</p>
 
     <h3>Revive</h3>
     <p>Bring a creature back from the Graveyard at full HP. It enters the field in a sleeping state and is ready to act next turn. Revived creatures do not trigger On Enter effects.</p>
 
     <h3>Raise</h3>
-    <p>A special form of revival — the creature returns with only 1 HP, all its abilities intact, in a sleeping state. Unlike Revive, Raise does not restore full health. Used by Phlegmor each turn automatically.</p>
-
-    <h3>Bounce</h3>
-    <p>Returns all creatures from both sides of the battlefield back to their owners' hands simultaneously. Buffs, debuffs, and sleeping states are reset. A powerful reset when the field is against you.</p>
-
-    <h3>Sacrifice</h3>
-    <p>Destroy one of your own creatures willingly. The creature goes to the Graveyard as normal and can be revived. Some artifacts require a sacrifice to activate their effect.</p>
+    <p>A special form of revival — the creature returns with only 1 HP, all its abilities intact, in sleeping state. Unlike Revive, Raise does not restore full health. Used by Phlegmor each turn automatically.</p>
 
     <h3>On Turn Start</h3>
     <p>This effect triggers automatically at the start of your turn, before you take any actions. Examples: Regen restores HP, Worlds and Artifacts provide their bonuses, Phlegmor raises a creature.</p>
@@ -139,18 +121,14 @@
     <h3>On Attack</h3>
     <p>This effect triggers each time this creature attacks — whether targeting an enemy creature or the base.</p>
 
-    <h3>On Kill</h3>
-    <p>This effect triggers when this creature's attack kills an enemy creature directly.</p>
-
     <h3>On Any / Own Death</h3>
-    <p>This effect triggers whenever a creature dies on the battlefield — by any cause. <em>On Any Death</em> counts all creatures on both sides; <em>On Own Death</em> counts only your creatures.</p>
+    <p>This effect triggers whenever a creature dies on the battlefield — by any cause. <em>On Any Death</em> counts all creatures; <em>On Own Death</em> counts only yours.</p>
 
     <h3>On Play Creature</h3>
-    <p>This effect triggers each time you play a creature card from your hand to the field. Does not trigger on revives or raises.</p>
+    <p>This effect triggers each time you play a creature card from your hand to the field.</p>
 
   </div>
 </div>
-
 
 <!-- LORE SCREEN -->
 <div class="screen" id="loreScreen">
@@ -310,14 +288,7 @@
 
 <!-- CARD DETAIL MODAL -->
 <div class="card-detail-overlay" id="cardDetailOverlay" style="display:none" onclick="closeCardDetail(event)">
-  <div class="card-detail" id="cardDetailBox">
-    <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
-    <div class="card-detail-art" id="cdArt"></div>
-    <div class="card-detail-name" id="cdName"></div>
-    <div class="card-detail-cost"><span id="cdCost"></span></div>
-    <div class="card-detail-stats" id="cdStats"></div>
-    <div class="card-detail-ab" id="cdAb"></div>
-    <div class="card-detail-tags" id="cdTags"></div>
+  <div class="card-detail-box" id="cardDetailBox"></div>
   </div>
 </div>
 
