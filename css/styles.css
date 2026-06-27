@@ -27,7 +27,7 @@
   --card-small-stats-h: calc(var(--card-small-h) * 0.122);
   --pcard-w: calc(var(--card-small-h) * 0.8);
   --pcard-h: calc(var(--card-small-h) * 0.22);
-  --card-small-name-fs: calc(var(--card-small-h) * 0.15);
+  --card-small-name-fs: calc(var(--card-small-h) * 0.1);
   --card-small-stat-fs: calc(var(--card-small-h) * 0.15);
   --card-world-name-h: calc(var(--card-h) * 0.096);
   --card-world-text-h: calc(var(--card-h) * 0.16);
