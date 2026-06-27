@@ -106,17 +106,45 @@
     }
   }
 
+  function updateGhosts() {
+    if (!hand) return;
+    // Удаляем старые ghost-элементы
+    hand.querySelectorAll('.carousel-ghost').forEach(g => g.remove());
+    // Размер ghost = половина экрана минус половина карты — чтобы крайняя карта могла встать по центру
+    // Считаем по CARD_W если уже известно, иначе по CSS переменной
+    const halfScreen = window.innerWidth / 2;
+    const cardHalf   = CARD_W > 0 ? CARD_W / 2 : halfScreen * 0.35;
+    const ghostW     = Math.max(0, halfScreen - cardHalf - GAP);
+
+    const before = document.createElement('div');
+    before.className = 'carousel-ghost';
+    before.style.cssText = `flex-shrink:0;width:${ghostW}px;pointer-events:none;`;
+
+    const after = document.createElement('div');
+    after.className = 'carousel-ghost';
+    after.style.cssText = `flex-shrink:0;width:${ghostW}px;pointer-events:none;`;
+
+    hand.insertBefore(before, hand.firstChild);
+    hand.appendChild(after);
+  }
+
   // Считаем геометрию — только когда карты реально отрисованы
   function recalcLayout() {
     if (!hand || cards.length === 0) { layoutReady = false; return false; }
     const r = cards[0].getBoundingClientRect();
     if (r.width < 10) { layoutReady = false; return false; }
     const wasReady = layoutReady;
-    CARD_W   = r.width;
-    STEP     = CARD_W + GAP;
-    BASE_TX  = window.innerWidth / 2 - CARD_W / 2;
+    CARD_W  = r.width;
+    STEP    = CARD_W + GAP;
+    // BASE_TX: translateX при offset=0 чтобы карта[0] была по центру экрана
+    // Ghost добавляет ghostW пространства перед первой картой в DOM,
+    // но мы двигаем весь контейнер через translateX — ghost смещает карту[0] вправо на ghostW+GAP
+    const ghostEl = hand.querySelector('.carousel-ghost');
+    const ghostW  = ghostEl ? ghostEl.getBoundingClientRect().width : 0;
+    // Позиция card[0] в контейнере = ghostW + GAP (после ghost + gap)
+    // translateX чтобы card[0] встала по центру: screenCenter - (ghostW + GAP) - CARD_W/2
+    BASE_TX = window.innerWidth / 2 - (ghostW + GAP) - CARD_W / 2;
     layoutReady = true;
-    // При первой инициализации — ставим центральную карту по центру
     if (!wasReady) {
       centerIndex = Math.floor(cards.length / 2);
       offset      = centerIndex * STEP;
@@ -373,6 +401,7 @@
         detachHandlers(hand);
         hand.style.transform   = '';
         hand.style.touchAction = '';
+        hand.querySelectorAll('.carousel-ghost').forEach(g => g.remove());
         cards.forEach(c => { c.style.transform=''; c.style.opacity=''; c.style.zIndex=''; c.style.marginRight=''; });
       }
       hand = newHand;
@@ -385,10 +414,14 @@
     const countChanged = newCards.length !== cards.length;
     cards = newCards;
 
+    // Добавляем/обновляем ghost-спейсеры для крайних карт
+    updateGhosts();
+
     // Пробуем получить реальный размер карт
     if (!recalcLayout()) {
       // Карты ещё не отрисованы — пробуем ещё раз через два кадра
       requestAnimationFrame(() => requestAnimationFrame(() => {
+        updateGhosts();
         if (recalcLayout()) {
           if (countChanged) {
             const nearest = Math.max(0, Math.min(cards.length - 1, centerIndex));
@@ -421,7 +454,8 @@
           padding: 0 !important;
           overflow: visible !important;
         }
-        #teaHand, #jeetHand {
+        #playerHandZone #teaHand,
+        #playerHandZone #jeetHand {
           display: flex !important;
           flex-wrap: nowrap !important;
           justify-content: flex-start !important;
@@ -434,15 +468,15 @@
           user-select: none !important;
           -webkit-user-select: none !important;
         }
-        #teaHand .card, #jeetHand .card {
+        #playerHandZone #teaHand .card,
+        #playerHandZone #jeetHand .card {
           flex-shrink: 0 !important;
           margin-right: 0 !important;
           transition: none !important;
         }
-        #teaHand .card.previewed, #jeetHand .card.previewed {
+        #playerHandZone #teaHand .card.previewed,
+        #playerHandZone #jeetHand .card.previewed {
           transition: transform 0.15s, opacity 0.15s !important;
-        }
-        #teaHand .card.previewed, #jeetHand .card.previewed {
           transform: translateY(calc(var(--card-h) * -0.34)) scale(1.05) !important;
           z-index: 2000 !important;
           opacity: 1 !important;
@@ -476,6 +510,7 @@
       detachHandlers(hand);
       hand.style.transform   = '';
       hand.style.touchAction = '';
+      hand.querySelectorAll('.carousel-ghost').forEach(g => g.remove());
       cards.forEach(c => { c.style.transform=''; c.style.opacity=''; c.style.zIndex=''; c.style.marginRight=''; });
       hand = null;
     }
