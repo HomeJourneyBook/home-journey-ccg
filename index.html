@@ -13,7 +13,14 @@
 <div class="landing" id="landing">
   <div class="landing-title">HOME'S<br>JOURNEY</div>
   <div class="landing-sub">· · · CCG · · ·</div>
-  <button class="landing-btn" onclick="startGame()">Start Game</button>
+  <div class="start-group" id="startGroup">
+    <button class="landing-btn" id="startMainBtn" onclick="expandStart()">Start Game</button>
+    <div class="start-options hidden" id="startOptions">
+      <button class="landing-btn" onclick="startGame()">Hot Seat</button>
+      <button class="landing-btn secondary" disabled style="opacity:0.3;cursor:not-allowed;">vs AI — soon</button>
+      <button class="landing-btn secondary" disabled style="opacity:0.3;cursor:not-allowed;">Online — soon</button>
+    </div>
+  </div>
   <button class="landing-btn secondary" onclick="showScreen('rules')">Rules</button>
   <button class="landing-btn secondary" onclick="showScreen('catalog')">Card Catalog</button>
   <button class="landing-btn secondary" onclick="showScreen('lore')">Lore</button>
@@ -162,6 +169,7 @@
     <div class="turn-info" id="turnInfo">Turn <span id="turnNum">1</span> · <span id="turnPlayer">TEA</span></div>
     <div class="header-desktop-btns" style="gap:6px;margin-left:auto;">
       <button class="btn" style="border-color:#5599ff;color:#5599ff;font-size:10px;padding:5px 12px;" onclick="toggleLog()">📋 Log</button>
+      <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="askRestart()">↺ Restart</button>
       <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="askMenu()">← Menu</button>
     </div>
     <div class="header-mobile-btn" style="position:relative;margin-left:auto;">
@@ -172,6 +180,7 @@
 </button>
 <div id="hamburgerMenu" class="ham-menu">
   <button class="btn ham-item" onclick="toggleLog();toggleHamburger()">Log</button>
+  <button class="btn ham-item" onclick="askRestart();toggleHamburger()">Restart</button>
   <button class="btn ham-item" onclick="askMenu();toggleHamburger()">Menu</button>
 </div>
     </div>
