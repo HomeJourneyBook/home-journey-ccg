@@ -1,6 +1,6 @@
 function buildDeck(f) {
   const t = f==='tea';
-  const weak   = t ? ['t_szarg_w','t_orb_w','t_drig_w','t_umb_w','t_meh_w','t_ksi_w']
+  const weak   = t ? ['t_trvl7_w','t_orb_w','t_drig_w','t_umb_w','t_meh_w','t_ksi_w']
                    : ['j_szarg_w','j_orb_w','j_drig_w','j_umb_w','j_meh_w','j_ksi_w'];
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
