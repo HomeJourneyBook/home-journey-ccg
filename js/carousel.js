@@ -402,7 +402,6 @@
         #playerHandZone #jeetHand .card.previewed {
         transform: translateY(calc(var(--card-h) * -0.34)) scale(1.2) !important;
           transition: transform 0.15s, opacity 0.15s !important;
-          transform: translateY(calc(var(--card-h) * -0.34)) scale(1.05) !important;
           z-index: 2000 !important;
           opacity: 1 !important;
         }
