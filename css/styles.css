@@ -427,20 +427,21 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
   .player-hand-zone{
     height:auto;
     padding:0;
-    overflow:hidden;
+    overflow:visible;
   }
   .hand{
     display:flex;
     flex-wrap:nowrap;
     justify-content:flex-start !important;
-    align-items:center;
+    align-items:flex-end;
     overflow-x:auto;
     overflow-y:visible;
     -webkit-overflow-scrolling:touch;
     scroll-snap-type:x mandatory;
-    gap:8px;
-    padding:8px 12px;
-    padding-bottom:12px;
+    /* Боковые padding центрируют первую и последнюю карту */
+    padding:12px calc(50vw - var(--card-w) * 0.5) 16px;
+    gap:10px;
+    min-height:var(--card-h);
     scrollbar-width:none;
     -ms-overflow-style:none;
   }
@@ -449,7 +450,10 @@ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1p
     flex-shrink:0;
     scroll-snap-align:center;
   }
-  .hand .card.previewed{transform:translateY(-20px) !important;}
+  .hand .card.previewed{
+    transform:translateY(calc(var(--card-h) * -0.34)) !important;
+    z-index:2000 !important;
+  }
 }
 
 /* Header buttons: hamburger always, desktop btns hidden */
