@@ -570,6 +570,10 @@ function openGraveModal(faction){
       const d = mkEl(card,'grave');
       d.style.cursor='default';
       d.style.transform='none';
+      // На кладбище карты всегда выглядят одинаково — без состояний
+      d.classList.remove('exhausted','sleeping','feared','burning','selected','targetable');
+      d.style.opacity='1';
+      d.style.borderStyle='';
       cards.appendChild(d);
     });
   }
