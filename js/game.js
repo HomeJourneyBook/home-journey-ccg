@@ -291,6 +291,7 @@ function tryAttackBase(){
 function dmgCard(card,dmg,faction){
   if(dmg<=0)return;
   card.hp-=dmg;
+  hitCard(card.id);
   const cardId=card.id;
   const dmgAmt=dmg;
   requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,`-${dmgAmt}`,'dmg')));
@@ -722,6 +723,18 @@ function activateCard(cardId){
   void el.offsetWidth; 
   el.classList.add('activating');
   setTimeout(()=>el.classList.remove('activating'), 500);
+}
+function hitCard(cardId){
+  const el = document.querySelector(`.card-small[data-id="${cardId}"]`);
+  if(!el) return;
+
+  el.classList.remove('hit');
+  void el.offsetWidth;
+  el.classList.add('hit');
+
+  setTimeout(()=>{
+    el.classList.remove('hit');
+  },250);
 }
 function flashBase(who, type){
   // Queue flash to apply after render/reorderZones rewrites innerHTML
