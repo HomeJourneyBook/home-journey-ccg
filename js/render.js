@@ -1,21 +1,29 @@
 function updateTurnColors(){
   if(!G) return;
   const isTea=G.turn==='tea';
-  const green='#2d8b3a', greenDim='#1b641b55';
-  const pink='#d83c88',  pinkDim='#d83c8855';
-  const set=(id,col)=>{const el=document.getElementById(id);if(el)el.style.borderColor=col;};
-  // Tea turn: bottom=green bright, top=pink dim
-  // Jeet turn: bottom=pink bright, top=green dim
+  const s = getComputedStyle(document.documentElement);
+  const green    = s.getPropertyValue('--tea-active').trim();
+  const greenDim = s.getPropertyValue('--tea-dim').trim();
+  const pink     = s.getPropertyValue('--jeet-active').trim();
+  const pinkDim  = s.getPropertyValue('--jeet-dim').trim();
+
   const bottomColor = isTea ? green : pink;
-  const bottomDim   = isTea ? greenDim : pinkDim;
-  const topColor    = isTea ? pink : green;
   const topDim      = isTea ? pinkDim : greenDim;
-  set('playerFieldZone', bottomColor);
-  set('playerStats',     bottomColor);
-  set('oppFieldZone',    topDim);
-  set('oppStats',        topDim);
-  set('oppHandZone',     topDim);
+
+  const setStyle = (id, col) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.style.borderColor = col;
+    el.style.boxShadow = `inset 0 0 8px ${col}22, 0 0 8px ${col}11`;
+  };
+
+  setStyle('playerFieldZone', bottomColor);
+  setStyle('playerStats',     bottomColor);
+  setStyle('oppFieldZone',    topDim);
+  setStyle('oppStats',        topDim);
+  setStyle('oppHandZone',     topDim);
 }
+
 
 function render(){
   updateTurnColors();
@@ -370,6 +378,7 @@ function rHiddenHand(id,cards,faction){
 }
 
 function rPersist(id,player){
+  const s = getComputedStyle(document.documentElement);
   const el=document.getElementById(id);
 
   // Запоминаем какие pcard уже были отображены
@@ -402,8 +411,9 @@ function rPersist(id,player){
       } else if(G.phase==='shardTarget'){
         // Active and waiting for target
         d.classList.add('pcard-active');
-        d.style.border='2px solid #e05050';
-        d.style.boxShadow='0 0 8px #e05050';
+        const shardCol = s.getPropertyValue('--shard-active').trim();
+d.style.border=`2px solid ${shardCol}`;
+d.style.boxShadow=`0 0 8px ${shardCol}`;
         d.style.borderRadius='6px';
         d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
       } else if(G.phase==='action'){
@@ -420,8 +430,9 @@ function rPersist(id,player){
       } else if(G.phase==='sacrificeTarget'){
         // Active and waiting for target - pulse border, click cancels
         d.classList.add('pcard-active');
-        d.style.border='2px solid #b44fd4';
-        d.style.boxShadow='0 0 8px #b44fd4';
+     const shardCol = s.getPropertyValue('--altar-active').trim();
+d.style.border=`2px solid ${shardCol}`;
+d.style.boxShadow=`0 0 8px ${shardCol}`;
         d.style.borderRadius='6px';
         d.addEventListener('click',(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();});
       } else if(G.phase==='action'){
