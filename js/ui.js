@@ -1,5 +1,4 @@
 function preloadAssets(){
-  // Только критичные UI ассеты — грузим сразу
   const criticalImages = [
     'img/card_tea.png', 'img/card_jeet.png',
     'img/card_name_bg.png', 'img/card_text_bg.png', 'img/card_stat_bg.png',
@@ -20,20 +19,15 @@ function preloadAssets(){
     const img = new Image();
     img.src = src;
   });
-
-  // Карты путешественников — грузим с задержкой после загрузки страницы
   setTimeout(() => {
     if(typeof DEFS === 'undefined') return;
     Object.values(DEFS).forEach(def => {
-      if(def.img){
-        const img = new Image();
-        img.src = `img/cards/${def.img}`;
-      }
+      if(def.img){ const img = new Image(); img.src = `img/cards/${def.img}`; }
     });
   }, 2000);
 }
 
-// ── Start menu expand / collapse ──────────────────────────────
+// ── Start menu ────────────────────────────────────────────────
 let _expandTimer = null;
 
 function collapseStart(){
@@ -45,22 +39,18 @@ function collapseStart(){
 function expandStart(){
   document.getElementById('startMainBtn').classList.add('hidden');
   document.getElementById('startOptions').classList.remove('hidden');
-  // Auto-collapse after 30s of no interaction
   if(_expandTimer) clearTimeout(_expandTimer);
   _expandTimer = setTimeout(collapseStart, 30000);
 }
 
 // ── Navigation ────────────────────────────────────────────────
 function showLanding(){
-  // Hide game and all overlays
   document.getElementById('game').style.display='none';
   document.getElementById('mulliganScreen').classList.add('hidden');
   document.getElementById('passScreen').classList.add('hidden');
   document.getElementById('winModal').classList.add('hidden');
   document.getElementById('confirmModal').classList.add('hidden');
-  // Reset game state so next Start is fresh
   initState();
-  // Always return start menu to collapsed state
   collapseStart();
   document.getElementById('landing').style.display='flex';
 }
@@ -119,11 +109,10 @@ function startMulliganFor(faction){
   document.getElementById('passScreen').classList.add('hidden');
   const mulliganEl = document.getElementById('mulliganScreen');
   mulliganEl.classList.remove('hidden');
-  // pop-in анимация
   const mulliganModal = mulliganEl.querySelector('.modal');
   if(mulliganModal){
     mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
-    void mulliganModal.offsetWidth; // reflow
+    void mulliganModal.offsetWidth;
     mulliganModal.classList.add('modal-pop-in');
   }
   const mulliganBtn = document.querySelector('#mulliganScreen .btn[onclick="doMulliganPhase()"]');
@@ -165,7 +154,6 @@ function readyFromMulligan(){
     } else {
       G.phase='action';
       G.mulliganTurn=null;
-      // Fade-in игрового поля
       const game = document.getElementById('game');
       game.classList.remove('game-fade-in');
       void game.offsetWidth;
@@ -255,6 +243,7 @@ document.addEventListener('click',function(e){
     menu.classList.remove('open');
   }
 });
+
 // ── Loading screen ───────────────────────────────────────────────
 (function(){
   const dotsEl = document.getElementById('ldots');
@@ -292,7 +281,7 @@ lg('TEA goes first. Good luck!','imp');
 
 window.addEventListener('resize', adjustHandOverlap);
 
-// ── Rules language toggle (v2 — 4 languages) ────────────────────
+// ── Rules language toggle ────────────────────────────────────────
 const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VN:'Luật Chơi' };
 function setRulesLang(lang) {
   ['ENG','RUS','POR','VN'].forEach(l => {
