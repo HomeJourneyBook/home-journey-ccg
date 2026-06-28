@@ -94,8 +94,16 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
     border-radius:6px;
     border-color:#C8A84B !important;
     animation:
+        cardFloat 4s ease-in-out infinite,
         goldPulse 1.8s ease-in-out infinite,
-      selected 1.8s ease-in-out infinite;
+        selected 1.8s ease-in-out infinite;
+  
+}
+
+@keyframes cardFloat{
+    0%{transform:translateY(calc(var(--card-h) * -0.34)) scale(1.2) rotate(-0.8deg);}
+    50%{transform:translateY(calc(var(--card-h) * -0.345)) scale(1.2) rotate(0.8deg);}
+    100%{transform:translateY(calc(var(--card-h) * -0.34)) scale(1.2) rotate(-0.8deg);}
 }
 
 @keyframes goldPulse{
@@ -576,17 +584,26 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
     }
 
     to{
+        opacity:0.45;
+        transform:scale(1);
+        filter:blur(0);
+    }
+}
+
+@keyframes cardEnterAwake{
+    from{
+        opacity:0;
+        transform:scale(.7);
+        filter:blur(4px);
+    }
+
+    to{
         opacity:1;
         transform:scale(1);
         filter:blur(0);
     }
 }
 
-@keyframes cardEnterAwake {
-  0%   { opacity:0; transform:scale(0); }
-  70%  { opacity:1; transform:scale(1.08); }
-  100% { opacity:1; transform:scale(1); }
-}
 .card-small.entering {
   animation: cardEnter 0.35s ease-out forwards;
 }
@@ -660,19 +677,6 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 /* animation from GPT */
 
-@keyframes cardFloat{
-    0%{transform:translateY(calc(var(--card-h) * -0.34)) scale(1.2) rotate(-0.8deg);}
-    50%{transform:translateY(calc(var(--card-h) * -0.345)) scale(1.2) rotate(0.8deg);}
-    100%{transform:translateY(calc(var(--card-h) * -0.34)) scale(1.2) rotate(-0.8deg);}
-}
-
-.hand .card.previewed{
-    animation:
-        cardFloat 4s ease-in-out infinite,
-        goldPulse 1.8s ease-in-out infinite,
-        goldFlicker 4s linear infinite;
-}
-
 @keyframes breathe{
     0%,100%{
         filter:brightness(1);
@@ -684,17 +688,4 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 .btn-end:not(:hover){
     animation:breathe 2.5s ease-in-out infinite;
-}
-
-@keyframes arenaGlow{
-    0%,100%{
-        box-shadow: inset 0 0 12px transparent;
-    }
-    50%{
-        box-shadow: inset 0 0 20px #ffffff08;
-    }
-}
-
-.field-zone{
-    animation:arenaGlow 5s ease-in-out infinite;
 }
