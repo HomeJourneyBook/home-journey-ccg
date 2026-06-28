@@ -31,6 +31,12 @@
   --card-small-stat-fs: calc(var(--card-small-h) * 0.15);
   --card-world-name-h: calc(var(--card-h) * 0.096);
   --card-world-text-h: calc(var(--card-h) * 0.16);
+  --tea-active: #4DB854;
+  --tea-dim: #2D7B3555;
+  --jeet-active: #B44FD4;
+  --jeet-dim: #7B2D8B55;
+  --shard-active: #B44FD4;
+  --altar-active: #B44FD4;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -163,8 +169,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-small-stats{width:var(--card-small-stats-w);height:var(--card-small-stats-h);margin:0 auto;display:flex;justify-content:space-between;flex-shrink:0;padding:0;}
 .card-small-hp{color:#e05555;font-size: var(--card-small-stat-fs);}.card-small-atk{color:#55aaff;font-size: var(--card-small-stat-fs);}
 .card-small-cost{position:absolute;top:-4px;left:-4px;width:calc(var(--card-small-h)*0.14);height:calc(var(--card-small-h)*0.14);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-small-h)*0.11);font-weight:bold;border:1px solid;}
-.tea-card .card-small-cost{background:#F3F5FF;border-color:#F3F5FF;color:#F3F5FF;}
-.jeet-card .card-small-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
+.tea-card .card-small-cost{background:none;border-color:#F3F5FF;color:#F3F5FF;}
+.jeet-card .card-small-cost{background:none;border-color:#F3F5FF;color:#F3F5FF;}
 .card-small .card-type-dot{width:calc(var(--card-small-h)*0.13);height:calc(var(--card-small-h)*0.13);top:-4px;right:-4px;}
 .card-small .card-tag-icons{
   right:6px;
@@ -187,8 +193,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .burning-icon{position:absolute;top:-6px;right:-6px;width:calc(var(--card-h)*0.107);height:calc(var(--card-h)*0.107);}
 @keyframes pulse{from{box-shadow:0 0 4px #e05555;}to{box-shadow:0 0 12px #e05555;}}
 .card-cost{position:absolute;top:-4px;left:-4px;width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h)*0.064);font-weight:bold;border:1px solid;}
-.tea-card .card-cost{background:#1a1200;border-color:#F3F5FF;color:#F3F5FF;}
-.jeet-card .card-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
+.tea-card .card-cost{background:none;border-color:#F3F5FF;color:#F3F5FF;}
+.jeet-card .card-cost{background:none;border-color:#F3F5FF;color:#F3F5FF;}
 /* Type indicator dot */
 .card-type-dot{position:absolute;top:-4px;right:-4px;width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09);border:none;pointer-events:none;z-index:2;}
 .cat-card .card-type-dot{position:absolute;top:-4px;right:-4px;width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09);border:none;pointer-events:none;z-index:2;}
