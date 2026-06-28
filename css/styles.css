@@ -91,7 +91,6 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 /* gold pulse for card preview */
 .hand .card.previewed{
     position:relative;
-    overflow:hidden;
     border-radius:6px;
     border-color:#C8A84B !important;
 
@@ -332,7 +331,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .btn-cancel{border-color:#555;}.btn-reset{border-color:#444;font-size:16px;}
 
 /* Bottom bar square buttons - PNG based */
-.btn-square{width:calc(7vh*0.57);height:calc(7vh*0.57);border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
+.btn-square{width:7vh;height:7vh;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
 .btn-square:active{transform:scale(0.92) translateY(1px);}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
@@ -345,7 +344,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:#000000;z-index:100;display:flex;align-items:center;justify-content:center;}
-.modal{background:#0D0A14;border:1px solid #C7BFA8;padding:15px;max-width:300px;text-align:center;}
+.modal{background:#0D0A14;border:1px solid #C7BFA8;padding:22px;max-width:300px;text-align:center;}
 .modal h2{font-family:'MEK',monospace;font-size:2vw;color:#c8a84b;margin-bottom:14px;}
 .modal p{font-size:1.8vw;color:#E8E0C8;margin-bottom:18px;line-height:1.6;}
 
