@@ -14,7 +14,7 @@ function updateTurnColors(){
     const el = document.getElementById(id);
     if(!el) return;
     el.style.borderColor = col;
-    el.style.boxShadow = `inset 0 0 8px ${col}22, 0 0 8px ${col}11`;
+el.style.boxShadow = `inset 0 0 12px ${col}55, 0 0 12px ${col}33`;
   };
 
   setStyle('playerFieldZone', bottomColor);
