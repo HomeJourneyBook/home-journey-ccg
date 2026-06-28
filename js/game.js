@@ -694,6 +694,10 @@ function handleGameClick(e){
   if(G.phase==='sacrificeTarget'&&!e.target.closest('.card')&&!e.target.closest('.pcard')){
     G.phase='action';G.sel=null;render();return;
   }
+  // добавить:
+  if(G.phase==='selectTarget'&&!e.target.closest('.card-small')&&!e.target.closest('.stats-bar')){
+    G.phase='action';G.sel=null;render();return;
+  }
   if(!e.target.closest('.card')&&G.previewCard){
     G.previewCard=null;clearPreview();render();
   }
