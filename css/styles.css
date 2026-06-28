@@ -683,3 +683,24 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
     }
 }
 
+@keyframes hitShake{
+  0%{
+    transform:scale(1);
+  }
+  20%{
+    transform:translateX(-4px) scale(.97);
+  }
+  40%{
+    transform:translateX(4px) scale(.97);
+  }
+  70%{
+    transform:translateX(-2px) scale(.99);
+  }
+  100%{
+    transform:translateX(0) scale(1);
+  }
+}
+
+.card-small.hit {
+  animation: hitShake .25s ease;
+}
