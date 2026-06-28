@@ -93,16 +93,6 @@ function render(){
   if(playerStatsEl) playerStatsEl.classList.remove('base-targetable');
 
   const hitEl=document.getElementById('hitBase'+sfx);if(hitEl)hitEl.style.display='none';
-
-  const hints={
-    action:'',
-    selectTarget:'Select enemy or tap their base.',
-    burn:'Select card to burn.',
-    healTarget:'Select ally to heal or enemy to attack.',
-  };
-  const hintEl2=document.getElementById('hint'+sfx+'2');
-  if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
-  if(typeof _applyPendingFlash==='function') _applyPendingFlash();
 }
 
 function getTypeDotImg(card){
