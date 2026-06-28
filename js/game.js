@@ -297,7 +297,7 @@ function tryAttackBase(){
 function dmgCard(card,dmg,faction){
   if(dmg<=0)return;
   card.hp-=dmg;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
   const cardId=card.id;
   const dmgAmt=dmg;
   requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,`-${dmgAmt}`,'dmg')));
