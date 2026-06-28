@@ -278,11 +278,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .btn-mulligan-sq:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 
 /* Bottom bar square buttons - PNG based */
-.btn-square{width:6vh;height:6vh;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
+.btn-square{width:calc(7vh*0.57);height:calc(7vh*0.57);border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
 .btn-square:active{transform:scale(0.92) translateY(1px);}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
-.btn-deck-placeholder{background-image:url('../img/deck.png');width:6vh;height:6vh;background-size:contain;background-repeat:no-repeat;background-position:center;position:absolute;top:0;left:0;}
+.btn-deck-placeholder{background-image:url('../img/deck.png');width:calc(7vh*0.57);height:calc(7vh*0.57);background-size:contain;background-repeat:no-repeat;background-position:center;position:absolute;top:0;left:0;}
 
 /* LOG */
 .log{background:#06060e;border:1px solid #ffffff08;padding:7px;height:85px;overflow-y:auto;font-size:12px;line-height:1.9;}
