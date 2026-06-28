@@ -310,7 +310,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .btn{font-family:'MEK',monospace;font-size:20px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
 .btn-end{border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:calc(7vh*2.27);height:calc(7vh*0.57);transition:transform .1s,filter .1s;flex-shrink:0;}
-.btn-end:not(:hover){animation:breathe 2.5s ease-in-out infinite;}
+.btn-end:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .btn-end:active{transform:scale(0.95) translateY(2px);}
 .btn-burn{border-color:#e05555;color:#e05555;}.btn-burn:hover{background:#e0555522;}
 .btn-base{border-color:#ff6600;color:#ff6600;}.btn-base:hover{background:#ff660022;}
@@ -557,13 +557,13 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 /* up and down active card */
 @keyframes cardActivate {
-  0%   { transform: translateY(0); }
+  0%   { transform: translateY(-4px); }
   40%  { transform: translateY(-15px); }
   70%  { transform: translateY(-15px); }
   100% { transform: translateY(0); }
 }
 .card-small.activating {
-  animation: cardActivate 1.5s ease-in-out forwards;
+  animation: cardActivate 0.5s ease-in-out forwards;
   z-index: 10;
 }
 
@@ -668,15 +668,6 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 
 /* animation from GPT */
-
-@keyframes breathe{
-    0%,100%{
-        filter:brightness(1);
-    }
-    50%{
-        filter:brightness(1.12);
-    }
-}
 
 @keyframes hitShake{
   0%{
