@@ -207,10 +207,16 @@ function doAttack(att,target){
 
   lg(`${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
-  if(!hasTag(att,'invisible')&&!hasTag(target,'invisible')&&!target.feared)
-    dmgCard(att,target.atk+(target.atkBonus||0)+(target.rageBonus||0)+(target.squadAtkBonus||0),curK);
-  triggerAbilities(att,'on_attack',{target});
-
+  if(!hasTag(att,'invisible') && !target.feared)
+  dmgCard(att,
+    target.atk +
+    (target.atkBonus || 0) +
+    (target.rageBonus || 0) +
+    (target.squadAtkBonus || 0),
+    curK
+  );
+triggerAbilities(att,'on_attack',{target});
+  
   att.exhausted=true;
   G.sel=null;
   G.phase='action';
