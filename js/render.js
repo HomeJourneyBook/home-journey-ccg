@@ -252,19 +252,12 @@ const tagIcons = (card.tags||[])
     const popup=document.createElement('div');
     popup.className='card-actions-popup';
     const cur=G[G.turn];
-    {
-      const playBtn=document.createElement('button');
-      playBtn.className='cap-btn play';
-      if(cur.ess>=card.cost){
-        playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
-      } else {
-        playBtn.disabled=true;
-        playBtn.style.opacity='0.3';
-        playBtn.style.cursor='not-allowed';
-        playBtn.style.filter='grayscale(1)';
-      }
-      popup.appendChild(playBtn);
-    }
+    if(cur.ess>=card.cost){
+  const playBtn=document.createElement('button');
+  playBtn.className='cap-btn play';
+  playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
+  popup.appendChild(playBtn);
+}
     if(!cur.burned){
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
@@ -296,19 +289,12 @@ const tagIcons = (card.tags||[])
     const popup=document.createElement('div');
     popup.className='card-actions-popup';
     const cur=G[G.turn];
-    {
-      const playBtn=document.createElement('button');
-      playBtn.className='cap-btn play';
-      if(cur.ess>=card.cost){
-        playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
-      } else {
-        playBtn.disabled=true;
-        playBtn.style.opacity='0.3';
-        playBtn.style.cursor='not-allowed';
-        playBtn.style.filter='grayscale(1)';
-      }
-      popup.appendChild(playBtn);
-    }
+    if(cur.ess>=card.cost){
+  const playBtn=document.createElement('button');
+  playBtn.className='cap-btn play';
+  playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
+  popup.appendChild(playBtn);
+}
     if(!cur.burned){
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
