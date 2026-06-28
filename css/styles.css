@@ -37,6 +37,8 @@
   --jeet-dim: #7B2D8B55;
   --shard-active: #B44FD4;
   --altar-active: #B44FD4;
+  --tea-shadow: #2D7B3522;
+  --jeet-shadow: #7B2D8B22;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -69,7 +71,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .jeet .player-name{color:#b44fd4;}.tea .player-name{color:#4db854;}
 .player-stats{display:flex;flex-direction:row;gap:10px;align-items:center;}
 .stat{display:flex;align-items:center;gap:4px;font-size:calc(4vh * 0.4);}.stat-val{font-weight:bold;}
-.hp-val{color:#e05555;}.ess-val{color:#5599ff;}
+.hp-val{color:#e05555;}.ess-val{color:#F3F5FF;}
 .base-hp-bar{width:100px;height:5px;background:#1a1a1a;border:1px solid #333;overflow:hidden;}
 .base-hp-fill{height:100%;transition:width .3s;}
 .jeet .base-hp-fill{background:#b44fd4;}.tea .base-hp-fill{background:#4db854;}
