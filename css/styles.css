@@ -435,6 +435,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   --card-stats-h: calc(var(--card-h) * 0.085);
   --card-text-h: calc(var(--card-h) * 0.24);
   --card-world-name-h: calc(var(--card-h) * 0.096);
+  --card-world-name-w: calc(var(--card-w) * 0.09);
   --card-world-text-h: calc(var(--card-h) * 0.16);
   width: var(--card-w) !important;
   height: var(--card-h) !important;
