@@ -232,11 +232,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .player-hand-zone{height:28vh;padding:2px 6px;background:transparent;border:1px solid transparent;}
 
 /* BOTTOM BAR */
-.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:transparent;border:none;position:relative;}
+.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:#4DB854;border:none;position:relative;}
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .btn{font-family:'MEK',monospace;font-size:30px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
-.btn-end{border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:calc(7vh*4.54);height:calc(7vh*1.14);transition:transform .1s,filter .1s;flex-shrink:0;}
+.btn-end{border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:28vh;height:7vh;transition:transform .1s,filter .1s;flex-shrink:0;}
 .btn-end:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .btn-end:active{transform:scale(0.95) translateY(2px);}
 .btn-square{width:7vh;height:7vh;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
@@ -244,7 +244,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:7vh;height:7vh;background-size:contain;background-repeat:no-repeat;background-position:center;position:absolute;top:0;left:0;}
-.btn-badge{position:absolute;top:-0.8vh;right:-0.8vh;min-width:3vh;height:3vh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:2.5vh;font-weight:bold;border:1px solid;pointer-events:none;line-height:1;}
+.btn-badge{position:absolute;top:-0.8vh;right:-0.8vh;min-width:2.6vh;height:2.6vh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:1.6vh;font-weight:bold;border:1px solid;pointer-events:none;line-height:1;}
 #teaBottomBar .btn-badge{background:#1a1200;border-color:#4DB854;color:#4DB854;}
 #jeetBottomBar .btn-badge{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
 
