@@ -377,7 +377,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 .screen-body{max-width:700px;margin:0 auto;font-size:3.8vw;line-height:1.9;color:#444;}
 .screen-body h2{font-family:'MEK',monospace;font-size:5vw;color:#c8a84b;margin:5vw 0 2vw;}
-.screen-body h3{font-family:'MEK',monospace;font-size:3.8vw;color:#ffffff;margin:4vw 0 1.5vw;letter-spacing:1px;}
+.screen-body h3{font-family:'MEK',monospace;font-size:3.8vw;color:#e8e0c8;margin:4vw 0 1.5vw;letter-spacing:1px;}
 .screen-body p{margin-bottom:2vw;}
 .screen-body ul{margin:1.5vw 0 2.5vw 4vw;}
 .screen-body li{margin-bottom:1vw;}
