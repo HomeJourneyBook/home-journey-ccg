@@ -453,30 +453,8 @@
     <h2 style="font-size:2.5vh;">LEAVE GAME?</h2>
     <p>Current game will be lost. Return to menu?</p>
     <div style="display:flex;gap:10px;justify-content:center;">
-      <button class="btn" style="
-  background-image:url('img/btn_okay.png');
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-color:transparent;
-  border:none;
-  width:12vw;
-  height:calc(12vw * 44/122);
-  color:transparent;
-  padding:0;
-" onclick="confirmMenu()"></button>
-  <button class="btn" style="
-  background-image:url('img/btn_ready.png');
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-color:transparent;
-  border:none;
-  width:12vw;
-  height:calc(12vw * 44/122);
-  color:transparent;
-  padding:0;
-" onclick="document.getElementById('confirmModal').classList.add('hidden')"></button>
+      <button class=".img-btn btn-okay" onclick="confirmMenu()"></button>
+      <button class=".img-btn btn-cancel" onclick="document.getElementById('confirmModal').classList.add('hidden')"></button>
     </div>
   </div>
 </div>
