@@ -282,7 +282,7 @@ lg('TEA goes first. Good luck!','imp');
 window.addEventListener('resize', adjustHandOverlap);
 
 // ── Rules language toggle ────────────────────────────────────────
-const RULES_TITLES = { ENG:'Rules', RUS:'Правила', POR:'Regras', VN:'Luật Chơi' };
+const RULES_TITLES = { ENG:'RULES', RUS:'Правила', POR:'REGRAS', VN:'Luật Chơi' };
 function setRulesLang(lang) {
   ['ENG','RUS','POR','VN'].forEach(l => {
     const body = document.getElementById('rules' + l);
