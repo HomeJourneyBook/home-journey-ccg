@@ -14,7 +14,7 @@ function updateTurnColors(){
     const el = document.getElementById(id);
     if(!el) return;
     el.style.borderColor = col;
-el.style.boxShadow = `inset 0 0 12px ${col}55, 0 0 12px ${col}33`;
+    el.style.boxShadow = `inset 0 0 8px ${col}22, 0 0 8px ${col}11`;
   };
 
   setStyle('playerFieldZone', bottomColor);
@@ -93,9 +93,8 @@ function render(){
   if(playerStatsEl) playerStatsEl.classList.remove('base-targetable');
 
   const hitEl=document.getElementById('hitBase'+sfx);if(hitEl)hitEl.style.display='none';
-}
 
-const hints={
+  const hints={
     action:'',
     selectTarget:'Select enemy or tap their base.',
     burn:'Select card to burn.',
@@ -401,10 +400,6 @@ function rPersist(id,player){
   player.artifacts.forEach(a=>{
     const d=document.createElement('div');
     d.className=`pcard ${cls}`;
-    if (a.sleeping) {
-    d.classList.add('sleeping');}
-if (a.exhausted) {
-    d.classList.add('exhausted');}
     d.dataset.pid=a.id;
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
