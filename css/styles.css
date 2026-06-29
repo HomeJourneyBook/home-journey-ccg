@@ -201,7 +201,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 @keyframes pulseG{from{box-shadow:0 0 4px #44ff88;}to{box-shadow:0 0 12px #44ff88;}}
 
 /* SMALL CARDS - on battlefield */ 
-.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:3px;cursor:pointer;transition:all .15s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:4px;}
+.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;transition:all .15s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:4px;}
 .card-small.tea-card{border-color:transparent;}.card-small.jeet-card{border-color:transparent;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
@@ -221,7 +221,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .tea-card .card-small-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
 .jeet-card .card-small-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
 .card-small .card-type-dot{width:calc(var(--card-small-h)*0.13);height:calc(var(--card-small-h)*0.13);top:3.5px;right:6px;}
-.card-small .card-tag-icons{right:6px;top:calc(var(--card-pad) + var(--card-art-size)/2);gap:1px;}
+.card-small .card-tag-icons{right:6px;top:calc(2px + var(--card-small-art-size)/2);gap:1px;}
 .card-small .card-tag-icon{width:calc(var(--card-small-h)*0.107);height:calc(var(--card-small-h)*0.107);}
 
 /* CARDS */
@@ -435,7 +435,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   --card-stats-h: calc(var(--card-h) * 0.085);
   --card-text-h: calc(var(--card-h) * 0.24);
   --card-world-name-h: calc(var(--card-h) * 0.096);
-  --card-world-name-w: calc(var(--card-w) * 0.09);
+  --card-world-name-w: calc(var(--card-w) * 0.06);
   --card-world-text-h: calc(var(--card-h) * 0.16);
   width: var(--card-w) !important;
   height: var(--card-h) !important;
