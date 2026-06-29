@@ -195,6 +195,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
 .pcard.jcp{border-color:#7b2d8b44;color:#b44fd488;}
+.pcard.sleeping{opacity:0.45 !important;}
 .empty-persist{font-size:14px;color:#2a2a2a;}
 .card.healable{box-shadow:0 0 8px #44ff88 !important;border-color:#44ff88 !important;animation:pulseG .8s infinite alternate !important;opacity:1 !important;}
 @keyframes pulseG{from{box-shadow:0 0 4px #44ff88;}to{box-shadow:0 0 12px #44ff88;}}
@@ -702,6 +703,3 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   animation: hitShake .25s ease;
 }
 
-.pcard.sleeping {
-    border: 5px solid red !important;
-}
