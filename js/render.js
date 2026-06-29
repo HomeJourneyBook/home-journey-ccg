@@ -390,6 +390,13 @@ function rPersist(id,player){
   player.artifacts.forEach(a=>{
     const d=document.createElement('div');
     d.className=`pcard ${cls}`;
+    if (a.sleeping) {
+    d.classList.add('sleeping');
+}
+
+if (a.exhausted) {
+    d.classList.add('exhausted');
+}
     d.dataset.pid=a.id;
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
