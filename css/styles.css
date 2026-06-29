@@ -579,11 +579,13 @@ img{
     -webkit-user-select:none;
     pointer-events:none;
 }
-.modal,
-.modal *,
-.modal-overlay,
-.modal-overlay * {
+.modal h1,
+.modal h2,
+.modal h3,
+.modal p,
+.modal span,
+.modal div,
+.modal button {
     user-select: none !important;
     -webkit-user-select: none !important;
-    -webkit-touch-callout: none !important;
 }
