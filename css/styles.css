@@ -152,10 +152,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .tea-card .card-small-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
 .jeet-card .card-small-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
 .card-small .card-type-dot{width:calc(var(--card-small-h)*0.13);height:calc(var(--card-small-h)*0.13);top:3.5px;right:6px;}
-.card-small .card-tag-icons{right:6px;top:7px;gap:1px;}
+.card-small .card-tag-icons{right:6px;top:15px;gap:1px;}
 .card-small .card-tag-icon{width:calc(var(--card-small-h)*0.107);height:calc(var(--card-small-h)*0.107);}
-.card-small.hit {animation: hitShake .25s ease;
-                }
+.card-small.hit {animation: hitShake .25s ease;}
+
+
 /* CARDS */
 .card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
@@ -588,72 +589,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .modal-pop-out { animation: modalPopOut 0.15s ease-in forwards; }
 .game-fade-in  { animation: gameFieldFadeIn 0.5s ease-out forwards; }
 
-/* ── pcard enter animation ──────────────────────────────────────── */
-@keyframes pcardEnter {
-  0%   { opacity:0; transform:scale(0.4); }
-  70%  { opacity:1; transform:scale(1.1); }
-  100% { opacity:1; transform:scale(1); }
-}
-
-@keyframes pcardNotAwake {
-  0%   { opacity:0; transform:scale(0.4); }
-  70%  { opacity:0.45; transform:scale(1.1); }
-  100% { opacity:0.45; transform:scale(1); }
-}
-
 /* animation library */
 
-@keyframes hitShake{
-  0%{
-    transform:scale(1);
-  }
-  20%{
-    transform:translateX(-4px) scale(.97);
-  }
-  40%{
-    transform:translateX(4px) scale(.97);
-  }
-  70%{
-    transform:translateX(-2px) scale(.99);
-  }
-  100%{
-    transform:translateX(0) scale(1);
-  }
-}
-
+@keyframes hitShake{0%{transform:scale(1);}20%{transform:translateX(-4px) scale(.97);}40%{transform:translateX(4px) scale(.97);}70%{transform:translateX(-2px) scale(.99);}100%{transform:translateX(0) scale(1);}}
 @keyframes pulse{from{box-shadow:0 0 4px #e05555;}to{box-shadow:0 0 12px #e05555;}}
 @keyframes pulseG{from{box-shadow:0 0 4px #44ff88;}to{box-shadow:0 0 12px #44ff88;}}
-@keyframes goldPulse{
-    0%{
-        box-shadow:
-            0 0 4px #C8A84B44,
-            0 0 8px #C8A84B66;
-    }
-    50%{
-        box-shadow:
-            0 0 10px #C8A84BCC,
-            0 0 22px #C8A84B88,
-            0 0 34px #C8A84B33;
-    }
-    100%{
-        box-shadow:
-            0 0 4px #C8A84B44,
-            0 0 8px #C8A84B66;
-    }
-}
-
-@keyframes selected{
-
-    0%,100%{
-
-        transform:translateY(0) scale(1);
-
-    }
-
-    50%{
-
-        transform:translateY(-2px) scale(1.015);
-
-    }
-
-}
+@keyframes goldPulse{0%{box-shadow:0 0 4px #C8A84B44,0 0 8px #C8A84B66;}50%{box-shadow:0 0 10px #C8A84BCC,0 0 22px #C8A84B88,0 0 34px #C8A84B33;}100%{box-shadow:0 0 4px #C8A84B44,0 0 8px #C8A84B66;}}
+@keyframes selected{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-2px) scale(1.015);}}
+@keyframes pcardEnter{0%{opacity:0;transform:scale(0.4);}70%{opacity:1;transform:scale(1.1);}100%{opacity:1;transform:scale(1);}}
+@keyframes pcardNotAwake{0%{opacity:0;transform:scale(0.4);}70%{opacity:0.45;transform:scale(1.1);}100%{opacity:0.45;transform:scale(1);}}
