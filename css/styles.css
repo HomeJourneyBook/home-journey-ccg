@@ -664,7 +664,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   100% { opacity:1; transform:scale(1); }
 }
 
-@keyframes pcardAwake {
+@keyframes pcardNotAwake {
   0%   { opacity:0; transform:scale(0.4); }
   70%  { opacity:0.45; transform:scale(1.1); }
   100% { opacity:0.45; transform:scale(1); }
@@ -674,8 +674,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   animation: pcardEnter 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
 
-.pcard.pcard-entering:.sleeping {
-  animation: pcardAwake 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+.pcard.pcard-entering:.exhausted {
+  animation: pcardNotAwake 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
 
 /* animation from GPT */
