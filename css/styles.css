@@ -264,6 +264,7 @@ body{
 .btn-square:active{transform:scale(0.92) translateY(1px);}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
+.btn-graveyard:{animation: float 2.8s ease-in-out infinite;}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:7vh;height:7vh;background-size:contain;background-repeat:no-repeat;background-position:center;position:absolute;top:0;left:0;}
 .btn-badge{position:absolute;top:-0.8vh;right:-0.8vh;min-width:2.6vh;height:2.6vh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:1.6vh;font-weight:bold;border:1px solid;pointer-events:none;line-height:1;}
 #teaBottomBar .btn-badge{background:#1a1200;border-color:#4DB854;color:#4DB854;}
@@ -588,4 +589,14 @@ img{
 .modal button {
     user-select: none !important;
     -webkit-user-select: none !important;
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-4px); }
+  100% { transform: translateY(0px); }
+}
+
+.floating {
+  animation: float 2.8s ease-in-out infinite;
 }
