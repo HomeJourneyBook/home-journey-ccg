@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home's Journey — CCG</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -449,12 +449,12 @@
 
 <!-- MODALS -->
 <div class="modal-overlay hidden" id="confirmModal">
-  <div class="modal" style="width:auto;max-width:95vw;max-height:90vh;overflow-y:auto;">
-    <h2 style="font-size:clamp(20px, 4vh, 42px);">LEAVE GAME?</h2>
+  <div class="modal">
+    <h2 style="font-size:18px;">LEAVE GAME?</h2>
     <p>Current game will be lost. Return to menu?</p>
     <div style="display:flex;gap:10px;justify-content:center;">
-      <button class="img-btn btn-okay" onclick="confirmMenu()"></button>
-      <button class="img-btn btn-cancel" onclick="document.getElementById('confirmModal').classList.add('hidden')"></button>
+      <button class="btn" style="border-color:#e05555;color:#e05555;padding:6px 20px;font-size:18px;" onclick="confirmMenu()">Yes, Exit</button>
+      <button class="btn" style="border-color:#555" onclick="document.getElementById('confirmModal').classList.add('hidden')">Cancel</button>
     </div>
   </div>
 </div>
@@ -470,10 +470,21 @@
 <div class="modal-overlay hidden" id="mulliganScreen">
   <div class="modal" style="width:auto;max-width:95vw;max-height:90vh;overflow-y:auto;">
     <h2 id="mulliganTitle">PLAYER 1 — YOUR HAND</h2>
-    <p id="mulliganSub" style="font-size:clamp(16px, 3vh, 38px);color:#9b947f;margin-bottom:12px;">You may mulligan up to 3 times.</p>
+    <p id="mulliganSub" style="font-size:14px;color:#555;margin-bottom:12px;">You may mulligan up to 3 times.</p>
     <div id="mulliganCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;"></div>
     <div style="display:flex;gap:10px;justify-content:center;">
-      <button class="img-btn btn-mulligan" onclick="doMulliganPhase()"></button>
+      <button class="btn" style="
+  background-image:url('img/btn_mulligan.png');
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-color:transparent;
+  border:none;
+  width:134px;
+  height:calc(134px * 44/122);
+  color:transparent;
+  padding:0;
+" onclick="doMulliganPhase()"></button>
   <button class="btn" style="
   background-image:url('img/btn_ready.png');
   background-size:contain;
@@ -481,13 +492,13 @@
   background-position:center;
   background-color:transparent;
   border:none;
-  width:12vw;
-  height:calc(12vw * 44/122);
+  width:134px;
+  height:calc(134px * 44/122);
   color:transparent;
   padding:0;
 " onclick="readyFromMulligan()"></button>
     </div>
-    <div id="mulliganInfo" style="font-size:2.4vh;color:#9b947f;margin-top:10px;"></div>
+    <div id="mulliganInfo" style="font-size:12px;color:#555;margin-top:10px;"></div>
   </div>
 </div>
 
@@ -503,8 +514,8 @@
   background-position:center;
   background-color:transparent;
   border:none;
-  width:12vw;
-  height:calc(12vw * 44/122);
+  width:134px;
+  height:calc(134px * 44/122);
   color:transparent;
   padding:0;
 " onclick="passReady()"></button>
