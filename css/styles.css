@@ -193,7 +193,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-world-art{width:100%;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;}
 .card.world-card{padding:4px;justify-content:space-between;background-size:cover;background-position:center;background-repeat:no-repeat;}
 .card.world-card .card-name-box{height:var(--card-world-name-h);}
-.card.world-card .card-ability-box{height:var(--card-world-text-h);background:url('../img/card_tet_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
+.card.world-card .card-ability-box{height:var(--card-world-text-h);background:url('../img/card_text_world_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
 .card.world-card.tea-card,
 .card.world-card.jeet-card{background-image:none !important;}
 .card-stats-icon{width:var(--card-stats-h);height:var(--card-stats-h);object-fit:cover;flex-shrink:0;}
