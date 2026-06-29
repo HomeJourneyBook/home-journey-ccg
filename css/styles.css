@@ -178,7 +178,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .jeet-card .card-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
 .card-type-dot{position:absolute;top:3.5px;right:6.5px;width:calc(var(--card-h)*0.108);height:calc(var(--card-h)*0.108);border:none;pointer-events:none;z-index:2;}
 .card-art{width:var(--card-art-size);height:var(--card-art-size);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto;border:none;background:transparent;overflow:hidden;flex-shrink:0;}
-.card-name-box{width:100%;height:var(--card-name-h);background:url('../img/card_name_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:0;display:flex;align-items:center;justify-content:center;}
+.card-name-box{width:95%;height:var(--card-name-h);background:url('../img/card_name_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:0;display:flex;align-items:center;justify-content:center;}
 .card-name{font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.08);text-align:center;line-height:1.2;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tea-card .card-name{color:#4DB854;}.jeet-card .card-name{color:#B44FD4;}
 .card-stats{width:var(--card-stats-w);height:var(--card-stats-h);margin:0 auto;display:flex;justify-content:space-between;flex-shrink:0;padding:0;}
