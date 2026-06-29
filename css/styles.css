@@ -180,19 +180,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .hand-mini .card-mini{flex-shrink:0;min-width:calc(6vh * 0.9);width:calc(6vh * 0.9);}
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:2px;justify-content:center;flex:1;}
 .persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
-.pcard{
-  width:var(--pcard-w);
-  height:var(--pcard-h);
-  padding:1px 1px;
-  border:1px solid;
-  border-radius:6px;
-  font-size:calc(var(--pcard-h) * 0.75);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:4px;
-  background:url('../img/pcard_bg.png') center/100% 100% no-repeat;
-}
+.pcard{width:var(--pcard-w);height:var(--pcard-h);padding:1px 1px;border:1px solid;border-radius:6px;font-size:calc(var(--pcard-h) * 0.75);display:flex;align-items:center;justify-content:center;gap:4px;background:url('../img/pcard_bg.png') center/100% 100% no-repeat;}
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
 .pcard.jcp{border-color:#7b2d8b44;color:#b44fd488;}
 .pcard.sleeping{opacity:0.45 !important;}
@@ -221,7 +209,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .tea-card .card-small-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
 .jeet-card .card-small-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
 .card-small .card-type-dot{width:calc(var(--card-small-h)*0.13);height:calc(var(--card-small-h)*0.13);top:3.5px;right:6px;}
-.card-small .card-tag-icons{right:6px;top:var(--card-small-art-size) * 0.1;gap:1px;}
+.card-small .card-tag-icons{right:6px;top:var(--card-small-art-size) * 0.2;gap:1px;}
 .card-small .card-tag-icon{width:calc(var(--card-small-h)*0.107);height:calc(var(--card-small-h)*0.107);}
 
 /* CARDS */
@@ -233,11 +221,9 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card.feared{opacity:.4;border-style:dotted;}
 .card.burning{box-shadow:0 0 6px #ff6600 !important;}
 .burning-icon{position:absolute;top:-6px;right:-6px;width:calc(var(--card-h)*0.107);height:calc(var(--card-h)*0.107);}
-@keyframes pulse{from{box-shadow:0 0 4px #e05555;}to{box-shadow:0 0 12px #e05555;}}
 .card-cost{position:absolute;top:-4px;left:-4px;width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h)*0.064);font-weight:bold;border:1px solid;}
 .tea-card .card-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
 .jeet-card .card-cost{background:#1a001a;border-color:#F3F5FF;color:#F3F5FF;}
-/* Type indicator dot */
 .card-type-dot{position:absolute;top:3.5px;right:7px;width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09);border:none;pointer-events:none;z-index:2;}
 .cat-card .card-type-dot{position:absolute;top:3.5px;right:7px;width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09);border:none;pointer-events:none;z-index:2;}
 .card-art{width:var(--card-art-size);height:var(--card-art-size);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto;border:none;background:transparent;overflow:hidden;flex-shrink:0;}
@@ -435,7 +421,6 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   --card-stats-h: calc(var(--card-h) * 0.085);
   --card-text-h: calc(var(--card-h) * 0.24);
   --card-world-name-h: calc(var(--card-h) * 0.096);
-  --card-world-name-w: calc(var(--card-w) * 0.2);
   --card-world-text-h: calc(var(--card-h) * 0.16);
   width: var(--card-w) !important;
   height: var(--card-h) !important;
@@ -680,7 +665,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   animation: pcardNotAwake 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
 
-/* animation from GPT */
+/* animation library */
 
 @keyframes hitShake{
   0%{
@@ -704,3 +689,4 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   animation: hitShake .25s ease;
 }
 
+@keyframes pulse{from{box-shadow:0 0 4px #e05555;}to{box-shadow:0 0 12px #e05555;}}
