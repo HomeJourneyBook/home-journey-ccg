@@ -391,12 +391,9 @@ function rPersist(id,player){
     const d=document.createElement('div');
     d.className=`pcard ${cls}`;
     if (a.sleeping) {
-    d.classList.add('sleeping');
-}
-
+    d.classList.add('sleeping');}
 if (a.exhausted) {
-    d.classList.add('exhausted');
-}
+    d.classList.add('exhausted');}
     d.dataset.pid=a.id;
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
