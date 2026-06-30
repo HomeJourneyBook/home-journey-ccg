@@ -591,6 +591,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   100% { opacity:0; transform: translate(-15px, -180px) scale(1.4); }
 }
 
+.card.entering {
+  animation: cardEnterAwake 0.35s ease-out forwards;
+}
+
 
 /* важные фичи от жпт по блоку всяких ненужностей с действиями */
 img{
