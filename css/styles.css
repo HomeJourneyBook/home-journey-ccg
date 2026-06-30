@@ -102,7 +102,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .tea-card .card-small-name{color:#4db854;}.jeet-card .card-small-name{color:#b44fd4;}
 .card-small-stats{width:var(--card-small-stats-w);height:var(--card-small-stats-h);margin:0 auto;display:flex;justify-content:space-between;flex-shrink:0;padding:0;}
 .card-small-hp{color:#e05555;font-size: var(--card-small-stat-fs);}.card-small-atk{color:#55aaff;font-size: var(--card-small-stat-fs);}
-.card-small-cost{position:absolute;top:calc(var(--card-small-h) * 0.023);left: calc(var(--card-small-w) * 0.048);width:calc(var(--card-small-h)*0.14);height:calc(var(--card-small-h)*0.14*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-small-h) * 0.122);font-weight:bold;background-size:100% 100%;background-repeat:no-repeat;}
+.card-small-cost{position:absolute;top:calc(var(--card-small-h) * 0.023);left: calc(var(--card-small-w) * 0.048);width:calc(var(--card-small-h)*0.14);height:calc(var(--card-small-h)*0.14*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-small-h) * 0.122);font-weight:bold;line-height: 1;background-size:100% 100%;background-repeat:no-repeat;}
 .tea-card .card-small-cost{background-image:url('../img/bg_cost_tea.png');}
 .jeet-card .card-small-cost{background-image:url('../img/bg_cost_jeet.png');}
 .card-small .card-type-dot{width:calc(var(--card-small-h)*0.13);height:calc(var(--card-small-h)*0.13);top:calc(var(--card-small-h) * 0.023);right:calc(var(--card-small-w) * 0.048);}
@@ -125,7 +125,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
 .card.feared{opacity:.4;border-style:dotted;}
 .card.burning{box-shadow:0 0 6px #ff6600 !important;}
-.card-cost{position:absolute;top:calc(var(--card-h) * 0.0125);left:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.11);font-weight:bold;background-size:100% 100%;background-repeat:no-repeat;}
+.card-cost{position:absolute;top:calc(var(--card-h) * 0.0125);left:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.11);font-weight:bold;line-height: 1;background-size:100% 100%;background-repeat:no-repeat;}
 .tea-card .card-cost{background-image:url('../img/bg_cost_tea.png');}
 .jeet-card .card-cost{background-image:url('../img/bg_cost_jeet.png');}
 .card-type-dot{position:absolute;top:calc(var(--card-h) * 0.0125);right:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.108);height:calc(var(--card-h)*0.108);border:none;pointer-events:none;z-index:2;}
@@ -219,12 +219,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .btn-end{border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:calc(6.25vh * 4);height:6.25vh;transition:transform .1s,filter .1s;flex-shrink:0;}
 .btn-end:hover{filter:brightness(1.25);}
 .btn-end:active{transform:scale(0.95) translateY(2px);}
-.btn-square{width:6.25vh;height:6.25vh;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
+.btn-square{width:6.25vh;height:6.25vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
 .btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
-.btn-deck-placeholder{background-image:url('../img/deck.png');width:6.25vh;height:6.25vh;background-size:contain;background-repeat:no-repeat;background-position:center;position:absolute;top:0;left:0;}
+.btn-deck-placeholder{background-image:url('../img/deck.png');width:6.25vh;height:6.25vh;background-size:contain;background-repeat:no-repeat;background-position:center;padding:2px;position:absolute;top:0;left:0;}
 .btn-badge{position:absolute;top:-0.8vh;right:-0.8vh;min-width:2.6vh;height:2.6vh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:1.6vh;font-weight:bold;border:1px solid;pointer-events:none;line-height:1;}
 #teaBottomBar .btn-badge{background:#1a1200;border-color:#4DB854;color:#4DB854;}
 #jeetBottomBar .btn-badge{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
