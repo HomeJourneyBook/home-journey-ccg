@@ -275,9 +275,11 @@ document.addEventListener('click',function(e){
 })();
 
 // Boot
+
 preloadAssets();
 initState();
-spawnStars(); // ← добавь сюда
+spawnStars();
+spawnNebula(); // ← если хочешь туман
 lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
 
@@ -335,6 +337,25 @@ function spawnStars() {
       s.style.animationDuration = (2 + Math.random() * 3) + 's';
       s.style.opacity = Math.random() * 0.6 + 0.1;
       zone.appendChild(s);
+    }
+  });
+}
+
+function spawnNebula() {
+  const zones = [
+    { id: 'oppFieldZone',    cls: 'jeet' },
+    { id: 'playerFieldZone', cls: 'tea'  },
+  ];
+  zones.forEach(({ id, cls }) => {
+    const zone = document.getElementById(id);
+    if (!zone) return;
+    for (let i = 0; i < 2; i++) {
+      const n = document.createElement('div');
+      n.className = `field-nebula ${cls}`;
+      n.style.left = (20 + Math.random() * 60) + '%';
+      n.style.top  = (10 + Math.random() * 60) + '%';
+      n.style.animationDelay = (Math.random() * 10) + 's';
+      zone.appendChild(n);
     }
   });
 }
