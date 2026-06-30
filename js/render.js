@@ -376,36 +376,20 @@ function rZone(id,cards,zone){
 
 // Рисует ЧУЖУЮ руку — карты рубашкой вверх (картинка runaha.png), без данных о содержимом.
 // Количество "рубашек" = реальное количество карт у оппонента, сами карты не раскрываются.
-// ВАЖНО: id контейнера (#teaHand/#jeetHand) переиспользуется и под открытую руку (через rZone/.card),
-// и под скрытую (через эту функцию/.card-mini) — в зависимости от того, чей сейчас ход.
-// Поэтому сначала проверяем, что внутри уже лежат корректные .card-mini (а не "осиротевшие" .card
-// от прошлого хода, когда этот же контейнер был открытой рукой) — если нет, делаем полный ребилд.
-// Если тип верный — только дозаполняем/обрезаем по количеству, не трогая лишний раз DOM (анти-дёрганье).
 function rHiddenHand(id,cards,faction){
   const el=document.getElementById(id);
+  el.innerHTML='';
   el.className='hand-mini';
-  // Проверяем: содержимое контейнера сейчас вообще корректного типа?
-  // (этот же id раньше мог рисоваться через rZone как открытая рука — там лежат .card, а не .card-mini)
-  const wrongType = [...el.children].some(c=>!c.classList.contains('card-mini'));
-  if(wrongType){
-    el.innerHTML='';
-  }
-  const have=el.children.length;
-  const need=cards.length;
-  if(have>need){
-    for(let i=0;i<have-need;i++) el.lastElementChild.remove();
-  } else if(need>have){
-    for(let i=0;i<need-have;i++){
-      const d=document.createElement('div');
-      d.className=`card-mini ${faction}-mini`;
-      d.style.backgroundImage="url('img/runaha.png')";
-      d.style.backgroundSize='cover';
-      d.style.backgroundPosition='bottom';
-      el.appendChild(d);
-    }
-  }
+  cards.forEach(()=>{
+    const d=document.createElement('div');
+    d.className=`card-mini ${faction}-mini`;
+    d.style.backgroundImage="url('img/runaha.png')";
+    d.style.backgroundSize='cover';
+    d.style.backgroundPosition='bottom';
+    d.innerHTML='';
+    el.appendChild(d);
+  });
 }
-
 
 // Рисует персистентную зону игрока (.persist) — уже СЫГРАННЫЕ Мир и Артефакты под полем боя.
 // ВАЖНО: рендерится НЕ через mkEl/.card, а отдельной упрощённой разметкой .pcard (просто текст
