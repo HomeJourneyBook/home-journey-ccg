@@ -42,7 +42,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
-body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100vh;overflow:hidden;overscroll-behavior:none;overflow:hidden;overscroll-behavior:none;}
+body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100vh;overflow:hidden;overscroll-behavior:none;touch-action:pan-y;}
 .stars{position:fixed;inset:0;background:#0a0a12 url('../img/space_bg.png') center center/cover no-repeat;z-index:0;}
 .game{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0;display:flex;flex-direction:column;gap:0;min-height:100vh;}
 .game, .game *{user-select: none;-webkit-user-select: none;}
@@ -165,8 +165,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-actions-popup-right{position:absolute;left:calc(100% + 6px);top:0;display:flex;flex-direction:column;gap:3px;align-items:center;z-index:2001;pointer-events:all;}
 .cap-btn{display:block;border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
 .cap-btn.play{width:calc(var(--card-w) * 0.75);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_play.png');}
-.cap-btn.burn{width:calc(var(--card-w) * 0.75);height:calc(var(--card-w) * 0.75);background-image:url('../img/btn_burn.png');}
-.cap-btn.zoom{width:calc(var(--card-w) * 0.75);height:calc(var(--card-w) * 0.75);background-image:url('../img/btn_zoom.png');}
+.cap-btn.burn{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_burn.png');}
+.cap-btn.zoom{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_zoom.png');}
 .card.zoomed{transform: scale(3) !important;z-index: 5000 !important;transition: transform .2s ease-out;}
 .cap-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
