@@ -128,6 +128,21 @@ function openCardDetail(def){
   const worldBg = def.world && def.img ? `background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;` : '';
 
   box.className = 'card-detail-box';
+
+  if(def.world){
+    box.innerHTML = `
+      <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
+      <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;${worldBg}">
+        <div class="card-cost">${def.cost}</div>
+        <div class="card-type-dot" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+        <div class="card-name-box"><div class="card-name">${def.name}</div></div>
+        <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
+      </div>
+    `;
+    overlay.style.display='flex';
+    return;
+  }
+
   box.innerHTML = `
     <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
     <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;${worldBg}">
