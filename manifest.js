@@ -1,0 +1,12 @@
+{
+  "name": "Home's Journey CCG",
+  "short_name": "Home's Journey",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a0a12",
+  "theme_color": "#0a0a12",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
