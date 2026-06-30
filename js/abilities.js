@@ -149,18 +149,15 @@ function triggerAbilities(card, timing, ctx={}){
           lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
         } break;
 
-      
+      case 'draw':
         // instant: spells draw immediately
         // on_attack: Ryvlen draws on each attack
         // on_turn: handled via extraDraw in endTurn — skip here
-      
-case 'draw':
-  if(a.timing==='instant'||a.timing==='on_attack'){
-    if(a.val>0) animateDeal(curK); // ← добавь
-    for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
-    lg(`${card.name}: draws ${a.val} card(s).`,'imp');
-  }
-  break;
+        if(a.timing==='instant'||a.timing==='on_attack'){
+          for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
+          lg(`${card.name}: draws ${a.val} card(s).`,'imp');
+        }
+        break;
 
       // atk_all removed — replaced by aura:atk tag
 
@@ -242,16 +239,13 @@ case 'draw':
         } else lg(`${card.name}: graveyard empty.`);} break;
 
       case 'salvage':
-  {const grave2=cur.grave.filter(x=>!x.voided);
-  if(grave2.length>0){
-    const r=grave2[grave2.length-1];
-    cur.grave=cur.grave.filter(x=>x.id!==r.id);
-    resetC(r);
-    animateDeal(curK); // ← добавь
-    cur.hand.push(r);
-    lg(`${card.name}: ${r.name} returned to hand!`,'imp');
-  } else lg(`${card.name}: graveyard empty.`);} break;
-
+        {const grave2=cur.grave.filter(x=>!x.voided);
+        if(grave2.length>0){
+          const r=grave2[grave2.length-1];
+          cur.grave=cur.grave.filter(x=>x.id!==r.id);
+          resetC(r);cur.hand.push(r);
+          lg(`${card.name}: ${r.name} returned to hand!`,'imp');
+        } else lg(`${card.name}: graveyard empty.`);} break;
 
       case 'ess_max':
         cur.essMax+=a.val;
