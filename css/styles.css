@@ -63,7 +63,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .player-hand-wrap{width:100%;overflow:visible;padding:4px 6px;position:relative;}
 .player-zone.jeet{border-color:#7b2d8b55;background:#0d0a12;position:relative;z-index:10;}
 .player-zone.base-targetable .player-sidebar{cursor:pointer;border:1px solid #e05555;box-shadow:0 0 8px #e0555533;background:#1a0808;background-color: rgba(224,85,85,0.4);}
-.player-zone.tea{border-color:#2d7b3555;background:#0a0d0a;position:relative;z-index:10;}
+.player-zone.tea{border-color:#2d7b3555;background:#FFFFFF;position:relative;z-index:10;}
 .player-header{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;padding:5px 5px;border-bottom:1px solid #ffffff11;flex-wrap:wrap;}
 .player-name{font-family:'MEK',monospace;font-size:calc(4vh * 0.5);}
 .jeet .player-name{color:#b44fd4;}.tea .player-name{color:#4db854;}
