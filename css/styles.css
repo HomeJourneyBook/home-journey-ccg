@@ -240,7 +240,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .btn-end{border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:calc(6.25vh * 4);height:6.25vh;transition:transform .1s,filter .1s;flex-shrink:0;}
 .btn-end:hover{filter:brightness(1.25);}
 .btn-end:active{transform:scale(0.95) translateY(2px);}
-.btn-square{position:relative;width:6.25vh;height:6.25vh;flex-shrink:0;width:6.25vh;height:6.25vh;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
+.btn-square{width:6.25vh;height:6.25vh;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
