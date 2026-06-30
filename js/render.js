@@ -260,7 +260,7 @@ const tagIcons = (card.tags||[])
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
-    if(card.id===G.previewCard&&zone==='hand'){
+  if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
     const cur=G[G.turn];
@@ -297,7 +297,6 @@ const tagIcons = (card.tags||[])
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
-
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
@@ -313,7 +312,7 @@ const tagIcons = (card.tags||[])
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
-    if(card.id===G.previewCard&&zone==='hand'){
+  if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
     const cur=G[G.turn];
@@ -350,7 +349,6 @@ const tagIcons = (card.tags||[])
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
-
 
 // Глобальный слушатель: клик в ЛЮБОМ месте экрана убирает увеличение (.zoomed) с любой карты —
 // кроме клика по самой кнопке Zoom (она вызывает e.stopPropagation(), поэтому сюда не долетает).
@@ -412,19 +410,32 @@ function rZone(id,cards,zone){
 
 // Рисует ЧУЖУЮ руку — карты рубашкой вверх (картинка runaha.png), без данных о содержимом.
 // Количество "рубашек" = реальное количество карт у оппонента, сами карты не раскрываются.
+// ВАЖНО: id контейнера (#teaHand/#jeetHand) переиспользуется и под открытую руку (через rZone/.card),
+// и под скрытую (через эту функцию/.card-mini) — в зависимости от того, чей сейчас ход.
+// Поэтому сначала проверяем, что внутри уже лежат корректные .card-mini (а не "осиротевшие" .card
+// от прошлого хода, когда этот же контейнер был открытой рукой) — если нет, делаем полный ребилд.
+// Если тип верный — только дозаполняем/обрезаем по количеству, не трогая лишний раз DOM (анти-дёрганье).
 function rHiddenHand(id,cards,faction){
   const el=document.getElementById(id);
-  el.innerHTML='';
   el.className='hand-mini';
-  cards.forEach(()=>{
-    const d=document.createElement('div');
-    d.className=`card-mini ${faction}-mini`;
-    d.style.backgroundImage="url('img/runaha.png')";
-    d.style.backgroundSize='cover';
-    d.style.backgroundPosition='bottom';
-    d.innerHTML='';
-    el.appendChild(d);
-  });
+  const wrongType = [...el.children].some(c=>!c.classList.contains('card-mini'));
+  if(wrongType){
+    el.innerHTML='';
+  }
+  const have=el.children.length;
+  const need=cards.length;
+  if(have>need){
+    for(let i=0;i<have-need;i++) el.lastElementChild.remove();
+  } else if(need>have){
+    for(let i=0;i<need-have;i++){
+      const d=document.createElement('div');
+      d.className=`card-mini ${faction}-mini`;
+      d.style.backgroundImage="url('img/runaha.png')";
+      d.style.backgroundSize='cover';
+      d.style.backgroundPosition='bottom';
+      el.appendChild(d);
+    }
+  }
 }
 
 // Рисует персистентную зону игрока (.persist) — уже СЫГРАННЫЕ Мир и Артефакты под полем боя.
@@ -587,17 +598,21 @@ function reorderZones(){
 // Динамически считает отрицательный margin между картами в руке, чтобы они "веером" перекрывали друг
 // друга и помещались в ширину контейнера, если карт много. Отдельно считает для .card (полноразмерные
 // карты в открытой руке) и .card-mini (рубашки в чужой скрытой руке).
+// ВАЖНО: ширину меряем у РОДИТЕЛЯ (el.parentElement = .opp-hand-zone/.player-hand-zone), а не у самого el —
+// el сам по себе сжимается вместе со своими отрицательными margin (раз элементы переиспользуются между
+// рендерами, а не пересоздаются), и измерение его собственной ширины создавало цикл само-сжатия
+// ("карты схлопываются к центру" с каждым рендером всё туже). Родительская зона на margin детей не влияет,
+// поэтому даёт стабильное число каждый раз.
 // ПРИМЕЧАНИЕ: ищет родителя с классом .player-hand-wrap — такого класса сейчас нет в разметке
 // (зона руки называется .player-hand-zone), поэтому wrap всегда null и используется запасной вариант —
-// ширина самого элемента руки (el.getBoundingClientRect().width). Работает за счёт фолбэка, но если
-// когда-нибудь понадобится именно ширина внешнего контейнера — переименуй класс в разметке под .player-hand-wrap
-// либо поменяй селектор здесь на актуальный.
+// ширина el.parentElement. Если когда-нибудь понадобится именно .player-hand-wrap —
+// переименуй класс в разметке либо поменяй селектор здесь на актуальный.
 function adjustHandOverlap(){
   ['teaHand','jeetHand'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
     const wrap=el.closest('.player-hand-wrap');
-    let containerW=wrap?wrap.getBoundingClientRect().width:el.getBoundingClientRect().width;
+    let containerW=wrap?wrap.getBoundingClientRect().width:el.parentElement.getBoundingClientRect().width;
     containerW=Math.floor(containerW)-12;
     if(containerW<=20) containerW=window.innerWidth-90-24;
     if(containerW<=20)return;
