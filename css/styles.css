@@ -125,7 +125,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
 .card.feared{opacity:.4;border-style:dotted;}
 .card.burning{box-shadow:0 0 6px #ff6600 !important;}
-.card-cost{position:absolute;top:calc(var(--card-h) * 0.0125);left:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.09);height:calc(var(--card-h)*0.09*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.11);font-weight:bold;line-height: 1;background-size:100% 100%;background-repeat:no-repeat;}
+.card-cost{position:absolute;top:calc(var(--card-h) * 0.0125);left:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.12);height:calc(var(--card-h)*0.12*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.11);font-weight:bold;line-height: 1;background-size:100% 100%;background-repeat:no-repeat;}
 .tea-card .card-cost{background-image:url('../img/bg_cost_tea.png');}
 .jeet-card .card-cost{background-image:url('../img/bg_cost_jeet.png');}
 .card-type-dot{position:absolute;top:calc(var(--card-h) * 0.0125);right:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.108);height:calc(var(--card-h)*0.108);border:none;pointer-events:none;z-index:2;}
@@ -167,7 +167,13 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .cap-btn.play{width:calc(var(--card-w) * 0.75);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_play.png');}
 .cap-btn.burn{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_burn.png');}
 .cap-btn.zoom{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_zoom.png');}
-.card.zoomed{transform: scale(3) !important;z-index: 5000 !important;transition: transform .2s ease-out;}
+.card.zoomed{
+  transform: scale(3) !important;
+  z-index: 5000 !important;
+  transition: transform .2s ease-out;
+  animation: none !important; /* останавливаем goldPulse и selected */
+}
+
 .cap-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
 .fab-btn{display:block;width:calc(var(--card-small-w) * 0.5);height:calc(var(--card-small-w) * 0.5 * 44/122);border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
