@@ -330,6 +330,7 @@ function killCard(card,faction,toVoid=false){
     const world=G[faction].world;
     if(world&&hasTag(world,'on_own_death')){
       const val=getTagVal(world,'on_own_death')||1;
+      animateDeal(faction);
       for(let i=0;i<val;i++) if(G[faction].deck.length>0) G[faction].hand.push(G[faction].deck.shift());
       lg(`${world.name}: ${card.name} died — draw ${val} card(s).`,'hl');
     }
@@ -640,10 +641,12 @@ function endTurn(){
   checkWin();
 
   const skipDraw=(G.turn==='jeet'&&G.turnNum===1);
-  if(!skipDraw){
-    const n=1+cur.extraDraw;
-    for(let i=0;i<n;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
-  }
+if(!skipDraw){
+  const n=1+cur.extraDraw;
+  if(n>0) animateDeal(G.turn); // ← добавь эту строку
+  for(let i=0;i<n;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
+}
+
 
   if(G.turn==='tea')G.turnNum++;
   lg(`─ Turn ${G.turnNum}: ${G.turn.toUpperCase()} · ${cur.ess}/${cur.essMax} Essence ─`,'trn');
