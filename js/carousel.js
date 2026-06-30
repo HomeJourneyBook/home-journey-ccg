@@ -62,7 +62,7 @@
           const mini = el.querySelectorAll('.card-mini');
           if (mini.length > 0) {
             const wrap = el.closest('.player-hand-wrap');
-            let containerW = wrap ? wrap.getBoundingClientRect().width : el.getBoundingClientRect().width;
+            let containerW = wrap ? wrap.getBoundingClientRect().width : el.parentElement.getBoundingClientRect().width;
             containerW = Math.floor(containerW) - 12;
             if (containerW <= 20) containerW = window.innerWidth - 90 - 24;
             const cardW = mini[0].getBoundingClientRect().width || 36;
@@ -134,9 +134,12 @@
         opacity = OPACITY_FAR;
       }
 
-      if (!card.classList.contains('previewed')) {
+      if (!card.classList.contains('previewed') && !card.classList.contains('zoomed')) {
         card.style.transform = `scale(${scale.toFixed(3)})`;
         card.style.opacity   = opacity.toFixed(3);
+      } else if (card.classList.contains('zoomed')) {
+        // Не трогаем transform — им управляет CSS-класс .zoomed (scale(3))
+        card.style.opacity = '1';
       }
       card.style.zIndex      = String(Math.round(20 - dist * 6));
       card.style.marginRight = '0px';
