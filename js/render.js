@@ -260,29 +260,44 @@ const tagIcons = (card.tags||[])
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
-  if(card.id===G.previewCard&&zone==='hand'){
+    if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
-    const popup=document.createElement('div');
-    popup.className='card-actions-popup';
     const cur=G[G.turn];
+    // Play — попап по центру сверху карты (как было)
     if(cur.ess>=card.cost){
-  const playBtn=document.createElement('button');
-  playBtn.className='cap-btn play';
-  playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
-  popup.appendChild(playBtn);
-}
+      const popup=document.createElement('div');
+      popup.className='card-actions-popup';
+      const playBtn=document.createElement('button');
+      playBtn.className='cap-btn play';
+      playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
+      popup.appendChild(playBtn);
+      d.appendChild(popup);
+    }
+    // Burn — отдельный попап СПРАВА от карты
     if(!cur.burned){
+      const burnPopup=document.createElement('div');
+      burnPopup.className='card-actions-popup-right';
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
       burnBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doBurnCard(card);};
-      popup.appendChild(burnBtn);
+      burnPopup.appendChild(burnBtn);
+      d.appendChild(burnPopup);
     }
-    d.appendChild(popup);
+    // Zoom — отдельный попап СЛЕВА от карты: клик увеличивает карту x3 (класс .zoomed),
+    // повторный клик в любом месте экрана уменьшает обратно (см. глобальный слушатель ниже mkEl)
+    const zoomPopup=document.createElement('div');
+    zoomPopup.className='card-actions-popup-left';
+    const zoomBtn=document.createElement('button');
+    zoomBtn.className='cap-btn zoom';
+    zoomBtn.onclick=(e)=>{e.stopPropagation();d.classList.toggle('zoomed');};
+    zoomPopup.appendChild(zoomBtn);
+    d.appendChild(zoomPopup);
   }
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
+
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
@@ -298,29 +313,50 @@ const tagIcons = (card.tags||[])
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
-  if(card.id===G.previewCard&&zone==='hand'){
+    if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
-    const popup=document.createElement('div');
-    popup.className='card-actions-popup';
     const cur=G[G.turn];
+    // Play — попап по центру сверху карты (как было)
     if(cur.ess>=card.cost){
-  const playBtn=document.createElement('button');
-  playBtn.className='cap-btn play';
-  playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
-  popup.appendChild(playBtn);
-}
+      const popup=document.createElement('div');
+      popup.className='card-actions-popup';
+      const playBtn=document.createElement('button');
+      playBtn.className='cap-btn play';
+      playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
+      popup.appendChild(playBtn);
+      d.appendChild(popup);
+    }
+    // Burn — отдельный попап СПРАВА от карты
     if(!cur.burned){
+      const burnPopup=document.createElement('div');
+      burnPopup.className='card-actions-popup-right';
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
       burnBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doBurnCard(card);};
-      popup.appendChild(burnBtn);
+      burnPopup.appendChild(burnBtn);
+      d.appendChild(burnPopup);
     }
-    d.appendChild(popup);
+    // Zoom — отдельный попап СЛЕВА от карты: клик увеличивает карту x3 (класс .zoomed),
+    // повторный клик в любом месте экрана уменьшает обратно (см. глобальный слушатель ниже mkEl)
+    const zoomPopup=document.createElement('div');
+    zoomPopup.className='card-actions-popup-left';
+    const zoomBtn=document.createElement('button');
+    zoomBtn.className='cap-btn zoom';
+    zoomBtn.onclick=(e)=>{e.stopPropagation();d.classList.toggle('zoomed');};
+    zoomPopup.appendChild(zoomBtn);
+    d.appendChild(zoomPopup);
   }
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
+
+
+// Глобальный слушатель: клик в ЛЮБОМ месте экрана убирает увеличение (.zoomed) с любой карты —
+// кроме клика по самой кнопке Zoom (она вызывает e.stopPropagation(), поэтому сюда не долетает).
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.card.zoomed').forEach(c=>c.classList.remove('zoomed'));
+});
 
 // Перерисовывает целую зону (поле боя ИЛИ руку) по списку карт.
 // Для zone='field': умеет анимировать "умирание" карт (класс dying + удаление через 400мс)
