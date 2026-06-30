@@ -577,6 +577,20 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   50%      { opacity: 0.9; transform: scale(1.5); }
 }
 
+.deal-fly-card {
+  position: fixed;
+  background: url('img/runaha.png') center/cover no-repeat;
+  pointer-events: none;
+  z-index: 9000;
+  border-radius: 4px;
+  animation: dealFly 0.4s ease-out forwards;
+}
+@keyframes dealFly {
+  0%   { opacity:1; transform: translate(0, 0) scale(1); }
+  70%  { opacity:1; transform: translate(-10px, -140px) scale(1.3); }
+  100% { opacity:0; transform: translate(-15px, -180px) scale(1.4); }
+}
+
 
 /* важные фичи от жпт по блоку всяких ненужностей с действиями */
 img{
