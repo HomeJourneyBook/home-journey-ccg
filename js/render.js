@@ -352,9 +352,11 @@ const tagIcons = (card.tags||[])
 
 // Глобальный слушатель: клик в ЛЮБОМ месте экрана убирает увеличение (.zoomed) с любой карты —
 // кроме клика по самой кнопке Zoom (она вызывает e.stopPropagation(), поэтому сюда не долетает).
-document.addEventListener('click', ()=>{
+document.addEventListener('click', (e)=>{
+  if (e.target.closest('.card-actions-popup-left')) return;
   document.querySelectorAll('.card.zoomed').forEach(c=>c.classList.remove('zoomed'));
 });
+
 
 // Перерисовывает целую зону (поле боя ИЛИ руку) по списку карт.
 // Для zone='field': умеет анимировать "умирание" карт (класс dying + удаление через 400мс)
