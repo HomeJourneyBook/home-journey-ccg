@@ -180,10 +180,10 @@ const tagIcons=(card.tags||[])
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
 ${!isSW?`<div class="card-small-stats">
   <div class="card-small-hp-box"><span class="card-small-hp">${card.hp}</span></div>
-  <div class="card-small-stat-img"></div>
+<img src="img/chel.png" class="card-stats-icon">
   <div class="card-small-atk-box"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
 </div>`
-:`<div class="card-small-stats" style="justify-content:center;"><div class="card-small-stat-img"></div></div>`}`;
+:`<div class="card-small-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div></div>`}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
@@ -307,7 +307,7 @@ const tagIcons = (card.tags||[])
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     ${!isSW?`<div class="card-stats">
       <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.maxHp}</span></div>
-        <div class="card-small-stat-img"></div>
+<img src="img/chel.png" class="card-stats-icon">
       <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
@@ -350,13 +350,13 @@ const tagIcons = (card.tags||[])
   return d;
 }
 
-// Глобальный слушатель: клик в ЛЮБОМ месте экрана убирает увеличение (.zoomed) с любой карты.
-// Исключение: если клик пришёл с самой кнопки zoom или её попапа — не трогаем
-// (кнопка сама управляет классом через toggle, нам не надо его сразу же снимать).
+// Глобальный слушатель: клик в ЛЮБОМ месте экрана убирает увеличение (.zoomed) с любой карты —
+// кроме клика по самой кнопке Zoom (она вызывает e.stopPropagation(), поэтому сюда не долетает).
 document.addEventListener('click', (e)=>{
   if (e.target.closest('.card-actions-popup-left')) return;
   document.querySelectorAll('.card.zoomed').forEach(c=>c.classList.remove('zoomed'));
 });
+
 
 // Перерисовывает целую зону (поле боя ИЛИ руку) по списку карт.
 // Для zone='field': умеет анимировать "умирание" карт (класс dying + удаление через 400мс)
@@ -365,7 +365,6 @@ document.addEventListener('click', (e)=>{
 // Для остальных зон (zone='hand' и т.п.) — просто очищает контейнер и рисует заново через mkEl.
 function rZone(id,cards,zone){
   const el=document.getElementById(id);
-
   if(zone==='field'){
     const dying=[];
     el.querySelectorAll('.card-small').forEach(cardEl=>{
@@ -380,10 +379,12 @@ function rZone(id,cards,zone){
       setTimeout(()=>{
         dying.forEach(cardEl=>{if(cardEl.parentElement)cardEl.remove();});
       }, 400);
+      // Build map of live (non-dying) existing elements
       const existingMap={};
       el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>{
         existingMap[cardEl.dataset.id]=cardEl;
       });
+      // Update live cards in-place (fixes targetable staying lit), add new ones with entering
       cards.forEach(c=>{
         if(existingMap[String(c.id)]){
           existingMap[String(c.id)].replaceWith(mkSmallEl(c));
@@ -395,44 +396,18 @@ function rZone(id,cards,zone){
       });
       return;
     }
-    const existingIds=new Set([...el.querySelectorAll('.card-small')].map(e=>e.dataset.id));
-    el.innerHTML='';
-    cards.forEach(c=>{
+  }
+  const existingIds=new Set([...el.querySelectorAll('.card-small')].map(e=>e.dataset.id));
+  el.innerHTML='';
+  cards.forEach(c=>{
+    if(zone==='field'){
       const cardEl=mkSmallEl(c);
       if(!existingIds.has(String(c.id))) cardEl.classList.add('entering');
       el.appendChild(cardEl);
-    });
-
-  } else {
-    const existingMap={};
-    [...el.querySelectorAll('.card')].forEach(cardEl=>{
-      existingMap[cardEl.dataset.id]=cardEl;
-    });
-    const cardIds=new Set(cards.map(c=>String(c.id)));
-    Object.entries(existingMap).forEach(([id,cardEl])=>{
-      if(!cardIds.has(id)) cardEl.remove();
-    });
-    cards.forEach(c=>{
-      const id=String(c.id);
-      if(existingMap[id]){
-        const isPreviewed=G.previewCard===c.id;
-        const wasPreviewed=existingMap[id].classList.contains('previewed');
-        if(isPreviewed||wasPreviewed){
-          const newEl=mkEl(c,zone);
-          existingMap[id].replaceWith(newEl);
-          existingMap[id]=newEl;
-        }
-      } else {
-        const cardEl=mkEl(c,zone);
-        cardEl.classList.add('entering');
-        el.appendChild(cardEl);
-      }
-    });
-    cards.forEach(c=>{
-      const cardEl=el.querySelector(`.card[data-id="${c.id}"]`);
-      if(cardEl) el.appendChild(cardEl);
-    });
-  }
+    } else {
+      el.appendChild(mkEl(c,zone));
+    }
+  });
 }
 
 // Рисует ЧУЖУЮ руку — карты рубашкой вверх (картинка runaha.png), без данных о содержимом.
@@ -687,25 +662,4 @@ function adjustHandOverlap(){
       });
     }
   });
-}
-
-// Анимация "раздачи карты" — летящая карта из деки вверх с фейдом.
-// Вызывается из game.js при добросе карты: animateDeal('tea') или animateDeal('jeet').
-// Визуально: рубашка карты вылетает из иконки деки и исчезает вверху —
-// в этот момент render() добавит новую карту в руку уже с entering-анимацией.
-function animateDeal(faction){
-  const sfx = faction === 'tea' ? 'T' : 'J';
-  const deckEl = document.getElementById('deckPlaceholder' + sfx);
-  if (!deckEl) return;
-  const r = deckEl.getBoundingClientRect();
-
-  const fly = document.createElement('div');
-  fly.className = 'deal-fly-card';
-  fly.style.left   = r.left + 'px';
-  fly.style.top    = r.top  + 'px';
-  fly.style.width  = r.width  + 'px';
-  fly.style.height = r.height + 'px';
-  document.body.appendChild(fly);
-
-  fly.addEventListener('animationend', () => fly.remove());
 }
