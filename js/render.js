@@ -365,6 +365,7 @@ document.addEventListener('click', (e)=>{
 // Для остальных зон (zone='hand' и т.п.) — просто очищает контейнер и рисует заново через mkEl.
 function rZone(id,cards,zone){
   const el=document.getElementById(id);
+
   if(zone==='field'){
     const dying=[];
     el.querySelectorAll('.card-small').forEach(cardEl=>{
@@ -379,12 +380,10 @@ function rZone(id,cards,zone){
       setTimeout(()=>{
         dying.forEach(cardEl=>{if(cardEl.parentElement)cardEl.remove();});
       }, 400);
-      // Build map of live (non-dying) existing elements
       const existingMap={};
       el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>{
         existingMap[cardEl.dataset.id]=cardEl;
       });
-      // Update live cards in-place (fixes targetable staying lit), add new ones with entering
       cards.forEach(c=>{
         if(existingMap[String(c.id)]){
           existingMap[String(c.id)].replaceWith(mkSmallEl(c));
@@ -396,25 +395,44 @@ function rZone(id,cards,zone){
       });
       return;
     }
-  }
-  const existingIds=new Set([...el.querySelectorAll('.card-small')].map(e=>e.dataset.id));
-  // Для руки запоминаем id существующих карт ДО очистки — чтобы знать какие новые
-  const existingHandIds=new Set([...el.querySelectorAll('.card')].map(e=>e.dataset.id));
-  el.innerHTML='';
-  cards.forEach(c=>{
-    if(zone==='field'){
+    const existingIds=new Set([...el.querySelectorAll('.card-small')].map(e=>e.dataset.id));
+    el.innerHTML='';
+    cards.forEach(c=>{
       const cardEl=mkSmallEl(c);
       if(!existingIds.has(String(c.id))) cardEl.classList.add('entering');
       el.appendChild(cardEl);
-    } else {
-      const cardEl=mkEl(c,zone);
-      // Новая карта в руке (которой не было до рендера) — анимация появления
-      if(!existingHandIds.has(String(c.id))){
+    });
+
+  } else {
+    const existingMap={};
+    [...el.querySelectorAll('.card')].forEach(cardEl=>{
+      existingMap[cardEl.dataset.id]=cardEl;
+    });
+    const cardIds=new Set(cards.map(c=>String(c.id)));
+    Object.entries(existingMap).forEach(([id,cardEl])=>{
+      if(!cardIds.has(id)) cardEl.remove();
+    });
+    cards.forEach(c=>{
+      const id=String(c.id);
+      if(existingMap[id]){
+        const isPreviewed=G.previewCard===c.id;
+        const wasPreviewed=existingMap[id].classList.contains('previewed');
+        if(isPreviewed||wasPreviewed){
+          const newEl=mkEl(c,zone);
+          existingMap[id].replaceWith(newEl);
+          existingMap[id]=newEl;
+        }
+      } else {
+        const cardEl=mkEl(c,zone);
         cardEl.classList.add('entering');
+        el.appendChild(cardEl);
       }
-      el.appendChild(cardEl);
-    }
-  });
+    });
+    cards.forEach(c=>{
+      const cardEl=el.querySelector(`.card[data-id="${c.id}"]`);
+      if(cardEl) el.appendChild(cardEl);
+    });
+  }
 }
 
 // Рисует ЧУЖУЮ руку — карты рубашкой вверх (картинка runaha.png), без данных о содержимом.
