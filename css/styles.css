@@ -46,7 +46,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .game{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0;display:flex;flex-direction:column;gap:0;min-height:100vh;}
 .game, .game *{user-select: none;-webkit-user-select: none;}
 
-.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:1px solid #D5943F;background:#0B0F17;position:relative;box-shadow:inset 0 0 8px #0c1013;margin:4px 0;height:max(5vh, 2.5vw);}
+.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:1px solid #D5943F;background:#0B0F17;position:relative;box-shadow:inset 0 0 8px #0c1013;height:max(5vh, 2.5vw);}
 .title{font-family:'MEK',monospace;font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#c8a84b;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
 #turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:max(calc(5vh * 0.35), calc(2.5vw * 0.35));color:#888;}
 #turnInfo span{color:#c8a84b;font-weight:bold;}
@@ -104,7 +104,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 .hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 4px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
 .hand-mini .card-mini{flex-shrink:0;min-width:calc(6vh * 0.9);width:calc(6vh * 0.9);}
-.battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:2px;justify-content:center;flex:1;}
+.battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
 .persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
 .pcard{width:var(--pcard-w);height:var(--pcard-h);padding:1px 1px;border:1px solid;border-radius:6px;font-size:calc(var(--pcard-h) * 0.75);display:flex;align-items:center;justify-content:center;gap:4px;background:url('../img/pcard_bg.png') center/100% 100% no-repeat;}
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
@@ -213,7 +213,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .log::-webkit-scrollbar-thumb:hover{background:#c8a84b;}
 
 /* LAYOUT ZONES */
-.opp-hand-zone{height:6vh;padding:0 6px 0 6px;border:1px solid #d83c8866;border-bottom:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.opp-hand-zone{height:6vh;padding:0 6px;border:1px solid #d83c8866;border-bottom:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .stats-bar{height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;cursor:pointer;}
 .stats-bar.jeet{border:1px solid #d83c8866;box-shadow: inset 0 0 8px #d83c8822, 0 0 8px #d83c8811;background:rgba(22,12,32,0.65);}
@@ -224,12 +224,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .stat{display:flex;align-items:center;gap:4px;font-size:calc(4vh * 0.4);}.stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.8em;height:0.8em;}
 .hp-val{color:#e05555;}.ess-val{color:#F3F5FF;}
-.field-zone{padding:2px;overflow:visible;display:flex;flex-direction:column;}
+.field-zone{overflow:visible;display:flex;flex-direction:column;}
 .field-zone{background:url('../img/bg_arena_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #d83c88;border-top:none;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #1b641b66;box-shadow: inset 0 0 8px #1b641b22, 0 0 8px #1b641b11;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
-.player-hand-zone{height:28vh;padding:2px 6px;border:1px solid transparent;}
+.player-hand-zone{height:28vh;padding:0 6px;border:1px solid transparent;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 
 /* BOTTOM BAR */
