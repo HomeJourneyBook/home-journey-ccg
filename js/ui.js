@@ -277,8 +277,10 @@ document.addEventListener('click',function(e){
 // Boot
 preloadAssets();
 initState();
+spawnStars(); // ← добавь сюда
 lg('─ Game Start ─','trn');
 lg('TEA goes first. Good luck!','imp');
+
 
 window.addEventListener('resize', adjustHandOverlap);
 
@@ -317,4 +319,22 @@ function passReady(){
   } else {
     proceed();
   }
+}
+
+// Добавь в ui.js или отдельный файл, вызови один раз при загрузке
+function spawnStars() {
+  ['oppFieldZone','playerFieldZone'].forEach(id => {
+    const zone = document.getElementById(id);
+    if (!zone) return;
+    for (let i = 0; i < 30; i++) {
+      const s = document.createElement('div');
+      s.className = 'field-star';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top  = Math.random() * 100 + '%';
+      s.style.animationDelay = (Math.random() * 4) + 's';
+      s.style.animationDuration = (2 + Math.random() * 3) + 's';
+      s.style.opacity = Math.random() * 0.6 + 0.1;
+      zone.appendChild(s);
+    }
+  });
 }
