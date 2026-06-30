@@ -11,8 +11,8 @@
   const SCALE_NEAR     = 0.94;
   const SCALE_FAR      = 0.88;
   const OPACITY_CENTER = 1.00;
-  const OPACITY_NEAR   = 0.75;
-  const OPACITY_FAR    = 0.50;
+  const OPACITY_NEAR   = 0.95;
+  const OPACITY_FAR    = 0.75;
 
   let hand         = null;
   let cards        = [];
