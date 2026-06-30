@@ -73,7 +73,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .jeet .base-hp-fill{background:#b44fd4;}.tea .base-hp-fill{background:#4db854;}
 
 /* ARENA */
-.arena{display:flex;flex-direction:column;border:1px solid #ffffff11;background:#06060e;position:relative;z-index:1;overflow:hidden;}
+.arena{display:flex;flex-direction:column;border:1px solid #ffffff11;background:#FFFFFF;position:relative;z-index:1;overflow:hidden;}
 .arena-half{flex:1;padding:3px;}
 .arena-half:first-child{border-right:1px solid #7b2d8b22;}
 .arena-half:last-child{border-left:1px solid #2d7b3522;}
