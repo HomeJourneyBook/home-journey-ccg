@@ -172,7 +172,7 @@ ${!isSW?`<div class="card-small-stats">
   <div class="card-small-stat-img"></div>
   <div class="card-small-atk-box"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
 </div>`
-:`<div class="card-small-stats" style="justify-content:center;"><div class="card-small-stat-img"></div></div>`}`;
+:`<div class="card-small-stats" style="justify-content:center;"><div class="stat-img"></div></div>`}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
@@ -289,7 +289,7 @@ const tagIcons = (card.tags||[])
         <div class="card-small-stat-img"></div>
       <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
     </div>`
-      :`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
+      :`<div class="card-stats" style="justify-content:center;"><div class="stat-img"></div>`}
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
   if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
