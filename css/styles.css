@@ -257,7 +257,7 @@ body{
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .btn{font-family:'MEK',monospace;font-size:30px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
-.btn-end{border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:28vh;height:7vh;transition:transform .1s,filter .1s;flex-shrink:0;}
+.btn-end{border:none;background:url('../img/btn_turn1.png') center/contain no-repeat;color:transparent;width:27,9vh;height:6vh;transition:transform .1s,filter .1s;flex-shrink:0;}
 .btn-end:hover{filter:brightness(1.25);}
 .btn-end:active{transform:scale(0.95) translateY(2px);}
 .btn-square{width:7vh;height:7vh;border:none;background:transparent;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
