@@ -528,7 +528,45 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   animation: flashGreen 0.5s ease-out forwards;
 }
 
+.card-small:not(.exhausted):not(.sleeping) {
+  animation: cardFloat 3s ease-in-out infinite;
+}
+@keyframes cardFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
 
+/* float cards */
+.card-small:not(.exhausted):not(.sleeping) {
+  animation: cardFloat 3s ease-in-out infinite;
+}
+@keyframes cardFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* nebula */
+.field-nebula {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+  animation: nebulaDrift 20s ease-in-out infinite;
+}
+.field-nebula.tea  { background: #4DB854; }
+.field-nebula.jeet { background: #B44FD4; }
+@keyframes nebulaDrift {
+  0%,100% { transform: translate(0, 0); }
+  33%     { transform: translate(30px, -15px); }
+  66%     { transform: translate(-20px, 10px); }
+}
+
+
+/* важные фичи от жпт по блоку всяких ненужностей с действиями */
 img{
     -webkit-user-drag:none;
     user-select:none;
