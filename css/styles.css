@@ -158,9 +158,9 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-small.entering {animation: cardEnter 0.35s ease-out forwards;}
 .card-small.entering:not(.sleeping) {animation: cardEnterAwake 0.35s ease-out forwards;}
 .card-small .stat-icon{width:0.6em;height:0.6em;}
-.card-small .card-small-stat-img{width:0.6em;height:0.6em;}
-.tea-card .card-small-stat-img{background-image:url('../img/chel.png');}
-.jeet-card .card-small-stat-img{background-image:url('../img/chel2.png');}
+.card-small .stat-img{width:0.6em;height:0.6em;}
+.tea-card .stat-img{background-image:url('../img/chel.png');}
+.jeet-card .stat-img{background-image:url('../img/chel2.png');}
 .card-small-name-box{width:100%;height:var(--card-small-name-h);background:url('../img/card_name_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:0;display:flex;align-items:center;justify-content:center;}
 .card-small-hp-box{width:48%;height:100%;background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 3.5px 1px;}
 .card-small-atk-box{width:48%;height:100%;background:url('../img/card_stat_bg.png') center/100% 100% no-repeat;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1px;padding:1px 1px 3.5px 1px;}
@@ -199,9 +199,9 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card.world-card.tea-card,
 .card.world-card.jeet-card{background-image:none !important;}
 .card-stats-icon{width:var(--card-stats-h);height:var(--card-stats-h);object-fit:cover;flex-shrink:0;}
-.card-small .card-small-stat-img{width:var(--card-stats-h);height:var(--card-stats-h);object-fit:cover;flex-shrink:0;}
-.tea-card .card-small-stat-img{background-image:url('../img/chel.png');}
-.jeet-card .card-small-stat-img{background-image:url('../img/chel2.png');}
+.card .stat-img{width:var(--card-stats-h);height:var(--card-stats-h);object-fit:cover;flex-shrink:0;}
+.tea-card .stat-img{background-image:url('../img/chel.png');}
+.jeet-card .stat-img{background-image:url('../img/chel2.png');}
 .card-tag-icons{position:absolute;right:7px;top:50px;transform:translateY(-50%);display:flex;flex-direction:column;gap:2px;z-index:3;}
 .card-tag-icon{width:calc(var(--card-h)*0.108);height:calc(var(--card-h)*0.108);display:flex;align-items:center;justify-content:center;font-size:10px;background:url('../img/tag_bg.png') center/100% 100% no-repeat;}
 .cat-card .card-type-dot{position:absolute;top:3px;right:6.5px;width:calc(var(--card-h)*0.108);height:calc(var(--card-h)*0.108);border:none;pointer-events:none;z-index:2;}
