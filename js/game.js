@@ -330,7 +330,6 @@ function killCard(card,faction,toVoid=false){
     const world=G[faction].world;
     if(world&&hasTag(world,'on_own_death')){
       const val=getTagVal(world,'on_own_death')||1;
-animateDeal(G.turn);
       for(let i=0;i<val;i++) if(G[faction].deck.length>0) G[faction].hand.push(G[faction].deck.shift());
       lg(`${world.name}: ${card.name} died — draw ${val} card(s).`,'hl');
     }
@@ -641,18 +640,16 @@ function endTurn(){
   checkWin();
 
   const skipDraw=(G.turn==='jeet'&&G.turnNum===1);
-const drawnCount = skipDraw ? 0 : 1+cur.extraDraw;
-if(!skipDraw){
-  for(let i=0;i<drawnCount;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
-}
+  if(!skipDraw){
+    const n=1+cur.extraDraw;
+    for(let i=0;i<n;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
+  }
 
   if(G.turn==='tea')G.turnNum++;
   lg(`─ Turn ${G.turnNum}: ${G.turn.toUpperCase()} · ${cur.ess}/${cur.essMax} Essence ─`,'trn');
   const lp=document.getElementById('logPanel');if(lp)lp.classList.remove('open');
   render();
-  if(drawnCount>0) requestAnimationFrame(()=>animateDeal(G.turn));
 }
-
 
 // ── WIN / MULLIGAN / UTILS ─────────────────────────────────
 function checkWin(){
