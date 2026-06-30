@@ -237,21 +237,25 @@
     const dx   = Math.abs(endX - dragStartX);
 
     if (dx < 8) {
-      // Проверяем попал ли тап в попап
-      const popup = hand.querySelector('.card-actions-popup');
-      if (popup) {
-        const pr = popup.getBoundingClientRect();
-        if (endX >= pr.left && endX <= pr.right && endY >= pr.top && endY <= pr.bottom) {
-          const btn = document.elementFromPoint(endX, endY);
-          if (btn) btn.click();
-          return;
-        }
+  // Проверяем попал ли тап в любой из попапов (center/right/left)
+  const popupSelectors = ['.card-actions-popup', '.card-actions-popup-right', '.card-actions-popup-left'];
+  for (const sel of popupSelectors) {
+    const popups = hand.querySelectorAll(sel);
+    for (const popup of popups) {
+      const pr = popup.getBoundingClientRect();
+      if (endX >= pr.left && endX <= pr.right && endY >= pr.top && endY <= pr.bottom) {
+        const btn = document.elementFromPoint(endX, endY);
+        if (btn) btn.click();
+        return;
       }
-
-      // Только центральная карта реагирует на тап
-      if (cards[centerIndex]) cards[centerIndex].click();
-      return;
     }
+  }
+
+  // Только центральная карта реагирует на тап
+  if (cards[centerIndex]) cards[centerIndex].click();
+  return;
+}
+
     runMomentum();
   }
 
