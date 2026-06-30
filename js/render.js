@@ -1,3 +1,5 @@
+// Подсвечивает рамки своей/чужой зоны цветом текущей фракции (зелёный — Tea, розовый — Jeet),
+// чтобы на глаз было понятно чей сейчас ход. Вызывается в начале каждого render().
 function updateTurnColors(){
   if(!G) return;
   const isTea=G.turn==='tea';
@@ -25,6 +27,9 @@ function updateTurnColors(){
 }
 
 
+// ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
+// Обновляет: счётчики хода/HP/Essence/колоды/кладбища, поля боя, руки обоих игроков (своя — открыта, чужая — рубашками),
+// персистентную зону (Worlds/Artifacts), z-index рук, подсветку "можно бить по базе", текст подсказки текущей фазы.
 function render(){
   updateTurnColors();
   const cur=G[G.turn];
@@ -105,6 +110,8 @@ function render(){
   if(typeof _applyPendingFlash==='function') _applyPendingFlash();
 }
 
+// Возвращает путь к картинке типа карты (мир/уникальный/артефакт/заклинание/существо) —
+// именно эта картинка ставится фоном в .card-type-dot (значок в правом верхнем углу карты).
 function getTypeDotImg(card){
   if(card.world) return 'img/type_world.png';
   if(card.unique) return 'img/type_unique.png';
@@ -113,6 +120,10 @@ function getTypeDotImg(card){
   return 'img/type_creature.png';
 }
 
+// Рисует МАЛЕНЬКУЮ карту (.card-small) — это ВСЕ существа на боевом поле (battlefield), и только они.
+// Сюда же навешиваются игровые состояния: selected (выбрана), sleeping (спит), exhausted (устала),
+// feared (в страхе), burning (горит), targetable (можно выбрать целью в текущей фазе), healable (можно вылечить).
+// Это единственный рендерер поля боя — .card (mkEl) сюда никогда не попадает.
 function mkSmallEl(card){
   const d=document.createElement('div');
   d.className=`card-small ${card.f}-card`;
@@ -169,10 +180,10 @@ const tagIcons=(card.tags||[])
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
 ${!isSW?`<div class="card-small-stats">
   <div class="card-small-hp-box"><span class="card-small-hp">${card.hp}</span></div>
-  <img src="img/chel.png" class="card-stats-icon">
+  <div class="card-small-stat-img"></div>
   <div class="card-small-atk-box"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
 </div>`
-:`<div class="card-small-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}`;
+:`<div class="card-small-stats" style="justify-content:center;"><div class="card-small-stat-img"></div></div>`}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
@@ -198,6 +209,11 @@ ${!isSW?`<div class="card-small-stats">
   return d;
 }
 
+// Рисует БОЛЬШУЮ карту (.card) — используется для руки (zone='hand') и кладбища (zone='grave').
+// На боевое поле НЕ попадает (поле всегда рисует mkSmallEl, см. rZone). Внутри есть отдельная
+// ранняя ветка для card.world (Миры выглядят иначе: без арта/статов, с особым фоном текстового блока) —
+// она строит свой innerHTML и сразу делает return; всё что ниже (строка с обычным innerHTML) —
+// для всех остальных типов карт: существ, заклинаний, артефактов.
 function mkEl(card,zone){
   const d=document.createElement('div');
   d.className=`card ${card.f}-card`;
@@ -214,21 +230,10 @@ function mkEl(card,zone){
     d.appendChild(inv);
   }
   if(card.feared)d.classList.add('feared');
-  if(G.phase==='sacrificeTarget'&&card.f===G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
-  if(G.phase==='shardTarget'&&card.f!==G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
-  if(G.phase==='selectTarget'&&card.f!==G.turn&&zone==='field'){
-    const oppField=G[card.f].field;
-    const attE=G.sel?findC(G.sel):null;
-    const targetableE=getTargetableCards(oppField,attE);
-    if(targetableE.includes(card.id))d.classList.add('targetable');
-  }
-  if(G.phase==='healTarget'&&card.f===G.turn&&zone==='field'&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp)d.classList.add('healable');
-  if(G.phase==='healTarget'&&card.f!==G.turn&&zone==='field'){
-    const oppFieldH=G[card.f].field;
-    const attH=G.sel?findC(G.sel):null;
-    const targetableH2=getTargetableCards(oppFieldH,attH);
-    if(targetableH2.includes(card.id))d.classList.add('targetable');
-  }
+  // ВНИМАНИЕ: блоки про targetable/healable с проверкой zone==='field' раньше были тут,
+  // но удалены — mkEl() никогда не вызывается с zone='field' (см. rZone ниже: поле всегда рисует mkSmallEl).
+  // Если в будущем захочешь дать персистентным/ручным картам подсветку targetable — добавляй проверки сюда заново,
+  // но без условия zone==='field', а под актуальную зону (например zone==='hand' или отдельный 'persist').
 
   const isSW=card.spell||card.world||card.artifact;
   const TAG_ICONS = {
@@ -244,6 +249,7 @@ const tagIcons = (card.tags||[])
   .filter(t=>TAG_ICONS[t])
   .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
   .join('');
+  // ── Ветка для карт-Миров: своя разметка (без card-art и card-stats), свой фон ──
   if(card.world){
   d.classList.add('world-card');
   if(card.img){
@@ -277,6 +283,7 @@ const tagIcons = (card.tags||[])
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
+  // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
@@ -286,7 +293,7 @@ const tagIcons = (card.tags||[])
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     ${!isSW?`<div class="card-stats">
       <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.maxHp}</span></div>
-        <img src="img/chel.png" class="card-stats-icon">
+        <div class="card-small-stat-img"></div>
       <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
@@ -315,6 +322,11 @@ const tagIcons = (card.tags||[])
   return d;
 }
 
+// Перерисовывает целую зону (поле боя ИЛИ руку) по списку карт.
+// Для zone='field': умеет анимировать "умирание" карт (класс dying + удаление через 400мс)
+// и обновлять уже существующие элементы на месте (чтобы не сбрасывалась подсветка targetable),
+// новые карты получают класс entering для анимации появления. Рисует через mkSmallEl.
+// Для остальных зон (zone='hand' и т.п.) — просто очищает контейнер и рисует заново через mkEl.
 function rZone(id,cards,zone){
   const el=document.getElementById(id);
   if(zone==='field'){
@@ -362,6 +374,8 @@ function rZone(id,cards,zone){
   });
 }
 
+// Рисует ЧУЖУЮ руку — карты рубашкой вверх (картинка runaha.png), без данных о содержимом.
+// Количество "рубашек" = реальное количество карт у оппонента, сами карты не раскрываются.
 function rHiddenHand(id,cards,faction){
   const el=document.getElementById(id);
   el.innerHTML='';
@@ -377,6 +391,11 @@ function rHiddenHand(id,cards,faction){
   });
 }
 
+// Рисует персистентную зону игрока (.persist) — уже СЫГРАННЫЕ Мир и Артефакты под полем боя.
+// ВАЖНО: рендерится НЕ через mkEl/.card, а отдельной упрощённой разметкой .pcard (просто текст
+// иконка+название в рамке) — поэтому у Worlds/Artifacts на поле нет арта/статов, как у обычных карт.
+// Также здесь живёт игровая логика щитов/кликов для активных артефактов с тегами 'shard' (можно
+// активировать раз за ход) и 'sacrifice' (требует жертвы существа для активации).
 function rPersist(id,player){
   const s = getComputedStyle(document.documentElement);
   const el=document.getElementById(id);
@@ -388,6 +407,7 @@ function rPersist(id,player){
 
   el.innerHTML='';
   const cls=player===G.tea?'tcp':'jcp';
+  // ── Активный Мир (максимум 1 одновременно) ──
   if(player.world){
     const d=document.createElement('div');
     d.className=`pcard ${cls}`;
@@ -397,6 +417,7 @@ function rPersist(id,player){
     if(!prevIds.has(player.world.id)) d.classList.add('pcard-entering');
     el.appendChild(d);
   }
+  // ── Активные Артефакты (максимум 2 одновременно) ──
   player.artifacts.forEach(a=>{
     const d=document.createElement('div');
     d.className=`pcard ${cls}`;
@@ -404,7 +425,7 @@ function rPersist(id,player){
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
     if(!prevIds.has(a.id)) d.classList.add('pcard-entering');
-    // Shard damage logic
+    // Логика артефакта с тегом 'shard' (например Shard) — активная способность раз за ход
     if(hasTag(a,'shard')&&a.f===G.turn){
       if(a.exhausted||a.sleeping){
         d.style.opacity='0.5';
@@ -422,7 +443,7 @@ d.style.boxShadow=`0 0 8px ${shardCol}`;
         d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
       }
     }
-    // Altar sacrifice logic
+    // Логика артефакта с тегом 'sacrifice' (например Altar) — требует принести существо в жертву для активации
     if(hasTag(a,'sacrifice')&&a.f===G.turn){
       if(a.exhausted||a.sleeping){
         // Inactive - grey out
@@ -449,6 +470,7 @@ d.style.boxShadow=`0 0 8px ${shardCol}`;
     }
     el.appendChild(d);
   });
+  // Если нет ни Мира, ни Артефактов — показать заглушку "none"
   if(!player.world&&player.artifacts.length===0){
     const d=document.createElement('div');
     d.className='empty-persist';
@@ -457,6 +479,9 @@ d.style.boxShadow=`0 0 8px ${shardCol}`;
   }
 }
 
+// Переставляет DOM-элементы местами в Hot Seat режиме: чужие зоны (поле/рука/статбар) — наверх экрана,
+// свои — вниз, в зависимости от того, чей сейчас ход (G.turn). Физически перемещает существующие
+// .field/.persist/.hand элементы между контейнерами, а не пересоздаёт их — поэтому быстро и без потери стейта.
 function reorderZones(){
   const oppK=G.turn==='tea'?'jeet':'tea';
   const playerK=G.turn;
@@ -523,6 +548,14 @@ function reorderZones(){
   if(jeetBB) jeetBB.style.display=G.turn==='jeet'?'flex':'none';
 }
 
+// Динамически считает отрицательный margin между картами в руке, чтобы они "веером" перекрывали друг
+// друга и помещались в ширину контейнера, если карт много. Отдельно считает для .card (полноразмерные
+// карты в открытой руке) и .card-mini (рубашки в чужой скрытой руке).
+// ПРИМЕЧАНИЕ: ищет родителя с классом .player-hand-wrap — такого класса сейчас нет в разметке
+// (зона руки называется .player-hand-zone), поэтому wrap всегда null и используется запасной вариант —
+// ширина самого элемента руки (el.getBoundingClientRect().width). Работает за счёт фолбэка, но если
+// когда-нибудь понадобится именно ширина внешнего контейнера — переименуй класс в разметке под .player-hand-wrap
+// либо поменяй селектор здесь на актуальный.
 function adjustHandOverlap(){
   ['teaHand','jeetHand'].forEach(id=>{
     const el=document.getElementById(id);
