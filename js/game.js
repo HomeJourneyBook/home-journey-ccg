@@ -353,13 +353,25 @@ function killCard(card,faction,toVoid=false){
 function doBurnCard(card){
   const cur=G[G.turn];
   if(cur.burned){lg('Already burned a card this turn.','hint');return;}
-  cur.hand=cur.hand.filter(c=>c.id!==card.id);
-  card.voided=true;
-  cur.void.push(card);
-  cur.essMax+=1;cur.ess+=1;cur.burned=true;
-  lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax}.`,'imp');
-  G.phase='action';render();
+
+  // Анимация сжигания — находим карту в DOM и вешаем фейд перед удалением
+  const cardEl=document.querySelector(`.hand .card[data-id="${card.id}"]`);
+  if(cardEl){
+    cardEl.style.transition='opacity 0.3s ease, transform 0.3s ease';
+    cardEl.style.opacity='0';
+    cardEl.style.transform='scale(0.85)';
+  }
+
+  setTimeout(()=>{
+    cur.hand=cur.hand.filter(c=>c.id!==card.id);
+    card.voided=true;
+    cur.void.push(card);
+    cur.essMax+=1;cur.ess+=1;cur.burned=true;
+    lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax}.`,'imp');
+    G.phase='action';render();
+  }, 300); // ждём пока анимация закончится
 }
+
 
 function applyAuras(faction){
   const cur=G[faction];
