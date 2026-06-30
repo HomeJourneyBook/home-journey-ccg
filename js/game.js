@@ -573,7 +573,7 @@ function openGraveModal(faction){
   if(grave.length===0){
     cards.innerHTML='<div style="color:#555;font-size:20px;padding:20px;">Empty</div>';
   } else {
-grave.slice().reverse().forEach(card=>{
+    grave.slice().reverse().forEach(card=>{
       const d = mkEl(card,'grave');
       d.style.cursor='default';
       d.style.transform='none';
@@ -584,7 +584,6 @@ grave.slice().reverse().forEach(card=>{
     });
   }
 
-  // Позиционируем над кнопкой кладбища — левая грань совпадает
   const btnId = faction==='tea' ? 'teaBottomBar' : 'jeetBottomBar';
   const bar = document.getElementById(btnId);
   const graveBtn = bar ? bar.querySelector('.btn-graveyard') : null;
@@ -594,14 +593,17 @@ grave.slice().reverse().forEach(card=>{
     innerModal.style.left   = r.left + 'px';
     innerModal.style.bottom = (window.innerHeight - r.top + 14) + 'px';
     innerModal.style.top    = '';
+    graveBtn.classList.add('open'); // ← добавь
   }
 
   modal.classList.remove('hidden');
 }
 
 function closeGraveModal(){
+  document.querySelectorAll('.btn-graveyard').forEach(b=>b.classList.remove('open'));
   document.getElementById('graveModal').classList.add('hidden');
 }
+
 
 function endTurn(){
   G.sel=null;G.phase='action';G.previewCard=null;
