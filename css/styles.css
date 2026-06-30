@@ -204,7 +204,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .stat{display:flex;align-items:center;gap:4px;font-size:calc(4vh * 0.4);}.stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.8em;height:0.8em;}
 .hp-val{color:#e05555;}.ess-val{color:#F3F5FF;}
-.field-zone{background:transparent;overflow:visible;display:flex;flex-direction:column;}
+.field-zone{background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;}
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #d83c88;border-top:none;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #1b641b66;box-shadow: inset 0 0 8px #1b641b22, 0 0 8px #1b641b11;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
@@ -528,17 +528,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   animation: flashGreen 0.5s ease-out forwards;
 }
 
-.card-small:not(.exhausted):not(.sleeping) {
-  animation: cardFloat 3s ease-in-out infinite;
-}
-@keyframes cardFloat {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-3px); }
-}
 
 /* float cards */
-.card-small:not(.exhausted):not(.sleeping) {
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering) {
   animation: cardFloat 3s ease-in-out infinite;
+}
+
 }
 @keyframes cardFloat {
   0%,100% { transform: translateY(0); }
@@ -563,6 +558,23 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   0%,100% { transform: translate(0, 0); }
   33%     { transform: translate(30px, -15px); }
   66%     { transform: translate(-20px, 10px); }
+}
+
+/* stars */
+/* Мерцающие звёзды на поле боя */
+.field-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  animation: starTwinkle 3s ease-in-out infinite;
+}
+@keyframes starTwinkle {
+  0%,100% { opacity: 0.1; transform: scale(1); }
+  50%      { opacity: 0.9; transform: scale(1.5); }
 }
 
 
