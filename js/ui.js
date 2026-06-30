@@ -59,11 +59,12 @@ function showConfirm(text, btnText, onConfirm){
   const modal=document.getElementById('confirmModal');
   modal.querySelector('p').textContent=text;
   modal.querySelector('h2').textContent='ARE YOU SURE?';
-  const yesBtn=modal.querySelector('.btn[style*="e05555"]');
+  const yesBtn=modal.querySelector('#confirmYesBtn');
   yesBtn.textContent=btnText;
   yesBtn.onclick=()=>{modal.classList.add('hidden');onConfirm();};
   modal.classList.remove('hidden');
 }
+
 
 function askMenu(){
   showConfirm('Current game will be lost.','Yes, Exit',()=>showLanding());
