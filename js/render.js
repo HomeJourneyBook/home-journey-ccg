@@ -384,6 +384,8 @@ function rZone(id,cards,zone){
 function rHiddenHand(id,cards,faction){
   const el=document.getElementById(id);
   el.className='hand-mini';
+  // Проверяем: содержимое контейнера сейчас вообще корректного типа?
+  // (этот же id раньше мог рисоваться через rZone как открытая рука — там лежат .card, а не .card-mini)
   const wrongType = [...el.children].some(c=>!c.classList.contains('card-mini'));
   if(wrongType){
     el.innerHTML='';
@@ -403,6 +405,7 @@ function rHiddenHand(id,cards,faction){
     }
   }
 }
+
 
 // Рисует персистентную зону игрока (.persist) — уже СЫГРАННЫЕ Мир и Артефакты под полем боя.
 // ВАЖНО: рендерится НЕ через mkEl/.card, а отдельной упрощённой разметкой .pcard (просто текст
