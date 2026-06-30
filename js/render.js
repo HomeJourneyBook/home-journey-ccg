@@ -378,18 +378,23 @@ function rZone(id,cards,zone){
 // Количество "рубашек" = реальное количество карт у оппонента, сами карты не раскрываются.
 function rHiddenHand(id,cards,faction){
   const el=document.getElementById(id);
-  el.innerHTML='';
   el.className='hand-mini';
-  cards.forEach(()=>{
-    const d=document.createElement('div');
-    d.className=`card-mini ${faction}-mini`;
-    d.style.backgroundImage="url('img/runaha.png')";
-    d.style.backgroundSize='cover';
-    d.style.backgroundPosition='bottom';
-    d.innerHTML='';
-    el.appendChild(d);
-  });
+  const have=el.children.length;
+  const need=cards.length;
+  if(have>need){
+    for(let i=0;i<have-need;i++) el.lastElementChild.remove();
+  } else if(need>have){
+    for(let i=0;i<need-have;i++){
+      const d=document.createElement('div');
+      d.className=`card-mini ${faction}-mini`;
+      d.style.backgroundImage="url('img/runaha.png')";
+      d.style.backgroundSize='cover';
+      d.style.backgroundPosition='bottom';
+      el.appendChild(d);
+    }
+  }
 }
+
 
 // Рисует персистентную зону игрока (.persist) — уже СЫГРАННЫЕ Мир и Артефакты под полем боя.
 // ВАЖНО: рендерится НЕ через mkEl/.card, а отдельной упрощённой разметкой .pcard (просто текст
