@@ -86,8 +86,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .hamburger-btn.open .ham-line:nth-child(2){opacity:0;transform:scaleX(0);}
 .hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 .ham-menu{position:absolute;top:100%;right:0;background:#0d0d1a;border:1px solid #D5943F44;min-width:130px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .2s ease;z-index:200;}
-.ham-menu.open{max-height:200px;opacity:1;}
-.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:10px 14px;font-size:16px;color:#e8e0c8;display:block;}
+.ham-menu.open{max-height:400px;opacity:1;}
+.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:14px;color:#e8e0c8;display:block;}
 .ham-item:last-child{border-bottom:none;}
 .ham-item:hover{background:#D5943F11;color:#D5943F;}
 
@@ -332,7 +332,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   border-image-outset:0;
   border-image-repeat:stretch;
   padding:3vh;
-  max-width:300px;
+  /* box-sizing:border-box — граница входит в ширину, поэтому max-width = вся коробка целиком */
+  box-sizing:border-box;
+  width:min(340px, 92vw);
+  max-width:92vw;
   text-align:center;
 }
 .modal h2{font-family:'MEK',monospace;font-size:22px;color:#c8a84b;margin-bottom:14px;}
