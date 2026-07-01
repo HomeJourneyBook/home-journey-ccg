@@ -1,3 +1,39 @@
+// ── Background music ─────────────────────────────────────────────
+let musicEnabled = localStorage.getItem('hj_music') !== 'off';
+
+function _getMusicEl(){ return document.getElementById('bgMusic'); }
+
+function _refreshMusicBtn(){
+  const btn = document.getElementById('musicToggleBtn');
+  if(btn) btn.textContent = musicEnabled ? '🔊 Music: ON' : '🔇 Music: OFF';
+}
+
+function toggleMusic(){
+  musicEnabled = !musicEnabled;
+  localStorage.setItem('hj_music', musicEnabled ? 'on' : 'off');
+  _refreshMusicBtn();
+  const audio = _getMusicEl();
+  if(!audio) return;
+  if(musicEnabled){
+    audio.play().catch(()=>{});
+  } else {
+    audio.pause();
+  }
+}
+
+// Браузеры блокируют автоплей со звуком до первого жеста пользователя —
+// пытаемся запустить музыку при первом клике/тапе по странице.
+function _tryStartMusicOnGesture(){
+  const audio = _getMusicEl();
+  if(audio && musicEnabled && audio.paused){
+    audio.volume = 0.4;
+    audio.play().catch(()=>{});
+  }
+  document.removeEventListener('pointerdown', _tryStartMusicOnGesture);
+}
+document.addEventListener('pointerdown', _tryStartMusicOnGesture);
+document.addEventListener('DOMContentLoaded', _refreshMusicBtn);
+
 function preloadAssets(){
   const criticalImages = [
     'img/card_tea.png', 'img/card_jeet.png',
