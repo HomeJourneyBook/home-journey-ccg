@@ -19,10 +19,6 @@ function updateTurnColors(){
     el.style.boxShadow = `inset 0 0 8px ${col}22, 0 0 8px ${col}11`;
   };
 
-  setStyle('playerFieldZone', bottomColor);
-  setStyle('playerStats',     bottomColor);
-  setStyle('oppFieldZone',    topDim);
-  setStyle('oppStats',        topDim);
   setStyle('oppHandZone',     topDim);
 }
 
@@ -434,7 +430,11 @@ const tagIcons = (card.tags||[])
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
-  d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
+  d.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    if(d.classList.contains('zoomed-fly')){ unzoomCardFly(d); return; }
+    onClick(card,zone);
+  });
   return d;
 }
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
@@ -486,7 +486,11 @@ const tagIcons = (card.tags||[])
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
-  d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
+  d.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    if(d.classList.contains('zoomed-fly')){ unzoomCardFly(d); return; }
+    onClick(card,zone);
+  });
   return d;
 }
 
@@ -615,11 +619,11 @@ function rPersist(id,player){
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
     if(!prevIds.has(a.id)) d.classList.add('pcard-entering');
+    // Полупрозрачность — всегда, независимо от хода
+    if(a.exhausted||a.sleeping){ d.style.opacity='0.5'; }
     // Логика артефакта с тегом 'shard' (например Shard) — активная способность раз за ход
-    if(hasTag(a,'shard')&&a.f===G.turn){
-      if(a.exhausted||a.sleeping){
-        d.style.opacity='0.5';
-      } else if(G.phase==='shardTarget'){
+    if(hasTag(a,'shard')&&a.f===G.turn&&!(a.exhausted||a.sleeping)){
+      if(G.phase==='shardTarget'){
         // Active and waiting for target
         d.classList.add('pcard-active');
         const shardCol = s.getPropertyValue('--shard-active').trim();
@@ -634,11 +638,8 @@ d.style.boxShadow=`0 0 8px ${shardCol}`;
       }
     }
     // Логика артефакта с тегом 'sacrifice' (например Altar) — требует принести существо в жертву для активации
-    if(hasTag(a,'sacrifice')&&a.f===G.turn){
-      if(a.exhausted||a.sleeping){
-        // Inactive - grey out
-        d.style.opacity='0.5';
-      } else if(G.phase==='sacrificeTarget'){
+    if(hasTag(a,'sacrifice')&&a.f===G.turn&&!(a.exhausted||a.sleeping)){
+      if(G.phase==='sacrificeTarget'){
         // Active and waiting for target - pulse border, click cancels
         d.classList.add('pcard-active');
      const shardCol = s.getPropertyValue('--altar-active').trim();
