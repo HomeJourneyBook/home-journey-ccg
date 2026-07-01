@@ -353,10 +353,14 @@ function killCard(card,faction,toVoid=false){
 function doBurnCard(card){
   const cur=G[G.turn];
   if(cur.burned){lg('Already burned a card this turn.','hint');return;}
+  cur.burned=true; // ставим СРАЗУ — второй клик/тап (напр. от карусели на мобиле) в эти 300мс уже не пройдёт проверку выше
 
-  // Анимация сжигания — находим карту в DOM и вешаем фейд перед удалением
+  // Анимация сжигания — находим карту в DOM и вешаем фейд перед удалением.
+  // Класс burning-out — маркер для carousel.js (мобильная карусель руки), чтобы её
+  // updateTransforms() не перезаписывала opacity/transform каждый кадр поверх нашего фейда.
   const cardEl=document.querySelector(`.hand .card[data-id="${card.id}"]`);
   if(cardEl){
+    cardEl.classList.add('burning-out');
     cardEl.style.transition='opacity 0.3s ease, transform 0.3s ease';
     cardEl.style.opacity='0';
     cardEl.style.transform='scale(0.85)';
@@ -366,7 +370,7 @@ function doBurnCard(card){
     cur.hand=cur.hand.filter(c=>c.id!==card.id);
     card.voided=true;
     cur.void.push(card);
-    cur.essMax+=1;cur.ess+=1;cur.burned=true;
+    cur.essMax+=1;cur.ess+=1;
     flashEssenceGain(G.turn);
     lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax}.`,'imp');
     G.phase='action';render();
@@ -823,18 +827,19 @@ function _applyPendingFlash(){
     });
   });
 }
+
 // ── Случайный текстовый глитч на значениях HP/эссенции в стат-барах ──
 function triggerStatGlitch(){
   const targets=[...document.querySelectorAll('.hp-val, .ess-val')];
   if(targets.length===0) return;
   const el=targets[Math.floor(Math.random()*targets.length)];
   el.classList.remove('glitch-text');
-  void el.offsetWidth;
+  void el.offsetWidth; // форсируем reflow, чтобы анимация перезапустилась, если уже висела
   el.classList.add('glitch-text');
   setTimeout(()=>el.classList.remove('glitch-text'), 250);
 }
 function scheduleStatGlitch(){
-  const delay=4000+Math.random()*8000;
+  const delay=4000+Math.random()*8000; // раз в 4-12 секунд, каждый раз новое случайное время
   setTimeout(()=>{ triggerStatGlitch(); scheduleStatGlitch(); }, delay);
 }
 scheduleStatGlitch();
