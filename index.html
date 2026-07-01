@@ -24,18 +24,18 @@
   <div class="landing-title">HOME'S<br>JOURNEY</div>
   <div class="landing-sub">· · · CCG · · ·</div>
   <div class="start-group" id="startGroup">
-    <button class="landing-btn" id="startMainBtn" onclick="expandStart()">Start Game</button>
+    <button class="art-btn art-btn-playgame" id="startMainBtn" onclick="expandStart()"></button>
     <div class="start-options hidden" id="startOptions">
       <button class="landing-btn" onclick="startGame()">Hot Seat</button>
       <button class="landing-btn secondary" disabled style="opacity:0.3;cursor:not-allowed;">vs AI</button>
       <button class="landing-btn secondary" disabled style="opacity:0.3;cursor:not-allowed;">Online</button>
     </div>
   </div>
-  <button class="landing-btn secondary" onclick="showScreen('rules')">Rules</button>
-  <button class="landing-btn secondary" onclick="showScreen('catalog')">Card Catalog</button>
-  <button class="landing-btn secondary" onclick="showScreen('lore')">Lore</button>
+  <button class="art-btn art-btn-rules" onclick="showScreen('rules')"></button>
+  <button class="art-btn art-btn-catalog" onclick="showScreen('catalog')"></button>
+  <button class="art-btn art-btn-lore" onclick="showScreen('lore')"></button>
 
-  <button class="landing-btn secondary" id="musicToggleBtn" onclick="toggleMusic()">🔊 Music: ON</button>
+  <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
 </div>
 
 <audio id="bgMusic" src="audio/bg_music.mp3" loop preload="auto"></audio>
