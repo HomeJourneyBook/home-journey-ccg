@@ -31,10 +31,6 @@
   --card-small-stat-fs: calc(var(--card-small-h) * 0.15);
   --card-world-name-h: calc(var(--card-h) * 0.096);
   --card-world-text-h: calc(var(--card-h) * 0.16);
-  --tea-active: #4DB854;
-  --tea-dim: #2D7B3555;
-  --jeet-active: #B44FD4;
-  --jeet-dim: #7B2D8B55;
   --shard-active: #B44FD4;
   --altar-active: #B44FD4;
   --tea-shadow: #2D7B3522;
@@ -42,7 +38,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
-body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100vh;overflow:hidden;overscroll-behavior:none;touch-action:pan-y;}
+body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100vh;overflow-x:hidden;touch-action:pan-y;}
 .stars{
   position:fixed;
   inset:0;
@@ -288,11 +284,11 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .player-name-box:active{transform:scale(0.92);}
 .player-name-box.base-targetable{cursor:crosshair;outline:1px solid #e05555;outline-offset:1px;border-radius:6px;animation:pulseNameBox .8s infinite alternate;}
 
-.opp-hand-zone{height:6vh;padding:0 6px 4px;border:1px solid #d83c8866;border-bottom:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.opp-hand-zone{height:6vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .field-zone{background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;padding: 2px}
-#oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #d83c88;border-top:none;}
-#playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #1b641b66;box-shadow: inset 0 0 8px #1b641b22, 0 0 8px #1b641b11;margin-top:6px;}
+#oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;}
+#playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
 .player-hand-zone{height:28vh;padding:0 6px;border:none;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
