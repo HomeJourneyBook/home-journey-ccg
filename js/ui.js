@@ -5,7 +5,9 @@ function _getMusicEl(){ return document.getElementById('bgMusic'); }
 
 function _refreshMusicBtn(){
   const btn = document.getElementById('musicToggleBtn');
-  if(btn) btn.textContent = musicEnabled ? '🔊 Music: ON' : '🔇 Music: OFF';
+  if(!btn) return;
+  btn.classList.toggle('music-on', musicEnabled);
+  btn.classList.toggle('music-off', !musicEnabled);
 }
 
 function toggleMusic(){
