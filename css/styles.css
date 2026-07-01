@@ -89,7 +89,33 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 
 
-
+/* Worlds and Artifacts*/
+.persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
+.pcard{width:var(--pcard-w);height:var(--pcard-h);padding:1px 1px;border:1px solid;border-radius:6px;font-size:calc(var(--pcard-h) * 0.75);display:flex;align-items:center;justify-content:center;gap:4px;background:url('../img/pcard_bg.png') center/100% 100% no-repeat;}
+/* Компактная версия для стат-бара — auto ширина, высота по стат-бару */
+.pcard-inline{
+  width:auto !important;
+  min-width:7vh;
+  max-width:16vh;
+  height:max(3.2vh,1.6vw) !important;
+  font-size:max(calc(3.2vh * 0.52),calc(1.6vw * 0.52)) !important;
+  padding:0 5px !important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  flex-shrink:0;
+}
+.pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
+.pcard.jcp{border-color:#7b2d8b44;color:#b44fd488;}
+.pcard.sleeping{opacity:0.45 !important;}
+.pcard.pcard-entering {animation: pcardEnter 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+.pcard.pcard-entering.sleeping {animation: pcardNotAwake 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+.pcard.tcp{background:url('../img/pcard_tea_bg.png') center/100% 100% no-repeat;border-color:transparent;color:#4DB854;}
+.pcard.jcp{background:url('../img/pcard_jeet_bg.png') center/100% 100% no-repeat;border-color:transparent;color:#b44fd4;}
+.pcard.pcard-active {cursor: pointer;transition: transform 0.08s, filter 0.08s;}
+.pcard.pcard-active:hover { transform: scale(1.06);filter: brightness(1.3);}
+.pcard.pcard-active:active {transform: scale(0.94);}
+.empty-persist{font-size:14px;color:#2a2a2a;}
 
 /* Small hidden hand - opponent cards, half visible */
 .hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 4px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
@@ -205,7 +231,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   font-family:'MEK',monospace;
   font-size:clamp(9px,2.2vw,13px);
   color:#e87a2a;
-  background:transparent;
+  background:#1a0e04cc;
   border:1px solid #e87a2a55;
   border-radius:4px;
   padding:5px 8px;
@@ -241,8 +267,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .stats-bar{height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
 .stats-bar.jeet{}
 .stats-bar.tea{}
-.stats-bar.jeet{background-image:url('../img/bg_jeet_bar.png';} /* TODO: замени на новый арт: background-image:url('../img/statbar_jeet.png') */
-.stats-bar.tea{background-image:url('../img/bg_tea_bar.png';} /* TODO: замени на новый арт: background-image:url('../img/statbar_tea.png') */
+.stats-bar.jeet{background:transparent;} /* TODO: замени на новый арт: background-image:url('../img/statbar_jeet.png') */
+.stats-bar.tea{background:transparent;} /* TODO: замени на новый арт: background-image:url('../img/statbar_tea.png') */
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
@@ -260,44 +286,16 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .hp-val{color:#e05555;}.ess-val{color:#F3F5FF;}
 .stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.55), calc(2vw * 0.55));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:2px 2px;}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
-.stat-ess-box{background-image:url('../img/bg_statbar_hp.png');}
+.stat-ess-box{background-image:url('../img/bg_statbar_ess.png');}
 /* .tea-hp-box{background-image:url('../img/statbar_hp_tea.png');} */
 /* .jeet-hp-box{background-image:url('../img/statbar_hp_jeet.png');} */
 /* .tea-ess-box{background-image:url('../img/statbar_ess_tea.png');} */
 /* .jeet-ess-box{background-image:url('../img/statbar_ess_jeet.png');} */
-.player-name-box{width:80px;height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
+.player-name-box{width:120px;height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
 .tea-name-box{background-image:url('../img/bg_statbar_tea.png');}
 .jeet-name-box{background-image:url('../img/bg_statbar_jeet.png');}
 .player-name-box:active{transform:scale(0.92);}
 .player-name-box.base-targetable{cursor:crosshair;outline:1px solid #e05555;outline-offset:1px;border-radius:6px;animation:pulseNameBox .8s infinite alternate;}
-
-/* Worlds and Artifacts*/
-.persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
-.pcard{width:var(--pcard-w);height:var(--pcard-h);padding:1px 1px;border:1px solid;border-radius:6px;font-size:calc(var(--pcard-h) * 0.75);display:flex;align-items:center;justify-content:center;gap:4px;background:url('../img/pcard_bg.png') center/100% 100% no-repeat;}
-/* Компактная версия для стат-бара — auto ширина, высота по стат-бару */
-.pcard-inline{
-  width:auto !important;
-  min-width:7vh;
-  max-width:16vh;
-  height:max(3.2vh,1.6vw) !important;
-  font-size:max(calc(3.2vh * 0.52),calc(1.6vw * 0.52)) !important;
-  padding:0 5px !important;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  flex-shrink:0;
-}
-.pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
-.pcard.jcp{border-color:#7b2d8b44;color:#b44fd488;}
-.pcard.sleeping{opacity:0.45 !important;}
-.pcard.pcard-entering {animation: pcardEnter 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
-.pcard.pcard-entering.sleeping {animation: pcardNotAwake 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
-.pcard.tcp{background:url('../img/pcard_tea_bg.png') center/100% 100% no-repeat;border-color:transparent;color:#4DB854;}
-.pcard.jcp{background:url('../img/pcard_jeet_bg.png') center/100% 100% no-repeat;border-color:transparent;color:#b44fd4;}
-.pcard.pcard-active {cursor: pointer;transition: transform 0.08s, filter 0.08s;}
-.pcard.pcard-active:hover { transform: scale(1.06);filter: brightness(1.3);}
-.pcard.pcard-active:active {transform: scale(0.94);}
-.empty-persist{font-size:14px;color:#2a2a2a;}
 
 .opp-hand-zone{height:6vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
@@ -337,7 +335,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   background-size:100% 100%;
   background-repeat:no-repeat;
   background-position:center;
-  min-width:3.5vh;
+  min-width:5vh;
   height:2.8vh;
   font-family:'MEK',monospace;
   font-size:1.6vh;
@@ -359,20 +357,20 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .modal{
   background:transparent;
   border-style:solid;
-  border-width:clamp(22px, 2vw, 30px);
+  border-width:5vh;
   border-image-source:url('../img/bg_modal.png');
   border-image-slice:124 fill;
-  border-image-width:clamp(22px, 2vw, 30px);
+  border-image-width:5vh;
   border-image-outset:0;
   border-image-repeat:stretch;
-  padding:clamp(12px, 1.5vw, 18px);
+  padding:3vh;
   /* box-sizing:border-box — граница входит в ширину, поэтому max-width = вся коробка целиком */
   box-sizing:border-box;
-  width:clamp(340px, 92vw, 420px);
+  width:min(340px, 92vw);
   max-width:92vw;
   text-align:center;
 }
-.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:14px;}
+.modal h2{font-family:'MEK',monospace;font-size:22px;color:#c8a84b;margin-bottom:14px;}
 .modal p{font-size:18px;color:#9B937F;margin-bottom:18px;line-height:1.6;}
 
 /* LANDING */
