@@ -373,6 +373,21 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .art-btn-square.music-off{background-image:url('../img/btn_music_off1.png');}
 .art-btn-square.music-off:active{background-image:url('../img/btn_music_off2.png');}
 
+/* Заглушка под SFX-кнопку, пока нет арта btn_sfx_on/off1/2.png —
+   как только добавишь картинки в img/, замени background ниже на url(...) по аналогии с music */
+.art-btn-square.sfx-on,.art-btn-square.sfx-off{
+  background-image:none;
+  background-color:#0d0d1a;
+  border:1px solid #D5943F44;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'MEK',monospace;
+  color:#c8a84b;
+  font-size:2.2vh;
+}
+.art-btn-square.sfx-on::after{content:"SFX";}
+.art-btn-square.sfx-off::after{content:"SFX";opacity:0.35;}
+.art-btn-square.sfx-on:active,.art-btn-square.sfx-off:active{filter:brightness(1.4);}
+
 /* RULES & LORE SCREENS */
 .screen{position:fixed;inset:0;z-index:201;background:#0a0a12;overflow-y:auto;padding:4vw;display:none;}
 .screen.active{display:block;}
