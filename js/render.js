@@ -19,6 +19,10 @@ function updateTurnColors(){
     el.style.boxShadow = `inset 0 0 8px ${col}22, 0 0 8px ${col}11`;
   };
 
+  setStyle('playerFieldZone', bottomColor);
+  setStyle('playerStats',     bottomColor);
+  setStyle('oppFieldZone',    topDim);
+  setStyle('oppStats',        topDim);
   setStyle('oppHandZone',     topDim);
 }
 
@@ -278,11 +282,10 @@ ${!isSW?`<div class="card-small-stats">
   ['mouseup','mouseleave','touchend','touchcancel'].forEach(evt=>{
     d.addEventListener(evt,()=>{ clearPressTimer(); if(longPressFired) closeFieldCardPreview(); });
   });
- d.addEventListener('click',(e)=>{
-  e.stopPropagation();
-  if(d.classList.contains('zoomed-fly')){ unzoomCardFly(d); return; } // пока карта зумлена — любой клик по ней просто закрывает зум
-  onClick(card,zone);
-});
+  d.addEventListener('click',(e)=>{
+    if(longPressFired){ e.stopPropagation(); longPressFired=false; return; }
+    onClick(card,'field');
+  });
   return d;
 }
 
@@ -295,12 +298,6 @@ function zoomCardFly(cardEl){
   if(cardEl.classList.contains('zoomed-fly')) return;
   const rect=cardEl.getBoundingClientRect();
   cardEl._zoomOrigRect=rect;
-  // Запоминаем исходное место в DOM и переносим карту в <body> — иначе на мобиле
-  // position:fixed будет считаться не от экрана, а от .hand (у неё transform от карусели).
-  cardEl._zoomOrigParent=cardEl.parentElement;
-  cardEl._zoomOrigNext=cardEl.nextSibling;
-  document.body.appendChild(cardEl);
-
   cardEl.style.position='fixed';
   cardEl.style.margin='0';
   cardEl.style.top=rect.top+'px';
@@ -313,12 +310,11 @@ function zoomCardFly(cardEl){
   cardEl.classList.add('zoomed-fly');
   cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
     .forEach(p=>p.style.display='none');
-  void cardEl.offsetWidth;
+  void cardEl.offsetWidth; // форсируем reflow, иначе старт и финиш анимации "склеятся" в один кадр
   cardEl.style.transition='top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1)';
   cardEl.style.top='50%';
   cardEl.style.left='50%';
-  const zoomScale = window.innerWidth <= 600 ? 2.08 : 2.6;
-cardEl.style.transform=`translate(-50%,-50%) scale(${zoomScale})`;
+  cardEl.style.transform='translate(-50%,-50%) scale(2.6)';
 }
 
 function unzoomCardFly(cardEl){
@@ -334,14 +330,6 @@ function unzoomCardFly(cardEl){
     ['position','margin','top','left','width','height','transform','transition','zIndex'].forEach(p=>cardEl.style[p]='');
     cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
       .forEach(p=>p.style.display='');
-    // Возвращаем карту обратно в руку на её исходное место в DOM
-    if(cardEl._zoomOrigParent){
-      if(cardEl._zoomOrigNext && cardEl._zoomOrigNext.parentElement===cardEl._zoomOrigParent){
-        cardEl._zoomOrigParent.insertBefore(cardEl, cardEl._zoomOrigNext);
-      } else {
-        cardEl._zoomOrigParent.appendChild(cardEl);
-      }
-    }
   }, {once:true});
 }
 
@@ -430,11 +418,7 @@ const tagIcons = (card.tags||[])
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
-  d.addEventListener('click',(e)=>{
-    e.stopPropagation();
-    if(d.classList.contains('zoomed-fly')){ unzoomCardFly(d); return; }
-    onClick(card,zone);
-  });
+  d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
@@ -486,11 +470,7 @@ const tagIcons = (card.tags||[])
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
-  d.addEventListener('click',(e)=>{
-    e.stopPropagation();
-    if(d.classList.contains('zoomed-fly')){ unzoomCardFly(d); return; }
-    onClick(card,zone);
-  });
+  d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
 
@@ -619,11 +599,11 @@ function rPersist(id,player){
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
     if(!prevIds.has(a.id)) d.classList.add('pcard-entering');
-    // Полупрозрачность — всегда, независимо от хода
-    if(a.exhausted||a.sleeping){ d.style.opacity='0.5'; }
     // Логика артефакта с тегом 'shard' (например Shard) — активная способность раз за ход
-    if(hasTag(a,'shard')&&a.f===G.turn&&!(a.exhausted||a.sleeping)){
-      if(G.phase==='shardTarget'){
+    if(hasTag(a,'shard')&&a.f===G.turn){
+      if(a.exhausted||a.sleeping){
+        d.style.opacity='0.5';
+      } else if(G.phase==='shardTarget'){
         // Active and waiting for target
         d.classList.add('pcard-active');
         const shardCol = s.getPropertyValue('--shard-active').trim();
@@ -638,8 +618,11 @@ d.style.boxShadow=`0 0 8px ${shardCol}`;
       }
     }
     // Логика артефакта с тегом 'sacrifice' (например Altar) — требует принести существо в жертву для активации
-    if(hasTag(a,'sacrifice')&&a.f===G.turn&&!(a.exhausted||a.sleeping)){
-      if(G.phase==='sacrificeTarget'){
+    if(hasTag(a,'sacrifice')&&a.f===G.turn){
+      if(a.exhausted||a.sleeping){
+        // Inactive - grey out
+        d.style.opacity='0.5';
+      } else if(G.phase==='sacrificeTarget'){
         // Active and waiting for target - pulse border, click cancels
         d.classList.add('pcard-active');
      const shardCol = s.getPropertyValue('--altar-active').trim();
