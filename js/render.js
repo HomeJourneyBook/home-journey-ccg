@@ -1,35 +1,7 @@
-// Подсвечивает рамки своей/чужой зоны цветом текущей фракции (зелёный — Tea, розовый — Jeet),
-// чтобы на глаз было понятно чей сейчас ход. Вызывается в начале каждого render().
-function updateTurnColors(){
-  if(!G) return;
-  const isTea=G.turn==='tea';
-  const s = getComputedStyle(document.documentElement);
-  const green    = s.getPropertyValue('--tea-active').trim();
-  const greenDim = s.getPropertyValue('--tea-dim').trim();
-  const pink     = s.getPropertyValue('--jeet-active').trim();
-  const pinkDim  = s.getPropertyValue('--jeet-dim').trim();
-
-  const bottomColor = isTea ? green : pink;
-  const topDim      = isTea ? pinkDim : greenDim;
-
-  const setStyle = (id, col) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.style.borderColor = col;
-    el.style.boxShadow = `inset 0 0 8px ${col}22, 0 0 8px ${col}11`;
-  };
-
-  setStyle('playerFieldZone', bottomColor);
-  setStyle('oppFieldZone',    topDim);
-  setStyle('oppHandZone',     topDim);
-}
-
-
 // ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
 // Обновляет: счётчики хода/HP/Essence/колоды/кладбища, поля боя, руки обоих игроков (своя — открыта, чужая — рубашками),
 // персистентную зону (Worlds/Artifacts), z-index рук, подсветку "можно бить по базе", текст подсказки текущей фазы.
 function render(){
-  updateTurnColors();
   const cur=G[G.turn];
   document.getElementById('turnNum').textContent=G.turnNum;
   document.getElementById('turnPlayer').textContent=G.turn.toUpperCase();
