@@ -36,9 +36,11 @@
   <button class="art-btn art-btn-lore" onclick="showScreen('lore')"></button>
 
   <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
+  <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
 </div>
 
 <audio id="bgMusic" src="audio/home_maintheme.mp3" loop preload="auto"></audio>
+<!-- SFX проигрываются через new Audio() из ui.js, отдельный тег не нужен -->
 
 <!-- RULES SCREEN -->
 <div class="screen" id="rulesScreen">
@@ -317,15 +319,17 @@
       <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="askMenu()">← Menu</button>
     </div>
     <div class="header-mobile-btn" style="position:relative;margin-left:auto;">
-     <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleHamburger()">
+     <button class="hamburger-btn" id="hamburgerBtn" onclick="playSfx('grate');toggleHamburger()">
   <span class="ham-line"></span>
   <span class="ham-line"></span>
   <span class="ham-line"></span>
 </button>
 <div id="hamburgerMenu" class="ham-menu">
-  <button class="btn ham-item" onclick="toggleLog();toggleHamburger()">Log</button>
-  <button class="btn ham-item" onclick="askRestart();toggleHamburger()">Restart</button>
-  <button class="btn ham-item" onclick="askMenu();toggleHamburger()">Menu</button>
+  <button class="btn ham-item" onclick="playSfx('grate');toggleLog();toggleHamburger()">Log</button>
+  <button class="btn ham-item" onclick="playSfx('grate');askRestart();toggleHamburger()">Restart</button>
+  <button class="btn ham-item" onclick="playSfx('grate');askMenu();toggleHamburger()">Menu</button>
+  <button class="btn ham-item" id="hamMusicBtn" onclick="toggleMusic()">Music: On</button>
+  <button class="btn ham-item" id="hamSfxBtn" onclick="toggleSfx()">Sounds: On</button>
 </div>
     </div>
   </div>
