@@ -662,17 +662,17 @@ function reorderZones(){
   if(oppStats){
     oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
     oppStats.innerHTML=`
-  <span class="stat"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
-  <span class="player-name ${oppK}">${oppK==='jeet'?'JEET CORE':'TAVERN'}</span>
-  <span class="stat"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>`;
+  <span class="stat stat-hp-box ${oppK}-hp-box"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
+  <span class="player-name-box ${oppK}-name-box" role="img" aria-label="${oppK==='jeet'?'JEET CORE':'TAVERN'}"></span>
+  <span class="stat stat-ess-box ${oppK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>`;
     oppStats.onclick=()=>onBaseClick(oppK);
   }
   if(playerStats){
     playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
     playerStats.innerHTML=`
-  <span class="stat"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
-  <span class="player-name ${playerK}">${playerK==='jeet'?'JEET CORE':'TAVERN'}</span>
-  <span class="stat"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>`;
+  <span class="stat stat-hp-box ${playerK}-hp-box"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
+  <span class="player-name-box ${playerK}-name-box" role="img" aria-label="${playerK==='jeet'?'JEET CORE':'TAVERN'}"></span>
+  <span class="stat stat-ess-box ${playerK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>`;
     playerStats.onclick=()=>onBaseClick(playerK);
   }
 
