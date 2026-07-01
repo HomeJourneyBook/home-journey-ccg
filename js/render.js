@@ -128,7 +128,12 @@ let fieldPreviewEl=null;
 function showFieldCardPreview(card, originEl){
   closeFieldCardPreview();
   const originRect=originEl.getBoundingClientRect();
-  const el=mkEl(card,'preview'); // zone!=='hand' → без кнопок Play/Burn/Zoom, чистая карта для чтения
+  // "Чистая" копия карты для превью: сбрасываем игровые состояния (устала/спит/страх/горит/выбрана),
+  // чтобы в увеличенном виде была видна сама карта, а не её текущий статус на поле.
+  // Реальный объект в G не трогаем — копия одноразовая, только для рендера превью.
+  const cleanCard=Object.assign({}, card, {exhausted:false, sleeping:false, feared:false, burning:false});
+  const el=mkEl(cleanCard,'preview'); // zone!=='hand' → без кнопок Play/Burn/Zoom, чистая карта для чтения
+  el.classList.remove('selected','burning','sleeping','exhausted','feared'); // на случай если G.sel===card.id
   el.classList.add('field-preview-card');
   el.style.position='fixed';
   el.style.margin='0';
