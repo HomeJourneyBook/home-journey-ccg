@@ -823,3 +823,18 @@ function _applyPendingFlash(){
     });
   });
 }
+// ── Случайный текстовый глитч на значениях HP/эссенции в стат-барах ──
+function triggerStatGlitch(){
+  const targets=[...document.querySelectorAll('.hp-val, .ess-val')];
+  if(targets.length===0) return;
+  const el=targets[Math.floor(Math.random()*targets.length)];
+  el.classList.remove('glitch-text');
+  void el.offsetWidth;
+  el.classList.add('glitch-text');
+  setTimeout(()=>el.classList.remove('glitch-text'), 250);
+}
+function scheduleStatGlitch(){
+  const delay=4000+Math.random()*8000;
+  setTimeout(()=>{ triggerStatGlitch(); scheduleStatGlitch(); }, delay);
+}
+scheduleStatGlitch();
