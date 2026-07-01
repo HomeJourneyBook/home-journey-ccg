@@ -375,21 +375,29 @@
   
   <!-- BOTTOM BARS -->
   <div class="bottom-bar" id="teaBottomBar" style="display:none;">
-    <button class="btn-square btn-graveyard" onclick="openGraveModal('tea')" title="Graveyard"></button>
-    <span class="stat-badge" id="teaGraveBadge">0</span>
+    <div class="bottom-slot">
+      <button class="btn-square btn-graveyard" onclick="openGraveModal('tea')" title="Graveyard"></button>
+      <span class="stat-badge" id="teaGraveBadge">0</span>
+    </div>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
-    <span class="stat-badge" id="teaDeckBadge">0</span>
-    <div style="position:relative;width:6.25vh;height:6.25vh;flex-shrink:0;">
-      <div class="btn-deck-placeholder" id="deckPlaceholderT" style="position:absolute;top:0;left:0;"></div>
+    <div class="bottom-slot">
+      <span class="stat-badge" id="teaDeckBadge">0</span>
+      <div style="position:relative;width:6.25vh;height:6.25vh;flex-shrink:0;">
+        <div class="btn-deck-placeholder" id="deckPlaceholderT" style="position:absolute;top:0;left:0;"></div>
+      </div>
     </div>
   </div>
   <div class="bottom-bar" id="jeetBottomBar" style="display:none;">
-    <button class="btn-square btn-graveyard" onclick="openGraveModal('jeet')" title="Graveyard"></button>
-    <span class="stat-badge" id="jeetGraveBadge">0</span>
+    <div class="bottom-slot">
+      <button class="btn-square btn-graveyard" onclick="openGraveModal('jeet')" title="Graveyard"></button>
+      <span class="stat-badge" id="jeetGraveBadge">0</span>
+    </div>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
-    <span class="stat-badge" id="jeetDeckBadge">0</span>
-    <div style="position:relative;width:6.25vh;height:6.25vh;flex-shrink:0;">
-      <div class="btn-deck-placeholder" id="deckPlaceholderJ" style="position:absolute;top:0;left:0;"></div>
+    <div class="bottom-slot">
+      <span class="stat-badge" id="jeetDeckBadge">0</span>
+      <div style="position:relative;width:6.25vh;height:6.25vh;flex-shrink:0;">
+        <div class="btn-deck-placeholder" id="deckPlaceholderJ" style="position:absolute;top:0;left:0;"></div>
+      </div>
     </div>
   </div>
 
