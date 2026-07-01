@@ -241,8 +241,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .stats-bar{height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
 .stats-bar.jeet{}
 .stats-bar.tea{}
-.stats-bar.jeet{background-image:url('../img/statbar_jeet.png';} /* TODO: замени на новый арт: background-image:url('../img/statbar_jeet.png') */
-.stats-bar.tea{background-image:url('../img/statbar_tea.png';} /* TODO: замени на новый арт: background-image:url('../img/statbar_tea.png') */
+.stats-bar.jeet{background-image:url('../img/bg_jeet_bar.png';} /* TODO: замени на новый арт: background-image:url('../img/statbar_jeet.png') */
+.stats-bar.tea{background-image:url('../img/bg_tea_bar.png';} /* TODO: замени на новый арт: background-image:url('../img/statbar_tea.png') */
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
