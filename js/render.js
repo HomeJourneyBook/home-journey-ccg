@@ -395,6 +395,14 @@ const tagIcons = (card.tags||[])
       playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
+    } else {
+      const popup=document.createElement('div');
+      popup.className='card-actions-popup';
+      const noEss=document.createElement('div');
+      noEss.className='cap-no-ess';
+      noEss.innerHTML='Not enough <img src="img/ess.png" class="cap-no-ess-icon">';
+      popup.appendChild(noEss);
+      d.appendChild(popup);
     }
     // Burn — отдельный попап СПРАВА от карты
     if(!cur.burned){
@@ -446,6 +454,14 @@ const tagIcons = (card.tags||[])
       playBtn.className='cap-btn play';
       playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
+      d.appendChild(popup);
+    } else {
+      const popup=document.createElement('div');
+      popup.className='card-actions-popup';
+      const noEss=document.createElement('div');
+      noEss.className='cap-no-ess';
+      noEss.innerHTML='Not enough <img src="img/ess.png" class="cap-no-ess-icon">';
+      popup.appendChild(noEss);
       d.appendChild(popup);
     }
     // Burn — отдельный попап СПРАВА от карты
