@@ -323,6 +323,56 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .landing-btn.secondary{color:#555;border-color:#333;font-size:16px;}
 .landing-btn.secondary:hover{color:#888;border-color:#555;background:#ffffff08;}
 
+/* ── Кастомные арт-кнопки лендинга ────────────────────────────────
+   Паттерн для всех: базовый арт (1.png), на :active подменяется
+   на второй арт (2.png), никаких transition, hover — только brightness. */
+.art-btn{
+  width:32vh;
+  height:8vh;
+  border:none;
+  background-color:transparent;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:100% 100%;
+  cursor:pointer;
+  padding:0;
+  transition:none;
+  filter:brightness(1);
+}
+.art-btn:hover{filter:brightness(1.25);}
+
+.art-btn-playgame{background-image:url('../img/btn_playgame1.png');}
+.art-btn-playgame:active{background-image:url('../img/btn_playgame2.png');}
+
+.art-btn-catalog{background-image:url('../img/btn_catalog1.png');}
+.art-btn-catalog:active{background-image:url('../img/btn_catalog2.png');}
+
+.art-btn-rules{background-image:url('../img/btn_rules1.png');}
+.art-btn-rules:active{background-image:url('../img/btn_rules2.png');}
+
+.art-btn-lore{background-image:url('../img/btn_lore1.png');}
+.art-btn-lore:active{background-image:url('../img/btn_lore2.png');}
+
+.art-btn-square{
+  width:8vh;
+  height:8vh;
+  border:none;
+  background-color:transparent;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:100% 100%;
+  cursor:pointer;
+  padding:0;
+  transition:none;
+  filter:brightness(1);
+}
+.art-btn-square:hover{filter:brightness(1.25);}
+
+.art-btn-square.music-on{background-image:url('../img/btn_music_on1.png');}
+.art-btn-square.music-on:active{background-image:url('../img/btn_music_on2.png');}
+.art-btn-square.music-off{background-image:url('../img/btn_music_off1.png');}
+.art-btn-square.music-off:active{background-image:url('../img/btn_music_off2.png');}
+
 /* RULES & LORE SCREENS */
 .screen{position:fixed;inset:0;z-index:201;background:#0a0a12;overflow-y:auto;padding:4vw;display:none;}
 .screen.active{display:block;}
