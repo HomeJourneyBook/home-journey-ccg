@@ -585,39 +585,43 @@ function rPersist(id,player){
     d.textContent=`${a.art} ${a.name}`;
     d.title=a.ab;
     if(!prevIds.has(a.id)) d.classList.add('pcard-entering');
+    // Для активных артефактов (shard/sacrifice) — добавляем .sleeping класс когда спит:
+    // это и запускает анимацию pcardNotAwake, и удерживает opacity:0.45 через CSS после неё.
+    const isActiveArtifact = hasTag(a,'shard') || hasTag(a,'sacrifice');
+    if(isActiveArtifact && a.sleeping) d.classList.add('sleeping');
+
     // Логика артефакта с тегом 'shard' (например Shard) — активная способность раз за ход
     if(hasTag(a,'shard')&&a.f===G.turn){
-      if(a.exhausted||a.sleeping){
-        d.style.opacity='0.5';
+      if(a.exhausted){
+        d.style.opacity='0.5'; // exhausted — отдельный стейт, не sleeping
+      } else if(a.sleeping){
+        // sleeping opacity уже выставлен через .sleeping CSS класс выше
       } else if(G.phase==='shardTarget'){
-        // Active and waiting for target
         d.classList.add('pcard-active');
         const shardCol = s.getPropertyValue('--shard-active').trim();
-d.style.border=`2px solid ${shardCol}`;
-d.style.boxShadow=`0 0 8px ${shardCol}`;
+        d.style.border=`2px solid ${shardCol}`;
+        d.style.boxShadow=`0 0 8px ${shardCol}`;
         d.style.borderRadius='6px';
         d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
       } else if(G.phase==='action'){
-        // Ready - hover/press via CSS class only
         d.classList.add('pcard-active');
         d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
       }
     }
     // Логика артефакта с тегом 'sacrifice' (например Altar) — требует принести существо в жертву для активации
     if(hasTag(a,'sacrifice')&&a.f===G.turn){
-      if(a.exhausted||a.sleeping){
-        // Inactive - grey out
+      if(a.exhausted){
         d.style.opacity='0.5';
+      } else if(a.sleeping){
+        // sleeping opacity уже выставлен через .sleeping CSS класс выше
       } else if(G.phase==='sacrificeTarget'){
-        // Active and waiting for target - pulse border, click cancels
         d.classList.add('pcard-active');
-     const shardCol = s.getPropertyValue('--altar-active').trim();
-d.style.border=`2px solid ${shardCol}`;
-d.style.boxShadow=`0 0 8px ${shardCol}`;
+        const shardCol = s.getPropertyValue('--altar-active').trim();
+        d.style.border=`2px solid ${shardCol}`;
+        d.style.boxShadow=`0 0 8px ${shardCol}`;
         d.style.borderRadius='6px';
         d.addEventListener('click',(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();});
       } else if(G.phase==='action'){
-        // Ready - hover/press via CSS class, no border in idle
         d.classList.add('pcard-active');
         d.addEventListener('click',(e)=>{
           e.stopPropagation();
