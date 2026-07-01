@@ -120,6 +120,51 @@ function getTypeDotImg(card){
   return 'img/type_creature.png';
 }
 
+// ── Долгое нажатие/удержание на карте поля боя: показывает БОЛЬШУЮ (.card) версию карты
+// по центру экрана, пока палец/кнопка мыши удерживаются. При отпускании превью исчезает.
+// Используется в mkSmallEl ниже (см. обработчики mousedown/touchstart в конце функции).
+let fieldPreviewEl=null;
+
+function showFieldCardPreview(card, originEl){
+  closeFieldCardPreview();
+  const originRect=originEl.getBoundingClientRect();
+  const el=mkEl(card,'preview'); // zone!=='hand' → без кнопок Play/Burn/Zoom, чистая карта для чтения
+  el.classList.add('field-preview-card');
+  el.style.position='fixed';
+  el.style.margin='0';
+  el.style.zIndex='6000';
+  el.style.pointerEvents='none';
+  document.body.appendChild(el);
+
+  const targetRect=el.getBoundingClientRect(); // естественный размер .card из CSS (--card-w/--card-h)
+  const scaleX=originRect.width/targetRect.width;
+  const scaleY=originRect.height/targetRect.height;
+  const cx=originRect.left+originRect.width/2;
+  const cy=originRect.top+originRect.height/2;
+
+  el.style.left=cx+'px';
+  el.style.top=cy+'px';
+  el.style.transform=`translate(-50%,-50%) scale(${scaleX},${scaleY})`;
+  el.style.transition='none';
+  void el.offsetWidth; // форсируем reflow — иначе старт и финиш анимации "склеятся" в один кадр
+  el.style.transition='left .25s cubic-bezier(.22,.9,.32,1), top .25s cubic-bezier(.22,.9,.32,1), transform .25s cubic-bezier(.22,.9,.32,1)';
+  el.style.left='50%';
+  el.style.top='46%';
+  el.style.transform='translate(-50%,-50%) scale(1.6)';
+
+  fieldPreviewEl=el;
+}
+
+function closeFieldCardPreview(){
+  if(!fieldPreviewEl) return;
+  const el=fieldPreviewEl;
+  fieldPreviewEl=null;
+  el.style.transition='opacity .15s ease-out, transform .15s ease-out';
+  el.style.opacity='0';
+  el.style.transform+=' scale(0.85)';
+  setTimeout(()=>{ if(el.parentElement) el.remove(); },160);
+}
+
 // Рисует МАЛЕНЬКУЮ карту (.card-small) — это ВСЕ существа на боевом поле (battlefield), и только они.
 // Сюда же навешиваются игровые состояния: selected (выбрана), sleeping (спит), exhausted (устала),
 // feared (в страхе), burning (горит), targetable (можно выбрать целью в текущей фазе), healable (можно вылечить).
@@ -205,8 +250,77 @@ ${!isSW?`<div class="card-small-stats">
       d.appendChild(pop);
     }
   }
-  d.addEventListener('click',()=>onClick(card,'field'));
+  // Долгое нажатие (мышь/палец) — показать превью большой картой по центру, пока держим.
+  // Обычный короткий тап — как раньше, выбор/атака через onClick.
+  let pressTimer=null, pressStart=null, longPressFired=false;
+  const clearPressTimer=()=>{ if(pressTimer){clearTimeout(pressTimer);pressTimer=null;} };
+  d.addEventListener('mousedown',(e)=>{
+    if(e.button!==0) return;
+    pressStart={x:e.clientX,y:e.clientY}; longPressFired=false; clearPressTimer();
+    pressTimer=setTimeout(()=>{longPressFired=true;showFieldCardPreview(card,d);},380);
+  });
+  d.addEventListener('touchstart',(e)=>{
+    const t=e.touches[0];
+    pressStart={x:t.clientX,y:t.clientY}; longPressFired=false; clearPressTimer();
+    pressTimer=setTimeout(()=>{longPressFired=true;showFieldCardPreview(card,d);},380);
+  },{passive:true});
+  d.addEventListener('touchmove',(e)=>{
+    if(!pressTimer) return;
+    const t=e.touches[0];
+    if(Math.abs(t.clientX-pressStart.x)>10||Math.abs(t.clientY-pressStart.y)>10) clearPressTimer();
+  },{passive:true});
+  ['mouseup','mouseleave','touchend','touchcancel'].forEach(evt=>{
+    d.addEventListener(evt,()=>{ clearPressTimer(); if(longPressFired) closeFieldCardPreview(); });
+  });
+  d.addEventListener('click',(e)=>{
+    if(longPressFired){ e.stopPropagation(); longPressFired=false; return; }
+    onClick(card,'field');
+  });
   return d;
+}
+
+// ── Зум карты в руке: не просто scale() на месте, а "вылет" в центр экрана.
+// zoomCardFly: карта фиксируется в position:fixed на своих текущих координатах (getBoundingClientRect),
+// затем анимированно летит в центр с увеличением; кнопки Play/Burn/Zoom на это время скрываются.
+// unzoomCardFly: обратная анимация назад в исходную точку, после чего снимаются inline-стили
+// и кнопки возвращаются (см. transitionend).
+function zoomCardFly(cardEl){
+  if(cardEl.classList.contains('zoomed-fly')) return;
+  const rect=cardEl.getBoundingClientRect();
+  cardEl._zoomOrigRect=rect;
+  cardEl.style.position='fixed';
+  cardEl.style.margin='0';
+  cardEl.style.top=rect.top+'px';
+  cardEl.style.left=rect.left+'px';
+  cardEl.style.width=rect.width+'px';
+  cardEl.style.height=rect.height+'px';
+  cardEl.style.transform='none';
+  cardEl.style.transition='none';
+  cardEl.style.zIndex='5000';
+  cardEl.classList.add('zoomed-fly');
+  cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
+    .forEach(p=>p.style.display='none');
+  void cardEl.offsetWidth; // форсируем reflow, иначе старт и финиш анимации "склеятся" в один кадр
+  cardEl.style.transition='top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1)';
+  cardEl.style.top='50%';
+  cardEl.style.left='50%';
+  cardEl.style.transform='translate(-50%,-50%) scale(2.6)';
+}
+
+function unzoomCardFly(cardEl){
+  const rect=cardEl._zoomOrigRect;
+  if(!rect) return;
+  cardEl.style.top=rect.top+'px';
+  cardEl.style.left=rect.left+'px';
+  cardEl.style.transform='none';
+  cardEl.addEventListener('transitionend', function done(e){
+    if(e.propertyName!=='transform') return;
+    cardEl.removeEventListener('transitionend', done);
+    cardEl.classList.remove('zoomed-fly');
+    ['position','margin','top','left','width','height','transform','transition','zIndex'].forEach(p=>cardEl.style[p]='');
+    cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
+      .forEach(p=>p.style.display='');
+  }, {once:true});
 }
 
 // Рисует БОЛЬШУЮ карту (.card) — используется для руки (zone='hand') и кладбища (zone='grave').
@@ -284,13 +398,13 @@ const tagIcons = (card.tags||[])
       burnPopup.appendChild(burnBtn);
       d.appendChild(burnPopup);
     }
-    // Zoom — отдельный попап СЛЕВА от карты: клик увеличивает карту x3 (класс .zoomed),
-    // повторный клик в любом месте экрана уменьшает обратно (см. глобальный слушатель ниже mkEl)
+    // Zoom — отдельный попап СЛЕВА от карты: клик запускает "вылет" карты в центр экрана (zoomCardFly),
+    // повторный клик в любом месте экрана возвращает её на место (см. глобальный слушатель ниже mkEl)
     const zoomPopup=document.createElement('div');
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();d.classList.toggle('zoomed');};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();zoomCardFly(d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
@@ -336,13 +450,13 @@ const tagIcons = (card.tags||[])
       burnPopup.appendChild(burnBtn);
       d.appendChild(burnPopup);
     }
-    // Zoom — отдельный попап СЛЕВА от карты: клик увеличивает карту x3 (класс .zoomed),
-    // повторный клик в любом месте экрана уменьшает обратно (см. глобальный слушатель ниже mkEl)
+    // Zoom — отдельный попап СЛЕВА от карты: клик запускает "вылет" карты в центр экрана (zoomCardFly),
+    // повторный клик в любом месте экрана возвращает её на место (см. глобальный слушатель ниже mkEl)
     const zoomPopup=document.createElement('div');
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();d.classList.toggle('zoomed');};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();zoomCardFly(d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
@@ -350,11 +464,12 @@ const tagIcons = (card.tags||[])
   return d;
 }
 
-// Глобальный слушатель: клик в ЛЮБОМ месте экрана убирает увеличение (.zoomed) с любой карты —
-// кроме клика по самой кнопке Zoom (она вызывает e.stopPropagation(), поэтому сюда не долетает).
+// Глобальный слушатель: клик в ЛЮБОМ месте экрана запускает обратную анимацию (unzoomCardFly)
+// у зумленной карты — кроме клика по самой кнопке Zoom (она вызывает e.stopPropagation(),
+// поэтому сюда не долетает). Также закрывает превью карты поля боя, если оно вдруг осталось открытым.
 document.addEventListener('click', (e)=>{
-  if (e.target.closest('.card-actions-popup-left')) return;
-  document.querySelectorAll('.card.zoomed').forEach(c=>c.classList.remove('zoomed'));
+  const zEl=document.querySelector('.card.zoomed-fly');
+  if(zEl && !e.target.closest('.card-actions-popup-left')) unzoomCardFly(zEl);
 });
 
 
