@@ -213,6 +213,30 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .fab-btn:active{transform:scale(0.95) translateY(2px);}
 .cap-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
+
+/* Попап «Not enough essence» — вместо кнопки Play, когда не хватает эссенции */
+.cap-no-ess{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-family:'MEK',monospace;
+  font-size:clamp(9px,2.2vw,13px);
+  color:#e87a2a;
+  background:#1a0e04cc;
+  border:1px solid #e87a2a55;
+  border-radius:4px;
+  padding:5px 8px;
+  white-space:nowrap;
+  pointer-events:none;
+  text-shadow:0 0 8px #e87a2a88;
+}
+.cap-no-ess-icon{
+  width:1.1em;
+  height:1.1em;
+  object-fit:contain;
+  vertical-align:middle;
+  filter:drop-shadow(0 0 3px #e87a2a);
+}
 .btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .btn:active{transform:scale(0.95) translateY(2px);}
 
