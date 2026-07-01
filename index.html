@@ -34,7 +34,11 @@
   <button class="landing-btn secondary" onclick="showScreen('rules')">Rules</button>
   <button class="landing-btn secondary" onclick="showScreen('catalog')">Card Catalog</button>
   <button class="landing-btn secondary" onclick="showScreen('lore')">Lore</button>
+
+  <button class="landing-btn secondary" id="musicToggleBtn" onclick="toggleMusic()">🔊 Music: ON</button>
 </div>
+
+<audio id="bgMusic" src="audio/bg_music.mp3" loop preload="auto"></audio>
 
 <!-- RULES SCREEN -->
 <div class="screen" id="rulesScreen">
