@@ -1,13 +1,40 @@
 // ── Background music ─────────────────────────────────────────────
+const MUSIC_TARGET_VOLUME = 0.4;
+const FADE_MS = 900; // длительность плавного появления/затухания музыки
+
 let musicEnabled = localStorage.getItem('hj_music') !== 'off';
+let _fadeRAF = null;
 
 function _getMusicEl(){ return document.getElementById('bgMusic'); }
 
+// Плавно меняет volume аудио-элемента от текущего значения к target за duration мс.
+// onDone вызывается по завершении (например, чтобы поставить .pause()).
+function _fadeVolume(audio, target, duration, onDone){
+  if(!audio) return;
+  if(_fadeRAF) cancelAnimationFrame(_fadeRAF);
+  const start = audio.volume;
+  const startTime = performance.now();
+  function step(now){
+    const t = Math.min(1, (now - startTime) / duration);
+    audio.volume = start + (target - start) * t;
+    if(t < 1){
+      _fadeRAF = requestAnimationFrame(step);
+    } else {
+      _fadeRAF = null;
+      if(onDone) onDone();
+    }
+  }
+  _fadeRAF = requestAnimationFrame(step);
+}
+
 function _refreshMusicBtn(){
   const btn = document.getElementById('musicToggleBtn');
-  if(!btn) return;
-  btn.classList.toggle('music-on', musicEnabled);
-  btn.classList.toggle('music-off', !musicEnabled);
+  if(btn){
+    btn.classList.toggle('music-on', musicEnabled);
+    btn.classList.toggle('music-off', !musicEnabled);
+  }
+  const hamBtn = document.getElementById('hamMusicBtn');
+  if(hamBtn) hamBtn.textContent = musicEnabled ? 'Music: On' : 'Music: Off';
 }
 
 function toggleMusic(){
@@ -17,24 +44,67 @@ function toggleMusic(){
   const audio = _getMusicEl();
   if(!audio) return;
   if(musicEnabled){
+    audio.volume = 0;
     audio.play().catch(()=>{});
+    _fadeVolume(audio, MUSIC_TARGET_VOLUME, FADE_MS);
   } else {
-    audio.pause();
+    _fadeVolume(audio, 0, FADE_MS, ()=>audio.pause());
   }
 }
 
 // Браузеры блокируют автоплей со звуком до первого жеста пользователя —
-// пытаемся запустить музыку при первом клике/тапе по странице.
+// пытаемся запустить музыку при первом клике/тапе по странице, с плавным fade-in.
 function _tryStartMusicOnGesture(){
   const audio = _getMusicEl();
   if(audio && musicEnabled && audio.paused){
-    audio.volume = 0.4;
-    audio.play().catch(()=>{});
+    audio.volume = 0;
+    audio.play().then(()=>{
+      _fadeVolume(audio, MUSIC_TARGET_VOLUME, FADE_MS);
+    }).catch(()=>{});
   }
   document.removeEventListener('pointerdown', _tryStartMusicOnGesture);
 }
 document.addEventListener('pointerdown', _tryStartMusicOnGesture);
 document.addEventListener('DOMContentLoaded', _refreshMusicBtn);
+
+// ── Sound effects (SFX) ──────────────────────────────────────────
+let sfxEnabled = localStorage.getItem('hj_sfx') !== 'off';
+const SFX_VOLUME = 0.6;
+
+// Кэш аудио-буферов по имени файла, чтобы не грузить их заново при каждом клике.
+const _sfxCache = {};
+
+function _refreshSfxBtn(){
+  const btn = document.getElementById('sfxToggleBtn');
+  if(btn){
+    btn.classList.toggle('sfx-on', sfxEnabled);
+    btn.classList.toggle('sfx-off', !sfxEnabled);
+  }
+  const hamBtn = document.getElementById('hamSfxBtn');
+  if(hamBtn) hamBtn.textContent = sfxEnabled ? 'Sounds: On' : 'Sounds: Off';
+}
+
+function toggleSfx(){
+  sfxEnabled = !sfxEnabled;
+  localStorage.setItem('hj_sfx', sfxEnabled ? 'on' : 'off');
+  _refreshSfxBtn();
+  if(sfxEnabled) playSfx('grate'); // короткий отклик на сам тоггл, чтобы сразу услышать эффект
+}
+
+// Проигрывает эффект audio/<name>.wav (или .mp3, если передать расширение явно в name).
+// Каждый вызов создаёт новый Audio(), чтобы одинаковые звуки могли накладываться друг на друга.
+function playSfx(name, volume){
+  if(!sfxEnabled) return;
+  const hasExt = /\.(wav|mp3|ogg)$/i.test(name);
+  const src = hasExt ? `audio/${name}` : `audio/${name}.wav`;
+  try{
+    const sfx = new Audio(src);
+    sfx.volume = volume != null ? volume : SFX_VOLUME;
+    sfx.play().catch(()=>{});
+  }catch(e){ /* игнорируем: например, файл ещё не добавлен */ }
+}
+
+document.addEventListener('DOMContentLoaded', _refreshSfxBtn);
 
 function preloadAssets(){
   const criticalImages = [
