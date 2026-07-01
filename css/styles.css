@@ -248,6 +248,9 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .stat-hp-box.flash-green {
   animation: flashGreen 0.5s ease-out forwards;
 }
+.stat-ess-box.flash-green {
+  animation: flashGreen 0.5s ease-out forwards;
+}
 .hp-val{color:#e05555;}.ess-val{color:#F3F5FF;}
 .stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.55), calc(2vw * 0.55));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:2px 2px;}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
@@ -580,14 +583,15 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 }
 
 /* float cards */
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering) {
-  animation: cardFloat 3s ease-in-out infinite;
-}
+@keyframes cardFloatA{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+@keyframes cardFloatB{0%,100%{transform:translateY(0) translateX(0);}50%{transform:translateY(-4px) translateX(1px);}}
+@keyframes cardFloatC{0%,100%{transform:translateY(0);}50%{transform:translateY(-2.2px);}}
+@keyframes cardFloatD{0%,100%{transform:translateY(0) translateX(0);}50%{transform:translateY(-3.6px) translateX(-1px);}}
 
-@keyframes cardFloat {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-3px); }
-}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):nth-child(4n+1){animation:cardFloatA 3s ease-in-out infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):nth-child(4n+2){animation:cardFloatB 3.4s ease-in-out -0.8s infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):nth-child(4n+3){animation:cardFloatC 2.7s ease-in-out -1.5s infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):nth-child(4n+4){animation:cardFloatD 3.8s ease-in-out -2.2s infinite;}
 
 /* nebula */
 .field-nebula {
@@ -626,7 +630,18 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   50%      { opacity: 0.9; transform: scale(1.5); }
 }
 
-
+@keyframes textGlitch {
+  0%   { transform:translate(0); text-shadow:none; }
+  15%  { transform:translate(-2px,1px); text-shadow:2px 0 #ff0044,-2px 0 #00e5ff; }
+  30%  { transform:translate(2px,-1px); text-shadow:-2px 0 #ff0044,2px 0 #00e5ff; }
+  45%  { transform:translate(-1px,0);   text-shadow:1px 0 #ff0044,-1px 0 #00e5ff; }
+  60%  { transform:translate(1px,1px);  text-shadow:-1px 0 #ff0044,1px 0 #00e5ff; }
+  100% { transform:translate(0); text-shadow:none; }
+}
+.glitch-text{
+  animation:textGlitch 0.25s steps(2, end);
+  display:inline-block;
+}
 
 
 /* важные фичи от жпт по блоку всяких ненужностей с действиями */
