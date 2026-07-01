@@ -321,7 +321,8 @@ function zoomCardFly(cardEl){
   cardEl.style.transition='top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1)';
   cardEl.style.top='50%';
   cardEl.style.left='50%';
-  cardEl.style.transform='translate(-50%,-50%) scale(2.6)';
+  const zoomScale = window.innerWidth <= 600 ? 2.08 : 2.6;
+cardEl.style.transform=`translate(-50%,-50%) scale(${zoomScale})`;
 }
 
 function unzoomCardFly(cardEl){
