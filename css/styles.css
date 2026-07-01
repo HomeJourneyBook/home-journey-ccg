@@ -315,6 +315,27 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 #teaBottomBar .btn-badge{background:#1a1200;border-color:#4DB854;color:#4DB854;}
 #jeetBottomBar .btn-badge{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
 
+/* ── Stat-badge для кладбища (справа от кнопки) и колоды (слева от деки) ── */
+.stat-badge{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background-image:url('../img/bg_statbar_hp.png');
+  background-size:100% 100%;
+  background-repeat:no-repeat;
+  background-position:center;
+  min-width:5vh;
+  height:2.8vh;
+  font-family:'MEK',monospace;
+  font-size:1.6vh;
+  font-weight:bold;
+  pointer-events:none;
+  padding:0 0.6vh;
+  flex-shrink:0;
+}
+#teaBottomBar .stat-badge{color:#4DB854;}
+#jeetBottomBar .stat-badge{color:#b44fd4;}
+
 /* LOG */
 .log{background:#06060e;border:1px solid #ffffff08;padding:7px;height:85px;overflow-y:auto;font-size:12px;line-height:1.9;}
 .le{color:#555;}.le.imp{color:#c8a84b;}.le.dmg{color:#e05555;}.le.hl{color:#5BDF7A;}.le.die{color:#ff6666;}.le.trn{color:#BFCBFF;border-top:1px solid #ffffff11;padding-top:3px;margin-top:3px;}
