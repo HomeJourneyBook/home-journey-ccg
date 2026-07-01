@@ -295,6 +295,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 /* BOTTOM BAR */
 .bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:4px;}
+/* Группирует кнопку + бейдж в одну flex-единицу, чтобы они держались рядом */
+.bottom-slot{display:flex;align-items:center;gap:4px;flex-shrink:0;}
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .btn{font-family:'MEK',monospace;font-size:30px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
