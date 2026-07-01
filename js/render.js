@@ -221,7 +221,7 @@ function mkSmallEl(card){
 const tagIcons=(card.tags||[])
   .map(t=>t.split(':')[0])
   .filter(t=>TAG_ICONS[t])
-  .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
+  .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
   .join('');
   d.innerHTML=`
     <div class="card-small-cost">${card.cost}</div>
@@ -369,7 +369,7 @@ function mkEl(card,zone){
 const tagIcons = (card.tags||[])
   .map(t=>t.split(':')[0])
   .filter(t=>TAG_ICONS[t])
-  .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
+  .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
   .join('');
   // ── Ветка для карт-Миров: своя разметка (без card-art и card-stats), свой фон ──
   if(card.world){
