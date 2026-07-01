@@ -92,6 +92,19 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 /* Worlds and Artifacts*/
 .persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
 .pcard{width:var(--pcard-w);height:var(--pcard-h);padding:1px 1px;border:1px solid;border-radius:6px;font-size:calc(var(--pcard-h) * 0.75);display:flex;align-items:center;justify-content:center;gap:4px;background:url('../img/pcard_bg.png') center/100% 100% no-repeat;}
+/* Компактная версия для стат-бара — auto ширина, высота по стат-бару */
+.pcard-inline{
+  width:auto !important;
+  min-width:7vh;
+  max-width:16vh;
+  height:max(3.2vh,1.6vw) !important;
+  font-size:max(calc(3.2vh * 0.52),calc(1.6vw * 0.52)) !important;
+  padding:0 5px !important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  flex-shrink:0;
+}
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
 .pcard.jcp{border-color:#7b2d8b44;color:#b44fd488;}
 .pcard.sleeping{opacity:0.45 !important;}
