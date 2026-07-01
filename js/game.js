@@ -773,11 +773,15 @@ function _applyPendingFlash(){
       const oppK=G.turn==='tea'?'jeet':'tea';
       elId=who===oppK?'oppStats':'playerStats';
     }
-    const el=document.getElementById(elId);
-    if(!el) return;
-    el.classList.remove('flash-red','flash-green');
-    void el.offsetWidth;
-    el.classList.add(type==='dmg'?'flash-red':'flash-green');
-    setTimeout(()=>el.classList.remove('flash-red','flash-green'), 500);
+    const bar=document.getElementById(elId);
+    if(!bar) return;
+    const cls=type==='dmg'?'flash-red':'flash-green';
+    [bar.querySelector('.player-name-box'), bar.querySelector('.stat-hp-box')].forEach(target=>{
+      if(!target) return;
+      target.classList.remove('flash-red','flash-green');
+      void target.offsetWidth;
+      target.classList.add(cls);
+      setTimeout(()=>target.classList.remove('flash-red','flash-green'), 500);
+    });
   });
 }
