@@ -99,7 +99,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .card-back{width:calc(6vh * 1.4);border:1px solid #ffffff11;padding:5px;background:#0d0d1a;height:6vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
 
 /* SMALL CARDS - on battlefield */ 
-.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:4px;}
+.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:4px;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
+.field-preview-card{position:fixed;pointer-events:none;margin:0;box-shadow:0 10px 40px #000000cc;}
 .card-small.tea-card{border-color:transparent;}.card-small.jeet-card{border-color:transparent;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
@@ -180,7 +181,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .cap-btn.play{width:calc(var(--card-w) * 0.75);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_play.png');}
 .cap-btn.burn{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_burn.png');}
 .cap-btn.zoom{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_zoom.png');}
-.card.zoomed{transform: scale(3) !important;z-index: 5000 !importanttransition: transform .2s ease-out;}
+.card.zoomed-fly{
+  position:fixed;
+  margin:0;
+  cursor:default;
+  transition:top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1);
+}
 .cap-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
 .fab-btn{display:block;width:calc(var(--card-small-w) * 0.5);height:calc(var(--card-small-w) * 0.5 * 44/122);border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
