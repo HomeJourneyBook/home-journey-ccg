@@ -134,7 +134,7 @@
         opacity = OPACITY_FAR;
       }
 
-      if (!card.classList.contains('previewed') && !card.classList.contains('zoomed')) {
+      if (!card.classList.contains('previewed') && !card.classList.contains('zoomed') && !card.classList.contains('burning-out')) {
         card.style.transform = `scale(${scale.toFixed(3)})`;
         card.style.opacity   = opacity.toFixed(3);
       } else if (card.classList.contains('zoomed')) {
@@ -245,7 +245,7 @@
       const pr = popup.getBoundingClientRect();
       if (endX >= pr.left && endX <= pr.right && endY >= pr.top && endY <= pr.bottom) {
         const btn = document.elementFromPoint(endX, endY);
-        if (btn) btn.click();
+        if (btn) { e.preventDefault(); btn.click(); }
         return;
       }
     }
