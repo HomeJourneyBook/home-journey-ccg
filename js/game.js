@@ -367,6 +367,7 @@ function doBurnCard(card){
     card.voided=true;
     cur.void.push(card);
     cur.essMax+=1;cur.ess+=1;cur.burned=true;
+    flashEssenceGain(G.turn);
     lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax}.`,'imp');
     G.phase='action';render();
   }, 300); // ждём пока анимация закончится
@@ -631,6 +632,7 @@ function endTurn(){
   } else {
     cur.essMax+=1;cur.ess=cur.essMax;
   }
+  flashEssenceGain(G.turn);
   const oppK=G.turn==='tea'?'jeet':'tea';
   if(cur.world) triggerAbilities(cur.world,'on_turn');
   cur.artifacts.forEach(a=>triggerAbilities(a,'on_turn'));
@@ -755,6 +757,42 @@ function hitCard(cardId){
   setTimeout(()=>{
     el.classList.remove('hit');
   },250);
+}
+function flashEssenceGain(who){
+  // Ставим в очередь "мигание" эссенции — применяется после render()/reorderZones(),
+  // т.к. .stat-ess-box/.ess-val каждый раз пересоздаются заново через innerHTML.
+  if(!G._pendingEssGlitch) G._pendingEssGlitch=[];
+  G._pendingEssGlitch.push(who);
+}
+function _applyPendingEssGlitch(){
+  if(!G._pendingEssGlitch||G._pendingEssGlitch.length===0) return;
+  const list=G._pendingEssGlitch;
+  G._pendingEssGlitch=[];
+  list.forEach(who=>{
+    let elId;
+    if(who==='opp'||who==='player'){
+      elId=who==='opp'?'oppStats':'playerStats';
+    } else {
+      const oppK=G.turn==='tea'?'jeet':'tea';
+      elId=who===oppK?'oppStats':'playerStats';
+    }
+    const bar=document.getElementById(elId);
+    if(!bar) return;
+    const box=bar.querySelector('.stat-ess-box');
+    if(box){
+      box.classList.remove('flash-green');
+      void box.offsetWidth;
+      box.classList.add('flash-green');
+      setTimeout(()=>box.classList.remove('flash-green'), 500);
+    }
+    const val=bar.querySelector('.ess-val');
+    if(val){
+      val.classList.remove('glitch-text');
+      void val.offsetWidth;
+      val.classList.add('glitch-text');
+      setTimeout(()=>val.classList.remove('glitch-text'), 250);
+    }
+  });
 }
 function flashBase(who, type){
   // Queue flash to apply after render/reorderZones rewrites innerHTML
