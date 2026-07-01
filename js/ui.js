@@ -328,11 +328,11 @@ function spawnStars() {
   ['oppFieldZone','playerFieldZone'].forEach(id => {
     const zone = document.getElementById(id);
     if (!zone) return;
-    const size = [1,1,1,2,2,3][Math.floor(Math.random()*6)]; // чаще маленькие
-s.style.width  = size + 'px';
-s.style.height = size + 'px';
     for (let i = 0; i < 30; i++) {
       const s = document.createElement('div');
+      const size = [1,1,1,2,2,3][Math.floor(Math.random()*6)]; // чаще маленькие
+s.style.width  = size + 'px';
+s.style.height = size + 'px';
       s.className = 'field-star';
       s.style.left = Math.random() * 100 + '%';
       s.style.top  = Math.random() * 100 + '%';
