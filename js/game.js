@@ -604,7 +604,7 @@ function openGraveModal(faction){
   const btnId = faction==='tea' ? 'teaBottomBar' : 'jeetBottomBar';
   const bar = document.getElementById(btnId);
   const graveBtn = bar ? bar.querySelector('.btn-graveyard') : null;
-  const innerModal = modal.querySelector('.modal');
+  const innerModal = modal.querySelector('.grave-modal');
   if(graveBtn && innerModal){
     const r = graveBtn.getBoundingClientRect();
     innerModal.style.left   = r.left + 'px';
