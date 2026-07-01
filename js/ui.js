@@ -470,3 +470,52 @@ function spawnNebula() {
     }
   });
 }
+
+// ── Tag tooltips (desktop only — mouse events не срабатывают на touch) ──────
+const TAG_TOOLTIPS = {
+  'fear':    { name: 'Fear',    desc: 'On attack: target skips its next turn and deals no counter-damage.' },
+  'pierce':  { name: 'Pierce',  desc: 'Ignores Provoke. Can attack the base or any enemy directly.' },
+  'regen':   { name: 'Regen',   desc: 'Restores X HP to itself at the start of each of your turns.' },
+  'burn':    { name: 'Burn',    desc: 'On attack: target loses 1 HP at the start of each of its turns until death.' },
+  'rage':    { name: 'Rage',    desc: 'Gains +1 ATK permanently each time it attacks.' },
+  'provoke': { name: 'Provoke', desc: 'All enemy attacks must target this creature.' },
+};
+
+let _tooltipEl = null;
+function _getTooltip(){ return _tooltipEl || (_tooltipEl = document.getElementById('card-tooltip')); }
+
+document.addEventListener('mousemove', (e) => {
+  const tip = _getTooltip();
+  if(!tip) return;
+
+  const tagEl = e.target.closest('.card-tag-icon');
+  if(!tagEl){
+    tip.classList.remove('tt-visible');
+    return;
+  }
+
+  const data = TAG_TOOLTIPS[tagEl.dataset.tag];
+  if(!data){
+    tip.classList.remove('tt-visible');
+    return;
+  }
+
+  tip.innerHTML = `<div class="tt-name">${data.name}</div><div class="tt-desc">${data.desc}</div>`;
+  tip.classList.add('tt-visible');
+
+  // Позиционируем рядом с курсором, не выходя за экран
+  const PAD = 12;
+  const tw = tip.offsetWidth;
+  const th = tip.offsetHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  let x = e.clientX + 18;
+  let y = e.clientY - th - 10;
+
+  if(x + tw > vw - PAD) x = e.clientX - tw - 10;
+  if(y < PAD) y = e.clientY + 18;
+
+  tip.style.left = x + 'px';
+  tip.style.top  = y + 'px';
+});
