@@ -298,6 +298,12 @@ function zoomCardFly(cardEl){
   if(cardEl.classList.contains('zoomed-fly')) return;
   const rect=cardEl.getBoundingClientRect();
   cardEl._zoomOrigRect=rect;
+  // Запоминаем исходное место в DOM и переносим карту в <body> — иначе на мобиле
+  // position:fixed будет считаться не от экрана, а от .hand (у неё transform от карусели).
+  cardEl._zoomOrigParent=cardEl.parentElement;
+  cardEl._zoomOrigNext=cardEl.nextSibling;
+  document.body.appendChild(cardEl);
+
   cardEl.style.position='fixed';
   cardEl.style.margin='0';
   cardEl.style.top=rect.top+'px';
@@ -310,7 +316,7 @@ function zoomCardFly(cardEl){
   cardEl.classList.add('zoomed-fly');
   cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
     .forEach(p=>p.style.display='none');
-  void cardEl.offsetWidth; // форсируем reflow, иначе старт и финиш анимации "склеятся" в один кадр
+  void cardEl.offsetWidth;
   cardEl.style.transition='top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1)';
   cardEl.style.top='50%';
   cardEl.style.left='50%';
@@ -330,6 +336,14 @@ function unzoomCardFly(cardEl){
     ['position','margin','top','left','width','height','transform','transition','zIndex'].forEach(p=>cardEl.style[p]='');
     cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
       .forEach(p=>p.style.display='');
+    // Возвращаем карту обратно в руку на её исходное место в DOM
+    if(cardEl._zoomOrigParent){
+      if(cardEl._zoomOrigNext && cardEl._zoomOrigNext.parentElement===cardEl._zoomOrigParent){
+        cardEl._zoomOrigParent.insertBefore(cardEl, cardEl._zoomOrigNext);
+      } else {
+        cardEl._zoomOrigParent.appendChild(cardEl);
+      }
+    }
   }, {once:true});
 }
 
