@@ -171,7 +171,17 @@ function doWorld(card){
 
 function doArtifact(card){
   const cur=G[G.turn];
-  card.sleeping=true; 
+  // Только один артефакт — как с мирами: если уже есть, отправляем в войд
+  if(cur.artifacts.length>0){
+    const old=cur.artifacts[0];
+    const oldDraw=getTagVal(old,'draw');
+    if(oldDraw) cur.extraDraw=Math.max(0,cur.extraDraw-oldDraw);
+    old.voided=true;
+    cur.void.push(old);
+    cur.artifacts=[];
+    lg(`Replaced ${old.name}.`);
+  }
+  card.sleeping=true;
   cur.artifacts.push(card);
   lg(`Artifact: ${card.name} placed.`,'imp');
   const drawTag=getTagVal(card,'draw');
