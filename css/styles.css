@@ -55,10 +55,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .game{position:relative;z-index:1;width:100%;padding:0;display:flex;flex-direction:column;gap:0;min-height:100vh;overflow-y:auto;overflow-x:hidden;}
 .game, .game *{user-select: none;-webkit-user-select: none;}
 
-.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:1px solid #D5943F;background:#0B0F17;position:relative;box-shadow:inset 0 0 8px #0c1013;height:max(5vh, 2.5vw);}
-.title{font-family:'MEK',monospace;font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#c8a84b;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
+.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#80808080;position:relative;height:max(5vh, 2.5vw);}
+.title{font-family:'MEK',monospace;font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
 #turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:max(calc(5vh * 0.35), calc(2.5vw * 0.35));color:#888;}
-#turnInfo span{color:#c8a84b;font-weight:bold;}
+#turnInfo span{color:#E8E0C8;font-weight:bold;}
 @media(max-width:600px){
   .header-desktop-btns{display:none!important;}
   .header-mobile-btn{display:block!important;}
@@ -74,10 +74,10 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .header-mobile-btn{display:block;}
 
 /* Hamburger button */
-.hamburger-btn{width: calc(5vh * 0.8);height: calc(5vh * 0.8);border:1px solid #D5943F44;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:6px;transition:all .2s;position:relative;margin:1px;}
+.hamburger-btn{width: calc(5vh * 0.8);height: calc(5vh * 0.8);border:1px solid #E8E0C8;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:6px;transition:all .2s;position:relative;margin:1px;}
 .hamburger-btn:hover{border-color:#D5943F;box-shadow:0 0 8px #D5943F44;}
 .hamburger-btn:active{transform:scale(0.92) translateY(1px);}
-.ham-line{width:100%;height:2px;background:#D5943F;border-radius:1px;transition:transform .3s,opacity .3s;transform-origin:center;}
+.ham-line{width:100%;height:2px;background:#E8E0C8;border-radius:1px;transition:transform .3s,opacity .3s;transform-origin:center;}
 .hamburger-btn.open .ham-line:nth-child(1){transform:translateY(7px) rotate(45deg);}
 .hamburger-btn.open .ham-line:nth-child(2){opacity:0;transform:scaleX(0);}
 .hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
@@ -99,7 +99,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   max-width:16vh;
   height:max(3.2vh,1.6vw) !important;
   font-size:max(calc(3.2vh * 0.52),calc(1.6vw * 0.52)) !important;
-  padding:0 5px !important;
+  padding:1px 1px !important;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -232,8 +232,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   font-size:clamp(9px,2.2vw,13px);
   color:#e87a2a;
   background:transparent;
-  border:1px solid #e87a2a55;
-  border-radius:4px;
+  border:transparent;
   padding:5px 8px;
   white-space:nowrap;
   pointer-events:none;
@@ -299,7 +298,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 .opp-hand-zone{height:6vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
-.field-zone{background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;padding: 2px}
+.field-zone{border:1px solid #80808080;background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;padding:2px}
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
