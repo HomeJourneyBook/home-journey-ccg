@@ -9,7 +9,7 @@
 
 
 :root {
-  --card-h: 24vh;
+  --card-h: 27vh;
   --card-w: calc(var(--card-h) * 0.716);
   --cat-card-w: calc(var(--card-h) * 0.716);
   --cat-card-h: var(--card-h);
