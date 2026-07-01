@@ -249,10 +249,12 @@ function triggerAbilities(card, timing, ctx={}){
 
       case 'ess_max':
         cur.essMax+=a.val;
+        flashEssenceGain(curK);
         lg(`${card.name}: +${a.val} max Essence → ${cur.essMax}.`,'imp'); break;
 
       case 'ess_add':
         cur.ess+=a.val; // can exceed essMax temporarily this turn
+        flashEssenceGain(curK);
         lg(`${card.name}: +${a.val} Essence → ${cur.ess}/${cur.essMax}.`,'imp'); break;
 
       case 'rage':
