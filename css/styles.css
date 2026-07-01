@@ -38,7 +38,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
-body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100vh;overflow-x:hidden;touch-action:pan-y;}
+body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100vh;overflow-x:hidden;touch-action:pan-y;}
 .stars{
   position:fixed;
   inset:0;
@@ -55,7 +55,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .game{position:relative;z-index:1;width:100%;padding:0;display:flex;flex-direction:column;gap:0;min-height:100vh;overflow-y:auto;overflow-x:hidden;}
 .game, .game *{user-select: none;-webkit-user-select: none;}
 
-.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#414B5A88;position:relative;height:max(5vh, 2.5vw);}
+.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#414B5A4D;position:relative;height:max(5vh, 2.5vw);}
 .title{font-family:'MEK',monospace;font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
 #turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:max(calc(5vh * 0.35), calc(2.5vw * 0.35));color:#888;}
 #turnInfo span{color:#E8E0C8;font-weight:bold;}
@@ -203,7 +203,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .hand{display:flex;flex-wrap:nowrap;min-height:var(--card-h);padding:3px;background:transparent;justify-content:space-between;align-items:flex-end;overflow:visible;position:relative;width:100%;box-sizing:border-box;}
 .hand .card{flex-shrink:0;transition:transform .2s;position:relative;width:var(--card-w)!important;min-width:var(--card-w)!important;}
 .card-actions-popup {animation: popupSlideUp 0.18s ease-out forwards;}
-.hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:goldPulse 1.8s ease-in-out infinite;}
+.hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:silverPulse 1.8s ease-in-out infinite;}
 .hand .card.previewed{position:relative;border-radius:6px;border-color:#C8A84B !important;}
 @media(hover:hover){.hand .card:not(.previewed):hover{transform:translateY(-10px) !important;z-index:100 !important;}}
 .field-ability-popup{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px;z-index:2001;width:70px;pointer-events:all;}
@@ -230,20 +230,20 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   gap:5px;
   font-family:'MEK',monospace;
   font-size:clamp(9px,2.2vw,13px);
-  color:#e87a2a;
+  color:#E8E0C8;
   background:transparent;
   border:transparent;
   padding:5px 8px;
   white-space:nowrap;
   pointer-events:none;
-  text-shadow:0 0 8px #e87a2a88;
+  text-shadow:0 0 8px #8A7D62;
 }
 .cap-no-ess-icon{
   width:1.1em;
   height:1.1em;
   object-fit:contain;
   vertical-align:middle;
-  filter:drop-shadow(0 0 3px #e87a2a);
+  filter:drop-shadow(0 0 3px #8A7D62);
 }
 .btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .btn:active{transform:scale(0.95) translateY(2px);}
@@ -638,6 +638,26 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 @keyframes pulse{from{box-shadow:0 0 4px #e05555;}to{box-shadow:0 0 12px #e05555;}}
 @keyframes pulseG{from{box-shadow:0 0 4px #44ff88;}to{box-shadow:0 0 12px #44ff88;}}
 @keyframes goldPulse{0%{box-shadow:0 0 4px #C8A84B44,0 0 8px #C8A84B66;}50%{box-shadow:0 0 10px #C8A84BCC,0 0 22px #C8A84B88,0 0 34px #C8A84B33;}100%{box-shadow:0 0 4px #C8A84B44,0 0 8px #C8A84B66;}}
+@keyframes silverPulse {
+    0% {
+        box-shadow:
+            0 0 4px #BFCED944,
+            0 0 8px #BFCED966;
+    }
+
+    50% {
+        box-shadow:
+            0 0 10px #BFCED9CC,
+            0 0 22px #BFCED988,
+            0 0 34px #BFCED933;
+    }
+
+    100% {
+        box-shadow:
+            0 0 4px #BFCED944,
+            0 0 8px #BFCED966;
+    }
+}
 @keyframes selected{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-2px) scale(1.015);}}
 @keyframes pcardEnter{0%{opacity:0;transform:scale(0.4);}70%{opacity:1;transform:scale(1.1);}100%{opacity:1;transform:scale(1);}}
 @keyframes pcardNotAwake{0%{opacity:0;transform:scale(0.4);}70%{opacity:0.45;transform:scale(1.1);}100%{opacity:0.45;transform:scale(1);}}
