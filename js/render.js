@@ -20,9 +20,7 @@ function updateTurnColors(){
   };
 
   setStyle('playerFieldZone', bottomColor);
-  setStyle('playerStats',     bottomColor);
   setStyle('oppFieldZone',    topDim);
-  setStyle('oppStats',        topDim);
   setStyle('oppHandZone',     topDim);
 }
 
