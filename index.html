@@ -26,9 +26,9 @@
   <div class="start-group" id="startGroup">
     <button class="art-btn art-btn-playgame" id="startMainBtn" onclick="expandStart()"></button>
     <div class="start-options hidden" id="startOptions">
-      <button class="landing-btn" onclick="startGame()">Hot Seat</button>
-      <button class="landing-btn secondary" disabled style="opacity:0.3;cursor:not-allowed;">vs AI</button>
-      <button class="landing-btn secondary" disabled style="opacity:0.3;cursor:not-allowed;">Online</button>
+      <button class="art-btn art-btn-hotseat" onclick="startGame()"></button>
+      <button class="art-btn art-btn-vsai" disabled></button>
+      <button class="art-btn art-btn-online" disabled></button>
     </div>
   </div>
   <button class="art-btn art-btn-rules" onclick="showScreen('rules')"></button>
@@ -400,9 +400,9 @@
   
 <!-- GRAVEYARD MODAL -->
 <div class="modal-overlay hidden" id="graveModal" style="background:transparent;pointer-events:all;" onclick="closeGraveModal()">
- <div class="modal" style="pointer-events:all;position:fixed;max-width:320px;max-height:60vh;overflow-y:auto;padding:0;border:1px solid #4A306066;background:#0D0A14;box-shadow: 0 8px 28px rgba(0,0,0,.7), 0 0 18px rgba(74,48,96,.28);" onclick="event.stopPropagation()">
-   <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #ffffff11;">
-     <span style="font-family:'MEK',monospace;font-size:18px;color:#F3F5FF;" id="graveModalTitle">Graveyard</span>
+ <div class="grave-modal" onclick="event.stopPropagation()">
+   <div class="grave-modal-header">
+     <span class="grave-modal-title" id="graveModalTitle">Graveyard</span>
      <button class="log-panel-close" onclick="closeGraveModal()">X</button>
    </div>
    <div id="graveModalCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px;"></div>
