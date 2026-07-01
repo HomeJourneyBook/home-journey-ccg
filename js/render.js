@@ -112,6 +112,7 @@ function render(){
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
   if(typeof _applyPendingFlash==='function') _applyPendingFlash();
+  if(typeof _applyPendingEssGlitch==='function') _applyPendingEssGlitch();
 }
 
 // Возвращает путь к картинке типа карты (мир/уникальный/артефакт/заклинание/существо) —
