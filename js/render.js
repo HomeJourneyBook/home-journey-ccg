@@ -556,91 +556,49 @@ function rHiddenHand(id,cards,faction){
 // иконка+название в рамке) — поэтому у Worlds/Artifacts на поле нет арта/статов, как у обычных карт.
 // Также здесь живёт игровая логика щитов/кликов для активных артефактов с тегами 'shard' (можно
 // активировать раз за ход) и 'sacrifice' (требует жертвы существа для активации).
+// rPersist — pcards перенесены в stats bar (_mkPcardHtml).
+// Зоны persist на поле оставляем пустыми.
 function rPersist(id,player){
-  const s = getComputedStyle(document.documentElement);
   const el=document.getElementById(id);
+  if(el) el.innerHTML='';
+}
 
-  // Запоминаем какие pcard уже были отображены
-  const prevIds=new Set(
-    Array.from(el.querySelectorAll('.pcard[data-pid]')).map(e=>e.dataset.pid)
-  );
 
-  el.innerHTML='';
-  const cls=player===G.tea?'tcp':'jcp';
-  // ── Активный Мир (максимум 1 одновременно) ──
-  if(player.world){
-    const d=document.createElement('div');
-    d.className=`pcard ${cls}`;
-    d.dataset.pid=player.world.id;
-    d.textContent=`${player.world.art} ${player.world.name}`;
-    d.title=player.world.ab;
-    if(!prevIds.has(player.world.id)) d.classList.add('pcard-entering');
-    el.appendChild(d);
-  }
-  // ── Активные Артефакты (максимум 2 одновременно) ──
-  player.artifacts.forEach(a=>{
-    const d=document.createElement('div');
-    d.className=`pcard ${cls}`;
-    d.dataset.pid=a.id;
-    d.textContent=`${a.art} ${a.name}`;
-    d.title=a.ab;
-    if(!prevIds.has(a.id)) d.classList.add('pcard-entering');
-    // Для активных артефактов (shard/sacrifice) — добавляем .sleeping класс когда спит:
-    // это и запускает анимацию pcardNotAwake, и удерживает opacity:0.45 через CSS после неё.
-    const isActiveArtifact = hasTag(a,'shard') || hasTag(a,'sacrifice');
-    if(isActiveArtifact && a.sleeping) d.classList.add('sleeping');
+// Генерирует HTML-строку для pcard в стат-баре.
+// isPlayer=true — добавляет onclick-обработчики для активных артефактов текущего игрока.
+function _mkPcardHtml(card, isPlayer){
+  if(!card) return '';
+  const faction=card.f;
+  const cls=faction==='tea'?'tcp':'jcp';
+  const isActivatable=hasTag(card,'shard')||hasTag(card,'sacrifice');
+  const sleepCls=(isActivatable&&card.sleeping)?' sleeping':'';
+  const activeCls=(isPlayer&&isActivatable&&!card.sleeping&&!card.exhausted)?' pcard-active':'';
+  const exhaustedStyle=(isActivatable&&card.exhausted)?'opacity:0.5;':'';
 
-    // Логика артефакта с тегом 'shard' (например Shard) — активная способность раз за ход
-    if(hasTag(a,'shard')&&a.f===G.turn){
-      if(a.exhausted){
-        d.style.opacity='0.5'; // exhausted — отдельный стейт, не sleeping
-      } else if(a.sleeping){
-        // sleeping opacity уже выставлен через .sleeping CSS класс выше
-      } else if(G.phase==='shardTarget'){
-        d.classList.add('pcard-active');
-        const shardCol = s.getPropertyValue('--shard-active').trim();
-        d.style.border=`2px solid ${shardCol}`;
-        d.style.boxShadow=`0 0 8px ${shardCol}`;
-        d.style.borderRadius='6px';
-        d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
+  let borderStyle='';
+  let onclick='';
+  if(isPlayer&&!card.sleeping&&!card.exhausted){
+    const col=getComputedStyle(document.documentElement)
+      .getPropertyValue(hasTag(card,'shard')?'--shard-active':'--altar-active').trim();
+    if(hasTag(card,'shard')){
+      if(G.phase==='shardTarget'){
+        borderStyle=`border:2px solid ${col};box-shadow:0 0 8px ${col};border-radius:6px;`;
+        onclick=`onclick="event.stopPropagation();doShard(G[G.turn].artifacts[0])"`;
       } else if(G.phase==='action'){
-        d.classList.add('pcard-active');
-        d.addEventListener('click',(e)=>{e.stopPropagation();doShard(a);});
+        onclick=`onclick="event.stopPropagation();doShard(G[G.turn].artifacts[0])"`;
       }
     }
-    // Логика артефакта с тегом 'sacrifice' (например Altar) — требует принести существо в жертву для активации
-    if(hasTag(a,'sacrifice')&&a.f===G.turn){
-      if(a.exhausted){
-        d.style.opacity='0.5';
-      } else if(a.sleeping){
-        // sleeping opacity уже выставлен через .sleeping CSS класс выше
-      } else if(G.phase==='sacrificeTarget'){
-        d.classList.add('pcard-active');
-        const shardCol = s.getPropertyValue('--altar-active').trim();
-        d.style.border=`2px solid ${shardCol}`;
-        d.style.boxShadow=`0 0 8px ${shardCol}`;
-        d.style.borderRadius='6px';
-        d.addEventListener('click',(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();});
+    if(hasTag(card,'sacrifice')){
+      if(G.phase==='sacrificeTarget'){
+        borderStyle=`border:2px solid ${col};box-shadow:0 0 8px ${col};border-radius:6px;`;
+        onclick=`onclick="event.stopPropagation();G.phase='action';G.sel=null;render()"`;
       } else if(G.phase==='action'){
-        d.classList.add('pcard-active');
-        d.addEventListener('click',(e)=>{
-          e.stopPropagation();
-          G.phase='sacrificeTarget';
-          G.sel=a.id;
-          lg('Altar: select a creature to sacrifice.','hint');
-          render();
-        });
+        onclick=`onclick="event.stopPropagation();G.phase='sacrificeTarget';G.sel='${card.id}';lg('Altar: select a creature to sacrifice.','hint');render()"`;
       }
     }
-    el.appendChild(d);
-  });
-  // Если нет ни Мира, ни Артефактов — показать заглушку "none"
-  if(!player.world&&player.artifacts.length===0){
-    const d=document.createElement('div');
-    d.className='empty-persist';
-    d.textContent='none';
-    el.appendChild(d);
   }
+  const safeAb=(card.ab||'').replace(/"/g,"'");
+  return `<div class="pcard pcard-inline ${cls}${sleepCls}${activeCls}" data-pid="${card.id}" title="${safeAb}" style="${exhaustedStyle}${borderStyle}" ${onclick}>${card.art||''} ${card.name}</div>`;
 }
 
 // Переставляет DOM-элементы местами в Hot Seat режиме: чужие зоны (поле/рука/статбар) — наверх экрана,
@@ -656,17 +614,25 @@ function reorderZones(){
   const playerStats=document.getElementById('playerStats');
   if(oppStats){
     oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
+    const _prevOppPids=new Set(Array.from(oppStats.querySelectorAll('[data-pid]')).map(e=>e.dataset.pid));
     oppStats.innerHTML=`
+  ${_mkPcardHtml(oppP.world,false)}
   <span class="stat stat-hp-box ${oppK}-hp-box"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
   <span class="player-name-box ${oppK}-name-box" role="img" aria-label="${oppK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${oppK}')"></span>
-  <span class="stat stat-ess-box ${oppK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>`;
+  <span class="stat stat-ess-box ${oppK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>
+  ${_mkPcardHtml(oppP.artifacts[0]||null,false)}`;
+    oppStats.querySelectorAll('[data-pid]').forEach(el=>{if(!_prevOppPids.has(el.dataset.pid))el.classList.add('pcard-entering');});
   }
   if(playerStats){
     playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
+    const _prevPlPids=new Set(Array.from(playerStats.querySelectorAll('[data-pid]')).map(e=>e.dataset.pid));
     playerStats.innerHTML=`
+  ${_mkPcardHtml(playerP.world,false)}
   <span class="stat stat-hp-box ${playerK}-hp-box"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
   <span class="player-name-box ${playerK}-name-box" role="img" aria-label="${playerK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${playerK}')"></span>
-  <span class="stat stat-ess-box ${playerK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>`;
+  <span class="stat stat-ess-box ${playerK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>
+  ${_mkPcardHtml(playerP.artifacts[0]||null,true)}`;
+    playerStats.querySelectorAll('[data-pid]').forEach(el=>{if(!_prevPlPids.has(el.dataset.pid))el.classList.add('pcard-entering');});
   }
 
   const oppFieldZone=document.getElementById('oppFieldZone');
