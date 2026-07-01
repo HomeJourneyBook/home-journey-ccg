@@ -240,10 +240,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
-.stats-bar.flash-red {
+.player-name-box.flash-red,
+.stat-hp-box.flash-red {
   animation: flashRed 0.5s ease-out forwards;
 }
-.stats-bar.flash-green {
+.player-name-box.flash-green,
+.stat-hp-box.flash-green {
   animation: flashGreen 0.5s ease-out forwards;
 }
 .hp-val{color:#e05555;}.ess-val{color:#F3F5FF;}
@@ -571,6 +573,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   0%   { box-shadow:inset 0 0 16px 4px rgba(68,255,136,0.9), 0 0 16px 4px rgba(68,255,136,0.7); }
   100% { box-shadow:none; }
 }
+
 @keyframes pulseNameBox{
   from{box-shadow:0 0 6px 2px #e05555, inset 0 0 4px #e05555aa;}
   to{box-shadow:0 0 14px 4px #e05555, inset 0 0 8px #e05555cc;}
