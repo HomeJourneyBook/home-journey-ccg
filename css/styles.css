@@ -209,16 +209,20 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .log::-webkit-scrollbar-thumb:hover{background:#c8a84b;}
 
 /* LAYOUT ZONES */
-.stats-bar{height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;cursor:pointer;}
-.stats-bar.jeet{border:1px solid #d83c8866;box-shadow: inset 0 0 8px #d83c8822, 0 0 8px #d83c8811;background:rgba(22,12,32,0.65);}
-.stats-bar.tea{border:1px solid #1b641b66;box-shadow:inset 0 0 8px #1b641b22, 0 0 8px #1b641b11;background:rgba(15,30,18,0.65);}
+.stats-bar{height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;}
+.stats-bar.jeet{border:1px solid #d83c8866;box-shadow: inset 0 0 8px #d83c8822, 0 0 8px #d83c8811;}
+.stats-bar.tea{border:1px solid #1b641b66;box-shadow:inset 0 0 8px #1b641b22, 0 0 8px #1b641b11;}
 .stats-bar.jeet{background-image:url('../img/statbar_jeet.png');background-size:100% 100%;background-repeat:no-repeat;background-position:center;}
 .stats-bar.tea{background-image:url('../img/statbar_tea.png');background-size:100% 100%;background-repeat:no-repeat;background-position:center;}
-.stats-bar.base-targetable{border-color:#e05555 !important;box-shadow:inset 0 0 12px #e0555555, 0 0 12px #e0555533 !important;background:rgba(224,85,85,0.12) !important;}
-.stats-bar.base-targetable:hover{background:rgba(224,85,85,0.2) !important;cursor:crosshair;}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
+.stats-bar.flash-red {
+  animation: flashRed 0.5s ease-out forwards;
+}
+.stats-bar.flash-green {
+  animation: flashGreen 0.5s ease-out forwards;
+}
 .hp-val{color:#e05555;}.ess-val{color:#F3F5FF;}
 .stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.55), calc(2vw * 0.55));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:2px 2px;}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
@@ -227,10 +231,14 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 /* .jeet-hp-box{background-image:url('../img/statbar_hp_jeet.png');} */
 /* .tea-ess-box{background-image:url('../img/statbar_ess_tea.png');} */
 /* .jeet-ess-box{background-image:url('../img/statbar_ess_jeet.png');} */
-.player-name-box{height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;}
+.player-name-box{width:120px;height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
 .tea-name-box{background-image:url('../img/bg_statbar_tea.png');}
 .jeet-name-box{background-image:url('../img/bg_statbar_jeet.png');}
 .player-name-box:active{transform:scale(0.92);}
+.player-name-box.base-targetable{border-color:#e05555 !important;box-shadow:inset 0 0 12px #e0555555, 0 0 12px #e0555533 !important;background:rgba(224,85,85,0.12) !important;}
+.player-name-box.base-targetable:hover{background:rgba(224,85,85,0.2) !important;cursor:crosshair;}
+
+
 .field-zone{background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;}
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #d83c88;border-top:none;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:1px solid #1b641b66;box-shadow: inset 0 0 8px #1b641b22, 0 0 8px #1b641b11;margin-top:6px;}
@@ -536,18 +544,12 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 
 /* dmg/heal base */
 @keyframes flashRed {
-  0%   { background-color: rgba(224,85,85,0.4); }
-  100% { background-color: transparent; }
+  0%   { box-shadow:inset 0 0 16px 4px rgba(224,85,85,0.9), 0 0 16px 4px rgba(224,85,85,0.7); }
+  100% { box-shadow:none; }
 }
 @keyframes flashGreen {
-  0%   { background-color: rgba(68,255,136,0.4); }
-  100% { background-color: transparent; }
-}
-.stats-bar.flash-red {
-  animation: flashRed 0.5s ease-out forwards;
-}
-.stats-bar.flash-green {
-  animation: flashGreen 0.5s ease-out forwards;
+  0%   { box-shadow:inset 0 0 16px 4px rgba(68,255,136,0.9), 0 0 16px 4px rgba(68,255,136,0.7); }
+  100% { box-shadow:none; }
 }
 
 
@@ -568,7 +570,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   height: 100px;
   border-radius: 50%;
   filter: blur(40px);
-  opacity: 0.1;
+  opacity: 0.08;
   pointer-events: none;
   z-index: 0;
   animation: nebulaDrift 20s ease-in-out infinite;
