@@ -383,14 +383,16 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
   .catalog-grid{grid-template-columns:repeat(3, 1fr); row-gap:16px;}
 }
 @media(max-width:600px){
+  .catalog-grid{grid-template-columns:repeat(3, 1fr);row-gap:16px;}
   .cat-card{
-    --card-h: 38vw;
+    --card-h: calc((92vw - 20px) / 3 / 0.716);
     --card-w: calc(var(--card-h) * 0.716);
-    width: 100% !important;
+    width: var(--card-w) !important;
     height: var(--card-h) !important;
     padding: var(--card-pad) !important;
     cursor: pointer !important;
     overflow: hidden !important;
+    margin: 0 auto;
   }
 }
 .cat-count{font-size:18px;color:#555;margin-bottom:8px;}
