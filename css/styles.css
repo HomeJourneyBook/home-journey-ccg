@@ -55,7 +55,7 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .game{position:relative;z-index:1;width:100%;padding:0;display:flex;flex-direction:column;gap:0;min-height:100vh;overflow-y:auto;overflow-x:hidden;}
 .game, .game *{user-select: none;-webkit-user-select: none;}
 
-.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#80808080;position:relative;height:max(5vh, 2.5vw);}
+.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#414B5A88;position:relative;height:max(5vh, 2.5vw);}
 .title{font-family:'MEK',monospace;font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
 #turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:max(calc(5vh * 0.35), calc(2.5vw * 0.35));color:#888;}
 #turnInfo span{color:#E8E0C8;font-weight:bold;}
@@ -282,8 +282,8 @@ body{background:#0a0a12;color:#e8e0c8;font-family:'MEK',monospace;min-height:100
 .stat-ess-box.flash-green {
   animation: flashGreen 0.5s ease-out forwards;
 }
-.hp-val{color:#e05555;}.ess-val{color:#F3F5FF;}
-.stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.55), calc(2vw * 0.55));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:2px 2px;}
+.hp-val{color:#e05555;}.ess-val{color:#E8E0C8;}
+.stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.5), calc(2vw * 0.5));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:3px 3px;}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
 .stat-ess-box{background-image:url('../img/bg_statbar_hp.png');}
 /* .tea-hp-box{background-image:url('../img/statbar_hp_tea.png');} */
