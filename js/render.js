@@ -282,10 +282,11 @@ ${!isSW?`<div class="card-small-stats">
   ['mouseup','mouseleave','touchend','touchcancel'].forEach(evt=>{
     d.addEventListener(evt,()=>{ clearPressTimer(); if(longPressFired) closeFieldCardPreview(); });
   });
-  d.addEventListener('click',(e)=>{
-    if(longPressFired){ e.stopPropagation(); longPressFired=false; return; }
-    onClick(card,'field');
-  });
+ d.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  if(d.classList.contains('zoomed-fly')){ unzoomCardFly(d); return; } // пока карта зумлена — любой клик по ней просто закрывает зум
+  onClick(card,zone);
+});
   return d;
 }
 
