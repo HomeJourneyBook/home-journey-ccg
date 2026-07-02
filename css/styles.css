@@ -132,6 +132,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* SMALL CARDS - on battlefield */ 
 .card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:4px;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
 .field-preview-card{position:fixed;pointer-events:none;margin:0;box-shadow:0 10px 40px #000000cc;}
+/* Бэкдроп зума карты из руки (см. zoomHandCardFly в render.js) — блокирует клики "сквозь"
+   увеличенную карту по остальной игре; z-index ниже клона карты (6000), но выше всего остального. */
+.card-preview-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:5999;transition:opacity .15s ease-out;}
 .card-small.tea-card{border-color:transparent;}.card-small.jeet-card{border-color:transparent;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
