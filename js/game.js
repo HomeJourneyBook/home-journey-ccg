@@ -65,6 +65,7 @@ function onClick(card,zone){
   if(G.phase==='action'){
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
+      if(G.previewCard) playSfx('Click_Cursor'); // звук при открытии превью
       render();return;
     }
     if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping&&!card.exhausted){
@@ -265,11 +266,12 @@ function doVardan(){
 function onBaseClick(faction){
   if(faction===G.turn) return;
   if((G.phase==='selectTarget'||G.phase==='action')&&G.sel&&canAttackBase()){
+    playSfx('Click_Cursor');
     tryAttackBase();
   }
   if(G.phase==='healTarget'&&G.sel){
     const att=findC(G.sel);
-    if(att) tryAttackBase();
+    if(att){ playSfx('Click_Cursor'); tryAttackBase(); }
   }
 }
 
@@ -594,6 +596,7 @@ function doShardTarget(card){
 }
 
 function openGraveModal(faction){
+  playSfx('Click_Cursor');
   const grave = G[faction].grave.filter(c=>!c.voided);
   const modal = document.getElementById('graveModal');
   const title = document.getElementById('graveModalTitle');
