@@ -23,20 +23,24 @@
 <div class="landing" id="landing" style="display:none;">
   <div class="landing-title">HOME'S<br>JOURNEY</div>
   <div class="landing-sub">· · · CCG · · ·</div>
-  <div class="start-group" id="startGroup">
-    <button class="art-btn art-btn-playgame" id="startMainBtn" onclick="expandStart()"></button>
-    <div class="start-options hidden" id="startOptions">
-      <button class="art-btn art-btn-hotseat" onclick="startGame()"></button>
-      <button class="art-btn art-btn-vsai" disabled></button>
-      <button class="art-btn art-btn-online" disabled></button>
+  <div class="landing-box" id="landingBox">
+    <div class="start-group" id="startGroup">
+      <button class="art-btn art-btn-playgame" id="startMainBtn" onclick="expandStart()"></button>
+      <div class="start-options hidden" id="startOptions">
+        <button class="art-btn art-btn-hotseat" onclick="startGame()"></button>
+        <button class="art-btn art-btn-vsai" disabled></button>
+        <button class="art-btn art-btn-online" disabled></button>
+      </div>
+    </div>
+    <button class="art-btn art-btn-rules" onclick="showScreen('rules')"></button>
+    <button class="art-btn art-btn-catalog" onclick="showScreen('catalog')"></button>
+    <button class="art-btn art-btn-lore" onclick="showScreen('lore')"></button>
+
+    <div class="sound-row">
+      <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
+      <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
     </div>
   </div>
-  <button class="art-btn art-btn-rules" onclick="showScreen('rules')"></button>
-  <button class="art-btn art-btn-catalog" onclick="showScreen('catalog')"></button>
-  <button class="art-btn art-btn-lore" onclick="showScreen('lore')"></button>
-
-  <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-  <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
 </div>
 
 <audio id="bgMusic" src="audio/home_maintheme.mp3" loop preload="auto"></audio>
