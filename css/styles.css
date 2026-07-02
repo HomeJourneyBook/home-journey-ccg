@@ -4,7 +4,7 @@
   font-family: 'MEK';
   src: url('../fonts/MEK.woff2') format('woff2');
   font-weight: normal;
-  font-style: normal; 
+  font-style: normal;
 }
 
 
@@ -13,7 +13,7 @@
   --card-w: calc(var(--card-h) * 0.716); 
   --cat-card-w: calc(var(--card-h) * 0.716);
   --cat-card-h: var(--card-h);
-  --card-small-h: 15vh;
+  --card-small-h: 13vh;
   --card-small-w: calc(var(--card-small-h) * 0.856);
   --card-small-art-h: calc(var(--card-small-h) * 0.622);
   --card-art-size: calc(var(--card-h) * 0.535); 
@@ -373,12 +373,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 .opp-hand-zone{height:7vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
-.field-zone{border:1px solid #80808080;background:transparent;overflow:hidden;display:flex;flex-direction:column;position:relative;padding:2px}
-#oppFieldZone{height:22.5vh;min-height:0;overflow:hidden;border:none;}
-#playerFieldZone{height:22.5vh;min-height:0;overflow:hidden;border:none;margin-top:6px;}
+.field-zone{border:1px solid #80808080;background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;padding:2px}
+#oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;}
+#playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
-/* Dense mode: обе переменные меняются одной строкой, всё остальное масштабируется само */
-.field-zone.dense{--card-small-h:11vh;}
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 
@@ -427,10 +425,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   position:fixed;top:44px;right:14px;width:320px;
   background:transparent;
   border-style:solid;
-  border-width:20px;
+  border-width:clamp(10px, 20px);
   border-image-source:url('../img/log_frame.png');
   border-image-slice:20 fill;
-  border-image-width:20px;
+  border-image-width:clamp(10px, 20px);
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -538,8 +536,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-position:center;
   background-color:transparent;
   border:none;
-  width:120px;
-  height:40px;
+  width:122px;
+  height:44px;
   font-size:0;
   line-height:0;
   padding:0;
@@ -571,8 +569,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   padding:clamp(12px,1.5vw,18px);
   flex:1;
 }
-.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:5px;}
-.modal p{font-size:18px;color:#9B937F;margin-bottom:7px;line-height:1.6;}
+.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:14px;}
+.modal p{font-size:18px;color:#9B937F;margin-bottom:18px;line-height:1.6;}
 
 /* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
@@ -659,27 +657,27 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 
 /* ── Блок ворот — система трёх слоёв ───────────────────────────────
-   Ворота (wrap + sprite) на 10% больше обычных арт-кнопок.
-   Кнопки режима внутри — фиксированный размер от оригинального 24vh */
+   Все три слоя одного размера (32vh × 8vh), стопкой через position:absolute */
 .play-gate-wrap{
   position:relative;
-  width:280px;height:70px;   /* арт-кнопка ×1.1 */
+  width:24vh;height:6vh;       /* = размер .art-btn */
   flex-shrink:0;
 }
 
 /* Слой 1 (z:1) — три квадратные кнопки режима.
-   Размер фиксируется от исходного 24vh (не растут вместе с рамкой ворот). */
+   В закрытом состоянии скрыты за воротами (pointer-events:none убирается при открытии).
+   Квадрат 8vh × 8vh × 3 = суммарно 24vh + 2×gap(4vh) = 32vh — ровно ширина блока. */
 .play-mode-buttons{
   position:absolute;inset:0;z-index:1;
-  display:flex;flex-direction:row;align-items:center;justify-content:center;
-  padding:0;
+  display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+  padding:0 8px;
   box-sizing:border-box;
   gap:6px;
-  pointer-events:none;
+  pointer-events:none;          /* закрыты — нельзя нажать */
 }
-.art-btn-mode{
-  flex:0 0 calc((240px - 28px) / 3); /* ширина = (оригинальный wrap - 2×pad - 2×gap) / 3 */
-  height:60px;
+.art-btn-mode{                  /* квадратная кнопка режима */
+  flex:1;
+  height:5vh;
   /* остальные стили наследует .art-btn-square */
 }
 
@@ -812,7 +810,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
-  padding:0; /* padding убран — кнопки и футер прилипают к рамке */ 
+  padding:0; /* padding убран — кнопки и футер прилипают к рамке */
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -847,8 +845,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Паттерн для всех: базовый арт (1.png), на :active подменяется
    на второй арт (2.png), никаких transition, hover — только brightness. */
 .art-btn{
-  width:240px;
-  height:60px;
+  width:24vh;
+  height:6vh;
   border:none;
   background-color:transparent;
   background-repeat:no-repeat;
@@ -874,8 +872,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-lore:active{background-image:url('../img/btn_lore2.png');}
 
 .art-btn-square{
-  width:60px;
-  height:60px;
+  width:6vh;
+  height:6vh;
   border:none;
   background-color:transparent;
   background-repeat:no-repeat;
@@ -893,17 +891,36 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-square.music-off{background-image:url('../img/btn_music_off1.png');}
 .art-btn-square.music-off:active{background-image:url('../img/btn_music_off2.png');}
 
-/* ── SFX кнопка ──────────────────────────────────────────────────*/
+/* ── SFX кнопка ──────────────────────────────────────────────────
+   Чтобы заменить на кастомный арт: добавь btn_sfx_on1/2.png и btn_sfx_off1/2.png
+   в img/, потом убери блок «PLACEHOLDER» и раскомментируй блок «CUSTOM ART».   */
+
+/* PLACEHOLDER (удали когда появится арт) */
+.art-btn-square.sfx-on,.art-btn-square.sfx-off{
+  background-image:none;
+  background-color:#0d0d1a;
+  border:1px solid #D5943F44;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'MEK',monospace;
+  color:#c8a84b;
+  font-size:2.2vh;
+}
 .art-btn-square.sfx-on::after{content:"SFX";}
 .art-btn-square.sfx-off::after{content:"SFX";opacity:0.35;}
 .art-btn-square.sfx-on:active,.art-btn-square.sfx-off:active{filter:brightness(1.4);}
-.art-btn-square.sfx-on  { background-image:url('../img/btn_music_on1.png');  }
-.art-btn-square.sfx-on:active  { background-image:url('../img/btn_music_on2.png');  }
-.art-btn-square.sfx-off { background-image:url('../img/btn_music_off1.png'); }
-.art-btn-square.sfx-off:active { background-image:url('../img/btn_music_off2.png'); }
 
-/* ── Кнопки старта игры ──────────────────────────────────────────*/
-.art-btn-hotseat,.art-btn-vsai,.art-btn-online{background-color:transparent;}
+/* CUSTOM ART (раскомментируй и удали PLACEHOLDER выше):
+.art-btn-square.sfx-on  { background-image:url('../img/btn_sfx_on1.png');  }
+.art-btn-square.sfx-on:active  { background-image:url('../img/btn_sfx_on2.png');  }
+.art-btn-square.sfx-off { background-image:url('../img/btn_sfx_off1.png'); }
+.art-btn-square.sfx-off:active { background-image:url('../img/btn_sfx_off2.png'); }
+*/
+
+/* ── Кнопки старта игры ──────────────────────────────────────────
+   Кастомный арт уже подключён (btn_hotseat1/2, btn_vsai1, btn_online1). */
+.art-btn-hotseat,.art-btn-vsai,.art-btn-online{
+  background-color:transparent;
+}
 .art-btn-vsai,.art-btn-online{opacity:0.3;cursor:not-allowed;}
 .art-btn-hotseat:hover { background-image:url('../img/btn_hotseatH.png');  }
 .art-btn-hotseat        { background-image:url('../img/btn_hotseat1.png');  }
@@ -911,18 +928,20 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-vsai           { background-image:url('../img/btn_vsai1.png');    }
 .art-btn-online         { background-image:url('../img/btn_online1.png');  }
 
-/* ── Graveyard modal — рамка и хедер как у battle log ────────────────*/
+/* ── Graveyard modal — рамка и хедер как у battle log ────────────────
+   log_frame.png: 60×60px, corner=20px → slice:20, border-width:20px
+   Ширина: 2 полные карты (card-w = 25vh × 0.716) + gap(8px) + pad(8px) + 2×border(40px) */
 .grave-modal{
   position:fixed;
   box-sizing:border-box;
   width:min(calc(2 * var(--card-w) + 44px), 92vw);
   max-height:65vh;
   overflow-y:hidden;
-  background:#08050A;
+  background:transparent;
   border-style:solid;
   border-width:20px;
   border-image-source:url('../img/log_frame.png');
-  border-image-slice:20;
+  border-image-slice:20 fill;
   border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
@@ -982,12 +1001,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .grave-modal-body::-webkit-scrollbar-thumb{background:#E8E0C888;border-radius:0;}
 .grave-modal-body::-webkit-scrollbar-thumb:hover{background:#E8E0C8;}
 
-/* Футер кладбища — только кастомный арт bones.png */
+/* Футер кладбища — bones.png на всю ширину, обрезается окном сам */
 .grave-modal-footer{
   background-image:url('../img/bones.png');
   background-size:auto 100%;
   background-repeat:no-repeat;
   background-position:center;
+  background-color:#111418;
+  border-top:1px solid #2a2e38;
   height:28px;
   flex-shrink:0;
   overflow:hidden;
