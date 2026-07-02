@@ -546,12 +546,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .modal-art-btn:hover{filter:brightness(1.2);}
 .modal-art-btn:active{filter:brightness(0.9);}
-.modal-art-btn.btn-yes     {background-image:url('img/btn_yes.png');}
-.modal-art-btn.btn-cancel  {background-image:url('img/btn_cancel.png');}
-.modal-art-btn.btn-mulligan{background-image:url('img/btn_mulligan.png');}
-.modal-art-btn.btn-ready   {background-image:url('img/btn_ready.png');}
-/* btn-win — пока тот же арт что btn_yes; заменить на btn_win.png когда появится */
-.modal-art-btn.btn-win     {background-image:url('img/btn_yes.png');}
+.modal-art-btn.btn-yes     {background-image:url('../img/btn_yes.png');}
+.modal-art-btn.btn-cancel  {background-image:url('../img/btn_cancel.png');}
+.modal-art-btn.btn-mulligan{background-image:url('../img/btn_mulligan.png');}
+.modal-art-btn.btn-ready   {background-image:url('../img/btn_ready.png');}
+/* btn-win — пока тот же арт что btn_yes; заменить на ../img/btn_win.png когда появится */
+.modal-art-btn.btn-win     {background-image:url('../img/btn_yes.png');}
 /* Win/menu — пока текстовая кнопка (нет арта), стилизуем отдельно */
 .modal-text-btn{
   font-family:'MEK',monospace;
@@ -934,7 +934,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .grave-modal{
   position:fixed;
   box-sizing:border-box;
-  width:min(calc(2 * var(--card-w) + 56px), 92vw);
+  width:min(calc(2 * var(--card-w) + 44px), 92vw);
   max-height:65vh;
   overflow-y:hidden;
   background:transparent;
@@ -987,12 +987,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 /* Скролл-зона с картами — максимум 2 в ряд (card-w × 2 + gap) */
 .grave-modal-body{
-  padding:4px 8px 8px;
+  padding:2px 4px 4px;
   overflow-y:auto;
   flex:1;
   display:flex;
   flex-wrap:wrap;
-  gap:8px;
+  gap:4px;
   justify-content:center;
   align-content:flex-start;
 }
