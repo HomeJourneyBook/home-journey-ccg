@@ -335,34 +335,6 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .btn:active{transform:scale(0.95) translateY(2px);}
 
-/* LOG PANEL */
-.log-panel{
-  position:fixed;top:44px;right:14px;width:320px;
-  background:transparent;
-  border-style:solid;
-  border-width:clamp(10px, 20px);
-  border-image-source:url('../img/log_frame.png');
-  border-image-slice:20 fill;
-  border-image-width:clamp(10px, 20px);
-  border-image-outset:0;
-  border-image-repeat:stretch;
-  box-sizing:border-box;
-  z-index:50;display:none;box-shadow:0 4px 20px #000000aa;
-}
-.log-panel.open{display:block;}
-.log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
-
-/* ── Хедер лог-панели ─────────────────────────────────────────────────────────*/
-.log-panel-header{background-image:url('../img/log_header.png');background-size:100% 100%;display:flex;justify-content:center;align-items:center;padding:6px 6px;position:relative;}
-.log-panel-title{font-size:14px;color:#E8E0C8;font-family:'MEK',monospace;text-align:center;}
-.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:20px;height:20px;cursor:pointer;}
-.log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
-.log-panel-close:active{background-image:url('../img/btn_X2.png');}
-.log-panel .log{height:180px;border:none;}
-.log::-webkit-scrollbar{width:4px;}
-.log::-webkit-scrollbar-track{background:#0a0a12;}
-.log::-webkit-scrollbar-thumb{background:#c8a84b44;border-radius:2px;}
-.log::-webkit-scrollbar-thumb:hover{background:#c8a84b;}
 
 /* LAYOUT ZONES */
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
@@ -447,6 +419,35 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 #teaBottomBar .stat-badge{color:#4DB854;}
 #jeetBottomBar .stat-badge{color:#b44fd4;}
+
+/* LOG PANEL */
+.log-panel{
+  position:fixed;top:44px;right:14px;width:320px;
+  background:transparent;
+  border-style:solid;
+  border-width:var(--modal-border-w);
+  border-image-source:url('../img/log_frame.png');
+  border-image-slice:20 fill;
+  border-image-width:var(--modal-border-w);
+  border-image-outset:0;
+  border-image-repeat:stretch;
+  box-sizing:border-box;
+  z-index:50;display:none;box-shadow:0 4px 20px #000000aa;
+}
+.log-panel.open{display:block;}
+.log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
+
+/* ── Хедер лог-панели ─────────────────────────────────────────────────────────*/
+.log-panel-header{background-image:url('../img/log_header.png');background-size:100% 100%;display:flex;justify-content:center;align-items:center;padding:6px 6px;position:relative;}
+.log-panel-title{font-size:14px;color:#E8E0C8;font-family:'MEK',monospace;text-align:center;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:20px;height:20px;cursor:pointer;}
+.log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
+.log-panel-close:active{background-image:url('../img/btn_X2.png');}
+.log-panel .log{height:180px;border:none;}
+.log::-webkit-scrollbar{width:4px;}
+.log::-webkit-scrollbar-track{background:#0a0a12;}
+.log::-webkit-scrollbar-thumb{background:#c8a84b44;border-radius:2px;}
+.log::-webkit-scrollbar-thumb:hover{background:#c8a84b;}
 
 /* LOG */
 .log{
