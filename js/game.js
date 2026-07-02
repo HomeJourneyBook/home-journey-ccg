@@ -601,7 +601,7 @@ function openGraveModal(faction){
   const modal = document.getElementById('graveModal');
   const title = document.getElementById('graveModalTitle');
   const cards = document.getElementById('graveModalCards');
-  title.textContent = (faction==='tea'?'Tavern':'Jeet Core') + ' Graveyard';
+  title.textContent = 'Graveyard';
   cards.innerHTML = '';
   if(grave.length===0){
     cards.innerHTML='<div style="color:#555;font-size:20px;padding:20px;">Empty</div>';
