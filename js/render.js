@@ -265,6 +265,10 @@ ${!isSW?`<div class="card-small-stats">
 // затем анимированно летит в центр с увеличением; кнопки Play/Burn/Zoom на это время скрываются.
 // unzoomCardFly: обратная анимация назад в исходную точку, после чего снимаются inline-стили
 // и кнопки возвращаются (см. transitionend).
+// ВАЖНО: карта в момент клика по Zoom ещё имеет класс .previewed, а для него carousel.js (мобильная
+// карусель) держит свой @media-стиль с !important (свой transform/opacity/transition) — обычный
+// style.transform/transition это не перебивает, из-за чего на мобиле карта "не долетала" до центра
+// и рендерилась смещённой. Поэтому transform/transition/z-index ставим через setProperty(...,'important').
 function zoomCardFly(cardEl){
   if(cardEl.classList.contains('zoomed-fly')) return;
   const rect=cardEl.getBoundingClientRect();
@@ -275,17 +279,17 @@ function zoomCardFly(cardEl){
   cardEl.style.left=rect.left+'px';
   cardEl.style.width=rect.width+'px';
   cardEl.style.height=rect.height+'px';
-  cardEl.style.transform='none';
-  cardEl.style.transition='none';
-  cardEl.style.zIndex='5000';
+  cardEl.style.setProperty('transform','none','important');
+  cardEl.style.setProperty('transition','none','important');
+  cardEl.style.setProperty('z-index','5000','important');
   cardEl.classList.add('zoomed-fly');
   cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
     .forEach(p=>p.style.display='none');
   void cardEl.offsetWidth; // форсируем reflow, иначе старт и финиш анимации "склеятся" в один кадр
-  cardEl.style.transition='top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1)';
+  cardEl.style.setProperty('transition','top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1)','important');
   cardEl.style.top='50%';
   cardEl.style.left='50%';
-  cardEl.style.transform='translate(-50%,-50%) scale(2.6)';
+  cardEl.style.setProperty('transform','translate(-50%,-50%) scale(2.6)','important');
 }
 
 function unzoomCardFly(cardEl){
@@ -293,7 +297,7 @@ function unzoomCardFly(cardEl){
   if(!rect) return;
   cardEl.style.top=rect.top+'px';
   cardEl.style.left=rect.left+'px';
-  cardEl.style.transform='none';
+  cardEl.style.setProperty('transform','none','important');
   cardEl.addEventListener('transitionend', function done(e){
     if(e.propertyName!=='transform') return;
     cardEl.removeEventListener('transitionend', done);
