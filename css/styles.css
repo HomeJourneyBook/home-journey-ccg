@@ -511,7 +511,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-style:solid;
   border-width:var(--modal-border-w);
   border-image-source:url('../img/bg_modal.png');
-  border-image-slice:54 fill;
+  border-image-slice:108 fill;
   border-image-width:var(--modal-border-w);
   border-image-outset:0;
   border-image-repeat:stretch;
