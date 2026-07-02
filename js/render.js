@@ -590,19 +590,21 @@ function _mkPcardHtml(card, isPlayer){
   const cls=faction==='tea'?'tcp':'jcp';
   const isActivatable=hasTag(card,'shard')||hasTag(card,'sacrifice');
   const sleepCls=(isActivatable&&card.sleeping)?' sleeping':'';
-  const activeCls=(isPlayer&&isActivatable&&!card.sleeping&&!card.exhausted)?' pcard-active':'';
+  const readyCls=(isPlayer&&isActivatable&&!card.sleeping&&!card.exhausted)?' pcard-active':'';
   // "Устал"/"спит" — прозрачность вешаем только на текст (.pcard-text ниже), а не на весь .pcard,
   // иначе вместе с текстом гаснет и фон-рамка со спрайтом створок, что выглядит как баг.
   const textExhaustedStyle=(isActivatable&&card.exhausted)?'opacity:0.5;':'';
 
-  let borderStyle='';
   let onclick='';
+  // pcard-targeting: карта в режиме "выбери цель для активации" (shardTarget/sacrificeTarget).
+  // Раньше в этот момент подменялся весь border на плоский 2px solid — рамка со спрайтом створок
+  // пропадала и визуально "усаживалась". Теперь рамка не трогается вообще, меняется только текст
+  // (см. .pcard-targeting .pcard-text в styles.css — белый цвет + медленное мигание).
+  let targetingCls='';
   if(isPlayer&&!card.sleeping&&!card.exhausted){
-    const col=getComputedStyle(document.documentElement)
-      .getPropertyValue(hasTag(card,'shard')?'--shard-active':'--altar-active').trim();
     if(hasTag(card,'shard')){
       if(G.phase==='shardTarget'){
-        borderStyle=`border:2px solid ${col};box-shadow:0 0 8px ${col};border-radius:6px;`;
+        targetingCls=' pcard-targeting';
         onclick=`onclick="event.stopPropagation();doShard(G[G.turn].artifacts[0])"`;
       } else if(G.phase==='action'){
         onclick=`onclick="event.stopPropagation();doShard(G[G.turn].artifacts[0])"`;
@@ -610,7 +612,7 @@ function _mkPcardHtml(card, isPlayer){
     }
     if(hasTag(card,'sacrifice')){
       if(G.phase==='sacrificeTarget'){
-        borderStyle=`border:2px solid ${col};box-shadow:0 0 8px ${col};border-radius:6px;`;
+        targetingCls=' pcard-targeting';
         onclick=`onclick="event.stopPropagation();G.phase='action';G.sel=null;render()"`;
       } else if(G.phase==='action'){
         onclick=`onclick="event.stopPropagation();G.phase='sacrificeTarget';G.sel='${card.id}';lg('Altar: select a creature to sacrifice.','hint');render()"`;
@@ -618,7 +620,7 @@ function _mkPcardHtml(card, isPlayer){
     }
   }
   const safeAb=(card.ab||'').replace(/"/g,"'");
-  return `<div class="pcard pcard-inline ${cls}${sleepCls}${activeCls}" data-pid="${card.id}" title="${safeAb}" style="${borderStyle}" ${onclick}><span class="pcard-text" style="${textExhaustedStyle}">${card.art||''} ${card.name}</span></div>`;
+  return `<div class="pcard pcard-inline ${cls}${sleepCls}${readyCls}${targetingCls}" data-pid="${card.id}" title="${safeAb}" ${onclick}><span class="pcard-text" style="${textExhaustedStyle}">${card.art||''} ${card.name}</span></div>`;
 }
 
 // Слот Мир/Артефакт в стат-баре: если карта уже сыграна — обычный pcard (см. _mkPcardHtml выше),
