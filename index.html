@@ -21,26 +21,66 @@
 </div>
 
 <div class="landing" id="landing" style="display:none;">
-  <div class="landing-title">HOME'S<br>JOURNEY</div>
-  <div class="landing-sub">· · · CCG · · ·</div>
-  <div class="landing-box" id="landingBox">
-    <div class="start-group" id="startGroup">
-      <button class="art-btn art-btn-playgame" id="startMainBtn" onclick="expandStart()"></button>
-      <div class="start-options hidden" id="startOptions">
-        <button class="art-btn art-btn-hotseat" onclick="startGame()"></button>
-        <button class="art-btn art-btn-vsai" disabled></button>
-        <button class="art-btn art-btn-online" disabled></button>
-      </div>
-    </div>
-    <button class="art-btn art-btn-rules" onclick="showScreen('rules')"></button>
-    <button class="art-btn art-btn-catalog" onclick="showScreen('catalog')"></button>
-    <button class="art-btn art-btn-lore" onclick="showScreen('lore')"></button>
 
-    <div class="sound-row">
+  <!-- ИЛЛЮМИНАТОР: космос + лого сверху
+       Ассеты: landing_porthole_frame.png (круглая рамка, прозрачный центр),
+               landing_porthole_space.gif (анимированный космос, опционально — или CSS-звёзды) -->
+  <div class="landing-porthole">
+    <!-- PLACEHOLDER — заменить на <img class="landing-porthole-frame" src="img/landing_porthole_frame.png"> -->
+    <div class="landing-porthole-space"><!-- CSS-звёзды / GIF-космос --></div>
+    <div class="landing-porthole-frame-placeholder"></div>
+    <div class="landing-title glitching-ready">HOME'S<br>JOURNEY</div>
+    <div class="landing-sub">· · · CCG · · ·</div>
+  </div>
+
+  <!-- ПАНЕЛЬ С КНОПКАМИ (модалка-рамка) -->
+  <div class="landing-box" id="landingBox">
+    <div class="landing-box-body">
+
+      <!-- БЛОК НАЧАТЬ ИГРУ — три слоя поверх друг друга:
+           Слой 1 (снизу): три квадратные кнопки режима
+           Слой 2 (посредине): рамка-обёртка (та же форма что ворота, всегда видна)
+           Слой 3 (сверху): ворота — спрайт открытия/закрытия
+      -->
+      <div class="play-gate-wrap" id="playGateWrap">
+
+        <!-- Слой 1: три кнопки режима, всегда в DOM, скрыты за воротами -->
+        <div class="play-mode-buttons" id="playModeButtons"
+             onmouseenter="resetGateTimer()" onmouseleave="resetGateTimer()">
+          <!-- PLACEHOLDER квадратная кнопка; замени на кастомный арт:
+               .art-btn-square.btn-hotseat { background-image:url('../img/btn_hotseat1.png'); } -->
+          <button class="art-btn-square art-btn-mode art-btn-hotseat"
+                  onclick="startGame()" title="Hot Seat"></button>
+          <button class="art-btn-square art-btn-mode art-btn-vsai"
+                  disabled title="VS AI"></button>
+          <button class="art-btn-square art-btn-mode art-btn-online"
+                  disabled title="Online"></button>
+        </div>
+
+        <!-- Слой 2: рамка-обёртка (статичная, не анимируется)
+             PLACEHOLDER — замени на background-image:url('../img/btn_playgame_frame.png')
+             Та же рамка должна быть и на воротах (Слой 3), чтобы при смене слоёв стык был незаметен -->
+        <div class="play-gate-frame" id="playGateFrame"></div>
+
+        <!-- Слой 3: ворота — спрайт 4 кадра горизонтально (закрыто/приоткр./почти/открыто)
+             PLACEHOLDER — замени на background-image:url('../img/btn_playgame_gates_sheet.png')
+             Внутри спрайта между створками ПРОЗРАЧНО, чтобы был виден Слой 1 -->
+        <div class="play-gate-sprite" id="playGateSprite"
+             onclick="openGates()"></div>
+
+      </div>
+
+      <button class="art-btn art-btn-rules"   onclick="showScreen('rules')"></button>
+      <button class="art-btn art-btn-catalog" onclick="showScreen('catalog')"></button>
+      <button class="art-btn art-btn-lore"    onclick="showScreen('lore')"></button>
+    </div>
+
+    <div class="landing-footer">
       <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-      <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
+      <button class="art-btn-square sfx-on"   id="sfxToggleBtn"   onclick="toggleSfx()"></button>
     </div>
   </div>
+
 </div>
 
 <audio id="bgMusic" src="audio/home_maintheme.mp3" loop preload="auto"></audio>
@@ -411,9 +451,10 @@
  <div class="grave-modal" onclick="event.stopPropagation()">
    <div class="grave-modal-header">
      <span class="grave-modal-title" id="graveModalTitle">Graveyard</span>
-     <button class="log-panel-close" onclick="closeGraveModal()">X</button>
+     <button class="grave-close-btn" onclick="closeGraveModal()">X</button>
    </div>
-   <div id="graveModalCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px;"></div>
+   <div class="grave-modal-body" id="graveModalCards"></div>
+   <div class="grave-modal-footer">💀 💀 💀</div>
  </div>
 </div>
 
@@ -471,9 +512,11 @@
 
 <div class="modal-overlay hidden" id="confirmModal">
   <div class="modal">
-    <h2 style="font-size:22px;">LEAVE GAME?</h2>
-    <p>Current game will be lost. Return to menu?</p>
-    <div style="display:flex;gap:10px;justify-content:center;">
+    <div class="modal-body">
+      <h2 style="font-size:22px;">LEAVE GAME?</h2>
+      <p>Current game will be lost. Return to menu?</p>
+    </div>
+    <div class="modal-footer">
       <button id="confirmYesBtn" class="btn" style="
   background-image:url('img/btn_yes.png');
   background-size:contain;
@@ -505,18 +548,25 @@
 
 <div class="modal-overlay hidden" id="winModal">
   <div class="modal">
-    <h2 id="winTitle">VICTORY</h2>
-    <p id="winText"></p>
-    <button class="btn" style="border-color:#c8a84b;color:#c8a84b;padding:8px 24px;font-size:18px;" onclick="showLanding()">← Main Menu</button>
+    <div class="modal-body">
+      <h2 id="winTitle">VICTORY</h2>
+      <p id="winText"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" style="border-color:#c8a84b;color:#c8a84b;padding:8px 24px;font-size:18px;" onclick="showLanding()">← Main Menu</button>
+    </div>
   </div>
 </div>
 <!-- MULLIGAN SCREEN -->
 <div class="modal-overlay hidden" id="mulliganScreen">
   <div class="modal" style="width:auto;max-width:95vw;max-height:90vh;overflow-y:auto;">
-    <h2 id="mulliganTitle">PLAYER 1 — YOUR HAND</h2>
-    <p id="mulliganSub" style="font-size:18px;color:#9b937f;margin-bottom:12px;">You may mulligan up to 3 times.</p>
-    <div id="mulliganCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;"></div>
-    <div style="display:flex;gap:10px;justify-content:center;">
+    <div class="modal-body">
+      <h2 id="mulliganTitle">PLAYER 1 — YOUR HAND</h2>
+      <p id="mulliganSub" style="font-size:18px;color:#9b937f;margin-bottom:8px;">You may mulligan up to 3 times.</p>
+      <div id="mulliganInfo" style="font-size:12px;color:#555;margin-bottom:12px;"></div>
+      <div id="mulliganCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
+    </div>
+    <div class="modal-footer">
       <button class="btn" style="
   background-image:url('img/btn_mulligan.png');
   background-size:contain;
@@ -542,16 +592,18 @@
   padding:0;
 " onclick="readyFromMulligan()"></button>
     </div>
-    <div id="mulliganInfo" style="font-size:12px;color:#555;margin-top:10px;"></div>
   </div>
 </div>
 
 <!-- PASS DEVICE SCREEN -->
 <div class="modal-overlay hidden" id="passScreen">
   <div class="modal">
-    <h2 id="passTitle">PASS THE DEVICE</h2>
-    <p id="passText">Hand the device .</p>
-    <button class="btn" style="
+    <div class="modal-body">
+      <h2 id="passTitle">PASS THE DEVICE</h2>
+      <p id="passText">Hand the device .</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" style="
   background-image:url('img/btn_ready.png');
   background-size:contain;
   background-repeat:no-repeat;
@@ -563,6 +615,7 @@
   color:transparent;
   padding:0;
 " onclick="passReady()"></button>
+    </div>
   </div>
 </div>
 <!-- SCRIPTS (order matters: data → abilities → deck → state → render → game → catalog → ui) -->
