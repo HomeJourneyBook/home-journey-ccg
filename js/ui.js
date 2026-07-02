@@ -69,8 +69,6 @@ function _tryStartMusicOnGesture(){
 }
 document.addEventListener('pointerdown', _tryStartMusicOnGesture);
 document.addEventListener('DOMContentLoaded', _refreshMusicBtn);
-// Начинаем загрузку SFX-буферов сразу — до первого взаимодействия они уже будут готовы.
-_initSfxBuffers();
 
 // ── Sound effects (SFX) — Web Audio API ──────────────────────────
 // AudioContext + предзагрузка буферов → нулевая задержка при проигрывании.
@@ -213,6 +211,9 @@ function preloadAssets(){
     'img/button_grav_1.png', 'img/button_grav_2.png',
   ];
   criticalImages.forEach(src => { const img = new Image(); img.src = src; });
+
+  // Предзагружаем SFX-буферы через Web Audio API — нулевая задержка при первом звуке
+  _initSfxBuffers();
 
   // Арты карт — грузим через 1.5с, чтобы не конкурировать с UI
   setTimeout(() => {
