@@ -544,10 +544,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background:transparent;
   
   border-style:solid;
-  border-width:var(--modal-border-w);
+  border-width:clamp(20px, 40px);
   border-image-source:url('../img/bg_jest.png');
   border-image-slice:40 fill;
-  border-image-width:var(--modal-border-w);
+  border-image-width:clamp(20px, 40px);
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
