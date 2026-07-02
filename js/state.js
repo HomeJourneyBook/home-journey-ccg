@@ -10,6 +10,7 @@ function newPlayer(f){
 
 function initState(){
   UID=0;
+  if(typeof _seenPcardPids!=='undefined') _seenPcardPids.clear(); // сброс между партиями, см. render.js/reorderZones
   G={turn:'tea',turnNum:1,phase:'mulligan',mulliganTurn:'tea',sel:null,
     tea:newPlayer('tea'),jeet:newPlayer('jeet'),
     jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}}};
