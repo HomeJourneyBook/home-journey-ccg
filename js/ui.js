@@ -120,6 +120,7 @@ function preloadAssets(){
     'img/type_artifact.png', 'img/type_unique.png',
     'img/ico_fear.png', 'img/ico_pierce.png', 'img/ico_regen.png',
     'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png',
+    'img/ico_vanguard.png',
     'img/ef_burn.png',
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
   ];
@@ -479,6 +480,7 @@ const TAG_TOOLTIPS = {
   'burn':    { name: 'Burn',    desc: 'On attack: target loses 1 HP at the start of each of its turns until death.' },
   'rage':    { name: 'Rage',    desc: 'Gains +1 ATK permanently each time it attacks.' },
   'provoke': { name: 'Provoke', desc: 'All enemy attacks must target this creature.' },
+  'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
 };
 
 let _tooltipEl = null;
