@@ -446,8 +446,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .log-panel .log{height:180px;border:none;}
 .log::-webkit-scrollbar{width:4px;}
 .log::-webkit-scrollbar-track{background:#0a0a12;}
-.log::-webkit-scrollbar-thumb{background:#c8a84b44;border-radius:2px;}
-.log::-webkit-scrollbar-thumb:hover{background:#c8a84b;}
+.log::-webkit-scrollbar-thumb{background:#1a7a2e;border-radius:0;}
+.log::-webkit-scrollbar-thumb:hover{background:#5BDF7A;}
 
 /* LOG */
 .log{
@@ -539,7 +539,6 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    background-color + border-top. */
 .modal-footer{
   background:transparent;
-
   border-style:solid;
   border-width:clamp(20px, 5vw, 40px);
   border-image-source:url('../img/bg_jest.png');
@@ -548,7 +547,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
-  padding:10px 12px;
+  padding:0;
   display:flex;
   gap:10px;
   justify-content:center;
@@ -645,38 +644,26 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 /* Слой 2 (z:3) — спрайт ворот.
    4 кадра горизонтально; background-size:400% 100%, position переключает кадры.
-   Внутри ворот ПРОЗРАЧНО → виден Слой 1.
-   АССЕТ: btn_playgame_gates_sheet.png (4 кадра × 32vh × 8vh; внутри прозрачно)
-   PLACEHOLDER серый с надписью; замени:
-   background-image:url('../img/btn_playgame_gates_sheet.png');
-   background-size:400% 100%; background-color:transparent; border:none; */
+   Внутри ворот ПРОЗРАЧНО → виден Слой 1. */
 .play-gate-sprite{
   position:absolute;inset:0;z-index:3;cursor:pointer;
   background-image:url('../img/btn_playgame_gates_sheet.png');
-     background-size:400% 100%;background-repeat:no-repeat;
-  background-color:#0d0d1a;border:1px solid #D5943F55;border-radius:4px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'MEK',monospace;font-size:clamp(10px,1.8vh,16px);
-  color:#c8a84b;letter-spacing:2px;
+  background-size:400% 100%;background-repeat:no-repeat;
+  background-color:transparent;border:none;
   transition:filter 0.1s;
 }
-.play-gate-sprite::after{content:"PLAY GAME";}
+/* Убираем плейсхолдер-текст: арт уже есть в PNG */
+.play-gate-sprite::after{content:none;}
 .play-gate-sprite:hover{filter:brightness(1.3);}
 /* Кадры ворот (переключаются через JS добавлением класса) */
 .play-gate-sprite.gate-open-1{background-position:33.3% 0;}
 .play-gate-sprite.gate-open-2{background-position:66.6% 0;}
 .play-gate-sprite.gate-open  {
   background-position:100% 0;
-  pointer-events:none;          /* ворота открыты — ворота нельзя нажать, видны кнопки под ними */
-  /* Скрываем текст-плейсхолдер когда ворота открыты */
-  color:transparent;background-color:transparent;border-color:transparent;
+  pointer-events:none;
 }
 /* Когда ворота открыты — кнопки режима становятся кликабельны */
 .play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
-.play-gate-sprite:hover{
-  background-image:url('../img/btn_playgame_hover.png');
-  background-size:100% 100%;
-} 
 
 /* ── Переходы экранов (горизонтальный слайд с параллаксом фона) ─────
    Rules  → вправо  (.slide-right)
@@ -906,18 +893,21 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .grave-modal{
   position:fixed; /* left/bottom задаются через JS */
   box-sizing:border-box;
-  width:min(340px,92vw);
+  /* Ширина = 2 маленькие карты + gap + внутренний паддинг + рамка.
+     card-small-w ≈ 13vh*0.856 ≈ 11.1vh × 2 карты + 8px gap + 16px pad + 2×рамка.
+     Округляем через clamp: на узком экране 92vw, на широком — 2 карты удобно. */
+  width:min(340px, 92vw);
   max-height:60vh;
-  overflow-y:hidden; /* скроллится только .grave-modal-body ниже */
+  overflow-y:hidden;
   background:transparent;
   border-style:solid;
-  border-width:var(--modal-border-w);
+  border-width:clamp(54px, 14vw, 108px);
   border-image-source:url('../img/bg_modal.png');
-  border-image-slice:80 fill;
-  border-image-width:var(--modal-border-w);
+  border-image-slice:108 fill;
+  border-image-width:clamp(54px, 14vw, 108px);
   border-image-outset:0;
   border-image-repeat:stretch;
-  padding:0; /* padding убран — хедер и футер прилипают встык к рамке */
+  padding:0;
   pointer-events:all;
   z-index:500;
   display:flex;
@@ -952,29 +942,23 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-repeat:no-repeat;
   padding:2px 12px;
 }
-/* Крестик закрытия — прибит к правому краю */
+/* Крестик закрытия — тот же арт что в battle log */
 .grave-close-btn{
   position:absolute;
   right:6px;
   top:50%;
   transform:translateY(-50%);
-  /* PLACEHOLDER — замени на кастомный арт кнопки закрытия:
-  background-image:url('../img/btn_close.png');
+  background-image:url('../img/btn_X.png');
   background-size:100% 100%;
   background-color:transparent;
   border:none;
-  width:20px; height:20px;
-  color:transparent; */
-  background:none;
-  border:1px solid #444;
-  color:#888;
-  font-family:'MEK',monospace;
-  font-size:12px;
+  padding:0;
+  width:20px;height:20px;
+  font-size:0;line-height:0;
   cursor:pointer;
-  padding:2px 6px;
-  line-height:1;
 }
-.grave-close-btn:hover{color:#E8E0C8;border-color:#888;}
+.grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
+.grave-close-btn:active{background-image:url('../img/btn_X2.png');}
 
 /* Скролл-зона с картами */
 .grave-modal-body{
@@ -1008,18 +992,6 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   color:#333;
   font-size:18px;
   letter-spacing:8px;
-}
-.grave-modal-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:4px 6px 8px;
-  border-bottom:1px solid #ffffff18;
-}
-.grave-modal-title{
-  font-family:'MEK',monospace;
-  font-size:16px;
-  color:#F3F5FF;
 }
 
 /* RULES & LORE SCREENS */
