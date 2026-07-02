@@ -703,3 +703,62 @@ document.addEventListener('DOMContentLoaded', ()=>{
     playSfx('Navigation_Cursor');
   });
 });
+
+// ── Arena dense mode ─────────────────────────────────────────────────────────
+// Когда карты на поле не влезают в один ряд и начинают переполнять зону (23vh),
+// вешаем класс .dense на field-zone → CSS переключает --card-small-h: 9vh →
+// карты уменьшаются вдвое и складываются в 2 ряда (2×9vh + зазор < 23vh ✓).
+//
+// Добавление dense: scrollHeight battlefield > clientHeight зоны.
+// Снятие dense: все текущие карты помещаются в 1 ряд при НОРМАЛЬНОМ размере
+//   (предотвращает осциляцию: после уменьшения карт они влезают в 1 ряд →
+//   без проверки система тут же вернула бы нормальный размер и снова переполнилась).
+//
+// Запускается один раз; ResizeObserver и MutationObserver следят за battlefield
+// на протяжении всей игры без повторной инициализации.
+(function _setupArenaDenseMode(){
+  // Параметры нормального режима (из CSS :root)
+  const NORMAL_H_VH  = 13;    // --card-small-h
+  const CARD_ASPECT  = 0.856; // --card-small-w / --card-small-h
+  const CARD_GAP     = 4;     // gap в battlefield (px)
+
+  function _check(bf, zone){
+    // Игра скрыта — не измеряем (всё будет 0)
+    const game = document.getElementById('game');
+    if(!game || game.style.display === 'none') return;
+
+    const isDense  = zone.classList.contains('dense');
+    const zoneH    = zone.clientHeight;
+
+    if(!isDense){
+      // → dense: карты переполняют зону по высоте
+      if(bf.scrollHeight > zoneH + 2) zone.classList.add('dense');
+    } else {
+      // → normal: только если карты точно влезут в 1 ряд при нормальном размере.
+      // Так избегаем осциляцию: маленькие карты в 1 ряд ≠ повод вернуть большие,
+      // если большие в 1 ряд тоже не поместятся (по ширине зоны).
+      const cardNormalW = NORMAL_H_VH * window.innerHeight / 100 * CARD_ASPECT;
+      const cards       = bf.querySelectorAll('.card-small').length;
+      const rowW        = cards * (cardNormalW + CARD_GAP);
+      if(rowW <= zone.clientWidth) zone.classList.remove('dense');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const pairs = [
+      { bfId:'jeetField', zoneId:'oppFieldZone'    },
+      { bfId:'teaField',  zoneId:'playerFieldZone' },
+    ];
+    pairs.forEach(({ bfId, zoneId })=>{
+      const bf   = document.getElementById(bfId);
+      const zone = document.getElementById(zoneId);
+      if(!bf || !zone) return;
+
+      // ResizeObserver: срабатывает когда карты переносятся в новый ряд (меняется высота)
+      new ResizeObserver(()=> requestAnimationFrame(()=> _check(bf, zone))).observe(bf);
+      // MutationObserver: срабатывает при добавлении/удалении карт
+      new MutationObserver(()=> requestAnimationFrame(()=> _check(bf, zone)))
+        .observe(bf, { childList: true });
+    });
+  });
+})();
