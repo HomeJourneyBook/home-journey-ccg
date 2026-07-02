@@ -659,26 +659,26 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 
 /* ── Блок ворот — система трёх слоёв ───────────────────────────────
-   Все три слоя одного размера (32vh × 8vh), стопкой через position:absolute */
+   Ворота (wrap + sprite) на 10% больше обычных арт-кнопок.
+   Кнопки режима внутри — фиксированный размер от оригинального 24vh */
 .play-gate-wrap{
   position:relative;
-  width:24vh;height:6vh;       /* = размер .art-btn */
+  width:26.4vh;height:6.6vh;   /* арт-кнопка ×1.1 */
   flex-shrink:0;
 }
 
 /* Слой 1 (z:1) — три квадратные кнопки режима.
-   В закрытом состоянии скрыты за воротами (pointer-events:none убирается при открытии).
-   Квадрат 8vh × 8vh × 3 = суммарно 24vh + 2×gap(4vh) = 32vh — ровно ширина блока. */
+   Размер фиксируется от исходного 24vh (не растут вместе с рамкой ворот). */
 .play-mode-buttons{
   position:absolute;inset:0;z-index:1;
-  display:flex;flex-direction:row;align-items:center;justify-content:space-between;
-  padding:0 8px;
+  display:flex;flex-direction:row;align-items:center;justify-content:center;
+  padding:0;
   box-sizing:border-box;
   gap:6px;
-  pointer-events:none;          /* закрыты — нельзя нажать */
+  pointer-events:none;
 }
-.art-btn-mode{                  /* квадратная кнопка режима */
-  flex:1;
+.art-btn-mode{
+  flex:0 0 calc((24vh - 28px) / 3); /* ширина = (оригинальный wrap - 2×pad - 2×gap) / 3 */
   height:5vh;
   /* остальные стили наследует .art-btn-square */
 }
@@ -943,7 +943,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-style:solid;
   border-width:20px;
   border-image-source:url('../img/log_frame.png');
-  border-image-slice:20 fill;
+  border-image-slice:20;
   border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
@@ -1003,14 +1003,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .grave-modal-body::-webkit-scrollbar-thumb{background:#E8E0C888;border-radius:0;}
 .grave-modal-body::-webkit-scrollbar-thumb:hover{background:#E8E0C8;}
 
-/* Футер кладбища — bones.png на всю ширину, обрезается окном сам */
+/* Футер кладбища — только кастомный арт bones.png */
 .grave-modal-footer{
   background-image:url('../img/bones.png');
   background-size:auto 100%;
   background-repeat:no-repeat;
   background-position:center;
-  background-color:#111418;
-  border-top:1px solid #2a2e38;
   height:28px;
   flex-shrink:0;
   overflow:hidden;
