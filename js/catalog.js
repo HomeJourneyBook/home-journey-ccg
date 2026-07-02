@@ -56,6 +56,7 @@ function renderCatalog(){
       'burn':    '<img src="img/ico_burn.png" style="width:60%;height:60%;">',
       'rage':    '<img src="img/ico_rage.png" style="width:60%;height:60%;">',
       'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
+      'vanguard':'<img src="img/ico_vanguard.png" style="width:60%;height:60%;">',
     };
     const tagIcons=(def.tags||[])
       .map(t=>t.split(':')[0])
@@ -110,6 +111,7 @@ function openCardDetail(def){
     'burn':    '<img src="img/ico_burn.png" style="width:60%;height:60%;">',
     'rage':    '<img src="img/ico_rage.png" style="width:60%;height:60%;">',
     'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
+    'vanguard':'<img src="img/ico_vanguard.png" style="width:60%;height:60%;">',
   };
   const tagIcons = (def.tags||[])
     .map(t=>t.split(':')[0])
