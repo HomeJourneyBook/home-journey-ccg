@@ -538,12 +538,19 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Для замены: добавить background-image:url('../img/modal_footer_panel.png') и убрать
    background-color + border-top. */
 .modal-footer{
-  /* PLACEHOLDER — замени на кастомный арт когда нарисуешь:
   background-image:url('../img/modal_footer_panel.png');
   background-size:100% 100%;
-  background-repeat:no-repeat; */
-  background-color:#1a1e26;
-  border-top:1px solid #3a4055;
+  background-repeat:no-repeat;
+  background:transparent;
+  
+  border-style:solid;
+  border-width:var(--modal-border-w);
+  border-image-source:url('../img/bg_jest.png');
+  border-image-slice:40 fill;
+  border-image-width:var(--modal-border-w);
+  border-image-outset:0;
+  border-image-repeat:stretch;
+  box-sizing:border-box;
   padding:10px 12px;
   display:flex;
   gap:10px;
