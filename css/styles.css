@@ -36,10 +36,10 @@
   --tea-shadow: #2D7B3522;
   --jeet-shadow: #7B2D8B22;
   /* Толщина рамки для 9-slice bg_modal.png (модалки/лендинг/кладбище/лог) — арт 240x240,
-     угол 80x80 (border-image-slice), из которых реально "рамкой" в арте является 28px,
-     остальное — безопасная зона под контент. Не задирай max выше 28px — тогда в кадр
-     border-image начнёт попадать эта безопасная зона и рамка будет выглядеть не как задумано. */
-  --modal-border-w: clamp(18px, 2vw, 28px);
+     угол 80x80 (border-image-slice). border-image-width должен равняться размеру угла в источнике
+     чтобы пиксель-арт рендерился 1:1 без сжатия деталей.
+     Для мобилок уменьшаем до 48px — всё равно видно, но окна не распирает. */
+  --modal-border-w: clamp(48px, 6vw, 80px);
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
@@ -62,6 +62,21 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 .header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#414B5A4D;position:relative;height:max(5vh, 2.5vw);}
 .title{font-family:'MEK',monospace;font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
+/* Глитч-полосы на тайтле хедера — тот же механизм, что и .landing-title (см. ниже),
+   но целевой элемент — .title-text span внутри .header, который виден во время игры */
+.title-glitch-wrap{position:relative;display:inline-block;}
+.title-glitch-wrap::before,
+.title-glitch-wrap::after{
+  content:attr(data-text);
+  position:absolute;
+  left:0;top:0;
+  opacity:0;
+  pointer-events:none;
+  white-space:nowrap;
+}
+.title-glitch-wrap.glitching{animation:titleGlitchShake 0.35s steps(2,end);}
+.title-glitch-wrap.glitching::before{color:#ff0044;mix-blend-mode:screen;animation:titleGlitchBefore 0.35s steps(2,end);}
+.title-glitch-wrap.glitching::after{color:#00e5ff;mix-blend-mode:screen;animation:titleGlitchAfter 0.35s steps(2,end);}
 #turnInfo{position:absolute;left:50%;transform:translateX(-50%);font-size:max(calc(5vh * 0.35), calc(2.5vw * 0.35));color:#888;}
 #turnInfo span{color:#E8E0C8;font-weight:bold;}
 @media(max-width:600px){
@@ -336,6 +351,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   z-index:50;display:none;box-shadow:0 4px 20px #000000aa;
 }
 .log-panel.open{display:block;}
+.log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 .log-panel-header{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #ffffff11;}
 .log-panel-title{font-size:16px;color:#c8a84b;}
 .log-panel-close{font-size:14px;color:#555;cursor:pointer;border:none;background:transparent;padding:2px 6px;}
@@ -432,7 +448,57 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 #jeetBottomBar .stat-badge{color:#b44fd4;}
 
 /* LOG */
-.log{background:#06060e;border:1px solid #ffffff08;padding:7px;height:85px;overflow-y:auto;font-size:12px;line-height:1.9;}
+.log{
+  position:relative; /* нужен для ::after */
+  background:#020d02;
+  border:none;
+  padding:7px;
+  height:85px;
+  overflow-y:auto;
+  font-size:12px;
+  line-height:1.9;
+  /* Цвет текста перекрашиваем в зелёный для CRT-атмосферы — переопределяем ниже через .le */
+  color:#33ff66;
+}
+/* Слой строчек скана поверх текста (pointer-events:none — не мешает скроллу) */
+.log::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.18) 2px,
+    rgba(0,0,0,0.18) 4px
+  );
+  pointer-events:none;
+  z-index:1;
+}
+/* Виньетка-овал — имитирует выпуклое стекло */
+.log::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.5) 100%);
+  pointer-events:none;
+  z-index:2;
+}
+/* CRT-текст: все стандартные цвета логов переводим в зелёную гамму */
+.log .le       { color:#1a7a2e; }
+.log .le.imp   { color:#33ff66; }
+.log .le.dmg   { color:#ff4466; }
+.log .le.hl    { color:#66ffaa; }
+.log .le.die   { color:#ff3333; }
+.log .le.trn   { color:#55ff88; border-top:1px solid #1a4422; padding-top:3px; margin-top:3px; }
+/* Слабое мерцание всего экрана лога — почти незаметное, создаёт эффект "живого" монитора */
+@keyframes crtFlicker{
+  0%,100%{ opacity:1; }
+  92%    { opacity:1; }
+  93%    { opacity:0.96; }
+  94%    { opacity:1; }
+  97%    { opacity:0.98; }
+}
 .le{color:#555;}.le.imp{color:#c8a84b;}.le.dmg{color:#e05555;}.le.hl{color:#5BDF7A;}.le.die{color:#ff6666;}.le.trn{color:#BFCBFF;border-top:1px solid #ffffff11;padding-top:3px;margin-top:3px;}
 .hidden{display:none!important;}
 
