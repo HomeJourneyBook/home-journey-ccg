@@ -619,6 +619,20 @@ function _mkPcardHtml(card, isPlayer){
   return `<div class="pcard pcard-inline ${cls}${sleepCls}${activeCls}" data-pid="${card.id}" title="${safeAb}" style="${exhaustedStyle}${borderStyle}" ${onclick}>${card.art||''} ${card.name}</div>`;
 }
 
+// Слот Мир/Артефакт в стат-баре: если карта уже сыграна — обычный pcard (см. _mkPcardHtml выше),
+// если нет — постоянный плейсхолдер с фоном фракции (pcard_tea_bg.png слева от HP у Tea,
+// pcard_jeet_bg.png справа от эссенции у Jeet, и наоборот у оппонента), той же ширины/высоты.
+// ВАЖНО: раньше при отсутствии карты слот вообще не рендерился (пустая строка) — из-за этого
+// стат-бар при розыгрыше Мира/Артефакта "прыгал" (слот появлялся и всё вокруг сдвигалось),
+// а потом ещё раз перевыравнивался при розыгрыше второго слота. Плейсхолдер держит место
+// зарезервированным с самого начала партии, поэтому появление реальной карты слот не двигает —
+// она просто подставляется на уже занятое место.
+function _mkPcardSlotHtml(card, faction, isPlayer){
+  if(card) return _mkPcardHtml(card, isPlayer);
+  const cls=faction==='tea'?'tcp':'jcp';
+  return `<div class="pcard pcard-inline pcard-placeholder ${cls}"></div>`;
+}
+
 // Переставляет DOM-элементы местами в Hot Seat режиме: чужие зоны (поле/рука/статбар) — наверх экрана,
 // свои — вниз, в зависимости от того, чей сейчас ход (G.turn). Физически перемещает существующие
 // .field/.persist/.hand элементы между контейнерами, а не пересоздаёт их — поэтому быстро и без потери стейта.
@@ -634,22 +648,22 @@ function reorderZones(){
     oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
     const _prevOppPids=new Set(Array.from(oppStats.querySelectorAll('[data-pid]')).map(e=>e.dataset.pid));
     oppStats.innerHTML=`
-  ${_mkPcardHtml(oppP.world,false)}
+  ${_mkPcardSlotHtml(oppP.world, oppK, false)}
   <span class="stat stat-hp-box ${oppK}-hp-box"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
   <span class="player-name-box ${oppK}-name-box" role="img" aria-label="${oppK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${oppK}')"></span>
   <span class="stat stat-ess-box ${oppK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>
-  ${_mkPcardHtml(oppP.artifacts[0]||null,false)}`;
+  ${_mkPcardSlotHtml(oppP.artifacts[0]||null, oppK, false)}`;
     oppStats.querySelectorAll('[data-pid]').forEach(el=>{if(!_prevOppPids.has(el.dataset.pid))el.classList.add('pcard-entering');});
   }
   if(playerStats){
     playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
     const _prevPlPids=new Set(Array.from(playerStats.querySelectorAll('[data-pid]')).map(e=>e.dataset.pid));
     playerStats.innerHTML=`
-  ${_mkPcardHtml(playerP.world,false)}
+  ${_mkPcardSlotHtml(playerP.world, playerK, false)}
   <span class="stat stat-hp-box ${playerK}-hp-box"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
   <span class="player-name-box ${playerK}-name-box" role="img" aria-label="${playerK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${playerK}')"></span>
   <span class="stat stat-ess-box ${playerK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>
-  ${_mkPcardHtml(playerP.artifacts[0]||null,true)}`;
+  ${_mkPcardSlotHtml(playerP.artifacts[0]||null, playerK, true)}`;
     playerStats.querySelectorAll('[data-pid]').forEach(el=>{if(!_prevPlPids.has(el.dataset.pid))el.classList.add('pcard-entering');});
   }
 
