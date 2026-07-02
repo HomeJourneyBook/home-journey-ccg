@@ -35,6 +35,11 @@
   --altar-active: #B44FD4;
   --tea-shadow: #2D7B3522;
   --jeet-shadow: #7B2D8B22;
+  /* Толщина рамки для 9-slice bg_modal.png (модалки/лендинг/кладбище/лог) — арт 240x240,
+     угол 80x80 (border-image-slice), из которых реально "рамкой" в арте является 28px,
+     остальное — безопасная зона под контент. Не задирай max выше 28px — тогда в кадр
+     border-image начнёт попадать эта безопасная зона и рамка будет выглядеть не как задумано. */
+  --modal-border-w: clamp(18px, 2vw, 28px);
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
@@ -295,7 +300,19 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .btn:active{transform:scale(0.95) translateY(2px);}
 
 /* LOG PANEL */
-.log-panel{position:fixed;top:44px;right:14px;width:320px;background:#0a0a12;border:1px solid #c8a84b33;z-index:50;display:none;box-shadow:0 4px 20px #000000aa;}
+.log-panel{
+  position:fixed;top:44px;right:14px;width:320px;
+  background:transparent;
+  border-style:solid;
+  border-width:var(--modal-border-w);
+  border-image-source:url('../img/bg_modal.png');
+  border-image-slice:80 fill;
+  border-image-width:var(--modal-border-w);
+  border-image-outset:0;
+  border-image-repeat:stretch;
+  box-sizing:border-box;
+  z-index:50;display:none;box-shadow:0 4px 20px #000000aa;
+}
 .log-panel.open{display:block;}
 .log-panel-header{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #ffffff11;}
 .log-panel-title{font-size:16px;color:#c8a84b;}
@@ -402,10 +419,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .modal{
   background:transparent;
   border-style:solid;
-  border-widthclamp(22px, 2vw, 30px);
+  border-width:var(--modal-border-w);
   border-image-source:url('../img/bg_modal.png');
-  border-image-slice:124 fill;
-  border-image-width:clamp(22px, 2vw, 30px);
+  border-image-slice:80 fill;
+  border-image-width:var(--modal-border-w);
   border-image-outset:0;
   border-image-repeat:stretch;
   padding:clamp(12px, 1.5vw, 18px);
@@ -433,10 +450,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .landing-box{
   background:transparent;
   border-style:solid;
-  border-width:clamp(22px, 2vw, 30px);
+  border-width:var(--modal-border-w);
   border-image-source:url('../img/bg_modal.png');
-  border-image-slice:124 fill;
-  border-image-width:clamp(22px, 2vw, 30px);
+  border-image-slice:80 fill;
+  border-image-width:var(--modal-border-w);
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -571,10 +588,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   overflow-y:auto;
   background:transparent;
   border-style:solid;
-  border-width:4vh;
+  border-width:var(--modal-border-w);
   border-image-source:url('../img/bg_modal.png');
-  border-image-slice:124 fill;
-  border-image-width:4vh;
+  border-image-slice:80 fill;
+  border-image-width:var(--modal-border-w);
   border-image-outset:0;
   border-image-repeat:stretch;
   pointer-events:all;
