@@ -13,7 +13,7 @@
   --card-w: calc(var(--card-h) * 0.716); 
   --cat-card-w: calc(var(--card-h) * 0.716);
   --cat-card-h: var(--card-h);
-  --card-small-h: 13vh;
+  --card-small-h: 15vh;
   --card-small-w: calc(var(--card-small-h) * 0.856);
   --card-small-art-h: calc(var(--card-small-h) * 0.622);
   --card-art-size: calc(var(--card-h) * 0.535); 
@@ -374,11 +374,11 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .opp-hand-zone{height:7vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .field-zone{border:1px solid #80808080;background:transparent;overflow:hidden;display:flex;flex-direction:column;position:relative;padding:2px}
-#oppFieldZone{height:23vh;min-height:0;overflow:hidden;border:none;}
-#playerFieldZone{height:23vh;min-height:0;overflow:hidden;border:none;margin-top:6px;}
+#oppFieldZone{height:22.5vh;min-height:0;overflow:hidden;border:none;}
+#playerFieldZone{height:22.5vh;min-height:0;overflow:hidden;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
 /* Dense mode: обе переменные меняются одной строкой, всё остальное масштабируется само */
-.field-zone.dense{--card-small-h:8.5vh;}
+.field-zone.dense{--card-small-h:11vh;}
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 
@@ -427,10 +427,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   position:fixed;top:44px;right:14px;width:320px;
   background:transparent;
   border-style:solid;
-  border-width:clamp(10px, 20px);
+  border-width:20px;
   border-image-source:url('../img/log_frame.png');
   border-image-slice:20 fill;
-  border-image-width:clamp(10px, 20px);
+  border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
