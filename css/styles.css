@@ -378,7 +378,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 #playerFieldZone{height:23vh;min-height:0;overflow:hidden;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
 /* Dense mode: обе переменные меняются одной строкой, всё остальное масштабируется само */
-.field-zone.dense{--card-small-h:9vh;}
+.field-zone.dense{--card-small-h:8.5vh;}
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 
@@ -939,7 +939,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   width:min(calc(2 * var(--card-w) + 44px), 92vw);
   max-height:65vh;
   overflow-y:hidden;
-  background:transparent;
+  background:#08050A;
   border-style:solid;
   border-width:20px;
   border-image-source:url('../img/log_frame.png');
