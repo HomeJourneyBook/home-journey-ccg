@@ -41,6 +41,7 @@ function toggleMusic(){
   musicEnabled = !musicEnabled;
   localStorage.setItem('hj_music', musicEnabled ? 'on' : 'off');
   _refreshMusicBtn();
+  if(musicEnabled) playSfx('Click_Cursor'); // звук только при включении
   const audio = _getMusicEl();
   if(!audio) return;
   if(musicEnabled){
@@ -88,7 +89,7 @@ function toggleSfx(){
   sfxEnabled = !sfxEnabled;
   localStorage.setItem('hj_sfx', sfxEnabled ? 'on' : 'off');
   _refreshSfxBtn();
-  if(sfxEnabled) playSfx('grate'); // короткий отклик на сам тоггл, чтобы сразу услышать эффект
+  if(sfxEnabled) playSfx('Click_Cursor'); // слышим звук в момент включения
 }
 
 // Проигрывает эффект audio/<name>.wav (или .mp3, если передать расширение явно в name).
@@ -390,6 +391,7 @@ function resetGame(){
 
 function toggleLog(){
   const p=document.getElementById('logPanel');
+  playSfx('Click_Cursor');
   p.classList.toggle('open');
 }
 
@@ -598,4 +600,19 @@ document.addEventListener('mousemove', (e) => {
 
   tip.style.left = x + 'px';
   tip.style.top  = y + 'px';
+});
+
+// ── Hover-звук Navigation_Cursor на кнопках лендинга ─────────────────────────
+// mouseover + relatedTarget-проверка: срабатывает один раз при входе на кнопку,
+// а не на каждый пиксель движения мыши внутри неё.
+document.addEventListener('DOMContentLoaded', ()=>{
+  const landing = document.getElementById('landing');
+  if(!landing) return;
+  landing.addEventListener('mouseover', (e)=>{
+    const btn = e.target.closest('.art-btn, .play-gate-sprite');
+    if(!btn) return;
+    // Проверяем, что входим именно в кнопку (а не перемещаемся внутри)
+    if(btn.contains(e.relatedTarget)) return;
+    playSfx('Navigation_Cursor');
+  });
 });
