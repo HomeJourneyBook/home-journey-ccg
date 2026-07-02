@@ -57,14 +57,9 @@
                   disabled title="Online"></button>
         </div>
 
-        <!-- Слой 2: рамка-обёртка (статичная, не анимируется)
-             PLACEHOLDER — замени на background-image:url('../img/btn_playgame_frame.png')
-             Та же рамка должна быть и на воротах (Слой 3), чтобы при смене слоёв стык был незаметен -->
-        <div class="play-gate-frame" id="playGateFrame"></div>
-
-        <!-- Слой 3: ворота — спрайт 4 кадра горизонтально (закрыто/приоткр./почти/открыто)
-             PLACEHOLDER — замени на background-image:url('../img/btn_playgame_gates_sheet.png')
-             Внутри спрайта между створками ПРОЗРАЧНО, чтобы был виден Слой 1 -->
+        <!-- Слой 2: ворота — спрайт 4 кадра горизонтально (закрыто/приоткр./почти/открыто)
+             Внутри спрайта между створками ПРОЗРАЧНО, чтобы был виден Слой 1.
+             Рамка встроена прямо в арт спрайта ворот — отдельный слой-рамка убран. -->
         <div class="play-gate-sprite" id="playGateSprite"
              onclick="openGates()"></div>
 
@@ -462,7 +457,7 @@
   <div class="log-panel" id="logPanel">
     <div class="log-panel-header">
       <span class="log-panel-title">Battle Log</span>
-      <button class="log-panel-close" onclick="toggleLog()">X</button>
+      <button class="log-panel-close" onclick="toggleLog()" aria-label="Close log"></button>
     </div>
     <div class="log" id="log"></div>
   </div>
