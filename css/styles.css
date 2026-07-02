@@ -352,9 +352,44 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .log-panel.open{display:block;}
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
-.log-panel-header{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #ffffff11;}
-.log-panel-title{font-size:16px;color:#c8a84b;}
-.log-panel-close{font-size:14px;color:#555;cursor:pointer;border:none;background:transparent;padding:2px 6px;}
+
+/* ── Хедер лог-панели ─────────────────────────────────────────────────────────
+   Плейсхолдер серый; для замены хедера целиком: background-image:url('../img/log_header.png')
+   Крестик — placeholder; для замены на кастомный арт: раскомментируй блок .log-close-btn ниже */
+.log-panel-header{
+  /* PLACEHOLDER — замени на кастомный арт хедера:
+  background-image:url('../img/log_header.png');
+  background-size:100% 100%; */
+  background-color:#1a1e26;
+  border-bottom:1px solid #3a4055;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:6px 10px;
+  position:relative;
+}
+.log-panel-title{font-size:14px;color:#E8E0C8;font-family:'MEK',monospace;text-align:center;}
+/* Крестик закрытия — прибит к правому краю */
+.log-panel-close{
+  position:absolute;
+  right:6px;
+  top:50%;
+  transform:translateY(-50%);
+  /* PLACEHOLDER — замени на кастомный арт:
+  background-image:url('../img/btn_close.png');
+  background-size:100% 100%;
+  background-color:transparent;
+  border:none;
+  width:20px; height:20px;
+  color:transparent; */
+  font-size:14px;
+  color:#555;
+  cursor:pointer;
+  border:1px solid #333;
+  background:transparent;
+  padding:2px 6px;
+  line-height:1;
+}
 .log-panel-close:hover{color:#c8a84b;}
 .log-panel .log{height:180px;border:none;}
 .log::-webkit-scrollbar{width:4px;}
@@ -513,19 +548,205 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-image-width:var(--modal-border-w);
   border-image-outset:0;
   border-image-repeat:stretch;
-  padding:clamp(12px, 1.5vw, 18px);
-  /* box-sizing:border-box — граница входит в ширину, поэтому max-width = вся коробка целиком */
+  padding:0; /* padding перенесён в .modal-body — хедер/футер прилипают встык к рамке */
   box-sizing:border-box;
   width:min(340px, 92vw);
   max-width:clamp(340px, 92vw, 420px);
   text-align:center;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden; /* чтобы хедер/футер не вылезали за скруглённые углы */
 }
 
-.modal h2{font-family:'MEK',monospace;font-size:22px;color:##C7CCD3;margin-bottom:14px;}
+/* Контент модалки с отступом — хедер/футер этого отступа не имеют */
+.modal-body{
+  padding:clamp(12px,1.5vw,18px);
+  flex:1;
+}
+.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:14px;}
 .modal p{font-size:18px;color:#9B937F;margin-bottom:18px;line-height:1.6;}
 
-/* LANDING */
-.landing{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:transparent;}
+/* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
+   Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
+   Для замены: добавить background-image:url('../img/modal_footer_panel.png') и убрать
+   background-color + border-top. */
+.modal-footer{
+  /* PLACEHOLDER — замени на кастомный арт когда нарисуешь:
+  background-image:url('../img/modal_footer_panel.png');
+  background-size:100% 100%;
+  background-repeat:no-repeat; */
+  background-color:#1a1e26;
+  border-top:1px solid #3a4055;
+  padding:10px 12px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  align-items:center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LANDING PAGE — полный стек стилей
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Фон комнаты корабля
+   PLACEHOLDER серый; замени:
+   background-image:url('../img/landing_bg.png');
+   background-size:cover; background-position:center; */
+.landing{
+  position:fixed;inset:0;z-index:200;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  background:transparent;
+}
+.landing::before{                        /* PLACEHOLDER фон комнаты */
+  content:'';position:absolute;inset:0;
+  /* background-image:url('../img/landing_bg.png');background-size:cover; */
+  background:#06060e;
+  z-index:0;
+}
+
+/* ── Иллюминатор ────────────────────────────────────────────────────
+   Круглый контейнер; внутри: анимированный космос + рамка поверх + тайтл поверх рамки.
+   АССЕТЫ:
+     landing_porthole_frame.png  — круглая рамка с прозрачным центром
+     landing_porthole_space.gif  — опционально: анимированная туманность/звёзды */
+.landing-porthole{
+  position:relative;z-index:1;
+  width:clamp(180px,28vw,320px);
+  height:clamp(180px,28vw,320px);
+  border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;               /* обрезает космос по кругу */
+}
+.landing-porthole-space{          /* PLACEHOLDER — CSS звёзды, заменить на GIF */
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,#0a0a2a 0%,#000510 100%);
+  border-radius:50%;
+}
+.landing-porthole-frame-placeholder{  /* PLACEHOLDER — заменить на <img> с рамкой */
+  position:absolute;inset:0;
+  border-radius:50%;
+  /* background-image:url('../img/landing_porthole_frame.png');background-size:100% 100%; */
+  border:6px solid #3a4055;
+  box-shadow:0 0 0 3px #1a1e26,inset 0 0 20px rgba(0,0,0,0.8);
+  pointer-events:none;z-index:2;
+}
+.landing-title{
+  position:relative;z-index:3;
+  font-family:'MEK',monospace;font-size:clamp(16px,3.5vw,28px);
+  color:#E8E0C8;letter-spacing:4px;text-align:center;
+  text-shadow:0 0 20px #c8a84b66;
+  pointer-events:none;
+}
+.landing-sub{
+  position:relative;z-index:3;
+  font-family:'MEK',monospace;font-size:clamp(10px,1.8vw,16px);
+  color:#9b937f;letter-spacing:6px;text-align:center;margin-top:6px;
+  pointer-events:none;
+}
+
+/* ── Блок ворот — система трёх слоёв ───────────────────────────────
+   Все три слоя одного размера (32vh × 8vh), стопкой через position:absolute */
+.play-gate-wrap{
+  position:relative;
+  width:32vh;height:8vh;       /* = размер .art-btn */
+  flex-shrink:0;
+}
+
+/* Слой 1 (z:1) — три квадратные кнопки режима.
+   В закрытом состоянии скрыты за воротами (pointer-events:none убирается при открытии).
+   Квадрат 8vh × 8vh × 3 = суммарно 24vh + 2×gap(4vh) = 32vh — ровно ширина блока. */
+.play-mode-buttons{
+  position:absolute;inset:0;z-index:1;
+  display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+  pointer-events:none;          /* закрыты — нельзя нажать */
+}
+.art-btn-mode{                  /* квадратная кнопка режима, 1/3 ширины блока */
+  width:calc((32vh - 8px) / 3);
+  height:8vh;
+  /* остальные стили наследует .art-btn-square */
+}
+
+/* Слой 2 (z:2) — статичная рамка, всегда видна, не анимируется.
+   АССЕТ: btn_playgame_frame.png — та же рамка что и на воротах (Слой 3),
+   чтобы при смене видимости слоёв стык был визуально незаметен.
+   PLACEHOLDER серый; замени:
+   background-image:url('../img/btn_playgame_frame.png'); border:none; */
+.play-gate-frame{
+  position:absolute;inset:0;z-index:2;
+  /* background-image:url('../img/btn_playgame_frame.png');background-size:100% 100%; */
+  border:1px solid #3a4055;border-radius:4px;
+  pointer-events:none;          /* клики сквозь рамку */
+}
+
+/* Слой 3 (z:3) — спрайт ворот.
+   4 кадра горизонтально; background-size:400% 100%, position переключает кадры.
+   Внутри ворот ПРОЗРАЧНО → виден Слой 1.
+   АССЕТ: btn_playgame_gates_sheet.png (4 кадра × 32vh × 8vh; внутри прозрачно)
+   PLACEHOLDER серый с надписью; замени:
+   background-image:url('../img/btn_playgame_gates_sheet.png');
+   background-size:400% 100%; background-color:transparent; border:none; */
+.play-gate-sprite{
+  position:absolute;inset:0;z-index:3;cursor:pointer;
+  /* background-image:url('../img/btn_playgame_gates_sheet.png');
+     background-size:400% 100%;background-repeat:no-repeat; */
+  background-color:#0d0d1a;border:1px solid #D5943F55;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'MEK',monospace;font-size:clamp(10px,1.8vh,16px);
+  color:#c8a84b;letter-spacing:2px;
+  transition:filter 0.1s;
+}
+.play-gate-sprite::after{content:"PLAY GAME";}
+.play-gate-sprite:hover{filter:brightness(1.3);}
+/* Кадры ворот (переключаются через JS добавлением класса) */
+.play-gate-sprite.gate-open-1{background-position:33.3% 0;}
+.play-gate-sprite.gate-open-2{background-position:66.6% 0;}
+.play-gate-sprite.gate-open  {
+  background-position:100% 0;
+  pointer-events:none;          /* ворота открыты — ворота нельзя нажать, видны кнопки под ними */
+  /* Скрываем текст-плейсхолдер когда ворота открыты */
+  color:transparent;background-color:transparent;border-color:transparent;
+}
+/* Когда ворота открыты — кнопки режима становятся кликабельны */
+.play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
+
+/* Ховер на ворота (АССЕТ: btn_playgame_hover.png — кнопка со свечением и датчиками)
+.play-gate-sprite:hover{
+  background-image:url('../img/btn_playgame_hover.png');
+  background-size:100% 100%;
+} */
+
+/* ── Переходы экранов (горизонтальный слайд с параллаксом фона) ─────
+   Rules  → вправо  (.slide-right)
+   Lore   → влево   (.slide-left)
+   Catalog → вниз   (.slide-down)
+   Обратный переход (Back) — зеркальный */
+.landing{transition:transform 0.45s cubic-bezier(0.4,0,0.2,1),opacity 0.45s;}
+.landing.exit-right{transform:translateX(-40%);opacity:0;pointer-events:none;}
+.landing.exit-left {transform:translateX( 40%);opacity:0;pointer-events:none;}
+.landing.exit-down {transform:translateY(-30%);opacity:0;pointer-events:none;}
+
+.screen{
+  position:fixed;inset:0;z-index:201;background:#0a0a12;
+  overflow-y:auto;padding:4vw;display:none;
+}
+.screen.active{display:block;}
+/* Въезд экрана */
+.screen.slide-in-right {animation:screenFromRight 0.45s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-in-left  {animation:screenFromLeft  0.45s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-in-down  {animation:screenFromDown  0.45s cubic-bezier(0.4,0,0.2,1) forwards;}
+/* Выезд экрана (при нажатии Back) */
+.screen.slide-out-right{animation:screenToRight  0.35s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-out-left {animation:screenToLeft   0.35s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-out-down {animation:screenToDown   0.35s cubic-bezier(0.4,0,0.2,1) forwards;}
+
+@keyframes screenFromRight{from{transform:translateX(60%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes screenFromLeft {from{transform:translateX(-60%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes screenFromDown {from{transform:translateY(40%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes screenToRight  {from{transform:translateX(0);opacity:1;}to{transform:translateX(60%);opacity:0;}}
+@keyframes screenToLeft   {from{transform:translateX(0);opacity:1;}to{transform:translateX(-60%);opacity:0;}}
+@keyframes screenToDown   {from{transform:translateY(0);opacity:1;}to{transform:translateY(40%);opacity:0;}}
+
+/* ─────────────────────────────────────────────────────────────────── */
 .landing-title{
   position:relative;
   font-family:'MEK',monospace;font-size:36px;color:#E8E0C8;letter-spacing:4px;text-align:center;margin-bottom:8px;text-shadow:0 0 20px #c8a84b66;
@@ -600,15 +821,29 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
-  padding:clamp(14px, 2vh, 22px) clamp(18px, 2vw, 28px);
+  padding:0; /* padding убран — кнопки и футер прилипают к рамке */
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  overflow:hidden;
+}
+/* Зона кнопок лендинга с отступом */
+.landing-box-body{
+  padding:clamp(14px,2vh,22px) clamp(18px,2vw,28px);
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:16px;
+  width:100%;
 }
-
-/* Кнопки music/sfx — в одну строку, слева и справа */
-.sound-row{
+/* ── Футер лендинга (music/sfx) ───────────────────────────────────────────────
+   PLACEHOLDER — замени на кастомный арт панели когда нарисуешь:
+   background-image:url('../img/landing_footer_panel.png');
+   background-size:100% 100%; */
+.landing-footer{
+  background-color:#1a1e26;
+  border-top:1px solid #3a4055;
+  padding:8px 16px;
   display:flex;
   flex-direction:row;
   align-items:center;
@@ -728,7 +963,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   box-sizing:border-box;
   width:min(340px,92vw);
   max-height:60vh;
-  overflow-y:auto;
+  overflow-y:hidden; /* скроллится только .grave-modal-body ниже */
   background:transparent;
   border-style:solid;
   border-width:var(--modal-border-w);
@@ -737,8 +972,97 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-image-width:var(--modal-border-w);
   border-image-outset:0;
   border-image-repeat:stretch;
+  padding:0; /* padding убран — хедер и футер прилипают встык к рамке */
   pointer-events:all;
   z-index:500;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── Хедер кладбища ───────────────────────────────────────────────────────────
+   Плейсхолдер серый; фон заголовка как у счётчиков (bg_statbar_hp.png).
+   Для замены хедера целиком: background-image:url('../img/grave_header.png') на .grave-modal-header
+   Для замены крестика: раскомментируй .grave-close-btn с кастомным артом ниже. */
+.grave-modal-header{
+  /* PLACEHOLDER — замени на кастомный арт хедера когда нарисуешь:
+  background-image:url('../img/grave_header.png');
+  background-size:100% 100%; */
+  background-color:#1a1e26;
+  border-bottom:1px solid #3a4055;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:6px 8px;
+  position:relative;
+  flex-shrink:0;
+}
+.grave-modal-title{
+  font-family:'MEK',monospace;
+  font-size:14px;
+  color:#F3F5FF;
+  text-align:center;
+  /* Фон заголовка как у каунтеров HP/эссенции */
+  background-image:url('../img/bg_statbar_hp.png');
+  background-size:100% 100%;
+  background-repeat:no-repeat;
+  padding:2px 12px;
+}
+/* Крестик закрытия — прибит к правому краю */
+.grave-close-btn{
+  position:absolute;
+  right:6px;
+  top:50%;
+  transform:translateY(-50%);
+  /* PLACEHOLDER — замени на кастомный арт кнопки закрытия:
+  background-image:url('../img/btn_close.png');
+  background-size:100% 100%;
+  background-color:transparent;
+  border:none;
+  width:20px; height:20px;
+  color:transparent; */
+  background:none;
+  border:1px solid #444;
+  color:#888;
+  font-family:'MEK',monospace;
+  font-size:12px;
+  cursor:pointer;
+  padding:2px 6px;
+  line-height:1;
+}
+.grave-close-btn:hover{color:#E8E0C8;border-color:#888;}
+
+/* Скролл-зона с картами */
+.grave-modal-body{
+  padding:8px;
+  overflow-y:auto;
+  flex:1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+  align-content:flex-start;
+}
+
+/* ── Футер кладбища (черепа) ──────────────────────────────────────────────────
+   Плейсхолдер серый; позже заменить на тайлящийся арт с черепами.
+   Для замены: background-image:url('../img/grave_footer_skulls.png') + background-repeat:repeat-x
+   чтобы черепа выстроились в ряд на любую ширину автоматически. */
+.grave-modal-footer{
+  /* PLACEHOLDER — замени на кастомный арт:
+  background-image:url('../img/grave_footer_skulls.png');
+  background-repeat:repeat-x;
+  background-position:center;
+  background-color:transparent; */
+  background-color:#111418;
+  border-top:1px solid #2a2e38;
+  height:32px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#333;
+  font-size:18px;
+  letter-spacing:8px;
 }
 .grave-modal-header{
   display:flex;
