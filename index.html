@@ -84,7 +84,7 @@
 <!-- RULES SCREEN -->
 <div class="screen" id="rulesScreen">
   <div class="screen-header">
-    <button class="screen-back" onclick="hideScreen('rules')">← Back</button>
+    <button class="screen-back" onclick="playSfx('Click_Cursor');hideScreen('rules')">← Back</button>
     <div class="screen-title" id="rulesTitleLabel">RULES</div>
     <div class="rules-lang-btns">
       <button class="rules-lang-btn active" onclick="setRulesLang('ENG')">ENG</button>
@@ -318,7 +318,7 @@
 <!-- LORE SCREEN -->
 <div class="screen" id="loreScreen">
   <div class="screen-header">
-    <button class="screen-back" onclick="hideScreen('lore')">← Back</button>
+    <button class="screen-back" onclick="playSfx('Click_Cursor');hideScreen('lore')">← Back</button>
     <div class="screen-title">LORE</div>
   </div>
   <div class="screen-body">
@@ -358,17 +358,17 @@
       <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="askMenu()">← Menu</button>
     </div>
     <div class="header-mobile-btn" style="position:relative;margin-left:auto;">
-     <button class="hamburger-btn" id="hamburgerBtn" onclick="playSfx('grate');toggleHamburger()">
+     <button class="hamburger-btn" id="hamburgerBtn" onclick="playSfx('Click_Cursor');toggleHamburger()">
   <span class="ham-line"></span>
   <span class="ham-line"></span>
   <span class="ham-line"></span>
 </button>
 <div id="hamburgerMenu" class="ham-menu">
-  <button class="btn ham-item" onclick="playSfx('grate');toggleLog();toggleHamburger()">Log</button>
+  <button class="btn ham-item" onclick="playSfx('Click_Cursor');toggleLog();toggleHamburger()">Log</button>
   <button class="btn ham-item" id="hamMusicBtn" onclick="toggleMusic()">Music: On</button>
   <button class="btn ham-item" id="hamSfxBtn" onclick="toggleSfx()">Sounds: On</button>
-  <button class="btn ham-item" onclick="playSfx('grate');askRestart();toggleHamburger()">Restart</button>
-  <button class="btn ham-item" onclick="playSfx('grate');askMenu();toggleHamburger()">Menu</button>
+  <button class="btn ham-item" onclick="playSfx('Click_Cursor');askRestart();toggleHamburger()">Restart</button>
+  <button class="btn ham-item" onclick="playSfx('Click_Cursor');askMenu();toggleHamburger()">Menu</button>
 </div>
     </div>
   </div>
@@ -446,7 +446,7 @@
  <div class="grave-modal" onclick="event.stopPropagation()">
    <div class="grave-modal-header">
      <span class="grave-modal-title" id="graveModalTitle">Graveyard</span>
-     <button class="grave-close-btn" onclick="closeGraveModal()" aria-label="Close"></button>
+     <button class="grave-close-btn" onclick="playSfx('Click_Cursor');closeGraveModal()" aria-label="Close"></button>
    </div>
    <div class="grave-modal-body" id="graveModalCards"></div>
    <div class="grave-modal-footer">💀 💀 💀</div>
@@ -473,7 +473,7 @@
 <!-- CATALOG SCREEN -->
 <div class="screen" id="catalogScreen">
   <div class="screen-header">
-    <button class="screen-back" onclick="hideScreen('catalog')">← Back</button>
+    <button class="screen-back" onclick="playSfx('Click_Cursor');hideScreen('catalog')">← Back</button>
     <div class="screen-title">Card Catalog</div>
   </div>
   <div style="max-width:900px;margin:0 auto;padding:0 8px;">
@@ -512,8 +512,8 @@
       <p>Current game will be lost. Return to menu?</p>
     </div>
     <div class="modal-footer">
-      <button id="confirmYesBtn" class="modal-art-btn btn-yes"   onclick="confirmMenu()"></button>
-      <button              class="modal-art-btn btn-cancel" onclick="document.getElementById('confirmModal').classList.add('hidden')"></button>
+      <button id="confirmYesBtn" class="modal-art-btn btn-yes"   onclick="playSfx('Click_Cursor');confirmMenu()"></button>
+      <button              class="modal-art-btn btn-cancel" onclick="playSfx('Click_Cursor');document.getElementById('confirmModal').classList.add('hidden')"></button>
     </div>
   </div>
 </div>
@@ -526,7 +526,7 @@
       <p id="winText"></p>
     </div>
     <div class="modal-footer">
-      <button class="modal-art-btn btn-win" onclick="showLanding()"></button>
+      <button class="modal-art-btn btn-win" onclick="playSfx('Click_Cursor');showLanding()"></button>
     </div>
   </div>
 </div>
@@ -540,8 +540,8 @@
       <div id="mulliganCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
     </div>
     <div class="modal-footer">
-      <button class="modal-art-btn btn-mulligan" onclick="doMulliganPhase()"></button>
-      <button class="modal-art-btn btn-ready"    onclick="readyFromMulligan()"></button>
+      <button class="modal-art-btn btn-mulligan" onclick="playSfx('Click_Cursor');doMulliganPhase()"></button>
+      <button class="modal-art-btn btn-ready"    onclick="playSfx('Click_Cursor');readyFromMulligan()"></button>
     </div>
   </div>
 </div>
@@ -554,7 +554,7 @@
       <p id="passText">Hand the device .</p>
     </div>
     <div class="modal-footer">
-      <button class="modal-art-btn btn-ready" onclick="passReady()"></button>
+      <button class="modal-art-btn btn-ready" onclick="playSfx('Click_Cursor');passReady()"></button>
     </div>
   </div>
 </div>
