@@ -180,7 +180,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Артефакт готов к активации (можно кликнуть прямо сейчас) — лёгкая постоянная пульсация
    фиолетовым свечением вокруг рамки, привлекает внимание. Рамка/размер не меняются — только
    box-shadow снаружи, border-image не трогаем вообще. */
-.pcard.pcard-active .pcard-text{
+.pcard.pcard-active {
   cursor: pointer;
   transition: filter 0.08s;
   animation: pcardReadyPulse 1.8s ease-in-out infinite;
