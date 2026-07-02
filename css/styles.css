@@ -425,10 +425,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   position:fixed;top:44px;right:14px;width:320px;
   background:transparent;
   border-style:solid;
-  border-width:var(--modal-border-w);
+  border-width:clamp(10px, 20px);
   border-image-source:url('../img/log_frame.png');
   border-image-slice:20 fill;
-  border-image-width:var(--modal-border-w);
+  border-image-width:clamp(10px, 20px);
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -640,7 +640,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    background-image:url('../img/btn_playgame_frame.png'); border:none; */
 .play-gate-frame{
   position:absolute;inset:0;z-index:2;
-  /* background-image:url('../img/btn_playgame_frame.png');background-size:100% 100%; */
+  background-image:url('../img/btn_playgame_frame.png');background-size:100% 100%;
   border:1px solid #3a4055;border-radius:4px;
   pointer-events:none;          /* клики сквозь рамку */
 }
@@ -654,8 +654,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    background-size:400% 100%; background-color:transparent; border:none; */
 .play-gate-sprite{
   position:absolute;inset:0;z-index:3;cursor:pointer;
-  /* background-image:url('../img/btn_playgame_gates_sheet.png');
-     background-size:400% 100%;background-repeat:no-repeat; */
+  background-image:url('../img/btn_playgame_gates_sheet.png');
+     background-size:400% 100%;background-repeat:no-repeat;
   background-color:#0d0d1a;border:1px solid #D5943F55;border-radius:4px;
   display:flex;align-items:center;justify-content:center;
   font-family:'MEK',monospace;font-size:clamp(10px,1.8vh,16px);
@@ -675,12 +675,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 /* Когда ворота открыты — кнопки режима становятся кликабельны */
 .play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
-
-/* Ховер на ворота (АССЕТ: btn_playgame_hover.png — кнопка со свечением и датчиками)
 .play-gate-sprite:hover{
   background-image:url('../img/btn_playgame_hover.png');
   background-size:100% 100%;
-} */
+} 
 
 /* ── Переходы экранов (горизонтальный слайд с параллаксом фона) ─────
    Rules  → вправо  (.slide-right)
@@ -913,14 +911,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-vsai::after   {content:"VS AI";}
 .art-btn-online::after {content:"ONLINE";}
 .art-btn-vsai,.art-btn-online{opacity:0.3;cursor:not-allowed;}
-.art-btn-hotseat:hover{border-color:#c8a84b;box-shadow:0 0 10px #c8a84b33;}
-
-/* CUSTOM ART (раскомментируй и удали PLACEHOLDER выше):
+.art-btn-hotseat:hover { background-image:url('../img/btn_hotseatH.png');  }
 .art-btn-hotseat        { background-image:url('../img/btn_hotseat1.png');  }
 .art-btn-hotseat:active { background-image:url('../img/btn_hotseat2.png');  }
 .art-btn-vsai           { background-image:url('../img/btn_vsai1.png');    }
-.art-btn-vsai:active    { background-image:url('../img/btn_vsai2.png');    }
 .art-btn-online         { background-image:url('../img/btn_online1.png');  }
+
+/* CUSTOM ART (раскомментируй и удали PLACEHOLDER выше):
+.art-btn-vsai:active    { background-image:url('../img/btn_vsai2.png');    }
 .art-btn-online:active  { background-image:url('../img/btn_online2.png');  }
 */
 
