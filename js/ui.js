@@ -136,23 +136,110 @@ function preloadAssets(){
   }, 2000);
 }
 
-// ── Start menu ────────────────────────────────────────────────
-let _expandTimer = null;
+// ── Ворота (Play Game) ────────────────────────────────────────
+// Три слоя: [кнопки режима] [рамка] [ворота-спрайт]
+// Ворота открываются пошагово (3 кадра по 120мс), закрываются обратно.
+// Таймер автозакрытия сбрасывается при наведении мыши на кнопки режима.
+let _gateTimer=null;
+const GATE_AUTO_CLOSE_MS=5000;
 
-function collapseStart(){
-  document.getElementById('startMainBtn').classList.remove('hidden');
-  document.getElementById('startOptions').classList.add('hidden');
-  if(_expandTimer){ clearTimeout(_expandTimer); _expandTimer=null; }
+function _setGateFrame(sprite,frame){
+  // frame: 0=закрыто, 1=приоткрыто, 2=почти, 3=открыто
+  sprite.classList.remove('gate-open-1','gate-open-2','gate-open');
+  if(frame===1) sprite.classList.add('gate-open-1');
+  else if(frame===2) sprite.classList.add('gate-open-2');
+  else if(frame===3) sprite.classList.add('gate-open');
 }
 
-function expandStart(){
-  document.getElementById('startMainBtn').classList.add('hidden');
-  document.getElementById('startOptions').classList.remove('hidden');
-  if(_expandTimer) clearTimeout(_expandTimer);
-  _expandTimer = setTimeout(collapseStart, 30000);
+function openGates(){
+  const wrap=document.getElementById('playGateWrap');
+  const sprite=document.getElementById('playGateSprite');
+  if(!wrap||!sprite) return;
+  if(wrap.classList.contains('gates-open')) return; // уже открыто
+  // Пошаговая анимация кадров
+  _setGateFrame(sprite,1);
+  setTimeout(()=>_setGateFrame(sprite,2),120);
+  setTimeout(()=>{
+    _setGateFrame(sprite,3);
+    wrap.classList.add('gates-open');
+    _startGateTimer();
+  },240);
 }
 
-// ── Navigation ────────────────────────────────────────────────
+function closeGates(){
+  const wrap=document.getElementById('playGateWrap');
+  const sprite=document.getElementById('playGateSprite');
+  if(!wrap||!sprite) return;
+  clearGateTimer();
+  wrap.classList.remove('gates-open');
+  // Обратная анимация
+  _setGateFrame(sprite,2);
+  setTimeout(()=>_setGateFrame(sprite,1),120);
+  setTimeout(()=>_setGateFrame(sprite,0),240);
+}
+
+function _startGateTimer(){
+  clearGateTimer();
+  _gateTimer=setTimeout(closeGates,GATE_AUTO_CLOSE_MS);
+}
+function clearGateTimer(){
+  if(_gateTimer){clearTimeout(_gateTimer);_gateTimer=null;}
+}
+function resetGateTimer(){
+  if(document.getElementById('playGateWrap')?.classList.contains('gates-open')){
+    _startGateTimer();
+  }
+}
+
+// Оставляем для обратной совместимости (вызывается из showLanding)
+function collapseStart(){ closeGates(); }
+function expandStart(){ openGates(); }
+
+// ── Navigation с анимированными переходами ───────────────────
+// Направления: rules→вправо, lore→влево, catalog→вниз
+const SCREEN_DIRECTION={
+  rules:   {exit:'exit-right', enter:'slide-in-right', back:'slide-out-right', landingBack:'exit-left'},
+  lore:    {exit:'exit-left',  enter:'slide-in-left',  back:'slide-out-left',  landingBack:'exit-right'},
+  catalog: {exit:'exit-down',  enter:'slide-in-down',  back:'slide-out-down',  landingBack:'exit-up'},
+};
+
+function showScreen(name){
+  const landing=document.getElementById('landing');
+  const screen=document.getElementById(name+'Screen');
+  if(!screen) return;
+  const dir=SCREEN_DIRECTION[name]||{exit:'exit-right',enter:'slide-in-right',back:'slide-out-right'};
+  // Лендинг уезжает
+  landing.classList.add(dir.exit);
+  // Экран въезжает
+  screen.classList.add('active',dir.enter);
+  if(name==='catalog') setTimeout(renderCatalog,50);
+  // После анимации прячем лендинг полностью
+  setTimeout(()=>{
+    landing.style.display='none';
+    landing.classList.remove(dir.exit);
+  },450);
+}
+
+function hideScreen(name){
+  const landing=document.getElementById('landing');
+  const screen=document.getElementById(name+'Screen');
+  if(!screen) return;
+  const dir=SCREEN_DIRECTION[name]||{exit:'exit-right',enter:'slide-in-right',back:'slide-out-right'};
+  // Экран уезжает обратно
+  screen.classList.add(dir.back);
+  // Лендинг появляется
+  landing.style.display='flex';
+  landing.classList.add(dir.landingBack||'exit-left');
+  // Небольшая задержка чтобы display:flex применился до старта анимации
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      landing.classList.remove(dir.landingBack||'exit-left');
+    });
+  });
+  setTimeout(()=>{
+    screen.classList.remove('active',dir.enter,dir.back);
+  },450);
+}
 function showLanding(){
   document.getElementById('game').style.display='none';
   document.getElementById('mulliganScreen').classList.add('hidden');
@@ -283,16 +370,7 @@ function readyFromMulligan(){
   }
 }
 
-function showScreen(name){
-  document.getElementById('landing').style.display='none';
-  document.getElementById(name+'Screen').classList.add('active');
-  if(name==='catalog') setTimeout(renderCatalog, 0);
-}
-
-function hideScreen(name){
-  document.getElementById(name+'Screen').classList.remove('active');
-  document.getElementById('landing').style.display='flex';
-}
+// ── Navigation ────────────────────────────────────────────────
 
 function showWin(w){
   document.getElementById('winTitle').textContent=w.toUpperCase()+' WINS!';
