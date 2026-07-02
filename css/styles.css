@@ -108,8 +108,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
 .pcard.jcp{border-color:#7b2d8b44;color:#b44fd488;}
-.pcard.sleeping{opacity:0.45 !important;}
 .pcard-placeholder{pointer-events:none;}
+
+/* Текст pcard — отдельный слой поверх фона/рамки. Прозрачность "спит"/"устал" и уменьшение при
+   нажатии вешаем ТОЛЬКО на него (а не на .pcard целиком), иначе вместе с текстом гаснет/сжимается
+   и фон со спрайтом створок, что выглядит как баг. */
+.pcard-text{display:inline-block;transition:transform 0.08s;}
+.pcard.sleeping .pcard-text{opacity:0.45;}
+.pcard.pcard-active:active .pcard-text{transform:scale(0.9);}
 
 /* ── Спрайт-лист "створки": один PNG на фракцию, 4 кадра подряд по горизонтали —
    закрыто / приоткрыто / почти открыто / открыто (см. обсуждение размеров: каждый кадр 4:1,
@@ -118,7 +124,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Плейсхолдер всегда показывает 1-й кадр (закрыто). Обычная уже сыгранная карта (без класса
    .pcard-entering, т.е. на всех рендерах КРОМЕ самого первого появления) — последний кадр (открыто).
    Момент появления карты (.pcard-entering) проигрывает все 4 кадра по порядку и замирает на
-   последнем — дальше это визуально совпадает со статичным состоянием сыгранной карты выше. */
+   последнем — дальше это визуально совпадает со статичным состоянием сыгранной карты выше.
+   Рамка/фон при этом ВСЕГДА непрозрачны (opacity карточки больше не анимируется вообще) — единственное,
+   что появляется/исчезает — текст внутри (.pcard-text), с эффектом глича, см. ниже. */
 .pcard.tcp,.pcard-placeholder.tcp{
   background-image:url('../img/pcard_tea_shutter_sheet.png');
   background-repeat:no-repeat;
@@ -133,13 +141,20 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .pcard.jcp{background-position:100% 0;border-color:transparent;color:#b44fd4;}
 .pcard-placeholder.tcp,.pcard-placeholder.jcp{background-position:0% 0;}
 
-.pcard.pcard-entering {
-  animation: pcardEnter 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards,
-             pcardShutterFrames 0.5s steps(3) forwards;
+.pcard.pcard-entering{
+  animation: pcardShutterFrames 0.5s steps(3) forwards;
 }
-.pcard.pcard-entering.sleeping {
-  animation: pcardNotAwake 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards,
-             pcardShutterFrames 0.5s steps(3) forwards;
+
+/* Текст при появлении карты: молчит, пока открываются створки, и проявляется рывком-гличем
+   (а не плавным fade) с небольшой задержкой — чтобы казалось, что надпись "включается" на экране
+   уже ПОСЛЕ того, как рамка открылась (см. animation-delay: 0.4s — чуть раньше конца pcardShutterFrames,
+   который идёт 0.5s, чтобы текст ожил примерно в момент завершения открытия створок). */
+.pcard.pcard-entering .pcard-text{
+  opacity:0;
+  animation: pcardTextReveal 0.25s steps(2,end) 0.4s forwards;
+}
+.pcard.pcard-entering.sleeping .pcard-text{
+  animation: pcardTextRevealDim 0.25s steps(2,end) 0.4s forwards;
 }
 
 .pcard.pcard-active {cursor: pointer;transition: filter 0.08s;}
@@ -719,9 +734,28 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
     }
 }
 @keyframes selected{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-2px) scale(1.015);}}
-@keyframes pcardEnter{0%{opacity:0;}100%{opacity:1;}}
-@keyframes pcardNotAwake{0%{opacity:0;}100%{opacity:0.45;}}
 @keyframes pcardShutterFrames{0%{background-position:0% 0;}100%{background-position:100% 0;}}
+/* Глитч-появление текста pcard (см. .pcard-entering .pcard-text выше) — тот же принцип, что и у
+   существующего .glitch-text (textGlitch): резкие сдвиги + цветной text-shadow вместо плавного fade.
+   Разница только в стартовом/конечном opacity — 0→1 у обычной карты, 0→0.45 у "спящей". */
+@keyframes pcardTextReveal{
+  0%   { opacity:0; transform:translate(0); text-shadow:none; }
+  1%   { opacity:1; }
+  15%  { transform:translate(-2px,1px); text-shadow:2px 0 #ff0044,-2px 0 #00e5ff; }
+  30%  { transform:translate(2px,-1px); text-shadow:-2px 0 #ff0044,2px 0 #00e5ff; }
+  45%  { transform:translate(-1px,0);   text-shadow:1px 0 #ff0044,-1px 0 #00e5ff; }
+  60%  { transform:translate(1px,1px);  text-shadow:-1px 0 #ff0044,1px 0 #00e5ff; }
+  100% { opacity:1; transform:translate(0); text-shadow:none; }
+}
+@keyframes pcardTextRevealDim{
+  0%   { opacity:0; transform:translate(0); text-shadow:none; }
+  1%   { opacity:0.45; }
+  15%  { transform:translate(-2px,1px); text-shadow:2px 0 #ff0044,-2px 0 #00e5ff; }
+  30%  { transform:translate(2px,-1px); text-shadow:-2px 0 #ff0044,2px 0 #00e5ff; }
+  45%  { transform:translate(-1px,0);   text-shadow:1px 0 #ff0044,-1px 0 #00e5ff; }
+  60%  { transform:translate(1px,1px);  text-shadow:-1px 0 #ff0044,1px 0 #00e5ff; }
+  100% { opacity:0.45; transform:translate(0); text-shadow:none; }
+}
 
 
 /* ── Mulligan modal animations ────────────────────────────────── */
