@@ -368,12 +368,15 @@ function doBurnCard(card){
   // Анимация сжигания — находим карту в DOM и вешаем фейд перед удалением.
   // Класс burning-out — маркер для carousel.js (мобильная карусель руки), чтобы её
   // updateTransforms() не перезаписывала opacity/transform каждый кадр поверх нашего фейда.
+  // ВАЖНО: на мобиле карта в момент клика по Burn ещё имеет класс .previewed, а для него
+  // carousel.js держит свой @media-стиль с !important (opacity:1, свой transform) — обычный
+  // style.opacity/transform это не перебивает, поэтому ставим через setProperty(...,'important').
   const cardEl=document.querySelector(`.hand .card[data-id="${card.id}"]`);
   if(cardEl){
     cardEl.classList.add('burning-out');
-    cardEl.style.transition='opacity 0.3s ease, transform 0.3s ease';
-    cardEl.style.opacity='0';
-    cardEl.style.transform='scale(0.85)';
+    cardEl.style.setProperty('transition','opacity 0.3s ease, transform 0.3s ease','important');
+    cardEl.style.setProperty('opacity','0','important');
+    cardEl.style.setProperty('transform','scale(0.85)','important');
   }
 
   setTimeout(()=>{
