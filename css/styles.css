@@ -425,10 +425,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   position:fixed;top:44px;right:14px;width:320px;
   background:transparent;
   border-style:solid;
-  border-width:clamp(10px, 20px);
+  border-width:20px;
   border-image-source:url('../img/log_frame.png');
   border-image-slice:20 fill;
-  border-image-width:clamp(10px, 20px);
+  border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -536,8 +536,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-position:center;
   background-color:transparent;
   border:none;
-  width:122px;
-  height:44px;
+  width:120px;
+  height:40px;
   font-size:0;
   line-height:0;
   padding:0;
@@ -569,8 +569,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   padding:clamp(12px,1.5vw,18px);
   flex:1;
 }
-.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:14px;}
-.modal p{font-size:18px;color:#9B937F;margin-bottom:18px;line-height:1.6;}
+.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:7px;}
+.modal p{font-size:5px;color:#9B937F;margin-bottom:18px;line-height:1.6;}
 
 /* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
