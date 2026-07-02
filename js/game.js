@@ -857,17 +857,20 @@ function scheduleStatGlitch(){
 }
 scheduleStatGlitch();
 
-// ── Случайный глитч тайтла на лендинге (та же логика, что и triggerStatGlitch выше) ──
+// ── Случайный глитч тайтла в хедере игры (та же логика, что и triggerStatGlitch выше) ──
 function triggerTitleGlitch(){
-  const el=document.querySelector('.landing-title');
+  // Таргетим .title-glitch-wrap в хедере игры — этот элемент виден ВСЕГДА во время партии.
+  // Раньше таргетили .landing-title, но лендинг-экран скрыт во время игры (display:none),
+  // поэтому глитч там "срабатывал", но никто его не видел.
+  const el=document.querySelector('.title-glitch-wrap');
   if(!el) return;
   el.classList.remove('glitching');
-  void el.offsetWidth; // форсируем reflow, чтобы анимация перезапустилась, если уже висела
+  void el.offsetWidth;
   el.classList.add('glitching');
   setTimeout(()=>el.classList.remove('glitching'), 350);
 }
 function scheduleTitleGlitch(){
-  const delay=4000+Math.random()*8000; // раз в 4-12 секунд, каждый раз новое случайное время
+  const delay=4000+Math.random()*8000;
   setTimeout(()=>{ triggerTitleGlitch(); scheduleTitleGlitch(); }, delay);
 }
 scheduleTitleGlitch();
