@@ -55,7 +55,9 @@ function toggleMusic(){
 
 // Браузеры блокируют автоплей со звуком до первого жеста пользователя —
 // пытаемся запустить музыку при первом клике/тапе по странице, с плавным fade-in.
+// Заодно resume AudioContext для Web Audio SFX (он может быть suspended до первого жеста).
 function _tryStartMusicOnGesture(){
+  _getAudioCtx().resume().catch(()=>{});
   const audio = _getMusicEl();
   if(audio && musicEnabled && audio.paused){
     audio.volume = 0;
@@ -67,13 +69,42 @@ function _tryStartMusicOnGesture(){
 }
 document.addEventListener('pointerdown', _tryStartMusicOnGesture);
 document.addEventListener('DOMContentLoaded', _refreshMusicBtn);
+// Начинаем загрузку SFX-буферов сразу — до первого взаимодействия они уже будут готовы.
+_initSfxBuffers();
 
-// ── Sound effects (SFX) ──────────────────────────────────────────
+// ── Sound effects (SFX) — Web Audio API ──────────────────────────
+// AudioContext + предзагрузка буферов → нулевая задержка при проигрывании.
+// new Audio() каждый раз декодирует файл заново и создаёт DOM-элемент — отсюда
+// задержка и лаг на hover. BufferSource создаётся за ~0мс из уже декодированного буфера.
 let sfxEnabled = localStorage.getItem('hj_sfx') !== 'off';
 const SFX_VOLUME = 0.6;
 
-// Кэш аудио-буферов по имени файла, чтобы не грузить их заново при каждом клике.
-const _sfxCache = {};
+let _audioCtx = null;
+const _sfxBuffers = {};   // name → AudioBuffer (декодированный PCM)
+const SFX_FILES = ['Navigation_Cursor', 'Click_Cursor', 'Burn_Card', 'grate'];
+
+// Минимальный интервал между повторными вызовами одного и того же звука (мс).
+// Navigation_Cursor тротлим жёстко — иначе при движении по картам будет шторм вызовов.
+const SFX_THROTTLE = { 'Navigation_Cursor': 90 };
+const _sfxLastMs   = {};
+
+function _getAudioCtx(){
+  if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+async function _loadSfxBuffer(name){
+  try{
+    const ctx = _getAudioCtx();
+    const res = await fetch(`audio/${name}.wav`);
+    const raw = await res.arrayBuffer();
+    _sfxBuffers[name] = await ctx.decodeAudioData(raw);
+  }catch(e){ /* файл ещё не добавлен — тихо пропускаем */ }
+}
+
+function _initSfxBuffers(){
+  SFX_FILES.forEach(n => _loadSfxBuffer(n));
+}
 
 function _refreshSfxBtn(){
   const btn = document.getElementById('sfxToggleBtn');
@@ -89,52 +120,107 @@ function toggleSfx(){
   sfxEnabled = !sfxEnabled;
   localStorage.setItem('hj_sfx', sfxEnabled ? 'on' : 'off');
   _refreshSfxBtn();
-  if(sfxEnabled) playSfx('Click_Cursor'); // слышим звук в момент включения
+  if(sfxEnabled) playSfx('Click_Cursor');
 }
 
-// Проигрывает эффект audio/<name>.wav (или .mp3, если передать расширение явно в name).
-// Каждый вызов создаёт новый Audio(), чтобы одинаковые звуки могли накладываться друг на друга.
+// Мгновенный звук через Web Audio API.
+// Если буфер ещё не загружен — тихо пропускаем (не вешаем).
 function playSfx(name, volume){
   if(!sfxEnabled) return;
-  const hasExt = /\.(wav|mp3|ogg)$/i.test(name);
-  const src = hasExt ? `audio/${name}` : `audio/${name}.wav`;
+  const throttle = SFX_THROTTLE[name];
+  if(throttle){
+    const now = Date.now();
+    if(now - (_sfxLastMs[name]||0) < throttle) return;
+    _sfxLastMs[name] = now;
+  }
   try{
-    const sfx = new Audio(src);
-    sfx.volume = volume != null ? volume : SFX_VOLUME;
-    sfx.play().catch(()=>{});
-  }catch(e){ /* игнорируем: например, файл ещё не добавлен */ }
+    const ctx = _getAudioCtx();
+    if(ctx.state === 'suspended') ctx.resume();
+    const buffer = _sfxBuffers[name];
+    if(!buffer) return; // буфер ещё грузится — пропускаем без ошибки
+    const src  = ctx.createBufferSource();
+    src.buffer = buffer;
+    const gain = ctx.createGain();
+    gain.gain.value = volume != null ? volume : SFX_VOLUME;
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    src.start(0);
+  }catch(e){}
 }
 
 document.addEventListener('DOMContentLoaded', _refreshSfxBtn);
 
 function preloadAssets(){
+  // Все UI-картинки, которые нужны ДО и ВО ВРЕМЯ игры.
+  // Загружаем через new Image() — браузер положит в кэш, повторный запрос будет мгновенным.
+  // Порядок важен: сначала лендинг (видны сразу), потом игровые, потом вторичные.
   const criticalImages = [
+    // ── Фон и базовые UI ──
+    'img/space_bg.png', 'img/brand.png',
+    'img/bg_modal.png', 'img/bg_jest.png',
+    'img/log_frame.png', 'img/log_header.png',
+    'img/bg_bottom_bar.png',
+
+    // ── Кнопки лендинга ──
+    'img/btn_playgame1.png', 'img/btn_playgame2.png',
+    'img/btn_playgame_gates_sheet.png', 'img/btn_playgame_hover.png',
+    'img/btn_rules1.png', 'img/btn_rules2.png',
+    'img/btn_catalog1.png', 'img/btn_catalog2.png',
+    'img/btn_lore1.png', 'img/btn_lore2.png',
+    'img/btn_hotseat1.png', 'img/btn_hotseat2.png', 'img/btn_hotseatH.png',
+    'img/btn_vsai1.png', 'img/btn_online1.png',
+    'img/btn_music_on1.png', 'img/btn_music_on2.png',
+    'img/btn_music_off1.png', 'img/btn_music_off2.png',
+
+    // ── Кнопки модалок ──
+    'img/btn_yes.png', 'img/btn_cancel.png',
+    'img/btn_mulligan.png', 'img/btn_ready.png',
+    'img/btn_X.png', 'img/btn_Xh.png', 'img/btn_X2.png',
+
+    // ── Карты — базовые фреймы ──
     'img/card_tea.png', 'img/card_jeet.png',
-    'img/card_name_bg.png', 'img/card_text_bg.png', 'img/card_stat_bg.png',
-    'img/pcard_tea_bg.png', 'img/pcard_jeet_bg.png', 'img/pcard_bg.png',
-    'img/tag_bg.png', 'img/space_bg.png', 'img/brand.png',
-    'img/button_1.png', 'img/button_grav_1.png', 'img/button_mul_1.png',
-    'img/deck.png', 'img/runaha.png',
-    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/ess.png',
+    'img/card_name_bg.png', 'img/card_text_bg.png',
+    'img/card_stat_bg.png', 'img/card_text_world_bg.png',
+    'img/pcard_tea_bg.png', 'img/pcard_jeet_bg.png',
+    'img/pcard_tea_shutter_sheet.png', 'img/pcard_jeet_shutter_sheet.png',
+    'img/tag_bg.png',
+
+    // ── Стат-бары ──
+    'img/bg_tea_bar.png', 'img/bg_jeet_bar.png',
+    'img/bg_statbar_hp.png', 'img/bg_statbar_ess.png',
+    'img/bg_statbar_tea.png', 'img/bg_statbar_jeet.png',
+    'img/statbar_jeet.png', 'img/statbar_tea.png',
+    'img/bg_cost_tea.png', 'img/bg_cost_jeet.png',
+    'img/bg_handP_bar.png', 'img/bg_handO_bar.png', 'img/bg_arena_bar.png',
+
+    // ── Игровые иконки ──
+    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/chel2.png', 'img/ess.png',
     'img/hp_tea.png', 'img/hp_jeet.png',
+    'img/deck.png', 'img/runaha.png', 'img/ef_burn.png',
+
+    // ── Типы карт ──
     'img/type_creature.png', 'img/type_spell.png', 'img/type_world.png',
     'img/type_artifact.png', 'img/type_unique.png',
+
+    // ── Иконки тегов ──
     'img/ico_fear.png', 'img/ico_pierce.png', 'img/ico_regen.png',
-    'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png',
-    'img/ico_vanguard.png',
-    'img/ef_burn.png',
+    'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png', 'img/ico_vanguard.png',
+
+    // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
+    'img/btn_turn1.png', 'img/btn_zoom.png',
+    'img/button_1.png', 'img/button_2.png',
+    'img/button_grav_1.png', 'img/button_grav_2.png',
   ];
-  criticalImages.forEach(src => {
-    const img = new Image();
-    img.src = src;
-  });
+  criticalImages.forEach(src => { const img = new Image(); img.src = src; });
+
+  // Арты карт — грузим через 1.5с, чтобы не конкурировать с UI
   setTimeout(() => {
     if(typeof DEFS === 'undefined') return;
     Object.values(DEFS).forEach(def => {
       if(def.img){ const img = new Image(); img.src = `img/cards/${def.img}`; }
     });
-  }, 2000);
+  }, 1500);
 }
 
 // ── Ворота (Play Game) ────────────────────────────────────────
