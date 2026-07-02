@@ -102,9 +102,17 @@ function getTypeDotImg(card){
 // Используется в двух местах с разными триггерами открытия/закрытия:
 //   1) mkSmallEl (карты поля боя) — открывается долгим нажатием, закрывается отпусканием кнопки/пальца.
 //   2) mkEl (кнопка Zoom в руке) — открывается кликом по кнопке, закрывается тапом в любом месте экрана.
+//
+// РЕГУЛИРОВКА РАЗМЕРА: конечный масштаб карты — последний аргумент scale в вызове
+// showFieldCardPreview(...) ниже по коду (два места: mkSmallEl для поля и zoomHandCardFly
+// для руки), а также константы FIELD_PREVIEW_SCALE/HAND_ZOOM_SCALE прямо под этим комментарием —
+// меняй любую из них независимо, вторую не затронет.
+const FIELD_PREVIEW_SCALE = 1.6; // во сколько раз увеличивается карта поля при долгом нажатии
+const HAND_ZOOM_SCALE     = 1.6; // во сколько раз увеличивается карта руки по кнопке Zoom
+
 let fieldPreviewEl=null;
 
-function showFieldCardPreview(card, originEl){
+function showFieldCardPreview(card, originEl, scale=FIELD_PREVIEW_SCALE){
   closeFieldCardPreview();
   const originRect=originEl.getBoundingClientRect();
   // "Чистая" копия карты для превью: сбрасываем игровые состояния (устала/спит/страх/горит/выбрана),
@@ -120,6 +128,11 @@ function showFieldCardPreview(card, originEl){
   el.style.pointerEvents='none';
   document.body.appendChild(el);
 
+  // Сама карта остаётся pointer-events:none (клик по ней должен "проваливаться" сквозь неё —
+  // см. zoomHandCardFly/backdrop), но иконки способностей включаем точечно, чтобы наведение
+  // на них ловилось тултипом (см. TAG_TOOLTIPS/mousemove в ui.js).
+  el.querySelectorAll('.card-tag-icon').forEach(icon=>{ icon.style.pointerEvents='auto'; });
+
   const targetRect=el.getBoundingClientRect(); // естественный размер .card из CSS (--card-w/--card-h)
   const scaleX=originRect.width/targetRect.width;
   const scaleY=originRect.height/targetRect.height;
@@ -134,7 +147,7 @@ function showFieldCardPreview(card, originEl){
   el.style.transition='left .25s cubic-bezier(.22,.9,.32,1), top .25s cubic-bezier(.22,.9,.32,1), transform .25s cubic-bezier(.22,.9,.32,1)';
   el.style.left='50%';
   el.style.top='46%';
-  el.style.transform='translate(-50%,-50%) scale(1.6)';
+  el.style.transform=`translate(-50%,-50%) scale(${scale})`;
 
   fieldPreviewEl=el;
 }
@@ -282,13 +295,37 @@ ${!isSW?`<div class="card-small-stats">
 // анимацию, из-за чего карта не долетала до центра и рендерилась смещённой. Клон не имеет
 // класса .previewed и не зависит от того, что происходит с оригиналом в руке (в т.ч. от
 // пересборки DOM руки при следующем render()), поэтому центрируется одинаково на любом устройстве.
-// Закрывается тапом/кликом в любом месте экрана (в отличие от превью поля, которое закрывается
-// отпусканием кнопки/пальца) — навешиваем одноразовый слушатель клика на document.
+//
+// Пока карта зумлена — поверх игры лежит полупрозрачный бэкдроп (.card-preview-backdrop,
+// z-index чуть ниже клона карты, но выше всего остального), который блокирует клики по картам/
+// кнопкам "за" увеличенной картой. Сама карта внутри клона pointer-events:none (см.
+// showFieldCardPreview), поэтому клик по ней проваливается сквозь неё прямо на бэкдроп —
+// а клик по бэкдропу, как и по чему угодно ещё на экране, всплывает до document и закрывает зум
+// (единственное исключение — иконки способностей, у них pointer-events:auto ради тултипов,
+// но клик по ним тоже долетает до document и тоже закрывает зум).
+let previewBackdropEl=null;
+
 function zoomHandCardFly(card, originEl){
-  showFieldCardPreview(card, originEl);
+  if(previewBackdropEl){ previewBackdropEl.remove(); previewBackdropEl=null; } // на всякий случай
+  const backdrop=document.createElement('div');
+  backdrop.className='card-preview-backdrop';
+  document.body.appendChild(backdrop);
+  previewBackdropEl=backdrop;
+
+  showFieldCardPreview(card, originEl, HAND_ZOOM_SCALE);
   setTimeout(()=>{
-    document.addEventListener('click', closeFieldCardPreview, {once:true});
+    document.addEventListener('click', closeZoomHandCard, {once:true});
   }, 0);
+}
+
+function closeZoomHandCard(){
+  closeFieldCardPreview();
+  if(previewBackdropEl){
+    const bd=previewBackdropEl;
+    previewBackdropEl=null;
+    bd.style.opacity='0';
+    setTimeout(()=>{ if(bd.parentElement) bd.remove(); },160);
+  }
 }
 
 // Рисует БОЛЬШУЮ карту (.card) — используется для руки (zone='hand') и кладбища (zone='grave').
