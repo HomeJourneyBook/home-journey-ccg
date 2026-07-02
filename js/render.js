@@ -633,6 +633,77 @@ function _mkPcardSlotHtml(card, faction, isPlayer){
   return `<div class="pcard pcard-inline pcard-placeholder ${cls}"></div>`;
 }
 
+// ── Долгое нажатие/удержание на pcard (уже сыгранный Мир/Артефакт в стат-баре) — то же превью
+// большой картой по центру экрана, что и у карт поля боя (showFieldCardPreview, см. mkSmallEl).
+// Реализовано через делегирование на document, а не через addEventListener на самом .pcard —
+// потому что стат-бар целиком пересоздаётся (innerHTML) на каждый render(), и вешать/снимать
+// листенеры на каждый элемент заново было бы дороже и легко потерять при перерисовке во время
+// самого удержания (например, если что-то в игре обновится, пока палец/кнопка ещё зажаты).
+function findPersistCardById(id){
+  for(const f of ['tea','jeet']){
+    const p=G[f];
+    if(p.world&&String(p.world.id)===String(id)) return p.world;
+    const art=(p.artifacts||[]).find(a=>String(a.id)===String(id));
+    if(art) return art;
+  }
+  return null;
+}
+
+let pcardPressTimer=null, pcardPressStart=null, pcardLongPressFired=false, pcardPressEl=null;
+let suppressNextPcardClick=false; // гасит клик-активацию (shard/sacrifice) сразу после удержания
+const clearPcardPressTimer=()=>{ if(pcardPressTimer){clearTimeout(pcardPressTimer);pcardPressTimer=null;} };
+const endPcardPress=()=>{
+  clearPcardPressTimer();
+  if(pcardLongPressFired){
+    pcardLongPressFired=false;
+    closeFieldCardPreview();
+    suppressNextPcardClick=true;
+  }
+  pcardPressEl=null;
+};
+
+document.addEventListener('mousedown',(e)=>{
+  if(e.button!==0) return;
+  const pcardEl=e.target.closest('.pcard[data-pid]'); // у плейсхолдера нет data-pid — он не участвует
+  if(!pcardEl) return;
+  const card=findPersistCardById(pcardEl.dataset.pid);
+  if(!card) return;
+  pcardPressEl=pcardEl; pcardPressStart={x:e.clientX,y:e.clientY}; pcardLongPressFired=false; clearPcardPressTimer();
+  pcardPressTimer=setTimeout(()=>{pcardLongPressFired=true;showFieldCardPreview(card,pcardEl);},380);
+  // Закрытие по mouseup на document (не на самом .pcard) — та же причина, что и у карт поля:
+  // маленький элемент, курсор легко "убегает" за его пределы при удержании.
+  document.addEventListener('mouseup', endPcardPress, {once:true});
+});
+document.addEventListener('touchstart',(e)=>{
+  const pcardEl=e.target.closest('.pcard[data-pid]');
+  if(!pcardEl) return;
+  const card=findPersistCardById(pcardEl.dataset.pid);
+  if(!card) return;
+  const t=e.touches[0];
+  pcardPressEl=pcardEl; pcardPressStart={x:t.clientX,y:t.clientY}; pcardLongPressFired=false; clearPcardPressTimer();
+  pcardPressTimer=setTimeout(()=>{pcardLongPressFired=true;showFieldCardPreview(card,pcardEl);},380);
+},{passive:true});
+document.addEventListener('touchmove',(e)=>{
+  if(!pcardPressTimer||!pcardPressEl) return;
+  const t=e.touches[0];
+  if(Math.abs(t.clientX-pcardPressStart.x)>10||Math.abs(t.clientY-pcardPressStart.y)>10) clearPcardPressTimer();
+},{passive:true});
+['touchend','touchcancel'].forEach(evt=>{
+  document.addEventListener(evt,()=>{
+    if(!pcardPressEl) return;
+    clearPcardPressTimer();
+    if(pcardLongPressFired){ pcardLongPressFired=false; closeFieldCardPreview(); suppressNextPcardClick=true; }
+    pcardPressEl=null;
+  });
+});
+// Фаза capture — успевает перехватить клик ДО того, как сработает inline onclick самого .pcard
+// (активация shard/sacrifice артефакта), чтобы отпускание после удержания не активировало карту.
+document.addEventListener('click',(e)=>{
+  if(!suppressNextPcardClick) return;
+  suppressNextPcardClick=false;
+  if(e.target.closest('.pcard[data-pid]')){ e.stopPropagation(); e.preventDefault(); }
+},true);
+
 // Переставляет DOM-элементы местами в Hot Seat режиме: чужие зоны (поле/рука/статбар) — наверх экрана,
 // свои — вниз, в зависимости от того, чей сейчас ход (G.turn). Физически перемещает существующие
 // .field/.persist/.hand элементы между контейнерами, а не пересоздаёт их — поэтому быстро и без потери стейта.
