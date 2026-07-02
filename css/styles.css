@@ -185,9 +185,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   transition: filter 0.08s;
   animation: pcardReadyPulse 1.8s ease-in-out infinite;
 }
-.pcard.pcard-active:hover { filter: brightness(1.3); }
+.pcard.pcard-active :hover { filter: brightness(1.3); }
 @keyframes pcardReadyPulse{
-  0%,100% { box-shadow: 0 0 6px  #B44FD4AA 0 0 14px #B44FD4CC;}
+  0%,100% { box-shadow: 0 0 6px  #B44FD4AA, 0 0 14px #B44FD4CC;}
   50% { box-shadow: 0 0 14px #B44FD4FF, 0 0 28px #B44FD4DD;}
 }
 
@@ -254,7 +254,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 
 /* CARDS */
-.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;}
+.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;border-radius:10px}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
 .card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
 .card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
@@ -294,7 +294,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .hand .card{flex-shrink:0;transition:transform .2s;position:relative;width:var(--card-w)!important;min-width:var(--card-w)!important;}
 .card-actions-popup {animation: popupSlideUp 0.18s ease-out forwards;}
 .hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:silverPulse 1.8s ease-in-out infinite;}
-.hand .card.previewed{position:relative;border-radius:6px;border-color:#E8E0C8 !important;}
+.hand .card.previewed{position:relative;border-color:#E8E0C8 !important;}
 @media(hover:hover){.hand .card:not(.previewed):hover{transform:translateY(-10px) !important;z-index:100 !important;}}
 .field-ability-popup{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px;z-index:2001;width:70px;pointer-events:all;}
 .card-actions-popup{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px;z-index:2001;width:110px;pointer-events:all;}
@@ -433,13 +433,13 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .player-name-box:active{transform:scale(0.92);}
 .player-name-box.base-targetable{cursor:crosshair;outline:1px solid #e05555;outline-offset:1px;border-radius:6px;animation:pulseNameBox .8s infinite alternate;}
 
-.opp-hand-zone{height:6vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.opp-hand-zone{height:7vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .field-zone{border:1px solid #80808080;background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;padding:2px}
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
-.player-hand-zone{height:calc(var(--card-h) + 6px);padding:0 6px;border:none;}
+.player-hand-zone{height:27vh;padding:6px 6px;border:none;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 
 /* BOTTOM BAR */
@@ -648,7 +648,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Все три слоя одного размера (32vh × 8vh), стопкой через position:absolute */
 .play-gate-wrap{
   position:relative;
-  width:32vh;height:8vh;       /* = размер .art-btn */
+  width:24vh;height:6vh;       /* = размер .art-btn */
   flex-shrink:0;
 }
 
@@ -661,8 +661,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   pointer-events:none;          /* закрыты — нельзя нажать */
 }
 .art-btn-mode{                  /* квадратная кнопка режима, 1/3 ширины блока */
-  width:calc((32vh - 8px) / 3);
-  height:8vh;
+  width:calc((24vh - 6px) / 3);
+  height:6vh;
   /* остальные стили наследует .art-btn-square */
 }
 
@@ -856,8 +856,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Паттерн для всех: базовый арт (1.png), на :active подменяется
    на второй арт (2.png), никаких transition, hover — только brightness. */
 .art-btn{
-  width:32vh;
-  height:8vh;
+  width:24vh;
+  height:6vh;
   border:none;
   background-color:transparent;
   background-repeat:no-repeat;
@@ -883,8 +883,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-lore:active{background-image:url('../img/btn_lore2.png');}
 
 .art-btn-square{
-  width:8vh;
-  height:8vh;
+  width:6vh;
+  height:6vh;
   border:none;
   background-color:transparent;
   background-repeat:no-repeat;
@@ -1475,7 +1475,7 @@ img{
   position:fixed;
   z-index:9999;
   pointer-events:none;
-  background:transparent;
+  background:#0c0c18ee;
   border:1px solid #9B937F;
   border-radius:4px;
   padding:7px 11px;
