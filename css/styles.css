@@ -180,11 +180,6 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Артефакт готов к активации (можно кликнуть прямо сейчас) — лёгкая постоянная пульсация
    фиолетовым свечением вокруг рамки, привлекает внимание. Рамка/размер не меняются — только
    box-shadow снаружи, border-image не трогаем вообще. */
-.pcard.pcard-active {
-  cursor: pointer;
-  transition: filter 0.08s;
-  animation: pcardReadyPulse 1.8s ease-in-out infinite;
-}
 .pcard.pcard-active .pcard-text{
   cursor: pointer;
   transition: filter 0.08s;
@@ -192,7 +187,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .pcard.pcard-active :hover { filter: brightness(1.3); }
 @keyframes pcardReadyPulse{
-  0%,100% { box-shadow: 0 0 6px  #B44FD4AA 0 0 14px #B44FD4CC;}
+  0%,100% { box-shadow: 0 0 6px  #B44FD4AA, 0 0 14px #B44FD4CC;}
   50% { box-shadow: 0 0 14px #B44FD4FF, 0 0 28px #B44FD4DD;}
 }
 
