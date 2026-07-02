@@ -284,6 +284,7 @@ ${!isSW?`<div class="card-small-stats">
     if(longPressFired){ e.stopPropagation(); longPressFired=false; return; }
     onClick(card,'field');
   });
+  d.addEventListener('mouseenter',()=>playSfx('Navigation_Cursor'));
   return d;
 }
 
@@ -390,7 +391,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();playSfx('Click_Cursor');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -408,7 +409,7 @@ const tagIcons = (card.tags||[])
       burnPopup.className='card-actions-popup-right';
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
-      burnBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doBurnCard(card);};
+      burnBtn.onclick=(e)=>{e.stopPropagation();playSfx('Burn_Card');G.previewCard=null;doBurnCard(card);};
       burnPopup.appendChild(burnBtn);
       d.appendChild(burnPopup);
     }
@@ -418,11 +419,12 @@ const tagIcons = (card.tags||[])
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();zoomHandCardFly(card,d);};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('Click_Cursor');zoomHandCardFly(card,d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
+  d.addEventListener('mouseenter',()=>{ if(zone==='hand') playSfx('Navigation_Cursor'); });
   return d;
 }
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
@@ -450,7 +452,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();playSfx('Click_Cursor');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -468,7 +470,7 @@ const tagIcons = (card.tags||[])
       burnPopup.className='card-actions-popup-right';
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
-      burnBtn.onclick=(e)=>{e.stopPropagation();G.previewCard=null;doBurnCard(card);};
+      burnBtn.onclick=(e)=>{e.stopPropagation();playSfx('Burn_Card');G.previewCard=null;doBurnCard(card);};
       burnPopup.appendChild(burnBtn);
       d.appendChild(burnPopup);
     }
@@ -478,11 +480,12 @@ const tagIcons = (card.tags||[])
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();zoomHandCardFly(card,d);};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('Click_Cursor');zoomHandCardFly(card,d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
+  d.addEventListener('mouseenter',()=>{ if(zone==='hand') playSfx('Navigation_Cursor'); });
   return d;
 }
 
@@ -605,9 +608,9 @@ function _mkPcardHtml(card, isPlayer){
     if(hasTag(card,'shard')){
       if(G.phase==='shardTarget'){
         targetingCls=' pcard-targeting';
-        onclick=`onclick="event.stopPropagation();doShard(G[G.turn].artifacts[0])"`;
+        onclick=`onclick="event.stopPropagation();playSfx('Click_Cursor');doShard(G[G.turn].artifacts[0])"`;
       } else if(G.phase==='action'){
-        onclick=`onclick="event.stopPropagation();doShard(G[G.turn].artifacts[0])"`;
+        onclick=`onclick="event.stopPropagation();playSfx('Click_Cursor');doShard(G[G.turn].artifacts[0])"`;
       }
     }
     if(hasTag(card,'sacrifice')){
@@ -615,7 +618,7 @@ function _mkPcardHtml(card, isPlayer){
         targetingCls=' pcard-targeting';
         onclick=`onclick="event.stopPropagation();G.phase='action';G.sel=null;render()"`;
       } else if(G.phase==='action'){
-        onclick=`onclick="event.stopPropagation();G.phase='sacrificeTarget';G.sel='${card.id}';lg('Altar: select a creature to sacrifice.','hint');render()"`;
+        onclick=`onclick="event.stopPropagation();playSfx('Click_Cursor');G.phase='sacrificeTarget';G.sel='${card.id}';lg('Altar: select a creature to sacrifice.','hint');render()"`;
       }
     }
   }
