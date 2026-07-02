@@ -365,7 +365,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* .jeet-hp-box{background-image:url('../img/statbar_hp_jeet.png');} */
 /* .tea-ess-box{background-image:url('../img/statbar_ess_tea.png');} */
 /* .jeet-ess-box{background-image:url('../img/statbar_ess_jeet.png');} */
-.player-name-box{width:80px;height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
+.player-name-box{width:max(4vh, 2vw);height:max(4vh, 2vw);background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
 .tea-name-box{background-image:url('../img/bg_statbar_tea.png');}
 .jeet-name-box{background-image:url('../img/bg_statbar_jeet.png');}
 .player-name-box:active{transform:scale(0.92);}
@@ -439,7 +439,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 /* ── Хедер лог-панели ─────────────────────────────────────────────────────────*/
 .log-panel-header{background-image:url('../img/log_header.png');background-size:100% 100%;display:flex;justify-content:center;align-items:center;padding:6px 6px;position:relative;}
-.log-panel-title{font-size:14px;color:#E8E0C8;font-family:'MEK',monospace;text-align:center;}
+.log-panel-title{font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;font-family:'MEK',monospace;text-align:center;}
 .log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:20px;height:20px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
@@ -966,7 +966,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .grave-modal-title{
   font-family:'MEK',monospace;
-  font-size:14px;
+  font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));
   color:#E8E0C8;
   text-align:center;
 }
@@ -987,7 +987,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 /* Скролл-зона с картами — максимум 2 в ряд (card-w × 2 + gap) */
 .grave-modal-body{
-  padding:2px 4px 4px;
+  padding:10px 4px 4px;
   overflow-y:auto;
   flex:1;
   display:flex;
@@ -1001,19 +1001,17 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .grave-modal-body::-webkit-scrollbar-thumb{background:#E8E0C888;border-radius:0;}
 .grave-modal-body::-webkit-scrollbar-thumb:hover{background:#E8E0C8;}
 
-/* Футер кладбища
-   Для замены: background-image:url('../img/grave_footer_skulls.png'); background-repeat:repeat-x; */
+/* Футер кладбища — bones.png на всю ширину, обрезается окном сам */
 .grave-modal-footer{
+  background-image:url('../img/bones.png');
+  background-size:auto 100%;
+  background-repeat:no-repeat;
+  background-position:center;
   background-color:#111418;
   border-top:1px solid #2a2e38;
   height:28px;
   flex-shrink:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#333;
-  font-size:16px;
-  letter-spacing:8px;
+  overflow:hidden;
 }
 
 /* RULES & LORE SCREENS */
