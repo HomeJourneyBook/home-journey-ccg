@@ -95,9 +95,13 @@ function getTypeDotImg(card){
   return 'img/type_creature.png';
 }
 
-// ── Долгое нажатие/удержание на карте поля боя: показывает БОЛЬШУЮ (.card) версию карты
-// по центру экрана, пока палец/кнопка мыши удерживаются. При отпускании превью исчезает.
-// Используется в mkSmallEl ниже (см. обработчики mousedown/touchstart в конце функции).
+// ── Общий механизм "увеличенного превью" карты по центру экрана: рисуется НЕ поверх
+// оригинального элемента, а отдельным клоном (mkEl(...,'preview')) поверх всего экрана —
+// поэтому не зависит от того, что происходит с оригиналом (перерисовки поля/руки,
+// анимации карусели и т.п. ему не мешают).
+// Используется в двух местах с разными триггерами открытия/закрытия:
+//   1) mkSmallEl (карты поля боя) — открывается долгим нажатием, закрывается отпусканием кнопки/пальца.
+//   2) mkEl (кнопка Zoom в руке) — открывается кликом по кнопке, закрывается тапом в любом месте экрана.
 let fieldPreviewEl=null;
 
 function showFieldCardPreview(card, originEl){
@@ -233,12 +237,22 @@ ${!isSW?`<div class="card-small-stats">
   }
   // Долгое нажатие (мышь/палец) — показать превью большой картой по центру, пока держим.
   // Обычный короткий тап — как раньше, выбор/атака через onClick.
+  // ВАЖНО (мышь): раньше закрытие превью висело на 'mouseleave' самой карточки — но у маленьких
+  // карт поля это крошечная область, и любое дрожание курсора при удержании кнопки уводило
+  // указатель за её пределы, из-за чего превью схлопывалось ещё до отпускания кнопки мыши.
+  // Поэтому закрытие по мыши теперь ловим на document через 'mouseup' — превью живёт,
+  // пока зажата кнопка, независимо от того, где сейчас курсор, и закрывается ровно в момент отпускания.
   let pressTimer=null, pressStart=null, longPressFired=false;
   const clearPressTimer=()=>{ if(pressTimer){clearTimeout(pressTimer);pressTimer=null;} };
+  const endMousePress=()=>{
+    clearPressTimer();
+    if(longPressFired){ longPressFired=false; closeFieldCardPreview(); }
+  };
   d.addEventListener('mousedown',(e)=>{
     if(e.button!==0) return;
     pressStart={x:e.clientX,y:e.clientY}; longPressFired=false; clearPressTimer();
     pressTimer=setTimeout(()=>{longPressFired=true;showFieldCardPreview(card,d);},380);
+    document.addEventListener('mouseup', endMousePress, {once:true});
   });
   d.addEventListener('touchstart',(e)=>{
     const t=e.touches[0];
@@ -250,8 +264,8 @@ ${!isSW?`<div class="card-small-stats">
     const t=e.touches[0];
     if(Math.abs(t.clientX-pressStart.x)>10||Math.abs(t.clientY-pressStart.y)>10) clearPressTimer();
   },{passive:true});
-  ['mouseup','mouseleave','touchend','touchcancel'].forEach(evt=>{
-    d.addEventListener(evt,()=>{ clearPressTimer(); if(longPressFired) closeFieldCardPreview(); });
+  ['touchend','touchcancel'].forEach(evt=>{
+    d.addEventListener(evt,()=>{ clearPressTimer(); if(longPressFired){longPressFired=false;closeFieldCardPreview();} });
   });
   d.addEventListener('click',(e)=>{
     if(longPressFired){ e.stopPropagation(); longPressFired=false; return; }
@@ -260,52 +274,21 @@ ${!isSW?`<div class="card-small-stats">
   return d;
 }
 
-// ── Зум карты в руке: не просто scale() на месте, а "вылет" в центр экрана.
-// zoomCardFly: карта фиксируется в position:fixed на своих текущих координатах (getBoundingClientRect),
-// затем анимированно летит в центр с увеличением; кнопки Play/Burn/Zoom на это время скрываются.
-// unzoomCardFly: обратная анимация назад в исходную точку, после чего снимаются inline-стили
-// и кнопки возвращаются (см. transitionend).
-// ВАЖНО: карта в момент клика по Zoom ещё имеет класс .previewed, а для него carousel.js (мобильная
-// карусель) держит свой @media-стиль с !important (свой transform/opacity/transition) — обычный
-// style.transform/transition это не перебивает, из-за чего на мобиле карта "не долетала" до центра
-// и рендерилась смещённой. Поэтому transform/transition/z-index ставим через setProperty(...,'important').
-function zoomCardFly(cardEl){
-  if(cardEl.classList.contains('zoomed-fly')) return;
-  const rect=cardEl.getBoundingClientRect();
-  cardEl._zoomOrigRect=rect;
-  cardEl.style.position='fixed';
-  cardEl.style.margin='0';
-  cardEl.style.top=rect.top+'px';
-  cardEl.style.left=rect.left+'px';
-  cardEl.style.width=rect.width+'px';
-  cardEl.style.height=rect.height+'px';
-  cardEl.style.setProperty('transform','none','important');
-  cardEl.style.setProperty('transition','none','important');
-  cardEl.style.setProperty('z-index','5000','important');
-  cardEl.classList.add('zoomed-fly');
-  cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
-    .forEach(p=>p.style.display='none');
-  void cardEl.offsetWidth; // форсируем reflow, иначе старт и финиш анимации "склеятся" в один кадр
-  cardEl.style.setProperty('transition','top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1)','important');
-  cardEl.style.top='50%';
-  cardEl.style.left='50%';
-  cardEl.style.setProperty('transform','translate(-50%,-50%) scale(2.6)','important');
-}
-
-function unzoomCardFly(cardEl){
-  const rect=cardEl._zoomOrigRect;
-  if(!rect) return;
-  cardEl.style.top=rect.top+'px';
-  cardEl.style.left=rect.left+'px';
-  cardEl.style.setProperty('transform','none','important');
-  cardEl.addEventListener('transitionend', function done(e){
-    if(e.propertyName!=='transform') return;
-    cardEl.removeEventListener('transitionend', done);
-    cardEl.classList.remove('zoomed-fly');
-    ['position','margin','top','left','width','height','transform','transition','zIndex'].forEach(p=>cardEl.style[p]='');
-    cardEl.querySelectorAll('.card-actions-popup,.card-actions-popup-left,.card-actions-popup-right')
-      .forEach(p=>p.style.display='');
-  }, {once:true});
+// ── Зум карты в руке (кнопка Zoom): используем ТОТ ЖЕ клон-механизм, что и у превью поля
+// (showFieldCardPreview/closeFieldCardPreview) — рисуем отдельную увеличенную копию по центру
+// экрана, а не двигаем сам элемент руки. Раньше карта "летела" через position:fixed на оригинале,
+// но на мобиле карта в момент клика по Zoom ещё имеет класс .previewed, а для него carousel.js
+// держит свой @media-стиль с !important (свой transform/opacity/transition) — это перебивало
+// анимацию, из-за чего карта не долетала до центра и рендерилась смещённой. Клон не имеет
+// класса .previewed и не зависит от того, что происходит с оригиналом в руке (в т.ч. от
+// пересборки DOM руки при следующем render()), поэтому центрируется одинаково на любом устройстве.
+// Закрывается тапом/кликом в любом месте экрана (в отличие от превью поля, которое закрывается
+// отпусканием кнопки/пальца) — навешиваем одноразовый слушатель клика на document.
+function zoomHandCardFly(card, originEl){
+  showFieldCardPreview(card, originEl);
+  setTimeout(()=>{
+    document.addEventListener('click', closeFieldCardPreview, {once:true});
+  }, 0);
 }
 
 // Рисует БОЛЬШУЮ карту (.card) — используется для руки (zone='hand') и кладбища (zone='grave').
@@ -392,13 +375,13 @@ const tagIcons = (card.tags||[])
       burnPopup.appendChild(burnBtn);
       d.appendChild(burnPopup);
     }
-    // Zoom — отдельный попап СЛЕВА от карты: клик запускает "вылет" карты в центр экрана (zoomCardFly),
-    // повторный клик в любом месте экрана возвращает её на место (см. глобальный слушатель ниже mkEl)
+    // Zoom — отдельный попап СЛЕВА от карты: клик показывает увеличенный клон карты по центру
+    // экрана (zoomHandCardFly), повторный тап/клик в любом месте экрана убирает клон обратно
     const zoomPopup=document.createElement('div');
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();zoomCardFly(d);};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();zoomHandCardFly(card,d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
@@ -452,27 +435,19 @@ const tagIcons = (card.tags||[])
       burnPopup.appendChild(burnBtn);
       d.appendChild(burnPopup);
     }
-    // Zoom — отдельный попап СЛЕВА от карты: клик запускает "вылет" карты в центр экрана (zoomCardFly),
-    // повторный клик в любом месте экрана возвращает её на место (см. глобальный слушатель ниже mkEl)
+    // Zoom — отдельный попап СЛЕВА от карты: клик показывает увеличенный клон карты по центру
+    // экрана (zoomHandCardFly), повторный тап/клик в любом месте экрана убирает клон обратно
     const zoomPopup=document.createElement('div');
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();zoomCardFly(d);};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();zoomHandCardFly(card,d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
   return d;
 }
-
-// Глобальный слушатель: клик в ЛЮБОМ месте экрана запускает обратную анимацию (unzoomCardFly)
-// у зумленной карты — кроме клика по самой кнопке Zoom (она вызывает e.stopPropagation(),
-// поэтому сюда не долетает). Также закрывает превью карты поля боя, если оно вдруг осталось открытым.
-document.addEventListener('click', (e)=>{
-  const zEl=document.querySelector('.card.zoomed-fly');
-  if(zEl && !e.target.closest('.card-actions-popup-left')) unzoomCardFly(zEl);
-});
 
 
 // Перерисовывает целую зону (поле боя ИЛИ руку) по списку карт.
