@@ -16,7 +16,7 @@
   --card-small-h: 13vh;
   --card-small-w: calc(var(--card-small-h) * 0.856);
   --card-small-art-h: calc(var(--card-small-h) * 0.622);
-  --card-art-size: calc(var(--card-h) * 0.535);
+  --card-art-size: calc(var(--card-h) * 0.535); 
   --card-pad: calc(var(--card-h) * 0.021);
   --card-name-h: calc(var(--card-h) * 0.096);
   --card-stats-h: calc(var(--card-h) * 0.085);
