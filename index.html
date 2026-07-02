@@ -512,30 +512,8 @@
       <p>Current game will be lost. Return to menu?</p>
     </div>
     <div class="modal-footer">
-      <button id="confirmYesBtn" class="btn" style="
-  background-image:url('img/btn_yes.png');
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-color:transparent;
-  border:none;
-  width:134px;
-  height:calc(134px * 44/122);
-  color:transparent;
-  padding:0;
-" onclick="confirmMenu()">Yes, Exit</button>
-      <button class="btn" style="
-  background-image:url('img/btn_cancel.png');
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-color:transparent;
-  border:none;
-  width:134px;
-  height:calc(134px * 44/122);
-  color:transparent;
-  padding:0;
-" onclick="document.getElementById('confirmModal').classList.add('hidden')">Cancel</button>
+      <button id="confirmYesBtn" class="modal-art-btn btn-yes"   onclick="confirmMenu()"></button>
+      <button              class="modal-art-btn btn-cancel" onclick="document.getElementById('confirmModal').classList.add('hidden')"></button>
     </div>
   </div>
 </div>
@@ -548,7 +526,7 @@
       <p id="winText"></p>
     </div>
     <div class="modal-footer">
-      <button class="btn" style="border-color:#c8a84b;color:#c8a84b;padding:8px 24px;font-size:18px;" onclick="showLanding()">← Main Menu</button>
+      <button class="modal-art-btn btn-win" onclick="showLanding()"></button>
     </div>
   </div>
 </div>
@@ -562,30 +540,8 @@
       <div id="mulliganCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn" style="
-  background-image:url('img/btn_mulligan.png');
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-color:transparent;
-  border:none;
-  width:134px;
-  height:calc(134px * 44/122);
-  color:transparent;
-  padding:0;
-" onclick="doMulliganPhase()"></button>
-  <button class="btn" style="
-  background-image:url('img/btn_ready.png');
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-color:transparent;
-  border:none;
-  width:134px;
-  height:calc(134px * 44/122);
-  color:transparent;
-  padding:0;
-" onclick="readyFromMulligan()"></button>
+      <button class="modal-art-btn btn-mulligan" onclick="doMulliganPhase()"></button>
+      <button class="modal-art-btn btn-ready"    onclick="readyFromMulligan()"></button>
     </div>
   </div>
 </div>
@@ -598,18 +554,7 @@
       <p id="passText">Hand the device .</p>
     </div>
     <div class="modal-footer">
-      <button class="btn" style="
-  background-image:url('img/btn_ready.png');
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-color:transparent;
-  border:none;
-  width:134px;
-  height:calc(134px * 44/122);
-  color:transparent;
-  padding:0;
-" onclick="passReady()"></button>
+      <button class="modal-art-btn btn-ready" onclick="passReady()"></button>
     </div>
   </div>
 </div>
