@@ -214,7 +214,6 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .cap-btn.play{width:calc(var(--card-w) * 0.75);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_play.png');}
 .cap-btn.burn{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_burn.png');}
 .cap-btn.zoom{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_zoom.png');}
-.card.zoomed-fly{position:fixed;margin:0;cursor:default;transition:top .28s cubic-bezier(.22,.9,.32,1), left .28s cubic-bezier(.22,.9,.32,1), transform .28s cubic-bezier(.22,.9,.32,1);}
 .fab-btn{display:block;width:calc(var(--card-small-w) * 0.5);height:calc(var(--card-small-w) * 0.5 * 44/122);border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
 .fab-btn.umbasir{background-image:url('../img/btn_spell.png');}
 .fab-btn.vardan{background-image:url('../img/btn_spell.png');}
