@@ -92,11 +92,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Worlds and Artifacts*/
 .persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
 .pcard{width:var(--pcard-w);height:var(--pcard-h);padding:1px 1px;border:1px solid;border-radius:6px;font-size:calc(var(--pcard-h) * 0.75);display:flex;align-items:center;justify-content:center;gap:4px;background:url('../img/pcard_bg.png') center/100% 100% no-repeat;}
-/* Компактная версия для стат-бара — auto ширина, высота по стат-бару */
+/* Компактная версия для стат-бара — ФИКСИРОВАННАЯ ширина (одна и та же что у пустого плейсхолдера,
+   что у сыгранной карты с любым по длине названием — короткое имя просто оставляет пустое место
+   внутри рамки), высота по стат-бару. Раньше ширина была auto (min 7vh/max 16vh) и подстраивалась
+   под текст — из-за этого слот чуть-чуть "доезжал" при розыгрыше карты с длинным именем. */
 .pcard-inline{
-  width:auto !important;
-  min-width:7vh;
-  max-width:16vh;
+  width:16vh !important;
   height:max(3.2vh,1.6vw) !important;
   font-size:max(calc(3.2vh * 0.52),calc(1.6vw * 0.52)) !important;
   padding:1px 1px !important;
@@ -108,6 +109,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .pcard.tcp{border-color:#c8a84b44;color:#c8a84b88;}
 .pcard.jcp{border-color:#7b2d8b44;color:#b44fd488;}
 .pcard.sleeping{opacity:0.45 !important;}
+.pcard-placeholder{opacity:0.4;pointer-events:none;}
 .pcard.pcard-entering {animation: pcardEnter 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
 .pcard.pcard-entering.sleeping {animation: pcardNotAwake 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
 .pcard.tcp{background:url('../img/pcard_tea_bg.png') center/100% 100% no-repeat;border-color:transparent;color:#4DB854;}
