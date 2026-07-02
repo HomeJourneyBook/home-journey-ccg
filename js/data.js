@@ -2,10 +2,10 @@ const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
 
   // Szarg Tea
-  t_trvl25_w:   {name:"TRAVELER #25",   cost:1,hp:1,atk:2,art:"🦈", img:"25.png",   f:"tea",tags:["vanguard","gtype:szg"],                  ab:"Vanguard. Squad: Pierce."},
-  t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["vanguard","gtype:szg"],                  ab:"Vanguard. Squad: Pierce."},
-  t_trvl34_w:   {name:"TRAVELER #34",   cost:2,hp:2,atk:2,art:"🦈", img:"34.png",   f:"tea",tags:["vanguard","regen","gtype:szg"],           ab:"Vanguard. Squad: Pierce."},
-  t_trvl434_w:  {name:"TRAVELER #434",  cost:3,hp:3,atk:2,art:"🦈", img:"434.png",  f:"tea",tags:["vanguard","fear","gtype:szg"],            ab:"Vanguard. Squad: Pierce."},
+  t_trvl25_w:   {name:"TRAVELER #25",   cost:1,hp:1,atk:2,art:"🦈", img:"25.png",   f:"tea",tags:["vanguard","gtype:szg"],                  ab:"Squad: Pierce."},
+  t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["vanguard","gtype:szg"],                  ab:"Squad: Pierce."},
+  t_trvl34_w:   {name:"TRAVELER #34",   cost:2,hp:2,atk:2,art:"🦈", img:"34.png",   f:"tea",tags:["vanguard","regen","gtype:szg"],           ab:"Squad: Pierce."},
+  t_trvl434_w:  {name:"TRAVELER #434",  cost:3,hp:3,atk:2,art:"🦈", img:"434.png",  f:"tea",tags:["vanguard","fear","gtype:szg"],            ab:"Squad: Pierce."},
 
   // Orbiton Tea
   t_trvl10_w:   {name:"TRAVELER #10",   cost:3,hp:3,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:1","burn","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
@@ -59,10 +59,10 @@ const DEFS = {
   // ── JEET CREATURES ──────────────────────────────────────────────
 
   // Szarg Jeet
-  j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Vanguard. Squad: Pierce."},
-  j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Vanguard. Squad: Pierce."},
-  j_trvl57_w:  {name:"TRAVELER #57",  cost:2,hp:2,atk:2,art:"🦈", img:"57.png",  f:"jeet",tags:["vanguard","burn","gtype:szg"],           ab:"Vanguard. Squad: Pierce."},
-  j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:2,atk:2,art:"🦈", img:"551.png", f:"jeet",tags:["vanguard","invisible","gtype:szg"],      ab:"Vanguard. Squad: Pierce."},
+  j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: Pierce."},
+  j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: Pierce."},
+  j_trvl57_w:  {name:"TRAVELER #57",  cost:2,hp:2,atk:2,art:"🦈", img:"57.png",  f:"jeet",tags:["vanguard","burn","gtype:szg"],           ab:"Squad: Pierce."},
+  j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:2,atk:2,art:"🦈", img:"551.png", f:"jeet",tags:["vanguard","invisible","gtype:szg"],      ab:"Squad: Pierce."},
 
   // Orbiton Jeet
   j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:2,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:1","gtype:orb"],                  ab:"Active: Heal 1 HP. Squad: Heal 2."},
