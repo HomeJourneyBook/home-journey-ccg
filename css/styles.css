@@ -313,8 +313,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
 
 /* Попап «Not enough essence» — вместо кнопки Play, когда не хватает эссенции */
-.cap-no-ess{
-  display:flex;
+.cap-no-ess{display:flex;
   align-items:center;
   gap:5px;
   font-family:'MEK',monospace;
@@ -332,8 +331,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   height:1.1em;
   object-fit:contain;
   vertical-align:middle;
-  filter:drop-shadow(0 0 3px #8A7D62);
-}
+  filter:drop-shadow(0 0 3px #8A7D62);}
 .btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .btn:active{transform:scale(0.95) translateY(2px);}
 
@@ -342,10 +340,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   position:fixed;top:44px;right:14px;width:320px;
   background:transparent;
   border-style:solid;
-  border-width:var(--modal-border-w);
-  border-image-source:url('../img/bg_modal.png');
-  border-image-slice:80 fill;
-  border-image-width:var(--modal-border-w);
+  border-width:clamp(10px, 20px);
+  border-image-source:url('../img/log_frame.png');
+  border-image-slice:20 fill;
+  border-image-width:clamp(10px, 20px);
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -354,44 +352,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .log-panel.open{display:block;}
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 
-/* ── Хедер лог-панели ─────────────────────────────────────────────────────────
-   Плейсхолдер серый; для замены хедера целиком: background-image:url('../img/log_header.png')
-   Крестик — placeholder; для замены на кастомный арт: раскомментируй блок .log-close-btn ниже */
-.log-panel-header{
-  /* PLACEHOLDER — замени на кастомный арт хедера:
-  background-image:url('../img/log_header.png');
-  background-size:100% 100%; */
-  background-color:#1a1e26;
-  border-bottom:1px solid #3a4055;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:6px 10px;
-  position:relative;
-}
+/* ── Хедер лог-панели ─────────────────────────────────────────────────────────*/
+.log-panel-header{background-image:url('../img/log_header.png');background-size:100% 100%;display:flex;justify-content:center;align-items:center;padding:6px 6px;position:relative;}
 .log-panel-title{font-size:14px;color:#E8E0C8;font-family:'MEK',monospace;text-align:center;}
-/* Крестик закрытия — прибит к правому краю */
-.log-panel-close{
-  position:absolute;
-  right:6px;
-  top:50%;
-  transform:translateY(-50%);
-  /* PLACEHOLDER — замени на кастомный арт:
-  background-image:url('../img/btn_close.png');
-  background-size:100% 100%;
-  background-color:transparent;
-  border:none;
-  width:20px; height:20px;
-  color:transparent; */
-  font-size:14px;
-  color:#555;
-  cursor:pointer;
-  border:1px solid #333;
-  background:transparent;
-  padding:2px 6px;
-  line-height:1;
-}
-.log-panel-close:hover{color:#c8a84b;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:20px;height:20px;cursor:pointer;}
+.log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
+.log-panel-close:active{background-image:url('../img/btn_X2.png');}
 .log-panel .log{height:180px;border:none;}
 .log::-webkit-scrollbar{width:4px;}
 .log::-webkit-scrollbar-track{background:#0a0a12;}
