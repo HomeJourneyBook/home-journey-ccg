@@ -591,7 +591,9 @@ function _mkPcardHtml(card, isPlayer){
   const isActivatable=hasTag(card,'shard')||hasTag(card,'sacrifice');
   const sleepCls=(isActivatable&&card.sleeping)?' sleeping':'';
   const activeCls=(isPlayer&&isActivatable&&!card.sleeping&&!card.exhausted)?' pcard-active':'';
-  const exhaustedStyle=(isActivatable&&card.exhausted)?'opacity:0.5;':'';
+  // "Устал"/"спит" — прозрачность вешаем только на текст (.pcard-text ниже), а не на весь .pcard,
+  // иначе вместе с текстом гаснет и фон-рамка со спрайтом створок, что выглядит как баг.
+  const textExhaustedStyle=(isActivatable&&card.exhausted)?'opacity:0.5;':'';
 
   let borderStyle='';
   let onclick='';
@@ -616,7 +618,7 @@ function _mkPcardHtml(card, isPlayer){
     }
   }
   const safeAb=(card.ab||'').replace(/"/g,"'");
-  return `<div class="pcard pcard-inline ${cls}${sleepCls}${activeCls}" data-pid="${card.id}" title="${safeAb}" style="${exhaustedStyle}${borderStyle}" ${onclick}>${card.art||''} ${card.name}</div>`;
+  return `<div class="pcard pcard-inline ${cls}${sleepCls}${activeCls}" data-pid="${card.id}" title="${safeAb}" style="${borderStyle}" ${onclick}><span class="pcard-text" style="${textExhaustedStyle}">${card.art||''} ${card.name}</span></div>`;
 }
 
 // Слот Мир/Артефакт в стат-баре: если карта уже сыграна — обычный pcard (см. _mkPcardHtml выше),
@@ -707,6 +709,15 @@ document.addEventListener('click',(e)=>{
 // Переставляет DOM-элементы местами в Hot Seat режиме: чужие зоны (поле/рука/статбар) — наверх экрана,
 // свои — вниз, в зависимости от того, чей сейчас ход (G.turn). Физически перемещает существующие
 // .field/.persist/.hand элементы между контейнерами, а не пересоздаёт их — поэтому быстро и без потери стейта.
+//
+// _seenPcardPids — pid Мира/Артефакта, для которых анимация входа (pcard-entering) уже была
+// проиграна хотя бы раз. ВАЖНО: раньше "уже видели или нет" определялось по содержимому конкретного
+// DOM-контейнера (#oppStats/#playerStats) на прошлом рендере — но при смене хода эти контейнеры
+// физически меняют, какую фракцию показывают (см. oppK/playerK ниже), поэтому давно сыгранная
+// карта каждый ход "внезапно" оказывалась в контейнере, где её раньше не было, и анимация входа
+// проигрывалась заново. Глобальный Set не привязан к контейнеру — карта анимируется один раз за игру.
+const _seenPcardPids = new Set();
+
 function reorderZones(){
   const oppK=G.turn==='tea'?'jeet':'tea';
   const playerK=G.turn;
@@ -717,25 +728,29 @@ function reorderZones(){
   const playerStats=document.getElementById('playerStats');
   if(oppStats){
     oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
-    const _prevOppPids=new Set(Array.from(oppStats.querySelectorAll('[data-pid]')).map(e=>e.dataset.pid));
     oppStats.innerHTML=`
   ${_mkPcardSlotHtml(oppP.world, oppK, false)}
   <span class="stat stat-hp-box ${oppK}-hp-box"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
   <span class="player-name-box ${oppK}-name-box" role="img" aria-label="${oppK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${oppK}')"></span>
   <span class="stat stat-ess-box ${oppK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>
   ${_mkPcardSlotHtml(oppP.artifacts[0]||null, oppK, false)}`;
-    oppStats.querySelectorAll('[data-pid]').forEach(el=>{if(!_prevOppPids.has(el.dataset.pid))el.classList.add('pcard-entering');});
+    oppStats.querySelectorAll('[data-pid]').forEach(el=>{
+      const pid=el.dataset.pid;
+      if(!_seenPcardPids.has(pid)){ _seenPcardPids.add(pid); el.classList.add('pcard-entering'); }
+    });
   }
   if(playerStats){
     playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
-    const _prevPlPids=new Set(Array.from(playerStats.querySelectorAll('[data-pid]')).map(e=>e.dataset.pid));
     playerStats.innerHTML=`
   ${_mkPcardSlotHtml(playerP.world, playerK, false)}
   <span class="stat stat-hp-box ${playerK}-hp-box"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
   <span class="player-name-box ${playerK}-name-box" role="img" aria-label="${playerK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${playerK}')"></span>
   <span class="stat stat-ess-box ${playerK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>
   ${_mkPcardSlotHtml(playerP.artifacts[0]||null, playerK, true)}`;
-    playerStats.querySelectorAll('[data-pid]').forEach(el=>{if(!_prevPlPids.has(el.dataset.pid))el.classList.add('pcard-entering');});
+    playerStats.querySelectorAll('[data-pid]').forEach(el=>{
+      const pid=el.dataset.pid;
+      if(!_seenPcardPids.has(pid)){ _seenPcardPids.add(pid); el.classList.add('pcard-entering'); }
+    });
   }
 
   const oppFieldZone=document.getElementById('oppFieldZone');
