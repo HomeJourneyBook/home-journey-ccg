@@ -134,12 +134,9 @@
         opacity = OPACITY_FAR;
       }
 
-      if (!card.classList.contains('previewed') && !card.classList.contains('zoomed-fly') && !card.classList.contains('burning-out')) {
+      if (!card.classList.contains('previewed') && !card.classList.contains('burning-out')) {
         card.style.transform = `scale(${scale.toFixed(3)})`;
         card.style.opacity   = opacity.toFixed(3);
-      } else if (card.classList.contains('zoomed-fly')) {
-        // Не трогаем transform — им управляет JS (zoomCardFly, через setProperty(...,'important'))
-        card.style.opacity = '1';
       }
       card.style.zIndex      = String(Math.round(20 - dist * 6));
       card.style.marginRight = '0px';
