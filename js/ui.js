@@ -156,14 +156,14 @@ function openGates(){
   const sprite=document.getElementById('playGateSprite');
   if(!wrap||!sprite) return;
   if(wrap.classList.contains('gates-open')) return; // уже открыто
-  // Пошаговая анимация кадров
+  // Пошаговая анимация кадров (замедлено в 2 раза: было 120/240)
   _setGateFrame(sprite,1);
-  setTimeout(()=>_setGateFrame(sprite,2),120);
+  setTimeout(()=>_setGateFrame(sprite,2),240);
   setTimeout(()=>{
     _setGateFrame(sprite,3);
     wrap.classList.add('gates-open');
     _startGateTimer();
-  },240);
+  },480);
 }
 
 function closeGates(){
@@ -172,10 +172,10 @@ function closeGates(){
   if(!wrap||!sprite) return;
   clearGateTimer();
   wrap.classList.remove('gates-open');
-  // Обратная анимация
+  // Обратная анимация (замедлено в 2 раза: было 120/240)
   _setGateFrame(sprite,2);
-  setTimeout(()=>_setGateFrame(sprite,1),120);
-  setTimeout(()=>_setGateFrame(sprite,0),240);
+  setTimeout(()=>_setGateFrame(sprite,1),240);
+  setTimeout(()=>_setGateFrame(sprite,0),480);
 }
 
 function _startGateTimer(){
