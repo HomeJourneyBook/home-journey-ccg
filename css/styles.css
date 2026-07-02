@@ -110,7 +110,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 
 /* Worlds and Artifacts*/
-.persist{display:flex;gap:5px;flex-wrap:wrap;min-height:26px;padding:3px 6px;background:transparent;border-top:none;align-items:center;justify-content:center;}
+.persist{display:flex;gap:5px;flex-wrap:wrap;min-height:0;height:0;overflow:hidden;padding:0;background:transparent;border:none;align-items:center;justify-content:center;}
 .pcard{width:var(--pcard-w);height:var(--pcard-h);padding:1px 1px;border:1px solid;border-radius:6px;font-size:calc(var(--pcard-h) * 0.75);display:flex;align-items:center;justify-content:center;gap:4px;background:url('../img/pcard_bg.png') center/100% 100% no-repeat;}
 /* Компактная версия для стат-бара — ФИКСИРОВАННАЯ ширина (одна и та же что у пустого плейсхолдера,
    что у сыгранной карты с любым по длине названием — короткое имя просто оставляет пустое место
@@ -118,7 +118,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    под текст — из-за этого слот чуть-чуть "доезжал" при розыгрыше карты с длинным именем. */
 .pcard-inline{
   height:max(3.2vh,1.6vw) !important;
-  width:calc(max(3.2vh,1.6vw) * 4) !important; /* ширина всегда 4:1 к высоте */
+  width:calc(max(3.2vh,1.6vw) * 3) !important; /* ширина 3:1 к высоте (было 4:1 — не влезало на телефоне) */
   font-size:max(calc(3.2vh * 0.52),calc(1.6vw * 0.52)) !important;
   padding:1px 1px !important;
   white-space:nowrap;
@@ -525,7 +525,46 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   overflow:hidden; /* чтобы хедер/футер не вылезали за скруглённые углы */
 }
 
-/* Контент модалки с отступом — хедер/футер этого отступа не имеют */
+/* ── Арт-кнопки внутри modal-footer ────────────────────────────────────────────
+   Пиксельный размер по арту (244×88 = ratio 122:44).
+   font-size:0 + line-height:0 гарантируют что .btn не раздувает высоту через font-size:30px.
+   Для кнопок с 2x артом (244×88): width:122px height:44px — нативный 0.5x.
+   Для увеличенного варианта: width:152px height:calc(152px * 44/122) */
+.modal-art-btn{
+  background-size:100% 100%;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-color:transparent;
+  border:none;
+  width:122px;
+  height:44px;
+  font-size:0;
+  line-height:0;
+  padding:0;
+  cursor:pointer;
+  transition:filter 0.1s;
+}
+.modal-art-btn:hover{filter:brightness(1.2);}
+.modal-art-btn:active{filter:brightness(0.9);}
+.modal-art-btn.btn-yes     {background-image:url('img/btn_yes.png');}
+.modal-art-btn.btn-cancel  {background-image:url('img/btn_cancel.png');}
+.modal-art-btn.btn-mulligan{background-image:url('img/btn_mulligan.png');}
+.modal-art-btn.btn-ready   {background-image:url('img/btn_ready.png');}
+/* btn-win — пока тот же арт что btn_yes; заменить на btn_win.png когда появится */
+.modal-art-btn.btn-win     {background-image:url('img/btn_yes.png');}
+/* Win/menu — пока текстовая кнопка (нет арта), стилизуем отдельно */
+.modal-text-btn{
+  font-family:'MEK',monospace;
+  font-size:14px;
+  padding:10px 24px;
+  border:1px solid #c8a84b88;
+  background:transparent;
+  color:#c8a84b;
+  cursor:pointer;
+  letter-spacing:2px;
+  transition:all .15s;
+}
+.modal-text-btn:hover{background:#c8a84b18;border-color:#c8a84b;}
 .modal-body{
   padding:clamp(12px,1.5vw,18px);
   flex:1;
@@ -889,22 +928,21 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-vsai           { background-image:url('../img/btn_vsai1.png');    }
 .art-btn-online         { background-image:url('../img/btn_online1.png');  }
 
-/* ── Graveyard modal — тот же bg_modal.png что и .modal ─────────── */
+/* ── Graveyard modal — рамка и хедер как у battle log ────────────────
+   log_frame.png: 60×60px, corner=20px → slice:20, border-width:20px
+   Ширина: 2 полные карты (card-w = 25vh × 0.716) + gap(8px) + pad(8px) + 2×border(40px) */
 .grave-modal{
-  position:fixed; /* left/bottom задаются через JS */
+  position:fixed;
   box-sizing:border-box;
-  /* Ширина = 2 маленькие карты + gap + внутренний паддинг + рамка.
-     card-small-w ≈ 13vh*0.856 ≈ 11.1vh × 2 карты + 8px gap + 16px pad + 2×рамка.
-     Округляем через clamp: на узком экране 92vw, на широком — 2 карты удобно. */
-  width:min(340px, 92vw);
-  max-height:60vh;
+  width:min(calc(2 * var(--card-w) + 56px), 92vw);
+  max-height:65vh;
   overflow-y:hidden;
   background:transparent;
   border-style:solid;
-  border-width:clamp(54px, 14vw, 108px);
-  border-image-source:url('../img/bg_modal.png');
-  border-image-slice:108 fill;
-  border-image-width:clamp(54px, 14vw, 108px);
+  border-width:20px;
+  border-image-source:url('../img/log_frame.png');
+  border-image-slice:20 fill;
+  border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
   padding:0;
@@ -912,18 +950,13 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   z-index:500;
   display:flex;
   flex-direction:column;
+  box-shadow:0 4px 20px #000000aa;
 }
 
-/* ── Хедер кладбища ───────────────────────────────────────────────────────────
-   Плейсхолдер серый; фон заголовка как у счётчиков (bg_statbar_hp.png).
-   Для замены хедера целиком: background-image:url('../img/grave_header.png') на .grave-modal-header
-   Для замены крестика: раскомментируй .grave-close-btn с кастомным артом ниже. */
+/* Хедер — тот же арт что у battle log */
 .grave-modal-header{
-  /* PLACEHOLDER — замени на кастомный арт хедера когда нарисуешь:
-  background-image:url('../img/grave_header.png');
-  background-size:100% 100%; */
-  background-color:#1a1e26;
-  border-bottom:1px solid #3a4055;
+  background-image:url('../img/log_header.png');
+  background-size:100% 100%;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -934,25 +967,17 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .grave-modal-title{
   font-family:'MEK',monospace;
   font-size:14px;
-  color:#F3F5FF;
+  color:#E8E0C8;
   text-align:center;
-  /* Фон заголовка как у каунтеров HP/эссенции */
-  background-image:url('../img/bg_statbar_hp.png');
-  background-size:100% 100%;
-  background-repeat:no-repeat;
-  padding:2px 12px;
 }
-/* Крестик закрытия — тот же арт что в battle log */
+/* Крестик — тот же арт что в battle log */
 .grave-close-btn{
   position:absolute;
-  right:6px;
-  top:50%;
-  transform:translateY(-50%);
+  right:6px;top:50%;transform:translateY(-50%);
   background-image:url('../img/btn_X.png');
   background-size:100% 100%;
   background-color:transparent;
-  border:none;
-  padding:0;
+  border:none;padding:0;
   width:20px;height:20px;
   font-size:0;line-height:0;
   cursor:pointer;
@@ -960,9 +985,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
 .grave-close-btn:active{background-image:url('../img/btn_X2.png');}
 
-/* Скролл-зона с картами */
+/* Скролл-зона с картами — максимум 2 в ряд (card-w × 2 + gap) */
 .grave-modal-body{
-  padding:8px;
+  padding:4px 8px 8px;
   overflow-y:auto;
   flex:1;
   display:flex;
@@ -971,26 +996,23 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   justify-content:center;
   align-content:flex-start;
 }
+.grave-modal-body::-webkit-scrollbar{width:4px;}
+.grave-modal-body::-webkit-scrollbar-track{background:#020d02;}
+.grave-modal-body::-webkit-scrollbar-thumb{background:#E8E0C888;border-radius:0;}
+.grave-modal-body::-webkit-scrollbar-thumb:hover{background:#E8E0C8;}
 
-/* ── Футер кладбища (черепа) ──────────────────────────────────────────────────
-   Плейсхолдер серый; позже заменить на тайлящийся арт с черепами.
-   Для замены: background-image:url('../img/grave_footer_skulls.png') + background-repeat:repeat-x
-   чтобы черепа выстроились в ряд на любую ширину автоматически. */
+/* Футер кладбища
+   Для замены: background-image:url('../img/grave_footer_skulls.png'); background-repeat:repeat-x; */
 .grave-modal-footer{
-  /* PLACEHOLDER — замени на кастомный арт:
-  background-image:url('../img/grave_footer_skulls.png');
-  background-repeat:repeat-x;
-  background-position:center;
-  background-color:transparent; */
   background-color:#111418;
   border-top:1px solid #2a2e38;
-  height:32px;
+  height:28px;
   flex-shrink:0;
   display:flex;
   align-items:center;
   justify-content:center;
   color:#333;
-  font-size:18px;
+  font-size:16px;
   letter-spacing:8px;
 }
 
