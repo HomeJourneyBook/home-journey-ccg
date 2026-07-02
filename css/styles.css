@@ -162,8 +162,30 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   animation: pcardTextRevealDim 0.25s steps(2,end) 0.4s forwards;
 }
 
-.pcard.pcard-active {cursor: pointer;transition: filter 0.08s;}
-.pcard.pcard-active:hover { filter: brightness(1.3);}
+/* Артефакт готов к активации (можно кликнуть прямо сейчас) — лёгкая постоянная пульсация
+   фиолетовым свечением вокруг рамки, привлекает внимание. Рамка/размер не меняются — только
+   box-shadow снаружи, border-image не трогаем вообще. */
+.pcard.pcard-active {
+  cursor: pointer;
+  transition: filter 0.08s;
+  animation: pcardReadyPulse 1.8s ease-in-out infinite;
+}
+.pcard.pcard-active:hover { filter: brightness(1.3); }
+@keyframes pcardReadyPulse{
+  0%,100% { box-shadow:0 0 4px #B44FD444, 0 0 8px #B44FD466; }
+  50%     { box-shadow:0 0 10px #B44FD4CC, 0 0 20px #B44FD488; }
+}
+
+/* Артефакт в режиме "выбери цель" (shardTarget/sacrificeTarget) — рамка НЕ меняется, только текст
+   становится белым и медленно мигает, показывая что карта ждёт клика по цели. */
+.pcard-targeting .pcard-text{
+  animation: pcardTargetingBlink 1.2s ease-in-out infinite;
+}
+@keyframes pcardTargetingBlink{
+  0%,100% { color:#fff; opacity:1; }
+  50%     { color:#fff; opacity:0.4; }
+}
+
 .empty-persist{font-size:14px;color:#2a2a2a;}
 
 /* Small hidden hand - opponent cards, half visible */
@@ -256,7 +278,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .hand .card{flex-shrink:0;transition:transform .2s;position:relative;width:var(--card-w)!important;min-width:var(--card-w)!important;}
 .card-actions-popup {animation: popupSlideUp 0.18s ease-out forwards;}
 .hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:silverPulse 1.8s ease-in-out infinite;}
-.hand .card.previewed{position:relative;border-radius:6px;border-color:#C8A84B !important;}
+.hand .card.previewed{position:relative;border-radius:6px;border-color:#E8E0C8 !important;}
 @media(hover:hover){.hand .card:not(.previewed):hover{transform:translateY(-10px) !important;z-index:100 !important;}}
 .field-ability-popup{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px;z-index:2001;width:70px;pointer-events:all;}
 .card-actions-popup{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px;z-index:2001;width:110px;pointer-events:all;}
@@ -438,7 +460,62 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 /* LANDING */
 .landing{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:transparent;}
-.landing-title{font-family:'MEK',monospace;font-size:36px;color:#E8E0C8;letter-spacing:4px;text-align:center;margin-bottom:8px;text-shadow:0 0 20px #c8a84b66;}
+.landing-title{
+  position:relative;
+  font-family:'MEK',monospace;font-size:36px;color:#E8E0C8;letter-spacing:4px;text-align:center;margin-bottom:8px;text-shadow:0 0 20px #c8a84b66;
+}
+/* Глитч "нарезка на полосы": ::before/::after дублируют тот же текст (content — статичный текст,
+   \A внутри строки — CSS-перенос строки, работает вместе с white-space:pre, поэтому HOME'S/JOURNEY
+   рендерятся в 2 строки без надобности городить data-атрибуты под attr()). В покое невидимы
+   (opacity:0), включаются только на время класса .glitching — его вешает/снимает JS
+   (scheduleTitleGlitch в game.js) в случайные моменты, а не по чёткому циклу.
+   clip-path:inset() в каждом кадре показывает только узкую горизонтальную полосу дубликата,
+   сдвинутую по X и подкрашенную в красный/голубой — классическая хроматическая нарезка. */
+.landing-title::before,
+.landing-title::after{
+  content:"HOME'S\AJOURNEY";
+  white-space:pre;
+  position:absolute;
+  left:0;right:0;top:0;
+  opacity:0;
+  pointer-events:none;
+}
+.landing-title.glitching{
+  animation:titleGlitchShake 0.35s steps(2,end);
+}
+.landing-title.glitching::before{
+  color:#ff0044;
+  mix-blend-mode:screen;
+  animation:titleGlitchBefore 0.35s steps(2,end);
+}
+.landing-title.glitching::after{
+  color:#00e5ff;
+  mix-blend-mode:screen;
+  animation:titleGlitchAfter 0.35s steps(2,end);
+}
+@keyframes titleGlitchShake{
+  0%,100% { transform:translate(0); }
+  20% { transform:translate(-2px,1px); }
+  40% { transform:translate(2px,-1px); }
+  60% { transform:translate(-1px,0); }
+  80% { transform:translate(1px,1px); }
+}
+@keyframes titleGlitchBefore{
+  0%   { opacity:0; clip-path:inset(0 0 85% 0); transform:translate(0); }
+  10%  { opacity:0.9; clip-path:inset(10% 0 60% 0); transform:translate(-4px,0); }
+  25%  { opacity:0.9; clip-path:inset(55% 0 20% 0); transform:translate(3px,0); }
+  40%  { opacity:0.9; clip-path:inset(20% 0 65% 0); transform:translate(-3px,0); }
+  55%  { opacity:0.9; clip-path:inset(70% 0 5% 0); transform:translate(4px,0); }
+  70%,100% { opacity:0; }
+}
+@keyframes titleGlitchAfter{
+  0%   { opacity:0; clip-path:inset(60% 0 10% 0); transform:translate(0); }
+  10%  { opacity:0.9; clip-path:inset(5% 0 70% 0); transform:translate(4px,0); }
+  25%  { opacity:0.9; clip-path:inset(40% 0 35% 0); transform:translate(-3px,0); }
+  40%  { opacity:0.9; clip-path:inset(75% 0 8% 0); transform:translate(3px,0); }
+  55%  { opacity:0.9; clip-path:inset(15% 0 55% 0); transform:translate(-4px,0); }
+  70%,100% { opacity:0; }
+}
 .landing-sub{font-family:'MEK',monospace;font-size:20px;color:#9b937f;letter-spacing:6px;text-align:center;margin-bottom:32px;}
 .landing-btn{font-family:'MEK',monospace;font-size:18px;padding:14px 32px;border:1px solid #c8a84b44;background:transparent;color:#c8a84b;cursor:pointer;letter-spacing:2px;transition:all .2s;width:220px;text-align:center;}
 .landing-btn:hover{background:#c8a84b18;border-color:#c8a84b;box-shadow:0 0 12px #c8a84b33;}
