@@ -163,7 +163,7 @@ function preloadAssets(){
 
     // ── Кнопки лендинга ──
     'img/btn_playgame1.png', 'img/btn_playgame2.png',
-    'img/btn_playgame_gates_sheet.png', 'img/btn_playgame_hover.png',
+    'img/btn_playgame_gates_sheet.png', 'img/btn_playgame_frame.png', 'img/btn_playgame_hover.png',
     'img/btn_rules1.png', 'img/btn_rules2.png',
     'img/btn_catalog1.png', 'img/btn_catalog2.png',
     'img/btn_lore1.png', 'img/btn_lore2.png',
@@ -227,16 +227,16 @@ function preloadAssets(){
 }
 
 // ── Ворота (Play Game) ────────────────────────────────────────
-// Три слоя: [кнопки режима] [рамка] [ворота-спрайт]
+// Три слоя: [кнопки режима] [ворота-спрайт] [статичная рамка сверху]
 // Спрайт-лист из 7 кадров: 1 = idle/закрыто, 7 = полностью открыто (пустой кадр,
 // ворота на арте отсутствуют — сквозь него видны кнопки режима).
-// Всё движение (кадр 1 → кадр 7) укладывается в 120мс, закрытие — симметрично обратно.
+// Каждый шаг кадр→кадр занимает 150мс (итого 6 шагов = 900мс на полное открытие),
+// закрытие — симметрично обратно.
 // Таймер автозакрытия сбрасывается при наведении мыши на кнопки режима.
 let _gateTimer=null;
 const GATE_AUTO_CLOSE_MS=5000;
 const GATE_FRAME_COUNT=7;
-const GATE_ANIM_MS=120;
-const GATE_STEP_MS=GATE_ANIM_MS/(GATE_FRAME_COUNT-1); // интервал между кадрами, ≈20мс
+const GATE_STEP_MS=150; // время между соседними кадрами
 
 let _gateAnimTimers=[];
 function _clearGateAnimTimers(){
