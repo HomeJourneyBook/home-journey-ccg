@@ -102,7 +102,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 .ham-menu{position:absolute;top:100%;right:0;background:#0d0d1a;border:1px solid #D5943F44;min-width:130px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .2s ease;z-index:200;}
 .ham-menu.open{max-height:400px;opacity:1;}
-.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:8px;color:#e8e0c8;display:block;}
+.btn.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:8px;color:#e8e0c8;display:block;}
 .ham-item:last-child{border-bottom:none;}
 .ham-item:hover{background:#5A5448;color:#F2ECD8;}
 
@@ -391,20 +391,26 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Grid вместо flex+space-between: колонки 1fr/auto/1fr держат btn-end строго
    по центру бара независимо от того, сколько занимает левая группа (кладбище+датчик)
    или правая (колода) — раньше добавление датчика сдвигало кнопку вправо. */
-.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:4px;}
+.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:0;}
 .bottom-slot{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-/* ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2).
+/* ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2),
+   +30% сверху (было 14vh×3.5vh, стало 18.2vh×4.55vh).
    .align-bottom/.align-top переопределяют align-items:center у родителя (.bottom-slot),
-   чтобы конкретно этот элемент прижимался к низу/верху — так расположение по бару
-   выглядит динамичнее, а не всё ровно по центру. */
+   чтобы конкретно этот элемент прижимался к низу/верху — раньше этому мешал padding:4px
+   на самой .bottom-bar (убрали выше), из-за него ничего не могло встать вплотную к краю.
+   Как и .bottom-bar-sensor — скрыты на телефоне, видны только от 601px (десктоп/лаптоп). */
 .bottom-bar-extra{
-  width:14vh;
-  height:3.5vh;
+  display:none;
+  width:18.2vh;
+  height:4.55vh;
   background:#000;
   flex-shrink:0;
 }
 .bottom-bar-extra.align-bottom{align-self:flex-end;}
 .bottom-bar-extra.align-top{align-self:flex-start;}
+@media(min-width:601px){
+  .bottom-bar-extra{display:block;}
+}
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .btn{font-family:'MEK',monospace;font-size:30px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
@@ -721,14 +727,26 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    и убери background-color. */
 .landing{
   position:fixed;inset:0;z-index:200;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-  gap:20px;
+  display:flex;flex-direction:column;align-items:center;
   padding:4vh 12px 3vh;
   overflow-y:auto;
   background-color:#1c1d22;         /* PLACEHOLDER — временный тёмно-серый фон */
   /* background-image:url('../img/landing_bg.png'); */
   background-size:cover;
   background-position:center;
+}
+/* Обёртка иллюминатора — flex:1 забирает всё свободное место между верхним паддингом
+   .landing и боксом кнопок, а align-items:center внутри неё ставит иллюминатор ровно
+   посередине этого пространства. Сам .landing-box идёт следующим прямым потомком
+   .landing и из-за этого прижимается к низу — единственный отступ от низа экрана
+   теперь это padding-bottom (3vh) самого .landing, никакого gap между ними больше нет. */
+.landing-porthole-slot{
+  flex:1;
+  min-height:0;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 /* ── Иллюминатор — 4 слоя, круглое окно 228×228px + гибкость на маленьких экранах ──
@@ -738,8 +756,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    по кругу разом, отдельным слоям свою обрезку вешать не нужно.
    Слои по порядку (назад → вперёд):
      1. .porthole-space — статичный космос (logo_space.png)
-     2. .porthole-logo-wrap — текст тайтла/сабтайтла, центр
-     3. .porthole-glass — лёгкое стекло (blur+тон) + редкий блик
+     2. .porthole-glass — лёгкое стекло (blur+тон) + редкий блик — блюрит ТОЛЬКО космос
+     3. .porthole-logo-wrap — текст тайтла/сабтайтла, поверх стекла — резкий, без блюра
      4. .porthole-frame — круглая рамка (logo_window.png), рамка 18px, сверху всех */
 .landing-porthole{
   position:relative;z-index:1;
@@ -762,11 +780,13 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-repeat:no-repeat;
 }
 
-/* Слой 2 (z:1) — текст. max-width:65% контейнера — держит текст в безопасной
-   зоне внутри кольца рамки (рамка 18px из 228px ≈ 7.9% с каждой стороны;
-   65% с запасом гарантирует, что даже углы текстового блока не заденут рамку). */
+/* Слой 3 (z:2) — текст. Стоит ВЫШЕ стекла (раньше был под ним и тоже попадал под
+   backdrop-filter — размывался вместе с космосом, чего быть не должно). max-width:65%
+   контейнера держит текст в безопасной зоне внутри кольца рамки (рамка 18px из 228px
+   ≈ 7.9% с каждой стороны; 65% с запасом гарантирует, что даже углы текстового блока
+   не заденут рамку). */
 .porthole-logo-wrap{
-  position:absolute;inset:0;z-index:1;
+  position:absolute;inset:0;z-index:2;
   display:flex;align-items:center;justify-content:center;
   pointer-events:none;
 }
@@ -786,13 +806,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   pointer-events:none;
 }
 
-/* Слой 3 (z:2) — стекло: лёгкий blur того, что под ним (космос/текст) + голубоватый
+/* Слой 2 (z:1) — стекло: лёгкий blur ТОЛЬКО того, что под ним (сейчас это только
+   космос — текст теперь выше и не попадает под backdrop-filter) + голубоватый
    тон (имитация толщины/тонировки стекла), плюс редкий диагональный блик — сам блик
    это ::before с linear-gradient полосой, которая почти всё время "уезжает" за пределы
    контейнера (left:-150%) и лишь изредка (раз в ~13с) быстро проезжает по диагонали
    через видимую область (см. keyframes portholeGlare). */
 .porthole-glass{
-  position:absolute;inset:0;z-index:2;
+  position:absolute;inset:0;z-index:1;
   background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.10), rgba(180,200,255,0.04) 55%, rgba(0,0,0,0.06) 100%);
   backdrop-filter:blur(0.6px);
   -webkit-backdrop-filter:blur(0.6px);
@@ -1011,15 +1032,16 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:4px;
+  gap:0;
 }
-/* Подпись шириной ровно с кнопку (54px), поэтому центрируется точно под ней.
-   font-size подобран так, чтобы "Music" (самое длинное слово) помещалось в 54px
-   в один ряд без переноса — если поменяешь текст на более длинный, проверь. */
+/* Подпись шириной ровно с кнопку (54px) — при таком font-size "Music" уже шире 54px
+   и визуально слегка выходит за края с обеих сторон (white-space:nowrap не даёт
+   перенести на 2 строки) — это ожидаемо, оверфлоу симметричный за счёт text-align:center,
+   ничего не обрезается и не ломает раскладку соседних элементов. */
 .landing-square-label{
   width:54px;
   font-family:'MEK',monospace;
-  font-size:10px;
+  font-size:20px;
   letter-spacing:0.5px;
   color:#E8E0C8;
   text-align:center;
