@@ -481,7 +481,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   position:relative;
 }
 .log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#000000;font-family:'MEK',monospace;text-align:center;}
-.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:21px;height:21px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:25px;height:25px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
 .log-panel .log{height:180px;border:none;}
@@ -755,13 +755,13 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   display:flex;flex-direction:column;align-items:center;
 }
 .landing-title{
-  font-family:'MEK',monospace;font-size:clamp(13px,3vw,20px);
+  font-family:'MEK',monospace;font-size:clamp(26px,6vw,40px);
   color:#E8E0C8;letter-spacing:3px;text-align:center;
   text-shadow:0 0 20px #c8a84b66;
   pointer-events:none;
 }
 .landing-sub{
-  font-family:'MEK',monospace;font-size:clamp(8px,1.5vw,12px);
+  font-family:'MEK',monospace;font-size:clamp(16px,3vw,24px);
   color:#9b937f;letter-spacing:3px;text-align:center;margin-top:6px;
   pointer-events:none;
 }
@@ -774,8 +774,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .porthole-glass{
   position:absolute;inset:0;z-index:2;
   background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.10), rgba(180,200,255,0.04) 55%, rgba(0,0,0,0.06) 100%);
-  backdrop-filter:blur(1.5px);
-  -webkit-backdrop-filter:blur(1.5px);
+  backdrop-filter:blur(0.6px);
+  -webkit-backdrop-filter:blur(0.6px);
   overflow:hidden;
   pointer-events:none;
 }
@@ -953,8 +953,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    = 272px. min() — просто защита на случай совсем узких экранов, сама цифра стабильна. */
 .landing-box{
   width:min(272px, 94vw);
-  background:#808080;              /* TEMP DEBUG — убрать после проверки размеров */
-  border:1px solid #ffffff55;      /* TEMP DEBUG — убрать после проверки размеров */
+  background:#3d494f;
   box-sizing:border-box;
   padding:0;
   display:flex;
@@ -1002,7 +1001,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   font-family:'MEK',monospace;
   font-size:10px;
   letter-spacing:0.5px;
-  color:#9b937f;
+  color:#E8E0C8;
   text-align:center;
   white-space:nowrap;
   pointer-events:none;
@@ -1055,18 +1054,21 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 /* 1.png — обычное (idle) состояние, 2.png — hover. Раньше 2.png был на :active
    (нажатие) — убрали, теперь никакой анимации нажатия нет вообще. */
-.art-btn-square.music-on{background-image:url('../img/btn_music_on1.png');}
-.art-btn-square.music-on:hover{background-image:url('../img/btn_music_on2.png');}
-.art-btn-square.music-off{background-image:url('../img/btn_music_off1.png');}
-.art-btn-square.music-off:hover{background-image:url('../img/btn_music_off2.png');}
+/* Файлы on1/off1 и on2/off2 были перепутаны местами при сохранении артов
+   (on показывал красный/выкл, off — зелёный/вкл) — поменял местами тут в CSS,
+   имена самих файлов не трогал. */
+.art-btn-square.music-on{background-image:url('../img/btn_music_off1.png');}
+.art-btn-square.music-on:hover{background-image:url('../img/btn_music_off2.png');}
+.art-btn-square.music-off{background-image:url('../img/btn_music_on1.png');}
+.art-btn-square.music-off:hover{background-image:url('../img/btn_music_on2.png');}
 
 /* ── SFX кнопка ──────────────────────────────────────────────────
    Те же пути/логика, что и у Music: 1.png — idle, 2.png — hover. */
 /* Тот же арт, что и у Music (не отдельные файлы) — те же 4 PNG переиспользуются. */
-.art-btn-square.sfx-on  { background-image:url('../img/btn_music_on1.png');  }
-.art-btn-square.sfx-on:hover  { background-image:url('../img/btn_music_on2.png');  }
-.art-btn-square.sfx-off { background-image:url('../img/btn_music_off1.png'); }
-.art-btn-square.sfx-off:hover { background-image:url('../img/btn_music_off2.png'); }
+.art-btn-square.sfx-on  { background-image:url('../img/btn_music_off1.png');  }
+.art-btn-square.sfx-on:hover  { background-image:url('../img/btn_music_off2.png');  }
+.art-btn-square.sfx-off { background-image:url('../img/btn_music_on1.png'); }
+.art-btn-square.sfx-off:hover { background-image:url('../img/btn_music_on2.png'); }
 
 /* ── Кнопки старта игры ──────────────────────────────────────────
    Кастомный арт уже подключён (btn_hotseat1/2, btn_vsai1, btn_online1). */
@@ -1138,7 +1140,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-size:100% 100%;
   background-color:transparent;
   border:none;padding:0;
-  width:21px;height:21px;
+  width:25px;height:25px;
   font-size:0;line-height:0;
   cursor:pointer;
 }
