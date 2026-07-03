@@ -227,12 +227,18 @@ function preloadAssets(){
 }
 
 // ── Ворота (Play Game) ────────────────────────────────────────
-// Три слоя: [кнопки режима] [ворота-спрайт] [статичная рамка сверху]
+// Три слоя: [кнопки режима] [ворота-спрайт] [статичная рамка сверху, всегда видна]
 // Спрайт-лист из 7 кадров: 1 = idle/закрыто, 7 = полностью открыто (пустой кадр,
 // ворота на арте отсутствуют — сквозь него видны кнопки режима).
 // Каждый шаг кадр→кадр занимает 150мс (итого 6 шагов = 900мс на полное открытие),
 // закрытие — симметрично обратно.
 // Таймер автозакрытия сбрасывается при наведении мыши на кнопки режима.
+//
+// .gate-idle на #playGateWrap — отдельный маркер "ворота реально в покое" (кадр 1,
+// ничего не анимируется). Только пока он есть, :hover показывает btn_playgame_hover.png
+// вместо кадра 1 (см. .play-gate-wrap.gate-idle:hover в styles.css). Снимается в момент
+// клика/начала открытия, возвращается только когда анимация закрытия полностью
+// доедет до кадра 1 — иначе ховер мог бы сработать посреди анимации открытия/закрытия.
 let _gateTimer=null;
 const GATE_AUTO_CLOSE_MS=5000;
 const GATE_FRAME_COUNT=7;
@@ -256,6 +262,7 @@ function openGates(){
   if(!wrap||!sprite) return;
   if(wrap.classList.contains('gates-open')) return; // уже открыто
   _clearGateAnimTimers();
+  wrap.classList.remove('gate-idle'); // анимация пошла — ховер больше не показываем
   for(let frame=2; frame<=GATE_FRAME_COUNT; frame++){
     const delay=(frame-1)*GATE_STEP_MS;
     _gateAnimTimers.push(setTimeout(()=>{
@@ -277,7 +284,10 @@ function closeGates(){
   wrap.classList.remove('gates-open');
   for(let frame=GATE_FRAME_COUNT-1; frame>=1; frame--){
     const delay=(GATE_FRAME_COUNT-frame)*GATE_STEP_MS;
-    _gateAnimTimers.push(setTimeout(()=>_setGateFrame(sprite,frame),delay));
+    _gateAnimTimers.push(setTimeout(()=>{
+      _setGateFrame(sprite,frame);
+      if(frame===1) wrap.classList.add('gate-idle'); // снова в покое — ховер разрешён
+    },delay));
   }
 }
 
