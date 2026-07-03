@@ -94,8 +94,14 @@
            (border-top) — убрали и то, и другое: теперь просто ряд внутри общего бокса,
            без доп. фонов/линий, как просил. -->
       <div class="landing-square-row">
-        <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-        <button class="art-btn-square sfx-on"   id="sfxToggleBtn"   onclick="toggleSfx()"></button>
+        <div class="landing-square-item">
+          <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
+          <span class="landing-square-label">Music</span>
+        </div>
+        <div class="landing-square-item">
+          <button class="art-btn-square sfx-on"   id="sfxToggleBtn"   onclick="toggleSfx()"></button>
+          <span class="landing-square-label">SFX</span>
+        </div>
       </div>
     </div>
 
