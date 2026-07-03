@@ -11,6 +11,9 @@
 <link rel="preload" href="img/bg_modal.png" as="image">
 <link rel="preload" href="img/btn_playgame_gates_sheet.png" as="image">
 <link rel="preload" href="img/bones.png" as="image">
+<link rel="preload" href="img/grav_frame.png" as="image">
+<link rel="preload" href="img/bg_jest_log.png" as="image">
+<link rel="preload" href="img/bg_jest_grav.png" as="image">
 <link rel="preload" href="audio/Navigation_Cursor.wav" as="audio">
 <link rel="preload" href="audio/Click_Cursor.wav" as="audio">
 <link rel="preload" href="audio/Burn_Card.wav" as="audio">
@@ -74,12 +77,16 @@
       <button class="art-btn art-btn-rules"   onclick="showScreen('rules')"></button>
       <button class="art-btn art-btn-catalog" onclick="showScreen('catalog')"></button>
       <button class="art-btn art-btn-lore"    onclick="showScreen('lore')"></button>
+
+      <!-- Раньше это был отдельный .landing-footer со своим фоном и линией-разделителем
+           (border-top) — убрали и то, и другое: теперь просто ряд внутри общего бокса,
+           без доп. фонов/линий, как просил. -->
+      <div class="landing-square-row">
+        <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
+        <button class="art-btn-square sfx-on"   id="sfxToggleBtn"   onclick="toggleSfx()"></button>
+      </div>
     </div>
 
-    <div class="landing-footer">
-      <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-      <button class="art-btn-square sfx-on"   id="sfxToggleBtn"   onclick="toggleSfx()"></button>
-    </div>
   </div>
 
 </div>
