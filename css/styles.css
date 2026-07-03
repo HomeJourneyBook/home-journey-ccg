@@ -798,19 +798,23 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Когда ворота открыты — кнопки режима становятся кликабельны */
 .play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
 
-/* Слой 3 (z:4) — статичная рамка поверх всего, тот же размер что и ворота (240×60).
-   Всегда видна, внутри прозрачна (сквозь неё видно Слой 1/2), сама не участвует
-   в кликах — pointer-events:none, поэтому клики проваливаются на .play-gate-sprite
-   или (когда ворота открыты) прямо на кнопки режима.
+/* Слой 0 (z:0) — статичная рамка, теперь на самом заднем плане (было z:4 сверху —
+   мешала: hover-арт визуально "съедал" рамку, плюс ловился при наведении на уже
+   открывшиеся кнопки режима). На заднем плане рамка всё равно видна — кнопки/ворота
+   меньше самого блока, край рамки торчит вокруг них, а не перекрывается ими.
+   Тот же размер что и ворота (240×60), внутри прозрачна, pointer-events:none —
+   в кликах не участвует.
    Ховер вешаем не на саму рамку (она не ловит события мыши из-за pointer-events:none),
-   а на :hover всего .play-gate-wrap — оно сработает, пока курсор над воротами/кнопками. */
+   а на :hover всего .play-gate-wrap — но только пока ворота ЕЩЁ закрыты
+   (:not(.gates-open)), иначе hover-арт продолжал бы включаться и при наведении
+   на уже открытые кнопки режима. */
 .play-gate-frame{
-  position:absolute;inset:0;z-index:4;
+  position:absolute;inset:0;z-index:0;
   background-image:url('../img/btn_playgame_frame.png');
   background-size:100% 100%;background-repeat:no-repeat;
   pointer-events:none;
 }
-.play-gate-wrap:hover .play-gate-frame{
+.play-gate-wrap:not(.gates-open):hover .play-gate-frame{
   background-image:url('../img/btn_playgame_hover.png');
 }
 
