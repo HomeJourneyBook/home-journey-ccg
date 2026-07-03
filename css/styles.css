@@ -619,8 +619,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-position:center;
   background-color:transparent;
   border:none;
-  width:120px;
-  height:40px;
+  width:min(120px, 27vw);   /* 120px — тот же максимум, что и был; на узких экранах ужимается */
+  aspect-ratio:3/1;         /* держит пропорцию кнопки (120×40) при любой ширине */
   font-size:0;
   line-height:0;
   padding:0;
@@ -666,21 +666,25 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    (раньше clamp(20px,5vw,40px)). Ширина/высота бокса нигде не задаются явно —
    их и так однозначно определяют кнопки: 2 кнопки по 120×40px + gap 10px
    + 2×border(20px) = 300×80px (для одной кнопки — 160×80px). */
+/* border-width и gap теперь min(px, vw) — px это тот же максимум, что был (20px/10px),
+   а vw-часть даёт возможность ужаться на узких экранах вместо обрезания по краям
+   (см. скриншот с bg_jest, обрезанным на телефоне). Кнопки внутри (.modal-art-btn)
+   ужимаются по той же логике — весь бокс пропорционально уменьшается целиком. */
 .modal-footer{
   align-self:center;
   width:auto;
   background:transparent;
   border-style:solid;
-  border-width:20px;
+  border-width:min(20px, 5vw);
   border-image-source:url('../img/bg_jest.png');
   border-image-slice:40 fill;
-  border-image-width:20px;
+  border-image-width:min(20px, 5vw);
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
   padding:0;
   display:flex;
-  gap:10px;
+  gap:min(10px, 2.5vw);
   justify-content:center;
   align-items:center;
 }
@@ -739,29 +743,30 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   pointer-events:none;
 }
 
-/* ── Блок ворот — система трёх слоёв ───────────────────────────────
-   Все три слоя одного фиксированного размера: 280×70px (px вместо vh). */
+/* Все три слоя одного фиксированного размера: 240×60px (уменьшено с 280×70,
+   чтобы бокс на лендинге целиком влезал по высоте, в т.ч. на iPad). */
 .play-gate-wrap{
   position:relative;
-  width:280px;height:70px;
+  width:240px;height:60px;
   flex-shrink:0;
 }
 
-/* Слой 1 (z:1) — три квадратные кнопки режима, 60×60px каждая.
-   Отступы слева/справа и между кнопками одинаковые: (280 - 3×60) / 4 = 25px. */
+/* Слой 1 (z:1) — три квадратные кнопки режима, 46×46px каждая.
+   Отступы слева/справа и между кнопками одинаковые: (240 - 3×46) / 4 = 25.5px. */
 .play-mode-buttons{
   position:absolute;inset:0;z-index:1;
   display:flex;flex-direction:row;align-items:center;justify-content:flex-start;
-  padding:0 25px;
+  padding:0 25.5px;
   box-sizing:border-box;
-  gap:25px;
+  gap:25.5px;
   pointer-events:none;          /* закрыты — нельзя нажать */
 }
-.art-btn-mode{                  /* квадратная кнопка режима, 60×60px */
+.art-btn-square.art-btn-mode{           /* квадратная кнопка режима, 46×46px — двойной селектор,
+                                            чтобы гарантированно перебивать .art-btn-square (60→54px)
+                                            независимо от порядка правил в файле */
   flex:none;
-  width:60px;
-  height:60px;
-  /* остальные стили наследует .art-btn-square */
+  width:46px;
+  height:46px;
 }
 
 /* Слой 2 (z:3) — спрайт ворот.
@@ -847,11 +852,11 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    т.к. на некоторых экранах она "съедала" высоту и кнопки обрезались снизу.
    Теперь это простой бокс без своей рамки/фона (см. .landing-box-body ниже).
    TEMP DEBUG: серый фон ниже — временно, чтобы видеть границы бокса в пикселях.
-   Убрать background и border, когда подберём финальный арт панели. */
-/* Ширина бокса зафиксирована явно: 280px (ширина ворот, самой широкой кнопки) + 2×20px padding
-   = 320px. min() — просто защита на случай совсем узких экранов, сама цифра стабильна. */
+   Убрать background и border, когда подберём финальный арт панели.
+   Ширина зафиксирована явно: 240px (ширина ворот, самой широкой кнопки) + 2×16px padding
+   = 272px. min() — просто защита на случай совсем узких экранов, сама цифра стабильна. */
 .landing-box{
-  width:min(320px, 94vw);
+  width:min(272px, 94vw);
   background:#808080;              /* TEMP DEBUG — убрать после проверки размеров */
   border:1px solid #ffffff55;      /* TEMP DEBUG — убрать после проверки размеров */
   box-sizing:border-box;
@@ -861,41 +866,38 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   align-items:center;
   overflow:hidden;
 }
-/* Зона кнопок лендинга — отступ 20px от каждой кнопки с каждой стороны
-   (padding:20px по краям бокса + gap:20px между кнопками/рядами). */
+/* Зона кнопок лендинга — единый бокс, все кнопки внутри (в т.ч. music/sfx,
+   раньше вынесенные в отдельный .landing-footer с фоном и border-top — убрали
+   и то, и другое, чтобы не было лишней линии-разделителя внутри бокса).
+   Отступ 16px от каждой кнопки с каждой стороны (padding:16px по краям бокса
+   + gap:16px между кнопками/рядами) — уменьшено с 20px вместе с самими кнопками,
+   чтобы решить обрезание бокса снизу на iPad. */
 .landing-box-body{
   width:100%;
   box-sizing:border-box;
-  padding:20px;
+  padding:16px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:20px;
+  gap:16px;
 }
-/* ── Футер лендинга (music/sfx) ───────────────────────────────────────────────
-   PLACEHOLDER — замени на кастомный арт панели когда нарисуешь:
-   background-image:url('../img/landing_footer_panel.png');
-   background-size:100% 100%;
-   TEMP DEBUG: фон сделан прозрачным, чтобы был виден серый фон .landing-box насквозь. */
-.landing-footer{
-  background-color:transparent;    /* TEMP DEBUG — верни #1a1e26 когда уберёшь серый дебаг */
-  border-top:1px solid #3a4055;
-  padding:20px;
+/* Просто ряд для двух квадратных кнопок (music/sfx) — без фона и без border-top,
+   layout-обёртка и ничего больше. Раньше это был .landing-footer с собственным
+   фоном/линией — именно она и была видна как "тонкая линия" между группами кнопок. */
+.landing-square-row{
   display:flex;
   flex-direction:row;
   align-items:center;
   justify-content:center;
-  gap:20px;
-  width:100%;
-  box-sizing:border-box;
+  gap:16px;
 }
 
 /* ── Кастомные арт-кнопки лендинга ────────────────────────────────
    Паттерн для всех: базовый арт (1.png), на :active подменяется
    на второй арт (2.png), никаких transition, hover — только brightness. */
 .art-btn{
-  width:240px;
-  height:60px;
+  width:220px;
+  height:54px;
   border:none;
   background-color:transparent;
   background-repeat:no-repeat;
@@ -921,8 +923,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-lore:active{background-image:url('../img/btn_lore2.png');}
 
 .art-btn-square{
-  width:60px;
-  height:60px;
+  width:54px;
+  height:54px;
   border:none;
   background-color:transparent;
   background-repeat:no-repeat;
