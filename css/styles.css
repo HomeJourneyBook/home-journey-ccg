@@ -102,7 +102,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 .ham-menu{position:absolute;top:100%;right:0;background:#0d0d1a;border:1px solid #D5943F44;min-width:130px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .2s ease;z-index:200;}
 .ham-menu.open{max-height:400px;opacity:1;}
-.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:12px;color:#e8e0c8;display:block;}
+.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:8px;color:#e8e0c8;display:block;}
 .ham-item:last-child{border-bottom:none;}
 .ham-item:hover{background:#5A5448;color:#F2ECD8;}
 
@@ -360,6 +360,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.5), calc(2vw * 0.5));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:3px 3px;}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
 .stat-ess-box{background-image:url('../img/bg_statbar_hp.png');}
+/* ПЛЕЙСХОЛДЕР слева от HP-индикатора — просто под будущий арт (иконка/бейдж).
+   Размер — квадрат, сторона = половина высоты .stat-hp-box (та же формула × 0.5). */
+.hp-placeholder{
+  width:max(calc(4vh * 0.25), calc(2vw * 0.25));
+  height:max(calc(4vh * 0.25), calc(2vw * 0.25));
+  background:#000;
+  flex-shrink:0;
+}
 /* .tea-hp-box{background-image:url('../img/statbar_hp_tea.png');} */
 /* .jeet-hp-box{background-image:url('../img/statbar_hp_jeet.png');} */
 /* .tea-ess-box{background-image:url('../img/statbar_ess_tea.png');} */
@@ -384,7 +392,19 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    по центру бара независимо от того, сколько занимает левая группа (кладбище+датчик)
    или правая (колода) — раньше добавление датчика сдвигало кнопку вправо. */
 .bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:4px;}
-.bottom-slot{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.bottom-slot{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+/* ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2).
+   .align-bottom/.align-top переопределяют align-items:center у родителя (.bottom-slot),
+   чтобы конкретно этот элемент прижимался к низу/верху — так расположение по бару
+   выглядит динамичнее, а не всё ровно по центру. */
+.bottom-bar-extra{
+  width:14vh;
+  height:3.5vh;
+  background:#000;
+  flex-shrink:0;
+}
+.bottom-bar-extra.align-bottom{align-self:flex-end;}
+.bottom-bar-extra.align-top{align-self:flex-start;}
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .btn{font-family:'MEK',monospace;font-size:30px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
@@ -481,7 +501,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   position:relative;
 }
 .log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#000000;font-family:'MEK',monospace;text-align:center;}
-.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:25px;height:25px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:30px;height:30px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
 .log-panel .log{height:180px;border:none;}
@@ -1011,7 +1031,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Паттерн для всех: базовый арт (1.png), на :active подменяется
    на второй арт (2.png), никаких transition, hover — только brightness. */
 .art-btn{
-  width:220px;
+  width:162px;
   height:54px;
   border:none;
   background-color:transparent;
@@ -1140,7 +1160,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-size:100% 100%;
   background-color:transparent;
   border:none;padding:0;
-  width:25px;height:25px;
+  width:30px;height:30px;
   font-size:0;line-height:0;
   cursor:pointer;
 }
@@ -1570,16 +1590,16 @@ img{
     -webkit-user-select: none !important;
 }
 
-/* ── Card tag tooltip ───────────────────────────────────────────── */
+/* ── Card tag tooltip ───────────────────────────────────────────── (×1.5 размер) */
 .card-tooltip{
   position:fixed;
   z-index:9999;
   pointer-events:none;
   background:#0c0c18ee;
   border:1px solid #9B937F;
-  border-radius:4px;
-  padding:7px 11px;
-  max-width:190px;
+  border-radius:6px;
+  padding:10.5px 16.5px;
+  max-width:285px;
   box-shadow:0 4px 16px #CBBE9A66;
   opacity:0;
   transition:opacity .12s ease;
@@ -1587,14 +1607,14 @@ img{
 .card-tooltip.tt-visible{ opacity:1; }
 .tt-name{
   font-family:'MEK',monospace;
-  font-size:12px;
+  font-size:18px;
   color:#E8E0C8;
-  margin-bottom:4px;
+  margin-bottom:6px;
   letter-spacing:1px;
 }
 .tt-desc{
   font-family:'MEK',monospace;
-  font-size:10px;
+  font-size:15px;
   color:#9B937F;
   line-height:1.55;
 }
