@@ -381,7 +381,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 
 /* BOTTOM BAR */
-.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:4px;}
+/* Grid вместо flex+space-between: колонки 1fr/auto/1fr держат btn-end строго
+   по центру бара независимо от того, сколько занимает левая группа (кладбище+датчик)
+   или правая (колода) — раньше добавление датчика сдвигало кнопку вправо. */
+.bottom-bar{height:7vh;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:4px;}
+.bottom-bar-left{display:flex;align-items:center;gap:8px;justify-self:start;}
+.bottom-bar>.bottom-slot{justify-self:end;} /* только правый (колода) — левый теперь внутри .bottom-bar-left */
 .bottom-slot{display:flex;align-items:center;gap:4px;flex-shrink:0;}
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
@@ -455,16 +460,16 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 
 /* ── Хедер лог-панели ─────────────────────────────────────────────────────────
-   9-slice фон bg_jest.png, граница 20px. Размер хедера — по контенту:
+   9-slice фон bg_jest.png, граница 10px. Размер хедера — по контенту:
    ширина = ширина .log-panel (родитель), высота = высота строки заголовка
-   + 2×border(20px). Вертикального padding нет — только горизонтальный. */
+   + 2×border(10px). Вертикального padding нет — только горизонтальный. */
 .log-panel-header{
   background:transparent;
   border-style:solid;
-  border-width:20px;
+  border-width:10px;
   border-image-source:url('../img/bg_jest.png');
   border-image-slice:40 fill;
-  border-image-width:20px;
+  border-image-width:10px;
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -565,11 +570,18 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 
 /* ── Декоративные плейсхолдеры поверх рамки/фона модалки ─────────────────────
-   Пример на confirmModal (см. index.html) — размеры завязаны на --modal-border-w,
-   поэтому масштабируются вместе с рамкой на любом экране. Когда будет свой арт —
-   заменить background:#000 на background-image (или сделать img вместо div).
-   modal-decor-square — квадрат = ширине рамки (удобно ставить прямо в угол/на кант рамки).
-   modal-decor-wide   — прямоугольник 2:1 от той же величины. */
+   Размеры завязаны на --modal-border-w, поэтому масштабируются вместе с рамкой
+   на любом экране. Когда будет свой арт — заменить background:#000 на
+   background-image (или сделать img вместо div).
+   modal-decor-square — квадрат = ширине рамки. modal-decor-wide — прямоугольник 2:1.
+
+   ВАЖНО про позиционирование — то, из-за чего в прошлый раз плейсхолдеры оказались
+   не на рамке, а в зоне контента: у absolute-элемента внутри position:relative
+   родителя точка top:0/left:0/right:0/bottom:0 — это ВНУТРЕННИЙ край рамки
+   (padding-box), а не внешний край (border-box). Чтобы попасть именно НА рамку,
+   нужно сдвинуть элемент наружу на ширину рамки: top/left/right/bottom:
+   calc(-1 * var(--modal-border-w)). Готовые классы под углы/края — ниже,
+   используй их вместо ручных top/left. */
 .modal-decor{
   position:absolute;
   background:#000;
@@ -584,6 +596,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   width:calc(var(--modal-border-w) * 2);
   height:var(--modal-border-w);
 }
+/* Углы — для .modal-decor-square (сидят ровно в углу рамки) */
+.modal-decor-tl{top:calc(-1 * var(--modal-border-w));left:calc(-1 * var(--modal-border-w));}
+.modal-decor-tr{top:calc(-1 * var(--modal-border-w));right:calc(-1 * var(--modal-border-w));}
+.modal-decor-bl{bottom:calc(-1 * var(--modal-border-w));left:calc(-1 * var(--modal-border-w));}
+.modal-decor-br{bottom:calc(-1 * var(--modal-border-w));right:calc(-1 * var(--modal-border-w));}
+/* Середина верхнего/нижнего края — для .modal-decor-wide */
+.modal-decor-top{top:calc(-1 * var(--modal-border-w));left:50%;transform:translateX(-50%);}
+.modal-decor-bottom{bottom:calc(-1 * var(--modal-border-w));left:50%;transform:translateX(-50%);}
 
 /* ── Арт-кнопки внутри modal-footer ────────────────────────────────────────────
    Пиксельный размер по арту (244×88 = ratio 122:44).
@@ -980,14 +1000,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 
 /* Хедер — тот же 9-slice фон bg_jest.png, что теперь и у battle log header.
-   Граница 20px, размер по контенту, вертикального padding нет. */
+   Граница 10px, размер по контенту, вертикального padding нет. */
 .grave-modal-header{
   background:transparent;
   border-style:solid;
-  border-width:20px;
+  border-width:10px;
   border-image-source:url('../img/bg_jest.png');
   border-image-slice:40 fill;
-  border-image-width:20px;
+  border-image-width:10px;
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
