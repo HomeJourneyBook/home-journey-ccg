@@ -73,11 +73,16 @@
                                         без ховера. pointer-events:none — сама
                                         не кликается, клики проходят на слой 2/1.
       -->
-      <div class="play-gate-wrap gate-idle" id="playGateWrap">
+      <!-- onmouseenter/leave теперь на ВСЁМ .play-gate-wrap (было только на .play-mode-buttons) —
+           надёжнее: работает независимо от pointer-events внутренних слоёв (ворота/рамка
+           периодически pointer-events:none, из-за чего события мыши могли не долетать
+           до узкого внутреннего слоя и таймер автозакрытия срабатывал раньше, чем должен,
+           пока курсор ещё в пределах кнопки). -->
+      <div class="play-gate-wrap gate-idle" id="playGateWrap"
+           onmouseenter="resetGateTimer()" onmouseleave="resetGateTimer()">
 
         <!-- Слой 1: три кнопки режима, всегда в DOM, скрыты за воротами -->
-        <div class="play-mode-buttons" id="playModeButtons"
-             onmouseenter="resetGateTimer()" onmouseleave="resetGateTimer()">
+        <div class="play-mode-buttons" id="playModeButtons">
           <!-- PLACEHOLDER квадратная кнопка; замени на кастомный арт:
                .art-btn-square.btn-hotseat { background-image:url('../img/btn_hotseat1.png'); } -->
           <button class="art-btn-square art-btn-mode art-btn-hotseat"
