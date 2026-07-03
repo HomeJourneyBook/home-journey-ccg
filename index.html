@@ -38,18 +38,22 @@
 
 <div class="landing" id="landing" style="display:none;">
 
-  <!-- ИЛЛЮМИНАТОР — 4 слоя (назад → вперёд), см. подробный комментарий в styles.css
-       у .landing-porthole. Круглое окно 228×228px + гибкость на маленьких экранах. -->
-  <div class="landing-porthole">
-    <div class="porthole-space"></div>
-    <div class="porthole-logo-wrap">
-      <div class="porthole-logo">
-        <div class="landing-title glitching-ready">HOME'S<br>JOURNEY</div>
-        <div class="landing-sub">CCG</div>
+  <!-- Обёртка иллюминатора — flex:1, центрирует иллюминатор по вертикали в пространстве
+       между верхом .landing и боксом кнопок (см. .landing-porthole-slot в styles.css). -->
+  <div class="landing-porthole-slot">
+    <!-- ИЛЛЮМИНАТОР — 4 слоя (назад → вперёд), см. подробный комментарий в styles.css
+         у .landing-porthole. Круглое окно 228×228px + гибкость на маленьких экранах. -->
+    <div class="landing-porthole">
+      <div class="porthole-space"></div>
+      <div class="porthole-glass"></div>
+      <div class="porthole-logo-wrap">
+        <div class="porthole-logo">
+          <div class="landing-title glitching-ready">HOME'S<br>JOURNEY</div>
+          <div class="landing-sub">CCG</div>
+        </div>
       </div>
+      <div class="porthole-frame"></div>
     </div>
-    <div class="porthole-glass"></div>
-    <div class="porthole-frame"></div>
   </div>
 
   <!-- ПАНЕЛЬ С КНОПКАМИ (модалка-рамка) -->
