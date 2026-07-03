@@ -597,50 +597,41 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    LANDING PAGE — полный стек стилей
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Фон комнаты корабля
-   PLACEHOLDER серый; замени:
-   background-image:url('../img/landing_bg.png');
-   background-size:cover; background-position:center; */
+/* Фон всего лендинга — временный тёмно-серый плейсхолдер.
+   ВАЖНО: фон висит прямо на .landing (а не на ::before с z-index:0), потому что
+   непозиционированные дочерние блоки (например .landing-box) рисуются ДО псевдоэлементов
+   с z-index — из-за этого предыдущий фон на ::before всегда перекрывал всё сверху.
+   Когда будет готова полноэкранная картинка — просто раскомментируй background-image ниже
+   и убери background-color. */
 .landing{
   position:fixed;inset:0;z-index:200;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   gap:20px;
   padding:4vh 12px 3vh;
   overflow-y:auto;
-  background:transparent;
-}
-.landing::before{                        /* PLACEHOLDER фон комнаты */
-  content:'';position:absolute;inset:0;
-  /* background-image:url('../img/landing_bg.png');background-size:cover; */
-  background:#06060e;
-  z-index:0;
+  background-color:#1c1d22;         /* PLACEHOLDER — временный тёмно-серый фон */
+  /* background-image:url('../img/landing_bg.png'); */
+  background-size:cover;
+  background-position:center;
 }
 
-/* ── Иллюминатор ────────────────────────────────────────────────────
-   Круглый контейнер; внутри: анимированный космос + рамка поверх + тайтл поверх рамки.
-   АССЕТЫ:
-     landing_porthole_frame.png  — круглая рамка с прозрачным центром
-     landing_porthole_space.gif  — опционально: анимированная туманность/звёзды */
+/* ── Плейсхолдер под будущий арт (было "иллюминатор" с космосом) ─────
+   Просто квадратный бокс с title/sub по центру и равными отступами по краям.
+   Уменьшен на 20% от прежнего размера (clamp(180,28vw,320) → clamp(144,22.4vw,256)).
+   Когда будет готов кастомный арт — раскомментируй background-image и убери background-color. */
 .landing-porthole{
   position:relative;z-index:1;
-  width:clamp(180px,28vw,320px);
-  height:clamp(180px,28vw,320px);
-  border-radius:50%;
+  width:clamp(144px,22.4vw,256px);
+  height:clamp(144px,22.4vw,256px);
+  box-sizing:border-box;
+  background-color:#2a2c34;         /* PLACEHOLDER — временный фон квадрата */
+  /* background-image:url('../img/landing_porthole.png'); */
+  background-size:cover;
+  background-position:center;
+  border:1px solid #3a4055;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  overflow:hidden;               /* обрезает космос по кругу */
-}
-.landing-porthole-space{          /* PLACEHOLDER — CSS звёзды, заменить на GIF */
-  position:absolute;inset:0;
-  background:radial-gradient(ellipse at center,#0a0a2a 0%,#000510 100%);
-  border-radius:50%;
-}
-.landing-porthole-frame-placeholder{  /* PLACEHOLDER — заменить на <img> с рамкой */
-  position:absolute;inset:0;
-  border-radius:50%;
-  /* background-image:url('../img/landing_porthole_frame.png');background-size:100% 100%; */
-  border:6px solid #3a4055;
-  box-shadow:0 0 0 3px #1a1e26,inset 0 0 20px rgba(0,0,0,0.8);
-  pointer-events:none;z-index:2;
+  padding:20px;                     /* равный отступ title/sub от каждой стороны */
+  overflow:hidden;
 }
 .landing-title{
   position:relative;z-index:3;
@@ -735,41 +726,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 @keyframes screenToLeft   {from{transform:translateX(0);opacity:1;}to{transform:translateX(-60%);opacity:0;}}
 @keyframes screenToDown   {from{transform:translateY(0);opacity:1;}to{transform:translateY(40%);opacity:0;}}
 
-/* ─────────────────────────────────────────────────────────────────── */
-.landing-title{
-  position:relative;
-  font-family:'MEK',monospace;font-size:36px;color:#E8E0C8;letter-spacing:4px;text-align:center;margin-bottom:8px;text-shadow:0 0 20px #c8a84b66;
-}
-/* Глитч "нарезка на полосы": ::before/::after дублируют тот же текст (content — статичный текст,
-   \A внутри строки — CSS-перенос строки, работает вместе с white-space:pre, поэтому HOME'S/JOURNEY
-   рендерятся в 2 строки без надобности городить data-атрибуты под attr()). В покое невидимы
-   (opacity:0), включаются только на время класса .glitching — его вешает/снимает JS
-   (scheduleTitleGlitch в game.js) в случайные моменты, а не по чёткому циклу.
-   clip-path:inset() в каждом кадре показывает только узкую горизонтальную полосу дубликата,
-   сдвинутую по X и подкрашенную в красный/голубой — классическая хроматическая нарезка. */
-.landing-title::before,
-.landing-title::after{
-  content:"HOME'S\AJOURNEY";
-  white-space:pre;
-  position:absolute;
-  left:0;right:0;top:0;
-  opacity:0;
-  pointer-events:none;
-}
-.landing-title.glitching{
-  animation:titleGlitchShake 0.35s steps(2,end);
-}
-.landing-title.glitching::before{
-  color:#ff0044;
-  mix-blend-mode:screen;
-  animation:titleGlitchBefore 0.35s steps(2,end);
-}
-.landing-title.glitching::after{
-  color:#00e5ff;
-  mix-blend-mode:screen;
-  animation:titleGlitchAfter 0.35s steps(2,end);
-}
-@keyframes titleGlitchShake{
+/* Keyframes ниже используются хедером (.title-glitch-wrap.glitching в игровом экране) */
   0%,100% { transform:translate(0); }
   20% { transform:translate(-2px,1px); }
   40% { transform:translate(2px,-1px); }
@@ -792,11 +749,6 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   55%  { opacity:0.9; clip-path:inset(15% 0 55% 0); transform:translate(-4px,0); }
   70%,100% { opacity:0; }
 }
-.landing-sub{font-family:'MEK',monospace;font-size:20px;color:#9b937f;letter-spacing:6px;text-align:center;margin-bottom:32px;}
-.landing-btn{font-family:'MEK',monospace;font-size:18px;padding:14px 32px;border:1px solid #c8a84b44;background:transparent;color:#c8a84b;cursor:pointer;letter-spacing:2px;transition:all .2s;width:220px;text-align:center;}
-.landing-btn:hover{background:#c8a84b18;border-color:#c8a84b;box-shadow:0 0 12px #c8a84b33;}
-.landing-btn.secondary{color:#555;border-color:#333;font-size:16px;}
-.landing-btn.secondary:hover{color:#888;border-color:#555;background:#ffffff08;}
 
 /* Бокс, объединяющий кнопки лендинга.
    Раньше рамка была 9-slice border-image как у модалок (bg_modal.png) — убрали,
@@ -804,7 +756,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Теперь это простой бокс без своей рамки/фона (см. .landing-box-body ниже).
    TEMP DEBUG: серый фон ниже — временно, чтобы видеть границы бокса в пикселях.
    Убрать background и border, когда подберём финальный арт панели. */
+/* Ширина бокса зафиксирована явно: 280px (ширина ворот, самой широкой кнопки) + 2×20px padding
+   = 320px. min() — просто защита на случай совсем узких экранов, сама цифра стабильна. */
 .landing-box{
+  width:min(320px, 94vw);
   background:#808080;              /* TEMP DEBUG — убрать после проверки размеров */
   border:1px solid #ffffff55;      /* TEMP DEBUG — убрать после проверки размеров */
   box-sizing:border-box;
@@ -817,12 +772,13 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Зона кнопок лендинга — отступ 20px от каждой кнопки с каждой стороны
    (padding:20px по краям бокса + gap:20px между кнопками/рядами). */
 .landing-box-body{
+  width:100%;
+  box-sizing:border-box;
   padding:20px;
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:20px;
-  width:auto;
 }
 /* ── Футер лендинга (music/sfx) ───────────────────────────────────────────────
    PLACEHOLDER — замени на кастомный арт панели когда нарисуешь:
