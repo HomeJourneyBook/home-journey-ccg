@@ -42,7 +42,7 @@ const DEFS = {
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","aura:maxhp:1"],      ab:"Aura: +1 maxHP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:5,atk:2,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1"],       ab:"Aura: +1 ATK.",unique:true},
   t_faeron:    {name:"FAERON",     cost:4,hp:5,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","on_play_creature:1"], ab:"Each On play: Heal base 1 HP.",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target Oda.",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target him.",unique:true},
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
   t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","draw:2"],     ab:"Draw 2 cards.",spell:true},
@@ -62,7 +62,7 @@ const DEFS = {
   j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: Pierce."},
   j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: Pierce."},
   j_trvl57_w:  {name:"TRAVELER #57",  cost:2,hp:2,atk:2,art:"🦈", img:"57.png",  f:"jeet",tags:["vanguard","burn","gtype:szg"],           ab:"Squad: Pierce."},
-  j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:2,atk:2,art:"🦈", img:"551.png", f:"jeet",tags:["vanguard","invisible","gtype:szg"],      ab:"Squad: Pierce."},
+  j_trvl551_w: {name:"TRAVELER #551", cost:2,hp:2,atk:2,art:"🦈", img:"551.png", f:"jeet",tags:["vanguard","gtype:szg"],      ab:"Squad: Pierce."},
 
   // Orbiton Jeet
   j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:2,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:1","gtype:orb"],                  ab:"Active: Heal 1 HP. Squad: Heal 2."},
@@ -110,9 +110,9 @@ const DEFS = {
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
   j_w2:        {name:"NORRIA", cost:4,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","aura:atk:1"],     ab:"Aura: +1 ATK.",world:true},
-  j_a1:        {name:"SHARD",  cost:3,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:2"],     ab:"Active: deal 2 damage to any enemy creature.",artifact:true},
+  j_a1:        {name:"SHARD",  cost:3,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:2"],     ab:"Active: deal 2 dmg to any enemy.",artifact:true},
   j_a2:        {name:"ALTAR",  cost:3,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Active: sacrifice 1 of your creatures.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
-  unseen:      {name:"UNSEEN", cost:2,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return ALL field cards to their owners hands.",spell:true},
+  unseen:      {name:"UNSEEN", cost:2,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return ALL field cards to their owners.",spell:true},
 };
