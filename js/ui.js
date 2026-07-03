@@ -155,6 +155,7 @@ function preloadAssets(){
   const criticalImages = [
     // ── Фон и базовые UI ──
     'img/space_bg.png', 'img/brand.png',
+    'img/logo_space.png', 'img/logo_window.png',
     'img/bg_modal.png', 'img/bg_jest.png',
     'img/log_frame.png', 'img/grav_frame.png',
     'img/bg_jest_log.png', 'img/bg_jest_grav.png',
