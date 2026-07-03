@@ -480,8 +480,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   padding:0 6px;
   position:relative;
 }
-.log-panel-title{font-size:max(calc(5vh * 0.95), calc(2.5vw * 0.95));color:#000000;font-family:'MEK',monospace;text-align:center;}
-.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:30px;height:30px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
+.log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#000000;font-family:'MEK',monospace;text-align:center;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:21px;height:21px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
 .log-panel .log{height:180px;border:none;}
@@ -989,35 +989,20 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .art-btn-square:hover{filter:brightness(1.25);}
 
+/* 1.png — обычное (idle) состояние, 2.png — hover. Раньше 2.png был на :active
+   (нажатие) — убрали, теперь никакой анимации нажатия нет вообще. */
 .art-btn-square.music-on{background-image:url('../img/btn_music_on1.png');}
-.art-btn-square.music-on:active{background-image:url('../img/btn_music_on2.png');}
+.art-btn-square.music-on:hover{background-image:url('../img/btn_music_on2.png');}
 .art-btn-square.music-off{background-image:url('../img/btn_music_off1.png');}
-.art-btn-square.music-off:active{background-image:url('../img/btn_music_off2.png');}
+.art-btn-square.music-off:hover{background-image:url('../img/btn_music_off2.png');}
 
 /* ── SFX кнопка ──────────────────────────────────────────────────
-   Чтобы заменить на кастомный арт: добавь btn_sfx_on1/2.png и btn_sfx_off1/2.png
-   в img/, потом убери блок «PLACEHOLDER» и раскомментируй блок «CUSTOM ART».   */
-
-/* PLACEHOLDER (удали когда появится арт) */
-.art-btn-square.sfx-on,.art-btn-square.sfx-off{
-  background-image:none;
-  background-color:#0d0d1a;
-  border:1px solid #D5943F44;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'MEK',monospace;
-  color:#c8a84b;
-  font-size:2.2vh;
-}
-.art-btn-square.sfx-on::after{content:"SFX";}
-.art-btn-square.sfx-off::after{content:"SFX";opacity:0.35;}
-.art-btn-square.sfx-on:active,.art-btn-square.sfx-off:active{filter:brightness(1.4);}
-
-/* CUSTOM ART (раскомментируй и удали PLACEHOLDER выше):
-.art-btn-square.sfx-on  { background-image:url('../img/btn_sfx_on1.png');  }
-.art-btn-square.sfx-on:active  { background-image:url('../img/btn_sfx_on2.png');  }
-.art-btn-square.sfx-off { background-image:url('../img/btn_sfx_off1.png'); }
-.art-btn-square.sfx-off:active { background-image:url('../img/btn_sfx_off2.png'); }
-*/
+   Те же пути/логика, что и у Music: 1.png — idle, 2.png — hover. */
+/* Тот же арт, что и у Music (не отдельные файлы) — те же 4 PNG переиспользуются. */
+.art-btn-square.sfx-on  { background-image:url('../img/btn_music_on1.png');  }
+.art-btn-square.sfx-on:hover  { background-image:url('../img/btn_music_on2.png');  }
+.art-btn-square.sfx-off { background-image:url('../img/btn_music_off1.png'); }
+.art-btn-square.sfx-off:hover { background-image:url('../img/btn_music_off2.png'); }
 
 /* ── Кнопки старта игры ──────────────────────────────────────────
    Кастомный арт уже подключён (btn_hotseat1/2, btn_vsai1, btn_online1). */
@@ -1077,7 +1062,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .grave-modal-title{
   font-family:'MEK',monospace;
-  font-size:max(calc(5vh * 0.95), calc(2.5vw * 0.95));
+  font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));
   color:#000000;
   text-align:center;
 }
@@ -1089,7 +1074,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-size:100% 100%;
   background-color:transparent;
   border:none;padding:0;
-  width:30px;height:30px;
+  width:21px;height:21px;
   font-size:0;line-height:0;
   cursor:pointer;
 }
