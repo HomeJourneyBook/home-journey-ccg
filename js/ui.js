@@ -156,7 +156,9 @@ function preloadAssets(){
     // ── Фон и базовые UI ──
     'img/space_bg.png', 'img/brand.png',
     'img/bg_modal.png', 'img/bg_jest.png',
-    'img/log_frame.png', 'img/log_header.png',
+    'img/log_frame.png', 'img/grav_frame.png',
+    'img/bg_jest_log.png', 'img/bg_jest_grav.png',
+    'img/bones.png',
     'img/bg_bottom_bar.png',
 
     // ── Кнопки лендинга ──
