@@ -10,6 +10,8 @@
 <link rel="preload" href="img/space_bg.png" as="image">
 <link rel="preload" href="img/bg_modal.png" as="image">
 <link rel="preload" href="img/btn_playgame_gates_sheet.png" as="image">
+<link rel="preload" href="img/btn_playgame_frame.png" as="image">
+<link rel="preload" href="img/btn_playgame_hover.png" as="image">
 <link rel="preload" href="img/bones.png" as="image">
 <link rel="preload" href="img/grav_frame.png" as="image">
 <link rel="preload" href="img/bg_jest_log.png" as="image">
@@ -48,8 +50,10 @@
 
       <!-- БЛОК НАЧАТЬ ИГРУ — три слоя поверх друг друга:
            Слой 1 (снизу): три квадратные кнопки режима
-           Слой 2 (посредине): рамка-обёртка (та же форма что ворота, всегда видна)
-           Слой 3 (сверху): ворота — спрайт открытия/закрытия
+           Слой 2 (посредине): ворота — спрайт открытия/закрытия (кликабельный)
+           Слой 3 (сверху): статичная рамка — всегда видна, прозрачна внутри,
+                            сквозь неё видно слои 1-2; сама не кликается
+                            (pointer-events:none — клики проходят на слой 2/1)
       -->
       <div class="play-gate-wrap" id="playGateWrap">
 
@@ -66,11 +70,15 @@
                   disabled title="Online"></button>
         </div>
 
-        <!-- Слой 2: ворота — спрайт 4 кадра горизонтально (закрыто/приоткр./почти/открыто)
-             Внутри спрайта между створками ПРОЗРАЧНО, чтобы был виден Слой 1.
-             Рамка встроена прямо в арт спрайта ворот — отдельный слой-рамка убран. -->
+        <!-- Слой 2: ворота — спрайт 7 кадров горизонтально (закрыто → открыто).
+             Внутри спрайта между створками ПРОЗРАЧНО, чтобы был виден Слой 1. -->
         <div class="play-gate-sprite" id="playGateSprite"
              onclick="openGates()"></div>
+
+        <!-- Слой 3: статичная рамка поверх всего, тот же размер 240×60.
+             Ховер меняется через :hover на .play-gate-wrap (сама рамка
+             pointer-events:none и свой :hover никогда не поймает). -->
+        <div class="play-gate-frame"></div>
 
       </div>
 
