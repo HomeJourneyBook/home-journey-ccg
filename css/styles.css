@@ -775,7 +775,16 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Кадры 2-6 — промежуточные шаги открытия.
    Кадр 7 — полностью открыто; ворота на арте отсутствуют (пустой/прозрачный кадр),
    поэтому видно только Слой 1 (кнопки режима) через прозрачность — pointer-events:none
-   пропускает клики сквозь спрайт прямо на них. */
+   пропускает клики сквозь спрайт прямо на них.
+
+   Ховер относится именно к воротам, не к рамке: пока ворота в состоянии idle (кадр 1,
+   класс .gate-idle на .play-gate-wrap ещё висит — JS снимает его в момент клика/начала
+   анимации и возвращает обратно только когда ворота полностью закрылись), при наведении
+   вместо кадра 1 из шита показывается отдельный файл btn_playgame_hover.png — это
+   ПОЛНОЦЕННАЯ подмена картинки (не часть 7-кадрового шита), поэтому background-size
+   на ховере переключается обратно на 100% 100% (иначе браузер попытается нарезать
+   этот файл как один из 7 кадров и покажет обрезанный кусок). Как только начинается
+   анимация открытия или ворота уже открыты — .gate-idle снят, ховер не сработает. */
 .play-gate-sprite{
   position:absolute;inset:0;z-index:3;cursor:pointer;
   background-image:url('../img/btn_playgame_gates_sheet.png');
@@ -784,6 +793,11 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 /* Убираем плейсхолдер-текст: арт уже есть в PNG */
 .play-gate-sprite::after{content:none;}
+.play-gate-wrap.gate-idle:hover .play-gate-sprite{
+  background-image:url('../img/btn_playgame_hover.png');
+  background-size:100% 100%;
+  background-position:0 0;
+}
 /* Кадры ворот (переключаются через JS добавлением класса, см. _setGateFrame в ui.js).
    Позиции — k/(7-1)*100% для кадров 2..7. */
 .play-gate-sprite.gate-frame-2{background-position:16.667% 0;}
@@ -798,24 +812,16 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Когда ворота открыты — кнопки режима становятся кликабельны */
 .play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
 
-/* Слой 0 (z:0) — статичная рамка, теперь на самом заднем плане (было z:4 сверху —
-   мешала: hover-арт визуально "съедал" рамку, плюс ловился при наведении на уже
-   открывшиеся кнопки режима). На заднем плане рамка всё равно видна — кнопки/ворота
-   меньше самого блока, край рамки торчит вокруг них, а не перекрывается ими.
-   Тот же размер что и ворота (240×60), внутри прозрачна, pointer-events:none —
-   в кликах не участвует.
-   Ховер вешаем не на саму рамку (она не ловит события мыши из-за pointer-events:none),
-   а на :hover всего .play-gate-wrap — но только пока ворота ЕЩЁ закрыты
-   (:not(.gates-open)), иначе hover-арт продолжал бы включаться и при наведении
-   на уже открытые кнопки режима. */
+/* Слой 4 (z:4, самый верхний) — статичная рамка. Просто декоративная обводка,
+   всегда на месте, при ЛЮБОМ состоянии ворот (idle/анимация/открыто) — без
+   исключений, без display:none, без подмены на hover. "Прозрачна внутри" означает
+   только то, что в PNG-файле нет ничего в центре (сквозь него видно слои под ней) —
+   это НЕ триггер для какого-либо ховер-поведения, у самой рамки его нет и не должно быть. */
 .play-gate-frame{
-  position:absolute;inset:0;z-index:0;
+  position:absolute;inset:0;z-index:4;
   background-image:url('../img/btn_playgame_frame.png');
   background-size:100% 100%;background-repeat:no-repeat;
   pointer-events:none;
-}
-.play-gate-wrap:not(.gates-open):hover .play-gate-frame{
-  background-image:url('../img/btn_playgame_hover.png');
 }
 
 /* ── Переходы экранов (горизонтальный слайд с параллаксом фона) ─────
