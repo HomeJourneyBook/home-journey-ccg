@@ -111,7 +111,7 @@ function _refreshSfxBtn(){
     btn.classList.toggle('sfx-off', !sfxEnabled);
   }
   const hamBtn = document.getElementById('hamSfxBtn');
-  if(hamBtn) hamBtn.textContent = sfxEnabled ? 'Sounds: On' : 'Sounds: Off';
+  if(hamBtn) hamBtn.textContent = sfxEnabled ? 'Sound: On' : 'Sound: Off';
 }
 
 function toggleSfx(){
