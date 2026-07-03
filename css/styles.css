@@ -437,8 +437,24 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .log-panel.open{display:block;}
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 
-/* ── Хедер лог-панели ─────────────────────────────────────────────────────────*/
-.log-panel-header{background-image:url('../img/log_header.png');background-size:100% 100%;display:flex;justify-content:center;align-items:center;padding:6px 6px;position:relative;}
+/* ── Хедер лог-панели ─────────────────────────────────────────────────────────
+   9-slice фон bg_jest.png, граница 4px. Размер хедера — по контенту:
+   ширина = ширина .log-panel (родитель), высота = высота строки заголовка
+   + 2×border(4px). Вертикального padding нет — только горизонтальный. */
+.log-panel-header{
+  background:transparent;
+  border-style:solid;
+  border-width:4px;
+  border-image-source:url('../img/bg_jest.png');
+  border-image-slice:40 fill;
+  border-image-width:4px;
+  border-image-outset:0;
+  border-image-repeat:stretch;
+  box-sizing:border-box;
+  display:flex;justify-content:center;align-items:center;
+  padding:0 6px;
+  position:relative;
+}
 .log-panel-title{font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;font-family:'MEK',monospace;text-align:center;}
 .log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:20px;height:20px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
@@ -576,13 +592,22 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
    Для замены: добавить background-image:url('../img/modal_footer_panel.png') и убрать
    background-color + border-top. */
+/* ── Бокс с кнопками модалок (confirm/win/mulligan/pass) ──────────────────
+   Раньше растягивался на всю ширину модалки (align-items:stretch по умолчанию
+   в flex-column .modal). Теперь — компактный бокс, размер по контенту (кнопки
+   + gap), с тем же 9-slice фоном bg_jest.png. Граница переведена в px: 20px
+   (раньше clamp(20px,5vw,40px)). Ширина/высота бокса нигде не задаются явно —
+   их и так однозначно определяют кнопки: 2 кнопки по 120×40px + gap 10px
+   + 2×border(20px) = 300×80px (для одной кнопки — 160×80px). */
 .modal-footer{
+  align-self:center;
+  width:auto;
   background:transparent;
   border-style:solid;
-  border-width:clamp(20px, 5vw, 40px);
+  border-width:20px;
   border-image-source:url('../img/bg_jest.png');
   border-image-slice:40 fill;
-  border-image-width:clamp(20px, 5vw, 40px);
+  border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -910,14 +935,22 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   box-shadow:0 4px 20px #000000aa;
 }
 
-/* Хедер — тот же арт что у battle log */
+/* Хедер — тот же 9-slice фон bg_jest.png, что теперь и у battle log header.
+   Граница 4px, размер по контенту, вертикального padding нет. */
 .grave-modal-header{
-  background-image:url('../img/log_header.png');
-  background-size:100% 100%;
+  background:transparent;
+  border-style:solid;
+  border-width:4px;
+  border-image-source:url('../img/bg_jest.png');
+  border-image-slice:40 fill;
+  border-image-width:4px;
+  border-image-outset:0;
+  border-image-repeat:stretch;
+  box-sizing:border-box;
   display:flex;
   justify-content:center;
   align-items:center;
-  padding:6px 8px;
+  padding:0 8px;
   position:relative;
   flex-shrink:0;
 }
