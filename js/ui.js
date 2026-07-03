@@ -168,7 +168,7 @@ function preloadAssets(){
     'img/btn_catalog1.png', 'img/btn_catalog2.png',
     'img/btn_lore1.png', 'img/btn_lore2.png',
     'img/btn_hotseat1.png', 'img/btn_hotseat2.png', 'img/btn_hotseatH.png',
-    'img/btn_vsai1.png', 'img/btn_online1.png',
+    'img/btn_vsai1.png', 'img/btn_online1.gif',
     'img/btn_music_on1.png', 'img/btn_music_on2.png',
     'img/btn_music_off1.png', 'img/btn_music_off2.png',
 
