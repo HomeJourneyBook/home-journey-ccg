@@ -100,9 +100,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .hamburger-btn.open .ham-line:nth-child(1){transform:translateY(7px) rotate(45deg);}
 .hamburger-btn.open .ham-line:nth-child(2){opacity:0;transform:scaleX(0);}
 .hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
-.ham-menu{position:absolute;top:100%;right:0;background:#0d0d1a;border:1px solid #D5943F44;min-width:130px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .2s ease;z-index:200;}
+.ham-menu{position:absolute;top:100%;right:0;background:#0d0d1a;border:1px solid #E8E0C8;min-width:130px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .2s ease;z-index:200;}
 .ham-menu.open{max-height:400px;opacity:1;}
-.btn.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:8px;color:#e8e0c8;display:block;}
+.btn.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#e8e0c8;display:block;}
 .ham-item:last-child{border-bottom:none;}
 .ham-item:hover{background:#5A5448;color:#F2ECD8;}
 
@@ -391,7 +391,13 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Grid вместо flex+space-between: колонки 1fr/auto/1fr держат btn-end строго
    по центру бара независимо от того, сколько занимает левая группа (кладбище+датчик)
    или правая (колода) — раньше добавление датчика сдвигало кнопку вправо. */
-.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:0;}
+/* align-items:stretch (было center) — .bottom-slot без явной высоты раньше сжимался
+   по своему контенту и центрировался ЦЕЛИКОМ внутри 7vh бара, из-за чего оставался
+   зазор сверху/снизу ДАЖЕ после убранного padding — align-self:flex-end/flex-start
+   у .bottom-bar-extra упирались в край этого более короткого блока, а не в реальный
+   край бара. Теперь .bottom-slot растягивается на все 7vh, и плейсхолдеры внутри
+   реально касаются верха/низа бара. .btn-end не затронут — у него задан свой height. */
+.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:stretch;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:0;}
 .bottom-slot{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 /* ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2),
    +30% сверху (было 14vh×3.5vh, стало 18.2vh×4.55vh).
@@ -795,14 +801,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   display:flex;flex-direction:column;align-items:center;
 }
 .landing-title{
-  font-family:'MEK',monospace;font-size:clamp(26px,6vw,40px);
-  color:#E8E0C8;letter-spacing:3px;text-align:center;
+  font-family:'MEK',monospace;font-size:clamp(31.2px,7.2vw,48px);
+  color:#E8E0C8;letter-spacing:3.6px;text-align:center;
   text-shadow:0 0 20px #c8a84b66;
   pointer-events:none;
 }
 .landing-sub{
-  font-family:'MEK',monospace;font-size:clamp(16px,3vw,24px);
-  color:#9b937f;letter-spacing:3px;text-align:center;margin-top:6px;
+  font-family:'MEK',monospace;font-size:clamp(19.2px,3.6vw,28.8px);
+  color:#9b937f;letter-spacing:3.6px;text-align:center;margin-top:7.2px;
   pointer-events:none;
 }
 
