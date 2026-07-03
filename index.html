@@ -420,12 +420,14 @@
   
   <!-- BOTTOM BARS -->
   <div class="bottom-bar" id="teaBottomBar" style="display:none;">
-    <div class="bottom-slot">
-      <button class="btn-square btn-graveyard" onclick="openGraveModal('tea')" title="Graveyard"></button>
-      <span class="stat-badge" id="teaGraveBadge">0</span>
+    <div class="bottom-bar-left">
+      <div class="bottom-slot">
+        <button class="btn-square btn-graveyard" onclick="openGraveModal('tea')" title="Graveyard"></button>
+        <span class="stat-badge" id="teaGraveBadge">0</span>
+      </div>
+      <!-- ПЛЕЙСХОЛДЕР — датчик/индикатор, позже заменится на гифку (см. .bottom-bar-sensor в styles.css) -->
+      <div class="bottom-bar-sensor"></div>
     </div>
-    <!-- ПЛЕЙСХОЛДЕР — датчик/индикатор, позже заменится на гифку (см. .bottom-bar-sensor в styles.css) -->
-    <div class="bottom-bar-sensor"></div>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
     <div class="bottom-slot">
       <span class="stat-badge" id="teaDeckBadge">0</span>
@@ -435,12 +437,14 @@
     </div>
   </div>
   <div class="bottom-bar" id="jeetBottomBar" style="display:none;">
-    <div class="bottom-slot">
-      <button class="btn-square btn-graveyard" onclick="openGraveModal('jeet')" title="Graveyard"></button>
-      <span class="stat-badge" id="jeetGraveBadge">0</span>
+    <div class="bottom-bar-left">
+      <div class="bottom-slot">
+        <button class="btn-square btn-graveyard" onclick="openGraveModal('jeet')" title="Graveyard"></button>
+        <span class="stat-badge" id="jeetGraveBadge">0</span>
+      </div>
+      <!-- ПЛЕЙСХОЛДЕР — датчик/индикатор, позже заменится на гифку (см. .bottom-bar-sensor в styles.css) -->
+      <div class="bottom-bar-sensor"></div>
     </div>
-    <!-- ПЛЕЙСХОЛДЕР — датчик/индикатор, позже заменится на гифку (см. .bottom-bar-sensor в styles.css) -->
-    <div class="bottom-bar-sensor"></div>
     <button class="btn btn-end" onclick="endTurn()">End Turn</button>
     <div class="bottom-slot">
       <span class="stat-badge" id="jeetDeckBadge">0</span>
@@ -517,15 +521,6 @@
 
 <div class="modal-overlay hidden" id="confirmModal">
   <div class="modal">
-    <!-- ПРИМЕР декора поверх рамки/фона модалки — см. .modal-decor* в styles.css.
-         Размер завязан на переменную --modal-border-w, поэтому масштабируется
-         вместе с рамкой на любом экране. Скопируй в другие модалки по аналогии,
-         подвинь top/left/right/bottom под свою композицию, замени чёрный фон на арт. -->
-    <div class="modal-decor modal-decor-square" style="top:0;left:0;"></div>
-    <div class="modal-decor modal-decor-square" style="top:0;right:0;"></div>
-    <div class="modal-decor modal-decor-square" style="bottom:0;right:0;"></div>
-    <div class="modal-decor modal-decor-wide" style="top:0;left:50%;transform:translateX(-50%);"></div>
-    <div class="modal-decor modal-decor-wide" style="bottom:0;left:50%;transform:translateX(-50%);"></div>
     <div class="modal-body">
       <h2 style="font-size:22px;">LEAVE GAME?</h2>
       <p>Current game will be lost. Return to menu?</p>
