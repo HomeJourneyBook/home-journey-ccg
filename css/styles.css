@@ -102,7 +102,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 .ham-menu{position:absolute;top:100%;right:0;background:#0d0d1a;border:1px solid #E8E0C8;min-width:130px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .2s ease;z-index:200;}
 .ham-menu.open{max-height:400px;opacity:1;}
-.btn.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#e8e0c8;display:block;}
+.btn.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:max(calc(5vh * 0.532), calc(2.5vw * 0.532));color:#e8e0c8;display:block;}
 .ham-item:last-child{border-bottom:none;}
 .ham-item:hover{background:#5A5448;color:#F2ECD8;}
 
@@ -311,16 +311,21 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .cap-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
 
-/* Попап «Not enough essence» — вместо кнопки Play, когда не хватает эссенции */
+/* Попап «Not enough essence» — вместо кнопки Play, когда не хватает эссенции.
+   Сделан крупнее + родительский .card-actions-popup (обычно 110px под иконки-кнопки)
+   расширяется до ширины карты именно в этом случае через :has() — на обычные
+   play/burn/zoom кнопки это не влияет, у них попап остаётся 110px. */
+.card-actions-popup:has(.cap-no-ess){width:var(--card-w);}
 .cap-no-ess{display:flex;
   align-items:center;
-  gap:5px;
+  justify-content:center;
+  gap:6px;
   font-family:'MEK',monospace;
-  font-size:clamp(9px,2.2vw,13px);
+  font-size:clamp(12px,3vw,17px);
   color:#E8E0C8;
   background:transparent;
   border:transparent;
-  padding:5px 8px;
+  padding:6px 10px;
   white-space:nowrap;
   pointer-events:none;
   text-shadow:0 0 8px #8A7D62;
@@ -360,12 +365,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.5), calc(2vw * 0.5));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:3px 3px;}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
 .stat-ess-box{background-image:url('../img/bg_statbar_hp.png');}
-/* ПЛЕЙСХОЛДЕР слева от HP-индикатора — просто под будущий арт (иконка/бейдж).
+/* Плейсхолдер слева от HP-индикатора — теперь с реальным артом (boltik.png).
    Размер — квадрат, сторона = половина высоты .stat-hp-box (та же формула × 0.5). */
 .hp-placeholder{
   width:max(calc(4vh * 0.25), calc(2vw * 0.25));
   height:max(calc(4vh * 0.25), calc(2vw * 0.25));
-  background:#000;
+  background-image:url('../img/boltik.png');
+  background-size:100% 100%;
+  background-repeat:no-repeat;
   flex-shrink:0;
 }
 /* .tea-hp-box{background-image:url('../img/statbar_hp_tea.png');} */
@@ -376,7 +383,27 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .tea-name-box{background-image:url('../img/bg_statbar_tea.png');}
 .jeet-name-box{background-image:url('../img/bg_statbar_jeet.png');}
 .player-name-box:active{transform:scale(0.92);}
-.player-name-box.base-targetable{cursor:crosshair;outline:1px solid #e05555;outline-offset:1px;border-radius:6px;animation:pulseNameBox .8s infinite alternate;}
+/* Таргет базы противника — усилено по двум фронтам:
+   1) ::after — полупрозрачная красная заливка ПРЯМО НА базе, мигает туда-обратно
+      (раньше был только inset box-shadow, который на непрозрачном арте базы почти не читался).
+   2) сам pulseNameBox — увеличен разброс/яркость box-shadow снаружи, чтобы пульс
+      вокруг базы был заметнее (было 6-14px, стало 10-26px, ярче цвет). */
+.player-name-box.base-targetable{
+  position:relative;
+  cursor:crosshair;
+  outline:2px solid #ff2222;
+  outline-offset:2px;
+  border-radius:6px;
+  animation:pulseNameBox .8s infinite alternate;
+}
+.player-name-box.base-targetable::after{
+  content:'';
+  position:absolute;inset:0;
+  background:#ff0000;
+  border-radius:6px;
+  pointer-events:none;
+  animation:baseBlinkRed .8s infinite alternate;
+}
 
 .opp-hand-zone{height:7vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
@@ -397,7 +424,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
    у .bottom-bar-extra упирались в край этого более короткого блока, а не в реальный
    край бара. Теперь .bottom-slot растягивается на все 7vh, и плейсхолдеры внутри
    реально касаются верха/низа бара. .btn-end не затронут — у него задан свой height. */
-.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:stretch;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:0;}
+.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:stretch;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:0 4px;}
 .bottom-slot{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 /* ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2),
    +30% сверху (было 14vh×3.5vh, стало 18.2vh×4.55vh).
@@ -409,11 +436,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   display:none;
   width:18.2vh;
   height:4.55vh;
-  background:#000;
+  background-size:100% 100%;
+  background-repeat:no-repeat;
   flex-shrink:0;
 }
-.bottom-bar-extra.align-bottom{align-self:flex-end;}
-.bottom-bar-extra.align-top{align-self:flex-start;}
+.bottom-bar-extra.align-bottom{align-self:flex-end;background-image:url('../img/zabor1.png');}
+.bottom-bar-extra.align-top{align-self:flex-start;background-image:url('../img/zabor2.png');}
 @media(min-width:601px){
   .bottom-bar-extra{display:block;}
 }
@@ -445,8 +473,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   display:none;
   width:60px;
   height:60px;
-  background-color:#000;
-  /* background-image:url('../img/sensor.gif'); background-size:cover; background-position:center; */
+  background-image:url('../img/dat4ik.gif');
+  background-size:cover;
+  background-position:center;
   flex-shrink:0;
 }
 @media(min-width:601px){
@@ -1534,8 +1563,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 
 @keyframes pulseNameBox{
-  from{box-shadow:0 0 6px 2px #e05555, inset 0 0 4px #e05555aa;}
-  to{box-shadow:0 0 14px 4px #e05555, inset 0 0 8px #e05555cc;}
+  from{box-shadow:0 0 10px 3px #e05555, inset 0 0 4px #e05555aa;}
+  to{box-shadow:0 0 26px 8px #ff2222, inset 0 0 8px #ff2222cc;}
+}
+@keyframes baseBlinkRed{
+  from{opacity:0;}
+  to{opacity:0.5;}
 }
 
 /* float cards */
