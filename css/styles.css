@@ -7,8 +7,8 @@
   font-style: normal;
 }
 
- 
-:root { 
+
+:root {
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716); 
   --cat-card-w: calc(var(--card-h) * 0.716);
@@ -103,6 +103,11 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .ham-menu{position:absolute;top:100%;right:0;background:#0d0d1a;border:1px solid #E8E0C8;min-width:130px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .2s ease;z-index:200;}
 .ham-menu.open{max-height:400px;opacity:1;}
 .btn.ham-item{border:none;border-bottom:1px solid #ffffff11;width:100%;text-align:left;padding:8px 14px;font-size:max(calc(5vh * 0.532), calc(2.5vw * 0.532));color:#e8e0c8;display:block;}
+/* На лаптопе/десктопе (от 601px) — на 20% меньше базового (телефонного) значения:
+   0.532 × 0.8 = 0.4256. */
+@media(min-width:601px){
+  .btn.ham-item{font-size:max(calc(5vh * 0.4256), calc(2.5vw * 0.4256));}
+}
 .ham-item:last-child{border-bottom:none;}
 .ham-item:hover{background:#5A5448;color:#F2ECD8;}
 
@@ -342,7 +347,22 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 /* LAYOUT ZONES */
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
-.stats-bar{height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
+.stats-bar{position:relative;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
+/* ПЛЕЙСХОЛДЕР, прибитый к правому краю статус-бара (небольшой отступ 6px от края,
+   не влияет на центрирование остального ряда — стоит вне потока через position:absolute).
+   1:1, сторона = 2/3 высоты .stats-bar. Только лаптоп/десктоп. */
+.statbar-edge-right{
+  display:none;
+  position:absolute;
+  right:6px;top:50%;
+  transform:translateY(-50%);
+  width:calc(max(4vh, 2vw) * 2 / 3);
+  height:calc(max(4vh, 2vw) * 2 / 3);
+  background:#000;
+}
+@media(min-width:601px){
+  .statbar-edge-right{display:block;}
+}
 .stats-bar.jeet{}
 .stats-bar.tea{}
 .stats-bar.jeet{background-image:url('../img/bg_jeet_bar.png');} 
@@ -470,6 +490,21 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 @media(min-width:601px){
   .bottom-bar-extra-2{display:block;}
+}
+
+/* ПЛЕЙСХОЛДЕР 3 — правый слот, левее zabor2, сам прижат к низу бара (align-self:flex-end,
+   родитель .bottom-slot растянут на все 7vh через align-items:stretch — см. выше).
+   2:1, высота = треть высоты бара (7vh/3). Только лаптоп/десктоп. */
+.bottom-bar-extra-3{
+  display:none;
+  align-self:flex-end;
+  width:calc(7vh / 3 * 2);
+  height:calc(7vh / 3);
+  background-color:#000;
+  flex-shrink:0;
+}
+@media(min-width:601px){
+  .bottom-bar-extra-3{display:block;}
 }
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
