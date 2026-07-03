@@ -35,11 +35,10 @@
   --altar-active: #B44FD4;
   --tea-shadow: #2D7B3522;
   --jeet-shadow: #7B2D8B22;
-  /* Толщина рамки для 9-slice bg_modal.png (модалки/лендинг/кладбище/лог) — арт 240x240,
-     угол 80x80 (border-image-slice). border-image-width должен равняться размеру угла в источнике
-     чтобы пиксель-арт рендерился 1:1 без сжатия деталей.
-     Для мобилок уменьшаем до 48px — всё равно видно, но окна не распирает. */
-  --modal-border-w: clamp(48px, 6vw, 80px);
+  /* Толщина рамки для 9-slice bg_modal.png (confirm/win/mulligan/pass модалки).
+     Зафиксирована в px — раньше была clamp(48px,6vw,80px) и на широких экранах
+     "съедала" контентную зону модалки (см. .modal ниже, ширина завязана на эту переменную). */
+  --modal-border-w: 54px;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
@@ -397,6 +396,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
 .btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
+/* Обёртка была раньше инлайн-стилем в index.html (двумя одинаковыми копиями — tea/jeet),
+   вынесена сюда. Раньше 6.25vh не совпадало с 6vh самого .btn-deck-placeholder —
+   теперь размер грани один и тот же (6vh), как у соседней кнопки graveyard. */
+.deck-placeholder-wrap{position:relative;width:6vh;height:6vh;flex-shrink:0;}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:6vh;height:6vh;background-size:contain;background-repeat:no-repeat;background-position:center;padding:2px;position:absolute;top:0;left:0;}
 
 /* ── ПЛЕЙСХОЛДЕР: датчик/индикатор рядом со счётчиком кладбища ──────────────
@@ -449,7 +452,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-style:solid;
   border-width:20px;
   border-image-source:url('../img/log_frame.png');
-  border-image-slice:20 fill;
+  border-image-slice:40 fill;
   border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
@@ -460,15 +463,15 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 
 /* ── Хедер лог-панели ─────────────────────────────────────────────────────────
-   9-slice фон bg_jest.png, граница 10px. Размер хедера — по контенту:
+   9-slice фон bg_jest_log.png, граница 10px. Размер хедера — по контенту:
    ширина = ширина .log-panel (родитель), высота = высота строки заголовка
    + 2×border(10px). Вертикального padding нет — только горизонтальный. */
 .log-panel-header{
   background:transparent;
   border-style:solid;
   border-width:10px;
-  border-image-source:url('../img/bg_jest.png');
-  border-image-slice:40 fill;
+  border-image-source:url('../img/bg_jest_log.png');
+  border-image-slice:20 fill;
   border-image-width:10px;
   border-image-outset:0;
   border-image-repeat:stretch;
@@ -986,8 +989,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background:transparent;
   border-style:solid;
   border-width:20px;
-  border-image-source:url('../img/log_frame.png');
-  border-image-slice:20 fill;
+  border-image-source:url('../img/grav_frame.png');
+  border-image-slice:40 fill;
   border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
@@ -1005,8 +1008,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background:transparent;
   border-style:solid;
   border-width:10px;
-  border-image-source:url('../img/bg_jest.png');
-  border-image-slice:40 fill;
+  border-image-source:url('../img/bg_jest_grav.png');
+  border-image-slice:20 fill;
   border-image-width:10px;
   border-image-outset:0;
   border-image-repeat:stretch;
@@ -1056,11 +1059,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .grave-modal-body::-webkit-scrollbar-thumb:hover{background:#E8E0C8;}
 
 /* Футер кладбища — bones.png на всю ширину, обрезается окном сам */
+/* bones.png — узкий бесшовный тайл, повторяем по горизонтали на всю ширину футера.
+   Высота не трогается (28px, как было). background-position:left — чтобы стыковка
+   тайлов начиналась ровно с левого края, а не "гуляла" из-за center. */
 .grave-modal-footer{
   background-image:url('../img/bones.png');
   background-size:auto 100%;
-  background-repeat:no-repeat;
-  background-position:center;
+  background-repeat:repeat-x;
+  background-position:left center;
   height:28px;
   flex-shrink:0;
   overflow:hidden;
