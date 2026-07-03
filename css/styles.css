@@ -375,6 +375,19 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-repeat:no-repeat;
   flex-shrink:0;
 }
+/* ПЛЕЙСХОЛДЕРЫ по бокам от pcard-слотов (world/artifact) в статус-барах — 4:1,
+   высота = половина высоты .stats-bar (та же формула × 0.5, откуда и высота
+   у .hp-placeholder выше). Только лаптоп/десктоп — на телефоне не показываем. */
+.statbar-extra{
+  display:none;
+  width:calc(max(4vh, 2vw) * 0.5 * 4);
+  height:calc(max(4vh, 2vw) * 0.5);
+  background:#000;
+  flex-shrink:0;
+}
+@media(min-width:601px){
+  .statbar-extra{display:block;}
+}
 /* .tea-hp-box{background-image:url('../img/statbar_hp_tea.png');} */
 /* .jeet-hp-box{background-image:url('../img/statbar_hp_jeet.png');} */
 /* .tea-ess-box{background-image:url('../img/statbar_ess_tea.png');} */
@@ -391,8 +404,6 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .player-name-box.base-targetable{
   position:relative;
   cursor:crosshair;
-  outline:2px solid #ff2222;
-  outline-offset:2px;
   border-radius:6px;
   animation:pulseNameBox .8s infinite alternate;
 }
@@ -415,9 +426,6 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 
 /* BOTTOM BAR */
-/* Grid вместо flex+space-between: колонки 1fr/auto/1fr держат btn-end строго
-   по центру бара независимо от того, сколько занимает левая группа (кладбище+датчик)
-   или правая (колода) — раньше добавление датчика сдвигало кнопку вправо. */
 /* align-items:stretch (было center) — .bottom-slot без явной высоты раньше сжимался
    по своему контенту и центрировался ЦЕЛИКОМ внутри 7vh бара, из-за чего оставался
    зазор сверху/снизу ДАЖЕ после убранного padding — align-self:flex-end/flex-start
@@ -444,6 +452,24 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .bottom-bar-extra.align-top{align-self:flex-start;background-image:url('../img/zabor2.png');}
 @media(min-width:601px){
   .bottom-bar-extra{display:block;}
+}
+
+/* ПЛЕЙСХОЛДЕР 2 — справа от zabor1 (margin-left отделяет от него), только лаптоп/десктоп
+   (та же логика display:none/@media(min-width:601px), что и у остальных extra-плейсхолдеров).
+   3:1, высота = половина высоты бара (7vh/2 = 3.5vh), сейчас чёрный.
+   Чтобы подставить свой арт потом — просто раскомментируй background-image ниже
+   и удали background-color (или замени картинку и оставь как есть). */
+.bottom-bar-extra-2{
+  display:none;
+  width:10.5vh;
+  height:3.5vh;
+  margin-left:10px;
+  background-color:#000;
+  /* background-image:url('../img/ИМЯ_ФАЙЛА.png'); background-size:100% 100%; background-repeat:no-repeat; */
+  flex-shrink:0;
+}
+@media(min-width:601px){
+  .bottom-bar-extra-2{display:block;}
 }
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
@@ -1153,6 +1179,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-color:transparent;
 }
 .art-btn-vsai,.art-btn-online{cursor:not-allowed;}
+/* Эти три кнопки НЕ должны ловить общий brightness-ховер от .art-btn-square:hover —
+   ховер тут будет только через подмену арта (как уже сделано у hotseat ниже),
+   никаких programmatic-эффектов поверх. */
+.art-btn-hotseat:hover,.art-btn-vsai:hover,.art-btn-online:hover{filter:none;}
 .art-btn-hotseat:hover { background-image:url('../img/btn_hotseatH.png');  }
 .art-btn-hotseat        { background-image:url('../img/btn_hotseat1.png');  }
 .art-btn-hotseat:active { background-image:url('../img/btn_hotseat2.png');  }
