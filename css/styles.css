@@ -711,35 +711,99 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-position:center;
 }
 
-/* ── Плейсхолдер под будущий арт (было "иллюминатор" с космосом) ─────
-   Просто квадратный бокс с title/sub по центру и равными отступами по краям.
-   Уменьшен на 20% от прежнего размера (clamp(180,28vw,320) → clamp(144,22.4vw,256)).
-   Когда будет готов кастомный арт — раскомментируй background-image и убери background-color. */
+/* ── Иллюминатор — 4 слоя, круглое окно 228×228px + гибкость на маленьких экранах ──
+   min(228px, 60vw) — тот же принцип, что и у бокса с кнопками: 228px это потолок
+   (сам ассет нарисован под этот размер), а vw-часть даёт ужаться на узких экранах.
+   border-radius:50%+overflow:hidden на самом контейнере — обрезает ВСЕ слои внутри
+   по кругу разом, отдельным слоям свою обрезку вешать не нужно.
+   Слои по порядку (назад → вперёд):
+     1. .porthole-space — статичный космос (logo_space.png)
+     2. .porthole-logo-wrap — текст тайтла/сабтайтла, центр
+     3. .porthole-glass — лёгкое стекло (blur+тон) + редкий блик
+     4. .porthole-frame — круглая рамка (logo_window.png), рамка 18px, сверху всех */
 .landing-porthole{
   position:relative;z-index:1;
-  width:clamp(144px,22.4vw,256px);
-  height:clamp(144px,22.4vw,256px);
-  box-sizing:border-box;
-  background-color:#2a2c34;         /* PLACEHOLDER — временный фон квадрата */
-  /* background-image:url('../img/landing_porthole.png'); */
-  background-size:cover;
-  background-position:center;
-  border:1px solid #3a4055;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:20px;                     /* равный отступ title/sub от каждой стороны */
+  width:min(228px, 60vw);
+  height:min(228px, 60vw);
+  border-radius:50%;
   overflow:hidden;
+  flex-shrink:0;
+}
+
+/* Слой 1 (z:0) — космос. Ассет 228×288 (выше, чем окно) — просто центрируем
+   статично, лишнее сверху/снизу обрежется border-radius+overflow контейнера.
+   background-size:100% auto — ширина всегда точно = ширине контейнера (какой бы
+   она ни была на конкретном экране), высота считается по пропорции картинки. */
+.porthole-space{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('../img/logo_space.png');
+  background-size:100% auto;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+
+/* Слой 2 (z:1) — текст. max-width:65% контейнера — держит текст в безопасной
+   зоне внутри кольца рамки (рамка 18px из 228px ≈ 7.9% с каждой стороны;
+   65% с запасом гарантирует, что даже углы текстового блока не заденут рамку). */
+.porthole-logo-wrap{
+  position:absolute;inset:0;z-index:1;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.porthole-logo{
+  max-width:65%;
+  display:flex;flex-direction:column;align-items:center;
 }
 .landing-title{
-  position:relative;z-index:3;
-  font-family:'MEK',monospace;font-size:clamp(16px,3.5vw,28px);
-  color:#E8E0C8;letter-spacing:4px;text-align:center;
+  font-family:'MEK',monospace;font-size:clamp(13px,3vw,20px);
+  color:#E8E0C8;letter-spacing:3px;text-align:center;
   text-shadow:0 0 20px #c8a84b66;
   pointer-events:none;
 }
 .landing-sub{
-  position:relative;z-index:3;
-  font-family:'MEK',monospace;font-size:clamp(10px,1.8vw,16px);
-  color:#9b937f;letter-spacing:6px;text-align:center;margin-top:6px;
+  font-family:'MEK',monospace;font-size:clamp(8px,1.5vw,12px);
+  color:#9b937f;letter-spacing:3px;text-align:center;margin-top:6px;
+  pointer-events:none;
+}
+
+/* Слой 3 (z:2) — стекло: лёгкий blur того, что под ним (космос/текст) + голубоватый
+   тон (имитация толщины/тонировки стекла), плюс редкий диагональный блик — сам блик
+   это ::before с linear-gradient полосой, которая почти всё время "уезжает" за пределы
+   контейнера (left:-150%) и лишь изредка (раз в ~13с) быстро проезжает по диагонали
+   через видимую область (см. keyframes portholeGlare). */
+.porthole-glass{
+  position:absolute;inset:0;z-index:2;
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.10), rgba(180,200,255,0.04) 55%, rgba(0,0,0,0.06) 100%);
+  backdrop-filter:blur(1.5px);
+  -webkit-backdrop-filter:blur(1.5px);
+  overflow:hidden;
+  pointer-events:none;
+}
+.porthole-glass::before{
+  content:'';
+  position:absolute;
+  top:-60%;left:-150%;
+  width:55%;height:220%;
+  background:linear-gradient(75deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%);
+  transform:rotate(20deg);
+  animation:portholeGlare 13s ease-in-out infinite;
+}
+@keyframes portholeGlare{
+  0%,85%   { left:-150%; opacity:0; }
+  90%      { opacity:0.85; }
+  97%      { left:150%;  opacity:0.85; }
+  100%     { left:150%;  opacity:0; }
+}
+
+/* Слой 4 (z:3, самый верхний) — круглая рамка иллюминатора, logo_window.png.
+   background-size:100% 100% — тянется точно под текущий размер контейнера
+   (масштабируется вместе с ним на маленьких экранах). Внутри рамки в самом PNG
+   пусто/прозрачно — сквозь неё видно слои 1-3. pointer-events:none, декоративный слой. */
+.porthole-frame{
+  position:absolute;inset:0;z-index:3;
+  background-image:url('../img/logo_window.png');
+  background-size:100% 100%;
+  background-repeat:no-repeat;
   pointer-events:none;
 }
 
