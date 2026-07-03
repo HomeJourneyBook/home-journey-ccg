@@ -395,6 +395,23 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
 .btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:6vh;height:6vh;background-size:contain;background-repeat:no-repeat;background-position:center;padding:2px;position:absolute;top:0;left:0;}
+
+/* ── ПЛЕЙСХОЛДЕР: датчик/индикатор на bottom-bar ────────────────────────────
+   Только на десктопе/лаптопе (от 601px, как остальные desktop-only блоки в проекте —
+   см. @media(min-width:601px) выше). На мобилке не показываем — там и так тесно.
+   Сейчас просто чёрный квадрат; когда будет гифка — раскомментируй background и убери
+   background-color, или замени div на <img>/<video> с тем же классом. */
+.bottom-bar-sensor{
+  display:none;
+  width:60px;
+  height:60px;
+  background-color:#000;
+  /* background-image:url('../img/sensor.gif'); background-size:cover; background-position:center; */
+  flex-shrink:0;
+}
+@media(min-width:601px){
+  .bottom-bar-sensor{display:block;}
+}
 .btn-badge{position:absolute;top:-0.8vh;right:-0.8vh;min-width:2.6vh;height:2.6vh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:1.6vh;font-weight:bold;border:1px solid;pointer-events:none;line-height:1;}
 #teaBottomBar .btn-badge{background:#1a1200;border-color:#4DB854;color:#4DB854;}
 #jeetBottomBar .btn-badge{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
@@ -438,16 +455,16 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 
 /* ── Хедер лог-панели ─────────────────────────────────────────────────────────
-   9-slice фон bg_jest.png, граница 4px. Размер хедера — по контенту:
+   9-slice фон bg_jest.png, граница 20px. Размер хедера — по контенту:
    ширина = ширина .log-panel (родитель), высота = высота строки заголовка
-   + 2×border(4px). Вертикального padding нет — только горизонтальный. */
+   + 2×border(20px). Вертикального padding нет — только горизонтальный. */
 .log-panel-header{
   background:transparent;
   border-style:solid;
-  border-width:4px;
+  border-width:20px;
   border-image-source:url('../img/bg_jest.png');
   border-image-slice:40 fill;
-  border-image-width:4px;
+  border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -455,7 +472,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   padding:0 6px;
   position:relative;
 }
-.log-panel-title{font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;font-family:'MEK',monospace;text-align:center;}
+.log-panel-title{font-size:max(calc(5vh * 0.633), calc(2.5vw * 0.633));color:#000000;font-family:'MEK',monospace;text-align:center;}
 .log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:20px;height:20px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
@@ -522,7 +539,13 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:#000000;z-index:100;display:flex;align-items:center;justify-content:center;}
+/* Ширина модалки завязана на --modal-border-w: раньше width была фиксированной (340px),
+   а рамка росла до 80px на десктопе — рамка съедала контентную зону до ~180px, и футер
+   с кнопками (которому теперь нужно ~290px, см. .modal-footer) вылезал за пределы модалки
+   и обрезался через overflow:hidden. Теперь ширина = 300px контента + 2×рамка,
+   т.е. контентная зона стабильно ~300px независимо от того, насколько толстая рамка. */
 .modal{
+  position:relative;   /* якорь для .modal-decor — декоративных элементов поверх рамки/фона */
   background:transparent;
   border-style:solid;
   border-width:var(--modal-border-w);
@@ -533,12 +556,33 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   border-image-repeat:stretch;
   padding:0; /* padding перенесён в .modal-body — хедер/футер прилипают встык к рамке */
   box-sizing:border-box;
-  width:min(340px, 92vw);
-  max-width:clamp(340px, 92vw, 420px);
+  width:min(calc(300px + 2 * var(--modal-border-w)), 92vw);
+  max-width:calc(300px + 2 * var(--modal-border-w));
   text-align:center;
   display:flex;
   flex-direction:column;
   overflow:hidden; /* чтобы хедер/футер не вылезали за скруглённые углы */
+}
+
+/* ── Декоративные плейсхолдеры поверх рамки/фона модалки ─────────────────────
+   Пример на confirmModal (см. index.html) — размеры завязаны на --modal-border-w,
+   поэтому масштабируются вместе с рамкой на любом экране. Когда будет свой арт —
+   заменить background:#000 на background-image (или сделать img вместо div).
+   modal-decor-square — квадрат = ширине рамки (удобно ставить прямо в угол/на кант рамки).
+   modal-decor-wide   — прямоугольник 2:1 от той же величины. */
+.modal-decor{
+  position:absolute;
+  background:#000;
+  pointer-events:none;   /* чтобы не перехватывали клики по кнопкам под ними */
+  z-index:5;
+}
+.modal-decor-square{
+  width:var(--modal-border-w);
+  height:var(--modal-border-w);
+}
+.modal-decor-wide{
+  width:calc(var(--modal-border-w) * 2);
+  height:var(--modal-border-w);
 }
 
 /* ── Арт-кнопки внутри modal-footer ────────────────────────────────────────────
@@ -586,7 +630,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   flex:1;
 }
 .modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:7px;}
-.modal p{font-size:5px;color:#9B937F;margin-bottom:18px;line-height:1.6;}
+.modal p{font-size:clamp(13px,3.2vw,16px);color:#9B937F;margin-bottom:18px;line-height:1.6;}
 
 /* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
@@ -936,14 +980,14 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 
 /* Хедер — тот же 9-slice фон bg_jest.png, что теперь и у battle log header.
-   Граница 4px, размер по контенту, вертикального padding нет. */
+   Граница 20px, размер по контенту, вертикального padding нет. */
 .grave-modal-header{
   background:transparent;
   border-style:solid;
-  border-width:4px;
+  border-width:20px;
   border-image-source:url('../img/bg_jest.png');
   border-image-slice:40 fill;
-  border-image-width:4px;
+  border-image-width:20px;
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
@@ -956,8 +1000,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .grave-modal-title{
   font-family:'MEK',monospace;
-  font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));
-  color:#E8E0C8;
+  font-size:max(calc(5vh * 0.633), calc(2.5vw * 0.633));
+  color:#000000;
   text-align:center;
 }
 /* Крестик — тот же арт что в battle log */
