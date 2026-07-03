@@ -8,6 +8,8 @@
 <!-- Preload критических ресурсов: браузер начинает качать параллельно с парсингом HTML -->
 <link rel="preload" href="fonts/MEK.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="img/space_bg.png" as="image">
+<link rel="preload" href="img/logo_space.png" as="image">
+<link rel="preload" href="img/logo_window.png" as="image">
 <link rel="preload" href="img/bg_modal.png" as="image">
 <link rel="preload" href="img/btn_playgame_gates_sheet.png" as="image">
 <link rel="preload" href="img/btn_playgame_frame.png" as="image">
@@ -36,12 +38,18 @@
 
 <div class="landing" id="landing" style="display:none;">
 
-  <!-- ПЛЕЙСХОЛДЕР под будущий арт (было "иллюминатор" с космосом) —
-       просто квадрат с title/sub по центру. Замени фон через background-image
-       в .landing-porthole в styles.css, когда будет готов кастомный арт. -->
+  <!-- ИЛЛЮМИНАТОР — 4 слоя (назад → вперёд), см. подробный комментарий в styles.css
+       у .landing-porthole. Круглое окно 228×228px + гибкость на маленьких экранах. -->
   <div class="landing-porthole">
-    <div class="landing-title glitching-ready">HOME'S<br>JOURNEY</div>
-    <div class="landing-sub">· · · CCG · · ·</div>
+    <div class="porthole-space"></div>
+    <div class="porthole-logo-wrap">
+      <div class="porthole-logo">
+        <div class="landing-title glitching-ready">HOME'S<br>JOURNEY</div>
+        <div class="landing-sub">CCG</div>
+      </div>
+    </div>
+    <div class="porthole-glass"></div>
+    <div class="porthole-frame"></div>
   </div>
 
   <!-- ПАНЕЛЬ С КНОПКАМИ (модалка-рамка) -->
