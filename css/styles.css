@@ -384,9 +384,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 /* Grid вместо flex+space-between: колонки 1fr/auto/1fr держат btn-end строго
    по центру бара независимо от того, сколько занимает левая группа (кладбище+датчик)
    или правая (колода) — раньше добавление датчика сдвигало кнопку вправо. */
-.bottom-bar{height:7vh;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:4px;}
-.bottom-bar-left{display:flex;align-items:center;gap:8px;justify-self:start;}
-.bottom-bar>.bottom-slot{justify-self:end;} /* только правый (колода) — левый теперь внутри .bottom-bar-left */
+.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:center;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:4px;}
 .bottom-slot{display:flex;align-items:center;gap:4px;flex-shrink:0;}
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
@@ -401,7 +399,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:6vh;height:6vh;background-size:contain;background-repeat:no-repeat;background-position:center;padding:2px;position:absolute;top:0;left:0;}
 
-/* ── ПЛЕЙСХОЛДЕР: датчик/индикатор на bottom-bar ────────────────────────────
+/* ── ПЛЕЙСХОЛДЕР: датчик/индикатор рядом со счётчиком кладбища ──────────────
+   Лежит внутри .bottom-slot (кладбище), сразу после .stat-badge — flex сам
+   поставит его правее счётчика, порядок в DOM не менять.
    Только на десктопе/лаптопе (от 601px, как остальные desktop-only блоки в проекте —
    см. @media(min-width:601px) выше). На мобилке не показываем — там и так тесно.
    Сейчас просто чёрный квадрат; когда будет гифка — раскомментируй background и убери
