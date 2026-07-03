@@ -480,8 +480,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   padding:0 6px;
   position:relative;
 }
-.log-panel-title{font-size:max(calc(5vh * 1.266), calc(2.5vw * 1.266));color:#000000;font-family:'MEK',monospace;text-align:center;}
-.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:40px;height:40px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
+.log-panel-title{font-size:max(calc(5vh * 0.95), calc(2.5vw * 0.95));color:#000000;font-family:'MEK',monospace;text-align:center;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:30px;height:30px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
 .log-panel .log{height:180px;border:none;}
@@ -919,9 +919,29 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .landing-square-row{
   display:flex;
   flex-direction:row;
-  align-items:center;
+  align-items:flex-start;
   justify-content:center;
   gap:16px;
+}
+/* Кнопка + подпись под ней, одной колонкой */
+.landing-square-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+/* Подпись шириной ровно с кнопку (54px), поэтому центрируется точно под ней.
+   font-size подобран так, чтобы "Music" (самое длинное слово) помещалось в 54px
+   в один ряд без переноса — если поменяешь текст на более длинный, проверь. */
+.landing-square-label{
+  width:54px;
+  font-family:'MEK',monospace;
+  font-size:10px;
+  letter-spacing:0.5px;
+  color:#9b937f;
+  text-align:center;
+  white-space:nowrap;
+  pointer-events:none;
 }
 
 /* ── Кастомные арт-кнопки лендинга ────────────────────────────────
@@ -1004,12 +1024,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-hotseat,.art-btn-vsai,.art-btn-online{
   background-color:transparent;
 }
-.art-btn-vsai,.art-btn-online{opacity:0.3;cursor:not-allowed;}
+.art-btn-vsai,.art-btn-online{cursor:not-allowed;}
 .art-btn-hotseat:hover { background-image:url('../img/btn_hotseatH.png');  }
 .art-btn-hotseat        { background-image:url('../img/btn_hotseat1.png');  }
 .art-btn-hotseat:active { background-image:url('../img/btn_hotseat2.png');  }
 .art-btn-vsai           { background-image:url('../img/btn_vsai1.png');    }
-.art-btn-online         { background-image:url('../img/btn_online1.png');  }
+.art-btn-online         { background-image:url('../img/btn_online1.gif');  }
 
 /* ── Graveyard modal — рамка и хедер как у battle log ────────────────
    log_frame.png: 60×60px, corner=20px → slice:20, border-width:20px
@@ -1057,7 +1077,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .grave-modal-title{
   font-family:'MEK',monospace;
-  font-size:max(calc(5vh * 1.266), calc(2.5vw * 1.266));
+  font-size:max(calc(5vh * 0.95), calc(2.5vw * 0.95));
   color:#000000;
   text-align:center;
 }
@@ -1069,7 +1089,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-size:100% 100%;
   background-color:transparent;
   border:none;padding:0;
-  width:40px;height:40px;
+  width:30px;height:30px;
   font-size:0;line-height:0;
   cursor:pointer;
 }
