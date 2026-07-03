@@ -480,8 +480,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   padding:0 6px;
   position:relative;
 }
-.log-panel-title{font-size:max(calc(5vh * 0.633), calc(2.5vw * 0.633));color:#000000;font-family:'MEK',monospace;text-align:center;}
-.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:20px;height:20px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
+.log-panel-title{font-size:max(calc(5vh * 1.266), calc(2.5vw * 1.266));color:#000000;font-family:'MEK',monospace;text-align:center;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:40px;height:40px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
 .log-panel .log{height:180px;border:none;}
@@ -781,11 +781,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-image:url('../img/btn_playgame_gates_sheet.png');
   background-size:700% 100%;background-repeat:no-repeat;
   background-color:transparent;border:none;
-  transition:filter 0.1s;
 }
 /* Убираем плейсхолдер-текст: арт уже есть в PNG */
 .play-gate-sprite::after{content:none;}
-.play-gate-sprite:hover{filter:brightness(1.3);}
 /* Кадры ворот (переключаются через JS добавлением класса, см. _setGateFrame в ui.js).
    Позиции — k/(7-1)*100% для кадров 2..7. */
 .play-gate-sprite.gate-frame-2{background-position:16.667% 0;}
@@ -799,6 +797,22 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 /* Когда ворота открыты — кнопки режима становятся кликабельны */
 .play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
+
+/* Слой 3 (z:4) — статичная рамка поверх всего, тот же размер что и ворота (240×60).
+   Всегда видна, внутри прозрачна (сквозь неё видно Слой 1/2), сама не участвует
+   в кликах — pointer-events:none, поэтому клики проваливаются на .play-gate-sprite
+   или (когда ворота открыты) прямо на кнопки режима.
+   Ховер вешаем не на саму рамку (она не ловит события мыши из-за pointer-events:none),
+   а на :hover всего .play-gate-wrap — оно сработает, пока курсор над воротами/кнопками. */
+.play-gate-frame{
+  position:absolute;inset:0;z-index:4;
+  background-image:url('../img/btn_playgame_frame.png');
+  background-size:100% 100%;background-repeat:no-repeat;
+  pointer-events:none;
+}
+.play-gate-wrap:hover .play-gate-frame{
+  background-image:url('../img/btn_playgame_hover.png');
+}
 
 /* ── Переходы экранов (горизонтальный слайд с параллаксом фона) ─────
    Rules  → вправо  (.slide-right)
@@ -1033,7 +1047,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .grave-modal-title{
   font-family:'MEK',monospace;
-  font-size:max(calc(5vh * 0.633), calc(2.5vw * 0.633));
+  font-size:max(calc(5vh * 1.266), calc(2.5vw * 1.266));
   color:#000000;
   text-align:center;
 }
@@ -1045,7 +1059,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   background-size:100% 100%;
   background-color:transparent;
   border:none;padding:0;
-  width:20px;height:20px;
+  width:40px;height:40px;
   font-size:0;line-height:0;
   cursor:pointer;
 }
