@@ -474,7 +474,12 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .btn{font-family:'MEK',monospace;font-size:30px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
-.btn-end{border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:calc(6vh * 4);height:6vh;transition:transform .1s,filter .1s;flex-shrink:0;}
+/* align-self:center — родитель .bottom-bar теперь align-items:stretch (нужно было для
+   плейсхолдеров, см. комментарий выше .bottom-bar). У .btn-end задан фиксированный
+   height:6vh, поэтому сам он не тянется, но БЕЗ явного align-self "stretch" всё равно
+   прижимает такие фикс-высотные элементы к началу оси (к верху), а не по центру —
+   отсюда и прилипание. align-self:center возвращает его к центру независимо от родителя. */
+.btn-end{align-self:center;border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:calc(6vh * 4);height:6vh;transition:transform .1s,filter .1s;flex-shrink:0;}
 .btn-end:hover{filter:brightness(1.25);}
 .btn-end:active{background-image:url('../img/button_2.png');transform:none;}
 .btn-square{width:6vh;height:6vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
