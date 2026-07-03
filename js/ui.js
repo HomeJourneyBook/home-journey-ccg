@@ -228,17 +228,26 @@ function preloadAssets(){
 
 // ── Ворота (Play Game) ────────────────────────────────────────
 // Три слоя: [кнопки режима] [рамка] [ворота-спрайт]
-// Ворота открываются пошагово (3 кадра по 120мс), закрываются обратно.
+// Спрайт-лист из 7 кадров: 1 = idle/закрыто, 7 = полностью открыто (пустой кадр,
+// ворота на арте отсутствуют — сквозь него видны кнопки режима).
+// Всё движение (кадр 1 → кадр 7) укладывается в 120мс, закрытие — симметрично обратно.
 // Таймер автозакрытия сбрасывается при наведении мыши на кнопки режима.
 let _gateTimer=null;
 const GATE_AUTO_CLOSE_MS=5000;
+const GATE_FRAME_COUNT=7;
+const GATE_ANIM_MS=120;
+const GATE_STEP_MS=GATE_ANIM_MS/(GATE_FRAME_COUNT-1); // интервал между кадрами, ≈20мс
+
+let _gateAnimTimers=[];
+function _clearGateAnimTimers(){
+  _gateAnimTimers.forEach(clearTimeout);
+  _gateAnimTimers=[];
+}
 
 function _setGateFrame(sprite,frame){
-  // frame: 0=закрыто, 1=приоткрыто, 2=почти, 3=открыто
-  sprite.classList.remove('gate-open-1','gate-open-2','gate-open');
-  if(frame===1) sprite.classList.add('gate-open-1');
-  else if(frame===2) sprite.classList.add('gate-open-2');
-  else if(frame===3) sprite.classList.add('gate-open');
+  // frame: 1..7 (1 = idle/закрыто — класс не нужен, дефолтный background-position)
+  for(let i=2;i<=GATE_FRAME_COUNT;i++) sprite.classList.remove('gate-frame-'+i);
+  if(frame>1) sprite.classList.add('gate-frame-'+frame);
 }
 
 function openGates(){
@@ -246,14 +255,17 @@ function openGates(){
   const sprite=document.getElementById('playGateSprite');
   if(!wrap||!sprite) return;
   if(wrap.classList.contains('gates-open')) return; // уже открыто
-  // Пошаговая анимация кадров (замедлено в 2 раза: было 120/240)
-  _setGateFrame(sprite,1);
-  setTimeout(()=>_setGateFrame(sprite,2),240);
-  setTimeout(()=>{
-    _setGateFrame(sprite,3);
-    wrap.classList.add('gates-open');
-    _startGateTimer();
-  },480);
+  _clearGateAnimTimers();
+  for(let frame=2; frame<=GATE_FRAME_COUNT; frame++){
+    const delay=(frame-1)*GATE_STEP_MS;
+    _gateAnimTimers.push(setTimeout(()=>{
+      _setGateFrame(sprite,frame);
+      if(frame===GATE_FRAME_COUNT){
+        wrap.classList.add('gates-open');
+        _startGateTimer();
+      }
+    },delay));
+  }
 }
 
 function closeGates(){
@@ -261,11 +273,12 @@ function closeGates(){
   const sprite=document.getElementById('playGateSprite');
   if(!wrap||!sprite) return;
   clearGateTimer();
+  _clearGateAnimTimers();
   wrap.classList.remove('gates-open');
-  // Обратная анимация (замедлено в 2 раза: было 120/240)
-  _setGateFrame(sprite,2);
-  setTimeout(()=>_setGateFrame(sprite,1),240);
-  setTimeout(()=>_setGateFrame(sprite,0),480);
+  for(let frame=GATE_FRAME_COUNT-1; frame>=1; frame--){
+    const delay=(GATE_FRAME_COUNT-frame)*GATE_STEP_MS;
+    _gateAnimTimers.push(setTimeout(()=>_setGateFrame(sprite,frame),delay));
+  }
 }
 
 function _startGateTimer(){
