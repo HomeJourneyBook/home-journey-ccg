@@ -7,7 +7,7 @@
   font-style: normal;
 }
 
- 
+
 :root {
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716); 
@@ -417,7 +417,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 /* .jeet-hp-box{background-image:url('../img/statbar_hp_jeet.png');} */
 /* .tea-ess-box{background-image:url('../img/statbar_ess_tea.png');} */
 /* .jeet-ess-box{background-image:url('../img/statbar_ess_jeet.png');} */
-.player-name-box{width:max(4vh, 2vw);height:max(4vh, 2vw);background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
+/* Группа HP + имя фракции + эссенция — вплотную друг к другу, без общего gap
+   от .stats-bar (он остаётся между этой группой и соседними элементами: pcard-слоты,
+   statbar-extra и т.д.) */
+.statbar-core{display:flex;align-items:center;gap:0;flex-shrink:0;}
+.player-name-box{width:calc(max(4vh, 2vw) * 2);height:max(4vh, 2vw);background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
 .tea-name-box{background-image:url('../img/bg_statbar_tea.png');}
 .jeet-name-box{background-image:url('../img/bg_statbar_jeet.png');}
 .player-name-box:active{transform:scale(0.92);}
@@ -1224,12 +1228,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 .art-btn-catalog{background-image:url('../img/btn_catalog1.png');}
 .art-btn-catalog:active{background-image:url('../img/btn_catalog2.png');}
+.art-btn-catalog:hover{filter:brightness(1);background-image:url('../img/btn_catalogH.png');}
 
 .art-btn-rules{background-image:url('../img/btn_rules1.png');}
 .art-btn-rules:active{background-image:url('../img/btn_rules2.png');}
+.art-btn-rules:hover{filter:brightness(1);background-image:url('../img/btn_rulesH.png');}
 
 .art-btn-lore{background-image:url('../img/btn_lore1.png');}
 .art-btn-lore:active{background-image:url('../img/btn_lore2.png');}
+.art-btn-lore:hover{filter:brightness(1);background-image:url('../img/btn_loreH.png');}
 
 .art-btn-square{
   width:54px;
