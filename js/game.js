@@ -216,7 +216,7 @@ function reviveCard(card,toF){
 }
 
 function playAttackSfx(att){
-  playSfx(hasTag(att,'burn') ? 'card_fire_atack' : 'card_atack');
+  playSfx('card_atack');
 }
 
 function doAttack(att,target){
@@ -224,10 +224,12 @@ function doAttack(att,target){
   const oppK=curK==='tea'?'jeet':'tea';
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
 
-  // Fear полностью замещает звук атаки — если этот удар реально испугает цель
-  // (существо выживает и attacker имеет тег fear), играет только debaf, без card_atack/card_fire_atack.
-  const willFear = hasTag(att,'fear') && (target.hp - atk) > 0;
-  if(!willFear) playAttackSfx(att);
+  // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
+  // один из этих эффектов (цель выживает после урона), звук самой атаки не играем.
+  const targetSurvives = (target.hp - atk) > 0;
+  const willFear = hasTag(att,'fear') && targetSurvives;
+  const willBurn = hasTag(att,'burn') && targetSurvives;
+  if(!willFear && !willBurn) playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
   if(!hasTag(att,'invisible') && !target.feared)
