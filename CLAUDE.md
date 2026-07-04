@@ -352,6 +352,46 @@ trvlr_001: {
 
 -----
 
+## Sound System
+
+Web Audio API, not `<audio>` elements — `playSfx(name)` in `js/ui.js` creates a fresh `BufferSource` per call, so overlapping sounds layer instead of cutting each other off. Buffers are preloaded once via `_initSfxBuffers()` (`SFX_FILES` array) on boot; calling `playSfx()` for a name not in that array silently no-ops.
+
+```js
+playSfx('card_atack');           // fire-and-forget, uses default SFX_VOLUME
+playSfx('Navigation_Cursor', 0.3); // optional per-call volume override
+```
+
+`SFX_THROTTLE` rate-limits spammy sounds (currently just `Navigation_Cursor`, 90ms) — add an entry there if a new hover/repeat sound needs the same treatment.
+
+**Current sound → meaning map** (see README.md "Audio" table for the plain-language version):
+
+|Sound|Fires from|
+|---|---|
+|`card_atack` / `card_fire_atack` / `debaf`|`playAttackSfx()` + the `willFear`/`willBurn` prediction in `doAttack()` (game.js) — attack sound is suppressed when Fear or Burn will actually land on a surviving target; `card_fire_atack` plays instead from the `case 'burn':` handler in abilities.js, `debaf` from `case 'fear':`|
+|`card_spell_atack`|Playing a spell (`render.js` play button), `case 'aoe':` in abilities.js (covers both active AOE buttons and on-enter AOE), `doShardTarget()`/`doSacrifice_target()` in game.js|
+|`open_door`|`openGates()`, `doWorld()`/`doArtifact()`, `toggleHamburger()` (only when opening)|
+|`baf`|Rage (abilities.js), active heal-ally (inline in `onClick()`'s `healTarget` branch in game.js — **not** the `hp_add`/`ctx.target` case in abilities.js, that branch is currently unreachable dead code), regen tick (abilities.js), aura buff in `applyAuras()` (game.js, delayed 150ms via `setTimeout`)|
+|`yellow_buttom_play_endturn_menu_gravyard_loop`|The default "generic button" sound — if you add a new plain UI button, this is almost certainly what it should use|
+
+If a sound isn't firing, check in order: (1) is the name spelled identically to the file, minus `.wav`/`.mp3`? (2) is it in `SFX_FILES`? (3) is the call actually on the code path that runs (e.g. active-ability flows are sometimes implemented twice — once as a generic `abilities.js` case, once as a bespoke inline handler in `game.js` — only one of them is actually wired to the UI).
+
+-----
+
+## Tooltip System
+
+One shared `<div id="card-tooltip">` (bottom of `index.html`), driven by a single delegated `mousemove` listener in `js/ui.js`. Desktop-only by design — built on mouse events, not touch; any tooltip that appears on mobile via tap is an incidental browser hover-simulation, not supported behavior.
+
+- `TOOLTIP_TRIGGER_SELECTOR` — CSS selector listing every hoverable target (tags, cost, type-dot, essence bar, etc.)
+- `_tooltipDataFor(el)` — returns `{name, desc}` for a given hovered element; `name` may be `''` to render only the `desc` line
+- Delay: `TOOLTIP_SHOW_DELAY` (500ms) — a per-element timer starts on entering a new target and is cancelled if the cursor leaves before it fires, so brief mouse-throughs never flash a tooltip
+- Reveal animation: `.card-tooltip.tt-visible` scales in from its own center (`transform:scale(0.85)→scale(1)` + opacity), not a plain fade
+
+To add a new tooltip target: add the selector to `TOOLTIP_TRIGGER_SELECTOR`, add a case to `_tooltipDataFor()`, and if the content is dynamic, stash it in a `data-*` attribute on the element when it's rendered (see `.card-type-dot`'s `data-type` or `.stat-ess-box`'s `data-max` for the pattern) rather than trying to compute it inside the tooltip handler itself.
+
+**Gotcha:** an element needs actual pointer events to be hoverable — `pointer-events:none` silently breaks its tooltip (this happened to `.card-type-dot` and looked like a JS bug but was pure CSS).
+
+-----
+
 ## Planned Features
 
 Done since this doc was first written — kept here so it isn't re-proposed:
@@ -366,3 +406,48 @@ Still open:
 - [ ] Deckbuilder screen
 - [ ] Web3: NFT ownership verification
 - [ ] Online multiplayer
+
+-----
+
+## Artist's Notes — Open Items
+
+_Unsorted working list, kept verbatim as written._
+
+**Баги игры:**
+- Фаерон не хилит базу если сыграть мир
+
+**Код:**
+- Каталог на телефоне починить
+- Ссылки снизу
+- Хил от мира анимация
+- Бордер радиус картам на %
+
+**ИИ:**
+- Сделать пожёстче
+- + отчеты по балансу
+
+**Арт:**
+- Все кнопки в игре переделать (модалки + все игровые)
+- Все карты Арт (!)
+- Кастомные анимации (отряд, страх)
+- Лэндинг дизайн
+- Лор
+- Правила
+- Каталог
+- На фоне модалок не чёрный экран
+- Сделать на всю арену ворота открывающиеся, будто это шлюз перед началом боя, и под это дело фоны под руками переделать
+
+**Звук:**
+- Хил
+- Бафы (аура)
+- Кладбища кнопка с другим звуком; лог звук
+- Воскрешение
+- Спец звук когда атака по базе (и хил?)
+- Когда добор карт — звук
+- Звук победы
+- Звуки для декора
+
+**Мелочи:**
+- Когда идёт муллиган по чёрному экрану можно скроллить
+- Какой-то фон видно на углах за рамками лога и кладбища; иконка страха и поджога на одном месте
+- Меню вылазит, когда карта около края экрана
