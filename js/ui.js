@@ -41,7 +41,7 @@ function toggleMusic(){
   musicEnabled = !musicEnabled;
   localStorage.setItem('hj_music', musicEnabled ? 'on' : 'off');
   _refreshMusicBtn();
-  if(musicEnabled) playSfx('Click_Cursor'); // звук только при включении
+  if(musicEnabled) playSfx('yellow_buttom_play_endturn_menu_gravyard_loop'); // звук только при включении
   const audio = _getMusicEl();
   if(!audio) return;
   if(musicEnabled){
@@ -123,7 +123,7 @@ function toggleSfx(){
   sfxEnabled = !sfxEnabled;
   localStorage.setItem('hj_sfx', sfxEnabled ? 'on' : 'off');
   _refreshSfxBtn();
-  if(sfxEnabled) playSfx('Click_Cursor');
+  if(sfxEnabled) playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
 }
 
 // Мгновенный звук через Web Audio API.
@@ -391,7 +391,7 @@ function showConfirm(text, btnText, onConfirm){
 }
 
 function closeConfirmModal(onConfirm){
-  playSfx('Click_Cursor');
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
   const modal=document.getElementById('confirmModal');
   const inner=modal.querySelector('.modal');
   const finish=()=>{
@@ -431,7 +431,7 @@ function startGame(){
 
 // ── VS AI ──────────────────────────────────────────────────────
 function openVsAiPicker(){
-  playSfx('Click_Cursor');
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
   const landing=document.getElementById('landing');
   landing.classList.add('exit-center');
   setTimeout(()=>{
@@ -618,7 +618,6 @@ function resetGame(){
 
 function toggleLog(){
   const p=document.getElementById('logPanel');
-  playSfx('Click_Cursor');
   p.classList.toggle('open');
 }
 
@@ -839,6 +838,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const btn = e.target.closest('.art-btn, .play-gate-sprite');
     if(!btn) return;
     // Проверяем, что входим именно в кнопку (а не перемещаемся внутри)
+    if(btn.contains(e.relatedTarget)) return;
+    playSfx('Navigation_Cursor');
+  });
+});
+
+// ── Hover-звук Navigation_Cursor на кнопках внутри бургер-меню ───────────────
+document.addEventListener('DOMContentLoaded', ()=>{
+  const hamMenu = document.getElementById('hamburgerMenu');
+  if(!hamMenu) return;
+  hamMenu.addEventListener('mouseover', (e)=>{
+    const btn = e.target.closest('.ham-item');
+    if(!btn) return;
     if(btn.contains(e.relatedTarget)) return;
     playSfx('Navigation_Cursor');
   });
