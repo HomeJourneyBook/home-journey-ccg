@@ -212,11 +212,16 @@ function reviveCard(card,toF){
   checkSquadBonuses(toF); 
 }
 
+function playAttackSfx(att){
+  playSfx(hasTag(att,'burn') ? 'card_fire_atack' : 'card_atack');
+}
+
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
 
+  playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
   if(!hasTag(att,'invisible') && !target.feared)
@@ -242,6 +247,7 @@ function doUmbAsir(){
   const umb=findC(G.sel);
   if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
+  playSfx('card_spell_atack');
   const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
   lg(`${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
@@ -257,6 +263,7 @@ function doVardan(){
   const vard=findC(G.sel);
   if(!vard||!hasTag(vard,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(vard.exhausted){lg(`${vard.name} already acted this turn.`,'dmg');return;}
+  playSfx('card_spell_atack');
   const dmgAmt=getTagVal(vard,'aoe')||2;
   lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
@@ -299,6 +306,7 @@ function tryAttackBase(){
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
   if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
+  playAttackSfx(att);
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
   triggerAbilities(att,'on_attack',{target:null});
@@ -420,6 +428,7 @@ function applyAuras(faction){
       if(cur._auraAtkLog===src.id){
         const affected=cur.field.filter(a=>a.id!==src.id&&!a.spell&&!a.world&&!a.artifact);
         if(affected.length>0){
+          playSfx('baf');
           lg(`${src.name}: +${val} ATK → ${affected.map(a=>a.name).join(', ')}.`,'hl');
           affected.forEach(a=>{
             const aId=a.id;
@@ -460,7 +469,7 @@ function applyAuras(faction){
         if(cur._auraMaxLog===src.id) affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
       });
       if(cur._auraMaxLog===src.id){
-        if(affected.length>0) lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl');
+        if(affected.length>0){ playSfx('baf'); lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl'); }
         else lg(`${src.name}: no allies to buff.`,'hl');
         cur._auraMaxLog=null;
       }
@@ -598,7 +607,7 @@ function doShardTarget(card){
 }
 
 function openGraveModal(faction){
-  playSfx('Click_Cursor');
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
   const grave = G[faction].grave.filter(c=>!c.voided);
   const modal = document.getElementById('graveModal');
   const title = document.getElementById('graveModalTitle');
@@ -642,6 +651,7 @@ function closeGraveModal(){
 
 function endTurn(){
   if(G.mode==='vsai'&&G.turn===G.aiFaction&&!G._aiIsEnding) return; // человек не может завершить ход ИИ
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
 
