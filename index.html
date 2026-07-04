@@ -414,7 +414,7 @@
       <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');askMenu()">← Menu</button>
     </div>
     <div class="header-mobile-btn" style="position:relative;margin-left:auto;">
-     <button class="hamburger-btn" id="hamburgerBtn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');toggleHamburger()">
+     <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleHamburger()">
   <span class="ham-line"></span>
   <span class="ham-line"></span>
   <span class="ham-line"></span>
@@ -558,17 +558,17 @@
     <div class="catalog-filters">
       <input class="search-input" id="catalogSearch" placeholder="Search cards..." oninput="renderCatalog()">
       <div class="filter-group" id="factionFilters">
-        <button class="filter-btn active" data-faction="all" onclick="setFilter('faction','all',this)">All</button>
-        <button class="filter-btn" data-faction="tea" onclick="setFilter('faction','tea',this)">Tea</button>
-        <button class="filter-btn jeet-f" data-faction="jeet" onclick="setFilter('faction','jeet',this)">Jeet</button>
+        <button class="filter-btn active" data-faction="all" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('faction','all',this)">All</button>
+        <button class="filter-btn" data-faction="tea" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('faction','tea',this)">Tea</button>
+        <button class="filter-btn jeet-f" data-faction="jeet" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('faction','jeet',this)">Jeet</button>
       </div>
       <div class="filter-group" id="typeFilters">
-        <button class="filter-btn active" data-type="all" onclick="setFilter('type','all',this)">All Types</button>
-        <button class="filter-btn" data-type="creature" onclick="setFilter('type','creature',this)">Creatures</button>
-        <button class="filter-btn" data-type="unique" onclick="setFilter('type','unique',this)">1/1 Unique</button>
-        <button class="filter-btn" data-type="spell" onclick="setFilter('type','spell',this)">Spells</button>
-        <button class="filter-btn" data-type="world" onclick="setFilter('type','world',this)">Worlds</button>
-        <button class="filter-btn" data-type="artifact" onclick="setFilter('type','artifact',this)">Artifacts</button>
+        <button class="filter-btn active" data-type="all" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','all',this)">All Types</button>
+        <button class="filter-btn" data-type="creature" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','creature',this)">Creatures</button>
+        <button class="filter-btn" data-type="unique" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','unique',this)">1/1 Unique</button>
+        <button class="filter-btn" data-type="spell" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','spell',this)">Spells</button>
+        <button class="filter-btn" data-type="world" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','world',this)">Worlds</button>
+        <button class="filter-btn" data-type="artifact" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','artifact',this)">Artifacts</button>
       </div>
     </div>
     <div class="filter-group" id="sortFilters" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
