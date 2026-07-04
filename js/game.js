@@ -704,9 +704,21 @@ function endTurn(){
     [...G[G.turn].field].forEach(card=>{
     if(card.burning&&!card.spell&&!card.world&&!card.artifact){
       card.hp-=1;
+      const burnId=card.id;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(burnId)));
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(burnId,'-1','dmg')));
       lg(`${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
       if(card.hp<=0){
         const f=G[G.turn].field.includes(card)?G.turn:oppK;
+        // Сгоревшая карта уходит в войд, а не на кладбище — общий diff-механизм в rZone()
+        // не всегда успевал поймать её между этим циклом и render() в конце хода,
+        // поэтому анимацию смерти (dying + удаление через 400мс) вешаем явно здесь.
+        const cardEl=document.querySelector(`.card-small[data-id="${card.id}"]`);
+        if(cardEl){
+          cardEl.classList.add('dying');
+          cardEl.style.pointerEvents='none';
+          setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, 400);
+        }
         killCard(card,f,true); // true = burned to death → void
       }
     }
