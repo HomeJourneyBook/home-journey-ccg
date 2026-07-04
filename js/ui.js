@@ -247,7 +247,7 @@ function preloadAssets(){
 // клика/начала открытия, возвращается только когда анимация закрытия полностью
 // доедет до кадра 1 — иначе ховер мог бы сработать посреди анимации открытия/закрытия.
 let _gateTimer=null;
-const GATE_AUTO_CLOSE_MS=5000;
+const GATE_AUTO_CLOSE_MS=10000;
 const GATE_FRAME_COUNT=7;
 const GATE_STEP_MS=150; // время между соседними кадрами
 
@@ -306,7 +306,13 @@ function _startGateTimer(){
 function clearGateTimer(){
   if(_gateTimer){clearTimeout(_gateTimer);_gateTimer=null;}
 }
-function resetGateTimer(){
+// Пока курсор внутри зоны (над одной из 3 кнопок режима или между ними) — таймер
+// на паузе (просто остановлен, не тикает). Обратный отсчёт запускается заново
+// (полные GATE_AUTO_CLOSE_MS) только когда курсор реально покидает всю зону.
+function pauseGateTimer(){
+  clearGateTimer();
+}
+function resumeGateTimer(){
   if(document.getElementById('playGateWrap')?.classList.contains('gates-open')){
     _startGateTimer();
   }
