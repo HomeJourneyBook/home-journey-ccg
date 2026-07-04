@@ -9,7 +9,7 @@
 
 
 :root {
-  --card-h: 25vh; 
+  --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716); 
   --cat-card-w: calc(var(--card-h) * 0.716);
   --cat-card-h: var(--card-h);
@@ -1081,7 +1081,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    Lore   → влево   (.slide-left)
    Catalog → вниз   (.slide-down)
    Обратный переход (Back) — зеркальный */
-.landing{transition:transform 0.45s cubic-bezier(0.4,0,0.2,1),opacity 0.45s;}
+.landing{transition:transform 0.315s cubic-bezier(0.4,0,0.2,1),opacity 0.315s;}
 .landing.exit-right{transform:translateX(-40%);opacity:0;pointer-events:none;}
 .landing.exit-left {transform:translateX( 40%);opacity:0;pointer-events:none;}
 .landing.exit-down {transform:translateY(-30%);opacity:0;pointer-events:none;}
@@ -1096,13 +1096,13 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .screen.active{display:block;}
 /* Въезд экрана */
-.screen.slide-in-right {animation:screenFromRight 0.45s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-in-left  {animation:screenFromLeft  0.45s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-in-down  {animation:screenFromDown  0.45s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-in-right {animation:screenFromRight 0.315s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-in-left  {animation:screenFromLeft  0.315s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-in-down  {animation:screenFromDown  0.315s cubic-bezier(0.4,0,0.2,1) forwards;}
 /* Выезд экрана (при нажатии Back) */
-.screen.slide-out-right{animation:screenToRight  0.35s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-out-left {animation:screenToLeft   0.35s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-out-down {animation:screenToDown   0.35s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-out-right{animation:screenToRight  0.245s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-out-left {animation:screenToLeft   0.245s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-out-down {animation:screenToDown   0.245s cubic-bezier(0.4,0,0.2,1) forwards;}
 
 @keyframes screenFromRight{from{transform:translateX(60%);opacity:0;}to{transform:translateX(0);opacity:1;}}
 @keyframes screenFromLeft {from{transform:translateX(-60%);opacity:0;}to{transform:translateX(0);opacity:1;}}
@@ -1555,8 +1555,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   to   { opacity:1; }
 }
 
-.modal-pop-in  { animation: modalPopIn  1.25s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-.modal-pop-out { animation: modalPopOut 1.15s ease-in forwards; }
+.modal-pop-in  { animation: modalPopIn  0.875s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.modal-pop-out { animation: modalPopOut 0.805s ease-in forwards; }
 .game-fade-in  { animation: gameFieldFadeIn 0.5s ease-out forwards; }
 
 /* animation open start game */
