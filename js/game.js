@@ -651,11 +651,26 @@ function openGraveModal(faction){
   }
 
   modal.classList.remove('hidden');
+  if(innerModal){
+    innerModal.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
+    void innerModal.offsetWidth;
+    innerModal.classList.add('modal-pop-in-fast');
+  }
 }
 
 function closeGraveModal(){
   document.querySelectorAll('.btn-graveyard').forEach(b=>b.classList.remove('open'));
-  document.getElementById('graveModal').classList.add('hidden');
+  const modal=document.getElementById('graveModal');
+  const inner=modal.querySelector('.grave-modal');
+  const finish=()=>modal.classList.add('hidden');
+  if(inner){
+    inner.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-out-fast');
+    setTimeout(finish, 250);
+  } else {
+    finish();
+  }
 }
 
 
