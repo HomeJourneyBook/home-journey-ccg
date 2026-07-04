@@ -63,7 +63,9 @@ function render(){
     const humanBB=document.getElementById(G.humanFaction+'BottomBar');
     const aiBB=document.getElementById(G.aiFaction+'BottomBar');
     if(aiBB)aiBB.style.display='none';
-    if(humanBB)humanBB.style.display=(G.turn===G.humanFaction)?'flex':'none';
+    // Панель человека теперь видна ВСЕГДА в vsai, даже во время хода ИИ —
+    // на время хода ИИ у нее просто подменяется кнопка End Turn (см. updateEndTurnBtn ниже).
+    if(humanBB)humanBB.style.display='flex';
   } else {
     const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
     if(inactBB)inactBB.style.display='none';
@@ -85,6 +87,8 @@ function render(){
   }
 
   const hitEl=document.getElementById('hitBase'+sfx);if(hitEl)hitEl.style.display='none';
+
+  updateEndTurnBtn();
 
   const hints={
     action:'',
@@ -736,6 +740,16 @@ document.addEventListener('click',(e)=>{
 // проигрывалась заново. Глобальный Set не привязан к контейнеру — карта анимируется один раз за игру.
 const _seenPcardPids = new Set();
 
+// Подмена кнопки End Turn на плейсхолдер ожидания (btn_wait.gif) во время хода ИИ
+// в режиме VS AI. Панель у человека при этом НЕ скрывается (см. render()/reorderZones()) —
+// меняется только сама кнопка, клик по ней недоступен на время хода ИИ.
+function updateEndTurnBtn(){
+  const btn=document.getElementById(G.humanFaction+'EndTurnBtn');
+  if(!btn) return;
+  const aiTurn = (G.mode==='vsai' && G.turn===G.aiFaction);
+  btn.classList.toggle('btn-waiting', aiTurn);
+}
+
 function reorderZones(){
   let oppK,playerK;
   if(G.mode==='vsai'){
@@ -826,7 +840,7 @@ function reorderZones(){
     const humanBB=document.getElementById(G.humanFaction+'BottomBar');
     const aiBB=document.getElementById(G.aiFaction+'BottomBar');
     if(aiBB) aiBB.style.display='none';
-    if(humanBB) humanBB.style.display=(G.turn===G.humanFaction)?'flex':'none';
+    if(humanBB) humanBB.style.display='flex';
   } else {
     if(teaBB) teaBB.style.display=G.turn==='tea'?'flex':'none';
     if(jeetBB) jeetBB.style.display=G.turn==='jeet'?'flex':'none';
