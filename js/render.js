@@ -408,7 +408,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();playSfx('Click_Cursor');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell)playSfx('card_spell_atack');else if(!card.world&&!card.artifact)playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -469,7 +469,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();playSfx('Click_Cursor');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell)playSfx('card_spell_atack');else if(!card.world&&!card.artifact)playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -625,9 +625,9 @@ function _mkPcardHtml(card, isPlayer){
     if(hasTag(card,'shard')){
       if(G.phase==='shardTarget'){
         targetingCls=' pcard-targeting';
-        onclick=`onclick="event.stopPropagation();playSfx('Click_Cursor');doShard(G[G.turn].artifacts[0])"`;
+        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');doShard(G[G.turn].artifacts[0])"`;
       } else if(G.phase==='action'){
-        onclick=`onclick="event.stopPropagation();playSfx('Click_Cursor');doShard(G[G.turn].artifacts[0])"`;
+        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');doShard(G[G.turn].artifacts[0])"`;
       }
     }
     if(hasTag(card,'sacrifice')){
@@ -635,7 +635,7 @@ function _mkPcardHtml(card, isPlayer){
         targetingCls=' pcard-targeting';
         onclick=`onclick="event.stopPropagation();G.phase='action';G.sel=null;render()"`;
       } else if(G.phase==='action'){
-        onclick=`onclick="event.stopPropagation();playSfx('Click_Cursor');G.phase='sacrificeTarget';G.sel='${card.id}';lg('Altar: select a creature to sacrifice.','hint');render()"`;
+        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.phase='sacrificeTarget';G.sel='${card.id}';lg('Altar: select a creature to sacrifice.','hint');render()"`;
       }
     }
   }
