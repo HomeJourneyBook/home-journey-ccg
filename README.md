@@ -40,21 +40,23 @@ The game is currently in active development. Rules, card catalog, and tutorial a
 
 ## Audio
 
-`audio/` — `grate.wav` was removed (never used, no longer referenced anywhere in code). Everything else is now wired up:
+`audio/` — `grate.wav` was removed (never used). Everything else is wired up; most UI clicks now share one "generic button" sound, with dedicated sounds for combat/status effects:
 
-|File                                                  |Used?|Where                       |
-|-------------------------------------------------------|-----|-----------------------------|
-|`Main_theme.mp3`                                        |✅   |Background music loop        |
-|`Click_Cursor.wav`                                      |✅   |Generic button clicks + playing a card from hand (`card_select_traveler.wav` intentionally not used — this sound covers it)|
-|`Navigation_Cursor.wav`                                 |✅   |Hover over cards             |
-|`Burn_Card.wav`                                         |✅   |Burning a card                |
-|`card_atack.wav`                                        |✅   |Regular creature attack (vs. creature or base)|
-|`card_fire_atack.wav`                                   |✅   |Attack by a creature with the `burn` tag (replaces `card_atack.wav` for that attacker)|
-|`card_spell_atack.wav`                                  |✅   |Active AOE ability button (Umb / Vardan)|
-|`open_door.wav`                                         |✅   |Clicking Play Game — synced with the gate-opening animation|
-|`yellow_buttom_play_endturn_menu_gravyard_loop.wav`     |✅   |End Turn button + opening the Graveyard modal|
-|`baf.wav`                                                |✅   |Buff applied: Rage trigger, active heal-ally targeting, aura (ATK/maxHP) actually buffing allies — fires once per aura application, not per affected card|
-|`debaf.wav`                                              |✅   |Debuff applied: Fear (Burn keeps its own sound via `card_fire_atack.wav` on the attack that inflicts it)|
+|File                                                  |Role                        |
+|-------------------------------------------------------|-----------------------------|
+|`Main_theme.mp3`                                        |Background music loop        |
+|`Click_Cursor.wav`                                      |Only the hand-card preview tap (selecting a card to preview it) |
+|`Navigation_Cursor.wav`                                 |Hover: cards (hand/field/catalog) + every `<button>` (one delegated listener in `ui.js`) |
+|`Burn_Card.wav`                                         |Burning a card from hand     |
+|`card_atack.wav`                                        |Regular attack (creature vs. creature or base) — suppressed if this hit will apply Fear or Burn |
+|`card_fire_atack.wav`                                   |Burn applied to a target (dedicated debuff sound, decoupled from the attack itself) |
+|`card_spell_atack.wav`                                  |Playing a spell card; AOE (active button or on-enter trigger); Shard/Altar artifact resolving |
+|`open_door.wav`                                         |Landing gates opening; playing a World/Artifact card; opening the hamburger menu |
+|`yellow_buttom_play_endturn_menu_gravyard_loop.wav`     |The "generic button" sound — End Turn, graveyard/log open+close, hamburger items, hotseat/catalog/rules/lore nav, catalog sort+filter+card click, all modal confirm buttons, playing a creature card |
+|`baf.wav`                                                |Buff applied: Rage, active heal-ally, aura buff (delayed ~150ms so it doesn't get masked by a simultaneous click/gate sound), regen tick |
+|`debaf.wav`                                              |Fear applied (replaces the attack sound for that hit)|
+
+See `CLAUDE.md` → "Sound System" for the exact call sites if you're adding a new sound.
 
 -----
 
