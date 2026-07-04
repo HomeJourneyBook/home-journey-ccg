@@ -21,6 +21,7 @@ function onClick(card,zone){
       if(healer){
         const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
+        playSfx('baf');
         const healedId=card.id;
         setTimeout(()=>showFloat(healedId, `+${healAmt}`, 'heal'), 50);
         const debuffs=[];
@@ -66,7 +67,7 @@ function onClick(card,zone){
   if(G.phase==='action'){
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
-      if(G.previewCard) playSfx('Click_Cursor'); // звук при открытии превью
+      if(G.previewCard) playSfx('yellow_buttom_play_endturn_menu_gravyard_loop'); // звук при открытии превью
       render();return;
     }
     if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping&&!card.exhausted){
@@ -429,7 +430,7 @@ function applyAuras(faction){
       if(cur._auraAtkLog===src.id){
         const affected=cur.field.filter(a=>a.id!==src.id&&!a.spell&&!a.world&&!a.artifact);
         if(affected.length>0){
-          playSfx('baf');
+          setTimeout(()=>playSfx('baf'), 150);
           lg(`${src.name}: +${val} ATK → ${affected.map(a=>a.name).join(', ')}.`,'hl');
           affected.forEach(a=>{
             const aId=a.id;
@@ -470,7 +471,7 @@ function applyAuras(faction){
         if(cur._auraMaxLog===src.id) affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
       });
       if(cur._auraMaxLog===src.id){
-        if(affected.length>0){ playSfx('baf'); lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl'); }
+        if(affected.length>0){ setTimeout(()=>playSfx('baf'), 150); lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl'); }
         else lg(`${src.name}: no allies to buff.`,'hl');
         cur._auraMaxLog=null;
       }
