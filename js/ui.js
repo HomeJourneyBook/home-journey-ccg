@@ -338,7 +338,7 @@ function showScreen(name){
   setTimeout(()=>{
     landing.style.display='none';
     landing.classList.remove(dir.exit);
-  },450);
+  },315);
 }
 
 function hideScreen(name){
@@ -359,7 +359,7 @@ function hideScreen(name){
   });
   setTimeout(()=>{
     screen.classList.remove('active',dir.enter,dir.back);
-  },450);
+  },315);
 }
 function showLanding(){
   document.getElementById('game').style.display='none';
@@ -402,7 +402,7 @@ function closeConfirmModal(onConfirm){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(finish, 1150);
+    setTimeout(finish, 805);
   } else {
     finish();
   }
@@ -426,7 +426,7 @@ function startGame(){
     document.getElementById('game').style.display='flex';
     collapseStart();
     setTimeout(()=>{ startMulliganFor('tea'); }, 50);
-  }, 450);
+  }, 315);
 }
 
 // ── VS AI ──────────────────────────────────────────────────────
@@ -443,7 +443,7 @@ function openVsAiPicker(){
       void inner.offsetWidth;
       inner.classList.add('modal-pop-in');
     }
-  }, 450);
+  }, 315);
 }
 
 function startGameVsAI(humanFaction){
@@ -564,7 +564,7 @@ function readyFromMulligan(){
     mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
     void mulliganModal.offsetWidth;
     mulliganModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 1150);
+    setTimeout(proceed, 805);
   } else {
     proceed();
   }
@@ -592,7 +592,7 @@ function closeWinModal(){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(()=>{ showLanding(); }, 1150);
+    setTimeout(()=>{ showLanding(); }, 805);
   } else {
     showLanding();
   }
@@ -732,7 +732,7 @@ function passReady(){
     passModal.classList.remove('modal-pop-in','modal-pop-out');
     void passModal.offsetWidth;
     passModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 1150);
+    setTimeout(proceed, 805);
   } else {
     proceed();
   }
@@ -831,24 +831,14 @@ document.addEventListener('mousemove', (e) => {
 // ── Hover-звук Navigation_Cursor на кнопках лендинга ─────────────────────────
 // mouseover + relatedTarget-проверка: срабатывает один раз при входе на кнопку,
 // а не на каждый пиксель движения мыши внутри неё.
+// ── Hover-звук Navigation_Cursor на ВСЕХ кнопках ─────────────────────────────
+// mouseover + relatedTarget-проверка: срабатывает один раз при входе на кнопку,
+// а не на каждый пиксель движения мыши внутри неё. Один делегированный обработчик
+// на document покрывает вообще все <button> (лендинг, бургер, модалки, каталог,
+// попапы карт и т.д.), плюс .play-gate-sprite — это div, а не button.
 document.addEventListener('DOMContentLoaded', ()=>{
-  const landing = document.getElementById('landing');
-  if(!landing) return;
-  landing.addEventListener('mouseover', (e)=>{
-    const btn = e.target.closest('.art-btn, .play-gate-sprite');
-    if(!btn) return;
-    // Проверяем, что входим именно в кнопку (а не перемещаемся внутри)
-    if(btn.contains(e.relatedTarget)) return;
-    playSfx('Navigation_Cursor');
-  });
-});
-
-// ── Hover-звук Navigation_Cursor на кнопках внутри бургер-меню ───────────────
-document.addEventListener('DOMContentLoaded', ()=>{
-  const hamMenu = document.getElementById('hamburgerMenu');
-  if(!hamMenu) return;
-  hamMenu.addEventListener('mouseover', (e)=>{
-    const btn = e.target.closest('.ham-item');
+  document.addEventListener('mouseover', (e)=>{
+    const btn = e.target.closest('button, .play-gate-sprite');
     if(!btn) return;
     if(btn.contains(e.relatedTarget)) return;
     playSfx('Navigation_Cursor');
