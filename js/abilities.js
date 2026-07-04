@@ -141,6 +141,7 @@ function triggerAbilities(card, timing, ctx={}){
       case 'burn':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
           ctx.target.burning=true;
+          playSfx('card_fire_atack');
           lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
         } break;
 
