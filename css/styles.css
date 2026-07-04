@@ -517,6 +517,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .btn-end{align-self:center;border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:calc(6vh * 4);height:6vh;transition:transform .1s,filter .1s;flex-shrink:0;}
 .btn-end:hover{filter:brightness(1.25);}
 .btn-end:active{background-image:url('../img/button_2.png');transform:none;}
+/* ── Состояние "ход ИИ" (VS AI) — панель игрока не скрывается целиком, вместо
+   кнопки End Turn показываем гиф-плейсхолдер ожидания, клик недоступен. */
+.btn-end.btn-waiting{background-image:url('../img/btn_wait.gif') !important;cursor:default;pointer-events:none;filter:none !important;}
+.btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;transform:none;}
 .btn-square{width:6vh;height:6vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
@@ -775,6 +779,24 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   transition:all .15s;
 }
 .modal-text-btn:hover{background:#c8a84b18;border-color:#c8a84b;}
+
+/* ── Кнопки выбора фракции (VS AI picker) — квадратные, кастомный арт ────────
+   Высота 39px — та же, что была у текстовых кнопок .modal-text-btn (10px padding
+   + 14px font по факту рендерилось ~39px), ширина = высоте (квадрат).
+   По аналогии с .art-btn-vsai: hover — отдельный арт (btn_teaH/btn_jeetH),
+   active переиспользует арт обычного состояния (своей выделенной "нажатой" арт-версии нет). */
+.modal-faction-btn{
+  width:39px;height:39px;
+  border:none;background-color:transparent;
+  background-repeat:no-repeat;background-position:center;background-size:100% 100%;
+  cursor:pointer;padding:0;transition:none;
+}
+.modal-faction-btn.btn-tea            { background-image:url('../img/btn_tea1.png');  }
+.modal-faction-btn.btn-tea:hover      { background-image:url('../img/btn_teaH.png');  }
+.modal-faction-btn.btn-tea:active     { background-image:url('../img/btn_tea1.png');  }
+.modal-faction-btn.btn-jeet           { background-image:url('../img/btn_jeet2.png'); }
+.modal-faction-btn.btn-jeet:hover     { background-image:url('../img/btn_jeetH.png'); }
+.modal-faction-btn.btn-jeet:active    { background-image:url('../img/btn_jeet2.png'); }
 .modal-body{
   padding:clamp(12px,1.5vw,18px);
   flex:1;
@@ -1220,15 +1242,15 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .art-btn-online{cursor:not-allowed;}
 .art-btn-vsai{cursor:pointer;}
-.art-btn-vsai:hover{filter:brightness(1.25) !important;}
 /* Эти три кнопки НЕ должны ловить общий brightness-ховер от .art-btn-square:hover —
-   ховер тут будет только через подмену арта (как уже сделано у hotseat ниже),
-   никаких programmatic-эффектов поверх. */
+   ховер тут только через подмену арта, никаких programmatic-эффектов поверх. */
 .art-btn-hotseat:hover,.art-btn-vsai:hover,.art-btn-online:hover{filter:none;}
 .art-btn-hotseat:hover { background-image:url('../img/btn_hotseatH.png');  }
 .art-btn-hotseat        { background-image:url('../img/btn_hotseat1.png');  }
 .art-btn-hotseat:active { background-image:url('../img/btn_hotseat2.png');  }
 .art-btn-vsai           { background-image:url('../img/btn_vsai1.png');    }
+.art-btn-vsai:hover     { background-image:url('../img/btn_vsaiH.png');    }
+.art-btn-vsai:active    { background-image:url('../img/btn_vsai1.png');    }
 .art-btn-online         { background-image:url('../img/btn_online1.gif');  }
 
 /* ── Graveyard modal — рамка и хедер как у battle log ────────────────
