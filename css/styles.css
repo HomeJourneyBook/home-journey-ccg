@@ -1498,6 +1498,56 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 #rulesENG{font-size:4.56vw;}
 #rulesENG h2{font-size:6vw;}
 #rulesENG h3{font-size:4.56vw;}
+
+/* ── LORE SCREEN — звёздный фон (тот же арт, что у лендинга), страницы-панели
+   с glitch-reveal при попадании во вьюпорт (см. lore-observer в ui.js), и
+   отдельно оформленная ссылка на архив в конце. */
+#loreScreen{
+  background:linear-gradient(rgba(10,10,18,0.78),rgba(10,10,18,0.88)), url('../img/logo_space.png');
+  background-size:cover;
+  background-position:center;
+  background-color:#0a0a12;
+}
+.lore-page{
+  position:relative;
+  margin:0 0 6vw;
+  padding:4vw 5vw 1vw;
+  border:1px solid #c8a84b3d;
+  background:#0d0d1a99;
+  opacity:0;
+  transform:translateY(14px);
+}
+.lore-page.revealed{
+  animation:loreReveal 0.7s steps(4,end) forwards;
+}
+@keyframes loreReveal{
+  0%   { opacity:0; transform:translateY(14px); text-shadow:none; }
+  2%   { opacity:1; transform:translateY(0); }
+  22%  { text-shadow:2px 0 #ff0044,-2px 0 #00e5ff; }
+  48%  { text-shadow:-2px 0 #ff0044,2px 0 #00e5ff; }
+  74%  { text-shadow:1px 0 #ff0044,-1px 0 #00e5ff; }
+  100% { opacity:1; transform:translateY(0); text-shadow:none; }
+}
+.lore-page h2{margin-top:0;}
+.lore-archive-link{
+  display:block;
+  margin:8vw auto 6vw;
+  max-width:520px;
+  padding:3.5vw 5vw;
+  border:1px solid #c8a84b;
+  background:#0d0d1ad0;
+  text-decoration:none;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.lore-archive-link:hover{transform:translateY(-2px);box-shadow:0 4px 18px #c8a84b44;}
+.lore-archive-link-title{font-family:'MEK',monospace;font-size:5vw;color:#c8a84b;margin-bottom:1.5vw;}
+.lore-archive-link-sub{font-size:3.6vw;color:#9B937F;}
+@media(min-width:600px){
+  .lore-page{padding:2vw 2.5vw 0.5vw;margin-bottom:2vw;}
+  .lore-archive-link{padding:1.4vw 2vw;margin:3vw auto 2vw;}
+  .lore-archive-link-title{font-size:1.3vw;}
+  .lore-archive-link-sub{font-size:0.95vw;}
+}
 #rulesPOR{font-size:4.56vw;}
 #rulesPOR h2{font-size:6vw;}
 #rulesPOR h3{font-size:4.56vw;}
