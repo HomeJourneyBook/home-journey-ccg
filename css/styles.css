@@ -272,7 +272,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-cost{position:absolute;top:calc(var(--card-h) * 0.0125);left:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.12);height:calc(var(--card-h)*0.12*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.11);font-weight:bold;line-height: 1;background-size:100% 100%;background-repeat:no-repeat;}
 .tea-card .card-cost{background-image:url('../img/bg_cost_tea.png');}
 .jeet-card .card-cost{background-image:url('../img/bg_cost_jeet.png');}
-.card-type-dot{position:absolute;top:calc(var(--card-h) * 0.0125);right:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.108);height:calc(var(--card-h)*0.108);border:none;pointer-events:none;z-index:2;}
+.card-type-dot{position:absolute;top:calc(var(--card-h) * 0.0125);right:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.108);height:calc(var(--card-h)*0.108);border:none;z-index:2;}
 .card-art{width:var(--card-art-size);height:var(--card-art-size);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto;border:none;background:transparent;overflow:hidden;flex-shrink:0;}
 .card-name-box{width:95%;height:var(--card-name-h);background:url('../img/card_name_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:0;display:flex;align-items:center;justify-content:center;}
 .card-name{font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.08);text-align:center;line-height:1.2;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -388,13 +388,21 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .hp-val{color:#e05555;}.ess-val{color:#E8E0C8;}
 .stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.5), calc(2vw * 0.5));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:3px 3px;}
+/* Ширина зафиксирована под самое широкое реалистичное состояние ("20/20"), чтобы падение
+   HP ниже 10 (одна цифра вместо двух) не сужало бокс и не сдвигало соседний контент.
+   Тоже приблизительная оценка по формуле — можно подправить множитель. */
+.stat-hp-box{
+  width:calc(max(4vh, 2vw) * 2.5 + 10px);
+  justify-content:flex-start;
+  flex-shrink:0;
+}
 /* Фиксированная ширина под иконку + "/max" при essence 1/1 (примерная оценка по формуле,
    т.к. точный пиксельный размер зависит от рендеринга шрифта — можно подправить множитель).
    justify-content:flex-start — контент прибит к левому краю, пустое место остаётся справа,
    поэтому при переходе на двузначные числа (10+) бокс не растёт и не толкает pcard-слот
    артефакта вправо (на телефоне это раньше просто выталкивало его за экран). */
 .stat-ess-box{
-  width:calc(max(4vh, 2vw) * 1.7 + 10px);
+  width:calc(max(4vh, 2vw) * 1.53 + 9px);
   justify-content:flex-start;
   flex-shrink:0;
 }
