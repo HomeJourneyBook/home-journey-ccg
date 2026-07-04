@@ -788,12 +788,24 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .modal-art-btn:hover{filter:brightness(1.2);}
 .modal-art-btn:active{filter:brightness(0.9);}
-.modal-art-btn.btn-yes     {background-image:url('../img/btn_yes.png');}
-.modal-art-btn.btn-cancel  {background-image:url('../img/btn_cancel.png');}
+/* btn-yes — теперь 2:1 (было 3:1), высота та же, что у остальных .modal-art-btn.
+   Раздельные арты на idle/hover/active — hover без brightness, у него свой арт. */
+.modal-art-btn.btn-yes{
+  width:min(80px, 18vw);
+  aspect-ratio:2/1;
+  background-image:url('../img/btn_yes1.png');
+}
+.modal-art-btn.btn-yes:hover{background-image:url('../img/btn_yesH.png');filter:brightness(1);}
+.modal-art-btn.btn-yes:active{background-image:url('../img/btn_yes2.png');filter:brightness(0.9);}
+
+.modal-art-btn.btn-cancel{background-image:url('../img/btn_cancel1.png');}
+.modal-art-btn.btn-cancel:hover{background-image:url('../img/btn_cancelH.png');filter:brightness(1);}
+.modal-art-btn.btn-cancel:active{background-image:url('../img/btn_cancel2.png');filter:brightness(0.9);}
+
 .modal-art-btn.btn-mulligan{background-image:url('../img/btn_mulligan.png');}
 .modal-art-btn.btn-ready   {background-image:url('../img/btn_ready.png');}
-/* btn-win — пока тот же арт что btn_yes; заменить на ../img/btn_win.png когда появится */
-.modal-art-btn.btn-win     {background-image:url('../img/btn_yes.png');}
+/* btn-win — пока переиспользует арт btn_yes (idle-версию); заменить на ../img/btn_win.png когда появится */
+.modal-art-btn.btn-win     {background-image:url('../img/btn_yes1.png');}
 /* Win/menu — пока текстовая кнопка (нет арта), стилизуем отдельно */
 .modal-text-btn{
   font-family:'MEK',monospace;
