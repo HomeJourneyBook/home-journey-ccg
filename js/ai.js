@@ -24,16 +24,11 @@ function aiAutoMulligan(faction){
 }
 
 // ── UI-баннер "ИИ думает" ───────────────────────────────────────────
+// ОТКЛЮЧЕНО: по новому ТЗ во время хода ИИ никакой всплывающей надписи в хедере
+// не показываем — вместо этого кнопка End Turn у игрока подменяется на
+// плейсхолдер ожидания (см. updateEndTurnBtn() в render.js).
 function showAiBanner(show){
-  const el = document.getElementById('aiThinkingBanner');
-  if(!el) return;
-  if(show){
-    const name = G.aiFaction === 'jeet' ? 'JEET CORE' : 'TAVERN';
-    el.textContent = `${name} is thinking...`;
-    el.style.display = 'flex';
-  } else {
-    el.style.display = 'none';
-  }
+  // no-op
 }
 
 // ── ГЛАВНЫЙ ВХОД ────────────────────────────────────────────────────
