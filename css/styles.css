@@ -6,7 +6,7 @@
   font-weight: normal;
   font-style: normal;
 }
- 
+
 
 :root {
   --card-h: 25vh;
@@ -442,12 +442,16 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 /* Плейсхолдер слева от HP-индикатора — теперь с реальным артом (boltik.png).
    Размер — квадрат, сторона = половина высоты .stat-hp-box (та же формула × 0.5). */
 .hp-placeholder{
+  display:none;
   width:max(calc(4vh * 0.25), calc(2vw * 0.25));
   height:max(calc(4vh * 0.25), calc(2vw * 0.25));
   background-image:url('../img/boltik.png');
   background-size:100% 100%;
   background-repeat:no-repeat;
   flex-shrink:0;
+}
+@media(min-width:601px){
+  .hp-placeholder{display:block;}
 }
 /* ПЛЕЙСХОЛДЕРЫ по бокам от pcard-слотов (world/artifact) в статус-барах — 4:1,
    высота = половина высоты .stats-bar (та же формула × 0.5, откуда и высота
@@ -572,7 +576,10 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    (аналогично .bottom-bar-extra-3: url('../img/имя_файла.png')). */
 .bottom-bar-extra-4{
   display:none;
-  align-self:center;
+  position:absolute;
+  left:calc(50% + (6vh * 4 / 2) + 8px);
+  top:50%;
+  transform:translateY(-50%);
   width:calc(7vh / 3);
   height:calc(7vh / 3);
   background-color:#000;
@@ -586,18 +593,26 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
 .btn{font-family:'MEK',monospace;font-size:30px;border:1px solid;background:transparent;cursor:pointer;transition:all .15s;color:#e8e0c8;}
-/* align-self:center — родитель .bottom-bar теперь align-items:stretch (нужно было для
-   плейсхолдеров, см. комментарий выше .bottom-bar). У .btn-end задан фиксированный
-   height:6vh, поэтому сам он не тянется, но БЕЗ явного align-self "stretch" всё равно
-   прижимает такие фикс-высотные элементы к началу оси (к верху), а не по центру —
-   отсюда и прилипание. align-self:center возвращает его к центру независимо от родителя. */
-.btn-end{align-self:center;border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;width:calc(6vh * 4);height:6vh;transition:transform .1s,filter .1s;flex-shrink:0;}
+/* Кнопка End Turn выведена из flex-потока .bottom-bar и зафиксирована строго по центру
+   через position:absolute — раньше её позиция зависела от ширины контента слева/справа
+   (justify-content:space-between на родителе), из-за чего при асимметричном контенте
+   в .bottom-slot слева/справа кнопка визуально уезжала от центра. Теперь она всегда
+   ровно посередине бара независимо от того, что лежит по бокам. */
+.btn-end{
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent;
+  width:calc(6vh * 4);height:6vh;
+  transition:transform .1s,filter .1s;
+  flex-shrink:0;
+}
 .btn-end:hover{filter:brightness(1.25);}
-.btn-end:active{background-image:url('../img/button_2.png');transform:none;}
+.btn-end:active{background-image:url('../img/button_2.png');transform:translate(-50%,-50%);}
 /* ── Состояние "ход ИИ" (VS AI) — панель игрока не скрывается целиком, вместо
    кнопки End Turn показываем гиф-плейсхолдер ожидания, клик недоступен. */
 .btn-end.btn-waiting{background-image:url('../img/btn_wait.gif') !important;cursor:default;pointer-events:none;filter:none !important;}
-.btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;transform:none;}
+.btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;transform:translate(-50%,-50%);}
 .btn-square{width:6vh;height:6vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
