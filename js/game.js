@@ -667,7 +667,7 @@ function closeGraveModal(){
     inner.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out-fast');
-    setTimeout(finish, 250);
+    setTimeout(finish, 125);
   } else {
     finish();
   }
