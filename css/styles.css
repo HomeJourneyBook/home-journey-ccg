@@ -57,7 +57,10 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
   opacity:0.5; /* только картинка приглушена */
 }
 .game{position:relative;z-index:1;width:100%;padding:0;display:flex;flex-direction:column;gap:0;min-height:100vh;overflow-y:auto;overflow-x:hidden;}
-.game, .game *{user-select: none;-webkit-user-select: none;}
+/* Запрет выделения текста ВЕЗДЕ в приложении (лендинг, модалки, муллиган, правила,
+   каталог и т.д.), а не только в самой игре — единственное исключение ниже:
+   .search-input (поле поиска в каталоге), где ввод текста реально нужен. */
+html, body, body *{user-select: none;-webkit-user-select: none;}
 
 .header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#414B5A4D;position:relative;height:max(5vh, 2.5vw);}
 .title{font-family:'MEK',monospace;font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
@@ -365,8 +368,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .stats-bar.jeet{}
 .stats-bar.tea{}
-.stats-bar.jeet{background-image:url('../img/bg_jeet_bar.png');} 
-.stats-bar.tea{background-image:url('../img/bg_tea_bar.png');} 
+.stats-bar.jeet{background-color:#5a7278;border-top:1px solid #829797;border-bottom:1px solid #829797;}
+.stats-bar.tea{background-color:#5a7278;border-top:1px solid #829797;border-bottom:1px solid #829797;}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
@@ -505,6 +508,25 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 @media(min-width:601px){
   .bottom-bar-extra-3{display:block;}
+}
+/* ПЛЕЙСХОЛДЕР 4 — квадрат, высота = треть высоты бара (7vh/3), справа от кнопки End Turn,
+   отцентрирован по вертикали (align-self:center — родитель .bottom-bar имеет
+   align-items:stretch, поэтому без явного center его бы растянуло на всю высоту бара,
+   как и .btn-end выше). Только лаптоп/десктоп (см. media-запрос ниже).
+   Чёрный квадрат-заглушка — путь на кастомный арт подставить в background-image
+   (аналогично .bottom-bar-extra-3: url('../img/имя_файла.png')). */
+.bottom-bar-extra-4{
+  display:none;
+  align-self:center;
+  width:calc(7vh / 3);
+  height:calc(7vh / 3);
+  background-color:#000;
+  background-size:cover;
+  background-position:center;
+  flex-shrink:0;
+}
+@media(min-width:601px){
+  .bottom-bar-extra-4{display:block;}
 }
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
