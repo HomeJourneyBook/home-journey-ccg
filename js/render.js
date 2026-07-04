@@ -436,7 +436,7 @@ const tagIcons = (card.tags||[])
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('Click_Cursor');zoomHandCardFly(card,d);};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');zoomHandCardFly(card,d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
@@ -497,7 +497,7 @@ const tagIcons = (card.tags||[])
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('Click_Cursor');zoomHandCardFly(card,d);};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');zoomHandCardFly(card,d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
