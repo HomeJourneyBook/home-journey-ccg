@@ -67,7 +67,7 @@ function onClick(card,zone){
   if(G.phase==='action'){
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
-      if(G.previewCard) playSfx('yellow_buttom_play_endturn_menu_gravyard_loop'); // звук при открытии превью
+      if(G.previewCard) playSfx('Click_Cursor'); // звук при открытии превью
       render();return;
     }
     if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping&&!card.exhausted){
@@ -224,7 +224,10 @@ function doAttack(att,target){
   const oppK=curK==='tea'?'jeet':'tea';
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
 
-  playAttackSfx(att);
+  // Fear полностью замещает звук атаки — если этот удар реально испугает цель
+  // (существо выживает и attacker имеет тег fear), играет только debaf, без card_atack/card_fire_atack.
+  const willFear = hasTag(att,'fear') && (target.hp - atk) > 0;
+  if(!willFear) playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
   if(!hasTag(att,'invisible') && !target.feared)
