@@ -785,6 +785,28 @@ function hitCard(cardId){
     el.classList.remove('hit');
   },250);
 }
+// Определяет, в каком стат-баре (top/oppStats или bottom/playerStats) сейчас физически
+// отображается фракция `faction` — используется flashBase/flashEssenceGain, чтобы подсветка
+// шла у ТОЙ фракции, что реально получила урон/хил, а не залипала сверху/снизу.
+// В Hot Seat верх/низ определяет чей сейчас ход (см. reorderZones); в VS AI верх/низ
+// закреплены за aiFaction/humanFaction и от хода НЕ зависят — раньше это не учитывалось,
+// из-за чего урон по базе всегда мигал сверху, а хил — всегда снизу, независимо от того,
+// кому из игроков это реально принадлежало.
+function _statsElIdForFaction(faction){
+  if(G.mode==='vsai'){
+    return faction===G.humanFaction ? 'playerStats' : 'oppStats';
+  }
+  return faction===G.turn ? 'playerStats' : 'oppStats';
+}
+// who — либо абсолютная фракция ('tea'/'jeet'), либо относительное 'opp'/'player'
+// (относительно ТЕКУЩЕГО хода — используется, когда событие произошло "от лица" атакующего,
+// например урон по базе противника при атаке). Сначала переводим в абсолютную фракцию,
+// затем резолвим в DOM-элемент через _statsElIdForFaction().
+function _resolveFlashFaction(who){
+  if(who==='player') return G.turn;
+  if(who==='opp') return G.turn==='tea'?'jeet':'tea';
+  return who; // уже абсолютная фракция 'tea'/'jeet'
+}
 function flashEssenceGain(who){
   // Ставим в очередь "мигание" эссенции — применяется после render()/reorderZones(),
   // т.к. .stat-ess-box/.ess-val каждый раз пересоздаются заново через innerHTML.
@@ -796,13 +818,7 @@ function _applyPendingEssGlitch(){
   const list=G._pendingEssGlitch;
   G._pendingEssGlitch=[];
   list.forEach(who=>{
-    let elId;
-    if(who==='opp'||who==='player'){
-      elId=who==='opp'?'oppStats':'playerStats';
-    } else {
-      const oppK=G.turn==='tea'?'jeet':'tea';
-      elId=who===oppK?'oppStats':'playerStats';
-    }
+    const elId=_statsElIdForFaction(_resolveFlashFaction(who));
     const bar=document.getElementById(elId);
     if(!bar) return;
     const box=bar.querySelector('.stat-ess-box');
@@ -831,13 +847,7 @@ function _applyPendingFlash(){
   const flashes=G._pendingFlash;
   G._pendingFlash=[];
   flashes.forEach(({who,type})=>{
-    let elId;
-    if(who==='opp'||who==='player'){
-      elId=who==='opp'?'oppStats':'playerStats';
-    } else {
-      const oppK=G.turn==='tea'?'jeet':'tea';
-      elId=who===oppK?'oppStats':'playerStats';
-    }
+    const elId=_statsElIdForFaction(_resolveFlashFaction(who));
     const bar=document.getElementById(elId);
     if(!bar) return;
     const cls=type==='dmg'?'flash-red':'flash-green';
