@@ -117,7 +117,7 @@ function getTypeDotLabel(card){
   if(card.unique) return 'Unique';
   if(card.artifact) return 'Artifact';
   if(card.spell) return 'Spell';
-  return 'Creature';
+  return 'Traveler';
 }
 
 // ── Общий механизм "увеличенного превью" карты по центру экрана: рисуется НЕ поверх
@@ -775,6 +775,7 @@ function reorderZones(){
   if(oppStats){
     oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
     oppStats.innerHTML=`
+  ${oppK==='jeet'?'<span class="statbar-edge-left"></span>':''}
   <span class="statbar-extra"></span>
   ${_mkPcardSlotHtml(oppP.world, oppK, false)}
   <span class="hp-placeholder"></span>
@@ -785,6 +786,7 @@ function reorderZones(){
   </span>
   ${_mkPcardSlotHtml(oppP.artifacts[0]||null, oppK, false)}
   <span class="statbar-extra"></span>
+  ${oppK==='jeet'?'<span class="statbar-edge-right-2"></span>':''}
   <span class="statbar-edge-right"></span>`;
     oppStats.querySelectorAll('[data-pid]').forEach(el=>{
       const pid=el.dataset.pid;
@@ -794,6 +796,7 @@ function reorderZones(){
   if(playerStats){
     playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
     playerStats.innerHTML=`
+  ${playerK==='jeet'?'<span class="statbar-edge-left"></span>':''}
   <span class="statbar-extra"></span>
   ${_mkPcardSlotHtml(playerP.world, playerK, false)}
   <span class="hp-placeholder"></span>
@@ -804,6 +807,7 @@ function reorderZones(){
   </span>
   ${_mkPcardSlotHtml(playerP.artifacts[0]||null, playerK, true)}
   <span class="statbar-extra"></span>
+  ${playerK==='jeet'?'<span class="statbar-edge-right-2"></span>':''}
   <span class="statbar-edge-right"></span>`;
     playerStats.querySelectorAll('[data-pid]').forEach(el=>{
       const pid=el.dataset.pid;
