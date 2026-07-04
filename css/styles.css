@@ -793,8 +793,8 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 }
 .modal-faction-btn.btn-tea            { background-image:url('../img/btn_tea1.png');  }
 .modal-faction-btn.btn-tea:hover      { background-image:url('../img/btn_teaH.png');  }
-.modal-faction-btn.btn-tea:active     { background-image:url('../img/btn_tea1.png');  }
-.modal-faction-btn.btn-jeet           { background-image:url('../img/btn_jeet2.png'); }
+.modal-faction-btn.btn-tea:active     { background-image:url('../img/btn_tea2.png');  }
+.modal-faction-btn.btn-jeet           { background-image:url('../img/btn_jeet1.png'); }
 .modal-faction-btn.btn-jeet:hover     { background-image:url('../img/btn_jeetH.png'); }
 .modal-faction-btn.btn-jeet:active    { background-image:url('../img/btn_jeet2.png'); }
 .modal-body{
