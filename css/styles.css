@@ -1509,26 +1509,39 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   background-color:#0a0a12;
 }
 .lore-page{
+  --r: 0deg;
   position:relative;
   margin:0 0 6vw;
   padding:4vw 5vw 1vw;
   border:1px solid #c8a84b3d;
   background:#0d0d1a99;
   opacity:0;
-  transform:translateY(14px);
+  transform:rotate(var(--r)) translateY(14px);
 }
+/* Небольшой, но разный угол на каждой странице — чтобы выглядело как раскиданные
+   листы книги, а не аккуратный столбик карточек. Углы захардкожены (не случайны),
+   чтобы верстка не дрожала между открытиями экрана. */
+.lore-page:nth-of-type(1){--r:-1.6deg;}
+.lore-page:nth-of-type(2){--r:1.1deg;}
+.lore-page:nth-of-type(3){--r:-0.9deg;}
+.lore-page:nth-of-type(4){--r:1.4deg;}
+.lore-page:nth-of-type(5){--r:-1.2deg;}
 .lore-page.revealed{
   animation:loreReveal 0.7s steps(4,end) forwards;
 }
 @keyframes loreReveal{
-  0%   { opacity:0; transform:translateY(14px); text-shadow:none; }
-  2%   { opacity:1; transform:translateY(0); }
+  0%   { opacity:0; transform:rotate(var(--r)) translateY(14px); text-shadow:none; }
+  2%   { opacity:1; transform:rotate(var(--r)) translateY(0); }
   22%  { text-shadow:2px 0 #ff0044,-2px 0 #00e5ff; }
   48%  { text-shadow:-2px 0 #ff0044,2px 0 #00e5ff; }
   74%  { text-shadow:1px 0 #ff0044,-1px 0 #00e5ff; }
-  100% { opacity:1; transform:translateY(0); text-shadow:none; }
+  100% { opacity:1; transform:rotate(var(--r)) translateY(0); text-shadow:none; }
 }
 .lore-page h2{margin-top:0;}
+/* Основной текст лор-экрана крупнее, чем у остальных screen-body (rules/catalog его
+   не наследуют — селектор через #loreScreen). Body +70%, заголовки +20%. */
+#loreScreen .screen-body{font-size:calc(4.56vw * 1.7);}
+#loreScreen .screen-body h2{font-size:calc(6vw * 1.2);}
 .lore-archive-link{
   display:block;
   margin:8vw auto 6vw;
@@ -1561,6 +1574,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   #rulesENG,#rulesPOR{font-size:1.32vw;}
   #rulesENG h2,#rulesPOR h2{font-size:2.16vw;}
   #rulesENG h3,#rulesPOR h3{font-size:1.32vw;}
+  #loreScreen .screen-body{font-size:calc(1.1vw * 1.7);}
+  #loreScreen .screen-body h2{font-size:calc(1.8vw * 1.2);}
 }
 
 /* CATALOG */
