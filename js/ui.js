@@ -408,7 +408,7 @@ function closeConfirmModal(onConfirm){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(finish, 500);
+    setTimeout(finish, 250);
   } else {
     finish();
   }
@@ -473,7 +473,7 @@ function startGameVsAI(humanFaction){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(proceed, 500);
+    setTimeout(proceed, 250);
   } else {
     proceed();
   }
@@ -582,7 +582,7 @@ function readyFromMulligan(){
     mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
     void mulliganModal.offsetWidth;
     mulliganModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 500);
+    setTimeout(proceed, 250);
   } else {
     proceed();
   }
@@ -610,7 +610,7 @@ function closeWinModal(){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(()=>{ showLanding(); }, 500);
+    setTimeout(()=>{ showLanding(); }, 250);
   } else {
     showLanding();
   }
@@ -642,7 +642,7 @@ function toggleLog(){
     p.classList.add('modal-pop-out-fast');
     setTimeout(()=>{
       p.classList.remove('open','modal-pop-out-fast');
-    }, 250);
+    }, 125);
   } else {
     p.classList.add('open');
     p.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
@@ -764,7 +764,7 @@ function passReady(){
     passModal.classList.remove('modal-pop-in','modal-pop-out');
     void passModal.offsetWidth;
     passModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 500);
+    setTimeout(proceed, 250);
   } else {
     proceed();
   }
@@ -828,7 +828,7 @@ const LANDING_MODE_TOOLTIPS = {
   'art-btn-online':  { name: 'Online',    desc: 'Online multiplayer — currently in development.' },
 };
 
-const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .art-btn-mode';
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .art-btn-mode, .card-cost, .card-small-cost';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
 
 let _tooltipEl = null;
@@ -838,6 +838,9 @@ function _getTooltip(){ return _tooltipEl || (_tooltipEl = document.getElementBy
 
 function _tooltipDataFor(el){
   if(el.classList.contains('card-tag-icon')) return TAG_TOOLTIPS[el.dataset.tag] || null;
+  if(el.classList.contains('card-cost') || el.classList.contains('card-small-cost')){
+    return { name: '', desc: 'Cost of <img src="img/ess.png" class="tt-ess-icon" alt="Essence">' };
+  }
   for(const cls in LANDING_MODE_TOOLTIPS){
     if(el.classList.contains(cls)) return LANDING_MODE_TOOLTIPS[cls];
   }
@@ -888,7 +891,7 @@ document.addEventListener('mousemove', (e) => {
     if(!data) return;
     const x = e.clientX, y = e.clientY;
     _tooltipTimer = setTimeout(() => {
-      tip.innerHTML = `<div class="tt-name">${data.name}</div><div class="tt-desc">${data.desc}</div>`;
+      tip.innerHTML = (data.name ? `<div class="tt-name">${data.name}</div>` : '') + `<div class="tt-desc">${data.desc}</div>`;
       _positionTooltip(tip, x, y);
       tip.classList.add('tt-visible');
     }, TOOLTIP_SHOW_DELAY);
