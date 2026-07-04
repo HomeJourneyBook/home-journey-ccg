@@ -10,7 +10,16 @@ Built with vanilla HTML/CSS/JS. Hosted on GitHub Pages. No build step required.
 ```
 index.html          # Markup: landing, game field, rules/lore/catalog screens
 css/
-  styles.css        # All styles
+  styles.css        # All styles, organized top-to-bottom into sections:
+                     #   BASE → LANDING → SCREEN TRANSITIONS → HEADER →
+                     #   FIELD & CARDS → HUD → LOG → MODALS → GRAVEYARD MODAL →
+                     #   RULES & LORE → CATALOG → ANIMATIONS & MISC
+                     # See the table of contents at the top of the file.
+                     # Repeated colors (tea/jeet/hp/atk/gold/cream/backgrounds)
+                     # live in :root as --color-* variables — reuse them for
+                     # any new UI instead of hardcoding hex values.
+audio/               # Music + SFX. Only a subset is wired up — see README.md
+                     # "Audio" table before adding new sound-related code.
 js/
   data.js           # Card definitions — DEFS object + buildDeck()
   abilities.js      # getTagVal(), hasTag(), getAbilities(), triggerAbilities()
@@ -324,30 +333,37 @@ Deck composition per starter: 30 travelers + 5 legendaries + 8 spells + 2 worlds
 
 -----
 
-## Art Integration (Planned)
+## Art Integration (Implemented)
 
-Place PNGs in `/img/`:
+PNGs live in `/img/cards/` (107 files as of writing, named `NNN_Name.png` or plain `N.png`).
 
-- `card_tea.png` — Tea card background
-- `card_jeet.png` — Jeet card background
-- `runaha.png` — Card back for opponent’s hand
-
-In `data.js`, art field will accept image path:
+Card art is **not** put in the `art` field (that's reserved for the emoji fallback). Instead, add an `img` key to the card def in `data.js`:
 
 ```js
-art: "img/travelers/szarg_001.png"
+trvlr_001: {
+  name: "Szarg",
+  art: "🦈",              // emoji fallback, shown if img is missing
+  img: "001_Abysswalker.png", // actual PNG, resolved as img/cards/<img>
+  ...
+}
 ```
 
-Render checks file extension to decide `<img>` vs emoji display.
+`catalog.js` and `render.js` check `card.img` first and render an `<img>` from `img/cards/${img}`; they fall back to the `art` emoji only when `img` is absent. `ui.js` also preloads `img/cards/${def.img}` on boot for smoother rendering.
 
 -----
 
 ## Planned Features
 
-- [ ] 60 NFT traveler cards with unique art
-- [ ] PNG card art integration
+Done since this doc was first written — kept here so it isn't re-proposed:
+
+- [x] AI opponent (`js/ai.js` — `runAiTurn()`, `aiPlayCardsStep()`, hooked up via `startGameVsAI()`)
+- [x] PNG card art integration (107 files in `img/cards/`, `img` field on card defs)
+- [x] Background music + core SFX (`js/ui.js` — `toggleMusic()`, `playSfx()`)
+
+Still open:
+
+- [ ] Remaining traveler cards + art (60 planned total, ~75 defs exist but not all have unique art matched — verify against `img/cards/`)
+- [ ] Wire up the unused audio files — see README.md "Audio" table for the 8 files sitting in `audio/` with no call site
 - [ ] Deckbuilder screen
-- [ ] AI opponent
-- [ ] Sound effects
 - [ ] Web3: NFT ownership verification
 - [ ] Online multiplayer
