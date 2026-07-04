@@ -673,7 +673,7 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .hidden{display:none!important;}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:#000000;z-index:100;display:flex;align-items:center;justify-content:center;}
+.modal-overlay{position:fixed;inset:0;background:#000000;z-index:220;display:flex;align-items:center;justify-content:center;}
 /* Ширина модалки завязана на --modal-border-w: раньше width была фиксированной (340px),
    а рамка росла до 80px на десктопе — рамка съедала контентную зону до ~180px, и футер
    с кнопками (которому теперь нужно ~290px, см. .modal-footer) вылезал за пределы модалки
