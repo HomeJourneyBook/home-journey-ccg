@@ -129,7 +129,7 @@ function openCardDetail(def){
     : def.unique?'Unique'
     : def.artifact?'Artifact'
     : def.spell?'Spell'
-    : 'Creature';
+    : 'Traveler';
 
   const bgClass = faction==='tea'?'tea-card':'jeet-card';
   const worldClass = def.world?'world-card':'';
