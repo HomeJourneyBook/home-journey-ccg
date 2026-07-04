@@ -23,6 +23,14 @@ function initState(opts){
     G.humanFaction=opts.humanFaction==='jeet'?'jeet':'tea';
     G.aiFaction=G.humanFaction==='tea'?'jeet':'tea';
   }
+  // Чистим DOM поля/руки/персиста СРАЗУ, синхронно с ресетом состояния — иначе между
+  // стартом новой партии и появлением экрана муллигана (там есть небольшая задержка,
+  // см. setTimeout в startGame()/startGameVsAI()/resetGame()) на долю секунды видны
+  // карты из ПРЕДЫДУЩЕЙ партии, которые ещё не были перерисованы через render().
+  ['teaField','jeetField','teaHand','jeetHand','teaPersist','jeetPersist'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML='';
+  });
 }
 
 function lg(msg,cls=''){
