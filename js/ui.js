@@ -340,11 +340,31 @@ function showScreen(name){
   // Экран въезжает
   screen.classList.add('active',dir.enter);
   if(name==='catalog') setTimeout(renderCatalog,50);
+  if(name==='lore') setTimeout(_armLoreReveal,50);
   // После анимации прячем лендинг полностью
   setTimeout(()=>{
     landing.style.display='none';
     landing.classList.remove(dir.exit);
   },315);
+}
+
+// ── Лор: каждая .lore-page "проявляется" глитчем при попадании во вьюпорт
+// (тот же приём, что у pcardTextReveal — text-shadow-дрожь вместо плавного fade).
+// Срабатывает один раз за показ экрана — при повторном открытии Lore эффект
+// проигрывается заново (см. сброс .revealed в hideScreen).
+function _armLoreReveal(){
+  const root=document.getElementById('loreScreen');
+  if(!root) return;
+  const pages=root.querySelectorAll('.lore-page');
+  const obs=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  },{root, threshold:0.25});
+  pages.forEach(el=>obs.observe(el));
 }
 
 function hideScreen(name){
@@ -365,6 +385,7 @@ function hideScreen(name){
   });
   setTimeout(()=>{
     screen.classList.remove('active',dir.enter,dir.back);
+    if(name==='lore') screen.querySelectorAll('.lore-page').forEach(el=>el.classList.remove('revealed'));
   },315);
 }
 function showLanding(){
