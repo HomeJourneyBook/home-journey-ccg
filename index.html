@@ -86,7 +86,7 @@
            до узкого внутреннего слоя и таймер автозакрытия срабатывал раньше, чем должен,
            пока курсор ещё в пределах кнопки). -->
       <div class="play-gate-wrap gate-idle" id="playGateWrap"
-           onmouseenter="resetGateTimer()" onmouseleave="resetGateTimer()">
+           onmouseenter="pauseGateTimer()" onmouseleave="resumeGateTimer()">
 
         <!-- Слой 1: три кнопки режима, всегда в DOM, скрыты за воротами -->
         <div class="play-mode-buttons" id="playModeButtons">
