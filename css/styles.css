@@ -1218,7 +1218,9 @@ body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100
 .art-btn-hotseat,.art-btn-vsai,.art-btn-online{
   background-color:transparent;
 }
-.art-btn-vsai,.art-btn-online{cursor:not-allowed;}
+.art-btn-online{cursor:not-allowed;}
+.art-btn-vsai{cursor:pointer;}
+.art-btn-vsai:hover{filter:brightness(1.25) !important;}
 /* Эти три кнопки НЕ должны ловить общий brightness-ховер от .art-btn-square:hover —
    ховер тут будет только через подмену арта (как уже сделано у hotseat ниже),
    никаких programmatic-эффектов поверх. */
