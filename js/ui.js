@@ -402,7 +402,7 @@ function closeConfirmModal(onConfirm){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(finish, 805);
+    setTimeout(finish, 500);
   } else {
     finish();
   }
@@ -447,18 +447,30 @@ function openVsAiPicker(){
 }
 
 function startGameVsAI(humanFaction){
-  document.getElementById('vsAiPickerModal').classList.add('hidden');
-  const landing=document.getElementById('landing');
-  landing.style.display='none';
-  landing.classList.remove('exit-center');
-  document.getElementById('game').style.display='flex';
-  collapseStart();
-  initState({mode:'vsai',humanFaction});
-  lg('─ NEW GAME (VS AI) ─','trn');
-  // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
-  // человек видит только собственный муллиган.
-  aiAutoMulligan(G.aiFaction);
-  setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
+  const modal=document.getElementById('vsAiPickerModal');
+  const inner=modal.querySelector('.modal');
+  const proceed=()=>{
+    modal.classList.add('hidden');
+    const landing=document.getElementById('landing');
+    landing.style.display='none';
+    landing.classList.remove('exit-center');
+    document.getElementById('game').style.display='flex';
+    collapseStart();
+    initState({mode:'vsai',humanFaction});
+    lg('─ NEW GAME (VS AI) ─','trn');
+    // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
+    // человек видит только собственный муллиган.
+    aiAutoMulligan(G.aiFaction);
+    setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
+  };
+  if(inner){
+    inner.classList.remove('modal-pop-in','modal-pop-out');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-out');
+    setTimeout(proceed, 500);
+  } else {
+    proceed();
+  }
 }
 
 function startMulliganFor(faction){
@@ -564,7 +576,7 @@ function readyFromMulligan(){
     mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
     void mulliganModal.offsetWidth;
     mulliganModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 805);
+    setTimeout(proceed, 500);
   } else {
     proceed();
   }
@@ -592,7 +604,7 @@ function closeWinModal(){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(()=>{ showLanding(); }, 805);
+    setTimeout(()=>{ showLanding(); }, 500);
   } else {
     showLanding();
   }
@@ -618,12 +630,26 @@ function resetGame(){
 
 function toggleLog(){
   const p=document.getElementById('logPanel');
-  p.classList.toggle('open');
+  if(p.classList.contains('open')){
+    p.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
+    void p.offsetWidth;
+    p.classList.add('modal-pop-out-fast');
+    setTimeout(()=>{
+      p.classList.remove('open','modal-pop-out-fast');
+    }, 250);
+  } else {
+    p.classList.add('open');
+    p.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
+    void p.offsetWidth;
+    p.classList.add('modal-pop-in-fast');
+  }
 }
 
 function toggleHamburger(){
   const btn=document.getElementById('hamburgerBtn');
   const menu=document.getElementById('hamburgerMenu');
+  const opening = !btn.classList.contains('open');
+  playSfx(opening ? 'open_door' : 'yellow_buttom_play_endturn_menu_gravyard_loop');
   btn.classList.toggle('open');
   menu.classList.toggle('open');
 }
@@ -732,7 +758,7 @@ function passReady(){
     passModal.classList.remove('modal-pop-in','modal-pop-out');
     void passModal.offsetWidth;
     passModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 805);
+    setTimeout(proceed, 500);
   } else {
     proceed();
   }
@@ -789,43 +815,84 @@ const TAG_TOOLTIPS = {
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
 };
 
+// Подсказки для кнопок выбора режима игры (под воротами на лендинге).
+const LANDING_MODE_TOOLTIPS = {
+  'art-btn-hotseat': { name: 'Hot Seat',  desc: 'Two players share one device, taking turns.' },
+  'art-btn-vsai':    { name: 'VS AI',     desc: 'Play against a simple AI opponent.' },
+  'art-btn-online':  { name: 'Online',    desc: 'Online multiplayer — currently in development.' },
+};
+
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .art-btn-mode';
+const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
+
 let _tooltipEl = null;
+let _tooltipTimer = null;
+let _tooltipCurrentTarget = null;
 function _getTooltip(){ return _tooltipEl || (_tooltipEl = document.getElementById('card-tooltip')); }
 
-document.addEventListener('mousemove', (e) => {
-  const tip = _getTooltip();
-  if(!tip) return;
-
-  const tagEl = e.target.closest('.card-tag-icon');
-  if(!tagEl){
-    tip.classList.remove('tt-visible');
-    return;
+function _tooltipDataFor(el){
+  if(el.classList.contains('card-tag-icon')) return TAG_TOOLTIPS[el.dataset.tag] || null;
+  for(const cls in LANDING_MODE_TOOLTIPS){
+    if(el.classList.contains(cls)) return LANDING_MODE_TOOLTIPS[cls];
   }
+  return null;
+}
 
-  const data = TAG_TOOLTIPS[tagEl.dataset.tag];
-  if(!data){
-    tip.classList.remove('tt-visible');
-    return;
-  }
-
-  tip.innerHTML = `<div class="tt-name">${data.name}</div><div class="tt-desc">${data.desc}</div>`;
-  tip.classList.add('tt-visible');
-
-  // Позиционируем рядом с курсором, не выходя за экран
+function _positionTooltip(tip, clientX, clientY){
   const PAD = 12;
   const tw = tip.offsetWidth;
   const th = tip.offsetHeight;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  let x = e.clientX + 18;
-  let y = e.clientY - th - 10;
+  let x = clientX + 18;
+  let y = clientY - th - 10;
 
-  if(x + tw > vw - PAD) x = e.clientX - tw - 10;
-  if(y < PAD) y = e.clientY + 18;
+  if(x + tw > vw - PAD) x = clientX - tw - 10;
+  if(y < PAD) y = clientY + 18;
 
   tip.style.left = x + 'px';
   tip.style.top  = y + 'px';
+}
+
+function _hideTooltipNow(){
+  clearTimeout(_tooltipTimer);
+  _tooltipTimer = null;
+  _tooltipCurrentTarget = null;
+  const tip = _getTooltip();
+  if(tip) tip.classList.remove('tt-visible');
+}
+
+document.addEventListener('mousemove', (e) => {
+  const tip = _getTooltip();
+  if(!tip) return;
+
+  const el = e.target.closest(TOOLTIP_TRIGGER_SELECTOR);
+  if(!el){
+    _hideTooltipNow();
+    return;
+  }
+
+  if(el !== _tooltipCurrentTarget){
+    // Навелись на новый элемент — сбрасываем предыдущее состояние и планируем
+    // показ через TOOLTIP_SHOW_DELAY; если курсор уйдёт раньше — таймер отменится.
+    _hideTooltipNow();
+    _tooltipCurrentTarget = el;
+    const data = _tooltipDataFor(el);
+    if(!data) return;
+    const x = e.clientX, y = e.clientY;
+    _tooltipTimer = setTimeout(() => {
+      tip.innerHTML = `<div class="tt-name">${data.name}</div><div class="tt-desc">${data.desc}</div>`;
+      _positionTooltip(tip, x, y);
+      tip.classList.add('tt-visible');
+    }, TOOLTIP_SHOW_DELAY);
+    return;
+  }
+
+  // Всё ещё на том же элементе — если подсказка уже показана, просто следуем за курсором
+  if(tip.classList.contains('tt-visible')){
+    _positionTooltip(tip, e.clientX, e.clientY);
+  }
 });
 
 // ── Hover-звук Navigation_Cursor на кнопках лендинга ─────────────────────────
