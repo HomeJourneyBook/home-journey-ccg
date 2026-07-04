@@ -369,7 +369,9 @@ function showLanding(){
   document.getElementById('confirmModal').classList.add('hidden');
   initState();
   collapseStart();
-  document.getElementById('landing').style.display='flex';
+  const landing=document.getElementById('landing');
+  landing.classList.remove('exit-center');
+  landing.style.display='flex';
 }
 
 function showConfirm(text, btnText, onConfirm){
@@ -392,21 +394,39 @@ function askRestart(){
 }
 
 function startGame(){
-  document.getElementById('landing').style.display='none';
-  document.getElementById('game').style.display='flex';
-  collapseStart();
-  setTimeout(()=>{ startMulliganFor('tea'); }, 50);
+  const landing=document.getElementById('landing');
+  landing.classList.add('exit-center');
+  setTimeout(()=>{
+    landing.style.display='none';
+    landing.classList.remove('exit-center');
+    document.getElementById('game').style.display='flex';
+    collapseStart();
+    setTimeout(()=>{ startMulliganFor('tea'); }, 50);
+  }, 450);
 }
 
 // ── VS AI ──────────────────────────────────────────────────────
 function openVsAiPicker(){
   playSfx('Click_Cursor');
-  document.getElementById('vsAiPickerModal').classList.remove('hidden');
+  const landing=document.getElementById('landing');
+  landing.classList.add('exit-center');
+  setTimeout(()=>{
+    const modal=document.getElementById('vsAiPickerModal');
+    modal.classList.remove('hidden');
+    const inner=modal.querySelector('.modal');
+    if(inner){
+      inner.classList.remove('modal-pop-in','modal-pop-out');
+      void inner.offsetWidth;
+      inner.classList.add('modal-pop-in');
+    }
+  }, 450);
 }
 
 function startGameVsAI(humanFaction){
   document.getElementById('vsAiPickerModal').classList.add('hidden');
-  document.getElementById('landing').style.display='none';
+  const landing=document.getElementById('landing');
+  landing.style.display='none';
+  landing.classList.remove('exit-center');
   document.getElementById('game').style.display='flex';
   collapseStart();
   initState({mode:'vsai',humanFaction});
@@ -531,7 +551,27 @@ function readyFromMulligan(){
 function showWin(w){
   document.getElementById('winTitle').textContent=w.toUpperCase()+' WINS!';
   document.getElementById('winText').textContent=w==='tea'?'The Tavern stands. The Great Return draws closer.':'Jeet consumes all. The cycle breaks.';
-  document.getElementById('winModal').classList.remove('hidden');
+  const modal=document.getElementById('winModal');
+  modal.classList.remove('hidden');
+  const inner=modal.querySelector('.modal');
+  if(inner){
+    inner.classList.remove('modal-pop-in','modal-pop-out');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-in');
+  }
+}
+
+function closeWinModal(){
+  const modal=document.getElementById('winModal');
+  const inner=modal.querySelector('.modal');
+  if(inner){
+    inner.classList.remove('modal-pop-in','modal-pop-out');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-out');
+    setTimeout(()=>{ showLanding(); }, 150);
+  } else {
+    showLanding();
+  }
 }
 
 function resetGame(){
