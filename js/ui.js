@@ -380,8 +380,32 @@ function showConfirm(text, btnText, onConfirm){
   modal.querySelector('h2').textContent='ARE YOU SURE?';
   const yesBtn=modal.querySelector('#confirmYesBtn');
   yesBtn.textContent=btnText;
-  yesBtn.onclick=()=>{modal.classList.add('hidden');onConfirm();};
+  yesBtn.onclick=()=>{ closeConfirmModal(onConfirm); };
   modal.classList.remove('hidden');
+  const inner=modal.querySelector('.modal');
+  if(inner){
+    inner.classList.remove('modal-pop-in','modal-pop-out');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-in');
+  }
+}
+
+function closeConfirmModal(onConfirm){
+  playSfx('Click_Cursor');
+  const modal=document.getElementById('confirmModal');
+  const inner=modal.querySelector('.modal');
+  const finish=()=>{
+    modal.classList.add('hidden');
+    if(onConfirm) onConfirm();
+  };
+  if(inner){
+    inner.classList.remove('modal-pop-in','modal-pop-out');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-out');
+    setTimeout(finish, 1150);
+  } else {
+    finish();
+  }
 }
 
 
@@ -540,7 +564,7 @@ function readyFromMulligan(){
     mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
     void mulliganModal.offsetWidth;
     mulliganModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 150);
+    setTimeout(proceed, 1150);
   } else {
     proceed();
   }
@@ -568,7 +592,7 @@ function closeWinModal(){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(()=>{ showLanding(); }, 150);
+    setTimeout(()=>{ showLanding(); }, 1150);
   } else {
     showLanding();
   }
@@ -709,7 +733,7 @@ function passReady(){
     passModal.classList.remove('modal-pop-in','modal-pop-out');
     void passModal.offsetWidth;
     passModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 150);
+    setTimeout(proceed, 1150);
   } else {
     proceed();
   }
