@@ -821,14 +821,7 @@ const TAG_TOOLTIPS = {
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
 };
 
-// Подсказки для кнопок выбора режима игры (под воротами на лендинге).
-const LANDING_MODE_TOOLTIPS = {
-  'art-btn-hotseat': { name: 'Hot Seat',  desc: 'Two players share one device, taking turns.' },
-  'art-btn-vsai':    { name: 'VS AI',     desc: 'Play against a simple AI opponent.' },
-  'art-btn-online':  { name: 'Online',    desc: 'Online multiplayer — currently in development.' },
-};
-
-const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .art-btn-mode, .card-cost, .card-small-cost, .card-type-dot';
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
 
 let _tooltipEl = null;
@@ -844,8 +837,8 @@ function _tooltipDataFor(el){
   if(el.classList.contains('card-type-dot')){
     return { name: '', desc: `Type of card: ${el.dataset.type || 'Unknown'}` };
   }
-  for(const cls in LANDING_MODE_TOOLTIPS){
-    if(el.classList.contains(cls)) return LANDING_MODE_TOOLTIPS[cls];
+  if(el.classList.contains('stat-ess-box')){
+    return { name: '', desc: `${el.dataset.max || '?'} max Essence` };
   }
   return null;
 }
