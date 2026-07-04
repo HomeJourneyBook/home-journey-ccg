@@ -74,7 +74,7 @@ function renderCatalog(){
   if(def.img) div.style.cssText += ';background-image:url(\'img/cards/'+def.img+'\')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;';
   div.innerHTML=`
     <div class="card-cost">${def.cost}</div>
-    <div class="card-type-dot" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+    <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${def.name}</div></div>
     <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>`;
   grid.appendChild(div);
@@ -82,7 +82,7 @@ function renderCatalog(){
 }
     div.innerHTML=`
       <div class="card-cost">${def.cost}</div>
-      <div class="card-type-dot" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+      <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img?`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:def.art}</div>
       ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
@@ -125,6 +125,11 @@ function openCardDetail(def){
     : def.artifact?'img/type_artifact.png'
     : def.spell?'img/type_spell.png'
     : 'img/type_creature.png';
+  const typeLabel = def.world?'World'
+    : def.unique?'Unique'
+    : def.artifact?'Artifact'
+    : def.spell?'Spell'
+    : 'Creature';
 
   const bgClass = faction==='tea'?'tea-card':'jeet-card';
   const worldClass = def.world?'world-card':'';
@@ -137,7 +142,7 @@ function openCardDetail(def){
       <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
       <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;${worldBg}">
         <div class="card-cost">${def.cost}</div>
-        <div class="card-type-dot" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+        <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
         <div class="card-name-box"><div class="card-name">${def.name}</div></div>
         <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
       </div>
@@ -150,7 +155,7 @@ function openCardDetail(def){
     <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
     <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;${worldBg}">
       <div class="card-cost">${def.cost}</div>
-      <div class="card-type-dot" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+      <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img
         ? `<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`
         : def.art}</div>
