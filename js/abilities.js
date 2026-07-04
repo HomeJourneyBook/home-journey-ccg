@@ -146,6 +146,7 @@ function triggerAbilities(card, timing, ctx={}){
       case 'fear':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
           ctx.target.feared=true;
+          playSfx('debaf');
           lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
         } break;
 
@@ -206,6 +207,7 @@ function triggerAbilities(card, timing, ctx={}){
           }
         } else if(ctx.target){
           ctx.target.hp=Math.min(ctx.target.maxHp,ctx.target.hp+a.val);
+          playSfx('baf');
           lg(`${card.name}: +${a.val} HP to ${ctx.target.name} → ${ctx.target.hp}/${ctx.target.maxHp}.`,'hl');
         } else {
           cur.field.forEach(ally=>{
@@ -260,6 +262,7 @@ function triggerAbilities(card, timing, ctx={}){
       case 'rage':
         // Permanently increase ATK each time this card attacks
         card.rageBonus=(card.rageBonus||0)+a.val;
+        playSfx('baf');
         const rageId=card.id;
 requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} ATK`,'atk')));
         lg(`${card.name}: Rage! +${a.val} ATK → total ${card.atk+(card.atkBonus||0)+(card.rageBonus||0)} ATK.`,'imp');
