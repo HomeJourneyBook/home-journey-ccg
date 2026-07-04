@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home's Journey — CCG</title>
-<link rel="stylesheet" href="css/styles.css?v=1783132184">
+<link rel="stylesheet" href="css/styles.css">
 <!-- Preload критических ресурсов: браузер начинает качать параллельно с парсингом HTML -->
 <link rel="preload" href="fonts/MEK.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="img/space_bg.png" as="image">
@@ -473,13 +473,7 @@
       <!-- ПЛЕЙСХОЛДЕР 2 — правее zabor1, только лаптоп/десктоп -->
       <div class="bottom-bar-extra-2"></div>
     </div>
-    <button class="btn btn-end" onclick="endTurn()">End Turn</button>
-    <div class="bottom-slot">
-      <!-- ПЛЕЙСХОЛДЕР 3 — левее zabor2 (align-top), но сам прижат к низу бара, только лаптоп/десктоп -->
-      <div class="bottom-bar-extra-3"></div>
-      <!-- ПЛЕЙСХОЛДЕР — новый, левее счётчика колоды, прижат к верху бара -->
-      <div class="bottom-bar-extra align-top"></div>
-      <span class="stat-badge" id="teaDeckBadge">0</span>
+    <button class="btn btn-end" id="teaEndTurnBtn" onclick="endTurn()">End Turn</button>
       <div class="deck-placeholder-wrap">
         <div class="btn-deck-placeholder" id="deckPlaceholderT"></div>
       </div>
@@ -496,13 +490,7 @@
       <!-- ПЛЕЙСХОЛДЕР 2 — правее zabor1, только лаптоп/десктоп -->
       <div class="bottom-bar-extra-2"></div>
     </div>
-    <button class="btn btn-end" onclick="endTurn()">End Turn</button>
-    <div class="bottom-slot">
-      <!-- ПЛЕЙСХОЛДЕР 3 — левее zabor2 (align-top), но сам прижат к низу бара, только лаптоп/десктоп -->
-      <div class="bottom-bar-extra-3"></div>
-      <!-- ПЛЕЙСХОЛДЕР — новый, левее счётчика колоды, прижат к верху бара -->
-      <div class="bottom-bar-extra align-top"></div>
-      <span class="stat-badge" id="jeetDeckBadge">0</span>
+    <button class="btn btn-end" id="jeetEndTurnBtn" onclick="endTurn()">End Turn</button>
       <div class="deck-placeholder-wrap">
         <div class="btn-deck-placeholder" id="deckPlaceholderJ"></div>
       </div>
@@ -581,8 +569,8 @@
       <p>You'll play against a simple AI opponent. Which side do you want to control?</p>
     </div>
     <div class="modal-footer">
-      <button class="modal-text-btn" onclick="playSfx('Click_Cursor');startGameVsAI('tea')">TAVERN</button>
-      <button class="modal-text-btn" onclick="playSfx('Click_Cursor');startGameVsAI('jeet')">JEET CORE</button>
+      <button class="modal-faction-btn btn-tea"  title="Tavern"    onclick="playSfx('Click_Cursor');startGameVsAI('tea')"></button>
+      <button class="modal-faction-btn btn-jeet" title="Jeet Core" onclick="playSfx('Click_Cursor');startGameVsAI('jeet')"></button>
     </div>
   </div>
 </div>
@@ -640,16 +628,16 @@
   </div>
 </div>
 <!-- SCRIPTS (order matters: data → abilities → deck → state → render → game → catalog → ui) -->
-<script src="js/data.js?v=1783132184"></script>
-<script src="js/abilities.js?v=1783132184"></script>
-<script src="js/deck.js?v=1783132184"></script>
-<script src="js/state.js?v=1783132184"></script>
-<script src="js/render.js?v=1783132184"></script>
-<script src="js/game.js?v=1783132184"></script>
-<script src="js/ai.js?v=1783132184"></script>
-<script src="js/catalog.js?v=1783132184"></script>
-<script src="js/ui.js?v=1783132184"></script>
-<script src="js/carousel.js?v=1783132184"></script>
+<script src="js/data.js"></script>
+<script src="js/abilities.js"></script>
+<script src="js/deck.js"></script>
+<script src="js/state.js"></script>
+<script src="js/render.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/carousel.js"></script>
 <div id="card-tooltip" class="card-tooltip" aria-hidden="true"></div>
 </body>
 </html>
