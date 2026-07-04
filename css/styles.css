@@ -6,7 +6,7 @@
   font-weight: normal;
   font-style: normal;
 }
- 
+
 
 :root {
   --card-h: 25vh;
@@ -913,8 +913,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
      4. .porthole-frame — круглая рамка (logo_window.png), рамка 18px, сверху всех */
 .landing-porthole{
   position:relative;z-index:1;
-  width:min(228px, 60vw);
-  height:min(228px, 60vw);
+  width:min(273.6px, 72vw);
+  height:min(273.6px, 72vw);
   border-radius:50%;
   overflow:hidden;
   flex-shrink:0;
@@ -947,7 +947,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   display:flex;flex-direction:column;align-items:center;
 }
 .landing-title{
-  font-family:'MEK',monospace;font-size:clamp(31.2px,7.2vw,48px);
+  font-family:'MEK',monospace;font-size:clamp(28.08px,6.48vw,43.2px);
   color:#E8E0C8;letter-spacing:3.6px;text-align:center;
   text-shadow:0 0 20px #c8a84b66;
   pointer-events:none;
@@ -1255,21 +1255,18 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 /* 1.png — обычное (idle) состояние, 2.png — hover. Раньше 2.png был на :active
    (нажатие) — убрали, теперь никакой анимации нажатия нет вообще. */
-/* Файлы on1/off1 и on2/off2 были перепутаны местами при сохранении артов
-   (on показывал красный/выкл, off — зелёный/вкл) — поменял местами тут в CSS,
-   имена самих файлов не трогал. */
-.art-btn-square.music-on{background-image:url('../img/btn_music_off1.png');}
-.art-btn-square.music-on:hover{background-image:url('../img/btn_music_off2.png');}
-.art-btn-square.music-off{background-image:url('../img/btn_music_on1.png');}
-.art-btn-square.music-off:hover{background-image:url('../img/btn_music_on2.png');}
+.art-btn-square.music-on{background-image:url('../img/btn_music_on1.png');}
+.art-btn-square.music-on:hover{background-image:url('../img/btn_music_on2.png');filter:brightness(1);}
+.art-btn-square.music-off{background-image:url('../img/btn_music_off1.png');}
+.art-btn-square.music-off:hover{background-image:url('../img/btn_music_off2.png');filter:brightness(1);}
 
 /* ── SFX кнопка ──────────────────────────────────────────────────
    Те же пути/логика, что и у Music: 1.png — idle, 2.png — hover. */
 /* Тот же арт, что и у Music (не отдельные файлы) — те же 4 PNG переиспользуются. */
-.art-btn-square.sfx-on  { background-image:url('../img/btn_music_off1.png');  }
-.art-btn-square.sfx-on:hover  { background-image:url('../img/btn_music_off2.png');  }
-.art-btn-square.sfx-off { background-image:url('../img/btn_music_on1.png'); }
-.art-btn-square.sfx-off:hover { background-image:url('../img/btn_music_on2.png'); }
+.art-btn-square.sfx-on  { background-image:url('../img/btn_music_on1.png');  }
+.art-btn-square.sfx-on:hover  { background-image:url('../img/btn_music_on2.png');filter:brightness(1);  }
+.art-btn-square.sfx-off { background-image:url('../img/btn_music_off1.png'); }
+.art-btn-square.sfx-off:hover { background-image:url('../img/btn_music_off2.png');filter:brightness(1); }
 
 /* ── Кнопки старта игры ──────────────────────────────────────────
    Кастомный арт уже подключён (btn_hotseat1/2, btn_vsai1, btn_online1). */
@@ -1564,11 +1561,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 
 .modal-pop-in  { animation: modalPopIn  0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-.modal-pop-out { animation: modalPopOut 0.5s ease-in forwards; }
+.modal-pop-out { animation: modalPopOut 0.25s ease-in forwards; }
 /* Та же анимация, но быстрее — для кладбища и battle log (не полноценные модалки,
    должны реагировать мгновеннее). */
 .modal-pop-in-fast  { animation: modalPopIn  0.25s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-.modal-pop-out-fast { animation: modalPopOut 0.25s ease-in forwards; }
+.modal-pop-out-fast { animation: modalPopOut 0.125s ease-in forwards; }
 .game-fade-in  { animation: gameFieldFadeIn 0.5s ease-out forwards; }
 
 /* animation open start game */
@@ -1802,6 +1799,7 @@ img{
   transition:opacity .15s ease, transform .15s ease;
 }
 .card-tooltip.tt-visible{ opacity:1; transform:scale(1); }
+.tt-ess-icon{width:14px;height:14px;vertical-align:middle;margin:0 2px;image-rendering:pixelated;}
 .tt-name{
   font-family:'MEK',monospace;
   font-size:18px;
