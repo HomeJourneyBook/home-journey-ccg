@@ -828,7 +828,7 @@ const LANDING_MODE_TOOLTIPS = {
   'art-btn-online':  { name: 'Online',    desc: 'Online multiplayer — currently in development.' },
 };
 
-const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .art-btn-mode, .card-cost, .card-small-cost';
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .art-btn-mode, .card-cost, .card-small-cost, .card-type-dot';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
 
 let _tooltipEl = null;
@@ -840,6 +840,9 @@ function _tooltipDataFor(el){
   if(el.classList.contains('card-tag-icon')) return TAG_TOOLTIPS[el.dataset.tag] || null;
   if(el.classList.contains('card-cost') || el.classList.contains('card-small-cost')){
     return { name: '', desc: 'Cost of <img src="img/ess.png" class="tt-ess-icon" alt="Essence">' };
+  }
+  if(el.classList.contains('card-type-dot')){
+    return { name: '', desc: `Type of card: ${el.dataset.type || 'Unknown'}` };
   }
   for(const cls in LANDING_MODE_TOOLTIPS){
     if(el.classList.contains(cls)) return LANDING_MODE_TOOLTIPS[cls];
