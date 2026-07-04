@@ -8,12 +8,21 @@ function newPlayer(f){
     world:null,artifacts:[],extraDraw:0,burned:false};
 }
 
-function initState(){
+// opts (необязательно) — конфиг режима игры:
+//   { mode:'vsai', humanFaction:'tea'|'jeet' }
+// Без opts — обычный Hot Seat, поведение полностью как раньше.
+function initState(opts){
   UID=0;
   if(typeof _seenPcardPids!=='undefined') _seenPcardPids.clear(); // сброс между партиями, см. render.js/reorderZones
   G={turn:'tea',turnNum:1,phase:'mulligan',mulliganTurn:'tea',sel:null,
     tea:newPlayer('tea'),jeet:newPlayer('jeet'),
-    jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}}};
+    jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}},
+    mode:'hotseat',humanFaction:null,aiFaction:null};
+  if(opts&&opts.mode==='vsai'){
+    G.mode='vsai';
+    G.humanFaction=opts.humanFaction==='jeet'?'jeet':'tea';
+    G.aiFaction=G.humanFaction==='tea'?'jeet':'tea';
+  }
 }
 
 function lg(msg,cls=''){

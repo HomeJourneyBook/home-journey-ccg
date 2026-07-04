@@ -392,6 +392,25 @@ function startGame(){
   setTimeout(()=>{ startMulliganFor('tea'); }, 50);
 }
 
+// ── VS AI ──────────────────────────────────────────────────────
+function openVsAiPicker(){
+  playSfx('Click_Cursor');
+  document.getElementById('vsAiPickerModal').classList.remove('hidden');
+}
+
+function startGameVsAI(humanFaction){
+  document.getElementById('vsAiPickerModal').classList.add('hidden');
+  document.getElementById('landing').style.display='none';
+  document.getElementById('game').style.display='flex';
+  collapseStart();
+  initState({mode:'vsai',humanFaction});
+  lg('─ NEW GAME (VS AI) ─','trn');
+  // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
+  // человек видит только собственный муллиган.
+  aiAutoMulligan(G.aiFaction);
+  setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
+}
+
 function startMulliganFor(faction){
   G.mulliganTurn = faction;
   const name = faction==='tea' ? 'TAVERN — YOUR HAND' : 'JEET CORE — YOUR HAND';
@@ -452,6 +471,22 @@ function readyFromMulligan(){
 
   const proceed = () => {
     mulliganEl.classList.add('hidden');
+    if(G.mode==='vsai'){
+      // В VS AI муллиган-экран показывается только человеку — экран "передай устройство"
+      // тут не нужен, сразу переходим к партии.
+      G.phase='action';
+      G.mulliganTurn=null;
+      const game=document.getElementById('game');
+      game.classList.remove('game-fade-in');
+      void game.offsetWidth;
+      game.classList.add('game-fade-in');
+      render();
+      requestAnimationFrame(adjustHandOverlap);
+      if(G.turn===G.aiFaction&&typeof runAiTurn==='function'){
+        setTimeout(()=>runAiTurn(),600);
+      }
+      return;
+    }
     if(G.mulliganTurn==='tea'){
       document.getElementById('passTitle').textContent='PASS THE DEVICE';
       document.getElementById('passText').textContent='Hand the device to Player 2 — Jeet Core.';
@@ -497,6 +532,14 @@ function resetGame(){
   document.getElementById('winModal').classList.add('hidden');
   document.getElementById('game').style.display='flex';
   document.getElementById('landing').style.display='none';
+  const prevMode=G.mode, prevHuman=G.humanFaction;
+  if(prevMode==='vsai'){
+    initState({mode:'vsai',humanFaction:prevHuman});
+    lg('─ NEW GAME (VS AI) ─','trn');
+    aiAutoMulligan(G.aiFaction);
+    setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
+    return;
+  }
   initState();
   lg('─ NEW GAME ─','trn');
   lg('TEA goes first.','imp');

@@ -9,6 +9,7 @@ function getTargetableCards(oppField, att){
 }
 
 function onClick(card,zone){
+  if(G.mode==='vsai'&&G.turn===G.aiFaction) return; // ход ИИ — игнорируем клики человека
   const opp=G.turn==='tea'?'jeet':'tea';
   if(G.phase==='burn'){
     if(zone==='hand'&&card.f===G.turn)doBurnCard(card);
@@ -264,6 +265,7 @@ function doVardan(){
 }
 
 function onBaseClick(faction){
+  if(G.mode==='vsai'&&G.turn===G.aiFaction) return;
   if(faction===G.turn) return;
   if((G.phase==='selectTarget'||G.phase==='action')&&G.sel&&canAttackBase()){
     playSfx('Click_Cursor');
@@ -639,6 +641,7 @@ function closeGraveModal(){
 
 
 function endTurn(){
+  if(G.mode==='vsai'&&G.turn===G.aiFaction&&!G._aiIsEnding) return; // человек не может завершить ход ИИ
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
 
@@ -685,6 +688,10 @@ function endTurn(){
   lg(`─ Turn ${G.turnNum}: ${G.turn.toUpperCase()} · ${cur.ess}/${cur.essMax} Essence ─`,'trn');
   const lp=document.getElementById('logPanel');if(lp)lp.classList.remove('open');
   render();
+
+  if(G.mode==='vsai'&&G.turn===G.aiFaction&&typeof runAiTurn==='function'){
+    setTimeout(()=>runAiTurn(),600);
+  }
 }
 
 // ── WIN / MULLIGAN / UTILS ─────────────────────────────────

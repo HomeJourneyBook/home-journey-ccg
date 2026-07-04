@@ -25,7 +25,13 @@ function render(){
   });
   rZone('teaField',G.tea.field,'field');
   rZone('jeetField',G.jeet.field,'field');
-  if(G.turn==='tea'){
+  if(G.mode==='vsai'){
+    const hf=G.humanFaction,af=G.aiFaction;
+    const hEl=document.getElementById(hf+'Hand');
+    if(hEl) hEl.className='hand';
+    rZone(hf+'Hand',G[hf].hand,'hand');
+    rHiddenHand(af+'Hand',G[af].hand,af);
+  } else if(G.turn==='tea'){
     const th=document.getElementById('teaHand');
     if(th) th.className='hand';
     rZone('teaHand',G.tea.hand,'hand');
@@ -53,12 +59,19 @@ function render(){
   const actSB=document.getElementById(G.turn+'SidebarBtns');
   if(actSB)actSB.style.display='flex';
 
-  const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
-  if(inactBB)inactBB.style.display='none';
-  const actBB=document.getElementById(G.turn+'BottomBar');
-  if(actBB)actBB.style.display='flex';
+  if(G.mode==='vsai'){
+    const humanBB=document.getElementById(G.humanFaction+'BottomBar');
+    const aiBB=document.getElementById(G.aiFaction+'BottomBar');
+    if(aiBB)aiBB.style.display='none';
+    if(humanBB)humanBB.style.display=(G.turn===G.humanFaction)?'flex':'none';
+  } else {
+    const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
+    if(inactBB)inactBB.style.display='none';
+    const actBB=document.getElementById(G.turn+'BottomBar');
+    if(actBB)actBB.style.display='flex';
+  }
 
-  const oppKey=G.turn==='tea'?'jeet':'tea';
+  const oppKey=G.mode==='vsai'?G.aiFaction:(G.turn==='tea'?'jeet':'tea');
   const oppZoneEl=document.getElementById('oppStats');
   if(oppZoneEl){
     const canHitBase=(G.phase==='selectTarget'||G.phase==='healTarget')&&G.sel&&canAttackBase();
@@ -724,8 +737,14 @@ document.addEventListener('click',(e)=>{
 const _seenPcardPids = new Set();
 
 function reorderZones(){
-  const oppK=G.turn==='tea'?'jeet':'tea';
-  const playerK=G.turn;
+  let oppK,playerK;
+  if(G.mode==='vsai'){
+    playerK=G.humanFaction;
+    oppK=G.aiFaction;
+  } else {
+    oppK=G.turn==='tea'?'jeet':'tea';
+    playerK=G.turn;
+  }
   const oppP=G[oppK];
   const playerP=G[playerK];
 
@@ -803,8 +822,15 @@ function reorderZones(){
 
   const teaBB=document.getElementById('teaBottomBar');
   const jeetBB=document.getElementById('jeetBottomBar');
-  if(teaBB) teaBB.style.display=G.turn==='tea'?'flex':'none';
-  if(jeetBB) jeetBB.style.display=G.turn==='jeet'?'flex':'none';
+  if(G.mode==='vsai'){
+    const humanBB=document.getElementById(G.humanFaction+'BottomBar');
+    const aiBB=document.getElementById(G.aiFaction+'BottomBar');
+    if(aiBB) aiBB.style.display='none';
+    if(humanBB) humanBB.style.display=(G.turn===G.humanFaction)?'flex':'none';
+  } else {
+    if(teaBB) teaBB.style.display=G.turn==='tea'?'flex':'none';
+    if(jeetBB) jeetBB.style.display=G.turn==='jeet'?'flex':'none';
+  }
 }
 
 // Динамически считает отрицательный margin между картами в руке, чтобы они "веером" перекрывали друг
