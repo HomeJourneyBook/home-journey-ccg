@@ -148,6 +148,7 @@ function doCreature(card){
 
 function doWorld(card){
   const cur=G[G.turn];
+  playSfx('open_door');
   if(cur.world){
     const oldDraw=getTagVal(cur.world,'draw');
   if(oldDraw) cur.extraDraw=Math.max(0,cur.extraDraw-oldDraw);
@@ -173,6 +174,7 @@ function doWorld(card){
 
 function doArtifact(card){
   const cur=G[G.turn];
+  playSfx('open_door');
   // Только один артефакт — как с мирами: если уже есть, отправляем в войд
   if(cur.artifacts.length>0){
     const old=cur.artifacts[0];
@@ -275,12 +277,11 @@ function onBaseClick(faction){
   if(G.mode==='vsai'&&G.turn===G.aiFaction) return;
   if(faction===G.turn) return;
   if((G.phase==='selectTarget'||G.phase==='action')&&G.sel&&canAttackBase()){
-    playSfx('Click_Cursor');
     tryAttackBase();
   }
   if(G.phase==='healTarget'&&G.sel){
     const att=findC(G.sel);
-    if(att){ playSfx('Click_Cursor'); tryAttackBase(); }
+    if(att){ tryAttackBase(); }
   }
 }
 
@@ -558,6 +559,7 @@ function doSacrifice_target(card){
   if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
     lg('Select one of your creatures.','hint');return;
   }
+  playSfx('card_spell_atack');
   const altar=G[G.turn].artifacts.find(a=>hasTag(a,'sacrifice'));
   if(altar){altar.exhausted=true;lg('Altar exhausted until next turn.','die');}
   else lg('[DBG] Altar not found in artifacts!');
@@ -573,6 +575,7 @@ function doSacrifice(){
   if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
     lg('Select one of your creatures.','hint');return;
   }
+  playSfx('card_spell_atack');
   lg(`${card.name} sacrificed to the Altar!`,'die');
   killCard(card,G.turn);
   G.sel=null;G.phase='action';
@@ -595,6 +598,7 @@ function doShardTarget(card){
   if(card.f===G.turn||card.spell||card.world||card.artifact){
     lg('Select an enemy creature.','hint');return;
   }
+  playSfx('card_spell_atack');
   const artifact=G[G.turn].artifacts.find(a=>hasTag(a,'shard'));
   const baseDmg=getTagVal(artifact,'shard')||2;
   const dmg=card.feared?baseDmg+1:baseDmg;
