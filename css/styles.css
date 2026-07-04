@@ -423,7 +423,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    HP ниже 10 (одна цифра вместо двух) не сужало бокс и не сдвигало соседний контент.
    Тоже приблизительная оценка по формуле — можно подправить множитель. */
 .stat-hp-box{
-  width:calc(max(4vh, 2vw) * 1.75 + 7px);
+  width:calc(max(4vh, 2vw) * 1.53 + 9px);
   justify-content:center;
   flex-shrink:0;
 }
