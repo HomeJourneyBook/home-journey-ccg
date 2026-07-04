@@ -368,6 +368,37 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 @media(min-width:601px){
   .statbar-edge-right{display:block;}
 }
+/* Jeet-only: правый плейсхолдер расширен до 2:1 (у Tea остаётся 1:1, высота та же). */
+.stats-bar.jeet .statbar-edge-right{
+  width:calc(max(4vh, 2vw) * 2 / 3 * 2);
+}
+/* Jeet-only: ещё один квадратный плейсхолдер левее расширенного правого края. */
+.statbar-edge-right-2{
+  display:none;
+  position:absolute;
+  right:calc(6px + (max(4vh, 2vw) * 2 / 3 * 2) + 6px);
+  top:50%;
+  transform:translateY(-50%);
+  width:calc(max(4vh, 2vw) * 0.5);
+  height:calc(max(4vh, 2vw) * 0.5);
+  background:#000;
+}
+@media(min-width:601px){
+  .statbar-edge-right-2{display:block;}
+}
+/* Jeet-only: квадратный плейсхолдер у левого края — зеркало правого. */
+.statbar-edge-left{
+  display:none;
+  position:absolute;
+  left:6px;top:50%;
+  transform:translateY(-50%);
+  width:calc(max(4vh, 2vw) * 0.5);
+  height:calc(max(4vh, 2vw) * 0.5);
+  background:#000;
+}
+@media(min-width:601px){
+  .statbar-edge-left{display:block;}
+}
 .stats-bar.jeet{}
 .stats-bar.tea{}
 .stats-bar.jeet{background-color:#5a7278;border-top:1px solid #829797;border-bottom:1px solid #829797;}
@@ -392,8 +423,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    HP ниже 10 (одна цифра вместо двух) не сужало бокс и не сдвигало соседний контент.
    Тоже приблизительная оценка по формуле — можно подправить множитель. */
 .stat-hp-box{
-  width:calc(max(4vh, 2vw) * 2.5 + 10px);
-  justify-content:flex-start;
+  width:calc(max(4vh, 2vw) * 1.75 + 7px);
+  justify-content:center;
   flex-shrink:0;
 }
 /* Фиксированная ширина под иконку + "/max" при essence 1/1 (примерная оценка по формуле,
@@ -403,7 +434,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    артефакта вправо (на телефоне это раньше просто выталкивало его за экран). */
 .stat-ess-box{
   width:calc(max(4vh, 2vw) * 1.53 + 9px);
-  justify-content:flex-start;
+  justify-content:center;
   flex-shrink:0;
 }
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
