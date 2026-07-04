@@ -388,6 +388,16 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .hp-val{color:#e05555;}.ess-val{color:#E8E0C8;}
 .stat-hp-box,.stat-ess-box{height:max(calc(4vh * 0.5), calc(2vw * 0.5));background-repeat:no-repeat;background-position:center;background-size:100% 100%;padding:3px 3px;}
+/* Фиксированная ширина под иконку + "/max" при essence 1/1 (примерная оценка по формуле,
+   т.к. точный пиксельный размер зависит от рендеринга шрифта — можно подправить множитель).
+   justify-content:flex-start — контент прибит к левому краю, пустое место остаётся справа,
+   поэтому при переходе на двузначные числа (10+) бокс не растёт и не толкает pcard-слот
+   артефакта вправо (на телефоне это раньше просто выталкивало его за экран). */
+.stat-ess-box{
+  width:calc(max(4vh, 2vw) * 1.7 + 10px);
+  justify-content:flex-start;
+  flex-shrink:0;
+}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
 .stat-ess-box{background-image:url('../img/bg_statbar_hp.png');}
 /* Плейсхолдер слева от HP-индикатора — теперь с реальным артом (boltik.png).
