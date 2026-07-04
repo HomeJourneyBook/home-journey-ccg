@@ -202,6 +202,7 @@ function triggerAbilities(card, timing, ctx={}){
          if(!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
             const regenVal=(card.squadParam&&card.squadParam.regen)||a.val;
             card.hp=Math.min(card.maxHp,card.hp+regenVal);
+            playSfx('baf');
             const regenId=card.id;
             requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(regenId,`+${regenVal}`,'heal')));
             lg(`${card.name}: regen +${regenVal} HP → ${card.hp}/${card.maxHp}.`,'hl');
