@@ -79,7 +79,12 @@ const SFX_VOLUME = 0.6;
 
 let _audioCtx = null;
 const _sfxBuffers = {};   // name → AudioBuffer (декодированный PCM)
-const SFX_FILES = ['Navigation_Cursor', 'Click_Cursor', 'Burn_Card', 'grate'];
+const SFX_FILES = [
+  'Navigation_Cursor', 'Click_Cursor', 'Burn_Card',
+  'card_atack', 'card_fire_atack', 'card_spell_atack',
+  'open_door', 'yellow_buttom_play_endturn_menu_gravyard_loop',
+  'baf', 'debaf'
+];
 
 // Минимальный интервал между повторными вызовами одного и того же звука (мс).
 // Navigation_Cursor тротлим жёстко — иначе при движении по картам будет шторм вызовов.
@@ -263,6 +268,7 @@ function openGates(){
   const sprite=document.getElementById('playGateSprite');
   if(!wrap||!sprite) return;
   if(wrap.classList.contains('gates-open')) return; // уже открыто
+  playSfx('open_door');
   _clearGateAnimTimers();
   wrap.classList.remove('gate-idle'); // анимация пошла — ховер больше не показываем
   for(let frame=2; frame<=GATE_FRAME_COUNT; frame++){
