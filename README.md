@@ -31,7 +31,7 @@ The game is currently in active development. Rules, card catalog, and tutorial a
 |Card catalog                  |✅ Complete   |
 |AI opponent (hotseat vs AI)   |✅ Complete   |
 |Card art                      |🔄 In progress (107 art files in `img/cards/`, ~75 of the planned 60+ traveler defs wired to art in `data.js`) |
-|Music & SFX                   |🔄 In progress (5 of 13 audio files wired up — see below) |
+|Music & SFX                   |✅ Complete   (all 12 audio files wired up) |
 |Deckbuilder                   |📋 Planned    |
 |NFT integration               |📋 Planned    |
 |Online multiplayer            |📋 Planned    |
@@ -40,23 +40,21 @@ The game is currently in active development. Rules, card catalog, and tutorial a
 
 ## Audio
 
-`audio/` currently ships 13 files; only 5 are actually triggered from code:
+`audio/` — `grate.wav` was removed (never used, no longer referenced anywhere in code). Everything else is now wired up:
 
 |File                                                  |Used?|Where                       |
 |-------------------------------------------------------|-----|-----------------------------|
 |`Main_theme.mp3`                                        |✅   |Background music loop        |
-|`Click_Cursor.wav`                                      |✅   |Button clicks                |
+|`Click_Cursor.wav`                                      |✅   |Generic button clicks + playing a card from hand (`card_select_traveler.wav` intentionally not used — this sound covers it)|
 |`Navigation_Cursor.wav`                                 |✅   |Hover over cards             |
 |`Burn_Card.wav`                                         |✅   |Burning a card                |
-|`grate.wav`                                             |⚠️  |Preloaded into the SFX buffer but never actually played anywhere — not wired to an event|
-|`card_atack.wav`                                        |❌   |Not used — candidate for regular creature attacks|
-|`card_fire_atack.wav`                                   |❌   |Not used — candidate for `burn`-tagged attacks|
-|`card_spell_atack.wav`                                  |❌   |Not used — candidate for casting spells|
-|`card_select_traveler.wav`                              |❌   |Not used — candidate for playing a card from hand|
-|`open_door.wav`                                         |❌   |Not used — candidate for opening rules/lore/catalog screens|
-|`yellow_buttom_play_endturn_menu_gravyard_loop.wav`     |❌   |Not used — candidate for End Turn button / graveyard interactions|
-|`baf.wav`                                                |❌   |Not used — candidate for buffs (rage, heal, aura applied)|
-|`debaf.wav`                                              |❌   |Not used — candidate for debuffs (fear, burn applied)|
+|`card_atack.wav`                                        |✅   |Regular creature attack (vs. creature or base)|
+|`card_fire_atack.wav`                                   |✅   |Attack by a creature with the `burn` tag (replaces `card_atack.wav` for that attacker)|
+|`card_spell_atack.wav`                                  |✅   |Active AOE ability button (Umb / Vardan)|
+|`open_door.wav`                                         |✅   |Clicking Play Game — synced with the gate-opening animation|
+|`yellow_buttom_play_endturn_menu_gravyard_loop.wav`     |✅   |End Turn button + opening the Graveyard modal|
+|`baf.wav`                                                |✅   |Buff applied: Rage trigger, active heal-ally targeting, aura (ATK/maxHP) actually buffing allies — fires once per aura application, not per affected card|
+|`debaf.wav`                                              |✅   |Debuff applied: Fear (Burn keeps its own sound via `card_fire_atack.wav` on the attack that inflicts it)|
 
 -----
 
