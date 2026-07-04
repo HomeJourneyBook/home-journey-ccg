@@ -358,12 +358,11 @@ Done since this doc was first written — kept here so it isn't re-proposed:
 
 - [x] AI opponent (`js/ai.js` — `runAiTurn()`, `aiPlayCardsStep()`, hooked up via `startGameVsAI()`)
 - [x] PNG card art integration (107 files in `img/cards/`, `img` field on card defs)
-- [x] Background music + core SFX (`js/ui.js` — `toggleMusic()`, `playSfx()`)
+- [x] Background music + full SFX set (`js/ui.js` — `toggleMusic()`, `playSfx()`; attack/spell/buff/debuff/UI sounds wired across `game.js` and `abilities.js`)
 
 Still open:
 
 - [ ] Remaining traveler cards + art (60 planned total, ~75 defs exist but not all have unique art matched — verify against `img/cards/`)
-- [ ] Wire up the unused audio files — see README.md "Audio" table for the 8 files sitting in `audio/` with no call site
 - [ ] Deckbuilder screen
 - [ ] Web3: NFT ownership verification
 - [ ] Online multiplayer
