@@ -352,7 +352,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 /* LAYOUT ZONES */
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
-.stats-bar{position:relative;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
+.stats-bar{position:relative;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
 /* ПЛЕЙСХОЛДЕР, прибитый к правому краю статус-бара (небольшой отступ 6px от края,
    не влияет на центрирование остального ряда — стоит вне потока через position:absolute).
    1:1, сторона = 2/3 высоты .stats-bar. Только лаптоп/десктоп. */
