@@ -1494,6 +1494,9 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .screen-body p{margin-bottom:2vw;}
 .screen-body ul{margin:1.5vw 0 2.5vw 4vw;}
 .screen-body li{margin-bottom:1vw;}
+.rules-icon{width:1em;height:1em;vertical-align:middle;margin-right:0.4em;image-rendering:pixelated;flex-shrink:0;}
+.rules-icon-pair{display:inline-flex;align-items:center;gap:0.15em;margin-right:0.4em;}
+.rules-icon-pair .rules-icon{margin-right:0;}
 /* ENG +20% */
 #rulesENG{font-size:4.56vw;}
 #rulesENG h2{font-size:6vw;}
