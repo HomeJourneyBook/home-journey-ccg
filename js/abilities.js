@@ -133,6 +133,7 @@ function triggerAbilities(card, timing, ctx={}){
     switch(a.effect){
 
       case 'aoe':
+        playSfx('card_spell_atack');
         [...G[oppK].field].forEach(t=>dmgCard(t,a.val,oppK));
         lg(`${card.name}: ${a.val} dmg to all enemies!`,'imp');
         break;
