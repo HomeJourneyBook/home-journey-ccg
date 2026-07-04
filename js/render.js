@@ -112,6 +112,15 @@ function getTypeDotImg(card){
   return 'img/type_creature.png';
 }
 
+// Человекочитаемое название типа для тултипа на .card-type-dot.
+function getTypeDotLabel(card){
+  if(card.world) return 'World';
+  if(card.unique) return 'Unique';
+  if(card.artifact) return 'Artifact';
+  if(card.spell) return 'Spell';
+  return 'Creature';
+}
+
 // ── Общий механизм "увеличенного превью" карты по центру экрана: рисуется НЕ поверх
 // оригинального элемента, а отдельным клоном (mkEl(...,'preview')) поверх всего экрана —
 // поэтому не зависит от того, что происходит с оригиналом (перерисовки поля/руки,
@@ -232,7 +241,7 @@ const tagIcons=(card.tags||[])
   .join('');
   d.innerHTML=`
     <div class="card-small-cost">${card.cost}</div>
-    <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+    <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.feared?'<div class="card-small-feared"><img src="img/ico_fear.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
@@ -395,7 +404,7 @@ const tagIcons = (card.tags||[])
   }
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
-    <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+    <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
   if(card.id===G.previewCard&&zone==='hand'){
@@ -447,7 +456,7 @@ const tagIcons = (card.tags||[])
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
-    <div class="card-type-dot" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+    <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${card.burning?'<div class="burning-icon"></div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
