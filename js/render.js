@@ -770,9 +770,11 @@ function reorderZones(){
   <span class="statbar-extra"></span>
   ${_mkPcardSlotHtml(oppP.world, oppK, false)}
   <span class="hp-placeholder"></span>
-  <span class="stat stat-hp-box ${oppK}-hp-box"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
-  <span class="player-name-box ${oppK}-name-box" role="img" aria-label="${oppK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${oppK}')"></span>
-  <span class="stat stat-ess-box ${oppK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>
+  <span class="statbar-core">
+    <span class="stat stat-hp-box ${oppK}-hp-box"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
+    <span class="player-name-box ${oppK}-name-box" role="img" aria-label="${oppK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${oppK}')"></span>
+    <span class="stat stat-ess-box ${oppK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span>/<span id="${oppK}EssMax">${oppP.essMax}</span></span>
+  </span>
   ${_mkPcardSlotHtml(oppP.artifacts[0]||null, oppK, false)}
   <span class="statbar-extra"></span>
   <span class="statbar-edge-right"></span>`;
@@ -787,9 +789,11 @@ function reorderZones(){
   <span class="statbar-extra"></span>
   ${_mkPcardSlotHtml(playerP.world, playerK, false)}
   <span class="hp-placeholder"></span>
-  <span class="stat stat-hp-box ${playerK}-hp-box"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
-  <span class="player-name-box ${playerK}-name-box" role="img" aria-label="${playerK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${playerK}')"></span>
-  <span class="stat stat-ess-box ${playerK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>
+  <span class="statbar-core">
+    <span class="stat stat-hp-box ${playerK}-hp-box"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
+    <span class="player-name-box ${playerK}-name-box" role="img" aria-label="${playerK==='jeet'?'JEET CORE':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${playerK}')"></span>
+    <span class="stat stat-ess-box ${playerK}-ess-box"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span>/<span id="${playerK}EssMax">${playerP.essMax}</span></span>
+  </span>
   ${_mkPcardSlotHtml(playerP.artifacts[0]||null, playerK, true)}
   <span class="statbar-extra"></span>
   <span class="statbar-edge-right"></span>`;
