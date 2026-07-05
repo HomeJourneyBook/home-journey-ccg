@@ -762,6 +762,7 @@ function endTurn(){
   }
 
   if(G.turn==='tea')G.turnNum++;
+  logTurnSnapshot(G.turn);
   lg(`─ Turn ${G.turnNum}: ${G.turn.toUpperCase()} · ${cur.ess}/${cur.essMax} Essence ─`,'trn');
   const lp=document.getElementById('logPanel');if(lp)lp.classList.remove('open');
   render();
