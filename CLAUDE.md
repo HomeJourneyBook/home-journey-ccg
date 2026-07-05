@@ -558,3 +558,10 @@ _Raw notes from playtesting the new spell/artifact mechanics — needs a decisio
   - The "play" sound currently fires twice — once on clicking Play (before a target is even chosen), once again when the spell actually resolves on the target. Should only fire once, on resolution.
   - Needs an on-screen hint of what's happening and how to cancel while waiting for a target (currently relies on the hint-bar text alone).
 - **Low-HP warning**: a red lantern/light that turns on below 5 HP, plus a faint pulsing glow around the screen edge (separate from the existing dmg/heal flash — this one should be a persistent low-HP state indicator, not a one-shot event flash). Idea: put the lantern decoratively near the hamburger button; each player's lantern lights independently based on their own HP. Stat bar HP number could also pulse/blink at low HP.
+
+## Wrap-up notes — 2026-07-05 night
+
+- **Dispel spell**: reconsider as an active-cast-from-hand version of Orbiton's heal (heal + removes debuffs), rather than what it is now — still just a raw idea, not committed.
+- **Spell cost/power variance**: wants explicit cheaper/weaker vs pricier/stronger variants of the new spell mechanics (dmg/buff/untap), not just one fixed number each — e.g. a 1-mana version of the removal spell that does less damage, a pricier one that does more. Ties into the broader "shop pricing" pass from earlier in the day.
+- **Deck size simplification**: drop the 3-tier picker down to 2 — full (45/46, all archetypes, built for longer games) and a ~25-card "quick rush" build, no middle "compact" tier. The 25-card deck should be designed as a genuine rush strategy (not just a smaller slice of the same thing) — needs real thought about which archetypes/curve actually support a fast game, not just trimming counts uniformly.
+- Explicitly flagged as the main non-cosmetic priority going forward: **AI needs to actually get stronger**, not just patch individual tactical gaps (burn/Shard/AOE usage already done — that's coverage, not strength).
