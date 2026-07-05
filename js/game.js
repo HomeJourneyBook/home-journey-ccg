@@ -254,7 +254,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
   card.f=toF;
   G[toF].field.push(card); 
   lg(`Revived ${card.name} at full HP.`,'hl');
@@ -272,7 +272,7 @@ function playAttackSfx(att){
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
-  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
 
   // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
   // один из этих эффектов (цель выживает после урона), звук самой атаки не играем.
@@ -285,7 +285,7 @@ function doAttack(att,target){
   if(!hasTag(att,'invisible') && !target.feared)
   dmgCard(att,
     target.atk +
-    (target.atkBonus || 0) +
+    (target.atkBonus || 0) + (target.tempAtkBonus || 0) +
     (target.rageBonus || 0) +
     (target.squadAtkBonus || 0),
     curK
@@ -359,7 +359,7 @@ function tryAttackBase(){
   if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.','hint');return;}
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
-  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0);
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
@@ -691,7 +691,11 @@ function doSpellBuffTarget(card){
   if(!spell) return;
   const val=getTagVal(spell,'spell_buff_temp')||2;
   playSfx('baf');
-  card.atkBonus=(card.atkBonus||0)+val; // cleared on resetC() at start of next turn, same as other temp bonuses
+  // Dedicated field — NOT atkBonus, which applyAuras() resets+recalculates on
+  // every single card play (it's exclusively for the aura:atk system). Reusing
+  // it here made the trick's bonus vanish the instant ANY other card was played,
+  // even without ending the turn.
+  card.tempAtkBonus=(card.tempAtkBonus||0)+val;
   lg(`${spell.name}: ${card.name} +${val} ATK until end of turn.`,'hl');
   const buffId=card.id;
   setTimeout(()=>showFloat(buffId, `+${val}`, 'atk'), 50);
@@ -813,7 +817,7 @@ function endTurn(){
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
 
-  G[G.turn].field.forEach(c=>{c.sleeping=false;c.exhausted=false;c.feared=false;});
+  G[G.turn].field.forEach(c=>{c.sleeping=false;c.exhausted=false;c.feared=false;c.tempAtkBonus=0;});
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;a.exhausted=false;});
   G.turn=next;
   const cur=G[G.turn];
