@@ -769,6 +769,10 @@ function endTurn(){
 
   if(G.mode==='vsai'&&G.turn===G.aiFaction&&typeof runAiTurn==='function'){
     setTimeout(()=>runAiTurn(),600);
+  } else if(G.mode!=='vsai'&&!G.gameOver&&typeof showPassScreen==='function'){
+    // Hotseat: hand the device over before the next player sees anything —
+    // same modal as the initial tea->jeet mulligan handoff, reused generically.
+    showPassScreen(G.turn, null);
   }
 }
 
