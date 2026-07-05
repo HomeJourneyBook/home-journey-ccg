@@ -957,6 +957,14 @@ function _applyPendingFlash(){
       target.classList.add(cls);
       setTimeout(()=>target.classList.remove('flash-red','flash-green'), 500);
     });
+    // Screen-edge glow — same trigger, same color, just on the whole viewport.
+    const edge=document.getElementById('screenEdgeFlash');
+    if(edge){
+      edge.classList.remove('flash-red','flash-green');
+      void edge.offsetWidth;
+      edge.classList.add(cls);
+      setTimeout(()=>edge.classList.remove('flash-red','flash-green'), 500);
+    }
     // Floating +N/-N over the base's HP box — same look as the creature heal/dmg
     // popups (showFloat), just anchored to .stat-hp-box instead of a card.
     if(amount&&hpBox){
