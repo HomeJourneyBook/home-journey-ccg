@@ -212,7 +212,7 @@ function preloadAssets(){
     'img/bg_handP_bar.png', 'img/bg_handO_bar.png',
 
     // ── Игровые иконки ──
-    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/ess.png',
+    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/chel2.png', 'img/ess.png',
     'img/hp_tea.png', 'img/hp_jeet.png',
     'img/deck.png', 'img/runaha.png', 'img/ef_burn.png',
 
@@ -471,6 +471,12 @@ function openDeckPicker(flow){
 function chooseDeckConfig(configKey){
   const modal=document.getElementById('deckPickerModal');
   const inner=modal.querySelector('.modal');
+  // Start landing's own exit fade/shrink NOW, in parallel with the deck modal's
+  // pop-out — otherwise there's a gap between the modal's opaque background
+  // disappearing and landing's own transition starting, where landing flashes
+  // back to full visibility for a frame. openVsAiPicker()/startGame() below
+  // still add this same class again — harmless, it's already there by then.
+  document.getElementById('landing').classList.add('exit-center');
   const proceed=()=>{
     modal.classList.add('hidden');
     if(_pendingModeFlow==='vsai') openVsAiPicker(configKey);
