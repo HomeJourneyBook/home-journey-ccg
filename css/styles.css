@@ -390,6 +390,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .stats-bar.jeet .statbar-edge-right{
   width:calc(max(4vh, 2vw) * 2 / 3 * 2);
 }
+/* Tea-only: прибит к правому ВЕРХНЕМУ углу бара (было — по центру высоты, 6px от края).
+   Высота не трогается (та же 2/3 высоты бара, что и раньше). Ширина = точно та же
+   формула, что у рамки руки активного игрока (button-width + 2px) — см. .player-hand-zone::after. */
+.stats-bar.tea .statbar-edge-right{
+  top:0;
+  right:0;
+  transform:none;
+  width:calc(var(--card-action-btn-w) + 2px);
+}
 /* Jeet-only: ещё один квадратный плейсхолдер левее расширенного правого края. */
 .statbar-edge-right-2{
   display:none;
@@ -526,9 +535,9 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 @media(min-width:601px){
-  /* Reserved gutter for the modal side-rail AND for the Zoom/Burn action-button
-     popups (see .card-actions-popup-left/-right + .cap-btn above), which pop
-     out card-w-dependent distance from the card edge — a fixed px gutter would
+  /* PLAYER hand only: reserved gutter for the Zoom/Burn action-button popups
+     (see .card-actions-popup-left/-right + .cap-btn above), which pop out
+     card-w-dependent distance from the card edge — a fixed px gutter would
      only be correct at one specific screen height. Formula: button width
      (--card-action-btn-w) + 6px popup gap + 2px breathing room so a card
      sitting flush at the edge doesn't touch the rail = button-width + 8px.
@@ -538,44 +547,66 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
      zones. adjustHandOverlap() in render.js reads this padding back out via
      getComputedStyle at runtime, so the card-squeeze math always matches
      whatever this resolves to — nothing else needs to change when it does. */
-  .opp-hand-zone{padding:0 calc(var(--card-action-btn-w) + 8px) 4px;}
   .player-hand-zone{padding:6px calc(var(--card-action-btn-w) + 8px);}
+  /* OPPONENT hand: fixed 15px, NOT button-linked — her hand only ever shows
+     .card-mini backs with no Zoom/Burn popup, so there's nothing that needs
+     clearing beyond the rail's own width. Back to the original fixed value. */
+  .opp-hand-zone{padding:0 15px 4px;}
 }
 
 /* ── Hand-zone side rails (PLACEHOLDER images — swap once drawn) ──────────
-   Two SEPARATE rails: one for the active player's hand, one for the
-   opponent's. Same placeholder art/settings for both today; give
-   .opp-hand-zone-rail its own Jeet-specific image later without touching
-   the player one.
-   Scoped to ::after on each hand zone (inset:0 → matches that zone's own
-   box exactly) — NOT a viewport-fixed overlay, so it can never bleed into
-   the arena above/below it.
-   Rendered at ALL widths (including mobile) — on mobile there's no reserved
-   padding, so the hand carousel scrolls visually UNDER this rail as cards
-   pass behind it near the edges, which is the intended effect there.
-   Rail width tracks the Zoom/Burn button too: button-width + 2px (2px
-   narrower than the padding above on purpose — leaves a hair of plain
-   background between the rail's inner edge and the card/popup zone, not a
-   bug). Asset drawn at 2x, corner cut = 30px on-screen → 60px in the file,
-   hence slice:60.
-   border-image-repeat:round on both axes — tiles repeat as drawn but get a
-   hair of rescale so a whole number always fits with zero hard clipping,
-   which matches "art should tolerate being stretched slightly". Corners are
-   never affected by this setting either way — always drawn 1:1. */
-.player-hand-zone::after,
-.opp-hand-zone::after{
+   Two SEPARATE rails, two separate assets: player's hand tracks the Zoom/Burn
+   button size (see above); opponent's hand has no such button, so it's back
+   to a fixed 15px width with its own image (hands_border2.png). */
+.player-hand-zone::after{
   content:'';
   position:absolute;
   inset:0;
   z-index:600; /* above hand cards/carousel; below any real modal content that ever needs to sit on top */
   pointer-events:none; /* transparent middle is click/tap-through */
   border-style:solid;
+  /* Rail width tracks the Zoom/Burn button too: button-width + 2px (2px
+     narrower than the padding above on purpose — leaves a hair of plain
+     background between the rail's inner edge and the card/popup zone, not a
+     bug). Asset drawn at 2x, corner cut = 30px on-screen → 60px in the file,
+     hence slice:60. */
   border-width:calc(var(--card-action-btn-w) + 2px);
   border-image-source:url('../img/hands_border.png');
   border-image-slice:60;
   border-image-width:calc(var(--card-action-btn-w) + 2px);
   border-image-outset:0;
+  /* round: tiles repeat as drawn but get a hair of rescale so a whole number
+     always fits with zero hard clipping ("art should tolerate being
+     stretched slightly"). Corners are never affected by this either way. */
   border-image-repeat:round;
+}
+.opp-hand-zone::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:600;
+  pointer-events:none;
+  border-style:solid;
+  /* Fixed 15px — asset drawn at 2x, corner cut = 30px in the file → slice:30. */
+  border-width:15px;
+  border-image-source:url('../img/hands_border2.png');
+  border-image-slice:30;
+  border-image-width:15px;
+  border-image-outset:0;
+  border-image-repeat:round;
+}
+@media(max-width:600px){
+  /* On phones there's no reserved padding on EITHER hand zone (the active card
+     is always centered, and there's no spare width to give up anyway) — so
+     the player's rail drops the button-linked formula and matches the
+     opponent's: fixed 15px, hands_border2.png, same as both zones always were
+     before the Zoom/Burn-button sizing was introduced (desktop only). */
+  .player-hand-zone::after{
+    border-width:15px;
+    border-image-source:url('../img/hands_border2.png');
+    border-image-slice:30;
+    border-image-width:15px;
+  }
 }
 
 /* BOTTOM BAR */
@@ -951,8 +982,21 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-art-btn.btn-cancel:hover{background-image:url('../img/btn_cancelH.png');filter:brightness(1);}
 .modal-art-btn.btn-cancel:active{background-image:url('../img/btn_cancel2.png');filter:brightness(0.9);}
 
-.modal-art-btn.btn-mulligan{background-image:url('../img/btn_mulligan.png');}
-.modal-art-btn.btn-ready   {background-image:url('../img/btn_ready.png');}
+.modal-art-btn.btn-mulligan{
+  width:min(80px, 18vw);
+  aspect-ratio:2/1;
+  background-image:url('../img/btn_mulligan1.png');
+}
+.modal-art-btn.btn-mulligan:hover{background-image:url('../img/btn_mulliganH.png');filter:brightness(1);}
+.modal-art-btn.btn-mulligan:active{background-image:url('../img/btn_mulligan2.png');filter:brightness(0.9);}
+
+.modal-art-btn.btn-ready{
+  width:min(80px, 18vw);
+  aspect-ratio:2/1;
+  background-image:url('../img/btn_ready1.png');
+}
+.modal-art-btn.btn-ready:hover{background-image:url('../img/btn_readyH.png');filter:brightness(1);}
+.modal-art-btn.btn-ready:active{background-image:url('../img/btn_ready2.png');filter:brightness(0.9);}
 /* btn-win — пока переиспользует арт btn_yes (idle-версию); заменить на ../img/btn_win.png когда появится */
 .modal-art-btn.btn-win     {background-image:url('../img/btn_yes1.png');}
 /* Win/menu — пока текстовая кнопка (нет арта), стилизуем отдельно */
@@ -1388,16 +1432,16 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .art-btn-playgame:active{background-image:url('../img/btn_playgame2.png');}
 
 .art-btn-catalog{background-image:url('../img/btn_catalog1.png');}
-.art-btn-catalog:active{background-image:url('../img/btn_catalog2.png');}
 .art-btn-catalog:hover{filter:brightness(1);background-image:url('../img/btn_catalogH.png');}
+.art-btn-catalog:active{background-image:url('../img/btn_catalog2.png');}
 
 .art-btn-rules{background-image:url('../img/btn_rules1.png');}
-.art-btn-rules:active{background-image:url('../img/btn_rules2.png');}
 .art-btn-rules:hover{filter:brightness(1);background-image:url('../img/btn_rulesH.png');}
+.art-btn-rules:active{background-image:url('../img/btn_rules2.png');}
 
 .art-btn-lore{background-image:url('../img/btn_lore1.png');}
-.art-btn-lore:active{background-image:url('../img/btn_lore2.png');}
 .art-btn-lore:hover{filter:brightness(1);background-image:url('../img/btn_loreH.png');}
+.art-btn-lore:active{background-image:url('../img/btn_lore2.png');}
 
 .art-btn-square{
   width:54px;
