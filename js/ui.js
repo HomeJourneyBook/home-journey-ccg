@@ -486,6 +486,7 @@ function startGameVsAI(humanFaction){
     collapseStart();
     initState({mode:'vsai',humanFaction});
     lg('─ NEW GAME (VS AI) ─','trn');
+    logTurnSnapshot('tea');
     // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
     // человек видит только собственный муллиган.
     aiAutoMulligan(G.aiFaction);
@@ -671,6 +672,7 @@ function resetGame(){
   if(prevMode==='vsai'){
     initState({mode:'vsai',humanFaction:prevHuman});
     lg('─ NEW GAME (VS AI) ─','trn');
+    logTurnSnapshot('tea');
     aiAutoMulligan(G.aiFaction);
     setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
     return;
@@ -678,6 +680,7 @@ function resetGame(){
   initState();
   lg('─ NEW GAME ─','trn');
   lg('TEA goes first.','imp');
+  logTurnSnapshot('tea');
   setTimeout(()=>{ startMulliganFor('tea'); }, 50);
 }
 
