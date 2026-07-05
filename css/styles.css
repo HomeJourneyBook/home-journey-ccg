@@ -12,6 +12,11 @@
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716); 
   --cat-card-w: calc(var(--card-h) * 0.716);
+  /* Zoom/Burn action-button size (square) — same formula used by .cap-btn.zoom/.burn
+     below. Kept as one shared variable so the hand-zone padding and the rail
+     border-width (further down) can never drift out of sync with the actual
+     button size. */
+  --card-action-btn-w: calc(var(--card-w) * 0.75 * 44 / 122);
   --cat-card-h: var(--card-h);
   --card-small-h: 18vh;
   --card-small-w: calc(var(--card-small-h) * 0.856);
@@ -324,8 +329,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-actions-popup-right{position:absolute;left:calc(100% + 6px);top:0;display:flex;flex-direction:column;gap:3px;align-items:center;z-index:2001;pointer-events:all;}
 .cap-btn{display:block;border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
 .cap-btn.play{width:calc(var(--card-w) * 0.75);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_play.png');}
-.cap-btn.burn{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_burn.png');}
-.cap-btn.zoom{width:calc(var(--card-w) * 0.75 * 44/122);height:calc(var(--card-w) * 0.75 * 44/122);background-image:url('../img/btn_zoom.png');}
+.cap-btn.burn{width:var(--card-action-btn-w);height:var(--card-action-btn-w);background-image:url('../img/btn_burn.png');}
+.cap-btn.zoom{width:var(--card-action-btn-w);height:var(--card-action-btn-w);background-image:url('../img/btn_zoom.png');}
 .fab-btn{display:block;width:calc(var(--card-small-w) * 0.5);height:calc(var(--card-small-w) * 0.5 * 44/122);border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
 .fab-btn.umbasir{background-image:url('../img/btn_spell.png');}
 .fab-btn.vardan{background-image:url('../img/btn_spell.png');}
@@ -521,15 +526,20 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 @media(min-width:601px){
-  /* Reserved gutter for the modal side-rail (border-image, 15px wide, drawn at
-     2x so the source asset's corner slice = 30px). Was 6px — bumped to 15px so
-     cards never render under where the rail sits, on DESKTOP only: on mobile
-     the carousel is meant to scroll under the rail instead (see .card-drawn
-     rail rules below — no padding change there on purpose).
-     Arena (.field-zone) confirmed OUT OF SCOPE — stays at 2px, rail never
-     extends past the hand zones. */
-  .opp-hand-zone{padding:0 15px 4px;}
-  .player-hand-zone{padding:6px 15px;}
+  /* Reserved gutter for the modal side-rail AND for the Zoom/Burn action-button
+     popups (see .card-actions-popup-left/-right + .cap-btn above), which pop
+     out card-w-dependent distance from the card edge — a fixed px gutter would
+     only be correct at one specific screen height. Formula: button width
+     (--card-action-btn-w) + 6px popup gap + 2px breathing room so a card
+     sitting flush at the edge doesn't touch the rail = button-width + 8px.
+     Desktop only: on mobile the carousel is meant to scroll under the rail
+     instead (no padding reservation there on purpose). Arena (.field-zone)
+     confirmed OUT OF SCOPE — stays at 2px, rail never extends past the hand
+     zones. adjustHandOverlap() in render.js reads this padding back out via
+     getComputedStyle at runtime, so the card-squeeze math always matches
+     whatever this resolves to — nothing else needs to change when it does. */
+  .opp-hand-zone{padding:0 calc(var(--card-action-btn-w) + 8px) 4px;}
+  .player-hand-zone{padding:6px calc(var(--card-action-btn-w) + 8px);}
 }
 
 /* ── Hand-zone side rails (PLACEHOLDER images — swap once drawn) ──────────
@@ -543,16 +553,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    Rendered at ALL widths (including mobile) — on mobile there's no reserved
    padding, so the hand carousel scrolls visually UNDER this rail as cards
    pass behind it near the edges, which is the intended effect there.
-   Asset drawn at 2x: corner cut = 30px in the file → border-image-slice:30
-   (slice deliberately has no `fill` keyword — the middle must stay fully
-   transparent/click-through, `fill` would stretch the source's middle
-   region across the whole zone instead).
-   border-image-repeat:repeat on both axes — side tiles repeat as drawn, no
-   stretching; corners are never affected by this setting either way. If a
-   side length isn't an exact multiple of the tile and the clipped edge tile
-   looks wrong, switch to `round` instead (scales the tile slightly so a
-   whole number of copies always fits with zero clipping — still leaves
-   corners untouched). */
+   Rail width tracks the Zoom/Burn button too: button-width + 2px (2px
+   narrower than the padding above on purpose — leaves a hair of plain
+   background between the rail's inner edge and the card/popup zone, not a
+   bug). Asset drawn at 2x, corner cut = 30px on-screen → 60px in the file,
+   hence slice:60.
+   border-image-repeat:round on both axes — tiles repeat as drawn but get a
+   hair of rescale so a whole number always fits with zero hard clipping,
+   which matches "art should tolerate being stretched slightly". Corners are
+   never affected by this setting either way — always drawn 1:1. */
 .player-hand-zone::after,
 .opp-hand-zone::after{
   content:'';
@@ -561,12 +570,12 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   z-index:600; /* above hand cards/carousel; below any real modal content that ever needs to sit on top */
   pointer-events:none; /* transparent middle is click/tap-through */
   border-style:solid;
-  border-width:15px;
+  border-width:calc(var(--card-action-btn-w) + 2px);
   border-image-source:url('../img/hands_border.png');
-  border-image-slice:30;
-  border-image-width:15px;
+  border-image-slice:60;
+  border-image-width:calc(var(--card-action-btn-w) + 2px);
   border-image-outset:0;
-  border-image-repeat:repeat;
+  border-image-repeat:round;
 }
 
 /* BOTTOM BAR */
@@ -1373,7 +1382,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   transition:none;
   filter:brightness(1);
 }
-.art-btn:hover{filter:brightness(1.25);}
+.art-btn:not(.art-btn-catalog):not(.art-btn-rules):not(.art-btn-lore):hover{filter:brightness(1.25);}
 
 .art-btn-playgame{background-image:url('../img/btn_playgame1.png');}
 .art-btn-playgame:active{background-image:url('../img/btn_playgame2.png');}
