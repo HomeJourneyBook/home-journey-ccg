@@ -502,7 +502,7 @@ function startGameVsAI(humanFaction){
 
 function startMulliganFor(faction){
   G.mulliganTurn = faction;
-  const name = faction==='tea' ? 'TAVERN — YOUR HAND' : 'JEET CORE — YOUR HAND';
+  const name = faction==='tea' ? 'TAVERN — YOUR HAND' : 'JEET — YOUR HAND';
   document.getElementById('mulliganTitle').textContent = name;
   const m = G.mulligan[faction];
   document.getElementById('mulliganInfo').textContent =
@@ -578,7 +578,7 @@ function readyFromMulligan(){
     }
     if(G.mulliganTurn==='tea'){
       document.getElementById('passTitle').textContent='PASS THE DEVICE';
-      document.getElementById('passText').textContent='Hand the device to Player 2 — Jeet Core.';
+      document.getElementById('passText').textContent='Hand the device to Player 2 — Jeet.';
       const passEl = document.getElementById('passScreen');
       passEl.classList.remove('hidden');
       const passModal = passEl.querySelector('.modal');
