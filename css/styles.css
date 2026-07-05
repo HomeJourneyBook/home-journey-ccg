@@ -733,6 +733,24 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .btn-end.btn-waiting{background-image:url('../img/btn_wait.gif') !important;cursor:default;pointer-events:none;filter:none !important;}
 .btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;transform:translate(-50%,-50%);}
 .btn-square{width:6vh;height:6vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
+/* PLACEHOLDER — swap for real art later (per request). Plain bordered square
+   with a floppy-disk glyph standing in for the "save log" icon. */
+.btn-savelog{
+  border:1px solid #E8E0C8;
+  background-color:#0d0d1a;
+  position:relative;
+}
+.btn-savelog::after{
+  content:'💾';
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:calc(6vh * 0.55);
+}
+.btn-savelog:hover{filter:brightness(1.25);}
+.btn-savelog:active{transform:scale(0.92) translateY(1px);}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
@@ -894,6 +912,14 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:#000000;z-index:220;display:flex;align-items:center;justify-content:center;}
+/* #graveModal's .modal-overlay wrapper was still capped at z-index:220, so
+   bumping the inner .grave-modal to 650 did nothing — the whole overlay (and
+   everything inside it) was still stacked at 220 relative to the rest of the
+   page, below the hand-zone rail (600). This is the only modal-overlay shown
+   DURING active gameplay (transparent background, meant to sit over the
+   board) — the others (confirm/win/mulligan/pass) fully take over the screen
+   anyway, so they don't have this problem. */
+#graveModal{z-index:650;}
 /* Mulligan screen can end up taller than the viewport (5 cards + info text + buttons
    on a short phone screen). .modal-overlay centers with flex and has no scroll, so
    anything taller than the screen was simply unreachable. `align-items:safe center`
