@@ -89,10 +89,10 @@ function renderCatalog(){
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
       ${!isSW?`<div class="card-stats">
         <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
-        <img src="img/chel.png" class="card-stats-icon">
+        <img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
         <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
       </div>`
-      :`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
+      :`<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
     `;
     grid.appendChild(div);
@@ -166,10 +166,10 @@ function openCardDetail(def){
       ${!isSW
         ? `<div class="card-stats" style="width:var(--card-stats-w);">
              <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
-             <img src="img/chel.png" class="card-stats-icon">
+             <img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
              <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
            </div>`
-        : `<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
+        : `<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
     </div>
   `;
