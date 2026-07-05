@@ -45,8 +45,8 @@ const DEFS = {
   t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","provoke","bushido"], ab:"Bushido: ALL attacks must target him.",unique:true},
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
-  t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","draw:2"],     ab:"Draw 2 cards.",spell:true},
-  t_sp2:       {name:"JOURNEY",     cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","draw:3"],     ab:"Draw 3 cards.",spell:true},
+  t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:2"],     ab:"Target ally: +2 ATK until end of turn.",spell:true},
+  t_sp2:       {name:"JOURNEY",     cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:3"],     ab:"Deal 3 damage to target enemy creature.",spell:true},
   t_sp3:       {name:"SHEN'S CALL", cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png",    f:"tea",tags:["spell","revive:full"],ab:"Revive last creature from your graveyard.",spell:true},
   t_sp4:       {name:"SCHEME",      cost:1,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:2"], ab:"Get 2 essence.",spell:true},
 
@@ -103,7 +103,7 @@ const DEFS = {
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2 cards.",spell:true},
-  j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png",  f:"jeet",tags:["spell","draw:3"],     ab:"Draw 3 cards.",spell:true},
+  j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png",  f:"jeet",tags:["spell","spell_dispel"],     ab:"Erase all buffs/debuffs from target enemy creature.",spell:true},
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤", img:"1_Forgetting.png",f:"jeet",tags:["spell","revive:full"],ab:"Revive last creature from your graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:1,hp:0,atk:0,art:"⚫", img:"1_Spell1.png",    f:"jeet",tags:["spell","ess_add:2"], ab:"Get 2 essence.",spell:true},
 
