@@ -1,4 +1,15 @@
-function buildDeck(f) {
+// Три готовых сборки колоды (см. обсуждение размеров стартера):
+//  full    — как было, 45/46 карт, вся глубина архетипов
+//  compact — ~39/40 карт: те же архетипы и легендарки, меньше копий спеллов
+//  mini    — ~28/29 карт: только 4 архетипа из 6, 2 легендарки — быстрый показ на вечер
+const DECK_CONFIGS = {
+  full:    { groupCount:6, groupSize:4, legCount:5, spellCopies:3 },
+  compact: { groupCount:6, groupSize:4, legCount:3, spellCopies:2 },
+  mini:    { groupCount:4, groupSize:4, legCount:2, spellCopies:2 },
+};
+
+function buildDeck(f, configKey) {
+  const cfg = DECK_CONFIGS[configKey] || DECK_CONFIGS.full;
   const t = f==='tea';
 
   const szarg  = t ? ['t_trvl25_w','t_trvl33_w','t_trvl34_w','t_trvl434_w']
@@ -30,16 +41,13 @@ function buildDeck(f) {
   const extra  = t ? [] : ['unseen'];
 
   let d = [];
-  // 4 уникальных карты × 5 копий каждой = 20 per type, итого 6×4=24 уникальных → 24×... 
-  // Сохраняем старую логику: каждый ключ кладём 5 раз? 
-  // Нет — теперь у нас 4 разных карты в группе, кладём каждую по 2 раза (итого 8 на группу, ~48 weak)
-  // Или по старому — решай сам. Ниже: каждая карта x2, итого 8 per group x 6 = 48 weak карт.
-  [szarg,orb,drg,umb,mch,xui].forEach(group => {
-group.forEach(k => d.push(k));
-});
+  const allGroups = [szarg,orb,drg,umb,mch,xui];
+  allGroups.slice(0, cfg.groupCount).forEach(group => {
+    group.slice(0, cfg.groupSize).forEach(k => d.push(k));
+  });
 
-  legs.forEach(k => d.push(k));
-  spells.forEach(k => { d.push(k); d.push(k); d.push(k); });
+  legs.slice(0, cfg.legCount).forEach(k => d.push(k));
+  spells.forEach(k => { for(let i=0;i<cfg.spellCopies;i++) d.push(k); });
   worlds.forEach(k => d.push(k));
   arts.forEach(k => d.push(k));
   extra.forEach(k => d.push(k));
