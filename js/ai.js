@@ -52,6 +52,7 @@ function aiTryBurnCard(){
   if(me.hand.length < 4) return; // держим минимум вариантов, не сжигаем из тонкой руки
   let worst=null, worstScore=Infinity;
   me.hand.forEach(c=>{
+    if(c.unique) return; // never burn a legendary, no matter how the formula scores it
     const s = aiScoreCard(c, me);
     if(s < worstScore){ worstScore = s; worst = c; }
   });
@@ -65,12 +66,14 @@ function aiTryBurnCard(){
 function aiPlayCardsStep(iter){
   if(!(G.mode === 'vsai' && G.turn === G.aiFaction)){ showAiBanner(false); return; }
   if(iter > 20){ // защита от бесконечного цикла (не должно происходить)
+    aiTryUseAoe();
     aiTryUseShard();
     aiAttackStep(getAiCreatureQueue(), 0);
     return;
   }
   const card = aiPickBestCard();
   if(!card){
+    aiTryUseAoe();
     aiTryUseShard();
     aiAttackStep(getAiCreatureQueue(), 0);
     return;
@@ -120,6 +123,27 @@ function aiResolvePendingSpellTarget(){
   }
 }
 
+// ── АКТИВКА: AOE (Umbasir) ───────────────────────────────────────
+// AI никогда не использовал эту активку — существо просто атаковало как
+// обычное, хотя у него есть "Active: AOE dmg" по всем врагам сразу.
+// Стоит того, если убивает хотя бы одного, или бьёт 2+ целей сразу.
+function aiTryUseAoe(){
+  const me=G[G.aiFaction];
+  const humanF=G.humanFaction;
+  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+  if(enemyField.length===0) return;
+  const aoeCreatures=me.field.filter(c=>hasTag(c,'aoe')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.spell&&!c.world&&!c.artifact);
+  aoeCreatures.forEach(umb=>{
+    if(umb.exhausted) return; // could've been used by a squad-shared check already
+    const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
+    const kills=enemyField.filter(c=>c.hp<=dmgAmt).length;
+    if(kills>0||enemyField.length>=2){
+      G.sel=umb.id;
+      doUmbAsir();
+    }
+  });
+}
+
 // ── АРТЕФАКТ: SHARD (прямой урон) ────────────────────────────────
 // AI никогда этим не пользовался. Бьём, если можем добить существо (учитывая
 // +1 урона от feared), иначе — самую опасную цель по эффективному ATK.
@@ -145,9 +169,29 @@ function aiTryUseShard(){
   doShardTarget(target);
 }
 
+// Проверяет, есть ли у целевого спелла хотя бы одна допустимая цель ПРЯМО
+// сейчас — если нет, aiPickBestCard() не должен его вообще рассматривать,
+// иначе он будет выбран как "лучшая карта", разыгран, тут же отменён
+// (cancelPendingSpell — нет цели) и выбран СНОВА на следующей итерации —
+// до 20 раз подряд, не давая ИИ дойти до других карт в руке в принципе.
+function aiSpellHasValidTarget(card){
+  if(!card.spell) return true;
+  const humanF=G.humanFaction;
+  if(hasTag(card,'spell_dmg_target')||hasTag(card,'spell_dispel')){
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact);
+  }
+  if(hasTag(card,'spell_buff_temp')){
+    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted);
+  }
+  if(hasTag(card,'spell_untap')){
+    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
+  }
+  return true;
+}
+
 function aiPickBestCard(){
   const me = G[G.aiFaction];
-  const affordable = me.hand.filter(c => c.cost <= me.ess);
+  const affordable = me.hand.filter(c => c.cost <= me.ess && aiSpellHasValidTarget(c));
   if(affordable.length === 0) return null;
   let best = null, bestScore = -Infinity;
   affordable.forEach(c => {
@@ -179,7 +223,10 @@ function aiScoreCard(card, me){
   }
 
   let eff = (card.hp + card.atk * 1.3) / Math.max(1, card.cost);
-  const tagBonus = { provoke:0.4, pierce:0.3, vanguard:0.3, rage:0.3, bushido:0.5, invisible:0.4 };
+  const tagBonus = {
+    provoke:0.4, pierce:0.3, vanguard:0.3, rage:0.5, bushido:0.5, invisible:0.6,
+    fear:0.5, burn:0.4, regen:0.3, draw_attack:0.6,
+  };
   (card.tags || []).forEach(t => {
     const base = t.split(':')[0];
     if(tagBonus[base] !== undefined) eff += tagBonus[base];
@@ -217,7 +264,7 @@ function aiCanHitBase(creature, oppField){
 }
 
 function effAtk(c){
-  return c.atk + (c.atkBonus||0) + (c.rageBonus||0) + (c.squadAtkBonus||0);
+  return c.atk + (c.atkBonus||0) + (c.rageBonus||0) + (c.squadAtkBonus||0) + (c.tempAtkBonus||0);
 }
 
 function aiActWithCreature(creature){
