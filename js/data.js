@@ -53,7 +53,7 @@ const DEFS = {
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1.",world:true},
   t_w2:        {name:"DOMUS",      cost:4,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_maxhp:1"],ab:"Aura: +1 maxHP.",world:true},
-  t_a1:        {name:"THE BOOK",   cost:3,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","draw:1"],   ab:"On turn: Draw 1 card.",artifact:true},
+  t_a1:        {name:"THE BOOK",   cost:3,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","ess_add:1"],   ab:"On turn: +1 Essence (this turn only).",artifact:true},
   t_a2:        {name:"FOUNTAIN", cost:3,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Restore all allies 1 HP.",artifact:true},
 
   // ── JEET CREATURES ──────────────────────────────────────────────
@@ -103,7 +103,7 @@ const DEFS = {
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2 cards.",spell:true},
-  j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png",  f:"jeet",tags:["spell","spell_dispel"],     ab:"Erase all buffs/debuffs from target enemy creature.",spell:true},
+  j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png",  f:"jeet",tags:["spell","spell_untap"],     ab:"Target ally creature becomes active (removes sleeping/exhausted).",spell:true},
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤", img:"1_Forgetting.png",f:"jeet",tags:["spell","revive:full"],ab:"Revive last creature from your graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:1,hp:0,atk:0,art:"⚫", img:"1_Spell1.png",    f:"jeet",tags:["spell","ess_add:2"], ab:"Get 2 essence.",spell:true},
 
