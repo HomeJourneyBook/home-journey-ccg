@@ -6,7 +6,7 @@
   font-weight: normal;
   font-style: normal;
 }
-  
+
 
 :root {
   --card-h: 25vh;
@@ -2118,7 +2118,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   100% { box-shadow: inset 0 0 120px 30px rgba(224,85,85,0); }
 }
 @keyframes screenFlashGreen {
-  0%   { box-shadow: inset 0 0 120px 30px rgba(68,255,136,0.55); }
+  0%   { box-shadow: inset 0 0 120px 30px rgba(68,255,136,0.275); }
   100% { box-shadow: inset 0 0 120px 30px rgba(68,255,136,0); }
 }
 
