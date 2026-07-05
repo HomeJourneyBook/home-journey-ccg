@@ -65,6 +65,24 @@ function onClick(card,zone){
     }
     G.phase='action';G.sel=null;render();return; // cancel on any other click
   }
+  if(G.phase==='spellDmgTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doSpellDmgTarget(card);return;
+    }
+    cancelPendingSpell();return; // cancel — refunds cost, returns card to hand
+  }
+  if(G.phase==='spellBuffTarget'){
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doSpellBuffTarget(card);return;
+    }
+    cancelPendingSpell();return;
+  }
+  if(G.phase==='spellDispelTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doSpellDispelTarget(card);return;
+    }
+    cancelPendingSpell();return;
+  }
   if(G.phase==='action'){
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
@@ -112,6 +130,22 @@ function doPlay(card){
   if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');return;}
   cur.ess-=card.cost;
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
+  // Targeted spells pause for a target click instead of resolving instantly —
+  // same pattern as shardTarget/sacrificeTarget/healTarget below. The spell
+  // card is held in G.pendingSpell until a valid target is clicked (or the
+  // player cancels by clicking anything else, same as those other phases).
+  if(card.spell&&hasTag(card,'spell_dmg_target')){
+    G.pendingSpell=card;G.phase='spellDmgTarget';
+    lg(`${card.name}: select an enemy creature.`,'hint');render();return;
+  }
+  if(card.spell&&hasTag(card,'spell_buff_temp')){
+    G.pendingSpell=card;G.phase='spellBuffTarget';
+    lg(`${card.name}: select an ally creature.`,'hint');render();return;
+  }
+  if(card.spell&&hasTag(card,'spell_dispel')){
+    G.pendingSpell=card;G.phase='spellDispelTarget';
+    lg(`${card.name}: select an enemy creature to dispel.`,'hint');render();return;
+  }
   if(card.spell)doSpell(card);
   else if(card.world)doWorld(card);
   else if(card.artifact)doArtifact(card);
@@ -611,6 +645,67 @@ function doShard(artifact){
   G.phase='shardTarget';
   G.sel=artifact.id;
   lg(`${artifact.name}: select an enemy creature to deal ${getTagVal(artifact,'shard')||2} damage.`,'hint');
+  render();
+}
+
+function cancelPendingSpell(){
+  const card=G.pendingSpell;
+  if(card){
+    // Refund — unlike Shard/Altar (which act on cards already on the field),
+    // a spell's cost+card were already spent from hand in doPlay() before we
+    // paused for a target. Cancelling with no valid target shouldn't just
+    // waste both for nothing.
+    G[G.turn].ess+=card.cost;
+    G[G.turn].hand.push(card);
+    lg(`${card.name} cancelled — refunded.`,'hint');
+  }
+  G.pendingSpell=null;G.phase='action';G.sel=null;render();
+}
+
+function doSpellDmgTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  const dmg=getTagVal(spell,'spell_dmg_target')||3;
+  playSfx('card_spell_atack');
+  lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  dmgCard(card,dmg,oppK);
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  checkWin();render();
+}
+
+function doSpellBuffTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  const val=getTagVal(spell,'spell_buff_temp')||2;
+  playSfx('baf');
+  card.atkBonus=(card.atkBonus||0)+val; // cleared on resetC() at start of next turn, same as other temp bonuses
+  lg(`${spell.name}: ${card.name} +${val} ATK until end of turn.`,'hl');
+  const buffId=card.id;
+  setTimeout(()=>showFloat(buffId, `+${val}`, 'atk'), 50);
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  render();
+}
+
+function doSpellDispelTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  playSfx('card_spell_atack');
+  const removed=[];
+  if(card.feared){card.feared=false;removed.push('fear');}
+  if(card.burning){card.burning=false;removed.push('burn');}
+  if(card.atkBonus){card.atkBonus=0;removed.push('atk buff');}
+  if(card.squadAtkBonus){card.squadAtkBonus=0;removed.push('squad atk');}
+  if(card.squadMaxHpBonus){card.hp=Math.min(card.hp,card.maxHp-card.squadMaxHpBonus);card.maxHp-=card.squadMaxHpBonus;card.squadMaxHpBonus=0;removed.push('squad maxHP');}
+  if(card.squadParam){card.squadParam=null;removed.push('squad bonus');}
+  lg(`${spell.name}: ${card.name} dispelled${removed.length?' ('+removed.join(', ')+')':' (nothing to remove)'}.`,'imp');
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
   render();
 }
 
