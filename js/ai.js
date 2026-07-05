@@ -71,18 +71,31 @@ function aiPlayCardsStep(iter){
     aiAttackStep(getAiCreatureQueue(), 0);
     return;
   }
-  const card = aiPickBestCard();
+  let card;
+  try{
+    card = aiPickBestCard();
+  }catch(e){
+    console.error('AI aiPickBestCard() threw — skipping to attack phase this turn:', e);
+    card = null;
+  }
   if(!card){
     aiTryUseAoe();
     aiTryUseShard();
     aiAttackStep(getAiCreatureQueue(), 0);
     return;
   }
-  doPlay(card);
-  // doPlay() may have paused in a targeting phase for the new targeted spells
-  // (Archive/Journey/Oblivion) — AI never clicks anything, so resolve it here
-  // immediately or the AI turn would hang forever waiting for a target.
-  aiResolvePendingSpellTarget();
+  try{
+    doPlay(card);
+    // doPlay() may have paused in a targeting phase for the new targeted spells
+    // (Archive/Journey/Oblivion) — AI never clicks anything, so resolve it here
+    // immediately or the AI turn would hang forever waiting for a target.
+    aiResolvePendingSpellTarget();
+  }catch(e){
+    console.error(`AI doPlay() threw while playing ${card.name} — recovering:`, e);
+    // If something died mid-play leaving a spell target phase open, don't let
+    // it block the rest of the turn forever.
+    if(G.pendingSpell&&typeof cancelPendingSpell==='function') cancelPendingSpell();
+  }
   setTimeout(() => aiPlayCardsStep(iter + 1), AI_STEP_DELAY);
 }
 
@@ -251,7 +264,11 @@ function aiAttackStep(queue, idx){
     aiAttackStep(queue, idx + 1);
     return;
   }
-  aiActWithCreature(stillThere);
+  try{
+    aiActWithCreature(stillThere);
+  }catch(e){
+    console.error(`AI aiActWithCreature() threw for ${stillThere.name} — skipping it:`, e);
+  }
   setTimeout(() => aiAttackStep(queue, idx + 1), AI_STEP_DELAY);
 }
 
