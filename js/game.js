@@ -83,6 +83,12 @@ function onClick(card,zone){
     }
     cancelPendingSpell();return;
   }
+  if(G.phase==='spellUntapTarget'){
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doSpellUntapTarget(card);return;
+    }
+    cancelPendingSpell();return;
+  }
   if(G.phase==='action'){
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
@@ -145,6 +151,10 @@ function doPlay(card){
   if(card.spell&&hasTag(card,'spell_dispel')){
     G.pendingSpell=card;G.phase='spellDispelTarget';
     lg(`${card.name}: select an enemy creature to dispel.`,'hint');render();return;
+  }
+  if(card.spell&&hasTag(card,'spell_untap')){
+    G.pendingSpell=card;G.phase='spellUntapTarget';
+    lg(`${card.name}: select an ally creature to activate.`,'hint');render();return;
   }
   if(card.spell)doSpell(card);
   else if(card.world)doWorld(card);
@@ -703,6 +713,19 @@ function doSpellDispelTarget(card){
   if(card.squadMaxHpBonus){card.hp=Math.min(card.hp,card.maxHp-card.squadMaxHpBonus);card.maxHp-=card.squadMaxHpBonus;card.squadMaxHpBonus=0;removed.push('squad maxHP');}
   if(card.squadParam){card.squadParam=null;removed.push('squad bonus');}
   lg(`${spell.name}: ${card.name} dispelled${removed.length?' ('+removed.join(', ')+')':' (nothing to remove)'}.`,'imp');
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  render();
+}
+
+function doSpellUntapTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  playSfx('baf');
+  const wasReady=!card.sleeping&&!card.exhausted;
+  card.sleeping=false;card.exhausted=false;
+  lg(`${spell.name}: ${card.name} is active${wasReady?' (was already active)':''}!`,'hl');
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
