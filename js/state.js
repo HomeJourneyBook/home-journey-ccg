@@ -1,7 +1,10 @@
 let G={};
 
-function newPlayer(f, deckConfig){
-  const d=buildDeck(f, deckConfig||'full');
+// customList (optional) — a pre-picked Rush deck (see js/deckbuilder.js), used
+// instead of buildDeck() when provided. Not yet shuffled by the caller (the
+// deckbuilder hands over picks in pool order) — shuffled here either way.
+function newPlayer(f, deckConfig, customList){
+  const d = customList ? shuffleArr(customList.slice()) : buildDeck(f, deckConfig||'classic');
   return{hp:20,maxHp:20,ess:1,essMax:1,
     hand:d.splice(0,5).map(k=>mkCard(k)),
     field:[],deck:d.map(k=>mkCard(k)),grave:[],void:[],
@@ -9,16 +12,23 @@ function newPlayer(f, deckConfig){
 }
 
 // opts (необязательно) — конфиг режима игры:
-//   { mode:'vsai', humanFaction:'tea'|'jeet', deckConfig:'full'|'compact'|'mini' }
-// Без opts — обычный Hot Seat, поведение полностью как раньше (deckConfig='full').
+//   { mode:'vsai', humanFaction:'tea'|'jeet', deckConfig:'classic'|'rush',
+//     rushDecks:{tea:[...keys],jeet:[...keys]} }
+// rushDecks — только для deckConfig:'rush': pre-picked deck lists from the
+// deckbuilder (human side(s)) + buildAiRushDeck() (AI side, vsAI only). Stashed
+// back onto G so "Restart (same setup)" (resetGame() in ui.js) can reuse the
+// exact same picks instead of re-opening the deckbuilder.
+// Без opts — обычный Hot Seat, поведение полностью как раньше (deckConfig='classic').
 function initState(opts){
   UID=0;
   if(typeof _seenPcardPids!=='undefined') _seenPcardPids.clear(); // сброс между партиями, см. render.js/reorderZones
-  const deckConfig=(opts&&opts.deckConfig)||'full';
+  const deckConfig=(opts&&opts.deckConfig)||'classic';
+  const rushDecks=(opts&&opts.rushDecks)||null;
   G={turn:'tea',turnNum:1,phase:'mulligan',mulliganTurn:'tea',sel:null,
-    tea:newPlayer('tea',deckConfig),jeet:newPlayer('jeet',deckConfig),
+    tea:newPlayer('tea',deckConfig,rushDecks&&rushDecks.tea),
+    jeet:newPlayer('jeet',deckConfig,rushDecks&&rushDecks.jeet),
     jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}},
-    mode:'hotseat',humanFaction:null,aiFaction:null,gameOver:false,deckConfig};
+    mode:'hotseat',humanFaction:null,aiFaction:null,gameOver:false,deckConfig,rushDecks};
   if(opts&&opts.mode==='vsai'){
     G.mode='vsai';
     G.humanFaction=opts.humanFaction==='jeet'?'jeet':'tea';
