@@ -840,6 +840,7 @@ const TAG_TOOLTIPS = {
   'rage':    { name: 'Rage',    desc: 'Gains +1 ATK permanently each time it attacks.' },
   'provoke': { name: 'Provoke', desc: 'All enemy attacks must target this creature.' },
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
+  'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box';
