@@ -781,7 +781,7 @@ function reorderZones(){
   const oppStats=document.getElementById('oppStats');
   const playerStats=document.getElementById('playerStats');
   if(oppStats){
-    oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea');
+    oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea')+' hp-tier-'+hpTier(oppP.hp);
     oppStats.innerHTML=`
   ${oppK==='jeet'?'<span class="statbar-edge-left"></span>':''}
   <span class="statbar-extra"></span>
@@ -802,7 +802,7 @@ function reorderZones(){
     });
   }
   if(playerStats){
-    playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea');
+    playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea')+' hp-tier-'+hpTier(playerP.hp);
     playerStats.innerHTML=`
   ${playerK==='jeet'?'<span class="statbar-edge-left"></span>':''}
   <span class="statbar-extra"></span>
