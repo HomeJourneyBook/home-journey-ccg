@@ -474,52 +474,58 @@ function chooseDeckConfig(configKey){
   // Start landing's own exit fade/shrink NOW, in parallel with the deck modal's
   // pop-out — otherwise there's a gap between the modal's opaque background
   // disappearing and landing's own transition starting, where landing flashes
-  // back to full visibility for a frame. openVsAiPicker()/startGame() below
-  // still add this same class again — harmless, it's already there by then.
+  // back to full visibility for a frame.
   document.getElementById('landing').classList.add('exit-center');
   const proceed=()=>{
     modal.classList.add('hidden');
     if(_pendingModeFlow==='vsai') openVsAiPicker(configKey);
+    else if(configKey==='rush') startRushBuild('hotseat');
     else startGame(configKey);
   };
+  // Landing's own opacity/transform transition (see .landing.exit-center in
+  // styles.css) takes 315ms, started at the same moment as the line above —
+  // NOT 250ms (the modal pop-out timing). Waiting only 250ms here used to mean
+  // `proceed()` ran, hid the modal's opaque background, and revealed landing
+  // still ~20% visible mid-fade for another 65ms — then startGame()/
+  // openVsAiPicker() waited a FRESH 315ms on top of that before showing the
+  // next screen, so for ~250ms nothing covered the screen but the bare
+  // .stars background. Waiting the full 315ms here — matching landing's own
+  // transition exactly — means landing is already fully invisible by the time
+  // we reveal the next screen, so startGame()/openVsAiPicker() no longer need
+  // (and no longer add) any additional delay of their own.
   if(inner){
     inner.classList.remove('modal-pop-in','modal-pop-out');
     void inner.offsetWidth;
     inner.classList.add('modal-pop-out');
-    setTimeout(proceed,250);
+    setTimeout(proceed,315);
   } else proceed();
 }
 
 function startGame(deckConfig){
-  initState({deckConfig:deckConfig||'full'});
+  initState({deckConfig:deckConfig||'classic'});
   const landing=document.getElementById('landing');
-  landing.classList.add('exit-center');
-  setTimeout(()=>{
-    landing.style.display='none';
-    landing.classList.remove('exit-center');
-    document.getElementById('game').style.display='flex';
-    collapseStart();
-    setTimeout(()=>{ startMulliganFor('tea'); }, 50);
-  }, 315);
+  landing.style.display='none';
+  landing.classList.remove('exit-center');
+  document.getElementById('game').style.display='flex';
+  collapseStart();
+  setTimeout(()=>{ startMulliganFor('tea'); }, 50);
 }
 
 // ── VS AI ──────────────────────────────────────────────────────
-let _pendingVsAiDeckConfig='full';
+let _pendingVsAiDeckConfig='classic';
 function openVsAiPicker(deckConfig){
-  _pendingVsAiDeckConfig=deckConfig||'full';
+  _pendingVsAiDeckConfig=deckConfig||'classic';
   playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
-  const landing=document.getElementById('landing');
-  landing.classList.add('exit-center');
-  setTimeout(()=>{
-    const modal=document.getElementById('vsAiPickerModal');
-    modal.classList.remove('hidden');
-    const inner=modal.querySelector('.modal');
-    if(inner){
-      inner.classList.remove('modal-pop-in','modal-pop-out');
-      void inner.offsetWidth;
-      inner.classList.add('modal-pop-in');
-    }
-  }, 315);
+  // Landing is already fully faded by the time this runs (see chooseDeckConfig
+  // above) — no extra wait needed before showing the faction-picker modal.
+  const modal=document.getElementById('vsAiPickerModal');
+  modal.classList.remove('hidden');
+  const inner=modal.querySelector('.modal');
+  if(inner){
+    inner.classList.remove('modal-pop-in','modal-pop-out');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-in');
+  }
 }
 
 function startGameVsAI(humanFaction){
@@ -530,6 +536,10 @@ function startGameVsAI(humanFaction){
     const landing=document.getElementById('landing');
     landing.style.display='none';
     landing.classList.remove('exit-center');
+    if(_pendingVsAiDeckConfig==='rush'){
+      startRushBuild('vsai',{vsAiHumanFaction:humanFaction});
+      return;
+    }
     document.getElementById('game').style.display='flex';
     collapseStart();
     initState({mode:'vsai',humanFaction,deckConfig:_pendingVsAiDeckConfig});
@@ -699,16 +709,16 @@ function resetGame(){
   document.getElementById('winModal').classList.add('hidden');
   document.getElementById('game').style.display='flex';
   document.getElementById('landing').style.display='none';
-  const prevMode=G.mode, prevHuman=G.humanFaction, prevDeckConfig=G.deckConfig;
+  const prevMode=G.mode, prevHuman=G.humanFaction, prevDeckConfig=G.deckConfig, prevRushDecks=G.rushDecks;
   if(prevMode==='vsai'){
-    initState({mode:'vsai',humanFaction:prevHuman,deckConfig:prevDeckConfig});
+    initState({mode:'vsai',humanFaction:prevHuman,deckConfig:prevDeckConfig,rushDecks:prevRushDecks});
     lg('─ NEW GAME (VS AI) ─','trn');
     logTurnSnapshot('tea');
     aiAutoMulligan(G.aiFaction);
     setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
     return;
   }
-  initState({deckConfig:prevDeckConfig});
+  initState({deckConfig:prevDeckConfig,rushDecks:prevRushDecks});
   lg('─ NEW GAME ─','trn');
   lg('TEA goes first.','imp');
   logTurnSnapshot('tea');
