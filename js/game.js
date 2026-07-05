@@ -530,12 +530,12 @@ function applyAuras(faction){
 }
 
 const SQUAD_DEFS = [
-  {gtype:'drg', count:3, effect:'maxhp', val:1},
-  {gtype:'mch', count:3, effect:'atk',   val:1},
-  {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
-  {gtype:'umb', count:3, effect:'param', param:'aoe',    val:2},
-  {gtype:'szg', count:3, effect:'param', param:'pierce', val:true},
-  {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
+  {gtype:'drg', count:2, effect:'maxhp', val:1},
+  {gtype:'mch', count:2, effect:'atk',   val:1},
+  {gtype:'orb', count:2, effect:'param', param:'heal',   val:2},
+  {gtype:'umb', count:2, effect:'param', param:'aoe',    val:2},
+  {gtype:'szg', count:2, effect:'param', param:'pierce', val:true},
+  {gtype:'xui', count:2, effect:'param', param:'regen',  val:2},
 ];
 
 function checkSquadBonuses(faction){
@@ -594,22 +594,12 @@ function doSacrifice_target(card){
   const altar=G[G.turn].artifacts.find(a=>hasTag(a,'sacrifice'));
   if(altar){altar.exhausted=true;lg('Altar exhausted until next turn.','die');}
   else lg('[DBG] Altar not found in artifacts!');
-  lg(`${card.name} sacrificed to the Altar!`,'die');
+  // Baseline payoff so this is never a pure downgrade without HUNGER/REAPER on
+  // board — those still stack additionally on top of this (draw/heal-base).
+  G[G.turn].ess+=1;
+  lg(`${card.name} sacrificed to the Altar! +1 Essence.`,'die');
   killCard(card,G.turn);
   G.phase='action';
-  checkWin();render();
-}
-
-function doSacrifice(){
-  if(!G.sel){lg('Select a creature to sacrifice.','hint');return;}
-  const card=findC(G.sel);
-  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
-    lg('Select one of your creatures.','hint');return;
-  }
-  playSfx('card_spell_atack');
-  lg(`${card.name} sacrificed to the Altar!`,'die');
-  killCard(card,G.turn);
-  G.sel=null;G.phase='action';
   checkWin();render();
 }
 
