@@ -537,17 +537,9 @@ function startMulliganFor(faction){
     void mulliganModal.offsetWidth;
     mulliganModal.classList.add('modal-pop-in');
   }
-  const mulliganBtn = document.querySelector('#mulliganScreen .btn[onclick="doMulliganPhase()"]');
+  const mulliganBtn = document.getElementById('mulliganBtn');
   if(mulliganBtn){
-    if(m.used >= 3){
-      mulliganBtn.disabled = true;
-      mulliganBtn.style.opacity = '0.3';
-      mulliganBtn.style.cursor = 'not-allowed';
-    } else {
-      mulliganBtn.disabled = false;
-      mulliganBtn.style.opacity = '1';
-      mulliganBtn.style.cursor = 'pointer';
-    }
+    mulliganBtn.disabled = m.used >= 3;
   }
 }
 
@@ -579,16 +571,7 @@ function readyFromMulligan(){
       return;
     }
     if(G.mulliganTurn==='tea'){
-      document.getElementById('passTitle').textContent='PASS THE DEVICE';
-      document.getElementById('passText').textContent='Hand the device to Player 2 — Jeet.';
-      const passEl = document.getElementById('passScreen');
-      passEl.classList.remove('hidden');
-      const passModal = passEl.querySelector('.modal');
-      if(passModal){
-        passModal.classList.remove('modal-pop-in','modal-pop-out');
-        void passModal.offsetWidth;
-        passModal.classList.add('modal-pop-in');
-      }
+      showPassScreen('jeet', ()=>startMulliganFor('jeet'));
     } else {
       G.phase='action';
       G.mulliganTurn=null;
@@ -802,13 +785,34 @@ function setRulesLang(lang) {
   if (screen) screen.scrollTop = 0;
 }
 
+// Generic pass-device screen — shows "Hand the device to <faction>" and, once
+// the Ready button is clicked, calls onReady() (or just closes if null/omitted).
+// Used both for the initial Tea->Jeet mulligan handoff and after every turn
+// in hotseat, so players never see each other's hand between turns.
+function showPassScreen(faction, onReady){
+  G._passCallback = onReady;
+  document.getElementById('passTitle').textContent='PASS THE DEVICE';
+  document.getElementById('passText').textContent=
+    faction==='jeet' ? 'Hand the device to Player 2 — Jeet.' : 'Hand the device to Player 1 — Tea.';
+  const passEl = document.getElementById('passScreen');
+  passEl.classList.remove('hidden');
+  const passModal = passEl.querySelector('.modal');
+  if(passModal){
+    passModal.classList.remove('modal-pop-in','modal-pop-out');
+    void passModal.offsetWidth;
+    passModal.classList.add('modal-pop-in');
+  }
+}
+
 // ── Pass screen transition ───────────────────────────────────────
 function passReady(){
   const passEl = document.getElementById('passScreen');
   const passModal = passEl.querySelector('.modal');
+  const cb = G._passCallback;
+  G._passCallback = null;
   const proceed = () => {
     passEl.classList.add('hidden');
-    startMulliganFor('jeet');
+    if(cb) cb(); // else: nothing further needed, board is already rendered
   };
   if(passModal){
     passModal.classList.remove('modal-pop-in','modal-pop-out');
