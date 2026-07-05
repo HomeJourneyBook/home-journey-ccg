@@ -445,7 +445,37 @@ function askRestart(){
   showConfirm('Current game will be lost.','Yes, Restart',()=>resetGame());
 }
 
-function startGame(){
+// ── Deck picker (Full/Compact/Mini) — shown before either Hot Seat or VS AI ──
+let _pendingModeFlow=null; // 'hotseat' | 'vsai'
+function openDeckPicker(flow){
+  _pendingModeFlow=flow;
+  const modal=document.getElementById('deckPickerModal');
+  modal.classList.remove('hidden');
+  const inner=modal.querySelector('.modal');
+  if(inner){
+    inner.classList.remove('modal-pop-in','modal-pop-out');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-in');
+  }
+}
+function chooseDeckConfig(configKey){
+  const modal=document.getElementById('deckPickerModal');
+  const inner=modal.querySelector('.modal');
+  const proceed=()=>{
+    modal.classList.add('hidden');
+    if(_pendingModeFlow==='vsai') openVsAiPicker(configKey);
+    else startGame(configKey);
+  };
+  if(inner){
+    inner.classList.remove('modal-pop-in','modal-pop-out');
+    void inner.offsetWidth;
+    inner.classList.add('modal-pop-out');
+    setTimeout(proceed,250);
+  } else proceed();
+}
+
+function startGame(deckConfig){
+  initState({deckConfig:deckConfig||'full'});
   const landing=document.getElementById('landing');
   landing.classList.add('exit-center');
   setTimeout(()=>{
@@ -458,7 +488,9 @@ function startGame(){
 }
 
 // ── VS AI ──────────────────────────────────────────────────────
-function openVsAiPicker(){
+let _pendingVsAiDeckConfig='full';
+function openVsAiPicker(deckConfig){
+  _pendingVsAiDeckConfig=deckConfig||'full';
   playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
   const landing=document.getElementById('landing');
   landing.classList.add('exit-center');
@@ -484,7 +516,7 @@ function startGameVsAI(humanFaction){
     landing.classList.remove('exit-center');
     document.getElementById('game').style.display='flex';
     collapseStart();
-    initState({mode:'vsai',humanFaction});
+    initState({mode:'vsai',humanFaction,deckConfig:_pendingVsAiDeckConfig});
     lg('─ NEW GAME (VS AI) ─','trn');
     logTurnSnapshot('tea');
     // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
@@ -651,16 +683,16 @@ function resetGame(){
   document.getElementById('winModal').classList.add('hidden');
   document.getElementById('game').style.display='flex';
   document.getElementById('landing').style.display='none';
-  const prevMode=G.mode, prevHuman=G.humanFaction;
+  const prevMode=G.mode, prevHuman=G.humanFaction, prevDeckConfig=G.deckConfig;
   if(prevMode==='vsai'){
-    initState({mode:'vsai',humanFaction:prevHuman});
+    initState({mode:'vsai',humanFaction:prevHuman,deckConfig:prevDeckConfig});
     lg('─ NEW GAME (VS AI) ─','trn');
     logTurnSnapshot('tea');
     aiAutoMulligan(G.aiFaction);
     setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
     return;
   }
-  initState();
+  initState({deckConfig:prevDeckConfig});
   lg('─ NEW GAME ─','trn');
   lg('TEA goes first.','imp');
   logTurnSnapshot('tea');
