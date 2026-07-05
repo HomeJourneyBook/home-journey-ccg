@@ -234,7 +234,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-back{width:calc(6vh * 1.4);border:1px solid #ffffff11;padding:5px;background:#0d0d1a;height:6vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
 
 /* SMALL CARDS - on battlefield */ 
-.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:3%;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
+.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:8%;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
 .field-preview-card{position:fixed;pointer-events:none;margin:0;box-shadow:0 10px 40px #000000cc;}
 /* Бэкдроп зума карты из руки (см. zoomHandCardFly в render.js) — блокирует клики "сквозь"
    увеличенную карту по остальной игре; z-index ниже клона карты (6000), но выше всего остального. */
@@ -1813,9 +1813,10 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   z-index:9999;
   animation: floatUp 1.5s ease-out forwards;
 }
-.float-number.dmg { color:#e05555; left:20%; top:40%; }
-.float-number.heal { color:#44ff88; left:50%; top:20%; transform:translateX(-50%); }
-.float-number.atk { color:#55aaff; left:60%; top:40%; }
+.float-number.dmg { color:#e05555; left:28%; top:81%; transform:translate(-50%,-50%); }
+.float-number.heal { color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%); }
+.float-number.atk { color:#55aaff; left:76%; top:81%; transform:translate(-50%,-50%); }
+.float-number.maxhp { color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%); }
 .float-number-base { left:50%; top:-4px; transform:translateX(-50%); font-size:16px; }
 .float-number-base.fnb-dmg { color:#e05555; }
 .float-number-base.fnb-heal { color:#44ff88; }
@@ -1936,10 +1937,10 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 @keyframes cardFloatC{0%,100%{transform:translateY(0);}50%{transform:translateY(-2.2px);}}
 @keyframes cardFloatD{0%,100%{transform:translateY(0) translateX(0);}50%{transform:translateY(-3.6px) translateX(-1px);}}
 
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):nth-child(4n+1){animation:cardFloatA 3s ease-in-out infinite;}
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):nth-child(4n+2){animation:cardFloatB 3.4s ease-in-out -0.8s infinite;}
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):nth-child(4n+3){animation:cardFloatC 2.7s ease-in-out -1.5s infinite;}
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):nth-child(4n+4){animation:cardFloatD 3.8s ease-in-out -2.2s infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):nth-child(4n+1){animation:cardFloatA 3s ease-in-out infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):nth-child(4n+2){animation:cardFloatB 3.4s ease-in-out -0.8s infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):nth-child(4n+3){animation:cardFloatC 2.7s ease-in-out -1.5s infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):nth-child(4n+4){animation:cardFloatD 3.8s ease-in-out -2.2s infinite;}
 
 /* nebula */
 .field-nebula {
