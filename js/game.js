@@ -27,6 +27,7 @@ function onClick(card,zone){
         const debuffs=[];
         if(card.burning){card.burning=false;debuffs.push('fire');}
         if(card.feared){card.feared=false;debuffs.push('fear');}
+        if(debuffs.length) queueFieldFx(card.id,'CLEANED','fx-cleaned');
         lg(`${healer.name}: +${healAmt} HP to ${card.name}${debuffs.length?', removes '+debuffs.join(' & '):''}.`,'hl');
         healer.exhausted=true;
       }
@@ -548,6 +549,7 @@ function checkSquadBonuses(faction){
           card.hp=Math.min(card.hp,card.maxHp);
           card.squadMaxHpBonus=0;
           lg(`${card.name}: squad broken — maxHP bonus lost.`,'die');
+          queueFieldFx(card.id,'-SQUAD','fx-squad-lost');
         }
       } else if(squad.effect==='atk'){
         if(active&&!card.squadAtkBonus){
@@ -557,6 +559,7 @@ function checkSquadBonuses(faction){
         } else if(!active&&card.squadAtkBonus){
           card.squadAtkBonus=0;
           lg(`${card.name}: squad broken — ATK bonus lost.`,'die');
+          queueFieldFx(card.id,'-SQUAD','fx-squad-lost');
         }
       } else if(squad.effect==='param'){
         if(active&&!card.squadParam){
@@ -566,6 +569,7 @@ function checkSquadBonuses(faction){
         } else if(!active&&card.squadParam){
           card.squadParam=null;
           lg(`${card.name}: squad broken — ${squad.param} bonus lost.`,'die');
+          queueFieldFx(card.id,'-SQUAD','fx-squad-lost');
         }
       }
     });
