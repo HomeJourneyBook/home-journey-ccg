@@ -329,12 +329,18 @@ function tryAttackBase(){
 function dmgCard(card,dmg,faction){
   if(dmg<=0)return;
   card.hp-=dmg;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+  const lethal=card.hp<=0;
+  // Lethal hits skip the shake — the death fade (added by rZone's diff / the
+  // explicit burn-death handling below) is the only animation that should play.
+  // Otherwise shake+fade run at the same time and look janky.
+  if(!lethal){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+  }
   const cardId=card.id;
   const dmgAmt=dmg;
   requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,`-${dmgAmt}`,'dmg')));
   lg(`${card.name} takes ${dmg} → ${card.hp}/${card.maxHp} HP.`,'dmg');
-  if(card.hp<=0)killCard(card,faction);
+  if(lethal)killCard(card,faction);
 }
 
 function killCard(card,faction,toVoid=false){
@@ -711,10 +717,15 @@ function endTurn(){
     if(card.burning&&!card.spell&&!card.world&&!card.artifact){
       card.hp-=1;
       const burnId=card.id;
-      requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(burnId)));
+      const lethal=card.hp<=0;
+      // Same as dmgCard() — skip the shake on a lethal burn tick, so it doesn't
+      // play at the same time as the death fade added just below.
+      if(!lethal){
+        requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(burnId)));
+      }
       requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(burnId,'-1','dmg')));
       lg(`${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
-      if(card.hp<=0){
+      if(lethal){
         const f=G[G.turn].field.includes(card)?G.turn:oppK;
         // Сгоревшая карта уходит в войд, а не на кладбище — общий diff-механизм в rZone()
         // не всегда успевал поймать её между этим циклом и render() в конце хода,
