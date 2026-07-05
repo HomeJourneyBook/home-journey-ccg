@@ -628,7 +628,7 @@
       <p id="winText"></p>
     </div>
     <div class="modal-footer">
-      <button class="modal-art-btn btn-win" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');closeWinModal()"></button>
+      <button id="winBtn" class="modal-art-btn btn-win" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');closeWinModal()"></button>
       <button class="btn-square btn-savelog" onclick="event.stopPropagation();downloadBattleLog()" title="Save battle log (JSON)"></button>
     </div>
   </div>
@@ -643,7 +643,7 @@
     </div>
     <div class="modal-footer">
       <button class="modal-art-btn btn-mulligan" id="mulliganBtn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');doMulliganPhase()"></button>
-      <button class="modal-art-btn btn-ready"    onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');readyFromMulligan()"></button>
+      <button id="mulliganReadyBtn" class="modal-art-btn btn-ready"    onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');readyFromMulligan()"></button>
     </div>
   </div>
 </div>
@@ -656,7 +656,7 @@
       <p id="passText">Hand the device .</p>
     </div>
     <div class="modal-footer">
-      <button class="modal-art-btn btn-ready" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');passReady()"></button>
+      <button id="passReadyBtn" class="modal-art-btn btn-ready" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');passReady()"></button>
     </div>
   </div>
 </div>
