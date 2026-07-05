@@ -1,6 +1,6 @@
 # Home’s Journey — CCG · Developer Guide
 
-Two-player hotseat collectible card game. Tea (Tavern) vs Jeet (Core), each defending a 20 HP base.
+Two-player hotseat collectible card game. Tea (Tavern) vs Jeet, each defending a 20 HP base.
 Built with vanilla HTML/CSS/JS. Hosted on GitHub Pages. No build step required.
 
 -----
@@ -59,14 +59,24 @@ trvlr_001: {
 },
 ```
 
-Then add the key to `buildDeck()` in `deck.js`:
+Then add the key to the relevant archetype group array in `buildDeck()` (`deck.js`) — `szarg`,
+`orb`, `drg`, `umb`, `mch`, `xui` (4 unique cards each, 1 copy), or `legs`/`spells`/`worlds`/`arts`.
 
-- `weak` — common travelers (×5 copies)
-- `legs` — legendaries (×1)
-- `spells` — spells (×2)
-- `worlds` — worlds (×1)
-- `arts` — artifacts (×1)
-- `extra` — neutral cards (×1)
+### Deck size configs (`DECK_CONFIGS` in deck.js)
+
+`buildDeck(faction, configKey)` builds one of three preset deck sizes, picked via the
+"Choose Your Deck" modal shown before Hot Seat/VS AI (see `openDeckPicker()`/`chooseDeckConfig()`
+in ui.js):
+
+|Config    |groupCount|groupSize|legCount|spellCopies|Resulting size|
+|----------|----------|---------|--------|-----------|--------------|
+|`full`    |6         |4        |5       |3          |~45/46 (Tea/Jeet)|
+|`compact` |6         |4        |3       |2          |~39/40|
+|`mini`    |4         |4        |2       |2          |~30/31|
+
+`groupCount` trims from the 6 archetypes (szarg/orb/drg/umb/mch/xui); `mini` keeps only the first 4
+(szarg/orb/drg/umb — not curated by matchup, just array order, revisit if a specific 4 feel better).
+The choice is stored on `G.deckConfig` and reused automatically on restart (`resetGame()`).
 
 -----
 
@@ -142,9 +152,20 @@ Returns the value after the tag name. Examples:
 |-------------|----------------------------------------------|
 |`draw:N`     |Draw N cards immediately                      |
 |`revive:full`|Revive last creature from graveyard at full HP|
-|`bounce`     |Return all field cards to hands               |
+|`bounce`     |Return all field cards to hands (delayed — see Targeted Spells below)|
 |`ess_add:N`  |+N Essence this turn                          |
 |`ess_max:N`  |+N to Essence max                             |
+
+**Targeted spells (pause for a click, like Shard):**
+
+|Tag                  |Targets|Effect                                                  |
+|----------------------|-------|--------------------------------------------------------|
+|`spell_dmg_target:N` |enemy  |N damage to the chosen enemy creature (ARCHIVE→removed this, now JOURNEY)|
+|`spell_buff_temp:N`  |ally   |+N ATK until end of turn (`tempAtkBonus`, see below) — ARCHIVE|
+|`spell_untap`        |ally   |Removes sleeping/exhausted, can act again this turn — OBLIVION|
+|`spell_dispel`       |enemy  |Strips fear/burn/atk-buffs/squad bonuses — coded (`doSpellDispelTarget`) but not currently assigned to any live card|
+
+See "Targeted Spell System" section below for how these pause/resolve/cancel.
 
 **Active (button/click):**
 
@@ -152,7 +173,7 @@ Returns the value after the tag name. Examples:
 |-----------|----------------------------------------------------------------------|
 |`aoe:N`    |N damage to all enemies (button on card)                              |
 |`heal:N`   |Heal ally N HP + remove debuffs (creature)                            |
-|`sacrifice`|Altar: kill one of your creatures                                     |
+|`sacrifice`|Altar: kill one of your creatures, +1 Essence                        |
 |`shard:N`  |N damage to any enemy creature (+1 if Feared), ignores Provoke/Bushido|
 
 -----
@@ -239,6 +260,35 @@ Effects:
 
 -----
 
+## Targeted Spell System
+
+Spells tagged `spell_dmg_target`/`spell_buff_temp`/`spell_untap`/`spell_dispel` don't resolve
+instantly like other spells — `doPlay()` (game.js) intercepts them BEFORE calling `doSpell()`,
+deducts cost, removes the card from hand, stores it in `G.pendingSpell`, and sets `G.phase` to
+one of `spellDmgTarget` / `spellBuffTarget` / `spellUntapTarget` / `spellDispelTarget`. The next
+click is routed by `onClick()` to the matching resolver (`doSpellDmgTarget()`,
+`doSpellBuffTarget()`, `doSpellUntapTarget()`, `doSpellDispelTarget()` — all in game.js, same
+pattern as `doShardTarget()`). Clicking anything invalid calls `cancelPendingSpell()`, which
+**refunds** the cost and returns the card to hand (unlike Shard/Altar, which act on cards already
+on the field — a spell's cost was already paid before the pause, so cancelling shouldn't just
+waste it).
+
+Visual targeting highlight lives in `mkSmallEl()` (render.js) — enemy-targeting phases
+(`spellDmgTarget`/`spellDispelTarget`) get the red `.targetable` class (same as Shard),
+ally-targeting (`spellBuffTarget`/`spellUntapTarget`) get the green `.healable` class.
+
+`aiResolvePendingSpellTarget()` (ai.js) auto-resolves these for the AI right after it plays one —
+without this the AI would just hang waiting for a click that never comes. `aiSpellHasValidTarget()`
+also keeps the AI from picking a targeted spell with literally nothing to target in the first place.
+
+**tempAtkBonus**: the ARCHIVE combat-trick buff lives in its own field, separate from `atkBonus`
+(which is aura-driven and gets unconditionally reset to 0 every time `applyAuras()` runs — i.e. on
+every card play). Reusing `atkBonus` for the spell buff was an actual shipped bug for one round —
+it made the buff vanish the moment any other card was played, not at end of turn as intended.
+`tempAtkBonus` is cleared explicitly in `endTurn()`'s per-turn cleanup instead.
+
+-----
+
 ## Game State (G)
 
 ```js
@@ -246,10 +296,17 @@ G = {
   turn: 'tea' | 'jeet',
   turnNum: Number,
   phase: 'action' | 'selectTarget' | 'healTarget' | 'burn' |
-          'sacrificeTarget' | 'shardTarget',
+          'sacrificeTarget' | 'shardTarget' |
+          'spellDmgTarget' | 'spellBuffTarget' | 'spellUntapTarget' | 'spellDispelTarget',
   sel: cardId | null,
+  pendingSpell: Card | null,   // held between doPlay() pausing and the target click resolving it
   previewCard: cardId | null,
-  logs: [{msg, cls}],
+  logs: [{msg, cls} | {msg:'', cls:'snapshot', hidden:true, snapshot:{...}}],
+  mode: 'hotseat' | 'vsai',
+  humanFaction: 'tea' | 'jeet' | null,   // vsai only
+  aiFaction: 'tea' | 'jeet' | null,      // vsai only
+  deckConfig: 'full' | 'compact' | 'mini',
+  gameOver: Boolean,   // set once by checkWin(); guards against the win modal / further attacks re-firing
   tea: PlayerState,
   jeet: PlayerState,
 }
@@ -280,7 +337,8 @@ Beyond DEFS values, each card instance has:
   id, key, name, cost, hp, maxHp, atk, art, f, tags, ab,
   spell, world, artifact, unique,
   sleeping, exhausted, feared, burning,
-  atkBonus,        // from aura:atk sources
+  atkBonus,        // from aura:atk sources — reset to 0 on EVERY applyAuras() call, don't reuse for anything else
+  tempAtkBonus,    // from spell_buff_temp (combat tricks) — separate from atkBonus on purpose, cleared at end of turn
   rageBonus,       // accumulated from rage tag
   maxHpBonus,      // legacy, kept for compatibility
   baseMaxHp,       // original maxHp before aura buffs
@@ -304,6 +362,10 @@ Beyond DEFS values, each card instance has:
 |`burn`           |Waiting for hand card to burn                        |
 |`sacrificeTarget`|Altar activated, waiting for creature to sacrifice   |
 |`shardTarget`    |Shard activated, waiting for enemy creature to damage|
+|`spellDmgTarget` |Targeted-damage spell played, waiting for enemy click|
+|`spellBuffTarget`|Combat-trick spell played, waiting for ally click    |
+|`spellUntapTarget`|Untap spell played, waiting for ally click          |
+|`spellDispelTarget`|Dispel spell played, waiting for enemy click       |
 
 -----
 
@@ -399,6 +461,22 @@ Done since this doc was first written — kept here so it isn't re-proposed:
 - [x] AI opponent (`js/ai.js` — `runAiTurn()`, `aiPlayCardsStep()`, hooked up via `startGameVsAI()`)
 - [x] PNG card art integration (107 files in `img/cards/`, `img` field on card defs)
 - [x] Background music + full SFX set (`js/ui.js` — `toggleMusic()`, `playSfx()`; attack/spell/buff/debuff/UI sounds wired across `game.js` and `abilities.js`)
+- [x] Hand-zone side rails (`hands_border.png`/`hands_border2.png`) — player's rail width tracks the Zoom/Burn button size (`--card-action-btn-w`), opponent's is fixed; mobile drops to a fixed-width variant on both (carousel scrolls under it, no reserved padding there)
+- [x] Squad threshold lowered 3→2 (was rarely achievable with 1 copy of each of 4 unique cards per archetype)
+- [x] Screen-edge glow + zone-shake on base dmg/heal — scoped to the actual *viewer* (human in vsAI, regardless of whose turn; G.turn in hotseat), not G.turn naively — this distinction was a real bug (vsAI human never saw their own base's feedback)
+- [x] Base HP visual tiers 1-5 (`hpTier()` in state.js) — drives both the full stats-bar panel background (`bg_statbar_<faction><1-5>.png`) and (currently placeholder, same art all 5 tiers) the base "portal" icon
+- [x] Lore page redesign — `lore_pages.png` frame, readable sepia ink color, halved line-height, centered headers, weaker glitch, arena starfield background
+- [x] AI: burns cards for essence ramp, uses Shard's active ability, uses Umbasir's AOE active, evaluates Unseen/bounce against board state instead of always playing it, defensive try/catch around card-play and attack steps so one bad interaction can't silently freeze the rest of the AI's turn
+- [x] Targeted spells — ARCHIVE (combat trick, +2 ATK ally), JOURNEY (3 dmg to enemy creature), OBLIVION (untap ally) — see "Targeted Spell System" section
+- [x] THE BOOK reworked from draw:1/turn → ess_add:1/turn (Tea had 3 stacked unconditional draw engines: Teantist+Valley+Book)
+- [x] ALTAR sacrifice gives a baseline +1 Essence now, not just synergy-or-nothing with Hunger/Reaper
+- [x] PHLEGMOR's raise restricted to own graveyard (used to also pull from the opponent's)
+- [x] Deck size picker — `full`/`compact`/`mini` via `DECK_CONFIGS` (see Deck size configs above)
+- [x] Battle log: hidden per-turn snapshots (hand/field/essence) for balance analysis, save-to-JSON button on the win modal, cleared properly on restart (wasn't before)
+- [x] Space bar confirms whichever modal is open (mulligan/pass/win/confirm) before falling back to End Turn
+- [x] Pass-the-device screen now shows after every hotseat turn, not just the initial Tea→Jeet handoff
+- [x] Win modal no longer re-fires after the base is already dead (AI would sometimes keep attacking/re-triggering it)
+- [x] Restart button on the win modal — replays with the same mode/faction/deckConfig, no need to go through the landing again
 
 Still open:
 
@@ -411,9 +489,9 @@ Still open:
 
 ## Artist's Notes — Open Items
 
-_Unsorted working list, kept verbatim as written._
-
-**Fixs**
+_Unsorted working list, kept verbatim as written. Completed items are removed as they're closed
+out (see "Planned Features" above for what that closing-out actually was) rather than checked off
+in place, to keep this list short and current._
 
 **New insides:**
 
@@ -428,7 +506,6 @@ Base of Tea:
 
 Base of Jeet:
 - kinda void;
-- Rename from Core;
 - New modal skin (window, graveyard, battle log, win) + bg for modal;
 - All buttons;
 - Bottom bar + bar (damaged 4 steps)
@@ -445,30 +522,17 @@ Landing:
 - Fix sound buttons;
 - Music on background even we close page;
 
-**Баги игры:**
-- Фаерон не хилит базу если сыграть мир
-
 **Код:**
-- Каталог на телефоне починить (карты обрезаются по низу, сделать чтоб они были фиксированным размером и меняли размер в зависимости от размера экрана и чтоб под 3 колонки подстраивались всегда)
-- Ссылки снизу
-- Хил от мира анимация (всплывающий текст как реген)
-- Бордер радиус картам на %
-- иконка страха и поджога на разных местах по верху карты и размер на %
-- На телефоне меньше карты на арене, чтоб мин 4-5 в ряд
-- Добавить паддинг на лаптопе, тот же размер что и будет модалка-рамка сверху руки, чтобы сделать борта по краям;
-- Анимация когда отряд активирован поверх (персонажей появляющаяся гифка, сделать текст для начала);
-- Анимации при наложении страха (поверх персонажа появляющаяся гифка, сделать текст для начала)
-- Каждое Врата визуально на карте отобразить(в дизайн карты добавить новый плейсхолдер, над ток решить где и как выглядит)
-- Подсветка Краев экрана при хила и уроне + тряска базы при уроне + смена дизайна стат бара показывая дамаг;
-- Добавить как тег абилка - инвиз (нарисовать иконку);
+- Ссылки снизу (Discord/Twitter — на паузе, автор доделает после лендинга целиком)
+- Каждое Врата визуально на карте (ждёт дизайн-решения — куда на карте и как выглядит)
 
 **ИИ:**
-- Сделать пизже
-- + отчеты по балансу
+- Сделать пожёстче (тактические дырки залатаны — burn/Shard/AOE/Unseen-оценка — но общая "сила"/сложность ИИ не пересматривалась)
+- Отчёты по балансу — идёт через `AI_BALANCE_NOTES.md` + присылаемые `battle_log_*.json`
 
 **Арт:**
 - Все Арт для карт (!)
-- Кастомные анимации (отряд, страх)
+- Кастомные анимации (отряд, страх — сейчас текстовые плейсхолдеры "SQUAD!"/"FEARED!"/"-SQUAD"/"CLEANED")
 
 **Звук:**
 - Хил
@@ -480,6 +544,17 @@ Landing:
 - Звук победы
 - Звуки для декора
 
-**Мелочи:**
-- Когда идет мулиган по черному экрану можно скролить
-- Какой то фон видно на углах за рамками лога и кладбища
+-----
+
+## Feedback Backlog — 2026-07-05 (design/balance, not yet actioned)
+
+_Raw notes from playtesting the new spell/artifact mechanics — needs a decision before implementing, not a straightforward bugfix._
+
+- **THE BOOK** (`ess_add:1`/turn) feels too simple/low-impact now — reconsider the mechanic again.
+- **ALTAR**'s new baseline payoff (+1 Essence on sacrifice) is a step in the right direction but not fully settled — revisit.
+- **Jeet has a lot of revival effects** (FORGETTING, PHLEGMOR's raise, REAPER-adjacent death payoffs) — density/overlap worth a look.
+- **Untap (OBLIVION)** needs clearer feedback that something happened — an animation or sound cue, since right now it's easy to miss.
+- **Targeted-spell UX** needs more polish:
+  - The "play" sound currently fires twice — once on clicking Play (before a target is even chosen), once again when the spell actually resolves on the target. Should only fire once, on resolution.
+  - Needs an on-screen hint of what's happening and how to cancel while waiting for a target (currently relies on the hint-bar text alone).
+- **Low-HP warning**: a red lantern/light that turns on below 5 HP, plus a faint pulsing glow around the screen edge (separate from the existing dmg/heal flash — this one should be a persistent low-HP state indicator, not a one-shot event flash). Idea: put the lantern decoratively near the hamburger button; each player's lantern lights independently based on their own HP. Stat bar HP number could also pulse/blink at low HP.
