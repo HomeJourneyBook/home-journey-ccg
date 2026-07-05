@@ -411,6 +411,8 @@
 
 <!-- GAME -->
 <div class="game" id="game" style="display:none;flex-direction:column;" onclick="handleGameClick(event)">
+  <!-- Screen-edge glow on base damage/heal — see _applyPendingFlash() in game.js -->
+  <div id="screenEdgeFlash" class="screen-edge-flash"></div>
 
   <!-- HEADER -->
   <div class="header">
