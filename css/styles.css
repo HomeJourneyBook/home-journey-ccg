@@ -39,6 +39,8 @@
      Зафиксирована в px — раньше была clamp(48px,6vw,80px) и на широких экранах
      "съедала" контентную зону модалки (см. .modal ниже, ширина завязана на эту переменную). */
   --modal-border-w: 54px;
+  --color-cream: #E8E0C8;
+  --jeet-main: #08050A;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
@@ -289,7 +291,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-atk{color:#55aaff;font-size:calc(var(--card-h) * 0.11);display:flex;align-items:center;gap:1px;}
 .stat-icon{width:0.45em;height:0.45em;vertical-align:middle;margin-right:1px;image-rendering:pixelated;}
 .card-ability-box{width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
-.card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:1.4;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
+.card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:0.7;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
 .card.tea-card,.card-small.tea-card,.cat-card.tea-card{background-image:url('../img/card_tea.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
 .card.jeet-card,.card-small.jeet-card,.cat-card.jeet-card{background-image:url('../img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
 .card-world-art{width:100%;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;}
@@ -406,7 +408,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .stats-bar.jeet{}
 .stats-bar.tea{}
-.stats-bar.jeet{background-color:#5a7278;border-top:1px solid #829797;border-bottom:1px solid #829797;}
+.stats-bar.jeet{background-color:var(--jeet-main);border-top:1px solid var(--color-cream);border-bottom:1px solid var(--color-cream);}
 .stats-bar.tea{background-color:#5a7278;border-top:1px solid #829797;border-bottom:1px solid #829797;}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
@@ -520,6 +522,9 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    край бара. Теперь .bottom-slot растягивается на все 7vh, и плейсхолдеры внутри
    реально касаются верха/низа бара. .btn-end не затронут — у него задан свой height. */
 .bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:stretch;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:0 4px;}
+/* Jeet's bottom bar: solid main color instead of the shared placeholder texture,
+   cream border top/bottom only (matches her stats-bar treatment above). */
+#jeetBottomBar{background:var(--jeet-main);border-top:1px solid var(--color-cream);border-bottom:1px solid var(--color-cream);}
 .bottom-slot{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 /* ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2),
    +30% сверху (было 14vh×3.5vh, стало 18.2vh×4.55vh).
