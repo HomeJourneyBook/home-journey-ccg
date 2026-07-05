@@ -93,9 +93,9 @@
           <!-- PLACEHOLDER квадратная кнопка; замени на кастомный арт:
                .art-btn-square.btn-hotseat { background-image:url('../img/btn_hotseat1.png'); } -->
           <button class="art-btn-square art-btn-mode art-btn-hotseat"
-                  onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');startGame()" title="Hot Seat"></button>
+                  onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');openDeckPicker('hotseat')" title="Hot Seat"></button>
           <button class="art-btn-square art-btn-mode art-btn-vsai"
-                  onclick="openVsAiPicker()" title="VS AI"></button>
+                  onclick="openDeckPicker('vsai')" title="VS AI"></button>
           <button class="art-btn-square art-btn-mode art-btn-online"
                   disabled title="Online"></button>
         </div>
@@ -591,6 +591,20 @@
     </div>
     <div class="cat-count" id="catalogCount"></div>
     <div class="catalog-grid" id="catalogGrid"></div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="deckPickerModal">
+  <div class="modal">
+    <div class="modal-body">
+      <h2 style="font-size:22px;">CHOOSE YOUR DECK</h2>
+      <p>Full deck (all archetypes, all legendaries) or a smaller build for a quicker game?</p>
+    </div>
+    <div class="modal-footer" style="flex-direction:column;gap:8px;">
+      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('full')">Full (~45 cards)</button>
+      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('compact')">Compact (~39 cards)</button>
+      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('mini')">Mini (~28 cards)</button>
+    </div>
   </div>
 </div>
 
