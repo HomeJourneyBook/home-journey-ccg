@@ -171,38 +171,48 @@ function preloadAssets(){
     // ── Кнопки лендинга ──
     'img/btn_playgame1.png', 'img/btn_playgame2.png',
     'img/btn_playgame_gates_sheet.png', 'img/btn_playgame_frame.png', 'img/btn_playgame_hover.png',
-    'img/btn_rules1.png', 'img/btn_rules2.png',
-    'img/btn_catalog1.png', 'img/btn_catalog2.png',
-    'img/btn_lore1.png', 'img/btn_lore2.png',
+    'img/btn_rules1.png', 'img/btn_rules2.png', 'img/btn_rulesH.png',
+    'img/btn_catalog1.png', 'img/btn_catalog2.png', 'img/btn_catalogH.png',
+    'img/btn_lore1.png', 'img/btn_lore2.png', 'img/btn_loreH.png',
     'img/btn_hotseat1.png', 'img/btn_hotseat2.png', 'img/btn_hotseatH.png',
-    'img/btn_vsai1.png', 'img/btn_online1.gif',
+    'img/btn_vsai1.png', 'img/btn_vsai2.png', 'img/btn_vsaiH.png', 'img/btn_online1.gif',
     'img/btn_music_on1.png', 'img/btn_music_on2.png',
     'img/btn_music_off1.png', 'img/btn_music_off2.png',
 
     // ── Кнопки модалок ──
-    'img/btn_yes.png', 'img/btn_cancel.png',
+    'img/btn_yes1.png', 'img/btn_yes2.png', 'img/btn_yesH.png',
+    'img/btn_cancel1.png', 'img/btn_cancel2.png', 'img/btn_cancelH.png',
     'img/btn_mulligan1.png', 'img/btn_mulliganH.png', 'img/btn_mulligan2.png',
     'img/btn_ready1.png', 'img/btn_readyH.png', 'img/btn_ready2.png',
+    'img/btn_tea1.png', 'img/btn_tea2.png', 'img/btn_teaH.png',
+    'img/btn_jeet1.png', 'img/btn_jeet2.png', 'img/btn_jeetH.png',
     'img/btn_X.png', 'img/btn_Xh.png', 'img/btn_X2.png',
+    'img/btn_wait.gif',
+
+    // ── Бортики зоны рук + лор-страницы + новая иконка тега (эта сессия) ──
+    'img/hands_border.png', 'img/hands_border2.png',
+    'img/lore_pages.png',
+    'img/ico_invis.png',
+    'img/trubi1.png',
 
     // ── Карты — базовые фреймы ──
     'img/card_tea.png', 'img/card_jeet.png',
     'img/card_name_bg.png', 'img/card_text_bg.png',
     'img/card_stat_bg.png', 'img/card_text_world_bg.png',
-    'img/pcard_tea_bg.png', 'img/pcard_jeet_bg.png',
+    'img/pcard_bg.png',
     'img/pcard_tea_shutter_sheet.png', 'img/pcard_jeet_shutter_sheet.png',
     'img/tag_bg.png',
 
     // ── Стат-бары ──
-    'img/bg_tea_bar.png', 'img/bg_jeet_bar.png',
     'img/bg_statbar_hp.png', 'img/bg_statbar_ess.png',
     'img/bg_statbar_tea.png', 'img/bg_statbar_jeet.png',
-    'img/statbar_jeet.png', 'img/statbar_tea.png',
+    'img/bg_statbar_tea1.png', 'img/bg_statbar_tea2.png', 'img/bg_statbar_tea3.png', 'img/bg_statbar_tea4.png', 'img/bg_statbar_tea5.png',
+    'img/bg_statbar_jeet1.png', 'img/bg_statbar_jeet2.png', 'img/bg_statbar_jeet3.png', 'img/bg_statbar_jeet4.png', 'img/bg_statbar_jeet5.png',
     'img/bg_cost_tea.png', 'img/bg_cost_jeet.png',
-    'img/bg_handP_bar.png', 'img/bg_handO_bar.png', 'img/bg_arena_bar.png',
+    'img/bg_handP_bar.png', 'img/bg_handO_bar.png',
 
     // ── Игровые иконки ──
-    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/chel2.png', 'img/ess.png',
+    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/ess.png',
     'img/hp_tea.png', 'img/hp_jeet.png',
     'img/deck.png', 'img/runaha.png', 'img/ef_burn.png',
 
@@ -216,7 +226,7 @@ function preloadAssets(){
 
     // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
-    'img/btn_turn1.png', 'img/btn_zoom.png',
+    'img/btn_zoom.png',
     'img/button_1.png', 'img/button_2.png',
     'img/button_grav_1.png', 'img/button_grav_2.png',
   ];
