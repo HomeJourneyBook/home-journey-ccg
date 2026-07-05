@@ -321,7 +321,7 @@ function tryAttackBase(){
   opp.hp=Math.max(0,opp.hp-atk);
   triggerAbilities(att,'on_attack',{target:null});
   att.exhausted=true;G.sel=null;G.phase='action';
-  flashBase('opp', 'dmg');
+  flashBase('opp', 'dmg', atk);
   checkWin();render();
   activateCard(att.id); 
 }
@@ -373,7 +373,7 @@ function killCard(card,faction,toVoid=false){
       if(val&&G[f].hp<G[f].maxHp){
         G[f].hp=Math.min(G[f].maxHp,G[f].hp+val);
         lg(`${ally.name}: ${f} base +${val} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
-        flashBase(f, 'heal');
+        flashBase(f, 'heal', val);
       }
     });
   });
@@ -536,6 +536,7 @@ function checkSquadBonuses(faction){
           if(card.hp===card.maxHp-squad.val) card.hp+=squad.val;
           card.squadMaxHpBonus=squad.val;
           lg(`Squad bonus! ${card.name} +${squad.val} maxHP → ${card.hp}/${card.maxHp}.`,'hl');
+          queueFieldFx(card.id,'SQUAD!','fx-squad');
         } else if(!active&&card.squadMaxHpBonus){
           card.maxHp=Math.max(1,card.maxHp-card.squadMaxHpBonus);
           card.hp=Math.min(card.hp,card.maxHp);
@@ -546,6 +547,7 @@ function checkSquadBonuses(faction){
         if(active&&!card.squadAtkBonus){
           card.squadAtkBonus=squad.val;
           lg(`Squad bonus! ${card.name} +${squad.val} ATK.`,'hl');
+          queueFieldFx(card.id,'SQUAD!','fx-squad');
         } else if(!active&&card.squadAtkBonus){
           card.squadAtkBonus=0;
           lg(`${card.name}: squad broken — ATK bonus lost.`,'die');
@@ -554,6 +556,7 @@ function checkSquadBonuses(faction){
         if(active&&!card.squadParam){
           card.squadParam={[squad.param]:squad.val};
           lg(`Squad bonus! ${card.name} ${squad.param} upgraded to ${squad.val}.`,'hl');
+          queueFieldFx(card.id,'SQUAD!','fx-squad');
         } else if(!active&&card.squadParam){
           card.squadParam=null;
           lg(`${card.name}: squad broken — ${squad.param} bonus lost.`,'die');
@@ -887,27 +890,59 @@ function _applyPendingEssGlitch(){
     }
   });
 }
-function flashBase(who, type){
+// ── Squad-activated / Fear-applied overlay popup (text placeholder — swap for
+// a gif later) — queued the same way as flashBase, since .card-small elements
+// are destroyed and rebuilt by render() every time, so anything created before
+// render() runs would just be thrown away.
+function queueFieldFx(cardId, label, cls){
+  if(!G._pendingFieldFx) G._pendingFieldFx=[];
+  G._pendingFieldFx.push({cardId,label,cls});
+}
+function _applyPendingFieldFx(){
+  if(!G._pendingFieldFx||G._pendingFieldFx.length===0) return;
+  const fx=G._pendingFieldFx;
+  G._pendingFieldFx=[];
+  fx.forEach(({cardId,label,cls})=>{
+    const el=document.querySelector(`.card-small[data-id="${cardId}"]`);
+    if(!el) return;
+    const pop=document.createElement('div');
+    pop.className=`field-fx-popup ${cls}`;
+    pop.textContent=label;
+    el.appendChild(pop);
+    setTimeout(()=>pop.remove(),1200);
+  });
+}
+function flashBase(who, type, amount){
   // Queue flash to apply after render/reorderZones rewrites innerHTML
   if(!G._pendingFlash) G._pendingFlash=[];
-  G._pendingFlash.push({who,type});
+  G._pendingFlash.push({who,type,amount});
 }
 function _applyPendingFlash(){
   if(!G._pendingFlash||G._pendingFlash.length===0) return;
   const flashes=G._pendingFlash;
   G._pendingFlash=[];
-  flashes.forEach(({who,type})=>{
+  flashes.forEach(({who,type,amount})=>{
     const elId=_statsElIdForFaction(_resolveFlashFaction(who));
     const bar=document.getElementById(elId);
     if(!bar) return;
     const cls=type==='dmg'?'flash-red':'flash-green';
-    [bar.querySelector('.player-name-box'), bar.querySelector('.stat-hp-box')].forEach(target=>{
+    const hpBox=bar.querySelector('.stat-hp-box');
+    [bar.querySelector('.player-name-box'), hpBox].forEach(target=>{
       if(!target) return;
       target.classList.remove('flash-red','flash-green');
       void target.offsetWidth;
       target.classList.add(cls);
       setTimeout(()=>target.classList.remove('flash-red','flash-green'), 500);
     });
+    // Floating +N/-N over the base's HP box — same look as the creature heal/dmg
+    // popups (showFloat), just anchored to .stat-hp-box instead of a card.
+    if(amount&&hpBox){
+      const num=document.createElement('div');
+      num.className=`float-number float-number-base ${type==='dmg'?'fnb-dmg':'fnb-heal'}`;
+      num.textContent=`${type==='dmg'?'-':'+'}${amount}`;
+      hpBox.appendChild(num);
+      setTimeout(()=>num.remove(),900);
+    }
   });
 }
 
