@@ -311,6 +311,7 @@ function canAttackBase(){
 }
 
 function tryAttackBase(){
+  if(G.gameOver) return;
   if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.','hint');return;}
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
@@ -772,8 +773,9 @@ function endTurn(){
 
 // ── WIN / MULLIGAN / UTILS ─────────────────────────────────
 function checkWin(){
-  if(G.tea.hp<=0)showWin('jeet');
-  if(G.jeet.hp<=0)showWin('tea');
+  if(G.gameOver) return;
+  if(G.tea.hp<=0){G.gameOver=true;showWin('jeet');}
+  if(G.jeet.hp<=0){G.gameOver=true;showWin('tea');}
 }
 
 function doMulligan(faction){
@@ -958,15 +960,16 @@ function _applyPendingFlash(){
       target.classList.add(cls);
       setTimeout(()=>target.classList.remove('flash-red','flash-green'), 500);
     });
-    // Screen-edge glow — ONLY for the active player's OWN base (self), not for
-    // damage the active player just dealt to the opponent (the attacker
-    // doesn't need a red alarm for a threat they caused themselves) and not
-    // for a heal landing on the opponent's base. Today this means: red never
-    // fires yet (all current base damage is attack-caused, always 'opp'),
-    // green fires exactly as before (all current base heals already target
-    // the active player's own base) — but this stays correct automatically
-    // if a future card ever damages/heals "the other" base directly.
-    if(targetFaction===G.turn){
+    // "Viewer" — whose perspective the screen-edge glow/shake represents.
+    // In vs-AI it's ALWAYS the human, regardless of whose turn it currently
+    // is (G.turn flips to the AI's faction during its turn, but the human is
+    // still the one watching). In hotseat there's no fixed identity, so we
+    // fall back to G.turn — whoever currently holds the device is attacking,
+    // so THEY are the one who "caused" any base damage that fires right now.
+    const viewer=G.mode==='vsai'?G.humanFaction:G.turn;
+    if(targetFaction===viewer){
+      // MY OWN base — screen-edge glow (dmg=red / heal=green) + impact shake
+      // (dmg only; a heal shouldn't recoil you).
       const edge=document.getElementById('screenEdgeFlash');
       if(edge){
         edge.classList.remove('flash-red','flash-green');
@@ -974,23 +977,28 @@ function _applyPendingFlash(){
         edge.classList.add(cls);
         setTimeout(()=>edge.classList.remove('flash-red','flash-green'), 500);
       }
-      // Impact shake — only for damage (a heal shouldn't recoil you). Shakes
-      // the player's own hand zone (+ rail), stats bar, and bottom bar —
-      // whichever DOM elements currently show G.turn's own stuff.
       if(type==='dmg'){
-        const shakeTargets=[
-          document.getElementById('playerHandZone'),
-          bar,
-          document.getElementById(G.turn+'BottomBar'),
-        ];
-        shakeTargets.forEach(el=>{
-          if(!el) return;
-          el.classList.remove('zone-shake');
-          void el.offsetWidth;
-          el.classList.add('zone-shake');
-          setTimeout(()=>el.classList.remove('zone-shake'), 350);
-        });
+        [document.getElementById('playerHandZone'), bar, document.getElementById(targetFaction+'BottomBar')]
+          .forEach(el=>{
+            if(!el) return;
+            el.classList.remove('zone-shake');
+            void el.offsetWidth;
+            el.classList.add('zone-shake');
+            setTimeout(()=>el.classList.remove('zone-shake'), 350);
+          });
       }
+    } else if(type==='dmg'){
+      // THE OPPONENT's base took damage (viewer just landed a hit on them) —
+      // their zones nudge UP instead of down, no red screen-edge glow (it's
+      // not a threat to the viewer, just feedback that the hit landed).
+      [document.getElementById('oppHandZone'), bar, document.getElementById(targetFaction+'BottomBar')]
+        .forEach(el=>{
+          if(!el) return;
+          el.classList.remove('zone-shake-up');
+          void el.offsetWidth;
+          el.classList.add('zone-shake-up');
+          setTimeout(()=>el.classList.remove('zone-shake-up'), 350);
+        });
     }
     // Floating +N/-N over the base's HP box — same look as the creature heal/dmg
     // popups (showFloat), just anchored to .stat-hp-box instead of a card.
