@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 @font-face {
   font-family: 'MEK';
@@ -86,6 +86,10 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   .header-mobile-btn{display:block!important;}
   #turnInfo{position:static;transform:none;margin-left:auto;margin-right:8px;font-size:calc(5vh * 0.32);}
   .header{position:relative;}
+  /* Battlefield cards (.card-small) at -20% of the desktop size (18vh → 14.4vh).
+     Every other card-small-* size (art, name box, stat box, font sizes) is a
+     calc() derived from --card-small-h, so they all shrink to match automatically. */
+  :root{ --card-small-h: 14.4vh; }
 }
 
 
@@ -226,7 +230,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-back{width:calc(6vh * 1.4);border:1px solid #ffffff11;padding:5px;background:#0d0d1a;height:6vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
 
 /* SMALL CARDS - on battlefield */ 
-.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:4px;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
+.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:8%;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
 .field-preview-card{position:fixed;pointer-events:none;margin:0;box-shadow:0 10px 40px #000000cc;}
 /* Бэкдроп зума карты из руки (см. zoomHandCardFly в render.js) — блокирует клики "сквозь"
    увеличенную карту по остальной игре; z-index ниже клона карты (6000), но выше всего остального. */
@@ -263,7 +267,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 
 /* CARDS */
-.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;border-radius:10px}
+.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;border-radius:8%}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
 .card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
 .card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
@@ -770,6 +774,12 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:#000000;z-index:220;display:flex;align-items:center;justify-content:center;}
+/* Mulligan screen can end up taller than the viewport (5 cards + info text + buttons
+   on a short phone screen). .modal-overlay centers with flex and has no scroll, so
+   anything taller than the screen was simply unreachable. `align-items:safe center`
+   falls back to top-aligned + scrollable instead of centering off-screen when content
+   overflows. */
+#mulliganScreen{overflow-y:auto;align-items:safe center;padding:24px 0;}
 /* Ширина модалки завязана на --modal-border-w: раньше width была фиксированной (340px),
    а рамка росла до 80px на десктопе — рамка съедала контентную зону до ~180px, и футер
    с кнопками (которому теперь нужно ~290px, см. .modal-footer) вылезал за пределы модалки
@@ -1592,15 +1602,27 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .filter-btn.jeet-f.active{color:#b44fd4;border-color:#b44fd4;background:#b44fd411;}
 .search-input:focus{outline:none;border-color:#c8a84b;}
 .search-input,.search-input *{user-select: text;-webkit-user-select: text;}
-.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;}
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;container-type:inline-size;}
 @media(max-width:600px){
-  .catalog-grid{grid-template-columns:repeat(3, 1fr); row-gap:16px;}
-}
-@media(max-width:600px){
+  /* Always exactly 3 columns on phones. Card size is derived from the grid's own
+     rendered width via container query units (cqw), which is always exactly
+     correct no matter how much padding sits above it in the DOM — unlike the old
+     fixed vw-based formula, which didn't account for the inner wrapper's own
+     padding and made cards the wrong height, clipping them at the bottom.
+     All the size vars that scale off --card-h are re-derived here too (same
+     pattern as .card-detail-scaled below), since --card-w/--card-h alone aren't
+     enough to correctly resize the name box, art, padding, etc. */
   .catalog-grid{grid-template-columns:repeat(3, 1fr);row-gap:16px;}
   .cat-card{
-    --card-h: calc((92vw - 20px) / 3 / 0.716);
-    --card-w: calc(var(--card-h) * 0.716);
+    --card-w: calc((100cqw - 20px) / 3);
+    --card-h: calc(var(--card-w) / 0.716);
+    --card-art-size: calc(var(--card-h) * 0.535);
+    --card-pad: calc(var(--card-h) * 0.021);
+    --card-name-h: calc(var(--card-h) * 0.096);
+    --card-stats-h: calc(var(--card-h) * 0.085);
+    --card-text-h: calc(var(--card-h) * 0.24);
+    --card-world-name-h: calc(var(--card-h) * 0.096);
+    --card-world-text-h: calc(var(--card-h) * 0.16);
     width: var(--card-w) !important;
     height: var(--card-h) !important;
     padding: var(--card-pad) !important;
