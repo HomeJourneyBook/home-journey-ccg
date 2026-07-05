@@ -15,7 +15,7 @@ const DEFS = {
 
   // Dreegan Tea
   t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:4,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad: +1 HP."},
-  t_trvl31_w:   {name:"TRAVELER #31",   cost:4,hp:4,atk:1,art:"🌳", img:"31.png",   f:"tea",tags:["provoke","fear","gtype:drg"],             ab:"Squad: +1 HP."},
+  t_trvl31_w:   {name:"TRAVELER #31",   cost:4,hp:4,atk:1,art:"🌳", img:"31.png",   f:"tea",tags:["provoke","burn","gtype:drg"],             ab:"Squad: +1 HP."},
   t_trvl892_w:  {name:"TRAVELER #892",  cost:4,hp:4,atk:1,art:"🌳", img:"892.png",  f:"tea",tags:["provoke","regen","gtype:drg"],            ab:"Squad: +1 HP."},
   t_trvl14_w:   {name:"TRAVELER #14",   cost:3,hp:4,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad: +1 HP."},
 
@@ -34,7 +34,7 @@ const DEFS = {
   // Xuiqtr Tea
   t_trvl187_w:  {name:"TRAVELER #187",  cost:3,hp:4,atk:1,art:"🐙", img:"187.png",  f:"tea",tags:["regen:1","gtype:xui"],                   ab:"Squad: Regen 2."},
   t_trvl704_w:  {name:"TRAVELER #704",  cost:5,hp:4,atk:2,art:"🐙", img:"704.png",  f:"tea",tags:["regen:1","fear","gtype:xui"],             ab:"Squad: Regen 2."},
-  t_trvl26_w:   {name:"TRAVELER #26",   cost:4,hp:4,atk:1,art:"🐙", img:"26.png",   f:"tea",tags:["regen:1","aoe:1","gtype:xui"],            ab:"Squad: Regen 2."},
+  t_trvl26_w:   {name:"TRAVELER #26",   cost:4,hp:4,atk:1,art:"🐙", img:"26.png",   f:"tea",tags:["regen:1","aoe:1","gtype:xui"],            ab:"Active: AOE 1 dmg. Squad: Regen 2."},
   t_trvl39_w:   {name:"TRAVELER #39",   cost:3,hp:4,atk:1,art:"🐙", img:"39.png",   f:"tea",tags:["regen:1","gtype:xui"],                   ab:"Squad: Regen 2."},
 
   // ── TEA LEGENDARIES ─────────────────────────────────────────────
@@ -74,7 +74,7 @@ const DEFS = {
   j_trvl36_w:   {name:"TRAVELER #36",   cost:3,hp:4,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad: +1 HP."},
   j_trvl41_w:   {name:"TRAVELER #41",   cost:3,hp:4,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad: +1 HP."},
   j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:4,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","gtype:drg"],        ab:"Squad: +1 HP."},
-  j_trvl859_w:  {name:"TRAVELER #859",  cost:5,hp:4,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","regen","vanguard","gtype:drg"],ab:"Squad: +1 HP."},
+  j_trvl859_w:  {name:"TRAVELER #859",  cost:5,hp:4,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad: +1 HP."},
 
   // Umbasir Jeet
   j_trvl550_w:  {name:"TRAVELER #550",  cost:3,hp:2,atk:1,art:"🌀", img:"550.png",  f:"jeet",tags:["aoe:1","fear","gtype:umb"],           ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
@@ -99,7 +99,7 @@ const DEFS = {
   j_ryv:       {name:"RYVLEN",      cost:5,hp:4,atk:2,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","fear","draw_attack:1"],        ab:"On attack: Draw 1 card.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1"],          ab:"On enter: AOE 1 dmg.",unique:true},
   j_phleg:     {name:"PHLEGMOR",    cost:5,hp:6,atk:1,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1"],                     ab:"On turn: Raise top graveyard card at 1 HP.",unique:true},
-  j_vard:      {name:"SEEKER",      cost:4,hp:4,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear","pierce"],    ab:"Invisible.",unique:true},
+  j_vard:      {name:"SEEKER",      cost:4,hp:4,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear","pierce"],    ab:"\"Seek, and ye shall find.\"",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2 cards.",spell:true},
