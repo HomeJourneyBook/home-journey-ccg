@@ -512,14 +512,62 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   animation:baseBlinkRed .8s infinite alternate;
 }
 
-.opp-hand-zone{height:7vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.opp-hand-zone{height:7vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .field-zone{border:1px solid #80808080;background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;padding:2px}
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
-.player-hand-zone{height:27vh;padding:6px 6px;border:none;}
+.player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
 .player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
+@media(min-width:601px){
+  /* Reserved gutter for the modal side-rail (border-image, 15px wide, drawn at
+     2x so the source asset's corner slice = 30px). Was 6px — bumped to 15px so
+     cards never render under where the rail sits, on DESKTOP only: on mobile
+     the carousel is meant to scroll under the rail instead (see .card-drawn
+     rail rules below — no padding change there on purpose).
+     Arena (.field-zone) confirmed OUT OF SCOPE — stays at 2px, rail never
+     extends past the hand zones. */
+  .opp-hand-zone{padding:0 15px 4px;}
+  .player-hand-zone{padding:6px 15px;}
+}
+
+/* ── Hand-zone side rails (PLACEHOLDER images — swap once drawn) ──────────
+   Two SEPARATE rails: one for the active player's hand, one for the
+   opponent's. Same placeholder art/settings for both today; give
+   .opp-hand-zone-rail its own Jeet-specific image later without touching
+   the player one.
+   Scoped to ::after on each hand zone (inset:0 → matches that zone's own
+   box exactly) — NOT a viewport-fixed overlay, so it can never bleed into
+   the arena above/below it.
+   Rendered at ALL widths (including mobile) — on mobile there's no reserved
+   padding, so the hand carousel scrolls visually UNDER this rail as cards
+   pass behind it near the edges, which is the intended effect there.
+   Asset drawn at 2x: corner cut = 30px in the file → border-image-slice:30
+   (slice deliberately has no `fill` keyword — the middle must stay fully
+   transparent/click-through, `fill` would stretch the source's middle
+   region across the whole zone instead).
+   border-image-repeat:repeat on both axes — side tiles repeat as drawn, no
+   stretching; corners are never affected by this setting either way. If a
+   side length isn't an exact multiple of the tile and the clipped edge tile
+   looks wrong, switch to `round` instead (scales the tile slightly so a
+   whole number of copies always fits with zero clipping — still leaves
+   corners untouched). */
+.player-hand-zone::after,
+.opp-hand-zone::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:600; /* above hand cards/carousel; below any real modal content that ever needs to sit on top */
+  pointer-events:none; /* transparent middle is click/tap-through */
+  border-style:solid;
+  border-width:15px;
+  border-image-source:url('../img/hands_border.png');
+  border-image-slice:30;
+  border-image-width:15px;
+  border-image-outset:0;
+  border-image-repeat:repeat;
+}
 
 /* BOTTOM BAR */
 /* align-items:stretch (было center) — .bottom-slot без явной высоты раньше сжимался
@@ -1387,7 +1435,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .art-btn-hotseat:active { background-image:url('../img/btn_hotseat2.png');  }
 .art-btn-vsai           { background-image:url('../img/btn_vsai1.png');    }
 .art-btn-vsai:hover     { background-image:url('../img/btn_vsaiH.png');    }
-.art-btn-vsai:active    { background-image:url('../img/btn_vsai1.png');    }
+.art-btn-vsai:active    { background-image:url('../img/btn_vsai2.png');    }
 .art-btn-online         { background-image:url('../img/btn_online1.gif');  }
 
 /* ── Graveyard modal — рамка и хедер как у battle log ────────────────
