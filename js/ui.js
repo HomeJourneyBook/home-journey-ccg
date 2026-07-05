@@ -181,7 +181,8 @@ function preloadAssets(){
 
     // ── Кнопки модалок ──
     'img/btn_yes.png', 'img/btn_cancel.png',
-    'img/btn_mulligan.png', 'img/btn_ready.png',
+    'img/btn_mulligan1.png', 'img/btn_mulliganH.png', 'img/btn_mulligan2.png',
+    'img/btn_ready1.png', 'img/btn_readyH.png', 'img/btn_ready2.png',
     'img/btn_X.png', 'img/btn_Xh.png', 'img/btn_X2.png',
 
     // ── Карты — базовые фреймы ──
