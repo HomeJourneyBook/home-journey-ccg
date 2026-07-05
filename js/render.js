@@ -889,7 +889,9 @@ function adjustHandOverlap(){
     if(!el)return;
     const wrap=el.closest('.player-hand-wrap');
     let containerW=wrap?wrap.getBoundingClientRect().width:el.parentElement.getBoundingClientRect().width;
-    containerW=Math.floor(containerW)-12;
+    const zoneStyle=getComputedStyle(el.parentElement);
+    const zonePad=(parseFloat(zoneStyle.paddingLeft)||0)+(parseFloat(zoneStyle.paddingRight)||0);
+    containerW=Math.floor(containerW)-zonePad;
     if(containerW<=20) containerW=window.innerWidth-90-24;
     if(containerW<=20)return;
 
