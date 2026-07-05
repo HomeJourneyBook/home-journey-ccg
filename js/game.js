@@ -945,7 +945,8 @@ function _applyPendingFlash(){
   const flashes=G._pendingFlash;
   G._pendingFlash=[];
   flashes.forEach(({who,type,amount})=>{
-    const elId=_statsElIdForFaction(_resolveFlashFaction(who));
+    const targetFaction=_resolveFlashFaction(who);
+    const elId=_statsElIdForFaction(targetFaction);
     const bar=document.getElementById(elId);
     if(!bar) return;
     const cls=type==='dmg'?'flash-red':'flash-green';
@@ -957,13 +958,22 @@ function _applyPendingFlash(){
       target.classList.add(cls);
       setTimeout(()=>target.classList.remove('flash-red','flash-green'), 500);
     });
-    // Screen-edge glow — same trigger, same color, just on the whole viewport.
-    const edge=document.getElementById('screenEdgeFlash');
-    if(edge){
-      edge.classList.remove('flash-red','flash-green');
-      void edge.offsetWidth;
-      edge.classList.add(cls);
-      setTimeout(()=>edge.classList.remove('flash-red','flash-green'), 500);
+    // Screen-edge glow — ONLY for the active player's OWN base (self), not for
+    // damage the active player just dealt to the opponent (the attacker
+    // doesn't need a red alarm for a threat they caused themselves) and not
+    // for a heal landing on the opponent's base. Today this means: red never
+    // fires yet (all current base damage is attack-caused, always 'opp'),
+    // green fires exactly as before (all current base heals already target
+    // the active player's own base) — but this stays correct automatically
+    // if a future card ever damages/heals "the other" base directly.
+    if(targetFaction===G.turn){
+      const edge=document.getElementById('screenEdgeFlash');
+      if(edge){
+        edge.classList.remove('flash-red','flash-green');
+        void edge.offsetWidth;
+        edge.classList.add(cls);
+        setTimeout(()=>edge.classList.remove('flash-red','flash-green'), 500);
+      }
     }
     // Floating +N/-N over the base's HP box — same look as the creature heal/dmg
     // popups (showFloat), just anchored to .stat-hp-box instead of a card.
