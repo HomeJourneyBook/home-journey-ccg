@@ -370,7 +370,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 /* LAYOUT ZONES */
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
-.stats-bar{position:relative;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
+.stats-bar{position:relative;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;background-size:100% 100%;background-position:center;background-repeat:no-repeat;}
 /* ПЛЕЙСХОЛДЕР, прибитый к правому краю статус-бара (небольшой отступ 6px от края,
    не влияет на центрирование остального ряда — стоит вне потока через position:absolute).
    1:1, сторона = 2/3 высоты .stats-bar. Только лаптоп/десктоп. */
@@ -434,6 +434,19 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .stats-bar.tea{}
 .stats-bar.jeet{background-color:var(--jeet-main);}
 .stats-bar.tea{background-color:#5a7278;}
+/* Whole-panel background per HP tier — bg_statbar_<faction><tier>.png.
+   Tier class lives on the .stats-bar element itself (see reorderZones() in
+   render.js), computed live from hpTier() (state.js) on every render. */
+.stats-bar.tea.hp-tier-1{background-image:url('../img/bg_statbar_tea1.png');}
+.stats-bar.tea.hp-tier-2{background-image:url('../img/bg_statbar_tea2.png');}
+.stats-bar.tea.hp-tier-3{background-image:url('../img/bg_statbar_tea3.png');}
+.stats-bar.tea.hp-tier-4{background-image:url('../img/bg_statbar_tea4.png');}
+.stats-bar.tea.hp-tier-5{background-image:url('../img/bg_statbar_tea5.png');}
+.stats-bar.jeet.hp-tier-1{background-image:url('../img/bg_statbar_jeet1.png');}
+.stats-bar.jeet.hp-tier-2{background-image:url('../img/bg_statbar_jeet2.png');}
+.stats-bar.jeet.hp-tier-3{background-image:url('../img/bg_statbar_jeet3.png');}
+.stats-bar.jeet.hp-tier-4{background-image:url('../img/bg_statbar_jeet4.png');}
+.stats-bar.jeet.hp-tier-5{background-image:url('../img/bg_statbar_jeet5.png');}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
@@ -510,16 +523,19 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 /* Base HP visual tiers — bg swaps as the base takes damage. Tier computed
    live from current HP by hpTier() (state.js), applied as a class in
    reorderZones() (render.js). tier1 = full HP (20), tier5 = critical (0-4). */
-.tea-name-box.hp-tier-1{background-image:url('../img/bg_statbar_tea1.png');}
-.tea-name-box.hp-tier-2{background-image:url('../img/bg_statbar_tea2.png');}
-.tea-name-box.hp-tier-3{background-image:url('../img/bg_statbar_tea3.png');}
-.tea-name-box.hp-tier-4{background-image:url('../img/bg_statbar_tea4.png');}
-.tea-name-box.hp-tier-5{background-image:url('../img/bg_statbar_tea5.png');}
-.jeet-name-box.hp-tier-1{background-image:url('../img/bg_statbar_jeet1.png');}
-.jeet-name-box.hp-tier-2{background-image:url('../img/bg_statbar_jeet2.png');}
-.jeet-name-box.hp-tier-3{background-image:url('../img/bg_statbar_jeet3.png');}
-.jeet-name-box.hp-tier-4{background-image:url('../img/bg_statbar_jeet4.png');}
-.jeet-name-box.hp-tier-5{background-image:url('../img/bg_statbar_jeet5.png');}
+/* Base "portal" icon (.player-name-box) tiers — PLACEHOLDER: all 5 tiers point
+   to the same original single-state art for now. Swap in 5 real per-tier
+   files later, same naming pattern as the panel background above. */
+.tea-name-box.hp-tier-1,
+.tea-name-box.hp-tier-2,
+.tea-name-box.hp-tier-3,
+.tea-name-box.hp-tier-4,
+.tea-name-box.hp-tier-5{background-image:url('../img/bg_statbar_tea.png');}
+.jeet-name-box.hp-tier-1,
+.jeet-name-box.hp-tier-2,
+.jeet-name-box.hp-tier-3,
+.jeet-name-box.hp-tier-4,
+.jeet-name-box.hp-tier-5{background-image:url('../img/bg_statbar_jeet.png');}
 .player-name-box:active{transform:scale(0.92);}
 /* Таргет базы противника — усилено по двум фронтам:
    1) ::after — полупрозрачная красная заливка ПРЯМО НА базе, мигает туда-обратно
@@ -922,15 +938,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .hidden{display:none!important;}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:#000000;z-index:220;display:flex;align-items:center;justify-content:center;}
-/* #graveModal's .modal-overlay wrapper was still capped at z-index:220, so
-   bumping the inner .grave-modal to 650 did nothing — the whole overlay (and
-   everything inside it) was still stacked at 220 relative to the rest of the
-   page, below the hand-zone rail (600). This is the only modal-overlay shown
-   DURING active gameplay (transparent background, meant to sit over the
-   board) — the others (confirm/win/mulligan/pass) fully take over the screen
-   anyway, so they don't have this problem. */
-#graveModal{z-index:650;}
+.modal-overlay{position:fixed;inset:0;background:#000000;z-index:650;display:flex;align-items:center;justify-content:center;}
 /* Mulligan screen can end up taller than the viewport (5 cards + info text + buttons
    on a short phone screen). .modal-overlay centers with flex and has no scroll, so
    anything taller than the screen was simply unreachable. `align-items:safe center`
@@ -1040,6 +1048,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .modal-art-btn.btn-mulligan:hover{background-image:url('../img/btn_mulliganH.png');filter:brightness(1);}
 .modal-art-btn.btn-mulligan:active{background-image:url('../img/btn_mulligan2.png');filter:brightness(0.9);}
+.modal-art-btn.btn-mulligan:disabled{
+  opacity:0.4;
+  cursor:not-allowed;
+  pointer-events:none; /* blocks :hover from ever triggering, so the idle art never swaps */
+}
 
 .modal-art-btn.btn-ready{
   width:min(80px, 18vw);
@@ -1695,7 +1708,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    с glitch-reveal при попадании во вьюпорт (см. lore-observer в ui.js), и
    отдельно оформленная ссылка на архив в конце. */
 #loreScreen{
-  background:linear-gradient(rgba(10,10,18,0.78),rgba(10,10,18,0.88)), url('../img/logo_space.png');
+  background:linear-gradient(rgba(10,10,18,0.78),rgba(10,10,18,0.88)), url('../img/space_bg.png');
   background-size:cover;
   background-position:center;
   background-color:#0a0a12;
@@ -1703,7 +1716,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .lore-page{
   --r: 0deg;
   position:relative;
-  margin:0 0 6vw;
+  margin:0 0 7.5vw;
   padding:0;
   border-style:solid;
   border-width:25px;
@@ -1729,16 +1742,20 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 @keyframes loreReveal{
   0%   { opacity:0; transform:rotate(var(--r)) translateY(14px); text-shadow:none; }
   2%   { opacity:1; transform:rotate(var(--r)) translateY(0); }
-  22%  { text-shadow:2px 0 #ff0044,-2px 0 #00e5ff; }
-  48%  { text-shadow:-2px 0 #ff0044,2px 0 #00e5ff; }
-  74%  { text-shadow:1px 0 #ff0044,-1px 0 #00e5ff; }
+  22%  { text-shadow:1px 0 #ff0044,-1px 0 #00e5ff; }
+  48%  { text-shadow:-1px 0 #ff0044,1px 0 #00e5ff; }
+  74%  { text-shadow:0.5px 0 #ff0044,-0.5px 0 #00e5ff; }
   100% { opacity:1; transform:rotate(var(--r)) translateY(0); text-shadow:none; }
 }
-.lore-page h2{margin-top:0;}
+.lore-page h2{margin-top:0;text-align:center;}
 /* Основной текст лор-экрана крупнее, чем у остальных screen-body (rules/catalog его
-   не наследуют — селектор через #loreScreen). Body +70%, заголовки +20%. */
-#loreScreen .screen-body{font-size:calc(4.56vw * 1.7);}
-#loreScreen .screen-body h2{font-size:calc(6vw * 1.2);}
+   не наследуют — селектор через #loreScreen). Body +70% (halved again on mobile
+   below), заголовки +20%. Line-height halved vs the base .screen-body (1.9->0.95) —
+   lore_pages.png is light aged paper, tight readable lines fit that look better
+   than the airy spacing tuned for the dark screens. Color switched from the
+   washed-out #9B937F (poor contrast on light paper) to a dark sepia ink tone. */
+#loreScreen .screen-body{font-size:calc(4.56vw * 1.7 * 0.5);line-height:0.95;color:#3b2a1a;}
+#loreScreen .screen-body h2{font-size:calc(6vw * 1.2 * 0.5);}
 .lore-archive-link{
   display:block;
   margin:8vw auto 6vw;
@@ -1753,7 +1770,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .lore-archive-link-title{font-family:'MEK',monospace;font-size:5vw;color:#c8a84b;margin-bottom:1.5vw;}
 .lore-archive-link-sub{font-size:3.6vw;color:#9B937F;}
 @media(min-width:600px){
-  .lore-page{margin-bottom:2vw;}
+  .lore-page{margin-bottom:3vw;}
   .lore-archive-link{padding:1.4vw 2vw;margin:3vw auto 2vw;}
   .lore-archive-link-title{font-size:1.3vw;}
   .lore-archive-link-sub{font-size:0.95vw;}
