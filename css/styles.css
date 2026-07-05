@@ -507,8 +507,19 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    statbar-extra и т.д.) */
 .statbar-core{display:flex;align-items:center;gap:0;flex-shrink:0;}
 .player-name-box{width:calc(max(4vh, 2vw) * 2);height:max(4vh, 2vw);background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
-.tea-name-box{background-image:url('../img/bg_statbar_tea.png');}
-.jeet-name-box{background-image:url('../img/bg_statbar_jeet.png');}
+/* Base HP visual tiers — bg swaps as the base takes damage. Tier computed
+   live from current HP by hpTier() (state.js), applied as a class in
+   reorderZones() (render.js). tier1 = full HP (20), tier5 = critical (0-4). */
+.tea-name-box.hp-tier-1{background-image:url('../img/bg_statbar_tea1.png');}
+.tea-name-box.hp-tier-2{background-image:url('../img/bg_statbar_tea2.png');}
+.tea-name-box.hp-tier-3{background-image:url('../img/bg_statbar_tea3.png');}
+.tea-name-box.hp-tier-4{background-image:url('../img/bg_statbar_tea4.png');}
+.tea-name-box.hp-tier-5{background-image:url('../img/bg_statbar_tea5.png');}
+.jeet-name-box.hp-tier-1{background-image:url('../img/bg_statbar_jeet1.png');}
+.jeet-name-box.hp-tier-2{background-image:url('../img/bg_statbar_jeet2.png');}
+.jeet-name-box.hp-tier-3{background-image:url('../img/bg_statbar_jeet3.png');}
+.jeet-name-box.hp-tier-4{background-image:url('../img/bg_statbar_jeet4.png');}
+.jeet-name-box.hp-tier-5{background-image:url('../img/bg_statbar_jeet5.png');}
 .player-name-box:active{transform:scale(0.92);}
 /* Таргет базы противника — усилено по двум фронтам:
    1) ::after — полупрозрачная красная заливка ПРЯМО НА базе, мигает туда-обратно
@@ -1693,9 +1704,14 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   --r: 0deg;
   position:relative;
   margin:0 0 6vw;
-  padding:4vw 5vw 1vw;
-  border:1px solid #c8a84b3d;
-  background:#0d0d1a99;
+  padding:0;
+  border-style:solid;
+  border-width:25px;
+  border-image-source:url('../img/lore_pages.png');
+  border-image-slice:50 fill;
+  border-image-width:25px;
+  border-image-outset:0;
+  border-image-repeat:repeat;
   opacity:0;
   transform:rotate(var(--r)) translateY(14px);
 }
@@ -1737,7 +1753,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .lore-archive-link-title{font-family:'MEK',monospace;font-size:5vw;color:#c8a84b;margin-bottom:1.5vw;}
 .lore-archive-link-sub{font-size:3.6vw;color:#9B937F;}
 @media(min-width:600px){
-  .lore-page{padding:2vw 2.5vw 0.5vw;margin-bottom:2vw;}
+  .lore-page{margin-bottom:2vw;}
   .lore-archive-link{padding:1.4vw 2vw;margin:3vw auto 2vw;}
   .lore-archive-link-title{font-size:1.3vw;}
   .lore-archive-link-sub{font-size:0.95vw;}
