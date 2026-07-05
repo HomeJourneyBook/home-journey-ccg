@@ -255,7 +255,7 @@ const tagIcons=(card.tags||[])
 ${!isSW?`<div class="card-small-stats">
   <div class="card-small-hp-box"><span class="card-small-hp">${card.hp}</span></div>
 <img src="img/chel.png" class="card-stats-icon">
-  <div class="card-small-atk-box"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
+  <div class="card-small-atk-box"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
 </div>`
 :`<div class="card-small-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div></div>`}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
@@ -470,7 +470,7 @@ const tagIcons = (card.tags||[])
     ${!isSW?`<div class="card-stats">
       <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.maxHp}</span></div>
 <img src="img/chel.png" class="card-stats-icon">
-      <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)}</span></div>
+      <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/chel.png" class="card-stats-icon"></div>`}
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
