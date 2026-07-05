@@ -799,7 +799,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
-  z-index:50;display:none;
+  z-index:650;display:none;
   /* was box-shadow (rectangular, from the bounding box) — log_frame.png has
      cut/rounded corners, so the rectangular shadow showed through those
      transparent corners as an unwanted "background" patch. drop-shadow follows
@@ -1530,7 +1530,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   border-image-repeat:stretch;
   padding:0;
   pointer-events:all;
-  z-index:500;
+  z-index:650;
   display:flex;
   flex-direction:column;
   /* was box-shadow — grav_frame.png has cut/rounded corners like log_frame.png,
@@ -2076,6 +2076,17 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   100% { transform: translateY(0); }
 }
 .zone-shake{ animation: zoneShakeImpact 0.35s ease-out; }
+
+/* Opponent's version — same idea, opposite direction (nudges UP instead of
+   down), used when the viewer's own attack damages the opponent's base. */
+@keyframes zoneShakeImpactUp{
+  0%   { transform: translateY(0); }
+  20%  { transform: translateY(-6px); }
+  45%  { transform: translateY(2px); }
+  70%  { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+.zone-shake-up{ animation: zoneShakeImpactUp 0.35s ease-out; }
 
 @keyframes pulseNameBox{
   from{box-shadow:0 0 10px 3px #e05555, inset 0 0 4px #e05555aa;}
