@@ -33,7 +33,7 @@ function showAiBanner(show){
 
 // ── ГЛАВНЫЙ ВХОД ────────────────────────────────────────────────────
 function runAiTurn(){
-  if(!(G.mode === 'vsai' && G.turn === G.aiFaction)) return;
+  if(!(G.mode === 'vsai' && G.turn === G.aiFaction) || G.gameOver) return;
   showAiBanner(true);
   setTimeout(() => aiPlayCardsStep(0), 450);
 }
