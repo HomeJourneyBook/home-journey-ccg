@@ -559,7 +559,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 .opp-hand-zone{height:7vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
 .opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
-.field-zone{border:1px solid #80808080;background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;padding:2px}
+.field-zone{border:1px solid #80808080;background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;z-index:0;padding:2px}
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
@@ -1755,7 +1755,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    than the airy spacing tuned for the dark screens. Color switched from the
    washed-out #9B937F (poor contrast on light paper) to a dark sepia ink tone. */
 #loreScreen .screen-body{font-size:calc(4.56vw * 1.7 * 0.5);line-height:0.95;color:#3b2a1a;}
-#loreScreen .screen-body h2{font-size:calc(6vw * 1.2 * 0.5);}
+#loreScreen .screen-body h2{font-size:calc(6vw * 1.2 * 0.5);color:#5c2415;}
 .lore-archive-link{
   display:block;
   margin:8vw auto 6vw;
@@ -2176,7 +2176,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   filter: blur(40px);
   opacity: 0.08;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   animation: nebulaDrift 20s ease-in-out infinite;
 }
 .field-nebula.tea  { background: #4DB854; }
@@ -2196,7 +2196,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   height: 3px;
   background: #fff;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   animation: starTwinkle 3s ease-in-out infinite;
 }
 @keyframes starTwinkle {
