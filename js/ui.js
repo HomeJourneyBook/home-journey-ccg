@@ -638,6 +638,31 @@ function closeWinModal(){
   }
 }
 
+// Saves the full battle log (G.logs) + match metadata as a downloadable JSON
+// file — meant to be shared back for balance analysis. Button lives next to
+// the win-modal's continue button (see index.html).
+function downloadBattleLog(){
+  const data={
+    timestamp: new Date().toISOString(),
+    mode: G.mode,
+    turns: G.turnNum,
+    winner: document.getElementById('winTitle')?.textContent || null,
+    humanFaction: G.humanFaction || null,
+    aiFaction: G.aiFaction || null,
+    finalHp: { tea: G.tea?.hp, jeet: G.jeet?.hp },
+    logs: G.logs,
+  };
+  const blob=new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`battle_log_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function resetGame(){
   document.getElementById('winModal').classList.add('hidden');
   document.getElementById('game').style.display='flex';
