@@ -27,7 +27,7 @@ function initState(opts){
   // стартом новой партии и появлением экрана муллигана (там есть небольшая задержка,
   // см. setTimeout в startGame()/startGameVsAI()/resetGame()) на долю секунды видны
   // карты из ПРЕДЫДУЩЕЙ партии, которые ещё не были перерисованы через render().
-  ['teaField','jeetField','teaHand','jeetHand','teaPersist','jeetPersist'].forEach(id=>{
+  ['teaField','jeetField','teaHand','jeetHand','teaPersist','jeetPersist','log'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML='';
   });
