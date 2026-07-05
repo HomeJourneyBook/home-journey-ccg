@@ -1,15 +1,28 @@
-// Три готовых сборки колоды (см. обсуждение размеров стартера):
-//  full    — как было, 45/46 карт, вся глубина архетипов
-//  compact — ~39/40 карт: те же архетипы и легендарки, меньше копий спеллов
-//  mini    — ~28/29 карт: только 4 архетипа из 6, 2 легендарки — быстрый показ на вечер
+// Deck presets:
+//  classic — 1st-edition starter, all archetypes + all legendaries, "по сути все
+//            карты реализованные в игре" (currently ~45/46 — still flexible while
+//            we playtest, see CLAUDE.md "Deck size configs")
+//  rush    — no fixed list: the human player assembles it themselves in the
+//            deckbuilder (js/deckbuilder.js) by picking quantities out of the
+//            SAME pool `classic` uses (see getRushPool() below), minimum RUSH_MIN
+//            cards. The AI's own Rush deck (vsAI mode) is a random RUSH_MIN-card
+//            sample of that same pool — see buildAiRushDeck().
+const RUSH_MIN = 28;
+
 const DECK_CONFIGS = {
-  full:    { groupCount:6, groupSize:4, legCount:5, spellCopies:3 },
-  compact: { groupCount:6, groupSize:4, legCount:3, spellCopies:2 },
-  mini:    { groupCount:4, groupSize:4, legCount:2, spellCopies:2 },
+  classic: { groupCount:6, groupSize:4, legCount:5, spellCopies:3 },
 };
 
-function buildDeck(f, configKey) {
-  const cfg = DECK_CONFIGS[configKey] || DECK_CONFIGS.full;
+function shuffleArr(d){
+  for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+  return d;
+}
+
+// Builds the raw (unshuffled, no Unseen bonus card) card-key list for a given
+// faction + config — shared by buildDeck() and getRushPool(). Kept separate so
+// the Rush deckbuilder's pool is always exactly "whatever Classic currently
+// contains", with zero duplicated card-list logic to keep in sync.
+function _composeDeckList(f, cfg){
   const t = f==='tea';
 
   const szarg  = t ? ['t_trvl25_w','t_trvl33_w','t_trvl34_w','t_trvl434_w']
@@ -38,7 +51,6 @@ function buildDeck(f, configKey) {
 
   const worlds = t ? ['t_w1','t_w2'] : ['j_w1','j_w2'];
   const arts   = t ? ['t_a1','t_a2'] : ['j_a1','j_a2'];
-  const extra  = t ? [] : ['unseen'];
 
   let d = [];
   const allGroups = [szarg,orb,drg,umb,mch,xui];
@@ -50,10 +62,42 @@ function buildDeck(f, configKey) {
   spells.forEach(k => { for(let i=0;i<cfg.spellCopies;i++) d.push(k); });
   worlds.forEach(k => d.push(k));
   arts.forEach(k => d.push(k));
-  extra.forEach(k => d.push(k));
 
-  for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
   return d;
+}
+
+function buildDeck(f, configKey) {
+  const cfg = DECK_CONFIGS[configKey] || DECK_CONFIGS.classic;
+  const t = f==='tea';
+  let d = _composeDeckList(f, cfg);
+  if(!t) d.push('unseen'); // second-player bonus card (see CLAUDE.md — currently always Jeet)
+  return shuffleArr(d);
+}
+
+// Rush deckbuilder pool — same composition as Classic, unshuffled, WITHOUT the
+// Unseen bonus card (that's still granted automatically to whoever plays
+// second — see deckbuilder.js). Returned as unique {key,max} entries: max is
+// almost always 1 (one physical copy in the "collection"), except spells,
+// which appear `spellCopies` times in Classic and so can be picked up to
+// that many times here.
+function getRushPool(f){
+  const list = _composeDeckList(f, DECK_CONFIGS.classic);
+  const counts = {};
+  list.forEach(k => { counts[k] = (counts[k]||0) + 1; });
+  return Object.keys(counts).map(key => ({ key, max: counts[key] }));
+}
+
+// AI's automatic Rush deck (vsAI mode only — the AI never goes through the
+// deckbuilder UI): a random RUSH_MIN-card sample of the same pool a human
+// would be picking from, so the AI's deck is roughly "one plausible Rush
+// build" rather than a separately hand-tuned preset.
+function buildAiRushDeck(f){
+  let slots = [];
+  getRushPool(f).forEach(({key,max}) => { for(let i=0;i<max;i++) slots.push(key); });
+  shuffleArr(slots);
+  let d = slots.slice(0, RUSH_MIN);
+  if(f==='jeet') d.push('unseen');
+  return shuffleArr(d);
 }
 
 let UID=0;
