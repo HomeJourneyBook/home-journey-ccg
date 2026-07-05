@@ -1,4 +1,4 @@
- @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 @font-face {
   font-family: 'MEK';
@@ -86,10 +86,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   .header-mobile-btn{display:block!important;}
   #turnInfo{position:static;transform:none;margin-left:auto;margin-right:8px;font-size:calc(5vh * 0.32);}
   .header{position:relative;}
-  /* Battlefield cards (.card-small) at -20% of the desktop size (18vh → 14.4vh).
+  /* Battlefield cards (.card-small) on phones. Was -20% off desktop (18vh -> 14.4vh),
+     now another -20% off THAT (14.4vh -> 11.52vh) — total -36% off the original 18vh.
      Every other card-small-* size (art, name box, stat box, font sizes) is a
      calc() derived from --card-small-h, so they all shrink to match automatically. */
-  :root{ --card-small-h: 14.4vh; }
+  :root{ --card-small-h: 11.52vh; }
 }
 
 
@@ -230,7 +231,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-back{width:calc(6vh * 1.4);border:1px solid #ffffff11;padding:5px;background:#0d0d1a;height:6vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
 
 /* SMALL CARDS - on battlefield */ 
-.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:8%;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
+.card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:10.4%;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
 .field-preview-card{position:fixed;pointer-events:none;margin:0;box-shadow:0 10px 40px #000000cc;}
 /* Бэкдроп зума карты из руки (см. zoomHandCardFly в render.js) — блокирует клики "сквозь"
    увеличенную карту по остальной игре; z-index ниже клона карты (6000), но выше всего остального. */
@@ -267,7 +268,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 
 /* CARDS */
-.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;border-radius:8%}
+.card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;border-radius:10.4%}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
 .card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
 .card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
@@ -684,7 +685,12 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
-  z-index:50;display:none;box-shadow:0 4px 20px #000000aa;
+  z-index:50;display:none;
+  /* was box-shadow (rectangular, from the bounding box) — log_frame.png has
+     cut/rounded corners, so the rectangular shadow showed through those
+     transparent corners as an unwanted "background" patch. drop-shadow follows
+     the actual opaque (alpha) shape of the frame instead. */
+  filter:drop-shadow(0 4px 20px #000000aa);
 }
 .log-panel.open{display:block;}
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
@@ -1394,7 +1400,10 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   z-index:500;
   display:flex;
   flex-direction:column;
-  box-shadow:0 4px 20px #000000aa;
+  /* was box-shadow — grav_frame.png has cut/rounded corners like log_frame.png,
+     same fix: drop-shadow follows the frame's actual opaque shape instead of
+     leaking a rectangular shadow through the transparent corner cutouts. */
+  filter:drop-shadow(0 4px 20px #000000aa);
 }
 
 /* Хедер — тот же 9-slice фон bg_jest.png, что теперь и у battle log header.
