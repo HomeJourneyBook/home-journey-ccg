@@ -41,9 +41,32 @@ function lg(msg,cls=''){
   G.logs.push({msg,cls});
   const el=document.getElementById('log');
   if(el){
-    el.innerHTML=G.logs.map(e=>`<div class="le ${e.cls}">${e.msg}</div>`).join('');
+    el.innerHTML=G.logs.filter(e=>!e.hidden).map(e=>`<div class="le ${e.cls}">${e.msg}</div>`).join('');
     el.scrollTop=el.scrollHeight;
   }
+}
+
+// Structured, hidden log entry — invisible in the on-screen log panel (filtered
+// out above), but present in the exported JSON (downloadBattleLog). Captures
+// exactly what the about-to-act faction had available at the START of their
+// turn: full hand, field state, essence, deck size. This is the data needed
+// to tell "AI had a playable creature and chose not to" apart from "AI
+// genuinely had nothing to play" — the visible log alone can't distinguish
+// those two cases.
+function logTurnSnapshot(faction){
+  const p=G[faction];
+  if(!p) return;
+  G.logs.push({
+    msg:'', cls:'snapshot', hidden:true,
+    snapshot:{
+      turn:G.turnNum,
+      faction,
+      ess:{cur:p.ess,max:p.essMax},
+      hand:p.hand.map(c=>c.name),
+      field:p.field.map(c=>`${c.name} (${c.hp}/${c.maxHp} HP, ${c.atk+(c.atkBonus||0)+(c.rageBonus||0)+(c.squadAtkBonus||0)} ATK)`),
+      deckLeft:p.deck.length,
+    }
+  });
 }
 
 function hint(msg){
@@ -64,4 +87,15 @@ function findC(id){
 function resetC(c){
   c.sleeping=false;c.exhausted=false;c.feared=false;c.burning=false;c.atkBonus=0;c.rageBonus=0;c.maxHpBonus=0;c.squadMaxHpBonus=0;c.squadAtkBonus=0;
   const def=DEFS[c.key];if(def){c.hp=def.hp;c.maxHp=def.hp;}
+}
+
+// Base HP visual tier (1-5) — drives which bg_statbar_<faction><tier>.png shows
+// on the player-name-box. 20=1 (full/pristine), 15-19=2, 10-14=3, 5-9=4, 0-4=5
+// (most damaged). See reorderZones() in render.js for where this gets applied.
+function hpTier(hp){
+  if(hp>=20) return 1;
+  if(hp>=15) return 2;
+  if(hp>=10) return 3;
+  if(hp>=5) return 4;
+  return 5;
 }
