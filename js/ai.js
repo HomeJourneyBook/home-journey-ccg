@@ -65,16 +65,84 @@ function aiTryBurnCard(){
 function aiPlayCardsStep(iter){
   if(!(G.mode === 'vsai' && G.turn === G.aiFaction)){ showAiBanner(false); return; }
   if(iter > 20){ // защита от бесконечного цикла (не должно происходить)
+    aiTryUseShard();
     aiAttackStep(getAiCreatureQueue(), 0);
     return;
   }
   const card = aiPickBestCard();
   if(!card){
+    aiTryUseShard();
     aiAttackStep(getAiCreatureQueue(), 0);
     return;
   }
   doPlay(card);
+  // doPlay() may have paused in a targeting phase for the new targeted spells
+  // (Archive/Journey/Oblivion) — AI never clicks anything, so resolve it here
+  // immediately or the AI turn would hang forever waiting for a target.
+  aiResolvePendingSpellTarget();
   setTimeout(() => aiPlayCardsStep(iter + 1), AI_STEP_DELAY);
+}
+
+// Резолвит таргетинг спелла, который AI только что сыграл (doPlay поставил
+// G.phase в одну из spellXTarget фаз и ждёт клика — которого от AI не будет).
+function aiResolvePendingSpellTarget(){
+  const humanF=G.humanFaction;
+  if(G.phase==='spellDmgTarget'){
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+    if(targets.length===0){ cancelPendingSpell(); return; }
+    const dmg=getTagVal(G.pendingSpell,'spell_dmg_target')||3;
+    const killable=targets.filter(c=>dmg>=(c.hp+(c.feared?0:0)));
+    const pool=killable.length>0?killable:targets;
+    pool.sort((a,b)=>effAtk(b)-effAtk(a));
+    doSpellDmgTarget(pool[0]);
+    return;
+  }
+  if(G.phase==='spellBuffTarget'){
+    const mine=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted);
+    if(mine.length===0){ cancelPendingSpell(); return; }
+    mine.sort((a,b)=>effAtk(b)-effAtk(a)); // buff the hardest hitter that can still act
+    doSpellBuffTarget(mine[0]);
+    return;
+  }
+  if(G.phase==='spellDispelTarget'){
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+    if(targets.length===0){ cancelPendingSpell(); return; }
+    targets.sort((a,b)=>effAtk(b)-effAtk(a));
+    doSpellDispelTarget(targets[0]);
+    return;
+  }
+  if(G.phase==='spellUntapTarget'){
+    const candidates=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
+    if(candidates.length===0){ cancelPendingSpell(); return; }
+    candidates.sort((a,b)=>effAtk(b)-effAtk(a)); // reactivate the hardest hitter
+    doSpellUntapTarget(candidates[0]);
+    return;
+  }
+}
+
+// ── АРТЕФАКТ: SHARD (прямой урон) ────────────────────────────────
+// AI никогда этим не пользовался. Бьём, если можем добить существо (учитывая
+// +1 урона от feared), иначе — самую опасную цель по эффективному ATK.
+function aiTryUseShard(){
+  const me=G[G.aiFaction];
+  const shard=me.artifacts.find(a=>hasTag(a,'shard')&&!a.exhausted&&!a.sleeping);
+  if(!shard) return;
+  const humanF=G.humanFaction;
+  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+  if(enemyField.length===0) return;
+  const baseDmg=getTagVal(shard,'shard')||2;
+  const withDmg=enemyField.map(c=>({c, dmg: baseDmg+(c.feared?1:0)}));
+  const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
+  let target;
+  if(killable.length>0){
+    killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+    target=killable[0].c;
+  } else {
+    withDmg.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+    target=withDmg[0].c;
+  }
+  doShard(shard);
+  doShardTarget(target);
 }
 
 function aiPickBestCard(){
@@ -97,7 +165,18 @@ function aiPickBestCard(){
 function aiScoreCard(card, me){
   if(card.world)    return me.world ? -1 : (card.cost * 0.9 + 1);
   if(card.artifact) return (me.artifacts && me.artifacts.length > 0) ? -1 : (card.cost * 0.9 + 1);
-  if(card.spell)    return card.cost * 1.0 + 0.5;
+  if(card.spell){
+    if(hasTag(card,'bounce')){
+      // Bounce sends EVERY creature (both sides) back to hand — only good for
+      // the side that's currently behind on board. Previously scored the same
+      // as any other spell, so the AI would happily bounce away its own lead.
+      const humanF=G.humanFaction;
+      const myBoard=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
+      const theirBoard=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
+      return theirBoard>myBoard+1 ? (card.cost*1.0+2) : -2;
+    }
+    return card.cost * 1.0 + 0.5;
+  }
 
   let eff = (card.hp + card.atk * 1.3) / Math.max(1, card.cost);
   const tagBonus = { provoke:0.4, pierce:0.3, vanguard:0.3, rage:0.3, bushido:0.5, invisible:0.4 };
