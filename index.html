@@ -598,12 +598,24 @@
   <div class="modal">
     <div class="modal-body">
       <h2 style="font-size:22px;">CHOOSE YOUR DECK</h2>
-      <p>Full deck (all archetypes, all legendaries) or a smaller build for a quicker game?</p>
+      <p>Classic — the full 1st-edition starter. Rush — build your own from the same cards, minimum 28.</p>
     </div>
     <div class="modal-footer" style="flex-direction:column;gap:8px;">
-      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('full')">Full (~45 cards)</button>
-      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('compact')">Compact (~39 cards)</button>
-      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('mini')">Mini (~28 cards)</button>
+      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('classic')">Classic (45 cards)</button>
+      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('rush')">Rush (28 cards)</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="deckBuilderModal">
+  <div class="modal" style="width:auto;max-width:95vw;max-height:92vh;overflow-y:auto;">
+    <div class="modal-body">
+      <h2 id="deckBuilderTitle" style="font-size:22px;">BUILD YOUR DECK</h2>
+      <div id="deckBuilderCount" style="font-size:12px;color:#555;margin-bottom:10px;"></div>
+      <div class="db-grid" id="deckBuilderGrid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ham-item" id="deckBuilderNextBtn" style="width:auto;" onclick="deckBuilderConfirm()">Start Game</button>
     </div>
   </div>
 </div>
@@ -684,6 +696,7 @@
 <script src="js/game.js"></script>
 <script src="js/ai.js"></script>
 <script src="js/catalog.js"></script>
+<script src="js/deckbuilder.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/carousel.js"></script>
 <div id="card-tooltip" class="card-tooltip" aria-hidden="true"></div>
