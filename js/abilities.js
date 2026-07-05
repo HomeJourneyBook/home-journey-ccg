@@ -191,15 +191,20 @@ function triggerAbilities(card, timing, ctx={}){
       // on_any_death handled directly in killCard()
 
       case 'hp_add':
-        if(a.target==='all'&&card.hp<card.maxHp){
+        if(a.target==='all'){
+          let healedAny=false;
           cur.field.forEach(ally=>{
-  if(!ally.spell&&!ally.world&&!ally.artifact){
-    ally.hp=Math.min(ally.maxHp,ally.hp+a.val);
-    const allyId=ally.id;
-    requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(allyId,`+${a.val}`,'heal')));
-  }
-});
-          lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
+            if(!ally.spell&&!ally.world&&!ally.artifact&&ally.hp<ally.maxHp){
+              ally.hp=Math.min(ally.maxHp,ally.hp+a.val);
+              healedAny=true;
+              const allyId=ally.id;
+              requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(allyId,`+${a.val}`,'heal')));
+            }
+          });
+          if(healedAny){
+            playSfx('baf');
+            lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
+          }
         } else if(a.self){
          if(!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
             const regenVal=(card.squadParam&&card.squadParam.regen)||a.val;
@@ -223,11 +228,21 @@ function triggerAbilities(card, timing, ctx={}){
 
       // maxhp_add removed — use aura:maxhp instead
 
-      case 'bounce':
-        [...G.tea.field].forEach(x=>{resetC(x);G.tea.hand.push(x);});
-        [...G.jeet.field].forEach(x=>{resetC(x);G.jeet.hand.push(x);});
+      case 'bounce': {
+        const teaReturning=[...G.tea.field];
+        const jeetReturning=[...G.jeet.field];
         G.tea.field=[];G.jeet.field=[];
+        // Field clears now → next render() (right after this) triggers the same
+        // dying/fade animation as any other card leaving the field. Actually
+        // adding them to hand is delayed to match that ~400ms fade, so the card
+        // doesn't appear in hand until its field ghost has finished fading out.
+        setTimeout(()=>{
+          teaReturning.forEach(x=>{resetC(x);G.tea.hand.push(x);});
+          jeetReturning.forEach(x=>{resetC(x);G.jeet.hand.push(x);});
+          render();
+        },400);
         lg(`${card.name}: all cards return to hands!`,'imp'); break;
+      }
 
       case 'revive':
         {const srcGrave=a.any
