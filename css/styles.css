@@ -398,6 +398,10 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   right:0;
   transform:none;
   width:calc(var(--card-action-btn-w) + 2px);
+  background-image:url('../img/trubi1.png');
+  background-size:100% 100%;
+  background-repeat:no-repeat;
+  background-position:center;
 }
 /* Jeet-only: ещё один квадратный плейсхолдер левее расширенного правого края. */
 .statbar-edge-right-2{
