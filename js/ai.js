@@ -35,7 +35,30 @@ function showAiBanner(show){
 function runAiTurn(){
   if(!(G.mode === 'vsai' && G.turn === G.aiFaction) || G.gameOver) return;
   showAiBanner(true);
+  aiTryBurnCard();
   setTimeout(() => aiPlayCardsStep(0), 450);
+}
+
+// ── ЭКОНОМИКА: сжечь карту за эссенцию ──────────────────────────────
+// AI никогда этого не делал — один из вероятных факторов, почему он иногда
+// застревает без разыгрываемых существ, накапливая карты добора вместо
+// реального роста эссенции (см. AI_BALANCE_NOTES.md). Сжигаем максимум одну
+// карту в начале хода (тот же лимит "1 burn/turn", что и у игрока), и только
+// худшую по той же оценке aiScoreCard — чтобы не сжигать реально сильную
+// карту просто потому что рука большая.
+function aiTryBurnCard(){
+  const me = G[G.aiFaction];
+  if(!me || me.burned) return;
+  if(me.hand.length < 4) return; // держим минимум вариантов, не сжигаем из тонкой руки
+  let worst=null, worstScore=Infinity;
+  me.hand.forEach(c=>{
+    const s = aiScoreCard(c, me);
+    if(s < worstScore){ worstScore = s; worst = c; }
+  });
+  if(!worst) return;
+  // Порог ~1.5 — примерно "существо ниже среднего КПД" по шкале aiScoreCard;
+  // не жжём карту, если даже худшая в руке выглядит неплохо.
+  if(worstScore < 1.5) doBurnCard(worst);
 }
 
 // ── ФАЗА 1: розыгрыш карт из руки ────────────────────────────────
