@@ -1,7 +1,7 @@
 let G={};
 
-function newPlayer(f){
-  const d=buildDeck(f);
+function newPlayer(f, deckConfig){
+  const d=buildDeck(f, deckConfig||'full');
   return{hp:20,maxHp:20,ess:1,essMax:1,
     hand:d.splice(0,5).map(k=>mkCard(k)),
     field:[],deck:d.map(k=>mkCard(k)),grave:[],void:[],
@@ -9,15 +9,16 @@ function newPlayer(f){
 }
 
 // opts (необязательно) — конфиг режима игры:
-//   { mode:'vsai', humanFaction:'tea'|'jeet' }
-// Без opts — обычный Hot Seat, поведение полностью как раньше.
+//   { mode:'vsai', humanFaction:'tea'|'jeet', deckConfig:'full'|'compact'|'mini' }
+// Без opts — обычный Hot Seat, поведение полностью как раньше (deckConfig='full').
 function initState(opts){
   UID=0;
   if(typeof _seenPcardPids!=='undefined') _seenPcardPids.clear(); // сброс между партиями, см. render.js/reorderZones
+  const deckConfig=(opts&&opts.deckConfig)||'full';
   G={turn:'tea',turnNum:1,phase:'mulligan',mulliganTurn:'tea',sel:null,
-    tea:newPlayer('tea'),jeet:newPlayer('jeet'),
+    tea:newPlayer('tea',deckConfig),jeet:newPlayer('jeet',deckConfig),
     jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}},
-    mode:'hotseat',humanFaction:null,aiFaction:null,gameOver:false};
+    mode:'hotseat',humanFaction:null,aiFaction:null,gameOver:false,deckConfig};
   if(opts&&opts.mode==='vsai'){
     G.mode='vsai';
     G.humanFaction=opts.humanFaction==='jeet'?'jeet':'tea';
