@@ -232,6 +232,7 @@ function mkSmallEl(card){
   'rage':    '<img src="img/ico_rage.png" style="width:60%;height:60%;">',
   'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
   'vanguard':'<img src="img/ico_vanguard.png" style="width:60%;height:60%;">',
+  'invisible':'<span style="font-size:80%;opacity:.9;">👻</span>', /* placeholder — swap for real ico_invisible.png once art exists */
 };
 const tagIcons=(card.tags||[])
   .map(t=>t.split(':')[0])
@@ -389,6 +390,7 @@ function mkEl(card,zone){
   'rage':    '<img src="img/ico_rage.png" style="width:60%;height:60%;">',
   'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
   'vanguard':'<img src="img/ico_vanguard.png" style="width:60%;height:60%;">',
+  'invisible':'<span style="font-size:80%;opacity:.9;">👻</span>', /* placeholder — swap for real ico_invisible.png once art exists */
 };
 const tagIcons = (card.tags||[])
   .map(t=>t.split(':')[0])
