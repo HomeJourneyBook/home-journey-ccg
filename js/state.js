@@ -17,7 +17,7 @@ function initState(opts){
   G={turn:'tea',turnNum:1,phase:'mulligan',mulliganTurn:'tea',sel:null,
     tea:newPlayer('tea'),jeet:newPlayer('jeet'),
     jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}},
-    mode:'hotseat',humanFaction:null,aiFaction:null};
+    mode:'hotseat',humanFaction:null,aiFaction:null,gameOver:false};
   if(opts&&opts.mode==='vsai'){
     G.mode='vsai';
     G.humanFaction=opts.humanFaction==='jeet'?'jeet':'tea';
