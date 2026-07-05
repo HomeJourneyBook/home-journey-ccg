@@ -115,6 +115,12 @@ function doPlay(card){
   else if(card.world)doWorld(card);
   else if(card.artifact)doArtifact(card);
   else doCreature(card);
+  // Fires for ANY card played (creature/world/artifact/spell), not just creatures —
+  // centralized here so effects like Faeron's "Each On play: Heal base 1HP" trigger
+  // regardless of what type of card was just played. Previously this only lived
+  // inside doCreature(), so playing a World/Artifact/Spell never notified field
+  // creatures with this tag (bug: Faeron didn't heal base when a World was played).
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
   render();
 }
 
@@ -125,10 +131,7 @@ function doCreature(card){
   cur.field.push(card);
   lg(`${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
 
-  G[G.turn].field.forEach(c=>{
-    if(c.id!==card.id) triggerAbilities(c,'on_play_creature');
-  });
-  triggerAbilities(card,'on_play_creature');
+  // on_play_creature is now triggered centrally in doPlay() for every card type.
   triggerAbilities(card,'on_enter');
 
   const drawTag=getTagVal(card,'draw');
