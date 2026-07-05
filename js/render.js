@@ -99,6 +99,7 @@ function render(){
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
   if(typeof _applyPendingFlash==='function') _applyPendingFlash();
   if(typeof _applyPendingEssGlitch==='function') _applyPendingEssGlitch();
+  if(typeof _applyPendingFieldFx==='function') _applyPendingFieldFx();
 }
 
 // Возвращает путь к картинке типа карты (мир/уникальный/артефакт/заклинание/существо) —
