@@ -810,9 +810,31 @@ function doMulligan(faction){
   render();
 }
 
-// Spacebar = End Turn
+// Spacebar: confirms whichever modal is currently open (mulligan Ready, pass-device
+// Ready, win modal, exit/restart confirm) — or, if none is open, ends the turn (old
+// behaviour). Modal check runs first so the two shortcuts never both fire at once.
 document.addEventListener('keydown',(e)=>{
-  if(e.code==='Space'&&document.getElementById('game')&&document.getElementById('game').style.display!=='none'){
+  if(e.code!=='Space') return;
+  const tag=(document.activeElement&&document.activeElement.tagName)||'';
+  if(tag==='INPUT'||tag==='TEXTAREA') return; // don't hijack Space while typing (e.g. catalog search)
+
+  const modalButtons=[
+    ['confirmModal','confirmYesBtn'],
+    ['winModal','winBtn'],
+    ['mulliganScreen','mulliganReadyBtn'],
+    ['passScreen','passReadyBtn'],
+  ];
+  for(const [modalId,btnId] of modalButtons){
+    const modal=document.getElementById(modalId);
+    if(modal&&!modal.classList.contains('hidden')){
+      e.preventDefault();
+      const btn=document.getElementById(btnId);
+      if(btn&&!btn.disabled) btn.click();
+      return;
+    }
+  }
+
+  if(document.getElementById('game')&&document.getElementById('game').style.display!=='none'){
     e.preventDefault();
     const teaBB=document.getElementById('teaBottomBar');
     const jeetBB=document.getElementById('jeetBottomBar');
