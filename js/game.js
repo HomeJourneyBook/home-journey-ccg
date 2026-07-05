@@ -146,6 +146,8 @@ function doCreature(card){
     if(wasFull) card.hp=card.maxHp;
     card.worldMaxHpBonus=(card.worldMaxHpBonus||0)+val;
     card.worldMaxHpSet=true;
+    const worldMaxId=card.id;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(worldMaxId,`+${val} maxHP`,'maxhp')));
   }
   applyAuras(G.turn);
   checkSquadBonuses(G.turn);
@@ -483,7 +485,11 @@ function applyAuras(faction){
         const wasFull=a.hp===a.maxHp;
         a.maxHp+=val;
         if(wasFull) a.hp=a.maxHp;
-        if(cur._auraMaxLog===src.id) affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
+        if(cur._auraMaxLog===src.id){
+          affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
+          const allyId=a.id;
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(allyId,`+${val} maxHP`,'maxhp')));
+        }
       });
       if(cur._auraMaxLog===src.id){
         if(affected.length>0){ setTimeout(()=>playSfx('baf'), 150); lg(`${src.name}: +${val} maxHP → ${affected.join(', ')}.`,'hl'); }
@@ -505,6 +511,8 @@ function applyAuras(faction){
           if(wasFull) a.hp=a.maxHp;
           a.worldMaxHpBonus=(a.worldMaxHpBonus||0)+val;
           a.worldMaxHpSet=true; 
+          const worldAllyId=a.id;
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(worldAllyId,`+${val} maxHP`,'maxhp')));
         }
       });
     } else {
