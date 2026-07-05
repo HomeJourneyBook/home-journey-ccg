@@ -150,6 +150,7 @@ function triggerAbilities(card, timing, ctx={}){
           ctx.target.feared=true;
           playSfx('debaf');
           lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
+          queueFieldFx(ctx.target.id,'FEARED!','fx-fear');
         } break;
 
       case 'draw':
@@ -184,7 +185,7 @@ function triggerAbilities(card, timing, ctx={}){
         if(G[curK].hp<G[curK].maxHp){
           G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
           lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl');
-          flashBase(curK, 'heal');
+          flashBase(curK, 'heal', a.val);
         }
         break;
       // on_any_death handled directly in killCard()
