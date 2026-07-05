@@ -1845,6 +1845,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   animation:fieldFxPop 1.2s ease-out forwards;
 }
 .field-fx-popup.fx-squad{color:#ffd700;}
+.field-fx-popup.fx-squad-lost{color:#999999;}
+.field-fx-popup.fx-cleaned{color:#5be3ff;}
 .field-fx-popup.fx-fear{color:#b44fd4;}
 
 
@@ -1898,6 +1900,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
         filter:blur(0);
     }
 }
+
+/* Newly-drawn hand card — fades in while sliding up slightly from below, like it's
+   emerging from the deck. Uses top+opacity (not transform) so it doesn't fight the
+   mobile carousel's own transform-based scale/depth effect on the same element. */
+@keyframes cardDrawn{
+  from{ opacity:0; top:20px; }
+  to{ opacity:1; top:0; }
+}
+.card.card-drawn{ animation: cardDrawn 0.3s ease-out forwards; }
 
 
 /* dmg/heal base */
