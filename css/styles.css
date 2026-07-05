@@ -6,8 +6,8 @@
   font-weight: normal;
   font-style: normal;
 }
- 
- 
+
+
 :root {
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716); 
@@ -93,6 +93,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
      Every other card-small-* size (art, name box, stat box, font sizes) is a
      calc() derived from --card-small-h, so they all shrink to match automatically. */
   :root{ --card-small-h: 11.52vh; }
+  .battlefield{gap:0;}
 }
 
 
@@ -438,6 +439,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   width:calc(max(4vh, 2vw) * 1.53 + 9px);
   justify-content:center;
   flex-shrink:0;
+  position:relative;
 }
 /* Фиксированная ширина под иконку + "/max" при essence 1/1 (примерная оценка по формуле,
    т.к. точный пиксельный размер зависит от рендеринга шрифта — можно подправить множитель).
@@ -1814,6 +1816,36 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .float-number.dmg { color:#e05555; left:20%; top:40%; }
 .float-number.heal { color:#44ff88; left:50%; top:20%; transform:translateX(-50%); }
 .float-number.atk { color:#55aaff; left:60%; top:40%; }
+.float-number-base { left:50%; top:-4px; transform:translateX(-50%); font-size:16px; }
+.float-number-base.fnb-dmg { color:#e05555; }
+.float-number-base.fnb-heal { color:#44ff88; }
+
+/* Squad-activated / Fear-applied overlay — text placeholder for now, swap the
+   textContent for an <img class="field-fx-gif"> once the real gif art exists.
+   Sits centered over the creature (per spec: "gif appearing over the character"). */
+@keyframes fieldFxPop{
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.6); }
+  15%  { opacity:1; transform:translate(-50%,-50%) scale(1.1); }
+  30%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  80%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  100% { opacity:0; transform:translate(-50%,-50%) scale(1); }
+}
+.field-fx-popup{
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  z-index:500;
+  pointer-events:none;
+  font-family:'MEK',monospace;
+  font-weight:bold;
+  font-size:calc(var(--card-small-h) * 0.14);
+  text-align:center;
+  white-space:nowrap;
+  text-shadow:0 0 6px #000, 0 0 3px #000;
+  animation:fieldFxPop 1.2s ease-out forwards;
+}
+.field-fx-popup.fx-squad{color:#ffd700;}
+.field-fx-popup.fx-fear{color:#b44fd4;}
 
 
 /* fade death */
