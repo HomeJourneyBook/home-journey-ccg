@@ -288,11 +288,10 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} 
         break;
 
       case 'raise':
-        {const all=[...G[curK].grave,...G[oppK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
+        {const all=[...G[curK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
         if(all.length>0){
           const r=all[all.length-1];
           G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
-          G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
           // Reset state but keep base stats, set hp to raise value (NOT full)
           r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;
           r.atkBonus=0;r.rageBonus=0;r.maxHpBonus=0;r.baseMaxHp=null;
