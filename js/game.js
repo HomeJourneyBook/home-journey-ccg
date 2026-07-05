@@ -974,6 +974,23 @@ function _applyPendingFlash(){
         edge.classList.add(cls);
         setTimeout(()=>edge.classList.remove('flash-red','flash-green'), 500);
       }
+      // Impact shake — only for damage (a heal shouldn't recoil you). Shakes
+      // the player's own hand zone (+ rail), stats bar, and bottom bar —
+      // whichever DOM elements currently show G.turn's own stuff.
+      if(type==='dmg'){
+        const shakeTargets=[
+          document.getElementById('playerHandZone'),
+          bar,
+          document.getElementById(G.turn+'BottomBar'),
+        ];
+        shakeTargets.forEach(el=>{
+          if(!el) return;
+          el.classList.remove('zone-shake');
+          void el.offsetWidth;
+          el.classList.add('zone-shake');
+          setTimeout(()=>el.classList.remove('zone-shake'), 350);
+        });
+      }
     }
     // Floating +N/-N over the base's HP box — same look as the creature heal/dmg
     // popups (showFloat), just anchored to .stat-hp-box instead of a card.
