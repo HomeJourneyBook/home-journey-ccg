@@ -557,7 +557,8 @@ function rZone(id,cards,zone){
       return;
     }
   }
-  const existingIds=new Set([...el.querySelectorAll('.card-small')].map(e=>e.dataset.id));
+  const cardSelector=zone==='field'?'.card-small':'.card';
+  const existingIds=new Set([...el.querySelectorAll(cardSelector)].map(e=>e.dataset.id));
   el.innerHTML='';
   cards.forEach(c=>{
     if(zone==='field'){
@@ -565,7 +566,11 @@ function rZone(id,cards,zone){
       if(!existingIds.has(String(c.id))) cardEl.classList.add('entering');
       el.appendChild(cardEl);
     } else {
-      el.appendChild(mkEl(c,zone));
+      const cardEl=mkEl(c,zone);
+      // New card in hand (just drawn from deck) — gets the card-drawn entrance
+      // animation. Cards already in hand don't replay it on every re-render.
+      if(zone==='hand'&&!existingIds.has(String(c.id))) cardEl.classList.add('card-drawn');
+      el.appendChild(cardEl);
     }
   });
 }
