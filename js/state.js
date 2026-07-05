@@ -64,7 +64,7 @@ function logTurnSnapshot(faction){
       faction,
       ess:{cur:p.ess,max:p.essMax},
       hand:p.hand.map(c=>c.name),
-      field:p.field.map(c=>`${c.name} (${c.hp}/${c.maxHp} HP, ${c.atk+(c.atkBonus||0)+(c.rageBonus||0)+(c.squadAtkBonus||0)} ATK)`),
+      field:p.field.map(c=>`${c.name} (${c.hp}/${c.maxHp} HP, ${c.atk+(c.atkBonus||0)+(c.rageBonus||0)+(c.squadAtkBonus||0)+(c.tempAtkBonus||0)} ATK)`),
       deckLeft:p.deck.length,
     }
   });
@@ -86,7 +86,7 @@ function findC(id){
 }
 
 function resetC(c){
-  c.sleeping=false;c.exhausted=false;c.feared=false;c.burning=false;c.atkBonus=0;c.rageBonus=0;c.maxHpBonus=0;c.squadMaxHpBonus=0;c.squadAtkBonus=0;c.squadParam=null;
+  c.sleeping=false;c.exhausted=false;c.feared=false;c.burning=false;c.atkBonus=0;c.rageBonus=0;c.tempAtkBonus=0;c.maxHpBonus=0;c.squadMaxHpBonus=0;c.squadAtkBonus=0;c.squadParam=null;
   const def=DEFS[c.key];if(def){c.hp=def.hp;c.maxHp=def.hp;}
 }
 
