@@ -605,12 +605,14 @@
 </div>
 
 <div class="modal-overlay hidden" id="deckPickerModal">
-  <div class="modal">
-    <div class="modal-body">
-      <h2 style="font-size:22px;">CHOOSE YOUR DECK</h2>
-      <p>Classic — the full 1st-edition starter. Rush — build your own from the same cards, minimum 28.</p>
+  <div class="modal-stack">
+    <div class="modal">
+      <div class="modal-body">
+        <h2 style="font-size:22px;">CHOOSE YOUR DECK</h2>
+        <p>Classic — the full 1st-edition starter. Rush — build your own from the same cards, minimum 28.</p>
+      </div>
     </div>
-    <div class="modal-footer" style="flex-direction:column;gap:8px;">
+    <div class="modal-footer modal-footer-plate" style="flex-direction:column;gap:8px;">
       <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('classic')">Classic (45 cards)</button>
       <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('rush')">Rush (28 cards)</button>
     </div>
@@ -634,12 +636,14 @@
 </div>
 
 <div class="modal-overlay hidden" id="vsAiPickerModal">
-  <div class="modal">
-    <div class="modal-body">
-      <h2 style="font-size:22px;">CHOOSE YOUR FACTION</h2>
-      <p>You'll play against a simple AI opponent. Which side do you want to control?</p>
+  <div class="modal-stack">
+    <div class="modal">
+      <div class="modal-body">
+        <h2 style="font-size:22px;">CHOOSE YOUR FACTION</h2>
+        <p>You'll play against a simple AI opponent. Which side do you want to control?</p>
+      </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer modal-footer-plate">
       <button class="modal-faction-btn btn-tea"  title="Tavern"    onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');startGameVsAI('tea')"></button>
       <button class="modal-faction-btn btn-jeet" title="Jeet" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');startGameVsAI('jeet')"></button>
     </div>
@@ -694,12 +698,14 @@
 
 <!-- PASS DEVICE SCREEN -->
 <div class="modal-overlay hidden" id="passScreen">
-  <div class="modal">
-    <div class="modal-body">
-      <h2 id="passTitle">PASS THE DEVICE</h2>
-      <p id="passText">Hand the device .</p>
+  <div class="modal-stack">
+    <div class="modal">
+      <div class="modal-body">
+        <h2 id="passTitle">PASS THE DEVICE</h2>
+        <p id="passText">Hand the device .</p>
+      </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer modal-footer-plate">
       <button id="passReadyBtn" class="modal-art-btn btn-ready" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');passReady()"></button>
     </div>
   </div>
