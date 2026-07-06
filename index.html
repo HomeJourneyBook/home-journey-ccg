@@ -131,6 +131,16 @@
 
   </div>
 
+  <!-- Мелкая строка copyright/версии — ширина ровно как у .landing-box (см.
+       .landing-legal-row в styles.css), чтобы левый край текста прав совпадал
+       с левым краем бокса кнопок, а версия справа — с его правым краем.
+       Версия подставляется в boot() (ui.js) из GAME_VERSION (data.js), чтобы
+       не разъезжалось с реальной версией сборки. -->
+  <div class="landing-legal-row">
+    <span>© 2026 All rights reserved. trianglecirclesquare</span>
+    <span id="landingVersionLabel">v1.0</span>
+  </div>
+
 </div>
 
 <audio id="bgMusic" src="audio/Main_theme.mp3" loop preload="auto"></audio>
