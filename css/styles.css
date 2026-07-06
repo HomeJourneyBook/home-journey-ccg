@@ -248,7 +248,13 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
 .card-small.targetable{box-shadow:0 0 6px #e05555;border-color:#e05555;animation:pulse .8s infinite alternate;}
-.card-small.exhausted{opacity:.5;}.card-small.sleeping{opacity:.45;}
+/* Sleeping/exhausted: затемнение вместо прозрачности. Прозрачность делала
+   ПРОЗРАЧНЫМ и таргет-шейд поверх карты (жалоба 2026-07-06) — brightness
+   затемняет саму карту, оставляя её и любые оверлеи полностью непрозрачными.
+   Спящие дополнительно получают анимированный "z Z Z" (см. .card-zzz ниже,
+   вставляется в mkSmallEl). Спящие темнее слегка, уставшие — сильнее. */
+.card-small.exhausted{filter:brightness(.55) saturate(.8);}
+.card-small.sleeping{filter:brightness(.75) saturate(.9);}
 .card-small.feared{opacity:.5;border-style:solid;box-shadow:0 0 8px #66666688;}
 /* Fear/Burn debuff icons: size = type-dot size (0.13 * card-small-h) × 1.5.
    top = -half their own height, so they straddle the top edge of the card
@@ -284,7 +290,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;border-radius:5%}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
 .card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
-.card.exhausted{opacity:.5;}.card.sleeping{opacity:.45;border-style:dashed;}
+.card.exhausted{filter:brightness(.55) saturate(.8);}.card.sleeping{filter:brightness(.75) saturate(.9);border-style:dashed;}
 .card.feared{opacity:.4;border-style:dotted;}
 .card.burning{box-shadow:0 0 6px #ff6600 !important;}
 .card-cost{position:absolute;top:calc(var(--card-h) * 0.0125);left:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.12);height:calc(var(--card-h)*0.12*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.11);font-weight:bold;line-height: 1;background-size:100% 100%;background-repeat:no-repeat;}
@@ -1046,6 +1052,39 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   width:calc(var(--modal-border-w) * 2);
   height:var(--modal-border-w);
 }
+
+/* ── "Обвес"-футер: жесть, прибитая поверх нижней кромки рамки ────────────────
+   Опт-ин класс .modal-plated на .modal: футер (тот же bg_jest.png бокс с
+   кнопками, .modal-footer) вынимается из потока и вешается АБСОЛЮТНО — по
+   центру нижней перекладины рамки, наполовину свисая наружу ("лист жести,
+   прибитый к металлической рамке сверху").
+
+   Геометрия: у абсолютного ребёнка offset'ы считаются от padding-box модалки;
+   нижняя перекладина рамки занимает полосу от padding-box до padding-box +
+   border-w ниже. bottom:calc(-.5 * border-w) ставит НИЖНИЙ край плиты на
+   середину перекладины, translateY(50%) опускает плиту на половину её же
+   высоты → вертикальный ЦЕНТР плиты ложится ровно на середину перекладины.
+
+   Почему опт-ин, а не всем модалкам сразу: базовый .modal имеет
+   overflow:hidden (хедер/футер не вылезают за скруглённые углы) — свисающая
+   плита требует overflow:visible, что для скроллящихся модалок
+   (deckBuilderModal) недопустимо. Вешать .modal-plated только на модалки без
+   внутреннего скролла (confirm/win/pass и т.п.).
+
+   z-index:6 — выше .modal-decor (5), чтобы плита рисовалась поверх рамки. */
+.modal-plated{ overflow:visible; }
+.modal-plated .modal-footer{
+  position:absolute;
+  bottom:calc(-0.5 * var(--modal-border-w));
+  left:50%;
+  transform:translate(-50%, 50%);
+  z-index:6;
+  align-self:auto; /* align-self:center из базового .modal-footer тут не нужен */
+}
+/* Контент не должен лежать под верхней половиной свисающей плиты: плита
+   ~80px высотой (2×border 20px + кнопка 40px), верхняя половина заходит
+   внутрь модалки примерно на 40px минус половина перекладины рамки. */
+.modal-plated .modal-body{ padding-bottom:calc(40px + var(--modal-border-w) * 0.5); }
 /* Углы — для .modal-decor-square (сидят ровно в углу рамки) */
 .modal-decor-tl{top:calc(-1 * var(--modal-border-w));left:calc(-1 * var(--modal-border-w));}
 .modal-decor-tr{top:calc(-1 * var(--modal-border-w));right:calc(-1 * var(--modal-border-w));}
@@ -2419,3 +2458,35 @@ img{
 }
 .db-step-btn:hover{border-color:#c8a84b;color:#c8a84b;}
 .db-qty{min-width:2.4em;text-align:center;}
+
+/* ── "z Z Z" на спящих картах ────────────────────────────────────────────────
+   Вставляется в mkSmallEl (render.js) только когда card.sleeping. Три буквы
+   с разнесёнными задержками медленно всплывают и тают над правым верхним
+   углом карты. Примечание: brightness-фильтр карты применяется КО ВСЕМ
+   потомкам, включая эти z-ки — они специально сделаны яркими (#cfe8ff +
+   чёрная обводка), чтобы оставаться читаемыми и после затемнения в .75. */
+.card-zzz{
+  position:absolute;
+  top:1%;
+  right:6%;
+  z-index:4;
+  pointer-events:none;
+  font-family:'MEK',monospace;
+  color:#cfe8ff;
+  text-shadow:0 0 4px #000, 0 0 2px #000;
+  line-height:1;
+}
+.card-zzz span{
+  display:inline-block;
+  opacity:0;
+  animation:zzzFloat 2.4s ease-out infinite;
+}
+.card-zzz span:nth-child(1){font-size:calc(var(--card-small-h, 80px) * 0.10);animation-delay:0s;}
+.card-zzz span:nth-child(2){font-size:calc(var(--card-small-h, 80px) * 0.13);animation-delay:0.4s;}
+.card-zzz span:nth-child(3){font-size:calc(var(--card-small-h, 80px) * 0.17);animation-delay:0.8s;}
+@keyframes zzzFloat{
+  0%  { opacity:0; transform:translateY(0)    rotate(0deg); }
+  20% { opacity:.95; }
+  70% { opacity:.4; }
+  100%{ opacity:0; transform:translateY(-55%) rotate(12deg); }
+}
