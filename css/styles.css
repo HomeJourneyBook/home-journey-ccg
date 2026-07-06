@@ -7,7 +7,7 @@
   font-style: normal;
 }
 
- 
+
 :root {
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716); 
@@ -370,7 +370,25 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 /* LAYOUT ZONES */
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
-.stats-bar{position:relative;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;background-size:100% 100%;background-position:center;background-repeat:no-repeat;}
+.stats-bar{position:relative;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
+/* Background ART lives on ::before, separate from the bar itself — this is
+   what lets the OPPONENT-side copy get vertically mirrored (see #oppStats::before
+   below) without flipping the HP/essence numbers and player name that sit as
+   real children of .stats-bar. z-index:-1 keeps it below all of that content
+   (see CSS2.1 painting order: negative-z-index descendants paint above the
+   box's own background-color but below in-flow static content) while
+   background-color above still gives an instant solid fallback if the art is
+   ever missing/slow to load. */
+.stats-bar::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background-size:100% 100%;
+  background-position:center;
+  background-repeat:no-repeat;
+}
 /* ПЛЕЙСХОЛДЕР, прибитый к правому краю статус-бара (небольшой отступ 6px от края,
    не влияет на центрирование остального ряда — стоит вне потока через position:absolute).
    1:1, сторона = 2/3 высоты .stats-bar. Только лаптоп/десктоп. */
@@ -436,17 +454,27 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .stats-bar.tea{background-color:#5a7278;}
 /* Whole-panel background per HP tier — bg_statbar_<faction><tier>.png.
    Tier class lives on the .stats-bar element itself (see reorderZones() in
-   render.js), computed live from hpTier() (state.js) on every render. */
-.stats-bar.tea.hp-tier-1{background-image:url('../img/bg_statbar_tea1.png');}
-.stats-bar.tea.hp-tier-2{background-image:url('../img/bg_statbar_tea2.png');}
-.stats-bar.tea.hp-tier-3{background-image:url('../img/bg_statbar_tea3.png');}
-.stats-bar.tea.hp-tier-4{background-image:url('../img/bg_statbar_tea4.png');}
-.stats-bar.tea.hp-tier-5{background-image:url('../img/bg_statbar_tea5.png');}
-.stats-bar.jeet.hp-tier-1{background-image:url('../img/bg_statbar_jeet1.png');}
-.stats-bar.jeet.hp-tier-2{background-image:url('../img/bg_statbar_jeet2.png');}
-.stats-bar.jeet.hp-tier-3{background-image:url('../img/bg_statbar_jeet3.png');}
-.stats-bar.jeet.hp-tier-4{background-image:url('../img/bg_statbar_jeet4.png');}
-.stats-bar.jeet.hp-tier-5{background-image:url('../img/bg_statbar_jeet5.png');}
+   render.js), computed live from hpTier() (state.js) on every render. Applied
+   to ::before (see above), not the bar itself, so it can be flipped
+   independently of the bar's text content. */
+.stats-bar.tea.hp-tier-1::before{background-image:url('../img/bg_statbar_tea1.png');}
+.stats-bar.tea.hp-tier-2::before{background-image:url('../img/bg_statbar_tea2.png');}
+.stats-bar.tea.hp-tier-3::before{background-image:url('../img/bg_statbar_tea3.png');}
+.stats-bar.tea.hp-tier-4::before{background-image:url('../img/bg_statbar_tea4.png');}
+.stats-bar.tea.hp-tier-5::before{background-image:url('../img/bg_statbar_tea5.png');}
+.stats-bar.jeet.hp-tier-1::before{background-image:url('../img/bg_statbar_jeet1.png');}
+.stats-bar.jeet.hp-tier-2::before{background-image:url('../img/bg_statbar_jeet2.png');}
+.stats-bar.jeet.hp-tier-3::before{background-image:url('../img/bg_statbar_jeet3.png');}
+.stats-bar.jeet.hp-tier-4::before{background-image:url('../img/bg_statbar_jeet4.png');}
+.stats-bar.jeet.hp-tier-5::before{background-image:url('../img/bg_statbar_jeet5.png');}
+/* Vertical mirror for whichever faction is currently sitting at the TOP
+   (opponent) slot — #oppStats, not .jeet, because Hot Seat swaps which
+   faction occupies top/bottom every turn (reorderZones() sets playerK=G.turn,
+   oppK=the other faction). One art asset per faction, drawn "facing up" as it
+   sits at the bottom; flipped in code for the top slot — no separate
+   upside-down asset needed. Same reasoning applies to the base "portal" icon
+   below (#oppStats .player-name-box). */
+#oppStats::before{transform:scaleY(-1);}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
@@ -537,6 +565,12 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .jeet-name-box.hp-tier-4,
 .jeet-name-box.hp-tier-5{background-image:url('../img/bg_statbar_jeet.png');}
 .player-name-box:active{transform:scale(0.92);}
+/* Same top-slot mirror as #oppStats::before above, and for the same reason
+   (position, not faction — Hot Seat swaps who's on top every turn). Combined
+   explicitly with :active's scale since a single transform declaration
+   replaces the whole property, it doesn't merge across rules. */
+#oppStats .player-name-box{transform:scaleY(-1);}
+#oppStats .player-name-box:active{transform:scaleY(-1) scale(0.92);}
 /* Таргет базы противника — усилено по двум фронтам:
    1) ::after — полупрозрачная красная заливка ПРЯМО НА базе, мигает туда-обратно
       (раньше был только inset box-shadow, который на непрозрачном арте базы почти не читался).
@@ -1457,6 +1491,23 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   align-items:flex-start;
   justify-content:center;
   gap:16px;
+}
+/* Copyright/version line under the button box — same width formula as
+   .landing-box so the two ends of the text line up with its edges exactly.
+   margin-top kept tiny on purpose ("чтоб по сути ничего даже толком не
+   сдвинулось") — this sits in the existing gap below the box, not adding
+   meaningful new vertical space. */
+.landing-legal-row{
+  width:min(272px, 94vw);
+  margin-top:6px;
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  font-size:9px;
+  letter-spacing:.3px;
+  color:#ffffff66;
+  font-family:'MEK',monospace;
+  line-height:1.2;
 }
 /* Кнопка + подпись под ней, одной колонкой */
 .landing-square-item{
