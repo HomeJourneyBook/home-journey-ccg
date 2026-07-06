@@ -192,7 +192,7 @@ function _finishRushBuild(){
     lg('─ NEW GAME ─','trn');
     lg('TEA goes first.','imp');
     logTurnSnapshot('tea');
-    setTimeout(()=>{ startMulliganFor('tea'); }, 50);
+    startMulliganFor('tea'); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
     return;
   }
 
@@ -211,7 +211,7 @@ function _finishRushBuild(){
   lg('─ NEW GAME (VS AI) ─','trn');
   logTurnSnapshot('tea');
   aiAutoMulligan(G.aiFaction);
-  setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
+  startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
 }
 
 // ── Deck JSON export / import ───────────────────────────────────────────
