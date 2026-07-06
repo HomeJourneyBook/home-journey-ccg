@@ -6,7 +6,7 @@
   font-weight: normal;
   font-style: normal;
 }
- 
+
 
 :root {
   --card-h: 25vh;
@@ -370,7 +370,18 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 
 /* LAYOUT ZONES */
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
-.stats-bar{position:relative;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
+.stats-bar{position:relative;z-index:0;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
+/* z-index:0 above (combined with position:relative) is NOT decorative — it's
+   required for ::before's z-index:-1 (below) to stay correctly scoped to
+   THIS element at all times. Without an explicit z-index here, .stats-bar
+   only establishes its own stacking context WHILE something else on it
+   happens to set a `transform` (e.g. the impact-shake animation, see
+   .zone-shake/.zone-shake-up further down) — meaning the ::before art was
+   invisible (escaping to a much higher ancestor's stacking context, painting
+   behind nearly everything, leaving only the plain background-color visible)
+   except for the ~350ms the shake animation was actually running, when it
+   would suddenly "flash" into view. Real bug, not a timing coincidence —
+   found from exactly that symptom being reported. */
 /* Background ART lives on ::before, separate from the bar itself — this is
    what lets the OPPONENT-side copy get vertically mirrored (see #oppStats::before
    below) without flipping the HP/essence numbers and player name that sit as
@@ -474,7 +485,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    sits at the bottom; flipped in code for the top slot — no separate
    upside-down asset needed. Same reasoning applies to the base "portal" icon
    below (#oppStats .player-name-box). */
-#oppStats::before{transform:scaleY(-1);}
+/* Full 180° flip (both axes), not just vertical — see index.html/CLAUDE.md
+   notes on this: art drawn "facing up" for the bottom slot needs to end up
+   both upside-down AND mirrored left-right for the top slot, not just
+   flipped top-to-bottom. scale(-1,-1) is equivalent to rotate(180deg). */
+#oppStats::before{transform:scale(-1,-1);}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
@@ -569,8 +584,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    (position, not faction — Hot Seat swaps who's on top every turn). Combined
    explicitly with :active's scale since a single transform declaration
    replaces the whole property, it doesn't merge across rules. */
-#oppStats .player-name-box{transform:scaleY(-1);}
-#oppStats .player-name-box:active{transform:scaleY(-1) scale(0.92);}
+#oppStats .player-name-box{transform:scale(-1,-1);}
+#oppStats .player-name-box:active{transform:scale(-1,-1) scale(0.92);}
 /* Таргет базы противника — усилено по двум фронтам:
    1) ::after — полупрозрачная красная заливка ПРЯМО НА базе, мигает туда-обратно
       (раньше был только inset box-shadow, который на непрозрачном арте базы почти не читался).
