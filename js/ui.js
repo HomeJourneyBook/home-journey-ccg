@@ -605,12 +605,7 @@ function startMulliganFor(faction){
   document.getElementById('passScreen').classList.add('hidden');
   const mulliganEl = document.getElementById('mulliganScreen');
   mulliganEl.classList.remove('hidden');
-  const mulliganModal = mulliganEl.querySelector('.modal');
-  if(mulliganModal){
-    mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
-    void mulliganModal.offsetWidth;
-    mulliganModal.classList.add('modal-pop-in');
-  }
+  _modalPopIn(mulliganEl);
   const mulliganBtn = document.getElementById('mulliganBtn');
   if(mulliganBtn){
     mulliganBtn.disabled = m.used >= 3;
@@ -624,7 +619,6 @@ function doMulliganPhase(){
 
 function readyFromMulligan(){
   const mulliganEl = document.getElementById('mulliganScreen');
-  const mulliganModal = mulliganEl.querySelector('.modal');
 
   const proceed = () => {
     mulliganEl.classList.add('hidden');
@@ -658,14 +652,7 @@ function readyFromMulligan(){
     }
   };
 
-  if(mulliganModal){
-    mulliganModal.classList.remove('modal-pop-in','modal-pop-out');
-    void mulliganModal.offsetWidth;
-    mulliganModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 250);
-  } else {
-    proceed();
-  }
+  _modalPopOut(mulliganEl, proceed, 250);
 }
 
 // ── Navigation ────────────────────────────────────────────────
