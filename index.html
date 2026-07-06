@@ -614,7 +614,10 @@
       <div id="deckBuilderCount" style="font-size:12px;color:#555;margin-bottom:10px;"></div>
       <div class="db-grid" id="deckBuilderGrid"></div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="flex-wrap:wrap;gap:8px;">
+      <button class="btn ham-item" style="width:auto;" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');dbExportDeck()">Export deck (.json)</button>
+      <button class="btn ham-item" style="width:auto;" onclick="document.getElementById('deckBuilderImportInput').click()">Import deck (.json)</button>
+      <input type="file" id="deckBuilderImportInput" accept="application/json,.json" style="display:none;" onchange="dbImportDeck(this)">
       <button class="btn ham-item" id="deckBuilderNextBtn" style="width:auto;" onclick="deckBuilderConfirm()">Start Game</button>
     </div>
   </div>
