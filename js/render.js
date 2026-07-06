@@ -1,3 +1,18 @@
+// Spells tagged with any of these pause for a target click instead of
+// resolving immediately (see doPlay() in game.js) — their OWN resolver
+// (doSpellDmgTarget/doSpellBuffTarget/doSpellDispelTarget/doSpellUntapTarget)
+// plays the spell sound when the target is actually picked. Used to skip the
+// redundant second sound that used to also play immediately on the "Play"
+// click itself — previously targeted spells played the sound twice (once on
+// Play, once on target select), non-targeted spells (draw/essence/revive/
+// bounce) only ever needed the one on Play, since they resolve instantly.
+function _isTargetedSpell(card){
+  return !!card.spell && (
+    hasTag(card,'spell_dmg_target') || hasTag(card,'spell_buff_temp') ||
+    hasTag(card,'spell_dispel') || hasTag(card,'spell_untap')
+  );
+}
+
 // ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
 // Обновляет: счётчики хода/HP/Essence/колоды/кладбища, поля боя, руки обоих игроков (своя — открыта, чужая — рубашками),
 // персистентную зону (Worlds/Artifacts), z-index рук, подсветку "можно бить по базе", текст подсказки текущей фазы.
@@ -217,7 +232,7 @@ function mkSmallEl(card){
   if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
-  if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable');
+  if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.sleeping&&!card.exhausted&&!card.feared) d.classList.add('healable');
   if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable');
   if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp)d.classList.add('healable');
   if(G.phase==='healTarget'&&card.f!==G.turn){
@@ -423,7 +438,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell)playSfx('card_spell_atack');else if(!card.world&&!card.artifact)playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -484,7 +499,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell)playSfx('card_spell_atack');else if(!card.world&&!card.artifact)playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
