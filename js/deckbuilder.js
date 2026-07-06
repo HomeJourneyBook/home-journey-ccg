@@ -211,3 +211,90 @@ function _finishRushBuild(){
   aiAutoMulligan(G.aiFaction);
   setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
 }
+
+// ── Deck JSON export / import ───────────────────────────────────────────
+// Lets a tester save the deck they're assembling to a file (to reuse later,
+// or hand to someone else to load) and load one back in — same spirit as the
+// existing battle-log export/import workflow (see AI BALANCE NOTES.md).
+// Import only replaces the CURRENT builder step's picks (this faction, this
+// step) — it does not skip the flow or touch the other faction in Hot Seat.
+// `version` is GAME_VERSION (js/data.js) at export time — bump that constant
+// whenever DEFS or mechanics change, so older files can be flagged on import
+// instead of silently misapplied (see _applyImportedDeck() below).
+function dbExportDeck(){
+  const faction=_dbFaction();
+  const picks=_db.picks[faction];
+  const cards=Object.keys(picks).filter(k=>picks[k]>0).map(key=>({
+    key, name:(DEFS[key]&&DEFS[key].name)||key, qty:picks[key],
+  }));
+  const data={
+    game:'homes-journey-ccg', kind:'rush-deck', version:GAME_VERSION,
+    faction, total:_dbTotal(faction), cards,
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`rush_deck_${faction}_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+}
+
+// Wired to the hidden <input type=file> in #deckBuilderModal (see index.html)
+function dbImportDeck(fileInput){
+  const file=fileInput.files && fileInput.files[0];
+  fileInput.value=''; // so re-picking the same filename later still fires 'change'
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    let data=null;
+    try{ data=JSON.parse(reader.result); }catch(e){ /* falls through to the shape check below */ }
+    _applyImportedDeck(data);
+  };
+  reader.readAsText(file);
+}
+
+function _applyImportedDeck(data){
+  const faction=_dbFaction();
+
+  if(!data || data.game!=='homes-journey-ccg' || data.kind!=='rush-deck' || !Array.isArray(data.cards)){
+    showConfirm("This file isn't a valid Rush deck export (wrong format or corrupted).",'OK',null,{title:'IMPORT FAILED',hideCancel:true});
+    return;
+  }
+  if(data.faction && data.faction!==faction){
+    const label=f=>f==='tea'?'Tavern':'Jeet';
+    showConfirm(`This deck was built for ${label(data.faction)}, not ${label(faction)} — pick a file for the side you're currently building.`,'OK',null,{title:'IMPORT FAILED',hideCancel:true});
+    return;
+  }
+
+  const maxByKey={};
+  getRushPool(faction).forEach(({key,max})=>{ maxByKey[key]=max; });
+
+  const newPicks={};
+  let unknownCount=0, clampedCount=0;
+  data.cards.forEach(entry=>{
+    const key=entry && entry.key;
+    const qty=Math.max(0, parseInt(entry && entry.qty, 10) || 0);
+    if(!key || !(key in maxByKey)){ if(key) unknownCount++; return; }
+    const max=maxByKey[key];
+    if(qty>max) clampedCount++;
+    newPicks[key]=Math.min(qty,max);
+  });
+
+  _db.picks[faction]=newPicks;
+  _renderDeckBuilder(faction);
+
+  const notes=[];
+  if(unknownCount>0) notes.push(`${unknownCount} card(s) from the file no longer exist in the current card pool and were skipped.`);
+  if(clampedCount>0) notes.push(`${clampedCount} card(s) asked for more copies than currently exist and were capped.`);
+  if(data.version && data.version!==GAME_VERSION) notes.push(`This deck was saved from version ${data.version} (current: ${GAME_VERSION}) — the card list or balance may have changed since, so it's worth double-checking the build before playing.`);
+
+  if(notes.length>0){
+    showConfirm(notes.join(' '),'OK',null,{title:'IMPORT NOTICE',hideCancel:true});
+  } else {
+    playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  }
+}
