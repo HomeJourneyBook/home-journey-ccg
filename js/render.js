@@ -397,6 +397,12 @@ function mkEl(card,zone){
     d.appendChild(inv);
   }
   if(card.feared)d.classList.add('feared');
+  // Affordable-hand highlight: только для СВОЕЙ руки в СВОЙ ход (чужая рука
+  // рисуется рубашками через другой путь, никогда через mkEl с реальными
+  // данными карты — утечки информации нет). См. .hand .card.affordable в
+  // styles.css — слабый золотой пульс, ~1/3 интенсивности silverPulse у
+  // .previewed.
+  if(zone==='hand'&&card.f===G.turn&&card.cost<=G[card.f].ess) d.classList.add('affordable');
   // ВНИМАНИЕ: блоки про targetable/healable с проверкой zone==='field' раньше были тут,
   // но удалены — mkEl() никогда не вызывается с zone='field' (см. rZone ниже: поле всегда рисует mkSmallEl).
   // Если в будущем захочешь дать персистентным/ручным картам подсветку targetable — добавляй проверки сюда заново,
