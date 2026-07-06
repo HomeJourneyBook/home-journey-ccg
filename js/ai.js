@@ -198,7 +198,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellBuffTarget'){
-    const mine=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted);
+    const mine=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
     if(mine.length===0){ cancelPendingSpell(); return; }
     mine.sort((a,b)=>effAtk(b)-effAtk(a)); // buff the hardest hitter that can still act
     doSpellBuffTarget(mine[0]);
@@ -342,7 +342,7 @@ function aiSpellHasValidTarget(card){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact);
   }
   if(hasTag(card,'spell_buff_temp')){
-    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted);
+    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
   }
   if(hasTag(card,'spell_untap')){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
@@ -403,7 +403,7 @@ function aiScoreCard(card, me){
 
     if(hasTag(card,'spell_buff_temp')){
       const buffAmt=getTagVal(card,'spell_buff_temp')||2;
-      const mine=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted);
+      const mine=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
       if(mine.length===0) return -1; // aiSpellHasValidTarget should already exclude this
       const best=mine.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
       const opp=G[G.humanFaction];
