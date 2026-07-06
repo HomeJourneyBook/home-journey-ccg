@@ -253,7 +253,7 @@ const tagIcons=(card.tags||[])
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
 ${!isSW?`<div class="card-small-stats">
-  <div class="card-small-hp-box"><span class="card-small-hp">${card.hp}</span></div>
+  <div class="card-small-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}"><span class="card-small-hp">${card.hp}</span></div>
 <img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
   <div class="card-small-atk-box"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
 </div>`
