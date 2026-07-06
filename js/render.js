@@ -265,6 +265,7 @@ const tagIcons=(card.tags||[])
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.feared?'<div class="card-small-feared"><img src="img/ico_fear.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
+    ${card.sleeping?'<div class="card-zzz"><span>z</span><span>Z</span><span>Z</span></div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
 ${!isSW?`<div class="card-small-stats">
