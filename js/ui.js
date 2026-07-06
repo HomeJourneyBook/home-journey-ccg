@@ -514,6 +514,15 @@ function startGame(deckConfig){
   landing.classList.remove('exit-center');
   document.getElementById('game').style.display='flex';
   collapseStart();
+  // render() here (not just whatever doMulligan()/render() calls happen to
+  // fire downstream) so the field/stats/hand zones are already correct the
+  // instant #game becomes visible — otherwise, for the ~50ms before the
+  // mulligan modal opens, the screen briefly shows whatever was rendered
+  // there LAST (a previous match's HP/hand, or the page's static placeholder
+  // markup on the very first game) before flicking to the real new-game
+  // state. Harmless on a fresh page load (nothing to flicker from), visible
+  // on Restart/New Game after a previous match.
+  render();
   setTimeout(()=>{ startMulliganFor('tea'); }, 50);
 }
 
@@ -549,6 +558,7 @@ function startGameVsAI(humanFaction){
     document.getElementById('game').style.display='flex';
     collapseStart();
     initState({mode:'vsai',humanFaction,deckConfig:_pendingVsAiDeckConfig});
+    render(); // see startGame() above for why this can't wait for doMulligan()'s own render()
     lg('─ NEW GAME (VS AI) ─','trn');
     logTurnSnapshot('tea');
     // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
@@ -693,6 +703,14 @@ function downloadBattleLog(){
   const data={
     timestamp: new Date().toISOString(),
     gameVersion: GAME_VERSION,
+    // AI_VERSION only exists (and only matters) for vsAI games — deliberately
+    // recorded separately from gameVersion: the AI's scoring/decision logic
+    // (ai.js) can be revised without touching cards or mechanics, and that
+    // will likely happen MORE often than GAME_VERSION bumps going forward
+    // (see CLAUDE.md "AI Module" — AI_VERSION vs GAME_VERSION). Without this,
+    // a log reviewed weeks from now would have no way to tell which AI
+    // "brain" actually produced these decisions.
+    aiVersion: (G.mode==='vsai' && typeof AI_VERSION!=='undefined') ? AI_VERSION : null,
     mode: G.mode,
     turns: G.turnNum,
     winner: document.getElementById('winTitle')?.textContent || null,
@@ -719,6 +737,7 @@ function resetGame(){
   const prevMode=G.mode, prevHuman=G.humanFaction, prevDeckConfig=G.deckConfig, prevRushDecks=G.rushDecks;
   if(prevMode==='vsai'){
     initState({mode:'vsai',humanFaction:prevHuman,deckConfig:prevDeckConfig,rushDecks:prevRushDecks});
+    render(); // see startGame() for why — here the stale frame would be the JUST-FINISHED match
     lg('─ NEW GAME (VS AI) ─','trn');
     logTurnSnapshot('tea');
     aiAutoMulligan(G.aiFaction);
@@ -726,6 +745,7 @@ function resetGame(){
     return;
   }
   initState({deckConfig:prevDeckConfig,rushDecks:prevRushDecks});
+  render();
   lg('─ NEW GAME ─','trn');
   lg('TEA goes first.','imp');
   logTurnSnapshot('tea');
