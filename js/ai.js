@@ -146,9 +146,7 @@ function aiPlayCardsStep(iter){
   if(!(G.mode === 'vsai' && G.turn === G.aiFaction)){ showAiBanner(false); return; }
   if(iter > 20){ // защита от бесконечного цикла (не должно происходить)
     aiTryUseSacrifice();
-    aiTryUseAoe();
-    aiTryUseShard();
-    aiAttackStep(getAiCreatureQueue(), 0);
+    aiRunActivesThenAttack();
     return;
   }
   let card;
@@ -167,9 +165,7 @@ function aiPlayCardsStep(iter){
       setTimeout(() => aiPlayCardsStep(iter + 1), AI_STEP_DELAY);
       return;
     }
-    aiTryUseAoe();
-    aiTryUseShard();
-    aiAttackStep(getAiCreatureQueue(), 0);
+    aiRunActivesThenAttack();
     return;
   }
   try{
@@ -228,12 +224,16 @@ function aiResolvePendingSpellTarget(){
 // AI никогда не использовал эту активку — существо просто атаковало как
 // обычное, хотя у него есть "Active: AOE dmg" по всем врагам сразу.
 // Стоит того, если убивает хотя бы одного, или бьёт 2+ целей сразу.
+// Возвращает true, если хотя бы одно существо реально сработало — вызывающий
+// код (aiRunActivesThenAttack) использует это, чтобы поставить паузу перед
+// следующим действием ТОЛЬКО если это действие реально произошло.
 function aiTryUseAoe(){
   const me=G[G.aiFaction];
   const humanF=G.humanFaction;
   const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
-  if(enemyField.length===0) return;
+  if(enemyField.length===0) return false;
   const aoeCreatures=me.field.filter(c=>hasTag(c,'aoe')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.spell&&!c.world&&!c.artifact);
+  let used=false;
   aoeCreatures.forEach(umb=>{
     if(umb.exhausted) return; // could've been used by a squad-shared check already
     const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
@@ -241,8 +241,10 @@ function aiTryUseAoe(){
     if(kills>0||enemyField.length>=2){
       G.sel=umb.id;
       doUmbAsir();
+      used=true;
     }
   });
+  return used;
 }
 
 // ── АРТЕФАКТ: SHARD (прямой урон) ────────────────────────────────
@@ -251,10 +253,10 @@ function aiTryUseAoe(){
 function aiTryUseShard(){
   const me=G[G.aiFaction];
   const shard=me.artifacts.find(a=>hasTag(a,'shard')&&!a.exhausted&&!a.sleeping);
-  if(!shard) return;
+  if(!shard) return false;
   const humanF=G.humanFaction;
   const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
-  if(enemyField.length===0) return;
+  if(enemyField.length===0) return false;
   const baseDmg=getTagVal(shard,'shard')||2;
   const withDmg=enemyField.map(c=>({c, dmg: baseDmg+(c.feared?1:0)}));
   const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
@@ -268,6 +270,30 @@ function aiTryUseShard(){
   }
   doShard(shard);
   doShardTarget(target);
+  return true;
+}
+
+// Раньше AOE и Shard активки, а следом первая атака в очереди — все три —
+// срабатывали в одном синхронном тике, без единой паузы между ними (в отличие
+// от паузы AI_STEP_DELAY, которая всегда стоит между розыгрышем карт и между
+// последующими атаками). Из-за этого выглядело, будто ИИ делает два действия
+// разом: анимация атаки только начиналась, а существо уже добито активкой —
+// см. фидбек 2026-07-xx ("два действия за раз"). Эта функция — единая точка
+// входа вместо разрозненных вызовов aiTryUseAoe()/aiTryUseShard()/
+// aiAttackStep() — ставит AI_STEP_DELAY между шагами, но ТОЛЬКО если шаг
+// реально что-то сделал (не ждём просто так, если активки не было).
+// ИЗВЕСТНОЕ УПРОЩЕНИЕ: если на поле несколько AOE-существ одновременно,
+// aiTryUseAoe() всё ещё активирует их все в одном тике (см. её собственный
+// forEach) — это редкий кейс (нужно 2+ Umbasir одновременно), не покрыт этим
+// фиксом, оставлен как есть.
+function aiRunActivesThenAttack(){
+  const usedAoe=aiTryUseAoe();
+  setTimeout(()=>{
+    const usedShard=aiTryUseShard();
+    setTimeout(()=>{
+      aiAttackStep(getAiCreatureQueue(), 0);
+    }, usedShard?AI_STEP_DELAY:0);
+  }, usedAoe?AI_STEP_DELAY:0);
 }
 
 // ── АРТЕФАКТ: ALTAR (жертва существа за эссенцию) ────────────────
