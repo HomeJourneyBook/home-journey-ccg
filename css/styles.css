@@ -7,7 +7,7 @@
   font-style: normal;
 }
 
- 
+
 :root {
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716); 
@@ -254,7 +254,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    Спящие дополнительно получают анимированный "z Z Z" (см. .card-zzz ниже,
    вставляется в mkSmallEl). Спящие темнее слегка, уставшие — сильнее. */
 .card-small.exhausted{filter:brightness(.55) saturate(.8);}
-.card-small.sleeping{filter:brightness(.75) saturate(.9);}
+.card-small.sleeping{filter:brightness(.55) saturate(.8);}
 .card-small.feared{opacity:.5;border-style:solid;box-shadow:0 0 8px #66666688;}
 /* Fear/Burn debuff icons: size = type-dot size (0.13 * card-small-h) × 1.5.
    top = -half their own height, so they straddle the top edge of the card
@@ -290,7 +290,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card{width:var(--card-w);height:var(--card-h);border:1px solid;padding:var(--card-pad);cursor:pointer;transition:transform .2s;position:relative;background:transparent;background-size:cover;background-position:center;font-size:16px;display:flex;flex-direction:column;border-radius:5%}
 .card.tea-card{border-color:transparent;}.card.jeet-card{border-color:transparent;}
 .card.selected{box-shadow:0 0 8px #c8a84b;border-color:#c8a84b;}
-.card.exhausted{filter:brightness(.55) saturate(.8);}.card.sleeping{filter:brightness(.75) saturate(.9);border-style:dashed;}
+.card.exhausted{filter:brightness(.55) saturate(.8);}.card.sleeping{filter:brightness(.55) saturate(.8);border-style:dashed;}
 .card.feared{opacity:.4;border-style:dotted;}
 .card.burning{box-shadow:0 0 6px #ff6600 !important;}
 .card-cost{position:absolute;top:calc(var(--card-h) * 0.0125);left:calc(var(--card-w) * 0.038);width:calc(var(--card-h)*0.12);height:calc(var(--card-h)*0.12*2.18);display:flex;align-items:flex-start;justify-content:center;font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.11);font-weight:bold;line-height: 1;background-size:100% 100%;background-repeat:no-repeat;}
@@ -326,6 +326,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .hand{display:flex;flex-wrap:nowrap;min-height:var(--card-h);padding:3px;background:transparent;justify-content:space-between;align-items:flex-end;overflow:visible;position:relative;width:100%;box-sizing:border-box;}
 .hand .card{flex-shrink:0;transition:transform .2s;position:relative;width:var(--card-w)!important;min-width:var(--card-w)!important;}
 .card-actions-popup {animation: popupSlideUp 0.18s ease-out forwards;}
+/* Слабая золотая подсветка карт в руке, на которые СЕЙЧАС хватает эссенции —
+   ~1/3 интенсивности эффекта .previewed ниже (silverPulse: пики blur 10/22/34px,
+   alpha CC/88/33) — здесь пики примерно blur 5/10px, alpha 55/33. Не мешает
+   .previewed/.selected — те последние в каскаде и переопределяют box-shadow. */
+.hand .card.affordable{animation:goldPulseWeak 1.8s ease-in-out infinite;}
+@keyframes goldPulseWeak{
+  0%,100%{ box-shadow: 0 0 3px #c8a84b33, 0 0 6px #c8a84b22; }
+  50%    { box-shadow: 0 0 5px #c8a84b55, 0 0 10px #c8a84b33; }
+}
 .hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:silverPulse 1.8s ease-in-out infinite;}
 .hand .card.previewed{position:relative;border-color:#E8E0C8 !important;}
 @media(hover:hover){.hand .card:not(.previewed):hover{transform:translateY(-10px) !important;z-index:100 !important;}}
@@ -815,24 +824,48 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .btn-end.btn-waiting{background-image:url('../img/btn_wait.gif') !important;cursor:default;pointer-events:none;filter:none !important;}
 .btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;transform:translate(-50%,-50%);}
 .btn-square{width:6vh;height:6vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
-/* PLACEHOLDER — swap for real art later (per request). Plain bordered square
-   with a floppy-disk glyph standing in for the "save log" icon. */
-.btn-savelog{
-  border:1px solid #E8E0C8;
-  background-color:#0d0d1a;
+/* ── Win-модалка: три квадратные кнопки (Home/Repeat/Save) ────────────────
+   Раньше это были разнородные кнопки (текстовая art-кнопка + ham-item текст +
+   один квадрат Save) — теперь все три одного формата и размера. Сейчас у всех
+   троих — смайл-плейсхолдер (тот же визуальный язык, что раньше был только у
+   Save: рамка + цвет фона + эмодзи по центру). Когда появится кастомный арт
+   (btn_home1/H/2.png, btn_save1/H/2.png, btn_repeat1/H/2.png — тот же
+   1/H/2-конвеншн, что у yes/cancel/win/lore/catalog выше), для каждой кнопки:
+   убрать класс "placeholder" из HTML (index.html) и раскомментировать её
+   блок ниже — placeholder-стили (рамка/цвет фона) иначе перекроют картинку. */
+.modal-win-sq{
+  width:6vh;height:6vh;
+  border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;
+  background-size:100% 100%;background-repeat:no-repeat;background-position:center;
+  transition:transform .1s,filter .1s;
   position:relative;
 }
-.btn-savelog::after{
-  content:'💾';
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.modal-win-sq.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
+.modal-win-sq.placeholder::after{
+  content:'';
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
   font-size:calc(6vh * 0.55);
 }
-.btn-savelog:hover{filter:brightness(1.25);}
-.btn-savelog:active{transform:scale(0.92) translateY(1px);}
+.modal-win-sq.placeholder:hover{filter:brightness(1.25);}
+.modal-win-sq.placeholder:active{transform:scale(0.92) translateY(1px);}
+.modal-win-sq.btn-home.placeholder::after{content:'🏠';}
+.modal-win-sq.btn-repeat.placeholder::after{content:'🔁';}
+.modal-win-sq.btn-save.placeholder::after{content:'💾';}
+
+/* Финальный арт — раскомментировать по готовности (см. примечание выше).
+.modal-win-sq.btn-home{background-image:url('../img/btn_home1.png');}
+.modal-win-sq.btn-home:hover{background-image:url('../img/btn_homeH.png');filter:brightness(1);}
+.modal-win-sq.btn-home:active{background-image:url('../img/btn_home2.png');filter:brightness(1);transform:none;}
+
+.modal-win-sq.btn-repeat{background-image:url('../img/btn_repeat1.png');}
+.modal-win-sq.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');filter:brightness(1);}
+.modal-win-sq.btn-repeat:active{background-image:url('../img/btn_repeat2.png');filter:brightness(1);transform:none;}
+
+.modal-win-sq.btn-save{background-image:url('../img/btn_save1.png');}
+.modal-win-sq.btn-save:hover{background-image:url('../img/btn_saveH.png');filter:brightness(1);}
+.modal-win-sq.btn-save:active{background-image:url('../img/btn_save2.png');filter:brightness(1);transform:none;}
+*/
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
@@ -1054,37 +1087,30 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 
 /* ── "Обвес"-футер: жесть, прибитая поверх нижней кромки рамки ────────────────
-   Опт-ин класс .modal-plated на .modal: футер (тот же bg_jest.png бокс с
-   кнопками, .modal-footer) вынимается из потока и вешается АБСОЛЮТНО — по
-   центру нижней перекладины рамки, наполовину свисая наружу ("лист жести,
-   прибитый к металлической рамке сверху").
-
-   Геометрия: у абсолютного ребёнка offset'ы считаются от padding-box модалки;
-   нижняя перекладина рамки занимает полосу от padding-box до padding-box +
-   border-w ниже. bottom:calc(-.5 * border-w) ставит НИЖНИЙ край плиты на
-   середину перекладины, translateY(50%) опускает плиту на половину её же
-   высоты → вертикальный ЦЕНТР плиты ложится ровно на середину перекладины.
-
-   Почему опт-ин, а не всем модалкам сразу: базовый .modal имеет
-   overflow:hidden (хедер/футер не вылезают за скруглённые углы) — свисающая
-   плита требует overflow:visible, что для скроллящихся модалок
-   (deckBuilderModal) недопустимо. Вешать .modal-plated только на модалки без
-   внутреннего скролла (confirm/win/pass и т.п.).
-
-   z-index:6 — выше .modal-decor (5), чтобы плита рисовалась поверх рамки. */
-.modal-plated{ overflow:visible; }
-.modal-plated .modal-footer{
+   ПЕРЕДЕЛАНО 2026-07-06: изначально футер жил ВНУТРИ .modal (просто вынесенный
+   на absolute), и .modal-body получал padding-bottom, чтобы освободить место
+   под ним — но это раздувало высоту .modal-body, из-за чего текст визуально
+   съезжал вверх (сообщено автором на скриншоте). Теперь футер — полностью
+   ОТДЕЛЬНЫЙ элемент, сосед .modal (не потомок), оба висят в общей обёртке
+   .modal-stack и позиционируются относительно НЕЁ. Это даёт ровно то, что
+   просили: контент-модалка и кнопки-плита — два независимых окна со своими
+   настройками (контент никак не ограничен и не задет плитой), но визуально
+   всё ещё жёстко "приколочены" друг к другу по позиции через общего родителя.
+   .modal сохраняет свой обычный overflow:hidden (плита больше не внутри него —
+   этот overflow её никак не обрежет). */
+.modal-stack{
+  position:relative;
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+}
+.modal-footer-plate{
   position:absolute;
   bottom:calc(-0.5 * var(--modal-border-w));
   left:50%;
   transform:translate(-50%, 50%);
-  z-index:6;
-  align-self:auto; /* align-self:center из базового .modal-footer тут не нужен */
+  z-index:6; /* выше .modal-decor (5), поверх рамки */
 }
-/* Контент не должен лежать под верхней половиной свисающей плиты: плита
-   ~80px высотой (2×border 20px + кнопка 40px), верхняя половина заходит
-   внутрь модалки примерно на 40px минус половина перекладины рамки. */
-.modal-plated .modal-body{ padding-bottom:calc(40px + var(--modal-border-w) * 0.5); }
 /* Углы — для .modal-decor-square (сидят ровно в углу рамки) */
 .modal-decor-tl{top:calc(-1 * var(--modal-border-w));left:calc(-1 * var(--modal-border-w));}
 .modal-decor-tr{top:calc(-1 * var(--modal-border-w));right:calc(-1 * var(--modal-border-w));}
@@ -1192,6 +1218,19 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-body{
   padding:clamp(12px,1.5vw,18px);
   flex:1;
+}
+/* Плита-футер (.modal-footer-plate) висит наполовину ВНУТРИ рамки — раз она
+   больше не занимает место в потоке (см. .modal-stack выше), это место нужно
+   резервировать явно, иначе текст перекроется кнопками снизу. Простое
+   padding-bottom без центрирования — именно то, что раньше "толкало текст
+   вверх" (жалоба на скриншоте): контент прижимался к верху уже увеличенной
+   коробки. Центрирование по вертикали здесь — реальный фикс: с ним текст
+   занимает центр доступного места, а не жмётся к потолку. */
+.modal-stack .modal-body{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding-bottom:calc(clamp(12px,1.5vw,18px) + var(--modal-border-w) * 0.5 + 20px);
 }
 .modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:7px;}
 .modal p{font-size:clamp(13px,3.2vw,16px);color:#9B937F;margin-bottom:18px;line-height:1.6;}
@@ -2159,17 +2198,20 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 
 /* enter on arena */
+/* Спящая карта появляется так же (blur+scale), но затемняется вместо
+   полупрозрачности — синхронизировано с .card-small.sleeping/.card.sleeping
+   выше (brightness(.55)) после перехода с прозрачности на затемнение. */
 @keyframes cardEnter{
     from{
         opacity:0;
         transform:scale(.7);
-        filter:blur(4px);
+        filter:brightness(.55) blur(4px);
     }
 
     to{
-        opacity:0.45;
+        opacity:1;
         transform:scale(1);
-        filter:blur(0);
+        filter:brightness(.55) blur(0);
     }
 }
 
@@ -2467,7 +2509,7 @@ img{
    чёрная обводка), чтобы оставаться читаемыми и после затемнения в .75. */
 .card-zzz{
   position:absolute;
-  top:1%;
+  top:30%;
   right:6%;
   z-index:4;
   pointer-events:none;
