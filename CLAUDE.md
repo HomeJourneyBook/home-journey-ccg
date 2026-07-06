@@ -349,6 +349,103 @@ it made the buff vanish the moment any other card was played, not at end of turn
 
 -----
 
+## AI Module (`js/ai.js`) — VS AI opponent
+
+A simple rule-based bot that only reads `G` and calls the SAME functions a human
+click would (`doPlay`/`doAttack`/`tryAttackBase`/`doSacrifice_target`/etc.) — it can't
+break any rule a hotseat human couldn't also break. Runs only when
+`G.mode==='vsai' && G.turn===G.aiFaction` (`runAiTurn()`).
+
+### `AI_VERSION` vs `GAME_VERSION` — keeping the AI's card knowledge in sync
+
+`AI_VERSION` (top of ai.js) is a separate constant from `GAME_VERSION` (js/data.js), pinned
+to whichever game version ai.js was last audited against. **Bump `AI_VERSION` to match
+`GAME_VERSION` only after actually re-checking ai.js against whatever changed** — new cards,
+new tags/mechanics, a new type of Active ability, a rebalance that changes what a "good" play
+looks like. If you bump `GAME_VERSION` (new card, mechanic, or balance change) and DON'T touch
+`AI_VERSION`, that's a real signal the AI might now be blind to something — it'll:
+- log a `console.warn` on the very first AI turn of any VS AI game, and
+- print one line to the in-game log (`⚠ AI logic last verified for v...`) at game start,
+
+both from `_warnIfAiVersionStale()`, called once from `aiAutoMulligan()`. This is
+non-blocking by design (nothing stops the AI from playing) — it's purely so a stale-AI
+situation is visible during testing instead of discovered by "huh, the AI didn't know what
+to do with the new card."
+
+As of `AI_VERSION`/`GAME_VERSION` `"1.0"`, the AI can legally play every card in the game
+(every creature, every spell, world, and artifact — `aiPickBestCard()`/`aiScoreCard()` handle
+all four types generically, not a hardcoded per-card list) and knows how to trigger every
+**Active** ability that exists in the current card pool:
+
+|Active ability      |Cards                          |AI function            |
+|---------------------|--------------------------------|------------------------|
+|AOE damage            |Umbasir archetype creatures      |`aiTryUseAoe()`         |
+|Heal                  |Orb archetype creatures          |`aiActWithCreature()` (heals a wounded ally instead of attacking, when one exists) |
+|Shard (direct dmg)    |SHARD artifact                   |`aiTryUseShard()`       |
+|Sacrifice (+1 essence)|ALTAR artifact                   |`aiTryUseSacrifice()`   |
+
+Targeted spells (`spell_dmg_target`/`spell_buff_temp`/`spell_untap`/`spell_dispel` — see
+"Targeted Spell System" above) are auto-resolved by `aiResolvePendingSpellTarget()`.
+Everything else that reads like a "mechanic" (provoke/bushido/pierce/fear/invisible/rage/
+regen/burn/squad bonuses/auras/on-play/on-death/on-attack triggers) is enforced by the core
+game functions themselves (`doAttack`, `applyAuras`, `checkSquadBonuses`, `triggerAbilities`,
+...) regardless of whether AI or a human triggered them — there's nothing extra for the AI to
+"know" there, only for genuinely player-facing CHOICES (which of several legal targets/actions
+to take), which is what the table above and `aiActWithCreature()`'s targeting priority
+(kill > hit base > forced target) cover.
+
+**If a new card introduces a genuinely new Active ability or targeted-choice mechanic**, it
+needs its own `aiTry...()` (mirroring `aiTryUseAoe`/`aiTryUseShard`/`aiTryUseSacrifice`) wired
+into `aiPlayCardsStep()`, or its own case in `aiResolvePendingSpellTarget()`/
+`aiSpellHasValidTarget()` if it's a targeted spell — then bump `AI_VERSION`. A new PASSIVE
+mechanic (no choice involved — an aura, an on-trigger effect) generally needs nothing here.
+
+### Card evaluation (`aiScoreCard()`) and `AI_WEIGHTS`
+
+This is NOT machine learning — there's no training data, no self-play, no gradient descent.
+It's a hand-written scoring formula, same as any other game code; "improving the AI" means
+editing these numbers/conditions and checking the result against a `battle_log_*.json`
+(same workflow as AI BALANCE NOTES.md already uses for creature/spell balance). Every tunable
+number the formula uses lives in one place, `AI_WEIGHTS` (top of ai.js) — tag bonuses, squad
+bonuses, race thresholds, spell-value multipliers — so most tuning passes are "change a number
+in `AI_WEIGHTS`, replay, compare" rather than editing the scoring logic itself.
+
+`aiScoreCard(card, me)` scores a hand card using, beyond its raw stats:
+
+- **Squad synergy** (`aiGtypeCount()`) — a creature that would complete an archetype's
+  3-of-a-kind Squad threshold (see `SQUAD_DEFS`, "Squad System" above) scores a large bonus
+  (`squadCompleteBonus`); the 1st/2nd copy toward that threshold gets a smaller one
+  (`squadBuildBonus`) — the AI now actively tries to finish squads instead of spreading
+  itself thin across archetypes by pure chance.
+- **Race state** (`aiRaceState()`) — `'ahead'`/`'even'`/`'behind'`, from HP difference AND
+  board-power difference (`effAtk` sum) together, not HP alone. When `'behind'`, stabilizing
+  tags (provoke/heal/regen) get extra weight (`stabilizeTagBonus`); when `'ahead'`,
+  closing-out tags (fear/pierce/burn/rage) do (`aggroTagBonus`) — this is the "risk vs play it
+  safe" lever: same card, different value depending on how the game currently looks.
+- **Removal spells** (`spell_dmg_target`) now score based on the actual best target they can
+  kill (`removalKillBonus` + a cut of the killed creature's own `effAtk` — killing the
+  opponent's best attacker is worth more than killing a vanilla 1/1), not a flat "spells are
+  fine" score. If nothing dies, it's scored as chip damage only, worth a bit more when already
+  `'behind'`.
+- **Buff spells** (`spell_buff_temp`) get a rough (provoke/bushido-blind — it's a scoring
+  estimate, the actual attack still resolves through the normal forced-target rules either
+  way) lethal check: if the buffed creature's `effAtk` would meet-or-beat the opponent's
+  current HP, that's a large bonus (`buffLethalBonus`).
+- **Revive spells** (`revive`) check the actual graveyard instead of assuming "a spell is
+  always fine to play" — an empty graveyard scores negative (`reviveEmptyGraveyardScore`,
+  since it'd just log "graveyard empty" and waste the card), a strong body back scores well.
+
+**Known boundary, by design for now**: this is still a single-turn greedy evaluator — no
+lookahead, no resource-holding across turns (the AI always spends everything it can afford
+this turn rather than saving essence to combo two cards next turn), no full minimax on combat
+math (removal/buff scoring above are targeted heuristics for those two spell shapes
+specifically, not a general "simulate the rest of combat" solver). Worth revisiting if
+playtesting shows the AI making a specific class of mistake these heuristics don't cover —
+same iterative process as everything else here: `battle_log_*.json` → identify the pattern →
+add/adjust a term in `aiScoreCard()`/`AI_WEIGHTS`, not a rewrite.
+
+-----
+
 ## Game State (G)
 
 ```js
@@ -540,6 +637,8 @@ Done since this doc was first written — kept here so it isn't re-proposed:
 - [x] Deck picker: `Full`/`Compact`/`Mini` collapsed to `Classic`/`Rush` — Compact removed, Full renamed Classic (unchanged composition), Mini's fixed list replaced by the Rush deckbuilder (below)
 - [x] Rush deckbuilder screen (`js/deckbuilder.js`) — human picks own min-28 deck from the Classic-sized pool (`getRushPool()`); AI gets an auto-sampled Rush deck (`buildAiRushDeck()`) in VS AI
 - [x] Rush deck JSON export/import (`dbExportDeck()`/`dbImportDeck()` in deckbuilder.js) + `GAME_VERSION` constant (`js/data.js`, currently `"1.0"`) stamped into both deck exports and battle logs, so a stale save can be flagged instead of silently misapplied
+- [x] AI card/mechanic audit + `AI_VERSION` pinned to `GAME_VERSION` (both `"1.0"`) — see "AI Module" section above. Found and fixed one real gap: the AI never used the ALTAR artifact's sacrifice-for-essence Active ability (`aiTryUseSacrifice()` in ai.js); AOE/Shard/Heal were already covered. Drift between `AI_VERSION` and `GAME_VERSION` now surfaces automatically (console + in-game log) at the start of a VS AI game instead of silently going stale.
+- [x] AI card evaluation rework (`aiScoreCard()`/`AI_WEIGHTS` in ai.js) — board-aware Squad-completion bonus, HP+board-power race state driving risk-vs-stable tag weighting, removal/buff/revive spells scored against actual board state instead of a flat "spells are fine" number. Verified against mock game states (see commit notes) rather than a live playtest — worth a real VS AI session to confirm it "feels" better, not just numerically sound.
 - [x] Deck-picker → next-screen transition gap ("stars" flash) — `chooseDeckConfig()` was waiting only 250ms (the modal's own pop-out) before hiding the modal, then `startGame()`/`openVsAiPicker()` each waited a FRESH 315ms on top of that before showing the next screen — landing's own 315ms fade (started at the same moment as the modal pop-out) had long since finished, leaving a ~250ms window where nothing covered the bare `.stars` background. Fixed by waiting the full 315ms (matching landing's transition exactly) before hiding the modal, so the next screen can appear immediately with no additional delay.
 
 Still open:
