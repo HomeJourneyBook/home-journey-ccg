@@ -647,12 +647,14 @@
 </div>
 
 <div class="modal-overlay hidden" id="confirmModal">
-  <div class="modal modal-plated">
-    <div class="modal-body">
-      <h2 style="font-size:22px;">LEAVE GAME?</h2>
-      <p>Current game will be lost. Return to menu?</p>
+  <div class="modal-stack">
+    <div class="modal">
+      <div class="modal-body">
+        <h2 style="font-size:22px;">LEAVE GAME?</h2>
+        <p>Current game will be lost. Return to menu?</p>
+      </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer modal-footer-plate">
       <button id="confirmYesBtn" class="modal-art-btn btn-yes"></button>
       <button              class="modal-art-btn btn-cancel" onclick="closeConfirmModal()"></button>
     </div>
@@ -661,15 +663,17 @@
 
 
 <div class="modal-overlay hidden" id="winModal">
-  <div class="modal modal-plated">
-    <div class="modal-body">
-      <h2 id="winTitle">VICTORY</h2>
-      <p id="winText"></p>
+  <div class="modal-stack">
+    <div class="modal">
+      <div class="modal-body">
+        <h2 id="winTitle">VICTORY</h2>
+        <p id="winText"></p>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button id="winBtn" class="modal-art-btn btn-win" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');closeWinModal()"></button>
-      <button class="btn ham-item" style="width:auto;" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');resetGame()">Restart (same setup)</button>
-      <button class="btn-square btn-savelog" onclick="event.stopPropagation();downloadBattleLog()" title="Save battle log (JSON)"></button>
+    <div class="modal-footer modal-footer-plate">
+      <button id="winBtn" class="modal-win-sq btn-home placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');closeWinModal()" title="Return to menu"></button>
+      <button class="modal-win-sq btn-repeat placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');resetGame()" title="Restart (same setup)"></button>
+      <button class="modal-win-sq btn-save placeholder" onclick="event.stopPropagation();downloadBattleLog()" title="Save battle log (JSON)"></button>
     </div>
   </div>
 </div>
