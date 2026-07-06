@@ -188,6 +188,7 @@ function _finishRushBuild(){
     document.getElementById('game').style.display='flex';
     collapseStart();
     initState({deckConfig:'rush',rushDecks});
+    render(); // see startGame()/resetGame() in ui.js for why
     lg('─ NEW GAME ─','trn');
     lg('TEA goes first.','imp');
     logTurnSnapshot('tea');
@@ -206,6 +207,7 @@ function _finishRushBuild(){
   document.getElementById('game').style.display='flex';
   collapseStart();
   initState({mode:'vsai',humanFaction:human,deckConfig:'rush',rushDecks});
+  render();
   lg('─ NEW GAME (VS AI) ─','trn');
   logTurnSnapshot('tea');
   aiAutoMulligan(G.aiFaction);
