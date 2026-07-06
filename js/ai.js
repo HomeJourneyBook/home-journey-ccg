@@ -76,15 +76,19 @@ function aiGtypeCount(faction, gtype){
 }
 
 // ── ВЕРСИЯ ИИ ─────────────────────────────────────────────────────
-// AI_VERSION должна бампаться ВМЕСТЕ с GAME_VERSION (js/data.js) каждый раз,
-// когда ai.js проходит аудит на предмет новых/изменённых карт и механик — см.
-// CLAUDE.md "AI version tracking". Если они расходятся, это НЕ ошибка и ничего
-// не блокирует — это просто явный сигнал (в консоли и в игровом логе), что ИИ
-// мог не узнать о недавних правках и стоит перепроверить его поведение
-// специально, а не полагаться на то, что он "просто разберётся".
-const AI_VERSION = "1.0";
+// AI_VERSION формат: "<GAME_VERSION>.<ревизия мозгов>". Префикс (major.minor)
+// должен совпадать с GAME_VERSION (js/data.js) — он означает "против какой
+// версии игры ai.js последний раз проходил аудит". Третья цифра — ревизия
+// самой логики ИИ и бампается при КАЖДОМ улучшении ai.js без изменения игры
+// (это происходит чаще, чем меняются карты/механики — см. AI BALANCE NOTES).
+// Она попадает в battle_log_*.json как aiVersion, чтобы при разборе лога было
+// видно, какие именно "мозги" принимали эти решения.
+// Если ПРЕФИКС разошёлся с GAME_VERSION — это сигнал (в консоли и в игровом
+// логе), что ИИ мог не узнать о недавних правках игры; ревизия сама по себе
+// предупреждение не вызывает.
+const AI_VERSION = "1.0.1";
 function _warnIfAiVersionStale(){
-  if(AI_VERSION===GAME_VERSION) return;
+  if(AI_VERSION===GAME_VERSION || AI_VERSION.startsWith(GAME_VERSION+'.')) return;
   console.warn(`[AI] ai.js was last audited for game v${AI_VERSION}, but this build is v${GAME_VERSION} — the AI's card/mechanic knowledge may be out of date. See CLAUDE.md "AI version tracking".`);
   lg(`⚠ AI logic last verified for v${AI_VERSION} (game is v${GAME_VERSION}) — some AI decisions may not account for recent changes.`, 'hint');
 }
@@ -119,16 +123,58 @@ function runAiTurn(){
 }
 
 // ── ЭКОНОМИКА: сжечь карту за эссенцию ──────────────────────────────
-// AI никогда этого не делал — один из вероятных факторов, почему он иногда
-// застревает без разыгрываемых существ, накапливая карты добора вместо
-// реального роста эссенции (см. AI_BALANCE_NOTES.md). Сжигаем максимум одну
-// карту в начале хода (тот же лимит "1 burn/turn", что и у игрока), и только
-// худшую по той же оценке aiScoreCard — чтобы не сжигать реально сильную
-// карту просто потому что рука большая.
+// Два триггера (в порядке приоритета):
+//
+// 1) РАЗБЛОКИРОВКА ХОДА (добавлено после аудита 7 логов, сессия 2026-07-06,
+//    см. AI BALANCE NOTES) — если СЕЙЧАС нечего разыграть, но +1 эссенции от
+//    сжигания открывает какую-то карту в руке, жжём худшую из НЕ-открываемых.
+//    Найдено дважды в одном логе ([9545] T1 и T3): ИИ сидел с полной рукой
+//    неаффордабельных карт в 1 эссенции от розыгрыша и не жёг НИЧЕГО, потому
+//    что старый триггер смотрел только на "ценность карты при розыгрыше"
+//    (worstScore<1.5) — а дорогие неиграбельные карты по этой шкале всегда
+//    оцениваются высоко, так что порог не срабатывал именно тогда, когда burn
+//    нужнее всего. Тот же принцип "unlock a play", что уже был у Altar
+//    (aiTryUseSacrifice) — теперь и у burn.
+//
+// 2) ЧИСТКА МУСОРА (исходная логика) — рука большая и худшая карта объективно
+//    слабая (worstScore<1.5) — жжём её ради роста эссенции.
+//
+// Общие ограничения прежние: максимум 1 burn/ход (лимит игрока), никогда
+// не жжём легендарку, не жжём из руки меньше 4 карт.
 function aiTryBurnCard(){
   const me = G[G.aiFaction];
   if(!me || me.burned) return;
   if(me.hand.length < 4) return; // держим минимум вариантов, не сжигаем из тонкой руки
+
+  // Триггер 1: разблокировка хода.
+  const affordableNow = me.hand.some(c => c.cost <= me.ess && aiSpellHasValidTarget(c));
+  if(!affordableNow){
+    const unlockables = me.hand.filter(c => c.cost === me.ess+1 && aiSpellHasValidTarget(c));
+    if(unlockables.length > 0){
+      const unlockIds = new Set(unlockables.map(c=>c.id));
+      // Жжём худшую карту среди НЕ-открываемых (открываемые — то, ради чего
+      // жжём, их не трогаем). Если вся не-легендарная рука состоит из
+      // открываемых (unlikely), жжём худшую из них, кроме единственной
+      // оставшейся — сжечь последнюю значило бы сжечь сам смысл действия.
+      let cand=null, candScore=Infinity;
+      me.hand.forEach(c=>{
+        if(c.unique) return;
+        if(unlockIds.has(c.id)) return;
+        const s = aiScoreCard(c, me);
+        if(s < candScore){ candScore = s; cand = c; }
+      });
+      if(!cand && unlockables.length > 1){
+        unlockables.forEach(c=>{
+          if(c.unique) return;
+          const s = aiScoreCard(c, me);
+          if(s < candScore){ candScore = s; cand = c; }
+        });
+      }
+      if(cand){ doBurnCard(cand); return; }
+    }
+  }
+
+  // Триггер 2: чистка мусора (как было).
   let worst=null, worstScore=Infinity;
   me.hand.forEach(c=>{
     if(c.unique) return; // never burn a legendary, no matter how the formula scores it
