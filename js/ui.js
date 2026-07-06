@@ -523,14 +523,17 @@ function startGame(deckConfig){
   // state. Harmless on a fresh page load (nothing to flicker from), visible
   // on Restart/New Game after a previous match.
   render();
-  setTimeout(()=>{ startMulliganFor('tea'); }, 50);
+  startMulliganFor('tea'); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
 }
 
 // ── VS AI ──────────────────────────────────────────────────────
 let _pendingVsAiDeckConfig='classic';
 function openVsAiPicker(deckConfig){
   _pendingVsAiDeckConfig=deckConfig||'classic';
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  // NO playSfx here — the deck-choice button that led here already played the
+  // click sound in its own onclick (see deckPickerModal in index.html), and a
+  // second one firing 315ms later when this modal appeared was audible as a
+  // stray extra "click" between the two screens (reported 2026-07-06).
   // Landing is already fully faded by the time this runs (see chooseDeckConfig
   // above) — no extra wait needed before showing the faction-picker modal.
   const modal=document.getElementById('vsAiPickerModal');
@@ -564,7 +567,7 @@ function startGameVsAI(humanFaction){
     // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
     // человек видит только собственный муллиган.
     aiAutoMulligan(G.aiFaction);
-    setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
+    startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
   };
   if(inner){
     inner.classList.remove('modal-pop-in','modal-pop-out');
@@ -741,7 +744,7 @@ function resetGame(){
     lg('─ NEW GAME (VS AI) ─','trn');
     logTurnSnapshot('tea');
     aiAutoMulligan(G.aiFaction);
-    setTimeout(()=>{ startMulliganFor(G.humanFaction); }, 50);
+    startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
     return;
   }
   initState({deckConfig:prevDeckConfig,rushDecks:prevRushDecks});
@@ -749,7 +752,7 @@ function resetGame(){
   lg('─ NEW GAME ─','trn');
   lg('TEA goes first.','imp');
   logTurnSnapshot('tea');
-  setTimeout(()=>{ startMulliganFor('tea'); }, 50);
+  startMulliganFor('tea'); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
 }
 
 function toggleLog(){
