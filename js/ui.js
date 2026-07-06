@@ -412,13 +412,19 @@ function showLanding(){
   landing.style.display='flex';
 }
 
-function showConfirm(text, btnText, onConfirm){
+function showConfirm(text, btnText, onConfirm, opts){
   const modal=document.getElementById('confirmModal');
   modal.querySelector('p').textContent=text;
-  modal.querySelector('h2').textContent='ARE YOU SURE?';
+  modal.querySelector('h2').textContent=(opts&&opts.title)||'ARE YOU SURE?';
   const yesBtn=modal.querySelector('#confirmYesBtn');
   yesBtn.textContent=btnText;
   yesBtn.onclick=()=>{ closeConfirmModal(onConfirm); };
+  // hideCancel — for pure informational notices (e.g. deck-import results in
+  // deckbuilder.js) where there's nothing to actually confirm/cancel, just one
+  // "OK". Restored (removed 'none') on every call so later real confirmations
+  // aren't left without a Cancel button.
+  const cancelBtn=modal.querySelector('.modal-art-btn.btn-cancel');
+  if(cancelBtn) cancelBtn.style.display=(opts&&opts.hideCancel)?'none':'';
   modal.classList.remove('hidden');
   const inner=modal.querySelector('.modal');
   if(inner){
@@ -686,6 +692,7 @@ function closeWinModal(){
 function downloadBattleLog(){
   const data={
     timestamp: new Date().toISOString(),
+    gameVersion: GAME_VERSION,
     mode: G.mode,
     turns: G.turnNum,
     winner: document.getElementById('winTitle')?.textContent || null,
