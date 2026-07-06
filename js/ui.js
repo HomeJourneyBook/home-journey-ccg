@@ -941,7 +941,7 @@ const TAG_TOOLTIPS = {
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
 };
 
-const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box';
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
 
 let _tooltipEl = null;
@@ -959,6 +959,9 @@ function _tooltipDataFor(el){
   }
   if(el.classList.contains('stat-ess-box')){
     return { name: '', desc: `${el.dataset.max || '?'} max Essence` };
+  }
+  if(el.classList.contains('card-small-hp-box')){
+    return { name: '', desc: `${el.dataset.hp}/${el.dataset.maxhp} HP` };
   }
   return null;
 }
@@ -1035,4 +1038,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(btn.contains(e.relatedTarget)) return;
     playSfx('Navigation_Cursor');
   });
+});
+
+// Landing footer version label — pulled from GAME_VERSION (data.js) so it
+// can't drift out of sync with the actual build the way a hardcoded string
+// in index.html could.
+document.addEventListener('DOMContentLoaded', ()=>{
+  const el=document.getElementById('landingVersionLabel');
+  if(el) el.textContent=`v${GAME_VERSION}`;
 });
