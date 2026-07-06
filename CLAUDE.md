@@ -21,19 +21,20 @@ css/
 audio/               # Music + SFX. Only a subset is wired up — see README.md
                      # "Audio" table before adding new sound-related code.
 js/
-  data.js           # Card definitions — DEFS object + buildDeck()
+  data.js           # Card definitions — DEFS object
   abilities.js      # getTagVal(), hasTag(), getAbilities(), triggerAbilities()
-  deck.js           # mkCard() — creates card instances from DEFS keys
+  deck.js           # buildDeck(), getRushPool(), buildAiRushDeck(), mkCard()
   state.js          # Game state G, initState(), findC(), resetC(), lg(), hint()
   render.js         # render(), mkEl(), mkSmallEl(), reorderZones()
   game.js           # onClick(), doAttack(), endTurn(), killCard(), applyAuras(),
                     # checkSquadBonuses(), doSacrifice_target(), doShardTarget()...
   catalog.js        # renderCatalog(), filters, openCardDetail()
+  deckbuilder.js    # startRushBuild(), deckBuilderConfirm() — Rush mode deckbuilder
   ui.js             # startGame(), showScreen(), boot
 ```
 
 Scripts load in this exact order in `index.html`:
-`data → abilities → deck → state → render → game → catalog → ui`
+`data → abilities → deck → state → render → game → catalog → deckbuilder → ui`
 
 -----
 
@@ -59,24 +60,83 @@ trvlr_001: {
 },
 ```
 
-Then add the key to the relevant archetype group array in `buildDeck()` (`deck.js`) — `szarg`,
-`orb`, `drg`, `umb`, `mch`, `xui` (4 unique cards each, 1 copy), or `legs`/`spells`/`worlds`/`arts`.
+Then add the key to the relevant archetype group array in `_composeDeckList()` (`deck.js`) —
+`szarg`, `orb`, `drg`, `umb`, `mch`, `xui` (4 unique cards each, 1 copy), or `legs`/`spells`/
+`worlds`/`arts`. This list feeds BOTH Classic mode (`buildDeck()`) and the Rush deckbuilder's
+pool (`getRushPool()`) — no separate registration needed for Rush.
 
-### Deck size configs (`DECK_CONFIGS` in deck.js)
+### Deck modes (`DECK_CONFIGS` in deck.js)
 
-`buildDeck(faction, configKey)` builds one of three preset deck sizes, picked via the
-"Choose Your Deck" modal shown before Hot Seat/VS AI (see `openDeckPicker()`/`chooseDeckConfig()`
-in ui.js):
+Two modes, picked via the "Choose Your Deck" modal shown before Hot Seat/VS AI
+(see `openDeckPicker()`/`chooseDeckConfig()` in ui.js):
 
-|Config    |groupCount|groupSize|legCount|spellCopies|Resulting size|
-|----------|----------|---------|--------|-----------|--------------|
-|`full`    |6         |4        |5       |3          |~45/46 (Tea/Jeet)|
-|`compact` |6         |4        |3       |2          |~39/40|
-|`mini`    |4         |4        |2       |2          |~30/31|
+|Mode      |What happens                                                                              |
+|----------|-------------------------------------------------------------------------------------------|
+|`classic` |Fixed 1st-edition starter — `buildDeck(f,'classic')` builds all 6 archetypes + all 5 legendaries + 3 copies of each spell (~45/46 Tea/Jeet). This is "every currently-implemented card" and is expected to keep changing size as balance testing continues — see `DECK_CONFIGS.classic` in deck.js. |
+|`rush`    |No fixed list. The human player(s) build their own (min. `RUSH_MIN`=28 cards) via the deckbuilder screen (`js/deckbuilder.js`) — see below. The AI's Rush deck (VS AI only) is `buildAiRushDeck()`: a random RUSH_MIN-card sample of the same pool a human would pick from. |
 
-`groupCount` trims from the 6 archetypes (szarg/orb/drg/umb/mch/xui); `mini` keeps only the first 4
-(szarg/orb/drg/umb — not curated by matchup, just array order, revisit if a specific 4 feel better).
-The choice is stored on `G.deckConfig` and reused automatically on restart (`resetGame()`).
+`getRushPool(f)` returns the Rush deckbuilder's pool — the exact same card list Classic uses
+(`_composeDeckList(f, DECK_CONFIGS.classic)`), deduped into `{key, max}` entries (`max` is 1 for
+everything except spells, which can be picked up to `spellCopies` times, same as Classic). This
+means the Rush pool always tracks whatever Classic currently contains — no separate list to keep
+in sync when cards are added/rebalanced.
+
+The Unseen bonus card (2nd-player-only, currently always Jeet) is NOT part of the pickable
+pool in Rush — it's appended automatically after the player finishes picking, same as
+Classic's `buildDeck()` already does for Jeet.
+
+The choice is stored on `G.deckConfig` ('classic'/'rush'); for Rush, the actual finalized
+deck lists are also stashed on `G.rushDecks` so "Restart (same setup)" (`resetGame()`) can
+reshuffle the exact same picks instead of re-opening the deckbuilder.
+
+### Rush deckbuilder flow (`js/deckbuilder.js`)
+
+Entry point `startRushBuild(flow, opts)`, called from `ui.js` once Rush is picked (and, for
+VS AI, the human's faction is chosen):
+
+- **Hot Seat**: runs twice — Tea, then Jeet — with the existing "pass the device" screen
+  (`showPassScreen()`) between them, same pattern used for the hotseat mulligan handoff.
+- **VS AI**: runs once, for the human's faction only. The AI's deck is `buildAiRushDeck()` —
+  no deckbuilder UI for it.
+
+Each step shows `#deckBuilderModal` (a wide modal, not the narrow `.modal` default — see
+`#deckBuilderModal .modal` inline style in index.html) with a grid of that faction's pool
+(`getRushPool()`), reusing `.cat-card`'s markup/CSS from the Catalog (smaller size — see
+`.db-card` in styles.css, which locally overrides `--card-w`/`--card-h` the same way the
+mobile Catalog grid does). Single-copy cards toggle on/off by clicking the whole card;
+multi-copy cards (spells) get a −/+ stepper (`dbSetQty()`). The "Start Game"/"Next" button
+is disabled until the running total (`_dbTotal()`) reaches `RUSH_MIN`. `_finishRushBuild()`
+assembles `rushDecks` and calls `initState()` exactly like the Classic-mode entry points do.
+
+#### Deck JSON export / import (`dbExportDeck()`/`dbImportDeck()`/`_applyImportedDeck()`)
+
+Testers can save the deck they're assembling to a `.json` file and load one back in later
+(or hand it to someone else) — same spirit as the existing battle-log export workflow. Buttons
+live in `#deckBuilderModal`'s footer; import only replaces the CURRENT step's picks (this
+faction, this step) — it doesn't skip the flow or touch the other faction in Hot Seat, and
+there's no "load deck" shortcut on the earlier Classic/Rush picker (by design, for now).
+
+File shape:
+```json
+{
+  "game": "homes-journey-ccg", "kind": "rush-deck", "version": "1.0",
+  "faction": "jeet", "total": 28,
+  "cards": [ { "key": "j_trvl12_w", "name": "TRAVELER #12", "qty": 1 }, ... ]
+}
+```
+`key` is the source of truth on import; `name` is purely for human readability of the file
+(ignored on import). `version` is `GAME_VERSION` (`js/data.js`) at export time.
+
+**`GAME_VERSION`** (`js/data.js`) — bump it whenever `DEFS` or game mechanics change in a way
+that could make an older saved deck file (or battle log — it's also stamped into
+`downloadBattleLog()`'s JSON, see `game.js`/`ui.js`) no longer match reality (card renamed,
+removed, rebalanced, etc). `_applyImportedDeck()` compares the file's `version` against the
+current `GAME_VERSION` and — if they differ — shows a non-blocking notice ("saved from an
+older version, double-check the build") rather than silently trusting a stale file. It also
+always: rejects files for the wrong faction outright, and skips+reports (rather than
+silently dropping) any card `key` no longer in the current pool, or any `qty` above what's
+currently available (capped, reported, not rejected).
+
 
 -----
 
@@ -477,13 +537,17 @@ Done since this doc was first written — kept here so it isn't re-proposed:
 - [x] Pass-the-device screen now shows after every hotseat turn, not just the initial Tea→Jeet handoff
 - [x] Win modal no longer re-fires after the base is already dead (AI would sometimes keep attacking/re-triggering it)
 - [x] Restart button on the win modal — replays with the same mode/faction/deckConfig, no need to go through the landing again
+- [x] Deck picker: `Full`/`Compact`/`Mini` collapsed to `Classic`/`Rush` — Compact removed, Full renamed Classic (unchanged composition), Mini's fixed list replaced by the Rush deckbuilder (below)
+- [x] Rush deckbuilder screen (`js/deckbuilder.js`) — human picks own min-28 deck from the Classic-sized pool (`getRushPool()`); AI gets an auto-sampled Rush deck (`buildAiRushDeck()`) in VS AI
+- [x] Rush deck JSON export/import (`dbExportDeck()`/`dbImportDeck()` in deckbuilder.js) + `GAME_VERSION` constant (`js/data.js`, currently `"1.0"`) stamped into both deck exports and battle logs, so a stale save can be flagged instead of silently misapplied
+- [x] Deck-picker → next-screen transition gap ("stars" flash) — `chooseDeckConfig()` was waiting only 250ms (the modal's own pop-out) before hiding the modal, then `startGame()`/`openVsAiPicker()` each waited a FRESH 315ms on top of that before showing the next screen — landing's own 315ms fade (started at the same moment as the modal pop-out) had long since finished, leaving a ~250ms window where nothing covered the bare `.stars` background. Fixed by waiting the full 315ms (matching landing's transition exactly) before hiding the modal, so the next screen can appear immediately with no additional delay.
 
 Still open:
 
 - [ ] Remaining traveler cards + art (60 planned total, ~75 defs exist but not all have unique art matched — verify against `img/cards/`)
-- [ ] Deckbuilder screen
 - [ ] Web3: NFT ownership verification
 - [ ] Online multiplayer
+- [ ] Random first-turn pick (currently always Tea first / Jeet always gets the Unseen 2nd-player bonus — see `_finishRushBuild()` in deckbuilder.js and `buildDeck()` in deck.js, both hardcode "jeet" as the 2nd player)
 
 -----
 
@@ -558,10 +622,6 @@ _Raw notes from playtesting the new spell/artifact mechanics — needs a decisio
   - The "play" sound currently fires twice — once on clicking Play (before a target is even chosen), once again when the spell actually resolves on the target. Should only fire once, on resolution.
   - Needs an on-screen hint of what's happening and how to cancel while waiting for a target (currently relies on the hint-bar text alone).
 - **Low-HP warning**: a red lantern/light that turns on below 5 HP, plus a faint pulsing glow around the screen edge (separate from the existing dmg/heal flash — this one should be a persistent low-HP state indicator, not a one-shot event flash). Idea: put the lantern decoratively near the hamburger button; each player's lantern lights independently based on their own HP. Stat bar HP number could also pulse/blink at low HP.
-
-## Wrap-up notes — 2026-07-05 night
-
-- **Dispel spell**: reconsider as an active-cast-from-hand version of Orbiton's heal (heal + removes debuffs), rather than what it is now — still just a raw idea, not committed.
-- **Spell cost/power variance**: wants explicit cheaper/weaker vs pricier/stronger variants of the new spell mechanics (dmg/buff/untap), not just one fixed number each — e.g. a 1-mana version of the removal spell that does less damage, a pricier one that does more. Ties into the broader "shop pricing" pass from earlier in the day.
-- **Deck size simplification**: drop the 3-tier picker down to 2 — full (45/46, all archetypes, built for longer games) and a ~25-card "quick rush" build, no middle "compact" tier. The 25-card deck should be designed as a genuine rush strategy (not just a smaller slice of the same thing) — needs real thought about which archetypes/curve actually support a fast game, not just trimming counts uniformly.
-- Explicitly flagged as the main non-cosmetic priority going forward: **AI needs to actually get stronger**, not just patch individual tactical gaps (burn/Shard/AOE usage already done — that's coverage, not strength).
+- **Rush deckbuilder cards too small/cramped on laptop** — `.db-card` (styles.css) is noticeably smaller than the Catalog's own card size at the same viewport width; revisit the 6/4/3-column breakpoints in the "DECKBUILDER MODAL" CSS section.
+- **Spell +/− stepper isn't visually obvious as interactive** — nothing currently distinguishes it from the single-copy "TAP TO ADD" label at a glance; needs a clearer affordance (icon, color, size) so it doesn't read as inert text on first look.
+- **One card slot per spell copy, instead of a shared stepper** — i.e. show each of a spell's 3 copies as its own separate card tile in the grid (like the single-copy cards), rather than one tile with a quantity control. Would make Rush's picking model fully uniform (every tile is either "in" or "out", no numeric stepper at all) — worth prototyping against the current stepper approach before committing.
