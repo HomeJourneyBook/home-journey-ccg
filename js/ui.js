@@ -2,6 +2,40 @@
 const MUSIC_TARGET_VOLUME = 0.4;
 const FADE_MS = 900; // длительность плавного появления/затухания музыки
 
+// ── Modal pop-in/pop-out (frame + detached button-plate together) ─────────
+// Пока .modal-footer жил ВНУТРИ .modal, applying modal-pop-in/out на .modal
+// автоматически анимировало и футер вместе с ним (как потомка). После
+// переезда на .modal-stack (.modal и .modal-footer-plate — независимые
+// соседи, см. styles.css) это перестало работать само по себе — плита просто
+// мгновенно появлялась/исчезала без анимации. Эти два хелпера — единая точка,
+// которая находит оба элемента (плита может отсутствовать — не у всех
+// модалок есть .modal-footer-plate, например у ещё не переведённых
+// mulliganScreen/deckBuilderModal) и анимирует их синхронно одним и тем же
+// классом. onDone/delay — по желанию, для случаев, где что-то должно
+// произойти после завершения анимации (совпадает с прежним точечным
+// setTimeout(...,250) на месте каждого вызова).
+function _modalPopIn(overlayEl){
+  const inner=overlayEl.querySelector('.modal');
+  const plate=overlayEl.querySelector('.modal-footer-plate');
+  [inner, plate].forEach(el=>{
+    if(!el) return;
+    el.classList.remove('modal-pop-in','modal-pop-out');
+    void el.offsetWidth;
+    el.classList.add('modal-pop-in');
+  });
+}
+function _modalPopOut(overlayEl, onDone, delay){
+  const inner=overlayEl.querySelector('.modal');
+  const plate=overlayEl.querySelector('.modal-footer-plate');
+  [inner, plate].forEach(el=>{
+    if(!el) return;
+    el.classList.remove('modal-pop-in','modal-pop-out');
+    void el.offsetWidth;
+    el.classList.add('modal-pop-out');
+  });
+  if(onDone) setTimeout(onDone, delay!=null?delay:250);
+}
+
 let musicEnabled = localStorage.getItem('hj_music') !== 'off';
 let _fadeRAF = null;
 
@@ -426,30 +460,17 @@ function showConfirm(text, btnText, onConfirm, opts){
   const cancelBtn=modal.querySelector('.modal-art-btn.btn-cancel');
   if(cancelBtn) cancelBtn.style.display=(opts&&opts.hideCancel)?'none':'';
   modal.classList.remove('hidden');
-  const inner=modal.querySelector('.modal');
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-in');
-  }
+  _modalPopIn(modal);
 }
 
 function closeConfirmModal(onConfirm){
   playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
   const modal=document.getElementById('confirmModal');
-  const inner=modal.querySelector('.modal');
   const finish=()=>{
     modal.classList.add('hidden');
     if(onConfirm) onConfirm();
   };
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-out');
-    setTimeout(finish, 250);
-  } else {
-    finish();
-  }
+  _modalPopOut(modal, finish, 250);
 }
 
 
@@ -467,16 +488,10 @@ function openDeckPicker(flow){
   _pendingModeFlow=flow;
   const modal=document.getElementById('deckPickerModal');
   modal.classList.remove('hidden');
-  const inner=modal.querySelector('.modal');
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-in');
-  }
+  _modalPopIn(modal);
 }
 function chooseDeckConfig(configKey){
   const modal=document.getElementById('deckPickerModal');
-  const inner=modal.querySelector('.modal');
   // Start landing's own exit fade/shrink NOW, in parallel with the deck modal's
   // pop-out — otherwise there's a gap between the modal's opaque background
   // disappearing and landing's own transition starting, where landing flashes
@@ -499,12 +514,7 @@ function chooseDeckConfig(configKey){
   // transition exactly — means landing is already fully invisible by the time
   // we reveal the next screen, so startGame()/openVsAiPicker() no longer need
   // (and no longer add) any additional delay of their own.
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-out');
-    setTimeout(proceed,315);
-  } else proceed();
+  _modalPopOut(modal, proceed, 315);
 }
 
 function startGame(deckConfig){
@@ -538,17 +548,11 @@ function openVsAiPicker(deckConfig){
   // above) — no extra wait needed before showing the faction-picker modal.
   const modal=document.getElementById('vsAiPickerModal');
   modal.classList.remove('hidden');
-  const inner=modal.querySelector('.modal');
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-in');
-  }
+  _modalPopIn(modal);
 }
 
 function startGameVsAI(humanFaction){
   const modal=document.getElementById('vsAiPickerModal');
-  const inner=modal.querySelector('.modal');
   const proceed=()=>{
     modal.classList.add('hidden');
     const landing=document.getElementById('landing');
@@ -569,14 +573,7 @@ function startGameVsAI(humanFaction){
     aiAutoMulligan(G.aiFaction);
     startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
   };
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-out');
-    setTimeout(proceed, 250);
-  } else {
-    proceed();
-  }
+  _modalPopOut(modal, proceed, 250);
 }
 
 function startMulliganFor(faction){
@@ -678,25 +675,12 @@ function showWin(w){
   document.getElementById('winText').textContent=w==='tea'?'The Tavern stands. The Great Return draws closer.':'Jeet consumes all. The cycle breaks.';
   const modal=document.getElementById('winModal');
   modal.classList.remove('hidden');
-  const inner=modal.querySelector('.modal');
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-in');
-  }
+  _modalPopIn(modal);
 }
 
 function closeWinModal(){
   const modal=document.getElementById('winModal');
-  const inner=modal.querySelector('.modal');
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-out');
-    setTimeout(()=>{ showLanding(); }, 250);
-  } else {
-    showLanding();
-  }
+  _modalPopOut(modal, showLanding, 250);
 }
 
 // Saves the full battle log (G.logs) + match metadata as a downloadable JSON
@@ -884,32 +868,19 @@ function showPassScreen(faction, onReady){
     faction==='jeet' ? 'Hand the device to Player 2 — Jeet.' : 'Hand the device to Player 1 — Tea.';
   const passEl = document.getElementById('passScreen');
   passEl.classList.remove('hidden');
-  const passModal = passEl.querySelector('.modal');
-  if(passModal){
-    passModal.classList.remove('modal-pop-in','modal-pop-out');
-    void passModal.offsetWidth;
-    passModal.classList.add('modal-pop-in');
-  }
+  _modalPopIn(passEl);
 }
 
 // ── Pass screen transition ───────────────────────────────────────
 function passReady(){
   const passEl = document.getElementById('passScreen');
-  const passModal = passEl.querySelector('.modal');
   const cb = G._passCallback;
   G._passCallback = null;
   const proceed = () => {
     passEl.classList.add('hidden');
     if(cb) cb(); // else: nothing further needed, board is already rendered
   };
-  if(passModal){
-    passModal.classList.remove('modal-pop-in','modal-pop-out');
-    void passModal.offsetWidth;
-    passModal.classList.add('modal-pop-out');
-    setTimeout(proceed, 250);
-  } else {
-    proceed();
-  }
+  _modalPopOut(passEl, proceed, 250);
 }
 
 // Добавь в ui.js или отдельный файл, вызови один раз при загрузке
