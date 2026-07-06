@@ -1,3 +1,10 @@
+// Bump this whenever card data (DEFS) or game mechanics change in a way that
+// could make an older saved Rush-deck JSON (js/deckbuilder.js) or battle log
+// no longer match reality — e.g. a card renamed/removed/rebalanced. Read by
+// dbExportDeck()/_applyImportedDeck() (deck JSON) and downloadBattleLog()
+// (ui.js), so old exports can be flagged instead of silently misapplied.
+const GAME_VERSION = "1.0";
+
 const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
 
