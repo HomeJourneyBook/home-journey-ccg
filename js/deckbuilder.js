@@ -34,12 +34,7 @@ function _openDeckBuilderStep(){
   _renderDeckBuilder(faction);
   const modal=document.getElementById('deckBuilderModal');
   modal.classList.remove('hidden');
-  const inner=modal.querySelector('.modal');
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-in');
-  }
+  _modalPopIn(modal);
 }
 
 const DB_TAG_ICONS = {
@@ -149,7 +144,6 @@ function deckBuilderConfirm(){
   if(_dbTotal(faction)<RUSH_MIN) return;
   playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
   const modal=document.getElementById('deckBuilderModal');
-  const inner=modal.querySelector('.modal');
   const proceed=()=>{
     modal.classList.add('hidden');
     _db.stepIndex++;
@@ -163,12 +157,7 @@ function deckBuilderConfirm(){
       _finishRushBuild();
     }
   };
-  if(inner){
-    inner.classList.remove('modal-pop-in','modal-pop-out');
-    void inner.offsetWidth;
-    inner.classList.add('modal-pop-out');
-    setTimeout(proceed,250);
-  } else proceed();
+  _modalPopOut(modal, proceed, 250);
 }
 
 function _dbPicksToList(faction){
