@@ -550,6 +550,40 @@ trvlr_042: {name:"Szarg #042", cost:2, hp:1, atk:2, tags:["vanguard","gtype:szg"
 
 Deck composition per starter: 30 travelers + 5 legendaries + 8 spells + 2 worlds + 2 artifacts + extras.
 
+### Lore & Universe context — Home Travelers (Solana NFT)
+
+The game is directly tied to **Home Travelers**, a generative NFT collection on the Solana
+blockchain. This connection is MECHANICAL, not just thematic — traits on the NFTs map to
+game tags:
+
+- **Gates** (the body) — maps to the archetype/gtype grouping. A future task: show each
+  traveler's Gate visually on its card (waiting on a design decision, see Art backlog).
+- **Mood** (the eye/face area) — justifies extra ability tags. Example: a skull Mood is the
+  lore reason a traveler carries the `fear` tag. When adding/rebalancing traveler cards,
+  check the actual NFT's traits — a tag should have a visible trait justifying it.
+- **World** (the background) — connects to the World card type / world mechanics.
+- **Rare and legendary traits** — how exactly они синхронизируются с игрой ещё НЕ решено;
+  это открытая дизайн-задача (см. backlog). Не придумывать связь на лету — спросить автора.
+- **1/1s** — множество уникальных 1/1 из коллекции ещё НЕ использовано в игре. Это резерв
+  для будущих карт и, возможно, новых типов существ.
+
+**«Архив» (The Archive)** — внешний лор-репозиторий вселенной. На лендинге планируется
+иконка-книга со ссылкой на него (см. backlog). Ключевое правило: **расширение состава
+существ на поле (кто-либо кроме Путешественников и 1/1) требует лорного обоснования из
+Архива ДО реализации** — механика не должна опережать вселенную.
+
+**Как давать Claude контекст вселенной в новой сессии** (решение, принятое 2026-07-06):
+держать краткий пример («Universe Primer») прямо в этом файле — см. заготовку ниже, автор
+заполняет выдержками из Архива. Полный zip Архива прикладывать только к сессиям, где работа
+идёт именно над лором/новыми существами; ссылки сами по себе ненадёжны (Claude не всегда
+может их открыть, и контент меняется). Этот раздел — единственный источник, который
+гарантированно виден в каждой сессии.
+
+> **Universe Primer** _(заполнить автору — 10-20 строк ключевых фактов вселенной из Архива:
+> кто такие Путешественники, что такое Таверна и Ядро, кем являются Tea и Jeet, что за
+> событие породило конфликт, какие сущности существуют помимо Путешественников)._
+
+
 -----
 
 ## Art Integration (Implemented)
@@ -642,6 +676,8 @@ Done since this doc was first written — kept here so it isn't re-proposed:
 - [x] ARCHIVE (spell_buff_temp) can no longer target sleeping/exhausted/feared allies — click routing (game.js), `.healable` highlight (render.js), and all 3 AI-side checks (ai.js) now agree on the same eligibility (`!sleeping&&!exhausted&&!feared`). Previously any own creature was clickable during the dimmed-targeting overlay, which was easy to misclick.
 - [x] Targeted-spell sound played twice (once on the "Play" click, once again on target select) — fixed by skipping the immediate Play-click sound for spells that pause for a target (`_isTargetedSpell()` in render.js); their own resolver's sound is now the only one.
 - [x] Found and fixed the real cause of the stats-bar background "flashing" the real art only during the damage-shake animation, staying solid-black otherwise: `.stats-bar` needs its own explicit `z-index` (not just `position:relative`) for its `::before` art layer's `z-index:-1` to stay correctly scoped to it — without one, `.stats-bar` only ever accidentally established a stacking context WHILE `.zone-shake`/`.zone-shake-up`'s `transform` was actively running (any non-`none` `transform` always creates a stacking context), which is exactly why the art seemed to "flash in" only mid-animation. Fixed both factions (this was never faction-specific). Also switched the opponent-slot mirror from vertical-only (`scaleY(-1)`) to a full 180° flip (`scale(-1,-1)`, both axes) on `#oppStats::before` and `#oppStats .player-name-box`, per updated art direction.
+- [x] Stray extra click sound between deck-choice and faction modal — `openVsAiPicker()` replayed the button sound the deck button's own onclick had already played 315ms earlier; removed the duplicate.
+- [x] Remaining pre-mulligan flicker (classic vsAI, and identically in all other start paths) — every game-start path revealed `#game` then waited 50ms before `startMulliganFor()` raised the next solid-black overlay, leaving the bare arena visible for a frame between two black screens. The earlier `render()` fix made the flashed CONTENT correct but didn't close the GAP; now `startMulliganFor()` is called synchronously in all 6 start paths (ui.js ×4, deckbuilder.js ×2).
 - [x] Deck-picker → next-screen transition gap ("stars" flash) — `chooseDeckConfig()` was waiting only 250ms (the modal's own pop-out) before hiding the modal, then `startGame()`/`openVsAiPicker()` each waited a FRESH 315ms on top of that before showing the next screen — landing's own 315ms fade (started at the same moment as the modal pop-out) had long since finished, leaving a ~250ms window where nothing covered the bare `.stars` background. Fixed by waiting the full 315ms (matching landing's transition exactly) before hiding the modal, so the next screen can appear immediately with no additional delay.
 
 Still open:
@@ -653,77 +689,112 @@ Still open:
 
 -----
 
-## Artist's Notes — Open Items
+## Backlog — Code (prioritized 2026-07-06)
 
-_Unsorted working list, kept verbatim as written. Completed items are removed as they're closed
-out (see "Planned Features" above for what that closing-out actually was) rather than checked off
-in place, to keep this list short and current._
+_Единый взвешенный список: сюда слиты бывший Feedback Backlog 2026-07-05, заметки художника
+по коду и задачи сессии 2026-07-06. Приоритет = ценность/усилия с учётом зависимостей от
+арта и дизайн-решений._
 
-**New insides:**
+### P1 — быстрые победы, без зависимости от арта
 
-Base of Tea:
-- Gate of Tavern;
-- Details on bottom;
-- Bar is like front of Tavern + damaged 4 steps;
-- Rechange buttons;
-- Win modal + bg for modal;
-- Bg for hand?
-- More schemes and figures on details;
+- [ ] **Спящие карты**: вместо прозрачности — индикатор «z Z Z» (анимация); **уставшие** —
+  затемнение вместо прозрачности. Важно: при таргетинге шейд поверх прозрачной карты сам
+  становится прозрачным и выглядит плохо — это главная причина правки, не только эстетика.
+- [ ] **Подсветка доступных карт в руке** — слегка выделять карты, на которые сейчас хватает
+  эссенции (render.js, сравнение cost vs G[turn].ess при каждом render).
+- [ ] **Untap (OBLIVION) фидбек** — анимация или звуковой сигнал, сейчас эффект легко не заметить.
+- [ ] **Targeted-spell UX**: экранная подсказка что происходит и как отменить, пока спелл ждёт
+  цель (сейчас только hint-бар).
 
-Base of Jeet:
-- kinda void;
-- New modal skin (window, graveyard, battle log, win) + bg for modal;
-- All buttons;
-- Bottom bar + bar (damaged 4 steps)
-- Heart is black;
-- Fix AI button;
-- Bg for hand?
-- Think about card design after
+### P2 — механики и фичи (нужны небольшие дизайн-решения)
 
-Landing:
-- behind kinda room inside Tavern;
-- At front we see table and panel:
-- Buttons for lore, rules, catalog are part of table;
-- Window for buttons above like close look on pages, notebook etc;
-- Fix sound buttons;
-- Music on background even we close page;
+- [ ] **Хил → попап с кнопкой** — перевести активку лечения на тот же паттерн подтверждения,
+  что у остальных таргетируемых действий.
+- [ ] **Точечная активка-«спелл»** _(нужна расшифровка от автора)_: «спелл нажатие, но не
+  только АОЕ, а ещё и точечная атака» — понято как: активные способности существ с
+  ОДИНОЧНОЙ целью (сейчас активки только AOE/хил), по клику с выбором цели. Уточнить перед
+  реализацией: это новый тег для существ или новый тип спелл-карт?
+- [ ] **Новый тег-идея: +X ATK за каждое сыгранное заклинание** — решить рамки (за ход или
+  за игру, свои спеллы или все), затем: тег в data.js + обработчик + строка в Tag System.
+- [ ] **Анимация полёта карты из колоды в руку** — спрайт из `runaha.png` (ассет уже в img/),
+  создаётся у плейсхолдера колоды, летит вверх, исчезает — тайминг под существующий fade
+  появления карты в руке, создавая иллюзию прилёта.
+- [ ] **Зеркалирование X/Y для остальных декоративных плейсхолдеров** (статус-бары уже
+  сделаны). НЕ зеркалятся только: pcard и каунтеры HP/эссенции (там текст). Вместо зеркала —
+  менять pcard и каунтеры МЕСТАМИ, сохраняя правило «мир и HP слева от базы» → в зеркальном
+  виде справа.
+- [ ] **THE BOOK** (`ess_add:1`/ход) — слишком просто/слабо, пересмотреть механику.
+- [ ] **ALTAR** — базовый пейофф (+1 эссенция за жертву) шаг в нужную сторону, но не финал.
+- [ ] **Low-HP «лампа»**: красный фонарь < 5 HP + слабая пульсация по краю экрана
+  (персистентный индикатор состояния, не разовая вспышка). Идея: фонарь декоративно у
+  бургер-кнопки, у каждого игрока свой. Частично зависит от арта (сам фонарь).
+- [ ] **Jeet: плотность воскрешений** (FORGETTING, PHLEGMOR raise, REAPER) — глянуть на
+  пересечение эффектов.
+- [ ] **ИИ: перекос шкалы оценки** саппорт vs существа — см. AI BALANCE NOTES, сессия
+  2026-07-06 (вечер). Очередь: после обкатки aiVersion 1.0.1.
 
-**Код:**
-- Ссылки снизу (Discord/Twitter — на паузе, автор доделает после лендинга целиком)
-- Каждое Врата визуально на карте (ждёт дизайн-решения — куда на карте и как выглядит)
+### P3 — крупные блоки
 
-**ИИ:**
-- Сделать пожёстче (тактические дырки залатаны — burn/Shard/AOE/Unseen-оценка — но общая "сила"/сложность ИИ не пересматривалась)
-- Отчёты по балансу — идёт через `AI_BALANCE_NOTES.md` + присылаемые `battle_log_*.json`
+- [ ] **Апгрейд дизайна окна декбилдера** — сюда же складываются старые пункты: карты слишком
+  мелкие на лаптопе (breakpoints в CSS-секции DECKBUILDER MODAL), степпер спеллов не читается
+  как интерактив; и идея «один тайл на каждую копию спелла» вместо степпера (прототипировать
+  оба варианта). Частично блокировано артом (скин окна).
+- [ ] **Тренировочная игра** — заскриптованная обучающая партия с комментариями и анимациями
+  для новичков. БОЛЬШОЙ блок: скриптовый движок поверх game.js + контент сценария.
+- [ ] **Расширение состава существ на поле** (кроме Путешественников и 1/1) — БЛОКИРОВАНО
+  лором: сначала обоснование из Архива (см. Lore-раздел выше), потом дизайн, потом код.
+- [ ] **Лор-страница**: иконка-книга → ссылка на Архив + дизайн страницы. **Правила** и
+  **Каталог** — доработка дизайна и вёрстки. Все три — в основном дизайн/арт-задачи.
+- [ ] **ИИ «пожёстче»** — тактические дырки залатаны (burn/Shard/AOE/Altar/веса), общая
+  сложность не пересматривалась. Канал: battle_log + AI BALANCE NOTES.
 
-**Арт:**
-- Все Арт для карт (!)
-- Кастомные анимации (отряд, страх — сейчас текстовые плейсхолдеры "SQUAD!"/"FEARED!"/"-SQUAD"/"CLEANED")
+### Отдельно: на паузе у автора
 
-**Звук:**
-- Хил
-- Бафы (аура)
-- Кладбища кнопка с другим звуком лог звук
-- Воскрешение
-- Спец звук когда атака по базе (и хил?)
-- Когда добор карт звук
-- Звук победы
-- Звуки для декора
+- Ссылки Discord/Twitter внизу лендинга — после завершения лендинга целиком.
 
 -----
 
-## Feedback Backlog — 2026-07-05 (design/balance, not yet actioned)
+## Backlog — Art assets (systematized 2026-07-06)
 
-_Raw notes from playtesting the new spell/artifact mechanics — needs a decision before implementing, not a straightforward bugfix._
+_Реорганизованный список художника (бывший «Artist's Notes», формулировки сохранены) +
+новые пункты. Группировка по зонам._
 
-- **THE BOOK** (`ess_add:1`/turn) feels too simple/low-impact now — reconsider the mechanic again.
-- **ALTAR**'s new baseline payoff (+1 Essence on sacrifice) is a step in the right direction but not fully settled — revisit.
-- **Jeet has a lot of revival effects** (FORGETTING, PHLEGMOR's raise, REAPER-adjacent death payoffs) — density/overlap worth a look.
-- **Untap (OBLIVION)** needs clearer feedback that something happened — an animation or sound cue, since right now it's easy to miss.
-- **Targeted-spell UX** needs more polish:
-  - The "play" sound currently fires twice — once on clicking Play (before a target is even chosen), once again when the spell actually resolves on the target. Should only fire once, on resolution.
-  - Needs an on-screen hint of what's happening and how to cancel while waiting for a target (currently relies on the hint-bar text alone).
-- **Low-HP warning**: a red lantern/light that turns on below 5 HP, plus a faint pulsing glow around the screen edge (separate from the existing dmg/heal flash — this one should be a persistent low-HP state indicator, not a one-shot event flash). Idea: put the lantern decoratively near the hamburger button; each player's lantern lights independently based on their own HP. Stat bar HP number could also pulse/blink at low HP.
-- **Rush deckbuilder cards too small/cramped on laptop** — `.db-card` (styles.css) is noticeably smaller than the Catalog's own card size at the same viewport width; revisit the 6/4/3-column breakpoints in the "DECKBUILDER MODAL" CSS section.
-- **Spell +/− stepper isn't visually obvious as interactive** — nothing currently distinguishes it from the single-copy "TAP TO ADD" label at a glance; needs a clearer affordance (icon, color, size) so it doesn't read as inert text on first look.
-- **One card slot per spell copy, instead of a shared stepper** — i.e. show each of a spell's 3 copies as its own separate card tile in the grid (like the single-copy cards), rather than one tile with a quantity control. Would make Rush's picking model fully uniform (every tile is either "in" or "out", no numeric stepper at all) — worth prototyping against the current stepper approach before committing.
+**База Tea:** Gate of Tavern; details on bottom; bar = front of Tavern + damaged 4 steps;
+rechange buttons; win modal + bg for modal; bg for hand?; more schemes and figures on details.
+
+**База Jeet:** kinda void; new modal skin (window, graveyard, battle log, win) + bg for
+modal; all buttons; bottom bar + bar (damaged 4 steps); heart is black; fix AI button;
+bg for hand?; think about card design after.
+
+**Лендинг:** behind kinda room inside Tavern; at front table and panel; buttons for lore,
+rules, catalog as part of table; window for buttons above (close look on pages, notebook
+etc); fix sound buttons; music on background even we close page.
+
+**Карты:** ВСЕ арты карт (!); каждое Врата (Gate) визуально на карте — ждёт дизайн-решения
+куда и как.
+
+**Анимации:** кастомные для отряда и страха (сейчас текстовые плейсхолдеры
+"SQUAD!"/"FEARED!"/"-SQUAD"/"CLEANED"); полёт карты из колоды (runaha.png — ассет готов,
+код в P2).
+
+**Интерфейс:** скин окна декбилдера; фонарь Low-HP (см. P2); иконка-книга для лор-страницы.
+
+-----
+
+## Sound checklist — ждём от друга автора (записано 2026-07-06)
+
+_Список у него; продублировано здесь на случай, если что-то не доделает — перепроверить и
+напомнить. Отмечать по мере получения файлов._
+
+- [ ] Кнопка кладбища
+- [ ] Кнопка лога (скрин монитора)
+- [ ] Воскрешение
+- [ ] Хил
+- [ ] Баф (сделать громче)
+- [ ] Дебаф (погромче)
+- [ ] Звук «тык» (чуть-чуть громче)
+- [ ] Новая карта из колоды в руку (заменить шаркающий звук)
+- [ ] Сдувание карты с поля обратно в руку (bounce)
+- [ ] Спец-звук удара по базе
+- [ ] Победа — фанфары при появлении win-модалки
+- [ ] 3-4 запасных SFX
