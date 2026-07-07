@@ -2,37 +2,31 @@
 const MUSIC_TARGET_VOLUME = 0.4;
 const FADE_MS = 900; // длительность плавного появления/затухания музыки
 
-// ── Modal pop-in/pop-out (frame + detached button-plate together) ─────────
-// Пока .modal-footer жил ВНУТРИ .modal, applying modal-pop-in/out на .modal
-// автоматически анимировало и футер вместе с ним (как потомка). После
-// переезда на .modal-stack (.modal и .modal-footer-plate — независимые
-// соседи, см. styles.css) это перестало работать само по себе — плита просто
-// мгновенно появлялась/исчезала без анимации. Эти два хелпера — единая точка,
-// которая находит оба элемента (плита может отсутствовать — не у всех
-// модалок есть .modal-footer-plate, например у ещё не переведённых
-// mulliganScreen/deckBuilderModal) и анимирует их синхронно одним и тем же
-// классом. onDone/delay — по желанию, для случаев, где что-то должно
-// произойти после завершения анимации (совпадает с прежним точечным
-// setTimeout(...,250) на месте каждого вызова).
+// ── Modal pop-in/pop-out (frame + button-plate move as ONE rigid body) ────
+// ПЕРЕДЕЛАНО 2026-07-07: раньше анимировали .modal и .modal-footer-plate
+// отдельно, синхронно по классу/таймингу — тайминги совпадали, но визуально
+// всё равно читалось как два разных объекта (разный размер → разная
+// абсолютная скорость роста при одном и том же scale-диапазоне). Теперь
+// анимируется .modal-stack ЦЕЛИКОМ, одним классом — .modal-stack по размеру
+// равен .modal (плита вне потока), так что pivot не изменился, а плита,
+// будучи ребёнком .modal-stack, скейлится вместе с рамкой как одна жёсткая
+// деталь, сохраняя свой собственный статичный translate(-50%,50%) (см.
+// комментарий у .modal-stack в styles.css — трансформы по дереву
+// композируются, а не перезаписывают друг друга).
 function _modalPopIn(overlayEl){
-  const inner=overlayEl.querySelector('.modal');
-  const plate=overlayEl.querySelector('.modal-footer-plate');
-  [inner, plate].forEach(el=>{
-    if(!el) return;
-    el.classList.remove('modal-pop-in','modal-pop-out');
-    void el.offsetWidth;
-    el.classList.add('modal-pop-in');
-  });
+  const stack=overlayEl.querySelector('.modal-stack');
+  if(!stack) return;
+  stack.classList.remove('modal-pop-in','modal-pop-out');
+  void stack.offsetWidth;
+  stack.classList.add('modal-pop-in');
 }
 function _modalPopOut(overlayEl, onDone, delay){
-  const inner=overlayEl.querySelector('.modal');
-  const plate=overlayEl.querySelector('.modal-footer-plate');
-  [inner, plate].forEach(el=>{
-    if(!el) return;
-    el.classList.remove('modal-pop-in','modal-pop-out');
-    void el.offsetWidth;
-    el.classList.add('modal-pop-out');
-  });
+  const stack=overlayEl.querySelector('.modal-stack');
+  if(stack){
+    stack.classList.remove('modal-pop-in','modal-pop-out');
+    void stack.offsetWidth;
+    stack.classList.add('modal-pop-out');
+  }
   if(onDone) setTimeout(onDone, delay!=null?delay:250);
 }
 
@@ -594,6 +588,15 @@ function startMulliganFor(faction){
   const negW = -Math.floor(cardW * (1 - scale));
   G[faction].hand.forEach(card=>{
     const el = mkEl(card,'hand');
+    // Тот же голд-пульс, что у "affordable" карт в обычной руке (goldPulseWeak,
+    // styles.css) — здесь чисто декоративно, не завязано на стоимость/эссенцию:
+    // mkEl() сам ставит .affordable только если card.f===G.turn (а G.turn во
+    // время муллигана всегда 'tea', см. initState()) И cost<=ess — на муллигане
+    // Джита это условие никогда не сработает, да и по смыслу тут не "могу
+    // сыграть", а "вот эти карты у меня на руках" — подсвечиваем ВСЕ карты
+    // муллигана одинаково, форсируя класс явно, а не полагаясь на встроенную
+    // проверку mkEl().
+    el.classList.add('affordable');
     el.style.cursor='default';
     el.style.pointerEvents='none';
     el.style.transform=`scale(${scale})`;
