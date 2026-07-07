@@ -84,11 +84,15 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellUntapTarget'){
-    // Цель — только спящая/уставшая своя карта (той, что и так уже может действовать,
-    // Обливион нечего снимать — раньше клик по такой карте проходил и впустую тратил
-    // заклинание, теперь просто отменяет применение, как клик по любой невалидной цели).
-    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)){
-      doSpellUntapTarget(card);return;
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
+      if(card.sleeping||card.exhausted){
+        doSpellUntapTarget(card);return;
+      }
+      // Клик по своей карте, которая и так уже активна — заклинанию нечего снимать.
+      // По просьбе автора это больше НЕ считается отменой (раньше любой такой клик
+      // отменял заклинание с рефандом) — просто игнорируем клик и ждём валидную цель,
+      // чтобы случайный тап не по той карте не срывал применение.
+      return;
     }
     cancelPendingSpell();return;
   }
@@ -648,6 +652,7 @@ function doSacrifice_target(card){
   // board — those still stack additionally on top of this (draw/heal-base).
   G[G.turn].ess+=1;
   lg(`${card.name} sacrificed to the Altar! +1 Essence.`,'die');
+  queueFieldFx(card.id,'SACRIFICED!','fx-sacrifice'); // плейсхолдер — позже заменится на гифку
   killCard(card,G.turn);
   G.phase='action';
   checkWin();render();
@@ -685,6 +690,7 @@ function doSpellDmgTarget(card){
   playSfx('card_spell_atack');
   lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   const oppK=G.turn==='tea'?'jeet':'tea';
+  queueFieldFx(card.id,'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
   dmgCard(card,dmg,oppK);
   G[G.turn].void.push(spell);
   spell.voided=true;
@@ -708,6 +714,7 @@ function doSpellBuffTarget(card){
   lg(`${spell.name}: ${card.name} +${val} ATK until end of turn.`,'hl');
   const buffId=card.id;
   setTimeout(()=>showFloat(buffId, `+${val}`, 'atk'), 50);
+  queueFieldFx(card.id,'BUFFED!','fx-spell-buff'); // плейсхолдер — позже заменится на гифку
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
@@ -739,6 +746,7 @@ function doSpellUntapTarget(card){
   const wasReady=!card.sleeping&&!card.exhausted;
   card.sleeping=false;card.exhausted=false;
   lg(`${spell.name}: ${card.name} is active${wasReady?' (was already active)':''}!`,'hl');
+  queueFieldFx(card.id,'AWAKENED!','fx-untap'); // плейсхолдер — позже заменится на гифку
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
@@ -756,6 +764,7 @@ function doShardTarget(card){
   const dmg=card.feared?baseDmg+1:baseDmg;
   const fearNote=card.feared?' (feared +1)':'';
   lg(`${artifact.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
+  queueFieldFx(card.id,'SHARD!','fx-shard'); // плейсхолдер — позже заменится на гифку
   dmgCard(card,dmg,oppK);
   if(artifact) artifact.exhausted=true;
   G.phase='action';G.sel=null;
