@@ -439,20 +439,23 @@ function killCard(card,faction,toVoid=false){
 function doBurnCard(card){
   const cur=G[G.turn];
   if(cur.burned){lg('Already burned a card this turn.','hint');return;}
-  cur.burned=true; // ставим СРАЗУ — второй клик/тап (напр. от карусели на мобиле) в эти 300мс уже не пройдёт проверку выше
+  cur.burned=true; // ставим СРАЗУ — второй клик/тап (напр. от карусели на мобиле) в эти 450мс уже не пройдёт проверку выше
 
-  // Анимация сжигания — находим карту в DOM и вешаем фейд перед удалением.
+  // Анимация сжигания — CSS keyframes (burnCard, styles.css), запускается классом
+  // .burning-out. Длительность анимации и setTimeout ниже НАМЕРЕННО держатся в
+  // одном месте (450мс) — если поменяешь одно, поменяй и другое.
   // Класс burning-out — маркер для carousel.js (мобильная карусель руки), чтобы её
-  // updateTransforms() не перезаписывала opacity/transform каждый кадр поверх нашего фейда.
-  // ВАЖНО: на мобиле карта в момент клика по Burn ещё имеет класс .previewed, а для него
-  // carousel.js держит свой @media-стиль с !important (opacity:1, свой transform) — обычный
-  // style.opacity/transform это не перебивает, поэтому ставим через setProperty(...,'important').
+  // updateTransforms() не перезаписывала opacity/transform каждый кадр поверх анимации.
+  // ВАЖНО: снимаем .previewed СРАЗУ — на мобиле карта в момент клика по Burn почти
+  // всегда ещё previewed, а для него carousel.js держит свой @media-стиль с
+  // !important (transform/opacity) — !important всегда бьёт CSS-анимацию, так что
+  // пока previewed висит, анимация сжигания частично не проигрывалась бы. Также
+  // сбрасываем G.previewCard, чтобы ближайший render() не восстановил класс обратно.
+  if(G.previewCard===card.id) G.previewCard=null;
   const cardEl=document.querySelector(`.hand .card[data-id="${card.id}"]`);
   if(cardEl){
+    cardEl.classList.remove('previewed');
     cardEl.classList.add('burning-out');
-    cardEl.style.setProperty('transition','opacity 0.3s ease, transform 0.3s ease','important');
-    cardEl.style.setProperty('opacity','0','important');
-    cardEl.style.setProperty('transform','scale(0.85)','important');
   }
 
   setTimeout(()=>{
@@ -463,7 +466,7 @@ function doBurnCard(card){
     flashEssenceGain(G.turn);
     lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax}.`,'imp');
     G.phase='action';render();
-  }, 300); // ждём пока анимация закончится
+  }, 450); // держать в синхроне с длительностью .burning-out (styles.css)
 }
 
 
