@@ -244,6 +244,55 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 /* Бэкдроп зума карты из руки (см. zoomHandCardFly в render.js) — блокирует клики "сквозь"
    увеличенную карту по остальной игре; z-index ниже клона карты (6000), но выше всего остального. */
 .card-preview-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:5999;transition:opacity .15s ease-out;}
+/* ── Панель-легенда бафов/дебафов под зумленной картой (showFieldCardPreview,
+   render.js) — появляется ТОЛЬКО если у карты сейчас реально что-то активно
+   (fear/burn/sleeping/aura/combat-trick/rage/squad — см. _cardStatusEntries()
+   в render.js). Каждая строка — своё маленькое "окошко": иконка слева,
+   объяснение справа, как просили. pointer-events:none — это чисто информационная
+   плашка, не должна перехватывать тап-для-закрытия зума. */
+.card-status-panel{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  pointer-events:none;
+  opacity:0;
+  transform:translateX(-50%) translateY(-6px);
+  transition:opacity .18s ease-out, transform .18s ease-out;
+  max-width:min(320px, 82vw);
+}
+.card-status-panel.card-status-panel-visible{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+.card-status-row{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:8px;
+  background:rgba(20,22,28,0.88);
+  border:1px solid #E8E0C844;
+  border-radius:6px;
+  padding:6px 10px;
+  box-shadow:0 4px 14px #00000066;
+}
+.card-status-icon{
+  flex:none;
+  width:22px;
+  height:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  line-height:1;
+}
+.card-status-icon img{width:100%;height:100%;object-fit:contain;}
+.card-status-text{
+  font-family:'MEK',monospace;
+  font-size:12px;
+  line-height:1.35;
+  color:#E8E0C8;
+  text-align:left;
+}
 .card-small.tea-card{border-color:transparent;}.card-small.jeet-card{border-color:transparent;}
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
@@ -1439,6 +1488,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   display:flex;
   align-items:center;
   justify-content:center;
+  /* Страховка на случай, если даже 34vh-потолок иллюминатора (см. .landing-porthole
+     ниже) окажется больше, чем реально осталось места в этом слоте на совсем
+     экстремальном экране (репорт со скриншотом: бокс кнопок налезал на лого/
+     иллюминатор даже после первого фикса) — overflow:hidden гарантирует, что
+     иллюминатор физически обрежется по границе слота, а не наедет визуально
+     на .landing-box снизу. Основной фикс — .landing-box теперь сам ужимается
+     через zoom на низких экранах (см. .landing-box ниже), так что до этой
+     страховки в норме вообще не должно доходить. */
+  overflow:hidden;
 }
 
 /* ── Иллюминатор — 4 слоя, круглое окно 228×228px + гибкость на маленьких экранах ──
@@ -1704,6 +1762,28 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   flex-direction:column;
   align-items:center;
   overflow:hidden;
+  /* ── Пропорциональное сжатие ВСЕГО бокса на низких экранах ─────────────
+     Раньше все кнопки внутри (play-gate-wrap 240×60, .art-btn 162×54 ×3,
+     .art-btn-square 54×54 ×2 + паддинги/gap-ы) были заданы ТОЛЬКО в px —
+     ни один из них не реагировал на высоту экрана. На нормальных
+     портретных телефонах/планшетах/десктопе это работало нормально, но на
+     низких экранах (альбомная ориентация телефона и т.п.) бокс требовал
+     ~400+px по высоте, что физически не помещалось и наезжало на
+     иллюминатор/лого сверху (баг-репорт со скриншотом) — независимо от
+     того, насколько сжимался сам иллюминатор.
+     zoom (не transform!) — специально ради того, что transform:scale НЕ
+     уменьшает реально занимаемое место в layout (родитель продолжил бы
+     резервировать место под полноразмерный бокс), а zoom реально ужимает
+     сам бокс И всё что внутри — кнопки, паддинги, gap-ы — пропорционально,
+     одной строкой, без необходимости переводить каждую из ~10 фиксированных
+     величин в vh по отдельности. Поддержка: Chrome/Safari/Edge — всегда,
+     Firefox — с версии 126 (май 2024), к 2026 это безопасный бейзлайн.
+     Формула: clamp(0.55, 100vh/700, 1) — на экранах от ~700px высотой и
+     выше ничего не меняется (та же максимальная величина, что и раньше,
+     как просили); ниже — линейно уменьшается пропорционально высоте
+     экрана, с полом 0.55 (кнопки остаются читаемыми/тапабельными даже на
+     самых низких альбомных телефонах). */
+  zoom:clamp(0.55, calc(100vh / 700), 1);
 }
 /* Зона кнопок лендинга — единый бокс, все кнопки внутри (в т.ч. music/sfx,
    раньше вынесенные в отдельный .landing-footer с фоном и border-top — убрали
@@ -1734,7 +1814,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    .landing-box so the two ends of the text line up with its edges exactly.
    margin-top kept tiny on purpose ("чтоб по сути ничего даже толком не
    сдвинулось") — this sits in the existing gap below the box, not adding
-   meaningful new vertical space. */
+   meaningful new vertical space.
+   zoom — тот же clamp(), что у .landing-box (см. комментарий там) — без
+   этого на низких экранах бокс визуально ужимался бы, а строка copyright
+   под ним осталась бы полноразмерной и её края перестали бы совпадать с
+   краями бокса. */
 .landing-legal-row{
   width:min(272px, 94vw);
   margin-top:6px;
@@ -1746,6 +1830,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   color:#ffffff66;
   font-family:'MEK',monospace;
   line-height:1.2;
+  zoom:clamp(0.55, calc(100vh / 700), 1);
 }
 /* Кнопка + подпись под ней, одной колонкой */
 .landing-square-item{
@@ -2673,8 +2758,10 @@ img{
    Вставляется в mkSmallEl (render.js) только когда card.sleeping. Три буквы
    с разнесёнными задержками медленно всплывают и тают над правым верхним
    углом карты. Примечание: brightness-фильтр карты применяется КО ВСЕМ
-   потомкам, включая эти z-ки — они специально сделаны яркими (#cfe8ff +
-   чёрная обводка), чтобы оставаться читаемыми и после затемнения в .75. */
+   потомкам, включая эти z-ки — они специально сделаны белыми (#fff), чтобы
+   оставаться читаемыми и после затемнения в .55 (было #3975a9 — приглушённый
+   синий, который на затемнённой спящей карте местами сливался с фоном;
+   поменяно по прямому запросу на белый). */
 .card-zzz{
   position:absolute;
   top:30%;
@@ -2682,7 +2769,7 @@ img{
   z-index:4;
   pointer-events:none;
   font-family:'MEK',monospace;
-  color:#3975a9;
+  color:#ffffff;
   text-shadow:0 0 4px #000, 0 0 2px #000;
   line-height:1;
 }
