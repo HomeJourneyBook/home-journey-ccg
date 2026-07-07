@@ -112,6 +112,17 @@ function render(){
   };
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
+  // Target-prompt overlay — только для точечных заклинаний, ждущих клика по
+  // цели (ARCHIVE/JOURNEY/OBLIVION/dispel), НЕ для selectTarget/healTarget/
+  // shardTarget/sacrificeTarget (те целятся с поля, оверлей на руке им не нужен).
+  const targetPromptOverlay=document.getElementById('targetPromptOverlay');
+  if(targetPromptOverlay){
+    const showTargetPrompt=(
+      G.phase==='spellDmgTarget'||G.phase==='spellBuffTarget'||
+      G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'
+    );
+    targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
+  }
   if(typeof _applyPendingFlash==='function') _applyPendingFlash();
   if(typeof _applyPendingEssGlitch==='function') _applyPendingEssGlitch();
   if(typeof _applyPendingFieldFx==='function') _applyPendingFieldFx();
