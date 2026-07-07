@@ -1050,7 +1050,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   border-image-slice:108 fill;
   border-image-width:var(--modal-border-w);
   border-image-outset:0;
-  border-image-repeat:round;
+  border-image-repeat: repeat;
   padding:0; /* padding перенесён в .modal-body — хедер/футер прилипают встык к рамке */
   box-sizing:border-box;
   width:min(calc(300px + 2 * var(--modal-border-w)), 92vw);
