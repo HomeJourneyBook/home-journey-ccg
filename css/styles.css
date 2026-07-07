@@ -334,10 +334,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    через собственную анимацию/правило.
 */
 .hand .card.affordable{animation:goldPulseWeak 1.8s ease-in-out infinite;}
-@keyframes goldPulseWeak{
-  0%,100%{ box-shadow: 0 0 4px #c8a84b44, 0 0 8px #c8a84b33; }
-  50%    { box-shadow: 0 0 7px #c8a84b77, 0 0 15px #c8a84b44; }
+@keyframes goldPulseWeak {
+  0%,100% { box-shadow: 0 0 6px  #d9b95a99, 0 0 14px #d9b95a55;}
+  50% {box-shadow: 0 0 10px #d9b95aff, 0 0 22px #d9b95a88;}
 }
+
 .hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:silverPulse 1.8s ease-in-out infinite;}
 .hand .card.previewed{position:relative;border-color:#E8E0C8 !important;}
 @media(hover:hover){.hand .card:not(.previewed):hover{transform:translateY(-10px) !important;z-index:100 !important;}}
