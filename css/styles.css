@@ -269,11 +269,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   flex-direction:row;
   align-items:center;
   gap:8px;
-  background:rgba(20,22,28,0.88);
-  border:1px solid #E8E0C844;
+  background:#0c0c18ee;
+  border:1px solid #9B937F;
   border-radius:6px;
   padding:6px 10px;
-  box-shadow:0 4px 14px #00000066;
+  box-shadow:0 4px 16px #CBBE9A66;
 }
 .card-status-icon{
   flex:none;
@@ -842,6 +842,17 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   animation:targetPromptPulseBg 1.6s ease-in-out infinite;
 }
 .target-prompt-overlay.hidden{display:none;}
+/* Подложка/рамка под текст CHOOSE TARGET / CLICK HERE TO CANCEL — автор просил
+   что-то вроде рамки, чтобы текст лучше читался поверх карт руки (см. "На подумать"
+   в CLAUDE.md). Тёмная полупрозрачная плашка + тонкая рамка в цвет текста, без
+   влияния на существующую пульсацию фона/текста (те анимации остались как были). */
+.target-prompt-box{
+  background:rgba(10,4,4,0.55);
+  border:1px solid #ff232399;
+  border-radius:10px;
+  padding:10px 18px;
+  box-shadow:0 4px 18px #00000088, 0 0 14px #ff232333;
+}
 .target-prompt-main{
   font-family:'MEK',monospace;
   font-size:min(7.5vw, 34px);
