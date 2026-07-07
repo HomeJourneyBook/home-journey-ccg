@@ -858,28 +858,25 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.placeholder:hover{filter:brightness(1.25);}
 .modal-icon-btn.placeholder:active{transform:scale(0.92) translateY(1px);}
 
-.modal-icon-btn.btn-home.placeholder::after{content:'🏠';}
-.modal-icon-btn.btn-repeat.placeholder::after{content:'🔁';}
-.modal-icon-btn.btn-save.placeholder::after{content:'💾';}
+
 .modal-icon-btn.btn-imp.placeholder::after{content:'📥';}
 .modal-icon-btn.btn-exp.placeholder::after{content:'📤';}
 .modal-icon-btn.btn-ok.placeholder::after{content:'✅';}
 .modal-icon-btn.btn-classic.placeholder::after{content:'🏛️ Classic (45)';}
 .modal-icon-btn.btn-rush.placeholder::after{content:'⚡ Rush (28+)';}
 
-/* Финальный арт — раскомментировать по готовности (см. примечание выше).
 .modal-icon-btn.btn-home{background-image:url('../img/btn_home1.png');}
-.modal-icon-btn.btn-home:hover{background-image:url('../img/btn_homeH.png');filter:brightness(1);}
-.modal-icon-btn.btn-home:active{background-image:url('../img/btn_home2.png');filter:brightness(1);transform:none;}
+.modal-icon-btn.btn-home:hover{background-image:url('../img/btn_homeH.png');}
+.modal-icon-btn.btn-home:active{background-image:url('../img/btn_home2.png');transform:none;}
 
 .modal-icon-btn.btn-repeat{background-image:url('../img/btn_repeat1.png');}
-.modal-icon-btn.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');filter:brightness(1);}
-.modal-icon-btn.btn-repeat:active{background-image:url('../img/btn_repeat2.png');filter:brightness(1);transform:none;}
+.modal-icon-btn.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');}
+.modal-icon-btn.btn-repeat:active{background-image:url('../img/btn_repeat2.png');transform:none;}
 
 .modal-icon-btn.btn-save{background-image:url('../img/btn_save1.png');}
-.modal-icon-btn.btn-save:hover{background-image:url('../img/btn_saveH.png');filter:brightness(1);}
-.modal-icon-btn.btn-save:active{background-image:url('../img/btn_save2.png');filter:brightness(1);transform:none;}
-
+.modal-icon-btn.btn-save:hover{background-image:url('../img/btn_saveH.png');}
+.modal-icon-btn.btn-save:active{background-image:url('../img/btn_save2.png');transform:none;}
+/*
 .modal-icon-btn.btn-imp{background-image:url('../img/btn_imp1.png');}
 .modal-icon-btn.btn-imp:hover{background-image:url('../img/btn_impH.png');filter:brightness(1);}
 .modal-icon-btn.btn-imp:active{background-image:url('../img/btn_imp2.png');filter:brightness(1);transform:none;}
@@ -1081,7 +1078,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   border-image-slice:108 fill;
   border-image-width:var(--modal-border-w);
   border-image-outset:0;
-  border-image-repeat:stretch;
+  border-image-repeat:repeat;
   padding:0; /* padding перенесён в .modal-body — хедер/футер прилипают встык к рамке */
   box-sizing:border-box;
   width:min(calc(300px + 2 * var(--modal-border-w)), 92vw);
@@ -1190,20 +1187,20 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   aspect-ratio:2/1;
   background-image:url('../img/btn_yes1.png');
 }
-.modal-art-btn.btn-yes:hover{background-image:url('../img/btn_yesH.png');filter:brightness(1);}
-.modal-art-btn.btn-yes:active{background-image:url('../img/btn_yes2.png');filter:brightness(0.9);}
+.modal-art-btn.btn-yes:hover{background-image:url('../img/btn_yesH.png');}
+.modal-art-btn.btn-yes:active{background-image:url('../img/btn_yes2.png');}
 
 .modal-art-btn.btn-cancel{background-image:url('../img/btn_cancel1.png');}
-.modal-art-btn.btn-cancel:hover{background-image:url('../img/btn_cancelH.png');filter:brightness(1);}
-.modal-art-btn.btn-cancel:active{background-image:url('../img/btn_cancel2.png');filter:brightness(0.9);}
+.modal-art-btn.btn-cancel:hover{background-image:url('../img/btn_cancelH.png');}
+.modal-art-btn.btn-cancel:active{background-image:url('../img/btn_cancel2.png');}
 
 .modal-art-btn.btn-mulligan{
   width:min(80px, 18vw);
   aspect-ratio:2/1;
   background-image:url('../img/btn_mulligan1.png');
 }
-.modal-art-btn.btn-mulligan:hover{background-image:url('../img/btn_mulliganH.png');filter:brightness(1);}
-.modal-art-btn.btn-mulligan:active{background-image:url('../img/btn_mulligan2.png');filter:brightness(0.9);}
+.modal-art-btn.btn-mulligan:hover{background-image:url('../img/btn_mulliganH.png');}
+.modal-art-btn.btn-mulligan:active{background-image:url('../img/btn_mulligan2.png');}
 .modal-art-btn.btn-mulligan:disabled{
   opacity:0.4;
   cursor:not-allowed;
@@ -1215,16 +1212,16 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   aspect-ratio:2/1;
   background-image:url('../img/btn_ready1.png');
 }
-.modal-art-btn.btn-ready:hover{background-image:url('../img/btn_readyH.png');filter:brightness(1);}
-.modal-art-btn.btn-ready:active{background-image:url('../img/btn_ready2.png');filter:brightness(0.9);}
+.modal-art-btn.btn-ready:hover{background-image:url('../img/btn_readyH.png');}
+.modal-art-btn.btn-ready:active{background-image:url('../img/btn_ready2.png');}
 /* btn-win — reuses the Ready button art (btn_ready1/H/2), same 2:1 sizing pattern. */
 .modal-art-btn.btn-win{
   width:min(80px, 18vw);
   aspect-ratio:2/1;
   background-image:url('../img/btn_ready1.png');
 }
-.modal-art-btn.btn-win:hover{background-image:url('../img/btn_readyH.png');filter:brightness(1);}
-.modal-art-btn.btn-win:active{background-image:url('../img/btn_ready2.png');filter:brightness(0.9);}
+.modal-art-btn.btn-win:hover{background-image:url('../img/btn_readyH.png');}
+.modal-art-btn.btn-win:active{background-image:url('../img/btn_ready2.png');}
 /* Win/menu — пока текстовая кнопка (нет арта), стилизуем отдельно */
 .modal-text-btn{
   font-family:'MEK',monospace;
@@ -1275,8 +1272,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   justify-content:center;
   padding-bottom:3px;
 }
-.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:7px;}
-.modal p{font-size:clamp(13px,3.2vw,16px);color:#9B937F;margin-bottom:18px;line-height:1.6;}
+.modal h2{font-family:'MEK',monospace;font-size:22px;color:#D9d89e;margin-bottom:5px;}
+.modal p{font-size:clamp(13px,3.2vw,16px);color:#a2bf5e;margin-bottom:18px;line-height:1.6;}
 
 /* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
@@ -1327,7 +1324,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   display:flex;flex-direction:column;align-items:center;
   padding:4vh 12px 3vh;
   overflow-y:auto;
-  background-color:#1c1d22;         /* PLACEHOLDER — временный тёмно-серый фон */
+  background-color:#181f27;         /* PLACEHOLDER — временный тёмно-серый фон */
   /* background-image:url('../img/landing_bg.png'); */
   background-size:cover;
   background-position:center;
