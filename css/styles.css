@@ -716,6 +716,59 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   }
 }
 
+/* ── Target-prompt overlay — точечные заклинания (ARCHIVE/JOURNEY/OBLIVION/dispel) ──
+   Перекрывает ВСЮ .player-hand-zone, пока G.phase — один из 4 spell*Target (см.
+   render.js). z-index выше .player-hand-zone::after (600), чтобы рейлы руки не
+   перекрывали надпись. Клик = отмена (см. onclick инлайн в index.html). */
+.target-prompt-overlay{
+  position:absolute;
+  inset:0;
+  z-index:620;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  padding:0 4px;
+  box-sizing:border-box;
+  background:rgba(120,0,0,0.32);
+  animation:targetPromptPulseBg 1.1s ease-in-out infinite;
+}
+.target-prompt-overlay.hidden{display:none;}
+/* Высота шрифта = 1/2 высоты .player-hand-zone (27vh → 13.5vh), по ТЗ.
+   white-space не задан нарочно — "CHOOSE TARGET" на 13.5vh шире экрана на
+   узких телефонах, пусть переносится на 2 строки вместо обрезки/оверфлоу. */
+.target-prompt-main{
+  font-family:'MEK',monospace;
+  font-size:13.5vh;
+  line-height:0.95;
+  color:#ff2323;
+  letter-spacing:2px;
+  text-align:center;
+  text-shadow:0 0 14px #ff000099, 0 2px 4px #000;
+  animation:targetPromptBlink 1.1s steps(1,end) infinite;
+}
+/* Высота шрифта = 1/4 высоты .player-hand-zone (27vh → 6.75vh), по ТЗ. */
+.target-prompt-sub{
+  font-family:'MEK',monospace;
+  font-size:6.75vh;
+  line-height:1;
+  color:#ff2323;
+  letter-spacing:1px;
+  text-align:center;
+  margin-top:2px;
+  text-shadow:0 0 8px #ff000088, 0 2px 3px #000;
+  animation:targetPromptBlink 1.1s steps(1,end) infinite;
+}
+@keyframes targetPromptBlink{
+  0%,49%{opacity:1;}
+  50%,100%{opacity:0.2;}
+}
+@keyframes targetPromptPulseBg{
+  0%,100%{background:rgba(120,0,0,0.26);}
+  50%{background:rgba(190,0,0,0.52);}
+}
+
 /* BOTTOM BAR */
 /* align-items:stretch (было center) — .bottom-slot без явной высоты раньше сжимался
    по своему контенту и центрировался ЦЕЛИКОМ внутри 7vh бара, из-за чего оставался
@@ -1356,8 +1409,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
      4. .porthole-frame — круглая рамка (logo_window.png), рамка 18px, сверху всех */
 .landing-porthole{
   position:relative;z-index:1;
-  width:min(273.6px, 72vw);
-  height:min(273.6px, 72vw);
+  /* min() теперь тройной: раньше был только 72vw (ширина), из-за чего на НИЗКИХ
+     экранах (короткий vh — альбомная ориентация телефона, iPad со split-screen
+     и т.п.) иллюминатор физически не влезал в .landing-porthole-slot (flex:1 —
+     он лишь ЦЕНТРИРУЕТ содержимое, а не сжимает его) и наезжал на .landing-box
+     снизу (баг-репорт). 34vh — эмпирический потолок: оставляет место под
+     .landing-box (кнопки режима + music/sfx + copyright, фиксированная высота
+     в px, не в vh) даже на самых низких вьюпортах. */
+  width:min(273.6px, 72vw, 34vh);
+  height:min(273.6px, 72vw, 34vh);
   border-radius:50%;
   overflow:hidden;
   flex-shrink:0;
