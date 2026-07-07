@@ -95,7 +95,7 @@
           <button class="art-btn-square art-btn-mode art-btn-hotseat"
                   onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');openDeckPicker('hotseat')" title="Hot Seat"></button>
           <button class="art-btn-square art-btn-mode art-btn-vsai"
-                  onclick="openDeckPicker('vsai')" title="VS AI"></button>
+                  onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');openDeckPicker('vsai')" title="VS AI"></button>
           <button class="art-btn-square art-btn-mode art-btn-online"
                   disabled title="Online"></button>
         </div>
@@ -479,6 +479,17 @@
   <!-- PLAYER HAND -->
   <div class="player-hand-zone" id="playerHandZone">
     <div class="hand" id="teaHand"></div>
+    <!-- Оверлей "выберите цель" для точечных заклинаний (spellDmgTarget/spellBuffTarget/
+         spellDispelTarget/spellUntapTarget, включая OBLIVION-untap) — включается/выключается
+         в render() (js/render.js). Клик по оверлею = отмена, тот же cancelPendingSpell(),
+         что раньше срабатывал при случайном клике по карте в руке — поведение не сломано,
+         просто явное и с подсказкой. stopPropagation, чтобы клик не улетал дальше в
+         handleGameClick() на #game. -->
+    <div class="target-prompt-overlay hidden" id="targetPromptOverlay"
+         onclick="event.stopPropagation();cancelPendingSpell();">
+      <div class="target-prompt-main">CHOOSE TARGET</div>
+      <div class="target-prompt-sub">CLICK HERE TO CANCEL</div>
+    </div>
   </div>
   
   <!-- PLAYER STATS -->
