@@ -856,18 +856,18 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-win-sq.btn-repeat.placeholder::after{content:'🔁';}
 .modal-win-sq.btn-save.placeholder::after{content:'💾';}
 
-/* Финальный арт — раскомментировать по готовности (см. примечание выше).
+
 .modal-win-sq.btn-home{background-image:url('../img/btn_home1.png');}
-.modal-win-sq.btn-home:hover{background-image:url('../img/btn_homeH.png');filter:brightness(1);}
-.modal-win-sq.btn-home:active{background-image:url('../img/btn_home2.png');filter:brightness(1);transform:none;}
+.modal-win-sq.btn-home:hover{background-image:url('../img/btn_homeH.png');}
+.modal-win-sq.btn-home:active{background-image:url('../img/btn_home2.png');transform:none;}
 
 .modal-win-sq.btn-repeat{background-image:url('../img/btn_repeat1.png');}
-.modal-win-sq.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');filter:brightness(1);}
-.modal-win-sq.btn-repeat:active{background-image:url('../img/btn_repeat2.png');filter:brightness(1);transform:none;}
+.modal-win-sq.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');}
+.modal-win-sq.btn-repeat:active{background-image:url('../img/btn_repeat2.png');transform:none;}
 
 .modal-win-sq.btn-save{background-image:url('../img/btn_save1.png');}
-.modal-win-sq.btn-save:hover{background-image:url('../img/btn_saveH.png');filter:brightness(1);}
-.modal-win-sq.btn-save:active{background-image:url('../img/btn_save2.png');filter:brightness(1);transform:none;}
+.modal-win-sq.btn-save:hover{background-image:url('../img/btn_saveH.png');}
+.modal-win-sq.btn-save:active{background-image:url('../img/btn_save2.png');transform:none;}
 */
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
