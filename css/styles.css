@@ -2508,6 +2508,20 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .card.card-drawn{ animation: cardDrawn 0.3s ease-out forwards; }
 
+/* Летящий спрайт-рубашка карты из колоды в руку (см. _flyCardFromDeck в render.js) —
+   отдельный fixed-элемент поверх всего, не трогает сам DOM руки/колоды. Стартует
+   у плейсхолдера колоды, летит к месту новой карты, тает в последние ~140мс полёта. */
+.card-fly-sprite{
+  position:fixed;
+  z-index:5500;
+  pointer-events:none;
+  background-image:url('img/runaha.png');
+  background-size:cover;
+  background-position:center;
+  border-radius:8%;
+  box-shadow:0 6px 18px #000000aa;
+}
+
 
 /* dmg/heal base */
 @keyframes flashRed {
