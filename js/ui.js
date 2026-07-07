@@ -914,6 +914,14 @@ function spawnNebula() {
 }
 
 // ── Tag tooltips (desktop only — mouse events не срабатывают на touch) ──────
+// Жёсткая блокировка на тач-устройствах: некоторые мобильные браузеры после тапа
+// всё же шлют синтетическое mousemove/mouseover, из-за чего подсказка периодически
+// всплывала на телефоне и мешала визуалу (фидбек автора). IS_TOUCH_DEVICE считается
+// один раз при загрузке и используется как ранний выход из обработчика ниже —
+// на устройствах с реальной мышью (ontouchstart отсутствует и нет touch-точек)
+// подсказки работают как раньше, без изменений.
+const IS_TOUCH_DEVICE = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
 const TAG_TOOLTIPS = {
   'fear':    { name: 'Fear',    desc: 'On attack: target skips its next turn and deals no counter-damage.' },
   'pierce':  { name: 'Pierce',  desc: 'Ignores Provoke. Can attack the base or any enemy directly.' },
@@ -991,7 +999,14 @@ function _hideTooltipNow(){
   if(tip) tip.classList.remove('tt-visible');
 }
 
+// Доп. страховка: если подсказка уже как-то показалась (напр. успела всплыть до
+// этого фикса/из старого состояния), любой тач сразу её гасит.
+if(IS_TOUCH_DEVICE){
+  document.addEventListener('touchstart', _hideTooltipNow, {passive:true});
+}
+
 document.addEventListener('mousemove', (e) => {
+  if(IS_TOUCH_DEVICE) return; // жёсткий блок — на телефоне подсказки не показываем вообще
   const tip = _getTooltip();
   if(!tip) return;
 
