@@ -655,6 +655,48 @@ const tagIcons = (card.tags||[])
 // и обновлять уже существующие элементы на месте (чтобы не сбрасывалась подсветка targetable),
 // новые карты получают класс entering для анимации появления. Рисует через mkSmallEl.
 // Для остальных зон (zone='hand' и т.п.) — просто очищает контейнер и рисует заново через mkEl.
+// ── Полёт карты из колоды в руку (спрайт-рубашка) ────────────────────────────
+// Настоящая новая карта в руке уже умела fade-появляться (см. .card-drawn ниже
+// в rZone) — этого добавляем "физику": рубашка (runaha.png) стартует у плейсхолдера
+// колоды своей фракции, летит вверх к месту новой карты и исчезает ПРЯМО К МОМЕНТУ,
+// когда настоящая карта начинает свой fade — card-drawn получает animation-delay
+// = CARD_FLY_MS, поэтому карта спрятана (fill-mode:both держит "from"-состояние
+// анимации, т.е. opacity:0), пока спрайт летит, и проявляется сразу как он пропал.
+const CARD_FLY_MS = 300;
+
+// Возвращает rect плейсхолдера колоды нужной фракции, ИЛИ null если он сейчас
+// не виден (например, скрыт под модалкой муллигана/деколадера) — в этом случае
+// полёт просто пропускается, карта появляется как раньше (обычный fade без спрайта).
+function _deckPlaceholderRect(faction){
+  const deckEl=document.getElementById(faction==='tea'?'deckPlaceholderT':'deckPlaceholderJ');
+  if(!deckEl || deckEl.offsetParent===null) return null;
+  const r=deckEl.getBoundingClientRect();
+  if(!r.width || !r.height) return null;
+  return r;
+}
+
+function _flyCardFromDeck(deckRect, targetRect, delayMs){
+  const sprite=document.createElement('div');
+  sprite.className='card-fly-sprite';
+  sprite.style.width=Math.max(targetRect.width,30)+'px';
+  sprite.style.height=Math.max(targetRect.height,42)+'px';
+  sprite.style.left=(deckRect.left+deckRect.width/2)+'px';
+  sprite.style.top=(deckRect.top+deckRect.height/2)+'px';
+  sprite.style.transform='translate(-50%,-50%) scale(.35) rotate(-6deg)';
+  sprite.style.opacity='0.92';
+  document.body.appendChild(sprite);
+  setTimeout(()=>{
+    if(!sprite.parentElement) return; // на случай если экран уже перерисован/сцена сменилась
+    void sprite.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+    sprite.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity 140ms ease-in ${CARD_FLY_MS-140}ms`;
+    sprite.style.left=(targetRect.left+targetRect.width/2)+'px';
+    sprite.style.top=(targetRect.top+targetRect.height/2)+'px';
+    sprite.style.transform='translate(-50%,-50%) scale(1) rotate(0deg)';
+    sprite.style.opacity='0';
+    setTimeout(()=>{ if(sprite.parentElement) sprite.remove(); }, CARD_FLY_MS+40);
+  }, delayMs);
+}
+
 function rZone(id,cards,zone){
   const el=document.getElementById(id);
   if(zone==='field'){
@@ -692,6 +734,8 @@ function rZone(id,cards,zone){
   const cardSelector=zone==='field'?'.card-small':'.card';
   const existingIds=new Set([...el.querySelectorAll(cardSelector)].map(e=>e.dataset.id));
   el.innerHTML='';
+  const faction=id.startsWith('tea')?'tea':'jeet'; // для полёта карты из колоды, см. _flyCardFromDeck
+  let newHandCardIndex=0; // стаггер вылета, если за один render появилось сразу несколько карт
   cards.forEach(c=>{
     if(zone==='field'){
       const cardEl=mkSmallEl(c);
@@ -701,8 +745,19 @@ function rZone(id,cards,zone){
       const cardEl=mkEl(c,zone);
       // New card in hand (just drawn from deck) — gets the card-drawn entrance
       // animation. Cards already in hand don't replay it on every re-render.
-      if(zone==='hand'&&!existingIds.has(String(c.id))) cardEl.classList.add('card-drawn');
+      const isNew=zone==='hand'&&!existingIds.has(String(c.id));
       el.appendChild(cardEl);
+      if(isNew){
+        const restRect=cardEl.getBoundingClientRect(); // финальная позиция ДО навешивания card-drawn
+        const deckRect=_deckPlaceholderRect(faction);
+        cardEl.classList.add('card-drawn');
+        if(deckRect){
+          cardEl.style.animationDelay=CARD_FLY_MS+'ms';
+          cardEl.style.animationFillMode='both';
+          _flyCardFromDeck(deckRect,restRect,newHandCardIndex*90);
+          newHandCardIndex++;
+        }
+      }
     }
   });
 }
