@@ -925,7 +925,7 @@ const TAG_TOOLTIPS = {
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
 };
 
-const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box';
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
 
 let _tooltipEl = null;
@@ -946,6 +946,22 @@ function _tooltipDataFor(el){
   }
   if(el.classList.contains('card-small-hp-box')){
     return { name: '', desc: `${el.dataset.hp}/${el.dataset.maxhp} HP` };
+  }
+  // Полноразмерная карта (рука/превью/зум) — data-hp/data-maxhp навешаны в mkEl()
+  // (render.js). У карт в руке hp===maxHp (ещё не в бою); у зумленной карты поля
+  // (showFieldCardPreview копирует card.hp как есть, см. render.js) может отличаться —
+  // тултип тогда честно покажет текущее HP, даже если сама плашка на карте рисует
+  // только maxHp (компактности ради).
+  if(el.classList.contains('card-hp-box')){
+    return { name: '', desc: `${el.dataset.hp}/${el.dataset.maxhp} HP` };
+  }
+  // .card-atk-box — data-base/data-bonus навешаны в mkEl(). Если бонусов нет, просто
+  // "Attack power"; если есть — расшифровка, откуда взялась итоговая цифра (aura/rage/
+  // squad/combat-trick всё суммируются в один и тот же bonus на data-атрибуте, без
+  // разбивки по источнику — различать их тут не пытаемся, это уже детали реализации).
+  if(el.classList.contains('card-atk-box')){
+    const base=Number(el.dataset.base||0), bonus=Number(el.dataset.bonus||0);
+    return { name: '', desc: bonus ? `Attack power: ${base} base + ${bonus} bonus` : 'Attack power' };
   }
   return null;
 }
