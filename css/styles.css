@@ -1050,7 +1050,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   border-image-slice:108 fill;
   border-image-width:var(--modal-border-w);
   border-image-outset:0;
-  border-image-repeat:stretch;
+  border-image-repeat:round;
   padding:0; /* padding перенесён в .modal-body — хедер/футер прилипают встык к рамке */
   box-sizing:border-box;
   width:min(calc(300px + 2 * var(--modal-border-w)), 92vw);
@@ -1244,8 +1244,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   justify-content:center;
   padding-bottom:3px;
 }
-.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:7px;}
-.modal p{font-size:clamp(13px,3.2vw,16px);color:#9B937F;margin-bottom:18px;line-height:1.6;}
+.modal h2{font-family:'MEK',monospace;font-size:22px;color:#D9d89e;margin-bottom:7px;}
+.modal p{font-size:clamp(13px,3.2vw,16px);color:#A2bf5e;margin-bottom:18px;line-height:1.6;}
 
 /* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
