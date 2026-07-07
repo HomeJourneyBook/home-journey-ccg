@@ -612,9 +612,9 @@
         <p>Classic — the full 1st-edition starter. Rush — build your own from the same cards, minimum 28.</p>
       </div>
     </div>
-    <div class="modal-footer modal-footer-plate" style="flex-direction:column;gap:8px;">
-      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('classic')">Classic (45 cards)</button>
-      <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('rush')">Rush (28 cards)</button>
+    <div class="modal-footer modal-footer-plate">
+      <button class="modal-icon-btn wide btn-classic placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('classic')" title="Classic (45 cards)"></button>
+      <button class="modal-icon-btn wide btn-rush placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('rush')" title="Rush (28+ cards)"></button>
     </div>
   </div>
 </div>
@@ -628,11 +628,11 @@
         <div class="db-grid" id="deckBuilderGrid"></div>
       </div>
     </div>
-    <div class="modal-footer modal-footer-plate" style="flex-wrap:wrap;gap:8px;">
-      <button class="btn ham-item" style="width:auto;" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');dbExportDeck()">Export deck (.json)</button>
-      <button class="btn ham-item" style="width:auto;" onclick="document.getElementById('deckBuilderImportInput').click()">Import deck (.json)</button>
+    <div class="modal-footer modal-footer-plate">
+      <button class="modal-icon-btn sq btn-imp placeholder" onclick="document.getElementById('deckBuilderImportInput').click()" title="Import deck (.json)"></button>
       <input type="file" id="deckBuilderImportInput" accept="application/json,.json" style="display:none;" onchange="dbImportDeck(this)">
-      <button class="btn ham-item" id="deckBuilderNextBtn" style="width:auto;" onclick="deckBuilderConfirm()">Start Game</button>
+      <button class="modal-icon-btn sq btn-exp placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');dbExportDeck()" title="Export deck (.json)"></button>
+      <button class="modal-icon-btn sq btn-ok placeholder" id="deckBuilderNextBtn" onclick="deckBuilderConfirm()" title="Start Game"></button>
     </div>
   </div>
 </div>
@@ -677,9 +677,9 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button id="winBtn" class="modal-win-sq btn-home" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');closeWinModal()" title="Return to menu"></button>
-      <button class="modal-win-sq btn-repeat" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');resetGame()" title="Restart (same setup)"></button>
-      <button class="modal-win-sq btn-save" onclick="event.stopPropagation();downloadBattleLog()" title="Save battle log (JSON)"></button>
+      <button id="winBtn" class="modal-icon-btn sq btn-home placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');closeWinModal()" title="Return to menu"></button>
+      <button class="modal-icon-btn sq btn-repeat placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');resetGame()" title="Restart (same setup)"></button>
+      <button class="modal-icon-btn sq btn-save placeholder" onclick="event.stopPropagation();downloadBattleLog()" title="Save battle log (JSON)"></button>
     </div>
   </div>
 </div>
@@ -689,7 +689,7 @@
     <div class="modal" style="width:auto;max-width:95vw;max-height:90vh;overflow-y:auto;">
       <div class="modal-body">
         <h2 id="mulliganTitle">PLAYER 1 — YOUR HAND</h2>
-        <div id="mulliganInfo" style="clamp(13px,3.2vw,16px);color:#A2bf5e;margin-bottom:12px;"></div>
+        <div id="mulliganInfo" style="font-size:12px;color:#555;margin-bottom:12px;"></div>
         <div id="mulliganCards" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
       </div>
     </div>
