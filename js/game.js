@@ -84,7 +84,10 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellUntapTarget'){
-    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
+    // Цель — только спящая/уставшая своя карта (той, что и так уже может действовать,
+    // Обливион нечего снимать — раньше клик по такой карте проходил и впустую тратил
+    // заклинание, теперь просто отменяет применение, как клик по любой невалидной цели).
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)){
       doSpellUntapTarget(card);return;
     }
     cancelPendingSpell();return;
