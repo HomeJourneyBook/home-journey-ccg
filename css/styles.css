@@ -326,19 +326,19 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .hand{display:flex;flex-wrap:nowrap;min-height:var(--card-h);padding:3px;background:transparent;justify-content:space-between;align-items:flex-end;overflow:visible;position:relative;width:100%;box-sizing:border-box;}
 .hand .card{flex-shrink:0;transition:transform .2s;position:relative;width:var(--card-w)!important;min-width:var(--card-w)!important;}
 .card-actions-popup {animation: popupSlideUp 0.18s ease-out forwards;}
-/* Слабая... точнее теперь умеренная золотая подсветка карт в руке, на которые
-   СЕЙЧАС хватает эссенции. Было ~1/3 интенсивности .previewed ниже (blur 5/10px,
-   alpha 55/33) — по запросу увеличено вдвое от исходного (~2/3 от .previewed:
-   blur 7/15px, alpha 77/44). .previewed сам: пики blur 10/22/34px, alpha
-   CC/88/33. Не мешает .previewed/.selected — те переопределяют box-shadow
-   через собственную анимацию/правило.
+/* Умеренная → чуть более насыщенная золотая подсветка карт в руке, на
+   которые СЕЙЧАС хватает эссенции. История: было ~1/3 интенсивности
+   .previewed, потом удвоено (~2/3), затем ещё усилено по прямому запросу
+   ("чуть насыщенней") — сейчас пики blur 9/18px, alpha 88/55 (было 7/15px,
+   77/44). .previewed сам для сравнения: пики blur 10/22/34px, alpha CC/88/33.
+   Не мешает .previewed/.selected — те переопределяют box-shadow через
+   собственную анимацию/правило.
 */
 .hand .card.affordable{animation:goldPulseWeak 1.8s ease-in-out infinite;}
-@keyframes goldPulseWeak {
-  0%,100% { box-shadow: 0 0 6px  #d9b95a99, 0 0 14px #d9b95a55;}
-  50% {box-shadow: 0 0 10px #d9b95aff, 0 0 22px #d9b95a88;}
+@keyframes goldPulseWeak{
+  0%,100%{ box-shadow: 0 0 5px #c8a84b55, 0 0 10px #c8a84b44; }
+  50%    { box-shadow: 0 0 9px #c8a84b88, 0 0 18px #c8a84b55; }
 }
-
 .hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:silverPulse 1.8s ease-in-out infinite;}
 .hand .card.previewed{position:relative;border-color:#E8E0C8 !important;}
 @media(hover:hover){.hand .card:not(.previewed):hover{transform:translateY(-10px) !important;z-index:100 !important;}}
@@ -828,44 +828,85 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .btn-end.btn-waiting{background-image:url('../img/btn_wait.gif') !important;cursor:default;pointer-events:none;filter:none !important;}
 .btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;transform:translate(-50%,-50%);}
 .btn-square{width:6vh;height:6vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
-/* ── Win-модалка: три квадратные кнопки (Home/Repeat/Save) ────────────────
-   Раньше это были разнородные кнопки (текстовая art-кнопка + ham-item текст +
-   один квадрат Save) — теперь все три одного формата и размера. Сейчас у всех
-   троих — смайл-плейсхолдер (тот же визуальный язык, что раньше был только у
-   Save: рамка + цвет фона + эмодзи по центру). Когда появится кастомный арт
-   (btn_home1/H/2.png, btn_save1/H/2.png, btn_repeat1/H/2.png — тот же
-   1/H/2-конвеншн, что у yes/cancel/win/lore/catalog выше), для каждой кнопки:
-   убрать класс "placeholder" из HTML (index.html) и раскомментировать её
+/* ── Модалки: иконки-кнопки вместо списков (win/deck-builder/deck-picker) ──
+   Раньше .modal-win-sq был именно под win-модалку; обобщено, т.к. тот же
+   квадратный/широкий формат нужен и в футере дек-билдера (Import/Export/OK),
+   и в футере выбора деки (Classic/Rush). Сейчас у всех — эмодзи-плейсхолдер
+   (тот же визуальный язык, что был у Save изначально). Когда появится
+   кастомный арт (btn_home/save/repeat/imp/exp/ok/classic/rush — везде
+   1/H/2.png, тот же конвеншн, что у yes/cancel/win/lore/catalog выше): для
+   каждой кнопки убрать класс "placeholder" из HTML и раскомментировать её
    блок ниже — placeholder-стили (рамка/цвет фона) иначе перекроют картинку. */
-.modal-win-sq{
-  width:6vh;height:6vh;
+.modal-icon-btn{
   border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;
   background-size:100% 100%;background-repeat:no-repeat;background-position:center;
   transition:transform .1s,filter .1s;
   position:relative;
 }
-.modal-win-sq.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
-.modal-win-sq.placeholder::after{
+.modal-icon-btn.sq{width:6vh;height:6vh;}
+.modal-icon-btn.wide{width:min(150px,36vw);aspect-ratio:2/1;}
+.modal-icon-btn.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
+.modal-icon-btn.placeholder::after{
   content:'';
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
   font-size:calc(6vh * 0.55);
 }
+.modal-icon-btn.wide.placeholder::after{
+  font-size:13px;line-height:1.3;text-align:center;padding:4px;white-space:normal;
+}
+.modal-icon-btn.placeholder:hover{filter:brightness(1.25);}
+.modal-icon-btn.placeholder:active{transform:scale(0.92) translateY(1px);}
 
-.modal-win-sq.btn-home{background-image:url('../img/btn_home1.png');}
-.modal-win-sq.btn-home:hover{background-image:url('../img/btn_homeH.png');}
-.modal-win-sq.btn-home:active{background-image:url('../img/btn_home2.png');transform:none;}
-.modal-win-sq.btn-repeat{background-image:url('../img/btn_repeat1.png');}
-.modal-win-sq.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');}
-.modal-win-sq.btn-repeat:active{background-image:url('../img/btn_repeat2.png');transform:none;}
-.modal-win-sq.btn-save{background-image:url('../img/btn_save1.png');}
-.modal-win-sq.btn-save:hover{background-image:url('../img/btn_saveH.png');}
-.modal-win-sq.btn-save:active{background-image:url('../img/btn_save2.png');transform:none;}
+.modal-icon-btn.btn-home.placeholder::after{content:'🏠';}
+.modal-icon-btn.btn-repeat.placeholder::after{content:'🔁';}
+.modal-icon-btn.btn-save.placeholder::after{content:'💾';}
+.modal-icon-btn.btn-imp.placeholder::after{content:'📥';}
+.modal-icon-btn.btn-exp.placeholder::after{content:'📤';}
+.modal-icon-btn.btn-ok.placeholder::after{content:'✅';}
+.modal-icon-btn.btn-classic.placeholder::after{content:'🏛️ Classic (45)';}
+.modal-icon-btn.btn-rush.placeholder::after{content:'⚡ Rush (28+)';}
 
+/* Финальный арт — раскомментировать по готовности (см. примечание выше).
+.modal-icon-btn.btn-home{background-image:url('../img/btn_home1.png');}
+.modal-icon-btn.btn-home:hover{background-image:url('../img/btn_homeH.png');filter:brightness(1);}
+.modal-icon-btn.btn-home:active{background-image:url('../img/btn_home2.png');filter:brightness(1);transform:none;}
+
+.modal-icon-btn.btn-repeat{background-image:url('../img/btn_repeat1.png');}
+.modal-icon-btn.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');filter:brightness(1);}
+.modal-icon-btn.btn-repeat:active{background-image:url('../img/btn_repeat2.png');filter:brightness(1);transform:none;}
+
+.modal-icon-btn.btn-save{background-image:url('../img/btn_save1.png');}
+.modal-icon-btn.btn-save:hover{background-image:url('../img/btn_saveH.png');filter:brightness(1);}
+.modal-icon-btn.btn-save:active{background-image:url('../img/btn_save2.png');filter:brightness(1);transform:none;}
+
+.modal-icon-btn.btn-imp{background-image:url('../img/btn_imp1.png');}
+.modal-icon-btn.btn-imp:hover{background-image:url('../img/btn_impH.png');filter:brightness(1);}
+.modal-icon-btn.btn-imp:active{background-image:url('../img/btn_imp2.png');filter:brightness(1);transform:none;}
+
+.modal-icon-btn.btn-exp{background-image:url('../img/btn_exp1.png');}
+.modal-icon-btn.btn-exp:hover{background-image:url('../img/btn_expH.png');filter:brightness(1);}
+.modal-icon-btn.btn-exp:active{background-image:url('../img/btn_exp2.png');filter:brightness(1);transform:none;}
+
+.modal-icon-btn.btn-ok{background-image:url('../img/btn_ok1.png');}
+.modal-icon-btn.btn-ok:hover{background-image:url('../img/btn_okH.png');filter:brightness(1);}
+.modal-icon-btn.btn-ok:active{background-image:url('../img/btn_ok2.png');filter:brightness(1);transform:none;}
+
+.modal-icon-btn.btn-classic{background-image:url('../img/btn_classic1.png');}
+.modal-icon-btn.btn-classic:hover{background-image:url('../img/btn_classicH.png');filter:brightness(1);}
+.modal-icon-btn.btn-classic:active{background-image:url('../img/btn_classic2.png');filter:brightness(1);transform:none;}
+
+.modal-icon-btn.btn-rush{background-image:url('../img/btn_rush1.png');}
+.modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');filter:brightness(1);}
+.modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');filter:brightness(1);transform:none;}
+*/
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
 .btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
+/* Обёртка была раньше инлайн-стилем в index.html (двумя одинаковыми копиями — tea/jeet),
+   вынесена сюда. Раньше 6.25vh не совпадало с 6vh самого .btn-deck-placeholder —
+   теперь размер грани один и тот же (6vh), как у соседней кнопки graveyard. */
 .deck-placeholder-wrap{position:relative;width:6vh;height:6vh;flex-shrink:0;}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:6vh;height:6vh;background-size:contain;background-repeat:no-repeat;background-position:center;padding:2px;position:absolute;top:0;left:0;}
 
@@ -1040,7 +1081,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   border-image-slice:108 fill;
   border-image-width:var(--modal-border-w);
   border-image-outset:0;
-  border-image-repeat: repeat;
+  border-image-repeat:stretch;
   padding:0; /* padding перенесён в .modal-body — хедер/футер прилипают встык к рамке */
   box-sizing:border-box;
   width:min(calc(300px + 2 * var(--modal-border-w)), 92vw);
@@ -1234,8 +1275,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   justify-content:center;
   padding-bottom:3px;
 }
-.modal h2{font-family:'MEK',monospace;font-size:22px;color:#D9d89e;margin-bottom:7px;}
-.modal p{font-size:clamp(13px,3.2vw,16px);color:#A2bf5e;margin-bottom:18px;line-height:1.6;}
+.modal h2{font-family:'MEK',monospace;font-size:22px;color:#C7CCD3;margin-bottom:7px;}
+.modal p{font-size:clamp(13px,3.2vw,16px);color:#9B937F;margin-bottom:18px;line-height:1.6;}
 
 /* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
@@ -1286,7 +1327,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   display:flex;flex-direction:column;align-items:center;
   padding:4vh 12px 3vh;
   overflow-y:auto;
-  background-color:#181f27;         /* PLACEHOLDER — временный тёмно-серый фон */
+  background-color:#1c1d22;         /* PLACEHOLDER — временный тёмно-серый фон */
   /* background-image:url('../img/landing_bg.png'); */
   background-size:cover;
   background-position:center;
