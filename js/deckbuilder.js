@@ -136,7 +136,10 @@ function _updateDeckBuilderCount(){
   const btn=document.getElementById('deckBuilderNextBtn');
   btn.disabled = total<RUSH_MIN;
   const isLastStep = _db.stepIndex >= _db.buildOrder.length-1;
-  btn.textContent = isLastStep ? 'Start Game' : `Next: ${_db.buildOrder[_db.stepIndex+1]==='jeet'?'Jeet':'Tea'}`;
+  // Кнопка теперь иконка (✅), без видимого текста — что именно она сделает
+  // (доиграть дальше vs начать партию) уходит в title (тултип по наведению)
+  // вместо textContent, у которого больше нет видимой области под текст.
+  btn.title = isLastStep ? 'Start Game' : `Next: ${_db.buildOrder[_db.stepIndex+1]==='jeet'?'Jeet':'Tea'}`;
 }
 
 function deckBuilderConfirm(){
