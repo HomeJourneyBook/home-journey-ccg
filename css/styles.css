@@ -850,32 +850,21 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   display:flex;align-items:center;justify-content:center;
   font-size:calc(6vh * 0.55);
 }
-.modal-win-sq.placeholder:hover{filter:brightness(1.25);}
-.modal-win-sq.placeholder:active{transform:scale(0.92) translateY(1px);}
-.modal-win-sq.btn-home.placeholder::after{content:'🏠';}
-.modal-win-sq.btn-repeat.placeholder::after{content:'🔁';}
-.modal-win-sq.btn-save.placeholder::after{content:'💾';}
-
 
 .modal-win-sq.btn-home{background-image:url('../img/btn_home1.png');}
 .modal-win-sq.btn-home:hover{background-image:url('../img/btn_homeH.png');}
 .modal-win-sq.btn-home:active{background-image:url('../img/btn_home2.png');transform:none;}
-
 .modal-win-sq.btn-repeat{background-image:url('../img/btn_repeat1.png');}
 .modal-win-sq.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');}
 .modal-win-sq.btn-repeat:active{background-image:url('../img/btn_repeat2.png');transform:none;}
-
 .modal-win-sq.btn-save{background-image:url('../img/btn_save1.png');}
 .modal-win-sq.btn-save:hover{background-image:url('../img/btn_saveH.png');}
 .modal-win-sq.btn-save:active{background-image:url('../img/btn_save2.png');transform:none;}
-*/
+
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
 .btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
-/* Обёртка была раньше инлайн-стилем в index.html (двумя одинаковыми копиями — tea/jeet),
-   вынесена сюда. Раньше 6.25vh не совпадало с 6vh самого .btn-deck-placeholder —
-   теперь размер грани один и тот же (6vh), как у соседней кнопки graveyard. */
 .deck-placeholder-wrap{position:relative;width:6vh;height:6vh;flex-shrink:0;}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:6vh;height:6vh;background-size:contain;background-repeat:no-repeat;background-position:center;padding:2px;position:absolute;top:0;left:0;}
 
