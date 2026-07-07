@@ -334,10 +334,54 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    Не мешает .previewed/.selected — те переопределяют box-shadow через
    собственную анимацию/правило.
 */
-.hand .card.affordable{animation:goldPulseWeak 1.8s ease-in-out infinite;}
+.hand .card.affordable, #mulliganCards .card.affordable{animation:goldPulseWeak 1.8s ease-in-out infinite;}
 @keyframes goldPulseWeak{
    0%,100% { box-shadow: 0 0 6px  #d9b95a99, 0 0 14px #d9b95a55;}
   50% {box-shadow: 0 0 10px #d9b95aff, 0 0 22px #d9b95a88;}
+}
+
+/* ── Сжигание карты из руки (doBurnCard() в game.js) ────────────────────
+   Намеренно объявлено ПОСЛЕ .hand .card.affordable выше: обе анимации
+   одной специфичности ((.hand .card.X) — 3 класса), а если у элемента
+   ОДНОВРЕМЕННО .affordable И .burning-out (сжигаем доступную по эссенции
+   карту), в CSS при равной специфичности побеждает правило, идущее ПОЗЖЕ
+   в файле — то есть именно burnCard, а не бесконечный goldPulseWeak.
+   Длительность (0.45s) НАМЕРЕННО совпадает с setTimeout(...,450) в
+   doBurnCard() — там реально убирают карту из руки и рендерят заново, так
+   что анимация должна успеть доиграть точно к этому моменту, не раньше и
+   не позже. Меняешь одно — меняй и другое.
+   doBurnCard() снимает .previewed перед тем как навесить .burning-out —
+   иначе на мобиле carousel.js держит !important transform/opacity на
+   .previewed, а !important всегда бьёт CSS-анимацию (см. комментарий там). */
+@keyframes burnCard{
+  0%{
+    opacity:1;
+    transform:scale(1);
+    filter:brightness(1) saturate(1);
+    box-shadow:none;
+  }
+  20%{
+    opacity:1;
+    transform:scale(1.03);
+    filter:brightness(1.8) saturate(2);
+    box-shadow:0 0 6px #ffd36b, 0 0 16px #ff8c00;
+  }
+  55%{
+    opacity:0.9;
+    transform:scale(0.96);
+    filter:brightness(0.7) sepia(0.9);
+    box-shadow:0 0 10px #ff5c00;
+  }
+  100%{
+    opacity:0;
+    transform:scale(0.82) rotate(-3deg);
+    filter:brightness(0) grayscale(1);
+    box-shadow:none;
+  }
+}
+.hand .card.burning-out{
+  animation:burnCard 0.45s ease forwards;
+  pointer-events:none;
 }
 
 .hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:goldPulse 1.8s ease-in-out infinite;}
@@ -2158,7 +2202,26 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 
 
-/* ── Mulligan modal animations ────────────────────────────────── */
+/* ── Modal pop-in/pop-out ────────────────────────────────────────────
+   ПЕРЕДЕЛАНО 2026-07-07: раньше .modal и .modal-footer-plate анимировались
+   ДВУМЯ отдельными классами/кейфреймами на двух разных элементах (см. старый
+   комментарий ниже про modalPlatePopIn/Out) — тайминг и easing совпадали
+   один-в-один, но визуально всё равно читалось как рассинхрон, потому что
+   маленькая узкая плита и большое окно контента скейлятся от РАЗНЫХ
+   собственных центров с разной абсолютной скоростью роста в пикселях — глаз
+   видит два независимых объекта, а не одну деталь интерфейса.
+   Теперь анимируется .modal-stack ЦЕЛИКОМ, одним классом — .modal и
+   .modal-footer-plate внутри него больше НЕ получают свой modal-pop-in/out,
+   это просто статичные дети. .modal-stack по размеру == .modal (плита вне
+   потока, см. .modal-stack выше), так что transform-origin остаётся тем же,
+   что и раньше был у .modal — но теперь плита, будучи ребёнком, скейлится
+   ВМЕСТЕ с рамкой как одно жёсткое тело (её собственный статичный
+   translate(-50%,50%) продолжает работать как обычно — трансформы по дереву
+   композируются, а не перезаписывают друг друга, конфликт был только когда
+   .modal-pop-in/out АНИМАЦИЯ висела на самой плите и перебивала её
+   собственный transform). _modalPopIn()/_modalPopOut() в ui.js обновлены
+   соответственно — ищут .modal-stack, а не .modal + .modal-footer-plate
+   по отдельности. */
 @keyframes modalPopIn {
   from { opacity:0; transform:scale(0.85); }
   to   { opacity:1; transform:scale(1); }
@@ -2167,28 +2230,6 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   from { opacity:1; transform:scale(1); }
   to   { opacity:0; transform:scale(0.9); }
 }
-/* .modal-footer-plate has its OWN permanent positioning transform
-   (translate(-50%,50%), see .modal-footer-plate above) — applying the plain
-   .modal-pop-in/.modal-pop-out animation to it (done so it pops in/out in
-   sync with .modal, see _modalPopIn()/_modalPopOut() in ui.js) completely
-   REPLACED that transform with the animation's own scale(...) value (a
-   single element can only have one `transform`, and an animation's value
-   always wins over a static declaration) — the plate visually lost its
-   centering and free-floated wherever left:50%/bottom:0 alone put it
-   (reported via screenshot 2026-07-06: plate stuck to the right of the
-   frame, not hanging centered below it). Fix: separate keyframes with the
-   translate baked into every step, and a higher-specificity override so the
-   plate gets THESE instead of the plain ones. */
-@keyframes modalPlatePopIn {
-  from { opacity:0; transform:translate(-50%, 50%) scale(0.85); }
-  to   { opacity:1; transform:translate(-50%, 50%) scale(1); }
-}
-@keyframes modalPlatePopOut {
-  from { opacity:1; transform:translate(-50%, 50%) scale(1); }
-  to   { opacity:0; transform:translate(-50%, 50%) scale(0.9); }
-}
-.modal-footer-plate.modal-pop-in  { animation: modalPlatePopIn  0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-.modal-footer-plate.modal-pop-out { animation: modalPlatePopOut 0.25s ease-in forwards; }
 @keyframes gameFieldFadeIn {
   from { opacity:0; }
   to   { opacity:1; }
