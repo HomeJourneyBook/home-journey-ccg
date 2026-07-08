@@ -128,6 +128,7 @@ function _dbCardEl(faction,key,def){
 function _dbStackEl(faction,key,def,count,onClick){
   const wrap=document.createElement('div');
   wrap.className='db-stack';
+  wrap.dataset.key=key; // используется для поиска новой позиции карты после перерисовки — см. _dbFlyToChosen
   // Не рисуем больше 2 "теневых" слоёв под верхней картой, даже если копий больше —
   // визуально это уже читается как "стопка", дальше только загромождает.
   const shadowLayers=Math.min(count-1,2);
@@ -142,7 +143,7 @@ function _dbStackEl(faction,key,def,count,onClick){
   _dbAttachZoom(card, faction, key, def); // долгое нажатие — увеличенное превью, см. ниже
   card.addEventListener('click',(e)=>{
     if(card._dbLongPressFired){ card._dbLongPressFired=false; e.stopPropagation(); return; }
-    onClick();
+    onClick(wrap);
   });
   wrap.appendChild(card);
   return wrap;
@@ -231,10 +232,10 @@ function _renderDeckBuilder(faction){
     // Пул (справа) — фильтруется кнопками сверху; выбранные (слева) — всегда все, без фильтра,
     // это же "твоя колода", её не прячем.
     if(remaining>0 && activeFilter.test(def)){
-      poolGrid.appendChild(_dbStackEl(faction,key,def,remaining,()=>dbSetQty(faction,key,qty+1)));
+      poolGrid.appendChild(_dbStackEl(faction,key,def,remaining,(el)=>dbSetQty(faction,key,qty+1,el)));
     }
     if(qty>0){
-      chosenGrid.appendChild(_dbStackEl(faction,key,def,qty,()=>dbSetQty(faction,key,qty-1)));
+      chosenGrid.appendChild(_dbStackEl(faction,key,def,qty,(el)=>dbSetQty(faction,key,qty-1,el)));
     }
   });
   if(poolPane) poolPane.scrollTop=savedPoolScroll;
@@ -244,14 +245,47 @@ function _renderDeckBuilder(faction){
   _renderDbCurve(faction);
 }
 
-function dbSetQty(faction,key,newQty){
+function dbSetQty(faction,key,newQty,sourceStackEl){
   const entry=getRushPool(faction).find(p=>p.key===key);
   const max=entry?entry.max:1;
   newQty=Math.max(0,Math.min(max,newQty));
-  if(_db.picks[faction][key]===newQty) return;
+  const oldQty=_db.picks[faction][key]||0;
+  if(oldQty===newQty) return;
+  const movingToChosen=newQty>oldQty; // только пул→выбрано летит; обратно пока как было (по просьбе автора)
+  let flyClone=null;
+  if(movingToChosen && sourceStackEl){
+    const r=sourceStackEl.getBoundingClientRect();
+    flyClone=sourceStackEl.cloneNode(true);
+    // --card-w/--card-h у .db-stack обычно считаются от cqw контейнера (.db-grid) —
+    // вне этого контейнера (клон уедет в document.body) cqw ничего не значит, поэтому
+    // пиним их как фиксированные px прямо на клоне, снятые с реального рендера в
+    // момент клика — все внутренние calc() у потомков продолжат резолвиться верно.
+    flyClone.style.setProperty('--card-w', r.width+'px');
+    flyClone.style.setProperty('--card-h', r.height+'px');
+    flyClone.style.position='fixed';
+    flyClone.style.left=r.left+'px';
+    flyClone.style.top=r.top+'px';
+    flyClone.style.margin='0';
+    flyClone.style.zIndex='3000';
+    flyClone.style.pointerEvents='none';
+  }
   _db.picks[faction][key]=newQty;
   playSfx('yellow_buttom');
   _renderDeckBuilder(faction);
+  if(flyClone){
+    const destStack=document.querySelector(`#deckBuilderChosenGrid .db-stack[data-key="${CSS.escape(key)}"]`);
+    if(destStack){
+      const destRect=destStack.getBoundingClientRect();
+      document.body.appendChild(flyClone);
+      requestAnimationFrame(()=>{
+        flyClone.style.transition='left 320ms cubic-bezier(.25,.85,.35,1), top 320ms cubic-bezier(.25,.85,.35,1), opacity 160ms ease-in 200ms';
+        flyClone.style.left=destRect.left+'px';
+        flyClone.style.top=destRect.top+'px';
+        flyClone.style.opacity='0';
+      });
+      setTimeout(()=>{ if(flyClone.parentElement) flyClone.remove(); }, 360);
+    }
+  }
 }
 
 // Кнопка "Очистить" в футере — полностью сбрасывает выбор ТЕКУЩЕГО шага (Tea или Jeet,
@@ -295,13 +329,14 @@ function _updateDeckBuilderCount(){
   const faction=_dbFaction();
   const total=_dbTotal(faction);
   const picks=_db.picks[faction];
-  const counts={traveler:0,spell:0,world:0,artifact:0};
+  const counts={traveler:0,spell:0,world:0,artifact:0,unique:0};
   Object.keys(picks).forEach(key=>{
     const qty=picks[key]; if(!qty) return;
     const def=DEFS[key];
     if(def.world) counts.world+=qty;
     else if(def.artifact) counts.artifact+=qty;
     else if(def.spell) counts.spell+=qty;
+    else if(def.unique) counts.unique+=qty;
     else counts.traveler+=qty;
   });
   const el=document.getElementById('deckBuilderStats');
@@ -309,6 +344,7 @@ function _updateDeckBuilderCount(){
     el.innerHTML=
       `<div class="db-stat-line ${total>=RUSH_MIN?'db-count-ok':''}">Selected: ${total} (min ${RUSH_MIN})</div>`+
       `<div class="db-stat-line">Travelers: ${counts.traveler}</div>`+
+      `<div class="db-stat-line">Uniques: ${counts.unique}</div>`+
       `<div class="db-stat-line">Spells: ${counts.spell}</div>`+
       `<div class="db-stat-line">Worlds: ${counts.world}</div>`+
       `<div class="db-stat-line">Artifacts: ${counts.artifact}</div>`;
