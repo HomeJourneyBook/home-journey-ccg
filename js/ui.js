@@ -192,7 +192,7 @@ function preloadAssets(){
     'img/space_bg.png', 'img/brand.png',
     'img/logo_space.png', 'img/logo_window.png',
     'img/boltik.png', 'img/dat4ik.gif', 'img/zabor1.png', 'img/zabor2.png',
-    'img/bg_modal.png', 'img/bg_jest.png',
+    'img/bg_modal.png', 'img/bg_jest2.png', 'img/bg_modal_deck.png',
     'img/log_frame.png', 'img/grav_frame.png',
     'img/bg_jest_log.png', 'img/bg_jest_grav.png',
     'img/bones.png',
@@ -218,6 +218,13 @@ function preloadAssets(){
     'img/btn_jeet1.png', 'img/btn_jeet2.png', 'img/btn_jeetH.png',
     'img/btn_X.png', 'img/btn_Xh.png', 'img/btn_X2.png',
     'img/btn_wait.gif',
+    // ── Кнопки модалок (эта сессия — переделка футеров/bg_jest2) ──
+    'img/btn_classic1.png', 'img/btn_classic2.png', 'img/btn_classicH.png',
+    'img/btn_rush1.png', 'img/btn_rush2.png', 'img/btn_rushH.png',
+    'img/btn_home1.png', 'img/btn_home2.png', 'img/btn_homeH.png',
+    'img/btn_save1.png', 'img/btn_save2.png', 'img/btn_saveH.png',
+    'img/btn_repeat1.png', 'img/btn_repeat2.png', 'img/btn_repeatH.png',
+    'img/btn_back_corner1.png', 'img/btn_back_corner2.png', 'img/btn_back_cornerH.png',
 
     // ── Бортики зоны рук + лор-страницы + новая иконка тега (эта сессия) ──
     'img/hands_border.png', 'img/hands_border2.png',
