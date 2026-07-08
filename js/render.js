@@ -454,7 +454,7 @@ ${!isSW?`<div class="card-small-stats">
     if(longPressFired){ e.stopPropagation(); longPressFired=false; return; }
     onClick(card,'field');
   });
-  d.addEventListener('mouseenter',()=>playSfx('Navigation_Cursor'));
+  d.addEventListener('mouseenter',()=>playSfx('card_navigation_cursor'));
   return d;
 }
 
@@ -568,7 +568,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -586,7 +586,7 @@ const tagIcons = (card.tags||[])
       burnPopup.className='card-actions-popup-right';
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
-      burnBtn.onclick=(e)=>{e.stopPropagation();playSfx('Burn_Card');G.previewCard=null;doBurnCard(card);};
+      burnBtn.onclick=(e)=>{e.stopPropagation();playSfx('card_burn');G.previewCard=null;doBurnCard(card);};
       burnPopup.appendChild(burnBtn);
       d.appendChild(burnPopup);
     }
@@ -596,12 +596,12 @@ const tagIcons = (card.tags||[])
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');zoomHandCardFly(card,d);};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');zoomHandCardFly(card,d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
-  d.addEventListener('mouseenter',()=>{ if(zone==='hand') playSfx('Navigation_Cursor'); });
+  d.addEventListener('mouseenter',()=>{ if(zone==='hand') playSfx('card_navigation_cursor'); });
   return d;
 }
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
@@ -629,7 +629,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -647,7 +647,7 @@ const tagIcons = (card.tags||[])
       burnPopup.className='card-actions-popup-right';
       const burnBtn=document.createElement('button');
       burnBtn.className='cap-btn burn';
-      burnBtn.onclick=(e)=>{e.stopPropagation();playSfx('Burn_Card');G.previewCard=null;doBurnCard(card);};
+      burnBtn.onclick=(e)=>{e.stopPropagation();playSfx('card_burn');G.previewCard=null;doBurnCard(card);};
       burnPopup.appendChild(burnBtn);
       d.appendChild(burnPopup);
     }
@@ -657,12 +657,12 @@ const tagIcons = (card.tags||[])
     zoomPopup.className='card-actions-popup-left';
     const zoomBtn=document.createElement('button');
     zoomBtn.className='cap-btn zoom';
-    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');zoomHandCardFly(card,d);};
+    zoomBtn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');zoomHandCardFly(card,d);};
     zoomPopup.appendChild(zoomBtn);
     d.appendChild(zoomPopup);
   }
   d.addEventListener('click',(e)=>{e.stopPropagation();onClick(card,zone);});
-  d.addEventListener('mouseenter',()=>{ if(zone==='hand') playSfx('Navigation_Cursor'); });
+  d.addEventListener('mouseenter',()=>{ if(zone==='hand') playSfx('card_navigation_cursor'); });
   return d;
 }
 
@@ -704,6 +704,7 @@ function _flyCardFromDeck(deckRect, targetRect, delayMs){
   document.body.appendChild(sprite);
   setTimeout(()=>{
     if(!sprite.parentElement) return; // на случай если экран уже перерисован/сцена сменилась
+    playSfx('new_card');
     void sprite.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
     sprite.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity 140ms ease-in ${CARD_FLY_MS-140}ms`;
     sprite.style.left=(targetRect.left+targetRect.width/2)+'px';
@@ -845,9 +846,9 @@ function _mkPcardHtml(card, isPlayer){
     if(hasTag(card,'shard')){
       if(G.phase==='shardTarget'){
         targetingCls=' pcard-targeting';
-        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');doShard(G[G.turn].artifacts[0])"`;
+        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom');doShard(G[G.turn].artifacts[0])"`;
       } else if(G.phase==='action'){
-        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');doShard(G[G.turn].artifacts[0])"`;
+        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom');doShard(G[G.turn].artifacts[0])"`;
       }
     }
     if(hasTag(card,'sacrifice')){
@@ -855,7 +856,7 @@ function _mkPcardHtml(card, isPlayer){
         targetingCls=' pcard-targeting';
         onclick=`onclick="event.stopPropagation();G.phase='action';G.sel=null;render()"`;
       } else if(G.phase==='action'){
-        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');G.phase='sacrificeTarget';G.sel='${card.id}';lg('Altar: select a creature to sacrifice.','hint');render()"`;
+        onclick=`onclick="event.stopPropagation();playSfx('yellow_buttom');G.phase='sacrificeTarget';G.sel='${card.id}';lg('Altar: select a creature to sacrifice.','hint');render()"`;
       }
     }
   }
