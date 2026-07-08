@@ -603,6 +603,26 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    both upside-down AND mirrored left-right for the top slot, not just
    flipped top-to-bottom. scale(-1,-1) is equivalent to rotate(180deg). */
 #oppStats::before{transform:scale(-1,-1);}
+/* Остальные декоративные плейсхолдеры без текста (пустые "заглушки"/уже готовый арт —
+   hp-placeholder уже держит boltik.png, tea-правый край уже держит trubi1.png, остальные
+   пока просто чёрные прямоугольники под будущий арт) отражаются тем же приёмом, что и сам
+   фон бара выше. pcard/HP/Essence сюда НЕ входят — у них текст/иконки, зеркалить нельзя,
+   вместо этого местами меняется их порядок в разметке (см. _mkStatsBarHtml в render.js).
+   .statbar-edge-left/-right/-right-2 уже используют transform под собственное позиционирование
+   (центрирование по вертикали и т.п.) — scale(-1,-1) добавляется К нему, а не заменяет,
+   иначе для jeet поехало бы вертикальное центрирование этих плашек. */
+#oppStats .hp-placeholder,
+#oppStats .statbar-extra{
+  transform:scale(-1,-1);
+}
+#oppStats .statbar-edge-left,
+#oppStats.jeet .statbar-edge-right,
+#oppStats .statbar-edge-right-2{
+  transform:translateY(-50%) scale(-1,-1);
+}
+#oppStats.tea .statbar-edge-right{
+  transform:scale(-1,-1); /* у tea этот край без translateY — сидит в углу (top:0;right:0) */
+}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
