@@ -225,6 +225,12 @@ function preloadAssets(){
     'img/btn_save1.png', 'img/btn_save2.png', 'img/btn_saveH.png',
     'img/btn_repeat1.png', 'img/btn_repeat2.png', 'img/btn_repeatH.png',
     'img/btn_back_corner1.png', 'img/btn_back_corner2.png', 'img/btn_back_cornerH.png',
+    'img/sort_all1.png', 'img/sort_all2.png', 'img/sort_allH.png',
+    'img/sort_traveler1.png', 'img/sort_traveler2.png', 'img/sort_travelerH.png',
+    'img/sort_unique1.png', 'img/sort_unique2.png', 'img/sort_uniqueH.png',
+    'img/sort_spell1.png', 'img/sort_spell2.png', 'img/sort_spellH.png',
+    'img/sort_world1.png', 'img/sort_world2.png', 'img/sort_worldH.png',
+    'img/sort_artifact1.png', 'img/sort_artifact2.png', 'img/sort_artifactH.png',
 
     // ── Бортики зоны рук + лор-страницы + новая иконка тега (эта сессия) ──
     'img/hands_border.png', 'img/hands_border2.png',
