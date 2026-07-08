@@ -27,6 +27,24 @@ function startRushBuild(flow, opts){
 
 function _dbFaction(){ return _db.buildOrder[_db.stepIndex]; }
 
+// Кнопка "назад" — по требованию автора черновик Rush-колоды НЕ сохраняется: неважно,
+// на каком шаге (Tea/Jeet в hotseat), назад полностью аннулирует текущую сборку и
+// возвращает к модалке, из которой в неё попали — vsAiPickerModal (флоу vsai, там перед
+// дек-билдером был выбор фракции) или deckPickerModal (флоу hotseat, дек-билдер шёл сразу
+// после выбора Classic/Rush).
+function backFromDeckBuilder(){
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  const flow=_db?_db.flow:'hotseat';
+  const modal=document.getElementById('deckBuilderModal');
+  _modalPopOut(modal, ()=>{
+    modal.classList.add('hidden');
+    _db=null;
+    const backModal=document.getElementById(flow==='vsai'?'vsAiPickerModal':'deckPickerModal');
+    backModal.classList.remove('hidden');
+    _modalPopIn(backModal);
+  }, 250);
+}
+
 function _openDeckBuilderStep(){
   const faction=_dbFaction();
   document.getElementById('deckBuilderTitle').textContent =
