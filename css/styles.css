@@ -1080,7 +1080,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   position:relative;
 }
 .modal-icon-btn.sq{width:6vh;height:6vh;}
-.modal-icon-btn.wide{width:min(150px,36vw);aspect-ratio:2/1;}
+.modal-icon-btn.wide{width:min(150px,36vw);aspect-ratio:3/1;}
 .modal-icon-btn.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
 .modal-icon-btn.placeholder::after{
   content:'';
@@ -3152,15 +3152,6 @@ img{
 .db-curve-label{font-size:9px;color:#666;}
 
 .modal-icon-btn.btn-clear.placeholder::after{content:'🗑';}
-
-/* Затемнение позади зумленной карты декбилдера (клик по нему закрывает зум) — см.
-   _showDbZoom/_closeDbZoom в deckbuilder.js. */
-.db-zoom-backdrop{
-  position:fixed;
-  inset:0;
-  background:#00000099;
-  z-index:5999;
-}
 
 /* ── "z Z Z" на спящих картах ────────────────────────────────────────────────
    Вставляется в mkSmallEl (render.js) только когда card.sleeping. Три буквы
