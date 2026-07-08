@@ -18,16 +18,23 @@
 <link rel="preload" href="img/grav_frame.png" as="image">
 <link rel="preload" href="img/bg_jest_log.png" as="image">
 <link rel="preload" href="img/bg_jest_grav.png" as="image">
-<link rel="preload" href="audio/Navigation_Cursor.wav" as="audio">
-<link rel="preload" href="audio/Click_Cursor.wav" as="audio">
-<link rel="preload" href="audio/Burn_Card.wav" as="audio">
+<link rel="preload" href="audio/card_navigation_cursor.wav" as="audio">
+<link rel="preload" href="audio/card_burn.wav" as="audio">
 <link rel="preload" href="audio/card_atack.wav" as="audio">
 <link rel="preload" href="audio/card_fire_atack.wav" as="audio">
 <link rel="preload" href="audio/card_spell_atack.wav" as="audio">
 <link rel="preload" href="audio/open_door.wav" as="audio">
-<link rel="preload" href="audio/yellow_buttom_play_endturn_menu_gravyard_loop.wav" as="audio">
+<link rel="preload" href="audio/yellow_buttom.wav" as="audio">
 <link rel="preload" href="audio/baf.wav" as="audio">
 <link rel="preload" href="audio/debaf.wav" as="audio">
+<link rel="preload" href="audio/graveyard.wav" as="audio">
+<link rel="preload" href="audio/screen_monitor.wav" as="audio">
+<link rel="preload" href="audio/heal.wav" as="audio">
+<link rel="preload" href="audio/new_card.wav" as="audio">
+<link rel="preload" href="audio/base_atack.wav" as="audio">
+<link rel="preload" href="audio/wind_card.wav" as="audio">
+<link rel="preload" href="audio/card_select_traveler.wav" as="audio">
+<link rel="preload" href="audio/rest.wav" as="audio">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a0a12">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -93,9 +100,9 @@
           <!-- PLACEHOLDER квадратная кнопка; замени на кастомный арт:
                .art-btn-square.btn-hotseat { background-image:url('../img/btn_hotseat1.png'); } -->
           <button class="art-btn-square art-btn-mode art-btn-hotseat"
-                  onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');openDeckPicker('hotseat')" title="Hot Seat"></button>
+                  onclick="playSfx('yellow_buttom');openDeckPicker('hotseat')" title="Hot Seat"></button>
           <button class="art-btn-square art-btn-mode art-btn-vsai"
-                  onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');openDeckPicker('vsai')" title="VS AI"></button>
+                  onclick="playSfx('yellow_buttom');openDeckPicker('vsai')" title="VS AI"></button>
           <button class="art-btn-square art-btn-mode art-btn-online"
                   disabled title="Online"></button>
         </div>
@@ -110,9 +117,9 @@
 
       </div>
 
-      <button class="art-btn art-btn-rules"   onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');showScreen('rules')"></button>
-      <button class="art-btn art-btn-catalog" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');showScreen('catalog')"></button>
-      <button class="art-btn art-btn-lore"    onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');showScreen('lore')"></button>
+      <button class="art-btn art-btn-rules"   onclick="playSfx('yellow_buttom');showScreen('rules')"></button>
+      <button class="art-btn art-btn-catalog" onclick="playSfx('yellow_buttom');showScreen('catalog')"></button>
+      <button class="art-btn art-btn-lore"    onclick="playSfx('yellow_buttom');showScreen('lore')"></button>
 
       <!-- Раньше это был отдельный .landing-footer со своим фоном и линией-разделителем
            (border-top) — убрали и то, и другое: теперь просто ряд внутри общего бокса,
@@ -143,19 +150,19 @@
 
 </div>
 
-<audio id="bgMusic" src="audio/Main_theme.mp3" loop preload="auto"></audio>
+<audio id="bgMusic" src="audio/main_theme.mp3" loop preload="auto"></audio>
 <!-- SFX проигрываются через new Audio() из ui.js, отдельный тег не нужен -->
 
 <!-- RULES SCREEN -->
 <div class="screen" id="rulesScreen">
   <div class="screen-header">
-    <button class="screen-back" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');hideScreen('rules')">← Back</button>
+    <button class="screen-back" onclick="playSfx('yellow_buttom');hideScreen('rules')">← Back</button>
     <div class="screen-title" id="rulesTitleLabel">RULES</div>
     <div class="rules-lang-btns">
-      <button class="rules-lang-btn active" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setRulesLang('ENG')">ENG</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setRulesLang('RUS')">RUS</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setRulesLang('POR')">POR</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setRulesLang('VN')">VN</button>
+      <button class="rules-lang-btn active" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
+      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('RUS')">RUS</button>
+      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
+      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
     </div>
   </div>
 
@@ -383,7 +390,7 @@
 <!-- LORE SCREEN -->
 <div class="screen" id="loreScreen">
   <div class="screen-header">
-    <button class="screen-back" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');hideScreen('lore')">← Back</button>
+    <button class="screen-back" onclick="playSfx('yellow_buttom');hideScreen('lore')">← Back</button>
     <div class="screen-title">LORE</div>
   </div>
   <div class="screen-body">
@@ -430,9 +437,9 @@
 <div class="title"><img src="img/brand.png" style="width:max(calc(5vh * 0.55), calc(2.5vw * 0.55));height:max(calc(5vh * 0.55), calc(2.5vw * 0.55));vertical-align:middle;margin-right:6px;"><span class="title-glitch-wrap" data-text="HOME'S JOURNEY" style="font-family:'MEK',monospace;">HOME'S JOURNEY</span></div>
     <div class="turn-info" id="turnInfo">Turn <span id="turnNum">1</span> · <span id="turnPlayer">TEA</span></div>
     <div class="header-desktop-btns" style="gap:6px;margin-left:auto;">
-      <button class="btn" style="border-color:#5599ff;color:#5599ff;font-size:10px;padding:5px 12px;" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');toggleLog()">📋 Log</button>
-      <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');askRestart()">↺ Restart</button>
-      <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');askMenu()">← Menu</button>
+      <button class="btn" style="border-color:#5599ff;color:#5599ff;font-size:10px;padding:5px 12px;" onclick="toggleLog()">📋 Log</button>
+      <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="playSfx('yellow_buttom');askRestart()">↺ Restart</button>
+      <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="playSfx('yellow_buttom');askMenu()">← Menu</button>
     </div>
     <div class="header-mobile-btn" style="position:relative;margin-left:auto;">
      <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleHamburger()">
@@ -441,11 +448,11 @@
   <span class="ham-line"></span>
 </button>
 <div id="hamburgerMenu" class="ham-menu">
-  <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');toggleLog();toggleHamburger()">Log</button>
+  <button class="btn ham-item" onclick="toggleLog();toggleHamburger()">Log</button>
   <button class="btn ham-item" id="hamMusicBtn" onclick="toggleMusic()">Music: On</button>
   <button class="btn ham-item" id="hamSfxBtn" onclick="toggleSfx()">Sound: On</button>
-  <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');askRestart();toggleHamburger()">Restart</button>
-  <button class="btn ham-item" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');askMenu();toggleHamburger()">Menu</button>
+  <button class="btn ham-item" onclick="playSfx('yellow_buttom');askRestart();toggleHamburger()">Restart</button>
+  <button class="btn ham-item" onclick="playSfx('yellow_buttom');askMenu();toggleHamburger()">Menu</button>
 </div>
     </div>
   </div>
@@ -558,7 +565,7 @@
  <div class="grave-modal" onclick="event.stopPropagation()">
    <div class="grave-modal-header">
      <span class="grave-modal-title" id="graveModalTitle">Graveyard</span>
-     <button class="grave-close-btn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');closeGraveModal()" aria-label="Close"></button>
+     <button class="grave-close-btn" onclick="playSfx('yellow_buttom');closeGraveModal()" aria-label="Close"></button>
    </div>
    <div class="grave-modal-body" id="graveModalCards"></div>
    <div class="grave-modal-footer"></div>
@@ -569,7 +576,7 @@
   <div class="log-panel" id="logPanel">
     <div class="log-panel-header">
       <span class="log-panel-title">Battle Log</span>
-      <button class="log-panel-close" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');toggleLog()" aria-label="Close log"></button>
+      <button class="log-panel-close" onclick="toggleLog()" aria-label="Close log"></button>
     </div>
     <div class="log" id="log"></div>
   </div>
@@ -585,32 +592,32 @@
 <!-- CATALOG SCREEN -->
 <div class="screen" id="catalogScreen">
   <div class="screen-header">
-    <button class="screen-back" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');hideScreen('catalog')">← Back</button>
+    <button class="screen-back" onclick="playSfx('yellow_buttom');hideScreen('catalog')">← Back</button>
     <div class="screen-title">Card Catalog</div>
   </div>
   <div style="max-width:900px;margin:0 auto;padding:0 8px;">
     <div class="catalog-filters">
       <input class="search-input" id="catalogSearch" placeholder="Search cards..." oninput="renderCatalog()">
       <div class="filter-group" id="factionFilters">
-        <button class="filter-btn active" data-faction="all" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('faction','all',this)">All</button>
-        <button class="filter-btn" data-faction="tea" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('faction','tea',this)">Tea</button>
-        <button class="filter-btn jeet-f" data-faction="jeet" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('faction','jeet',this)">Jeet</button>
+        <button class="filter-btn active" data-faction="all" onclick="playSfx('yellow_buttom');setFilter('faction','all',this)">All</button>
+        <button class="filter-btn" data-faction="tea" onclick="playSfx('yellow_buttom');setFilter('faction','tea',this)">Tea</button>
+        <button class="filter-btn jeet-f" data-faction="jeet" onclick="playSfx('yellow_buttom');setFilter('faction','jeet',this)">Jeet</button>
       </div>
       <div class="filter-group" id="typeFilters">
-        <button class="filter-btn active" data-type="all" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','all',this)">All Types</button>
-        <button class="filter-btn" data-type="creature" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','creature',this)">Creatures</button>
-        <button class="filter-btn" data-type="unique" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','unique',this)">1/1 Unique</button>
-        <button class="filter-btn" data-type="spell" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','spell',this)">Spells</button>
-        <button class="filter-btn" data-type="world" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','world',this)">Worlds</button>
-        <button class="filter-btn" data-type="artifact" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setFilter('type','artifact',this)">Artifacts</button>
+        <button class="filter-btn active" data-type="all" onclick="playSfx('yellow_buttom');setFilter('type','all',this)">All Types</button>
+        <button class="filter-btn" data-type="creature" onclick="playSfx('yellow_buttom');setFilter('type','creature',this)">Creatures</button>
+        <button class="filter-btn" data-type="unique" onclick="playSfx('yellow_buttom');setFilter('type','unique',this)">1/1 Unique</button>
+        <button class="filter-btn" data-type="spell" onclick="playSfx('yellow_buttom');setFilter('type','spell',this)">Spells</button>
+        <button class="filter-btn" data-type="world" onclick="playSfx('yellow_buttom');setFilter('type','world',this)">Worlds</button>
+        <button class="filter-btn" data-type="artifact" onclick="playSfx('yellow_buttom');setFilter('type','artifact',this)">Artifacts</button>
       </div>
     </div>
     <div class="filter-group" id="sortFilters" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
       <span style="font-size:20px;color:#555;align-self:center;">Sort:</span>
-      <button class="filter-btn active" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setSort('name',this)">A-Z</button>
-      <button class="filter-btn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setSort('cost',this)">Cost ↑</button>
-      <button class="filter-btn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setSort('hp',this)">HP ↓</button>
-      <button class="filter-btn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');setSort('atk',this)">ATK ↓</button>
+      <button class="filter-btn active" onclick="playSfx('yellow_buttom');setSort('name',this)">A-Z</button>
+      <button class="filter-btn" onclick="playSfx('yellow_buttom');setSort('cost',this)">Cost ↑</button>
+      <button class="filter-btn" onclick="playSfx('yellow_buttom');setSort('hp',this)">HP ↓</button>
+      <button class="filter-btn" onclick="playSfx('yellow_buttom');setSort('atk',this)">ATK ↓</button>
     </div>
     <div class="cat-count" id="catalogCount"></div>
     <div class="catalog-grid" id="catalogGrid"></div>
@@ -629,8 +636,8 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button class="modal-icon-btn wide btn-classic" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('classic')" title="Classic (45 cards)"></button>
-      <button class="modal-icon-btn wide btn-rush" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');chooseDeckConfig('rush')" title="Rush (28+ cards)"></button>
+      <button class="modal-icon-btn wide btn-classic" onclick="playSfx('yellow_buttom');chooseDeckConfig('classic')" title="Classic (45 cards)"></button>
+      <button class="modal-icon-btn wide btn-rush" onclick="playSfx('yellow_buttom');chooseDeckConfig('rush')" title="Rush (28+ cards)"></button>
     </div>
   </div>
 </div>
@@ -667,7 +674,7 @@
       <button class="modal-icon-btn sq btn-clear placeholder" onclick="dbClearPicks()" title="Clear"></button>
       <button class="modal-icon-btn sq btn-imp placeholder" onclick="document.getElementById('deckBuilderImportInput').click()" title="Import deck (.json)"></button>
       <input type="file" id="deckBuilderImportInput" accept="application/json,.json" style="display:none;" onchange="dbImportDeck(this)">
-      <button class="modal-icon-btn sq btn-exp placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');dbExportDeck()" title="Export deck (.json)"></button>
+      <button class="modal-icon-btn sq btn-exp placeholder" onclick="playSfx('yellow_buttom');dbExportDeck()" title="Export deck (.json)"></button>
       <button class="modal-icon-btn sq btn-ok placeholder" id="deckBuilderNextBtn" onclick="deckBuilderConfirm()" title="Start Game"></button>
     </div>
   </div>
@@ -685,8 +692,8 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button class="modal-faction-btn btn-tea"  title="Tavern"    onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');startGameVsAI('tea')"></button>
-      <button class="modal-faction-btn btn-jeet" title="Jeet" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');startGameVsAI('jeet')"></button>
+      <button class="modal-faction-btn btn-tea"  title="Tavern"    onclick="playSfx('yellow_buttom');startGameVsAI('tea')"></button>
+      <button class="modal-faction-btn btn-jeet" title="Jeet" onclick="playSfx('yellow_buttom');startGameVsAI('jeet')"></button>
     </div>
   </div>
 </div>
@@ -720,8 +727,8 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button id="winBtn" class="modal-icon-btn sq btn-home" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');closeWinModal()" title="Return to menu"></button>
-      <button class="modal-icon-btn sq btn-repeat" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');resetGame()" title="Restart (same setup)"></button>
+      <button id="winBtn" class="modal-icon-btn sq btn-home" onclick="playSfx('yellow_buttom');closeWinModal()" title="Return to menu"></button>
+      <button class="modal-icon-btn sq btn-repeat" onclick="playSfx('yellow_buttom');resetGame()" title="Restart (same setup)"></button>
       <button class="modal-icon-btn sq btn-save" onclick="event.stopPropagation();downloadBattleLog()" title="Save battle log (JSON)"></button>
     </div>
   </div>
@@ -739,8 +746,8 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button class="modal-art-btn btn-mulligan" id="mulliganBtn" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');doMulliganPhase()"></button>
-      <button id="mulliganReadyBtn" class="modal-art-btn btn-ready"    onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');readyFromMulligan()"></button>
+      <button class="modal-art-btn btn-mulligan" id="mulliganBtn" onclick="playSfx('yellow_buttom');doMulliganPhase()"></button>
+      <button id="mulliganReadyBtn" class="modal-art-btn btn-ready"    onclick="playSfx('yellow_buttom');readyFromMulligan()"></button>
     </div>
   </div>
 </div>
@@ -757,7 +764,7 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button id="passReadyBtn" class="modal-art-btn btn-ready" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');passReady()"></button>
+      <button id="passReadyBtn" class="modal-art-btn btn-ready" onclick="playSfx('yellow_buttom');passReady()"></button>
     </div>
   </div>
 </div>
