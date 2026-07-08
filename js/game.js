@@ -21,7 +21,7 @@ function onClick(card,zone){
       if(healer){
         const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
-        playSfx('baf');
+        playSfx('heal');
         const healedId=card.id;
         setTimeout(()=>showFloat(healedId, `+${healAmt}`, 'heal'), 50);
         const debuffs=[];
@@ -99,7 +99,7 @@ function onClick(card,zone){
   if(G.phase==='action'){
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
-      if(G.previewCard) playSfx('Click_Cursor'); // звук при открытии превью
+      if(G.previewCard) playSfx('card_select_traveler'); // звук при открытии превью
       render();return;
     }
     if(zone==='field'&&card.f===G.turn&&card.artifact&&hasTag(card,'sacrifice')&&!card.sleeping&&!card.exhausted){
@@ -370,7 +370,7 @@ function tryAttackBase(){
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
   if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
-  playAttackSfx(att);
+  playSfx('base_atack');
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
   triggerAbilities(att,'on_attack',{target:null});
@@ -771,7 +771,7 @@ function doShardTarget(card){
 }
 
 function openGraveModal(faction){
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('graveyard');
   const grave = G[faction].grave.filter(c=>!c.voided);
   const modal = document.getElementById('graveModal');
   const title = document.getElementById('graveModalTitle');
@@ -830,7 +830,7 @@ function closeGraveModal(){
 
 function endTurn(){
   if(G.mode==='vsai'&&G.turn===G.aiFaction&&!G._aiIsEnding) return; // человек не может завершить ход ИИ
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
 
