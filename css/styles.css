@@ -1535,13 +1535,21 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal h2{font-family:'MEK',monospace;font-size:22px;color:#D9d89e;margin-bottom:5px;}
 .modal p{font-size:clamp(13px,3.2vw,16px);color:#a2bf5e;margin-bottom:18px;line-height:1.6;}
 
-/* ── "CRT-экран" под текстом простых модалок (deckPicker/vsAiPicker — только заголовок
-   + пара строк вопроса, без карт) — тот же приём, что у боевого лога (.log выше): тёмно-
-   зелёный фон, горизонтальные линии скана (::after) и виньетка выпуклого стекла (::before).
+/* ── "CRT-экран" под текстом простых модалок (deckPicker/vsAiPicker/confirm/win — только
+   заголовок + пара строк, без карт) — похожий приём на боевой лог (.log выше: тёмно-зелёный
+   фон + линии скана + виньетка), но НЕ один в один — чуть более "пиксельный" (толще линии
+   скана) и менее насыщенный зелёный (боевой лог специально яркий/неоновый для читаемости
+   мелкого текста лога, тут задача другая — фон-текстура, а не бегущая строка).
    Не вешаем на модалки с сеткой карт (деккбилдер) — там зелёный CRT-фон спорит с картами. */
 .modal-crt-screen{
   position:relative;
-  background:#020d02;
+  background:#03150a;
+  width:100%;
+  height:100%;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
   padding:14px;
 }
 .modal-crt-screen::after{
@@ -1551,9 +1559,9 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   background:repeating-linear-gradient(
     to bottom,
     transparent 0px,
-    transparent 2px,
-    rgba(0,0,0,0.18) 2px,
-    rgba(0,0,0,0.18) 4px
+    transparent 3px,
+    rgba(0,0,0,0.32) 3px,
+    rgba(0,0,0,0.32) 6px
   );
   pointer-events:none;
   z-index:1;
@@ -1566,8 +1574,17 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   pointer-events:none;
   z-index:2;
 }
-.modal-crt-screen h2,.modal-crt-screen p{position:relative;z-index:3;color:#33ff66;}
-.modal-crt-screen p{color:#1a7a2e;}
+.modal-crt-screen h2,.modal-crt-screen p{position:relative;z-index:3;color:#4bbf72;}
+.modal-crt-screen p{color:#2f7a4a;}
+/* Убираем паддинг у самого .modal-body там, где есть CRT-экран — иначе он не дотягивается
+   до рамки модалки и остаётся видимый зазор (тёмный фон .modal-body по краям, см. репорт
+   автора). .modal-crt-screen сам держит свой внутренний отступ (padding:14px выше). */
+#deckPickerModal .modal-body,
+#vsAiPickerModal .modal-body,
+#confirmModal .modal-body,
+#winModal .modal-body{
+  padding:0;
+}
 
 /* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
@@ -2881,43 +2898,53 @@ img{
   display:flex;
   flex-direction:column;
 }
-/* Скроллится ТОЛЬКО сама сетка карт — футер (статистика+кривая, см. .db-footer-info ниже)
-   теперь отдельный flex-ребёнок .modal, вне .modal-body, поэтому не участвует в прокрутке
-   и всегда виден внизу. min-height:0 — классический флекс-трюк: без него flex:1 ребёнок
-   не сжимается меньше контента и скролл внутри не появляется. */
+/* Скроллятся ОБЕ панели независимо (см. .db-pane ниже) — .modal-body сам больше не
+   скроллится, он просто фиксированная область, отдающая высоту двум панелям внутри. */
 #deckBuilderModal .modal-body{
   flex:1 1 auto;
   min-height:0;
-  overflow-y:auto;
-  padding-bottom:calc(var(--modal-border-w) * 1.2);
+  overflow:hidden;
 }
-/* Футер статистики/кривой — вне зоны прокрутки, всегда виден внизу модалки. Временный
-   чёрный фон по просьбе автора (позже заменит на свой арт). */
-.db-footer-info{
-  flex:0 0 auto;
-  display:flex;
-  gap:20px;
-  padding:8px 10px;
-  background:#000000;
-}
-/* Хедер — теперь фиксирован (не часть скроллящегося .modal-body), тем же приёмом, что и
-   футер статистики: отдельный flex-ребёнок .modal. Временный чёрный фон, как и у футера —
-   автор попросил заменить на свой арт позже. */
+/* Хедер — теперь фиксирован (не часть .modal-body), тем же приёмом, что и раньше футер
+   (теперь футера с кнопками снизу для статистики/кривой/фильтров больше нет — все три
+   переехали сюда, см. вторую строчку хедера ниже). Временный чёрный фон — автор попросил
+   заменить на свой арт позже. */
 .db-header{
   flex:0 0 auto;
+  background:#000000;
+}
+.db-header-title{
   font-family:'MEK',monospace;
   font-size:16px;
   letter-spacing:.5px;
   color:#D9d89e;
   text-align:center;
   padding:6px 0;
-  background:#000000;
 }
-/* Разделители — тонкие линии под хедером и между двумя колонками. Сейчас просто
-   градиент-полоска (прозрачный на концах, чтобы не утыкаться острым краем в рамку),
-   но это ЛЕГКО заменить на тонкий арт: горизонтальный — background-image вместо
-   background + background-repeat:repeat-x, вертикальный — repeat-y. Просто раскомментируй
-   строку ниже и подставь свой файл, когда он будет готов. */
+/* Вторая строчка хедера: слева статистика+кривая маны (переехали из футера), справа —
+   кнопки-фильтры (были над правой панелью). Обе половины по ширине зеркалят .db-split
+   ниже (то же flex:1 1 0 с каждой стороны + тот же .db-divider-v между ними), поэтому
+   разделитель тут визуально продолжается в разделитель между колонками карт. */
+.db-header-row2{
+  display:flex;
+  align-items:stretch;
+  padding:6px 6px;
+  gap:0;
+}
+.db-header-left{
+  flex:1 1 0;
+  min-width:0;
+  display:flex;
+  justify-content:space-evenly;
+  align-items:center;
+  gap:10px;
+  padding-right:16px;
+}
+/* Разделители — тонкие линии под заголовком и между двумя колонками (в хедере и в самой
+   сетке карт). Сейчас просто градиент-полоска (прозрачный на концах, чтобы не утыкаться
+   острым краем в рамку), но это ЛЕГКО заменить на тонкий арт: горизонтальный —
+   background-image вместо background + background-repeat:repeat-x, вертикальный —
+   repeat-y. Просто раскомментируй строку ниже и подставь свой файл, когда он будет готов. */
 .db-divider-h{
   flex:0 0 auto;
   height:2px;
@@ -2933,14 +2960,18 @@ img{
 }
 #deckBuilderNextBtn:disabled{opacity:.4;cursor:not-allowed;filter:none!important;}
 
-.db-split{display:flex;gap:16px;align-items:stretch;}
-.db-pane{flex:1 1 0;min-width:0;}
+.db-split{display:flex;gap:16px;align-items:stretch;height:100%;}
+/* Каждая панель скроллится СВОЯ, независимо от другой — раньше был один общий скролл на
+   .modal-body, из-за чего скролл правой (пул) панели уносил вверх и левую (выбранное),
+   даже если там всё и так помещалось. overflow-y:auto + height:100% дают панели свою
+   собственную полосу прокрутки в пределах отведённой ей высоты. */
+.db-pane{flex:1 1 0;min-width:0;overflow-y:auto;height:100%;}
 
-/* Кнопки-фильтры растягиваются на всю ширину пула ровно вровень с сеткой карт под ними —
-   тот же горизонтальный паддинг (6px), что у .db-grid, и flex:1 на каждой кнопке (вместо
-   wrap+shrink-to-content), чтобы левый край первой кнопки и правый край последней совпадали
-   с левым/правым краем занимаемых картами 3 колонок. */
-.db-filters{display:flex;gap:4px;margin-bottom:6px;padding:0 6px;}
+/* Кнопки-фильтры — теперь в правой половине ВТОРОЙ СТРОЧКИ хедера (см. .db-header-row2
+   выше), а не над самой сеткой. Тот же flex:1 на каждой кнопке — растягиваются на всю
+   правую половину, левый край первой и правый край последней совпадают с крайними
+   колонками пула ниже (тот же .db-split, те же пропорции 1:1 половин). */
+.db-filters{display:flex;gap:4px;flex:1 1 0;min-width:0;}
 .db-filter-btn{
   flex:1 1 0;
   min-width:0;
