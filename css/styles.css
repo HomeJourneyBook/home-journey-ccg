@@ -2852,12 +2852,11 @@ img{
 #deckBuilderModal{
   --modal-border-w: 27px;
 }
-/* Отдельный арт рамки для всей цепочки подбора деки (Classic/Rush → фракция → декбилдер) —
-   файла пока нет, но border-image, в отличие от background-image, при неудачной загрузке
-   откатывается на border-color/border-style (сплошная рамка), а не пропадает совсем —
-   отдельный текстовый плейсхолдер тут не нужен. */
-#deckPickerModal .modal,
-#vsAiPickerModal .modal,
+/* Отдельный арт рамки — ТОЛЬКО для самого окна выбора карт (деккбилдер), не для всей
+   цепочки подбора деки (по уточнению автора — deckPicker/vsAiPicker остаются на обычном
+   bg_modal.png). Файла bg_modal_deck.png пока нет, но border-image, в отличие от
+   background-image, при неудачной загрузке откатывается на border-color/border-style
+   (сплошная рамка), а не пропадает совсем — отдельный текстовый плейсхолдер тут не нужен. */
 #deckBuilderModal .modal{
   border-image-source:url('../img/bg_modal_deck.png');
 }
@@ -2901,12 +2900,41 @@ img{
   padding:8px 10px;
   background:#000000;
 }
-.db-title{font-size:16px;margin:2px 0 8px;letter-spacing:.5px;} /* минимум отступов по просьбе автора */
+/* Хедер — теперь фиксирован (не часть скроллящегося .modal-body), тем же приёмом, что и
+   футер статистики: отдельный flex-ребёнок .modal. Временный чёрный фон, как и у футера —
+   автор попросил заменить на свой арт позже. */
+.db-header{
+  flex:0 0 auto;
+  font-family:'MEK',monospace;
+  font-size:16px;
+  letter-spacing:.5px;
+  color:#D9d89e;
+  text-align:center;
+  padding:6px 0;
+  background:#000000;
+}
+/* Разделители — тонкие линии под хедером и между двумя колонками. Сейчас просто
+   градиент-полоска (прозрачный на концах, чтобы не утыкаться острым краем в рамку),
+   но это ЛЕГКО заменить на тонкий арт: горизонтальный — background-image вместо
+   background + background-repeat:repeat-x, вертикальный — repeat-y. Просто раскомментируй
+   строку ниже и подставь свой файл, когда он будет готов. */
+.db-divider-h{
+  flex:0 0 auto;
+  height:2px;
+  background:linear-gradient(to right, transparent, #9B937F99 15%, #9B937F99 85%, transparent);
+  /* background-image:url('../img/divider_thin_h.png'); background-repeat:repeat-x; */
+}
+.db-divider-v{
+  align-self:stretch;
+  width:2px;
+  flex:0 0 auto;
+  background:linear-gradient(to bottom, transparent, #9B937F99 10%, #9B937F99 90%, transparent);
+  /* background-image:url('../img/divider_thin_v.png'); background-repeat:repeat-y; */
+}
 #deckBuilderNextBtn:disabled{opacity:.4;cursor:not-allowed;filter:none!important;}
 
-.db-split{display:flex;gap:16px;align-items:flex-start;}
+.db-split{display:flex;gap:16px;align-items:stretch;}
 .db-pane{flex:1 1 0;min-width:0;}
-.db-pane-chosen{border-right:1px solid #9B937F44;padding-right:16px;}
 
 /* Кнопки-фильтры растягиваются на всю ширину пула ровно вровень с сеткой карт под ними —
    тот же горизонтальный паддинг (6px), что у .db-grid, и flex:1 на каждой кнопке (вместо
@@ -2971,6 +2999,11 @@ img{
 }
 .db-card:hover{filter:brightness(.85) saturate(.9);}
 
+@media(max-width:600px){
+  .db-grid{grid-template-columns:repeat(2, 1fr);}
+  .db-stack{--card-w: min(calc((100cqw - 1 * 10px) / 2), var(--cat-card-w));}
+}
+
 /* ── Стопки копий (заклинания с max>1, см. getRushPool в deck.js) ────────────────
    Верхняя карта кликабельна и полностью видна; 1-2 "теневых" слоя под ней сдвинуты по
    диагонали (--layer-i задаёт множитель сдвига) — читается как стопка, не как рамка/
@@ -3011,6 +3044,15 @@ img{
 .db-curve-label{font-size:9px;color:#666;}
 
 .modal-icon-btn.btn-clear.placeholder::after{content:'🗑';}
+
+/* Затемнение позади зумленной карты декбилдера (клик по нему закрывает зум) — см.
+   _showDbZoom/_closeDbZoom в deckbuilder.js. */
+.db-zoom-backdrop{
+  position:fixed;
+  inset:0;
+  background:#00000099;
+  z-index:5999;
+}
 
 /* ── "z Z Z" на спящих картах ────────────────────────────────────────────────
    Вставляется в mkSmallEl (render.js) только когда card.sleeping. Три буквы
