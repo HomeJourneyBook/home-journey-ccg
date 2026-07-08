@@ -85,7 +85,7 @@ function _dbCardEl(faction,key,def){
   const tagIcons=(def.tags||[])
     .map(t=>t.split(':')[0])
     .filter(t=>DB_TAG_ICONS[t])
-    .map(t=>`<div class="card-tag-icon">${DB_TAG_ICONS[t]}</div>`)
+    .map(t=>`<div class="card-tag-icon" data-tag="${t}">${DB_TAG_ICONS[t]}</div>`)
     .join('');
 
   const div=document.createElement('div');
@@ -107,9 +107,9 @@ function _dbCardEl(faction,key,def){
       ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
       ${!isSW?`<div class="card-stats">
-        <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
+        <div class="card-hp-box" data-hp="${def.hp}" data-maxhp="${def.hp}"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
         <img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
-        <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
+        <div class="card-atk-box" data-base="${def.atk}" data-bonus="0"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
       </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
@@ -174,32 +174,65 @@ function _dbAttachZoom(cardEl){
 function _showDbZoom(originEl){
   _closeDbZoom();
   playSfx('Navigation_Cursor');
-  const rect=originEl.getBoundingClientRect();
+  const originRect=originEl.getBoundingClientRect();
   const clone=originEl.cloneNode(true);
   clone.classList.remove('db-stack-top');
   clone.className='card cat-card db-card db-zoom-card '+
     (originEl.classList.contains('tea-card')?'tea-card':'jeet-card')+
     (originEl.classList.contains('world-card')?' world-card':'');
-  clone.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;margin:0;z-index:6000;pointer-events:none;filter:none;`;
+  // ВАЖНО: --card-w/--card-h и производные от них (--card-pad/--card-art-size/--card-name-h
+  // и т.д.) считаются формулами через cqw от ширины .db-grid (см. .db-stack в styles.css) —
+  // вне сетки, приклеенный к body, клон эту ширину не видит, формулы ломаются в мусор (баг
+  // со скриншота автора — гигантский нечитаемый блок вместо карты). Фикс: копируем уже
+  // ПОСЧИТАННЫЕ (в px) значения с оригинала как обычные инлайновые значения — дальше клону
+  // formula не нужна, только сами числа.
+  const cs=getComputedStyle(originEl);
+  ['--card-w','--card-h','--card-art-size','--card-pad','--card-name-h','--card-stats-h','--card-text-h','--card-world-name-h','--card-world-text-h'].forEach(v=>{
+    clone.style.setProperty(v, cs.getPropertyValue(v));
+  });
+  clone.style.position='fixed';
+  clone.style.margin='0';
+  clone.style.zIndex='6000';
+  clone.style.pointerEvents='none';
+  clone.style.filter='none';
+  clone.style.width='var(--card-w)';
+  clone.style.height='var(--card-h)';
   document.body.appendChild(clone);
   // Точечно включаем hover-подсказки на самом зуме (tooltip-система в ui.js слушает
-  // документ целиком через mousemove — сработает и тут без доп. кода, достаточно чтобы
-  // сами элементы были в DOM, что уже так).
+  // документ целиком через mousemove — сработает и тут без доп. кода).
+  clone.querySelectorAll('.card-tag-icon, .card-cost, .card-type-dot, .card-hp-box, .card-atk-box').forEach(icon=>{ icon.style.pointerEvents='auto'; });
+
+  // Та же техника, что и showFieldCardPreview в render.js: НЕ анимируем width/height
+  // напрямую (это ломает внутренние пропорции, см. коммент выше) — вместо этого клон сразу
+  // рисуется в его нормальном ("некапнутом") размере, а визуально стартует у позиции
+  // оригинала через обратный scale-transform, потом transition доводит его до центра экрана
+  // в увеличенном виде. Масштаб, текст, арт — всё растягивается как единое целое, без
+  // пересчёта внутренней раскладки.
+  const naturalRect=clone.getBoundingClientRect();
+  const scaleX=originRect.width/naturalRect.width;
+  const scaleY=originRect.height/naturalRect.height;
+  const cx=originRect.left+originRect.width/2;
+  const cy=originRect.top+originRect.height/2;
+  clone.style.left=cx+'px';
+  clone.style.top=cy+'px';
+  clone.style.transform=`translate(-50%,-50%) scale(${scaleX},${scaleY})`;
+  clone.style.transition='none';
+  void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+
   const backdrop=document.createElement('div');
   backdrop.className='db-zoom-backdrop';
   backdrop.onclick=_closeDbZoom;
   document.body.appendChild(backdrop);
   const instance={clone,backdrop};
   _dbZoomEl=instance;
+
+  const finalScale=Math.min(2.2, (window.innerWidth*0.42)/naturalRect.width, (window.innerHeight*0.8)/naturalRect.height);
   requestAnimationFrame(()=>{
     if(_dbZoomEl!==instance) return;
-    const scale=Math.min((window.innerWidth*0.42)/rect.width, (window.innerHeight*0.8)/rect.height, 2.2);
-    const targetW=rect.width*scale, targetH=rect.height*scale;
-    clone.style.transition='left .2s cubic-bezier(.22,.9,.32,1), top .2s cubic-bezier(.22,.9,.32,1), width .2s cubic-bezier(.22,.9,.32,1), height .2s cubic-bezier(.22,.9,.32,1)';
-    clone.style.left=(window.innerWidth/2 - targetW/2)+'px';
-    clone.style.top=(window.innerHeight/2 - targetH/2)+'px';
-    clone.style.width=targetW+'px';
-    clone.style.height=targetH+'px';
+    clone.style.transition='left .2s cubic-bezier(.22,.9,.32,1), top .2s cubic-bezier(.22,.9,.32,1), transform .2s cubic-bezier(.22,.9,.32,1)';
+    clone.style.left='50%';
+    clone.style.top='46%';
+    clone.style.transform=`translate(-50%,-50%) scale(${finalScale})`;
   });
 }
 function _closeDbZoom(){
@@ -295,6 +328,7 @@ function _dbTotal(faction){
 function _renderDbCurve(faction){
   const el=document.getElementById('deckBuilderCurve');
   if(!el) return;
+  el.className='db-curve '+(faction==='tea'?'tea-curve':'jeet-curve'); // цвет столбиков — по фракции, см. styles.css
   const buckets=new Array(7).fill(0); // индекс 6 = "6+"
   Object.keys(_db.picks[faction]).forEach(key=>{
     const qty=_db.picks[faction][key];
