@@ -66,7 +66,7 @@ const DB_TAG_ICONS = {
   'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
 };
 
-function _dbCardEl(faction,key,def,max,qty){
+function _dbCardEl(faction,key,def,selected){
   const isSW=def.spell||def.world||def.artifact;
   const tagIcons=(def.tags||[])
     .map(t=>t.split(':')[0])
@@ -75,23 +75,17 @@ function _dbCardEl(faction,key,def,max,qty){
     .join('');
 
   const div=document.createElement('div');
-  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${qty>0?'db-selected':''} ${def.world?'world-card':''}`;
+  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${selected?'db-selected':''} ${def.world?'world-card':''}`;
   if(def.world && def.img) div.style.cssText += `;background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;`;
 
-  const stepper = max>1
-    ? `<div class="db-stepper" onclick="event.stopPropagation()">
-         <button class="db-step-btn" onclick="dbSetQty('${faction}','${key}',${qty-1})">−</button>
-         <span class="db-qty">${qty}/${max}</span>
-         <button class="db-step-btn" onclick="dbSetQty('${faction}','${key}',${qty+1})">+</button>
-       </div>`
-    : `<div class="db-stepper db-stepper-single">${qty>0?'✓ IN DECK':'TAP TO ADD'}</div>`;
-
+  // Никаких надписей поверх карты (TAP TO ADD / IN DECK / +− степпер) — по просьбе автора
+  // выбранность показывает только рамка (.db-selected, см. styles.css), как настоящая
+  // физическая карта: она либо лежит в колоде, либо нет, без текстовых лейблов на самой карте.
   div.innerHTML = def.world ? `
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
-      ${stepper}
     ` : `
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
@@ -105,14 +99,10 @@ function _dbCardEl(faction,key,def,max,qty){
       </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
-      ${stepper}
     `;
 
   div.addEventListener('mouseenter',()=>playSfx('Navigation_Cursor'));
-  if(max===1){
-    div.style.cursor='pointer';
-    div.onclick=()=>dbSetQty(faction,key,qty>0?0:1);
-  }
+  div.style.cursor='pointer';
   return div;
 }
 
@@ -126,7 +116,19 @@ function _renderDeckBuilder(faction){
   pool.forEach(({key,max})=>{
     const def=DEFS[key];
     const qty=_db.picks[faction][key]||0;
-    grid.appendChild(_dbCardEl(faction,key,def,max,qty));
+    // max>1 бывает только у заклинаний (см. getRushPool в deck.js) — вместо одной карты
+    // со степпером "x/3" рисуем ВСЕ max копий как отдельные физические карты (на будущее,
+    // когда карты станут NFT — игрок реально владеет N отдельными копиями, а не "стаком").
+    // Первые qty копий по порядку — выбранные (рамка); клик по выбранной копии убирает её
+    // и всё, что после неё (qty становится = её индексу); клик по невыбранной — добирает
+    // копии вплоть до неё (qty = её индекс + 1). Копии визуально неотличимы, так что какую
+    // именно из qty выбранных "снять" — не важно, ведёт себя как заполняемая шкала.
+    for(let i=0;i<max;i++){
+      const selected=i<qty;
+      const el=_dbCardEl(faction,key,def,selected);
+      el.onclick=()=>dbSetQty(faction,key,selected?i:i+1);
+      grid.appendChild(el);
+    }
   });
   _updateDeckBuilderCount();
 }
