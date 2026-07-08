@@ -1080,7 +1080,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   position:relative;
 }
 .modal-icon-btn.sq{width:6vh;height:6vh;}
-.modal-icon-btn.wide{width:min(150px,36vw);aspect-ratio:3/1;}
+.modal-icon-btn.wide{width:min(80px, 18vw);aspect-ratio:2/1;}
 .modal-icon-btn.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
 .modal-icon-btn.placeholder::after{
   content:'';
@@ -1112,6 +1112,14 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-save{background-image:url('../img/btn_save1.png');}
 .modal-icon-btn.btn-save:hover{background-image:url('../img/btn_saveH.png');}
 .modal-icon-btn.btn-save:active{background-image:url('../img/btn_save2.png');transform:none;}
+
+.modal-icon-btn.btn-classic{background-image:url('../img/btn_classic1.png');}
+.modal-icon-btn.btn-classic:hover{background-image:url('../img/btn_classicH.png');}
+.modal-icon-btn.btn-classic:active{background-image:url('../img/btn_classic2.png');transform:none;}
+
+.modal-icon-btn.btn-rush{background-image:url('../img/btn_rush1.png');}
+.modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');}
+.modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');transform:none;}
 /*
 .modal-icon-btn.btn-imp{background-image:url('../img/btn_imp1.png');}
 .modal-icon-btn.btn-imp:hover{background-image:url('../img/btn_impH.png');filter:brightness(1);}
@@ -1125,13 +1133,6 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-ok:hover{background-image:url('../img/btn_okH.png');filter:brightness(1);}
 .modal-icon-btn.btn-ok:active{background-image:url('../img/btn_ok2.png');filter:brightness(1);transform:none;}
 
-.modal-icon-btn.btn-classic{background-image:url('../img/btn_classic1.png');}
-.modal-icon-btn.btn-classic:hover{background-image:url('../img/btn_classicH.png');filter:brightness(1);}
-.modal-icon-btn.btn-classic:active{background-image:url('../img/btn_classic2.png');filter:brightness(1);transform:none;}
-
-.modal-icon-btn.btn-rush{background-image:url('../img/btn_rush1.png');}
-.modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');filter:brightness(1);}
-.modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');filter:brightness(1);transform:none;}
 
 /* ── Кнопка "назад" В УГЛУ МОДАЛКИ — deckPickerModal/vsAiPickerModal (НЕ mulliganScreen,
    там автор явно попросил её не делать; и НЕ deckBuilderModal — там "назад" переехала в
@@ -1156,8 +1157,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   z-index:6; /* выше .modal-decor(5), поверх рамки — как у footer-plate */
 }
 .modal-icon-btn.btn-back-corner{background-image:url('../img/btn_back_corner1.png');}
-.modal-icon-btn.btn-back-corner:hover{background-image:url('../img/btn_back_cornerH.png');filter:brightness(1);}
-.modal-icon-btn.btn-back-corner:active{background-image:url('../img/btn_back_corner2.png');filter:brightness(1);transform:none;}
+.modal-icon-btn.btn-back-corner:hover{background-image:url('../img/btn_back_cornerH.png');}
+.modal-icon-btn.btn-back-corner:active{background-image:url('../img/btn_back_corner2.png');transform:none;}
 
 /* ── Кнопка "назад" В ФУТЕРЕ (deckBuilderModal — первая в общем ряду кнопок, того же
    размера, что Clear/Import/Export/OK, .sq). Арта пока нет — плейсхолдер конвеньш, как у
@@ -1513,7 +1514,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    По аналогии с .art-btn-vsai: hover — отдельный арт (btn_teaH/btn_jeetH),
    active переиспользует арт обычного состояния (своей выделенной "нажатой" арт-версии нет). */
 .modal-faction-btn{
-  width:50px;height:50px;
+  width:min(40px, 9vw);height:min(40px, 9vw);
   flex-shrink:0;
   border:none;background-color:transparent;
   background-repeat:no-repeat;background-position:center;background-size:100% 100%;
