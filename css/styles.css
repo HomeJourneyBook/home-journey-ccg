@@ -1131,6 +1131,27 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-rush{background-image:url('../img/btn_rush1.png');}
 .modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');filter:brightness(1);}
 .modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');filter:brightness(1);transform:none;}
+
+/* ── Кнопка "назад" — deckPickerModal/vsAiPickerModal/deckBuilderModal (НЕ mulliganScreen,
+   там автор явно попросил её не делать). По ТЗ: квадратная, в левом верхнем углу МОДАЛЬНОЙ
+   РАМКИ (.modal — у него уже есть свой position:relative, см. выше, он и есть якорь), сторона
+   = половина ширины .modal. .modal-icon-btn уже умеет placeholder-фолбэк (см. общее правило
+   выше) — тот же конвеншн: сейчас в HTML у кнопки классы "btn-back placeholder", когда автор
+   положит реальные img/btn_back1/H/2.png, достаточно просто убрать "placeholder" из HTML —
+   отдельно комментировать/раскомментировать CSS не нужно, background-image ниже уже готов
+   и ждёт файл (ровно так же уже сделано для btn-classic/btn-rush чуть выше). */
+.modal-icon-btn.corner-back{
+  position:absolute;
+  top:0;
+  left:0;
+  width:50%;
+  aspect-ratio:1/1;
+  z-index:5;
+}
+.modal-icon-btn.btn-back.placeholder::after{content:'⬅';font-size:clamp(24px,8vw,48px);}
+.modal-icon-btn.btn-back{background-image:url('../img/btn_back1.png');}
+.modal-icon-btn.btn-back:hover{background-image:url('../img/btn_backH.png');filter:brightness(1);}
+.modal-icon-btn.btn-back:active{background-image:url('../img/btn_back2.png');filter:brightness(1);transform:none;}
 */
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
