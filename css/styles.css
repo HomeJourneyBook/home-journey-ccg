@@ -1133,21 +1133,22 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');filter:brightness(1);transform:none;}
 
 /* ── Кнопка "назад" — deckPickerModal/vsAiPickerModal/deckBuilderModal (НЕ mulliganScreen,
-   там автор явно попросил её не делать). Сидит ПРЯМО НА РАМКЕ модалки, в её углу — как
-   .modal-decor-tl/etc выше (тот же приём: top/left:0 у absolute-потомка position:relative
-   родителя — это ВНУТРЕННИЙ край рамки/padding-box, а не внешний; чтобы попасть НА рамку,
-   а не в зону контента под ней, нужен отрицательный сдвиг на её толщину — см. подробный
-   комментарий у .modal-decor выше, там же объяснено, почему в прошлый раз это не сработало
-   для другого плейсхолдера). Кнопка вдвое МЕНЬШЕ толщины рамки (--modal-border-w/2) и
-   отцентрована в её углу (top/left = -0.75 × border-w — центр угловой border-w×border-w
-   области минус половина размера самой кнопки). .modal-icon-btn уже умеет placeholder-
-   фолбэк — тот же конвеньш, что у Classic/Rush/Import/Export/OK кнопок: сейчас в HTML у
-   кнопки классы "btn-back placeholder", когда автор положит реальные img/btn_back1/H/2.png,
-   достаточно убрать "placeholder" из HTML — CSS ничего дораскомментировать не нужно. */
+   там автор явно попросил её не делать). Живёт СНАРУЖИ .modal — сиблинг внутри .modal-stack,
+   не потомок .modal (иначе её обрезает overflow:hidden/auto у .modal — та же история, что и
+   у .modal-footer-plate, см. комментарий там). .modal-stack — единственный in-flow ребёнок
+   которого это .modal, поэтому его собственный box ТОЧНО совпадает с внешней (border-box)
+   границей .modal — top:0;left:0 у absolute-потомка .modal-stack попадает РОВНО в внешний
+   угол рамки, встык с ней (по прямой просьбе автора — раньше было со сложным центрированием
+   через -0.75×border-w, получалось смещение непонятно от чего; теперь просто и предсказуемо).
+   Кнопка вдвое МЕНЬШЕ толщины рамки (--modal-border-w/2). .modal-icon-btn уже умеет
+   placeholder-фолбэк — тот же конвеньш, что у Classic/Rush/Import/Export/OK кнопок: сейчас в
+   HTML у кнопки классы "btn-back placeholder", когда автор положит реальные
+   img/btn_back1/H/2.png, достаточно убрать "placeholder" из HTML — CSS ничего
+   дораскомментировать не нужно. */
 .modal-icon-btn.corner-back{
   position:absolute;
-  top:calc(-0.75 * var(--modal-border-w));
-  left:calc(-0.75 * var(--modal-border-w));
+  top:0;
+  left:0;
   width:calc(var(--modal-border-w) * 0.5);
   height:calc(var(--modal-border-w) * 0.5);
   z-index:6; /* выше .modal-decor(5), поверх рамки — как у footer-plate */
@@ -1156,7 +1157,6 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-back{background-image:url('../img/btn_back1.png');}
 .modal-icon-btn.btn-back:hover{background-image:url('../img/btn_backH.png');filter:brightness(1);}
 .modal-icon-btn.btn-back:active{background-image:url('../img/btn_back2.png');filter:brightness(1);transform:none;}
-*/
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
@@ -1534,6 +1534,40 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .modal h2{font-family:'MEK',monospace;font-size:22px;color:#D9d89e;margin-bottom:5px;}
 .modal p{font-size:clamp(13px,3.2vw,16px);color:#a2bf5e;margin-bottom:18px;line-height:1.6;}
+
+/* ── "CRT-экран" под текстом простых модалок (deckPicker/vsAiPicker — только заголовок
+   + пара строк вопроса, без карт) — тот же приём, что у боевого лога (.log выше): тёмно-
+   зелёный фон, горизонтальные линии скана (::after) и виньетка выпуклого стекла (::before).
+   Не вешаем на модалки с сеткой карт (деккбилдер) — там зелёный CRT-фон спорит с картами. */
+.modal-crt-screen{
+  position:relative;
+  background:#020d02;
+  padding:14px;
+}
+.modal-crt-screen::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.18) 2px,
+    rgba(0,0,0,0.18) 4px
+  );
+  pointer-events:none;
+  z-index:1;
+}
+.modal-crt-screen::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.5) 100%);
+  pointer-events:none;
+  z-index:2;
+}
+.modal-crt-screen h2,.modal-crt-screen p{position:relative;z-index:3;color:#33ff66;}
+.modal-crt-screen p{color:#1a7a2e;}
 
 /* ── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────
    Плейсхолдер: серая "панель космического корабля", позже заменить на кастомный арт.
@@ -2818,13 +2852,23 @@ img{
 #deckBuilderModal{
   --modal-border-w: 27px;
 }
+/* Отдельный арт рамки для всей цепочки подбора деки (Classic/Rush → фракция → декбилдер) —
+   файла пока нет, но border-image, в отличие от background-image, при неудачной загрузке
+   откатывается на border-color/border-style (сплошная рамка), а не пропадает совсем —
+   отдельный текстовый плейсхолдер тут не нужен. */
+#deckPickerModal .modal,
+#vsAiPickerModal .modal,
+#deckBuilderModal .modal{
+  border-image-source:url('../img/bg_modal_deck.png');
+}
 #deckBuilderModal .modal{
   border-image-slice: 54 fill;
   /* Статичный размер (по просьбе автора) — раньше .modal был auto-width/height и подстраивался
      под контент, из-за чего при смене фильтра (меньше карт в пуле) модалка "дёргалась",
      а на широких экранах не растягивался вообще (см. подробность ниже). Теперь всегда
-     95vw × ~88vh, независимо от контента; внутренний скролл (.modal-body) берёт на себя
-     случаи, когда контенту всё равно не хватает места.
+     95vw × ~88vh, независимо от контента; внутренний скролл — на .modal-body (см. ниже),
+     НЕ на самом .modal, чтобы футер со статистикой/кривой маны оставался всегда на виду
+     и не уезжал вверх вместе с прокруткой карт.
      ПОЧЕМУ раньше не растягивалась: .modal — flex-item в .modal-stack без flex-grow, а
      width:auto для flex-item = shrink-to-fit по контенту, а НЕ "занять всё доступное".
      Внутри — CSS Grid с 1fr-колонками, но 1fr распределяет только СВОБОДНОЕ место в
@@ -2835,14 +2879,28 @@ img{
   height:88vh;
   max-width:95vw;
   max-height:88vh;
-  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
 }
-/* Отдельный (увеличенный против дефолтных 3px) отступ снизу — у остальных модалок плита
-   с кнопками специально почти не резервирует места (см. комментарий у .modal-stack .modal-body
-   выше, "лист жести поверх панели, ожидаемо"), но тут внизу — последняя строка статистики,
-   а не декоративный хвост текста, и почти без зазора её перекрывало плитой на скриншоте
-   автора. */
-#deckBuilderModal .modal-body{padding-bottom:calc(var(--modal-border-w) * 1.2);}
+/* Скроллится ТОЛЬКО сама сетка карт — футер (статистика+кривая, см. .db-footer-info ниже)
+   теперь отдельный flex-ребёнок .modal, вне .modal-body, поэтому не участвует в прокрутке
+   и всегда виден внизу. min-height:0 — классический флекс-трюк: без него flex:1 ребёнок
+   не сжимается меньше контента и скролл внутри не появляется. */
+#deckBuilderModal .modal-body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  padding-bottom:calc(var(--modal-border-w) * 1.2);
+}
+/* Футер статистики/кривой — вне зоны прокрутки, всегда виден внизу модалки. Временный
+   чёрный фон по просьбе автора (позже заменит на свой арт). */
+.db-footer-info{
+  flex:0 0 auto;
+  display:flex;
+  gap:20px;
+  padding:8px 10px;
+  background:#000000;
+}
 .db-title{font-size:16px;margin:2px 0 8px;letter-spacing:.5px;} /* минимум отступов по просьбе автора */
 #deckBuilderNextBtn:disabled{opacity:.4;cursor:not-allowed;filter:none!important;}
 
@@ -2850,16 +2908,25 @@ img{
 .db-pane{flex:1 1 0;min-width:0;}
 .db-pane-chosen{border-right:1px solid #9B937F44;padding-right:16px;}
 
-.db-filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+/* Кнопки-фильтры растягиваются на всю ширину пула ровно вровень с сеткой карт под ними —
+   тот же горизонтальный паддинг (6px), что у .db-grid, и flex:1 на каждой кнопке (вместо
+   wrap+shrink-to-content), чтобы левый край первой кнопки и правый край последней совпадали
+   с левым/правым краем занимаемых картами 3 колонок. */
+.db-filters{display:flex;gap:4px;margin-bottom:6px;padding:0 6px;}
 .db-filter-btn{
+  flex:1 1 0;
+  min-width:0;
   font-family:'MEK',monospace;
   font-size:11px;
-  padding:3px 8px;
+  padding:3px 4px;
   border:1px solid #9B937F;
   background:transparent;
   color:#666;
   cursor:pointer;
   transition:all .15s;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .db-filter-btn:hover{color:#c8a84b;border-color:#c8a84b;}
 .db-filter-btn.active{color:#c8a84b;border-color:#c8a84b;background:#c8a84b11;}
@@ -2920,11 +2987,24 @@ img{
 .db-stack-layer.tea-card{background-image:url('../img/card_tea.png');background-size:cover;background-position:center;}
 .db-stack-layer.jeet-card{background-image:url('../img/card_jeet.png');background-size:cover;background-position:center;}
 
-/* ── Футер контента: статистика (слева, построчно) + кривая маны (справа, чистый CSS) ── */
-.db-footer-info{display:flex;gap:20px;margin-top:10px;align-items:flex-end;}
+/* ── Футер контента: статистика (слева, построчно) + кривая маны (справа, чистый CSS) ──
+   Позиционирование/фон самого .db-footer-info — см. выше, рядом с #deckBuilderModal .modal
+   (там же объяснение, почему футер вынесен из .modal-body — чтобы не скроллился вместе с
+   картами). Тут — только внутренняя раскладка: статистика и кривая маны бок о бок. */
 .db-stats{flex:0 0 auto;font-size:11px;color:#9B937F;line-height:1.6;}
 .db-stat-line.db-count-ok{color:#5BDF7A;}
-.db-curve{flex:1 1 auto;display:flex;align-items:flex-end;gap:3px;height:60px;min-width:140px;}
+/* Кривая маны — квадратная, высота = высоте футера (т.е. блока статистики рядом), а НЕ
+   растянута на всю ширину футера (было flex:1 1 auto — раздувало её на всю оставшуюся
+   ширину). flex:0 0 auto + aspect-ratio держат её компактной независимо от того, сколько
+   свободного места осталось в футере. */
+.db-curve{
+  flex:0 0 auto;
+  aspect-ratio:1/1;
+  height:100%;
+  display:flex;
+  align-items:flex-end;
+  gap:3px;
+}
 .db-curve-bar-wrap{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
 .db-curve-bar{width:100%;background:#c8a84b99;border-top:1px solid #c8a84b;transition:height .15s;}
 .db-curve-n{font-size:9px;color:#9B937F;height:11px;}
