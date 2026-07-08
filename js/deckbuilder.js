@@ -139,9 +139,74 @@ function _dbStackEl(faction,key,def,count,onClick){
   }
   const card=_dbCardEl(faction,key,def);
   card.classList.add('db-stack-top');
-  card.onclick=onClick;
+  _dbAttachZoom(card); // долгое нажатие — увеличенное превью (та же фича, что и в игре)
+  card.addEventListener('click',(e)=>{
+    if(card._dbLongPressFired){ card._dbLongPressFired=false; e.stopPropagation(); return; }
+    onClick();
+  });
   wrap.appendChild(card);
   return wrap;
+}
+
+// ── Зум по долгому нажатию — та же фича, что и в игре (showFieldCardPreview в render.js),
+// но упрощённая под декбилдер: клонируем УЖЕ ОТРИСОВАННУЮ карточку (а не пересобираем через
+// mkEl) — она и так выглядит правильно, зачем строить заново. Долгий тап ТОЛЬКО открывает
+// зум и НЕ считается кликом (не перебрасывает карту между колонками) — короткий тап по
+// самой карте как обычно перебрасывает.
+let _dbZoomEl=null;
+function _dbAttachZoom(cardEl){
+  let timer=null;
+  const clear=()=>{ if(timer){ clearTimeout(timer); timer=null; } };
+  const start=()=>{
+    cardEl._dbLongPressFired=false;
+    clear();
+    timer=setTimeout(()=>{
+      cardEl._dbLongPressFired=true;
+      _showDbZoom(cardEl);
+    }, 380);
+  };
+  cardEl.addEventListener('mousedown', start);
+  cardEl.addEventListener('touchstart', start, {passive:true});
+  ['mouseup','mouseleave','touchend','touchmove','touchcancel'].forEach(ev=>{
+    cardEl.addEventListener(ev, clear);
+  });
+}
+function _showDbZoom(originEl){
+  _closeDbZoom();
+  playSfx('Navigation_Cursor');
+  const rect=originEl.getBoundingClientRect();
+  const clone=originEl.cloneNode(true);
+  clone.classList.remove('db-stack-top');
+  clone.className='card cat-card db-card db-zoom-card '+
+    (originEl.classList.contains('tea-card')?'tea-card':'jeet-card')+
+    (originEl.classList.contains('world-card')?' world-card':'');
+  clone.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;margin:0;z-index:6000;pointer-events:none;filter:none;`;
+  document.body.appendChild(clone);
+  // Точечно включаем hover-подсказки на самом зуме (tooltip-система в ui.js слушает
+  // документ целиком через mousemove — сработает и тут без доп. кода, достаточно чтобы
+  // сами элементы были в DOM, что уже так).
+  const backdrop=document.createElement('div');
+  backdrop.className='db-zoom-backdrop';
+  backdrop.onclick=_closeDbZoom;
+  document.body.appendChild(backdrop);
+  const instance={clone,backdrop};
+  _dbZoomEl=instance;
+  requestAnimationFrame(()=>{
+    if(_dbZoomEl!==instance) return;
+    const scale=Math.min((window.innerWidth*0.42)/rect.width, (window.innerHeight*0.8)/rect.height, 2.2);
+    const targetW=rect.width*scale, targetH=rect.height*scale;
+    clone.style.transition='left .2s cubic-bezier(.22,.9,.32,1), top .2s cubic-bezier(.22,.9,.32,1), width .2s cubic-bezier(.22,.9,.32,1), height .2s cubic-bezier(.22,.9,.32,1)';
+    clone.style.left=(window.innerWidth/2 - targetW/2)+'px';
+    clone.style.top=(window.innerHeight/2 - targetH/2)+'px';
+    clone.style.width=targetW+'px';
+    clone.style.height=targetH+'px';
+  });
+}
+function _closeDbZoom(){
+  if(!_dbZoomEl) return;
+  _dbZoomEl.clone.remove();
+  _dbZoomEl.backdrop.remove();
+  _dbZoomEl=null;
 }
 
 function dbSetFilter(filterId){
