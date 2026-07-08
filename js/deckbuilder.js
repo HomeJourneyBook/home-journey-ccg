@@ -198,7 +198,7 @@ function _renderDbFilters(){
   const bar=document.getElementById('deckBuilderFilters');
   if(!bar) return;
   bar.innerHTML=DB_FILTERS.map(f=>
-    `<button class="db-filter-btn ${f.id===_dbFilter?'active':''}" onclick="dbSetFilter('${f.id}')">${f.label}</button>`
+    `<button class="db-filter-btn sort-${f.id} ${f.id===_dbFilter?'active':''}" onclick="dbSetFilter('${f.id}')" title="${f.label}">${f.label}</button>`
   ).join('');
 }
 
@@ -275,6 +275,12 @@ function dbSetQty(faction,key,newQty,sourceStackEl){
   if(flyClone){
     const destStack=document.querySelector(`#deckBuilderChosenGrid .db-stack[data-key="${CSS.escape(key)}"]`);
     if(destStack){
+      // Прячем реальную карту СРАЗУ (ещё до первой отрисовки кадра — синхронно, без
+      // мигания), пока летит клон — раньше было видно готовую карту слева И клон,
+      // летящий туда же, одновременно. Проявляем её обратно ровно в момент, когда клон
+      // начинает гаснуть (тот же transition-delay 200ms/160ms ниже), чтобы получился
+      // плавный кроссфейд "клон исчезает → настоящая карта проявляется", а не резкий скачок.
+      destStack.style.opacity='0';
       const destRect=destStack.getBoundingClientRect();
       document.body.appendChild(flyClone);
       requestAnimationFrame(()=>{
@@ -283,6 +289,12 @@ function dbSetQty(faction,key,newQty,sourceStackEl){
         flyClone.style.top=destRect.top+'px';
         flyClone.style.opacity='0';
       });
+      setTimeout(()=>{
+        if(destStack.isConnected){
+          destStack.style.transition='opacity 160ms ease-in';
+          destStack.style.opacity='1';
+        }
+      }, 200);
       setTimeout(()=>{ if(flyClone.parentElement) flyClone.remove(); }, 360);
     }
   }
