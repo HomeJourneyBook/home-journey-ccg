@@ -108,12 +108,11 @@ function onClick(card,zone){
       render();return;
     }
     if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.spell&&!card.world&&!card.artifact){
-      const isHealer=card.tags.some(t=>t.startsWith('heal:'));
-      if(isHealer){
-        G.sel=card.id;G.phase='healTarget';
-        lg(`${card.name}: click an ALLY to heal, or an ENEMY to attack.`,'hint');
-        render();return;
-      }
+      // Хилер больше не прыгает в healTarget сразу по клику — как и AOE-существа
+      // (Umbasir/Vardan), он просто выделяется (selectTarget), а над ним всплывает
+      // попап-кнопка (см. mkSmallEl в render.js: isHealerAbility/hasHealTarget) —
+      // ТОЛЬКО клик по этой кнопке переводит в healTarget с подсветкой целей.
+      // Обычная атака враг/база работает как у любого другого существа через selectTarget.
       G.sel=card.id;G.phase='selectTarget';
       lg(`Selected ${card.name} — click enemy to attack, or tap base.`,'hint');
       render();return;
