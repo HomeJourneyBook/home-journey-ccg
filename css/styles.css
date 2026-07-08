@@ -491,6 +491,27 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   font-weight:bold;
   text-shadow:0 1px 2px #00000088;
 }
+/* Плейсхолдер под кнопку "Cancel" во время выбора цели хила (btn_heal_cancel.png или
+   похожее — автор подключит позже, тот же приём фолбэка, что у .fab-btn.heal выше). */
+.fab-btn.cancel{
+  background-image:url('../img/btn_heal_cancel.png'), linear-gradient(#9c2e2e,#6e1f1f);
+  border:1px solid #e07b7b;
+  border-radius:4px;
+  box-shadow:0 0 4px #ff444466;
+  position:relative;
+}
+.fab-btn.cancel::after{
+  content:'✕';
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff0f0;
+  font-size:calc(var(--card-small-w) * 0.65 * 0.5);
+  font-weight:bold;
+  text-shadow:0 1px 2px #00000088;
+}
 .fab-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .fab-btn:active{transform:scale(0.95) translateY(2px);}
 .cap-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
@@ -1344,11 +1365,19 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .log .le.trn   { color:#55ff88; border-top:1px solid #1a4422; padding-top:3px; margin-top:3px; }
 /* Слабое мерцание всего экрана лога — почти незаметное, создаёт эффект "живого" монитора */
 @keyframes crtFlicker{
-  0%,100%{ opacity:1; }
-  92%    { opacity:1; }
-  93%    { opacity:0.96; }
-  94%    { opacity:1; }
-  97%    { opacity:0.98; }
+  0%,100%{ opacity:1; filter:brightness(1); }
+  6%     { opacity:0.82; filter:brightness(0.85); }
+  6.5%   { opacity:1;    filter:brightness(1.08); }
+  7%     { opacity:0.92; filter:brightness(0.95); }
+  7.5%   { opacity:1;    filter:brightness(1); }
+  38%    { opacity:1;    filter:brightness(1); }
+  39%    { opacity:0.86; filter:brightness(0.88); }
+  40%    { opacity:1;    filter:brightness(1); }
+  68%    { opacity:1;    filter:brightness(1); }
+  69%    { opacity:0.9;  filter:brightness(0.9); }
+  70%    { opacity:1;    filter:brightness(1.05); }
+  70.5%  { opacity:0.94; filter:brightness(0.97); }
+  71%    { opacity:1;    filter:brightness(1); }
 }
 .le{color:#555;}.le.imp{color:#c8a84b;}.le.dmg{color:#e05555;}.le.hl{color:#5BDF7A;}.le.die{color:#ff6666;}.le.trn{color:#BFCBFF;border-top:1px solid #ffffff11;padding-top:3px;margin-top:3px;}
 .hidden{display:none!important;}
@@ -2151,7 +2180,9 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   width:min(calc(2 * var(--card-w) + 44px), 92vw);
   max-height:65vh;
   overflow-y:hidden;
-  background:transparent;
+  background:#0a0a12; /* сплошной тёмный фон — раньше был transparent, из-за чего сквозь
+    прозрачные дыры bones.png в футере (см. ниже) проглядывало что попало позади фиксированного
+    оверлея, а не единый тон (репорт автора, 2026-07-08) */
   border-style:solid;
   border-width:20px;
   border-image-source:url('../img/grav_frame.png');
@@ -2210,9 +2241,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
 .grave-close-btn:active{background-image:url('../img/btn_X2.png');}
 
-/* Скролл-зона с картами — максимум 2 в ряд (card-w × 2 + gap) */
+/* Скролл-зона с картами — максимум 2 в ряд (card-w × 2 + gap).
+   padding-bottom = высоте .grave-modal-footer ниже (34px), чтобы при скролле вниз
+   последний ряд карт уходил ИМЕННО под черепа (см. .grave-modal-footer), а не
+   заканчивался ровно на границе — в этом и была идея автора ("карты заползают
+   под черепа"). Сам footer — сосед этого блока в HTML (не потомок), поэтому
+   позиционируется через .grave-modal (ближайший position:fixed предок) — height
+   тут просто резервирует место, чтобы скролл совпадал. */
 .grave-modal-body{
-  padding:10px 4px 4px;
+  padding:10px 4px 34px;
   overflow-y:auto;
   flex:1;
   display:flex;
@@ -2226,18 +2263,25 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .grave-modal-body::-webkit-scrollbar-thumb{background:#E8E0C888;border-radius:0;}
 .grave-modal-body::-webkit-scrollbar-thumb:hover{background:#E8E0C8;}
 
-/* Футер кладбища — bones.png на всю ширину, обрезается окном сам */
-/* bones.png — узкий бесшовный тайл, повторяем по горизонтали на всю ширину футера.
-   Высота не трогается (28px, как было). background-position:left — чтобы стыковка
-   тайлов начиналась ровно с левого края, а не "гуляла" из-за center. */
+/* Футер кладбища — bones.png на всю ширину, обрезается окном сам.
+   2026-07-08: раньше сидел обычным блоком В ПОТОКЕ, под скролл-зоной (карты просто
+   останавливались над ним) — теперь абсолютно спозиционирован ПОВЕРХ низа
+   .grave-modal-body (z-index выше), с прозрачным фоном bones.png, так что при скролле
+   карты реально уезжают под черепа, а не просто рядом с ними. pointer-events:none —
+   чтобы скролл/клики по картам под черепами продолжали работать, footer только
+   визуальный слой. bones.png — узкий бесшовный тайл, повторяем по горизонтали на
+   всю ширину футера, background-position:left — чтобы стыковка тайлов начиналась
+   ровно с левого края, а не "гуляла" из-за center. */
 .grave-modal-footer{
+  position:absolute;
+  left:0;right:0;bottom:0;
   background-image:url('../img/bones.png');
   background-size:auto 100%;
   background-repeat:repeat-x;
   background-position:left center;
-  height:28px;
-  flex-shrink:0;
-  overflow:hidden;
+  height:34px;
+  pointer-events:none;
+  z-index:5;
 }
 
 /* RULES & LORE SCREENS */
