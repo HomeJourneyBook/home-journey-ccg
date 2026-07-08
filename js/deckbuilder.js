@@ -72,7 +72,8 @@ const DB_TAG_ICONS = {
 // них не нужна, тем более пока их нет в Rush-пуле).
 const DB_FILTERS = [
   {id:'all',      label:'All',       test:()=>true},
-  {id:'traveler', label:'Travelers', test:def=>!def.world&&!def.artifact&&!def.spell},
+  {id:'traveler', label:'Travelers', test:def=>!def.world&&!def.artifact&&!def.spell&&!def.unique},
+  {id:'unique',   label:'Uniques',   test:def=>!!def.unique},
   {id:'spell',    label:'Spells',    test:def=>!!def.spell},
   {id:'world',    label:'Worlds',    test:def=>!!def.world},
   {id:'artifact', label:'Artifacts', test:def=>!!def.artifact},
@@ -140,12 +141,6 @@ function _dbStackEl(faction,key,def,count,onClick){
   card.classList.add('db-stack-top');
   card.onclick=onClick;
   wrap.appendChild(card);
-  if(count>1){
-    const badge=document.createElement('div');
-    badge.className='db-stack-count';
-    badge.textContent='×'+count;
-    wrap.appendChild(badge);
-  }
   return wrap;
 }
 
