@@ -248,6 +248,11 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-mini{width:calc(6vh * 0.9);height:6vh;border:1px solid #ffffff11;background:#0d0d1a;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:calc(6vh * 0.5);overflow:hidden;flex-shrink:0;}
 .card-mini.tea-mini{border-color:#c8a84b22;background:linear-gradient(180deg,#1a1200,#0d0d1a);}
 .card-mini.jeet-mini{border-color:#7b2d8b22;background:linear-gradient(180deg,#1a001a,#0d0d1a);}
+/* Новая карта в СКРЫТОЙ (чужой) руке — тот же вход, что у своей открытой руки
+   (см. .card-small.entering/cardEnter), просто на card-mini. Раньше карты, попавшие
+   в чужую скрытую руку (например Hunger при смерти существа НЕ в свой ход), появлялись
+   без анимации и звука — теперь тоже видно/слышно, что рука пополнилась. */
+.card-mini.entering{animation:cardEnter 0.35s ease-out forwards;}
 .card-back.tea-back{border-color:#c8a84b22;background:linear-gradient(135deg,#0d0d1a,#1a1200);}
 .card-back.jeet-back{border-color:#7b2d8b22;background:linear-gradient(135deg,#0d0d1a,#1a001a);}
 .card-back-symbol{font-size:44px;opacity:0.3;}
@@ -1560,6 +1565,12 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .modal h2{font-family:'MEK',monospace;font-size:var(--modal-h2-fs);color:#D9d89e;margin-bottom:5px;}
 .modal p{font-size:clamp(13px,3.2vw,16px);color:#a2bf5e;margin-bottom:18px;line-height:1.6;}
+/* Без этого последний элемент внутри CRT-экрана (обычно <p>, иногда просто <h2>) оставлял
+   свой margin-bottom "висеть" ниже текста без всякой причины (там нет следующего соседа) —
+   justify-content:center у .modal-crt-screen центрирует блок ВКЛЮЧАЯ этот хвостовой отступ,
+   из-за чего текст визуально уезжал вверх, а низ выглядел непропорционально просторным
+   (репорт автора со скриншотом, 2026-07-08). */
+.modal-crt-screen > *:last-child{margin-bottom:0;}
 
 /* ── "CRT-экран" под текстом простых модалок (deckPicker/vsAiPicker/confirm/win — только
    заголовок + пара строк, без карт) — похожий приём на боевой лог (.log выше: тёмно-зелёный
@@ -1577,6 +1588,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   flex-direction:column;
   justify-content:center;
   padding:14px;
+  animation:crtFlicker 6s ease-in-out infinite; /* тот же приём, что у battle log (.log) */
 }
 .modal-crt-screen::after{
   content:'';
