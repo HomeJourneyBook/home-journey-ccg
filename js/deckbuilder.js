@@ -235,7 +235,7 @@ function _showDbZoom(originEl){
   const instance={clone,backdrop};
   _dbZoomEl=instance;
 
-  const finalScale=Math.min(2.2, (window.innerWidth*0.42)/w, (window.innerHeight*0.8)/h);
+  const finalScale=Math.min(1.7, (window.innerWidth*0.35)/w, (window.innerHeight*0.6)/h);
   requestAnimationFrame(()=>{
     if(_dbZoomEl!==instance) return;
     clone.style.transition='left .2s cubic-bezier(.22,.9,.32,1), top .2s cubic-bezier(.22,.9,.32,1), transform .2s cubic-bezier(.22,.9,.32,1)';
