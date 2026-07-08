@@ -485,14 +485,21 @@ function openDeckPicker(flow){
   _modalPopIn(modal);
 }
 // Кнопка "назад" — самый первый шаг цепочки, дальше отступать некуда, кроме как на
-// landing. Landing физически не скрывался (см. chooseDeckConfig — .exit-center только
-// на реальном выборе конфига), так что просто прячем эту модалку, он уже виден под ней.
+// landing. Раньше просто прятали модалку, предполагая, что landing и так виден под ней —
+// но это могло не срабатывать (репорт автора: "ведёт в никуда", чёрный экран). Теперь
+// явно возвращаем landing в видимое состояние (display:flex, без .exit-center), не полагаясь
+// на то, что он "и так там был" — надёжнее при любом предыдущем состоянии.
 function backFromDeckPicker(){
   playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
   const modal=document.getElementById('deckPickerModal');
   _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
     _pendingModeFlow=null;
+    const landing=document.getElementById('landing');
+    if(landing){
+      landing.style.display='flex';
+      landing.classList.remove('exit-center');
+    }
   }, 250);
 }
 function chooseDeckConfig(configKey){
