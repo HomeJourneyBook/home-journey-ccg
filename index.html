@@ -639,12 +639,14 @@
   <div class="modal-stack">
     <button class="modal-icon-btn corner-back btn-back placeholder" onclick="backFromDeckBuilder()" title="Back"></button>
     <div class="modal db-modal">
+      <div class="db-header" id="deckBuilderTitle">CHOOSE YOUR DECK</div>
+      <div class="db-divider-h"></div>
       <div class="modal-body">
-        <h2 id="deckBuilderTitle" class="db-title">CHOOSE YOUR DECK</h2>
         <div class="db-split">
           <div class="db-pane db-pane-chosen">
             <div class="db-grid" id="deckBuilderChosenGrid"></div>
           </div>
+          <div class="db-divider-v"></div>
           <div class="db-pane db-pane-pool">
             <div class="db-filters" id="deckBuilderFilters"></div>
             <div class="db-grid" id="deckBuilderPoolGrid"></div>
@@ -688,8 +690,10 @@
   <div class="modal-stack">
     <div class="modal">
       <div class="modal-body">
-        <h2 style="font-size:22px;">LEAVE GAME?</h2>
-        <p>Current game will be lost. Return to menu?</p>
+        <div class="modal-crt-screen">
+          <h2 style="font-size:22px;">LEAVE GAME?</h2>
+          <p>Current game will be lost. Return to menu?</p>
+        </div>
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
@@ -704,8 +708,10 @@
   <div class="modal-stack">
     <div class="modal">
       <div class="modal-body">
-        <h2 id="winTitle">VICTORY</h2>
-        <p id="winText"></p>
+        <div class="modal-crt-screen">
+          <h2 id="winTitle">VICTORY</h2>
+          <p id="winText"></p>
+        </div>
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
