@@ -41,9 +41,24 @@
   --tea-shadow: #2D7B3522;
   --jeet-shadow: #7B2D8B22;
   /* Толщина рамки для 9-slice bg_modal.png (confirm/win/mulligan/pass модалки).
-     Зафиксирована в px — раньше была clamp(48px,6vw,80px) и на широких экранах
-     "съедала" контентную зону модалки (см. .modal ниже, ширина завязана на эту переменную). */
-  --modal-border-w: 54px;
+     2026-07-08: раньше была зафиксирована в px (54px) — теперь минимум 54px (тот же,
+     что и был), но на широких экранах может расти до 81px (×1.5, число экспериментальное,
+     см. обсуждение с автором — можно потом подвинуть верхнюю границу clamp без побочных
+     эффектов, всё остальное ниже пересчитается само). Раньше scaling версия (clamp(48px,6vw,80px))
+     "съедала" контентную зону — тот баг был из-за фиксированной width:340px у .modal;
+     сейчас width честно завязана на эту переменную (см. .modal ниже), так что растущая
+     рамка больше не проблема.
+     Переходный диапазон 1350px–2025px viewport width: ниже 1350px — зафиксировано на 54px
+     (обычные телефоны/планшеты не затронуты), выше 2025px — потолок 81px. */
+  --modal-border-w: clamp(54px, 4vw, 81px);
+  /* ── Бокс с кнопками модалок (bg_jest2.png) — размеры завязаны на --modal-border-w
+     той же пропорцией, что задал автор для базовых 54px: рамка бокса 7px, кнопки внутри
+     40px высотой, зазор между кнопками 7px. Растут/сжимаются вместе с --modal-border-w
+     пиксель-в-пиксель, никогда не расходятся. */
+  --modal-footer-border-w: calc(var(--modal-border-w) * 7 / 54);
+  --modal-footer-btn-h: calc(var(--modal-border-w) * 40 / 54);
+  /* h2 внутри модалок — раньше фиксированные 22px, теперь растут вместе с рамкой. */
+  --modal-h2-fs: calc(var(--modal-border-w) * 22 / 54);
   --color-cream: #E8E0C8;
   --jeet-main: #08050A;
 }
@@ -1080,7 +1095,12 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   position:relative;
 }
 .modal-icon-btn.sq{width:6vh;height:6vh;}
-.modal-icon-btn.wide{width:min(80px, 18vw);aspect-ratio:2/1;}
+/* winModal — единственное место, где .sq сидит внутри нового bg_jest2-бокса
+   (деккбилдер использует .sq в своём отдельном футере с другой геометрией —
+   не трогаем, там свой размер, договорились заняться отдельно). Скоуп по ID,
+   чтобы не задеть деккбилдер. */
+#winModal .modal-icon-btn.sq{width:var(--modal-footer-btn-h);height:var(--modal-footer-btn-h);}
+.modal-icon-btn.wide{height:var(--modal-footer-btn-h);aspect-ratio:2/1;}
 .modal-icon-btn.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
 .modal-icon-btn.placeholder::after{
   content:'';
@@ -1411,17 +1431,15 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   position:absolute;
   bottom:0;
   left:50%;
-  transform:translate(-50%, 50%);
+  transform:translateX(-50%);
   z-index:6; /* выше .modal-decor (5), поверх рамки */
 }
 /* Геометрия: .modal — единственный child в потоке .modal-stack (плита вне
    потока), поэтому .modal-stack по высоте == .modal. bottom:0 ставит НИЖНИЙ
-   край плиты на нижний край .modal; translateY(50%) опускает плиту на
-   половину её же высоты → её ЦЕНТР точно на нижней кромке рамки, для любой
-   высоты кнопок/border в любой конкретной модалке — без завязки на
-   --modal-border-w (та переменная — толщина ОСНОВНОЙ рамки модалки, 54px,
-   никак не связана с высотой плиты; предыдущая версия ошибочно её использовала,
-   отсюда и гигантский зазор ниже текста, см. следующий комментарий). */
+   край плиты РОВНО на нижний край .modal — низы совпадают пиксель-в-пиксель
+   (по прямому запросу автора, 2026-07-08). Плита теперь целиком выше нижней
+   кромки модалки (раньше translateY(50%) опускал её так, что только центр
+   плиты совпадал с кромкой, и половина плиты торчала наружу под модалкой). */
 /* Углы — для .modal-decor-square (сидят ровно в углу рамки) */
 .modal-decor-tl{top:calc(-1 * var(--modal-border-w));left:calc(-1 * var(--modal-border-w));}
 .modal-decor-tr{top:calc(-1 * var(--modal-border-w));right:calc(-1 * var(--modal-border-w));}
@@ -1432,18 +1450,22 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-decor-bottom{bottom:calc(-1 * var(--modal-border-w));left:50%;transform:translateX(-50%);}
 
 /* ── Арт-кнопки внутри modal-footer ────────────────────────────────────────────
-   Пиксельный размер по арту (244×88 = ratio 122:44).
-   font-size:0 + line-height:0 гарантируют что .btn не раздувает высоту через font-size:30px.
-   Для кнопок с 2x артом (244×88): width:122px height:44px — нативный 0.5x.
-   Для увеличенного варианта: width:152px height:calc(152px * 44/122) */
+   Пиксельный размер по арту (244×88 = ratio 122:44), базовая высота 40px при
+   базовых 54px --modal-border-w. 2026-07-08: раньше задавали width+aspect-ratio
+   (ширина — источник истины, высота считалась от неё). Теперь наоборот: высота
+   явно равна --modal-footer-btn-h (растёт/сжимается вместе с рамкой модалки
+   пиксель-в-пиксель), а ширина сама следует через aspect-ratio — так высота кнопок
+   гарантированно совпадает с высотой контента бокса .modal-footer, при любом
+   --modal-border-w.
+   font-size:0 + line-height:0 гарантируют что .btn не раздувает высоту через font-size:30px. */
 .modal-art-btn{
   background-size:100% 100%;
   background-repeat:no-repeat;
   background-position:center;
   background-color:transparent;
   border:none;
-  width:min(120px, 27vw);   /* 120px — тот же максимум, что и был; на узких экранах ужимается */
-  aspect-ratio:3/1;         /* держит пропорцию кнопки (120×40) при любой ширине */
+  height:var(--modal-footer-btn-h);
+  aspect-ratio:3/1;         /* держит пропорцию кнопки (120×40 при базовых размерах) */
   font-size:0;
   line-height:0;
   padding:0;
@@ -1455,7 +1477,6 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 /* btn-yes — теперь 2:1 (было 3:1), высота та же, что у остальных .modal-art-btn.
    Раздельные арты на idle/hover/active — hover без brightness, у него свой арт. */
 .modal-art-btn.btn-yes{
-  width:min(80px, 18vw);
   aspect-ratio:2/1;
   background-image:url('../img/btn_yes1.png');
 }
@@ -1467,7 +1488,6 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-art-btn.btn-cancel:active{background-image:url('../img/btn_cancel2.png');}
 
 .modal-art-btn.btn-mulligan{
-  width:min(80px, 18vw);
   aspect-ratio:2/1;
   background-image:url('../img/btn_mulligan1.png');
 }
@@ -1480,7 +1500,6 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 
 .modal-art-btn.btn-ready{
-  width:min(80px, 18vw);
   aspect-ratio:2/1;
   background-image:url('../img/btn_ready1.png');
 }
@@ -1488,7 +1507,6 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-art-btn.btn-ready:active{background-image:url('../img/btn_ready2.png');}
 /* btn-win — reuses the Ready button art (btn_ready1/H/2), same 2:1 sizing pattern. */
 .modal-art-btn.btn-win{
-  width:min(80px, 18vw);
   aspect-ratio:2/1;
   background-image:url('../img/btn_ready1.png');
 }
@@ -1514,7 +1532,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    По аналогии с .art-btn-vsai: hover — отдельный арт (btn_teaH/btn_jeetH),
    active переиспользует арт обычного состояния (своей выделенной "нажатой" арт-версии нет). */
 .modal-faction-btn{
-  width:min(40px, 9vw);height:min(40px, 9vw);
+  width:var(--modal-footer-btn-h);height:var(--modal-footer-btn-h);
   flex-shrink:0;
   border:none;background-color:transparent;
   background-repeat:no-repeat;background-position:center;background-size:100% 100%;
@@ -1530,21 +1548,17 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   padding:clamp(12px,1.5vw,18px);
   flex:1;
 }
-/* Плита-футер (.modal-footer-plate) висит наполовину ВНУТРИ рамки, вне
-   потока — теперь почти без резерва под неё (~3px, по прямому запросу):
-   у плиты свой непрозрачный фон (bg_jest.png), так что лёгкое наложение на
-   самый низ текста — ожидаемо и нормально ("лист жести поверх панели"), не
-   нужно высчитывать точный зазор под каждую конкретную плиту с её высотой
-   кнопок. Прошлая версия резервировала место через --modal-border-w (54px —
-   толщина ОСНОВНОЙ рамки, не имеет отношения к плите) и раздувала бокс на
-   60-65px — отсюда и гигантский зазор под текстом на скриншоте. */
+/* Плита-футер (.modal-footer-plate) теперь целиком лежит в зоне НИЖНЕЙ рамки самой
+   модалки (её высота = --modal-footer-btn-h + 2×--modal-footer-border-w, что по
+   построению равно --modal-border-w — толщине рамки .modal), поэтому больше не
+   наезжает на текст в .modal-body вообще — резерв под неё через padding-bottom
+   (было 3px) больше не нужен. */
 .modal-stack .modal-body{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  padding-bottom:3px;
 }
-.modal h2{font-family:'MEK',monospace;font-size:22px;color:#D9d89e;margin-bottom:5px;}
+.modal h2{font-family:'MEK',monospace;font-size:var(--modal-h2-fs);color:#D9d89e;margin-bottom:5px;}
 .modal p{font-size:clamp(13px,3.2vw,16px);color:#a2bf5e;margin-bottom:18px;line-height:1.6;}
 
 /* ── "CRT-экран" под текстом простых модалок (deckPicker/vsAiPicker/confirm/win — только
@@ -1609,31 +1623,30 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    Для замены: добавить background-image:url('../img/modal_footer_panel.png') и убрать
    background-color + border-top. */
 /* ── Бокс с кнопками модалок (confirm/win/mulligan/pass) ──────────────────
-   Раньше растягивался на всю ширину модалки (align-items:stretch по умолчанию
-   в flex-column .modal). Теперь — компактный бокс, размер по контенту (кнопки
-   + gap), с тем же 9-slice фоном bg_jest.png. Граница переведена в px: 20px
-   (раньше clamp(20px,5vw,40px)). Ширина/высота бокса нигде не задаются явно —
-   их и так однозначно определяют кнопки: 2 кнопки по 120×40px + gap 10px
-   + 2×border(20px) = 300×80px (для одной кнопки — 160×80px). */
-/* border-width и gap теперь min(px, vw) — px это тот же максимум, что был (20px/10px),
-   а vw-часть даёт возможность ужаться на узких экранах вместо обрезания по краям
-   (см. скриншот с bg_jest, обрезанным на телефоне). Кнопки внутри (.modal-art-btn)
-   ужимаются по той же логике — весь бокс пропорционально уменьшается целиком. */
+   2026-07-08: новый арт bg_jest2.png (было bg_jest.png). Рамка бокса — 7px при
+   базовых 54px --modal-border-w, растёт вместе с ним (см. --modal-footer-border-w
+   в :root). Slice в исходнике — 14px (те же пропорции 2x, что у bg_modal.png:
+   108 source / 54 render), slice НЕ зависит от border-image-width — это константа
+   самого файла, меняется только рендер-толщина.
+   Высота бокса нигде явно не задана — она равна --modal-border-w по требованию
+   автора (совпадает с толщиной рамки самой модалки), и однозначно определяется
+   кнопками: --modal-footer-btn-h (40px при базовых 54px) + 2×--modal-footer-border-w
+   (7px+7px) = --modal-border-w. Ширина — по контенту (кнопки + gap). */
 .modal-footer{
   align-self:center;
   width:auto;
   background:transparent;
   border-style:solid;
-  border-width:min(20px, 5vw);
-  border-image-source:url('../img/bg_jest.png');
-  border-image-slice:40 fill;
-  border-image-width:min(20px, 5vw);
+  border-width:var(--modal-footer-border-w);
+  border-image-source:url('../img/bg_jest2.png');
+  border-image-slice:14 fill;
+  border-image-width:var(--modal-footer-border-w);
   border-image-outset:0;
   border-image-repeat:stretch;
   box-sizing:border-box;
   padding:0;
   display:flex;
-  gap:min(10px, 2.5vw);
+  gap:var(--modal-footer-border-w);
   justify-content:center;
   align-items:center;
 }
