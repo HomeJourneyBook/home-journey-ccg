@@ -13,6 +13,13 @@ function _isTargetedSpell(card){
   );
 }
 
+// Спеллы, у которых свой отдельный, узнаваемый звук эффекта (revive → 'rest',
+// draw → 'new_card' через анимацию прилёта карты в руку) — общий 'card_spell_atack'
+// на клик "Play" их перебивает/заглушает, поэтому для них его не играем.
+function _spellHasOwnSfx(card){
+  return !!card.spell && (hasTag(card,'revive') || hasTag(card,'draw'));
+}
+
 // ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
 // Обновляет: счётчики хода/HP/Essence/колоды/кладбища, поля боя, руки обоих игроков (своя — открыта, чужая — рубашками),
 // персистентную зону (Worlds/Artifacts), z-index рук, подсветку "можно бить по базе", текст подсказки текущей фазы.
@@ -568,7 +575,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -629,7 +636,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -801,11 +808,12 @@ function rHiddenHand(id,cards,faction){
   } else if(need>have){
     for(let i=0;i<need-have;i++){
       const d=document.createElement('div');
-      d.className=`card-mini ${faction}-mini`;
+      d.className=`card-mini ${faction}-mini entering`;
       d.style.backgroundImage="url('img/runaha.png')";
       d.style.backgroundSize='cover';
       d.style.backgroundPosition='bottom';
       el.appendChild(d);
+      setTimeout(()=>playSfx('new_card'), i*90);
     }
   }
 }
