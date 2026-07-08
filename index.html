@@ -635,15 +635,27 @@
 
 <div class="modal-overlay hidden" id="deckBuilderModal">
   <div class="modal-stack">
-    <div class="modal" style="width:auto;max-width:95vw;max-height:92vh;overflow-y:auto;">
+    <div class="modal db-modal" style="width:auto;max-width:98vw;max-height:94vh;overflow-y:auto;">
       <button class="modal-icon-btn corner-back btn-back placeholder" onclick="backFromDeckBuilder()" title="Back"></button>
       <div class="modal-body">
-        <h2 id="deckBuilderTitle" style="font-size:22px;">BUILD YOUR DECK</h2>
-        <div id="deckBuilderCount" style="font-size:12px;color:#555;margin-bottom:10px;"></div>
-        <div class="db-grid" id="deckBuilderGrid"></div>
+        <h2 id="deckBuilderTitle" class="db-title">CHOOSE YOUR DECK</h2>
+        <div class="db-split">
+          <div class="db-pane db-pane-chosen">
+            <div class="db-grid" id="deckBuilderChosenGrid"></div>
+          </div>
+          <div class="db-pane db-pane-pool">
+            <div class="db-filters" id="deckBuilderFilters"></div>
+            <div class="db-grid" id="deckBuilderPoolGrid"></div>
+          </div>
+        </div>
+        <div class="db-footer-info">
+          <div class="db-stats" id="deckBuilderStats"></div>
+          <div class="db-curve" id="deckBuilderCurve"></div>
+        </div>
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
+      <button class="modal-icon-btn sq btn-clear placeholder" onclick="dbClearPicks()" title="Clear"></button>
       <button class="modal-icon-btn sq btn-imp placeholder" onclick="document.getElementById('deckBuilderImportInput').click()" title="Import deck (.json)"></button>
       <input type="file" id="deckBuilderImportInput" accept="application/json,.json" style="display:none;" onchange="dbImportDeck(this)">
       <button class="modal-icon-btn sq btn-exp placeholder" onclick="playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');dbExportDeck()" title="Export deck (.json)"></button>
