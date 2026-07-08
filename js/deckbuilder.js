@@ -232,13 +232,14 @@ function _renderDeckBuilder(faction){
 
   const poolGrid=document.getElementById('deckBuilderPoolGrid');
   const chosenGrid=document.getElementById('deckBuilderChosenGrid');
-  // Каждый клик по карте перестраивает оба грида с нуля (innerHTML=''), а карта, переезжая
-  // из пула в выбранное (или обратно), меняет высоту ОБЕИХ панелей (они рядом, flex-row —
-  // общая высота строки = максимум из двух), из-за чего скролл .modal-body мог "прыгать"
-  // вверх, если контент на миг становился короче текущей scrollTop-позиции. Запоминаем
-  // позицию до перестройки и жёстко возвращаем её после — простое и надёжное решение.
-  const scrollHost=document.querySelector('#deckBuilderModal .modal-body');
-  const savedScroll=scrollHost?scrollHost.scrollTop:0;
+  // Панели теперь скроллятся НЕЗАВИСИМО (см. .db-pane в styles.css — каждая своя
+  // overflow-y:auto), но каждый клик по карте всё равно перестраивает оба грида с нуля
+  // (innerHTML=''), и высота контента внутри конкретной панели может на миг измениться —
+  // запоминаем scrollTop КАЖДОЙ панели до перестройки и жёстко возвращаем после.
+  const poolPane=poolGrid.closest('.db-pane');
+  const chosenPane=chosenGrid.closest('.db-pane');
+  const savedPoolScroll=poolPane?poolPane.scrollTop:0;
+  const savedChosenScroll=chosenPane?chosenPane.scrollTop:0;
   poolGrid.innerHTML='';
   chosenGrid.innerHTML='';
 
@@ -257,7 +258,8 @@ function _renderDeckBuilder(faction){
       chosenGrid.appendChild(_dbStackEl(faction,key,def,qty,()=>dbSetQty(faction,key,qty-1)));
     }
   });
-  if(scrollHost) scrollHost.scrollTop=savedScroll;
+  if(poolPane) poolPane.scrollTop=savedPoolScroll;
+  if(chosenPane) chosenPane.scrollTop=savedChosenScroll;
 
   _updateDeckBuilderCount();
   _renderDbCurve(faction);
