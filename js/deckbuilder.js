@@ -139,7 +139,7 @@ function _dbStackEl(faction,key,def,count,onClick){
   }
   const card=_dbCardEl(faction,key,def);
   card.classList.add('db-stack-top');
-  _dbAttachZoom(card); // долгое нажатие — увеличенное превью (та же фича, что и в игре)
+  _dbAttachZoom(card, faction, key, def); // долгое нажатие — увеличенное превью, см. ниже
   card.addEventListener('click',(e)=>{
     if(card._dbLongPressFired){ card._dbLongPressFired=false; e.stopPropagation(); return; }
     onClick();
@@ -148,107 +148,44 @@ function _dbStackEl(faction,key,def,count,onClick){
   return wrap;
 }
 
-// ── Зум по долгому нажатию — та же фича, что и в игре (showFieldCardPreview в render.js),
-// но упрощённая под декбилдер: клонируем УЖЕ ОТРИСОВАННУЮ карточку (а не пересобираем через
-// mkEl) — она и так выглядит правильно, зачем строить заново. Долгий тап ТОЛЬКО открывает
-// зум и НЕ считается кликом (не перебрасывает карту между колонками) — короткий тап по
-// самой карте как обычно перебрасывает.
-let _dbZoomEl=null;
-function _dbAttachZoom(cardEl){
-  let timer=null;
+// ── Зум по долгому нажатию — переиспользует showFieldCardPreview/closeFieldCardPreview
+// (render.js), ТОТ ЖЕ механизм, что зумит карты поля/руки в самой игре, вместо
+// самодельного клонирования (два предыдущих захода оба ломались: клон терял cqw-размеры
+// .db-stack, а копирование "готовых" значений через getComputedStyle тоже не работало —
+// незарегистрированные custom-свойства возвращают через getComputedStyle СЫРОЙ ТЕКСТ
+// формулы, а не число в px). showFieldCardPreview строит карту заново через mkEl() —
+// та использует обычные :root-переменные --card-w/--card-h (vh, не cqw), которые всегда
+// резолвятся корректно вне зависимости от того, где элемент находится в DOM.
+// DEFS[key] уже содержит все поля, которые mkEl ожидает от "карты" (f/cost/name/tags/hp/
+// atk/ab/img/spell/world/artifact) — не хватает только id (нужен для dataset.id/сравнения
+// с G.sel, у нас он ни на что не завязан, синтетический достаточно).
+function _dbPreviewCard(faction,key,def){
+  return Object.assign({}, def, {id:'dbzoom-'+key, f:faction, maxHp:def.hp});
+}
+function _dbAttachZoom(cardEl,faction,key,def){
+  let timer=null, longPressFired=false;
   const clear=()=>{ if(timer){ clearTimeout(timer); timer=null; } };
-  const start=()=>{
-    cardEl._dbLongPressFired=false;
+  const end=()=>{
     clear();
+    if(longPressFired){ longPressFired=false; cardEl._dbLongPressFired=false; closeFieldCardPreview(); }
+  };
+  cardEl.addEventListener('mousedown',(e)=>{
+    if(e.button!==0) return;
+    longPressFired=false; clear();
     timer=setTimeout(()=>{
-      cardEl._dbLongPressFired=true;
-      _showDbZoom(cardEl);
-    }, 380);
-  };
-  cardEl.addEventListener('mousedown', start);
-  cardEl.addEventListener('touchstart', start, {passive:true});
-  ['mouseup','mouseleave','touchend','touchmove','touchcancel'].forEach(ev=>{
-    cardEl.addEventListener(ev, clear);
+      longPressFired=true; cardEl._dbLongPressFired=true;
+      showFieldCardPreview(_dbPreviewCard(faction,key,def), cardEl, 1.6);
+    },380);
+    document.addEventListener('mouseup', end, {once:true});
   });
-}
-function _showDbZoom(originEl){
-  _closeDbZoom();
-  playSfx('Navigation_Cursor');
-  const originRect=originEl.getBoundingClientRect();
-  const clone=originEl.cloneNode(true);
-  clone.classList.remove('db-stack-top');
-  clone.className='card cat-card db-card db-zoom-card '+
-    (originEl.classList.contains('tea-card')?'tea-card':'jeet-card')+
-    (originEl.classList.contains('world-card')?' world-card':'');
-  // ВАЖНО (настоящая причина прошлого бага — "гигантский зелёный блок" на скриншоте
-  // автора): --card-w/--card-h и производные (--card-pad/--card-art-size/--card-name-h
-  // и т.д.) заданы в styles.css как calc()-формулы на .db-stack (cqw от ширины сетки).
-  // Раньше тут пытались скопировать их через getComputedStyle(...).getPropertyValue(...) —
-  // но НЕзарегистрированные (без @property) custom-свойства возвращают через
-  // getComputedStyle СЫРОЙ ТЕКСТ формулы (что-то вроде "calc(var(--card-w) / 0.716)"),
-  // А НЕ готовое число в px! У клона, вне .db-grid (нет cqw-контейнера) и без класса
-  // .db-stack (сама формула объявлена только на нём), эти скопированные строки-формулы
-  // резолвятся в мусор. Фикс: НЕ трогаем CSS-переменные вообще — меряем РЕАЛЬНЫЙ
-  // отрендеренный размer оригинала (getBoundingClientRect — гарантированно готовые px)
-  // и сами руками считаем все производные по тем же коэффициентам, что в styles.css.
-  const w=originRect.width, h=originRect.height;
-  const sizeVars={
-    '--card-w': w,
-    '--card-h': h,
-    '--card-art-size': h*0.535,
-    '--card-pad': h*0.021,
-    '--card-name-h': h*0.096,
-    '--card-stats-h': h*0.085,
-    '--card-text-h': h*0.24,
-    '--card-world-name-h': h*0.096,
-    '--card-world-text-h': h*0.16,
-  };
-  Object.keys(sizeVars).forEach(k=>clone.style.setProperty(k, sizeVars[k]+'px'));
-  clone.style.position='fixed';
-  clone.style.margin='0';
-  clone.style.zIndex='6000';
-  clone.style.pointerEvents='none';
-  clone.style.filter='none';
-  clone.style.width=w+'px';
-  clone.style.height=h+'px';
-  document.body.appendChild(clone);
-  // Точечно включаем hover-подсказки на самом зуме (tooltip-система в ui.js слушает
-  // документ целиком через mousemove — сработает и тут без доп. кода).
-  clone.querySelectorAll('.card-tag-icon, .card-cost, .card-type-dot, .card-hp-box, .card-atk-box').forEach(icon=>{ icon.style.pointerEvents='auto'; });
-
-  // Та же техника, что и showFieldCardPreview в render.js: клон рисуется в ТОЧНОЙ копии
-  // исходного размера (см. выше — сразу без искажений), затем растёт через transform:scale
-  // (а не через width/height) — так внутренняя раскладка растягивается как единое целое,
-  // без пересчёта.
-  const cx=originRect.left+originRect.width/2;
-  const cy=originRect.top+originRect.height/2;
-  clone.style.left=cx+'px';
-  clone.style.top=cy+'px';
-  clone.style.transform='translate(-50%,-50%) scale(1)';
-  clone.style.transition='none';
-  void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
-
-  const backdrop=document.createElement('div');
-  backdrop.className='db-zoom-backdrop';
-  backdrop.onclick=_closeDbZoom;
-  document.body.appendChild(backdrop);
-  const instance={clone,backdrop};
-  _dbZoomEl=instance;
-
-  const finalScale=Math.min(1.7, (window.innerWidth*0.35)/w, (window.innerHeight*0.6)/h);
-  requestAnimationFrame(()=>{
-    if(_dbZoomEl!==instance) return;
-    clone.style.transition='left .2s cubic-bezier(.22,.9,.32,1), top .2s cubic-bezier(.22,.9,.32,1), transform .2s cubic-bezier(.22,.9,.32,1)';
-    clone.style.left='50%';
-    clone.style.top='46%';
-    clone.style.transform=`translate(-50%,-50%) scale(${finalScale})`;
-  });
-}
-function _closeDbZoom(){
-  if(!_dbZoomEl) return;
-  _dbZoomEl.clone.remove();
-  _dbZoomEl.backdrop.remove();
-  _dbZoomEl=null;
+  cardEl.addEventListener('touchstart',()=>{
+    longPressFired=false; clear();
+    timer=setTimeout(()=>{
+      longPressFired=true; cardEl._dbLongPressFired=true;
+      showFieldCardPreview(_dbPreviewCard(faction,key,def), cardEl, 1.6);
+    },380);
+  },{passive:true});
+  ['touchend','touchcancel'].forEach(ev=>cardEl.addEventListener(ev,end));
 }
 
 function dbSetFilter(filterId){
