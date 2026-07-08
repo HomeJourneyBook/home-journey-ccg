@@ -112,14 +112,18 @@ function render(){
   };
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
-  // Target-prompt overlay — только для точечных заклинаний, ждущих клика по
-  // цели (ARCHIVE/JOURNEY/OBLIVION/dispel), НЕ для selectTarget/healTarget/
-  // shardTarget/sacrificeTarget (те целятся с поля, оверлей на руке им не нужен).
+  // Target-prompt overlay — для точечных заклинаний (OBLIVION/dispel/dmg/buff) И теперь
+  // для активки лечения (healTarget), по просьбе автора — тот же паттерн подтверждения,
+  // что у остальных таргетируемых действий. НЕ для selectTarget/shardTarget/sacrificeTarget —
+  // те целятся с поля, у них уже своя подсветка targetable/healable прямо на картах.
+  // Клик по оверлею вызывает cancelPendingSpell() — для healTarget G.pendingSpell пуст,
+  // так что рефанда не происходит, просто чистый сброс фазы (G.phase='action', G.sel=null).
   const targetPromptOverlay=document.getElementById('targetPromptOverlay');
   if(targetPromptOverlay){
     const showTargetPrompt=(
       G.phase==='spellDmgTarget'||G.phase==='spellBuffTarget'||
-      G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'
+      G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'||
+      G.phase==='healTarget'
     );
     targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
   }
@@ -953,6 +957,41 @@ function updateEndTurnBtn(){
   btn.classList.toggle('btn-waiting', aiTurn);
 }
 
+// Строит HTML статус-бара одной фракции. mirrored=true — для бара, который сейчас сидит
+// СВЕРХУ (оппонент): pcard'ы (Мир/Артефакт) и HP/Essence-каунтеры меняются МЕСТАМИ (а не
+// зеркалятся — это текст/арт с читаемым содержимым, зеркальный текст был бы нечитаем),
+// чтобы сохранить правило «мир и HP слева от базы» в перевёрнутом виде (там — справа).
+// Декоративные плейсхолдеры без текста (edge-left/right/right-2, hp-placeholder,
+// statbar-extra) вместо этого зеркалятся transform'ом — см. #oppStats .statbar-edge-*
+// и т.п. в styles.css, тот же приём, что уже применён к фону бара (#oppStats::before).
+// isPlayerSide — как раньше у _mkPcardSlotHtml: включает onclick для активации
+// Shard/Altar, актуально только для СВОЕЙ стороны (playerStats), не для оппонента.
+function _mkStatsBarHtml(faction, mirrored, isPlayerSide){
+  const p=G[faction];
+  const edgeLeft=faction==='jeet'?'<span class="statbar-edge-left"></span>':'';
+  const edgeRight2=faction==='jeet'?'<span class="statbar-edge-right-2"></span>':'';
+  const worldSlot=_mkPcardSlotHtml(p.world, faction, false);
+  const artifactSlot=_mkPcardSlotHtml(p.artifacts[0]||null, faction, isPlayerSide);
+  const hpBox=`<span class="stat stat-hp-box ${faction}-hp-box"><img src="./img/hp_${faction}.png" class="stat-icon"> <span class="stat-val hp-val" id="${faction}Hp">${p.hp}</span></span>`;
+  const nameBox=`<span class="player-name-box ${faction}-name-box hp-tier-${hpTier(p.hp)}" role="img" aria-label="${faction==='jeet'?'JEET':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${faction}')"></span>`;
+  const essBox=`<span class="stat stat-ess-box ${faction}-ess-box" data-max="${p.essMax}"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${faction}Ess">${p.ess}</span></span>`;
+  const core=mirrored
+    ? `<span class="statbar-core">${essBox}${nameBox}${hpBox}</span>`
+    : `<span class="statbar-core">${hpBox}${nameBox}${essBox}</span>`;
+  const leftPcard=mirrored?artifactSlot:worldSlot;
+  const rightPcard=mirrored?worldSlot:artifactSlot;
+  return `
+  ${edgeLeft}
+  <span class="statbar-extra"></span>
+  <span class="hp-placeholder"></span>
+  ${leftPcard}
+  ${core}
+  ${rightPcard}
+  <span class="statbar-extra"></span>
+  ${edgeRight2}
+  <span class="statbar-edge-right"></span>`;
+}
+
 function reorderZones(){
   let oppK,playerK;
   if(G.mode==='vsai'){
@@ -969,20 +1008,7 @@ function reorderZones(){
   const playerStats=document.getElementById('playerStats');
   if(oppStats){
     oppStats.className='stats-bar '+(oppK==='jeet'?'jeet':'tea')+' hp-tier-'+hpTier(oppP.hp);
-    oppStats.innerHTML=`
-  ${oppK==='jeet'?'<span class="statbar-edge-left"></span>':''}
-  <span class="statbar-extra"></span>
-  <span class="hp-placeholder"></span>
-  ${_mkPcardSlotHtml(oppP.world, oppK, false)}
-  <span class="statbar-core">
-    <span class="stat stat-hp-box ${oppK}-hp-box"><img src="./img/hp_${oppK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${oppK}Hp">${oppP.hp}</span></span>
-    <span class="player-name-box ${oppK}-name-box hp-tier-${hpTier(oppP.hp)}" role="img" aria-label="${oppK==='jeet'?'JEET':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${oppK}')"></span>
-    <span class="stat stat-ess-box ${oppK}-ess-box" data-max="${oppP.essMax}"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${oppK}Ess">${oppP.ess}</span></span>
-  </span>
-  ${_mkPcardSlotHtml(oppP.artifacts[0]||null, oppK, false)}
-  <span class="statbar-extra"></span>
-  ${oppK==='jeet'?'<span class="statbar-edge-right-2"></span>':''}
-  <span class="statbar-edge-right"></span>`;
+    oppStats.innerHTML=_mkStatsBarHtml(oppK, true, false);
     oppStats.querySelectorAll('[data-pid]').forEach(el=>{
       const pid=el.dataset.pid;
       if(!_seenPcardPids.has(pid)){ _seenPcardPids.add(pid); el.classList.add('pcard-entering'); }
@@ -990,20 +1016,7 @@ function reorderZones(){
   }
   if(playerStats){
     playerStats.className='stats-bar '+(playerK==='jeet'?'jeet':'tea')+' hp-tier-'+hpTier(playerP.hp);
-    playerStats.innerHTML=`
-  ${playerK==='jeet'?'<span class="statbar-edge-left"></span>':''}
-  <span class="statbar-extra"></span>
-  <span class="hp-placeholder"></span>
-  ${_mkPcardSlotHtml(playerP.world, playerK, false)}
-  <span class="statbar-core">
-    <span class="stat stat-hp-box ${playerK}-hp-box"><img src="./img/hp_${playerK}.png" class="stat-icon"> <span class="stat-val hp-val" id="${playerK}Hp">${playerP.hp}</span></span>
-    <span class="player-name-box ${playerK}-name-box hp-tier-${hpTier(playerP.hp)}" role="img" aria-label="${playerK==='jeet'?'JEET':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${playerK}')"></span>
-    <span class="stat stat-ess-box ${playerK}-ess-box" data-max="${playerP.essMax}"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${playerK}Ess">${playerP.ess}</span></span>
-  </span>
-  ${_mkPcardSlotHtml(playerP.artifacts[0]||null, playerK, true)}
-  <span class="statbar-extra"></span>
-  ${playerK==='jeet'?'<span class="statbar-edge-right-2"></span>':''}
-  <span class="statbar-edge-right"></span>`;
+    playerStats.innerHTML=_mkStatsBarHtml(playerK, false, true);
     playerStats.querySelectorAll('[data-pid]').forEach(el=>{
       const pid=el.dataset.pid;
       if(!_seenPcardPids.has(pid)){ _seenPcardPids.add(pid); el.classList.add('pcard-entering'); }
