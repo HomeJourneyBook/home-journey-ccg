@@ -69,7 +69,7 @@ function toggleMusic(){
   musicEnabled = !musicEnabled;
   localStorage.setItem('hj_music', musicEnabled ? 'on' : 'off');
   _refreshMusicBtn();
-  if(musicEnabled) playSfx('yellow_buttom_play_endturn_menu_gravyard_loop'); // звук только при включении
+  if(musicEnabled) playSfx('yellow_buttom'); // звук только при включении
   const audio = _getMusicEl();
   if(!audio) return;
   if(musicEnabled){
@@ -108,15 +108,17 @@ const SFX_VOLUME = 0.6;
 let _audioCtx = null;
 const _sfxBuffers = {};   // name → AudioBuffer (декодированный PCM)
 const SFX_FILES = [
-  'Navigation_Cursor', 'Click_Cursor', 'Burn_Card',
+  'card_navigation_cursor', 'card_burn',
   'card_atack', 'card_fire_atack', 'card_spell_atack',
-  'open_door', 'yellow_buttom_play_endturn_menu_gravyard_loop',
-  'baf', 'debaf'
+  'open_door', 'yellow_buttom',
+  'baf', 'debaf',
+  'graveyard', 'screen_monitor', 'heal', 'new_card', 'base_atack',
+  'wind_card', 'card_select_traveler', 'rest'
 ];
 
 // Минимальный интервал между повторными вызовами одного и того же звука (мс).
-// Navigation_Cursor тротлим жёстко — иначе при движении по картам будет шторм вызовов.
-const SFX_THROTTLE = { 'Navigation_Cursor': 90 };
+// card_navigation_cursor тротлим жёстко — иначе при движении по картам будет шторм вызовов.
+const SFX_THROTTLE = { 'card_navigation_cursor': 90 };
 const _sfxLastMs   = {};
 
 function _getAudioCtx(){
@@ -151,7 +153,7 @@ function toggleSfx(){
   sfxEnabled = !sfxEnabled;
   localStorage.setItem('hj_sfx', sfxEnabled ? 'on' : 'off');
   _refreshSfxBtn();
-  if(sfxEnabled) playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  if(sfxEnabled) playSfx('yellow_buttom');
 }
 
 // Мгновенный звук через Web Audio API.
@@ -458,7 +460,7 @@ function showConfirm(text, btnText, onConfirm, opts){
 }
 
 function closeConfirmModal(onConfirm){
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
   const modal=document.getElementById('confirmModal');
   const finish=()=>{
     modal.classList.add('hidden');
@@ -490,7 +492,7 @@ function openDeckPicker(flow){
 // явно возвращаем landing в видимое состояние (display:flex, без .exit-center), не полагаясь
 // на то, что он "и так там был" — надёжнее при любом предыдущем состоянии.
 function backFromDeckPicker(){
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
   const modal=document.getElementById('deckPickerModal');
   _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
@@ -566,7 +568,7 @@ function openVsAiPicker(deckConfig){
 // модалками остаётся как есть (пока он скрыт под непрозрачным фоном модалки — не важно, в
 // каком именно .exit-center состоянии), трогать его тут не нужно.
 function backFromVsAiPicker(){
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
   const modal=document.getElementById('vsAiPickerModal');
   _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
@@ -763,6 +765,7 @@ function resetGame(){
 function toggleLog(){
   const p=document.getElementById('logPanel');
   if(p.classList.contains('open')){
+    playSfx('yellow_buttom');
     p.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
     void p.offsetWidth;
     p.classList.add('modal-pop-out-fast');
@@ -770,6 +773,7 @@ function toggleLog(){
       p.classList.remove('open','modal-pop-out-fast');
     }, 125);
   } else {
+    playSfx('screen_monitor');
     p.classList.add('open');
     p.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
     void p.offsetWidth;
@@ -781,7 +785,7 @@ function toggleHamburger(){
   const btn=document.getElementById('hamburgerBtn');
   const menu=document.getElementById('hamburgerMenu');
   const opening = !btn.classList.contains('open');
-  playSfx(opening ? 'open_door' : 'yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx(opening ? 'open_door' : 'yellow_buttom');
   btn.classList.toggle('open');
   menu.classList.toggle('open');
 }
@@ -1069,10 +1073,10 @@ document.addEventListener('mousemove', (e) => {
   }
 });
 
-// ── Hover-звук Navigation_Cursor на кнопках лендинга ─────────────────────────
+// ── Hover-звук card_navigation_cursor на кнопках лендинга ─────────────────────────
 // mouseover + relatedTarget-проверка: срабатывает один раз при входе на кнопку,
 // а не на каждый пиксель движения мыши внутри неё.
-// ── Hover-звук Navigation_Cursor на ВСЕХ кнопках ─────────────────────────────
+// ── Hover-звук card_navigation_cursor на ВСЕХ кнопках ─────────────────────────────
 // mouseover + relatedTarget-проверка: срабатывает один раз при входе на кнопку,
 // а не на каждый пиксель движения мыши внутри неё. Один делегированный обработчик
 // на document покрывает вообще все <button> (лендинг, бургер, модалки, каталог,
@@ -1082,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const btn = e.target.closest('button, .play-gate-sprite');
     if(!btn) return;
     if(btn.contains(e.relatedTarget)) return;
-    playSfx('Navigation_Cursor');
+    playSfx('card_navigation_cursor');
   });
 });
 
