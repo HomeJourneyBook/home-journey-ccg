@@ -3000,13 +3000,13 @@ img{
    заменить на свой арт позже. */
 .db-header{
   flex:0 0 auto;
-  background:#a9b5b2;
+  background:#5a7278;
 }
 .db-header-title{
   font-family:'MEK',monospace;
   font-size:20px;
   letter-spacing:.5px;
-  color:#000000;
+  color:#E8E0C8;
   text-align:center;
   line-height:1;
   flex:1 1 0;
@@ -3053,13 +3053,13 @@ img{
 .db-divider-h{
   flex:0 0 auto;
   height:2px;
-  background:#a9b5b2;
+  background:#5a7278;
 }
 .db-divider-v{
   align-self:stretch;
   width:2px;
   flex:0 0 auto;
-  background:#a9b5b2;
+  background:#5a7278;
 }
 #deckBuilderNextBtn:disabled{opacity:.4;cursor:not-allowed;filter:none!important;}
 
@@ -3190,7 +3190,7 @@ img{
     width:auto;
     align-self:stretch;
     height:2px;
-    background:linear-gradient(to right, transparent, #9B937F99 10%, #9B937F99 90%, transparent);
+    background:#5a7278;
   }
   .db-pane-chosen{order:0;}
   /* 4 колонки оказались слишком узкими — карта настолько сжималась, что внутренние
@@ -3201,20 +3201,39 @@ img{
   .db-grid{grid-template-columns:repeat(3, 1fr);gap:5px;}
   .db-stack{--card-w: min(calc((100cqw - 2 * 5px) / 3), var(--cat-card-w));}
 
-  /* Хедер — третья строка для кнопок-фильтров (были рядом со статистикой на второй строке,
-     тесно на узком экране). flex-wrap переносит .db-filters (flex-basis:100%) на новую
-     строку сам, без изменения HTML/DOM; вертикальный разделитель между "было рядом" тут
-     не нужен — прячем его и добавляем свой горизонтальный над фильтрами (::before). */
-  .db-header-row2{flex-wrap:wrap;row-gap:6px;}
+  /* Хедер на телефоне (2026-07-08, переписано после того, как заголовок переехал внутрь
+     .db-filters-col вместе с фильтрами — старая мобильная раскладка рассчитывала на
+     заголовок отдельной строкой ДО .db-header-row2, теперь его там больше нет).
+     display:contents на .db-filters-col убирает саму обёртку из дерева layout'а, оставляя
+     .db-header-title и .db-filters как есть в DOM — они становятся ПРЯМЫМИ flex-детьми
+     .db-header-row2 и могут независимо друг от друга получить flex-basis:100%/order,
+     тот же трюк "order решает визуальный порядок, не трогая HTML", что и раньше.
+     Итог — 3 строки: заголовок / статистика+диаграмма / кнопки-фильтры, каждая на всю
+     ширину хедера. */
+  .db-header-row2{flex-wrap:wrap;row-gap:8px;}
+  .db-filters-col{display:contents;}
+  .db-header-title{order:-3;flex:1 1 100%;font-size:16px;}
   .db-header-left{
+    order:-2;
     flex:1 1 100%;
     padding-right:0;
+    position:relative;
+    padding-top:8px;
     /* space-evenly (уже было) — статистика и диаграмма равномерно, с одинаковыми
        отступами от краёв и друг от друга. */
   }
-  .db-header-row2 > .db-divider-v{display:none;}
+  .db-header-left::before{
+    content:'';
+    position:absolute;
+    top:0; left:6px; right:6px;
+    height:2px;
+    background:#212e37;
+  }
+  .db-header-row2 > .db-divider-v{display:none;} /* вертикальный разделитель между left/filters-col тут не нужен */
   .db-filters{
+    order:0;
     flex:1 1 100%;
+    flex-wrap:nowrap; /* все 6 кнопок в один ряд, сжимаются по ширине (flex:1 1 0 + min-width:0 у .db-filter-btn) */
     position:relative;
     padding-top:8px;
   }
@@ -3223,7 +3242,7 @@ img{
     position:absolute;
     top:0; left:6px; right:6px;
     height:2px;
-    background:linear-gradient(to right, transparent, #9B937F99 15%, #9B937F99 85%, transparent);
+    background:#212e37;
   }
 }
 
@@ -3247,7 +3266,12 @@ img{
    Позиционирование/фон самого .db-footer-info — см. выше, рядом с #deckBuilderModal .modal
    (там же объяснение, почему футер вынесен из .modal-body — чтобы не скроллился вместе с
    картами). Тут — только внутренняя раскладка: статистика и кривая маны бок о бок. */
-.db-stats{flex:0 0 auto;font-size:11px;color:#000000;line-height:1.6;}
+.db-stats{
+  flex:0 0 auto;font-size:11px;color:#E8E0C8;line-height:1.6;
+  background:#0d0d1a; /* плейсхолдер под будущий фон-арт статистики — см. Art backlog в CLAUDE.md */
+  padding:4px 8px;
+  border-radius:2px;
+}
 .db-stat-line.db-count-ok{color:#5BDF7A;}
 /* Кривая маны — квадратная, высота = высоте футера (т.е. блока статистики рядом), а НЕ
    растянута на всю ширину футера (было flex:1 1 auto — раздувало её на всю оставшуюся
@@ -3260,6 +3284,10 @@ img{
   display:flex;
   align-items:flex-end;
   gap:3px;
+  background:#0d0d1a; /* плейсхолдер под будущий фон-арт диаграммы — см. Art backlog в CLAUDE.md */
+  padding:4px;
+  box-sizing:border-box;
+  border-radius:2px;
 }
 .db-curve-bar-wrap{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
 .db-curve-bar{
@@ -3268,12 +3296,13 @@ img{
   border-top:2px solid #c8a84b;
   transition:height .15s;
 }
-/* Цвет по фракции — зелёный у Tea, фиолетовый у Jeet (те же акцентные оттенки, что и
-   остальная фракционная палитра игры — #5BDF7A/#b44fd4). */
-.db-curve.tea-curve .db-curve-bar{background:#5BDF7A99;border-top-color:#5BDF7A;}
-.db-curve.jeet-curve .db-curve-bar{background:#b44fd499;border-top-color:#b44fd4;}
-.db-curve-n{font-size:9px;color:#000000;height:11px;}
-.db-curve-label{font-size:9px;color:#000000;}
+/* Цвет столбиков — временно ОДИН на обе фракции (кремовый, --color-cream), а не
+   зелёный/фиолетовый по фракции, как было — по прямому запросу автора 2026-07-08,
+   фракционную кастомизацию диаграммы будет делать отдельным заходом позже. */
+.db-curve.tea-curve .db-curve-bar{background:#E8E0C899;border-top-color:#E8E0C8;}
+.db-curve.jeet-curve .db-curve-bar{background:#E8E0C899;border-top-color:#E8E0C8;}
+.db-curve-n{font-size:9px;color:#E8E0C8;height:11px;}
+.db-curve-label{font-size:9px;color:#E8E0C8;}
 
 .modal-icon-btn.btn-clear.placeholder::after{content:'🗑';}
 
