@@ -180,42 +180,51 @@ function _showDbZoom(originEl){
   clone.className='card cat-card db-card db-zoom-card '+
     (originEl.classList.contains('tea-card')?'tea-card':'jeet-card')+
     (originEl.classList.contains('world-card')?' world-card':'');
-  // ВАЖНО: --card-w/--card-h и производные от них (--card-pad/--card-art-size/--card-name-h
-  // и т.д.) считаются формулами через cqw от ширины .db-grid (см. .db-stack в styles.css) —
-  // вне сетки, приклеенный к body, клон эту ширину не видит, формулы ломаются в мусор (баг
-  // со скриншота автора — гигантский нечитаемый блок вместо карты). Фикс: копируем уже
-  // ПОСЧИТАННЫЕ (в px) значения с оригинала как обычные инлайновые значения — дальше клону
-  // formula не нужна, только сами числа.
-  const cs=getComputedStyle(originEl);
-  ['--card-w','--card-h','--card-art-size','--card-pad','--card-name-h','--card-stats-h','--card-text-h','--card-world-name-h','--card-world-text-h'].forEach(v=>{
-    clone.style.setProperty(v, cs.getPropertyValue(v));
-  });
+  // ВАЖНО (настоящая причина прошлого бага — "гигантский зелёный блок" на скриншоте
+  // автора): --card-w/--card-h и производные (--card-pad/--card-art-size/--card-name-h
+  // и т.д.) заданы в styles.css как calc()-формулы на .db-stack (cqw от ширины сетки).
+  // Раньше тут пытались скопировать их через getComputedStyle(...).getPropertyValue(...) —
+  // но НЕзарегистрированные (без @property) custom-свойства возвращают через
+  // getComputedStyle СЫРОЙ ТЕКСТ формулы (что-то вроде "calc(var(--card-w) / 0.716)"),
+  // А НЕ готовое число в px! У клона, вне .db-grid (нет cqw-контейнера) и без класса
+  // .db-stack (сама формула объявлена только на нём), эти скопированные строки-формулы
+  // резолвятся в мусор. Фикс: НЕ трогаем CSS-переменные вообще — меряем РЕАЛЬНЫЙ
+  // отрендеренный размer оригинала (getBoundingClientRect — гарантированно готовые px)
+  // и сами руками считаем все производные по тем же коэффициентам, что в styles.css.
+  const w=originRect.width, h=originRect.height;
+  const sizeVars={
+    '--card-w': w,
+    '--card-h': h,
+    '--card-art-size': h*0.535,
+    '--card-pad': h*0.021,
+    '--card-name-h': h*0.096,
+    '--card-stats-h': h*0.085,
+    '--card-text-h': h*0.24,
+    '--card-world-name-h': h*0.096,
+    '--card-world-text-h': h*0.16,
+  };
+  Object.keys(sizeVars).forEach(k=>clone.style.setProperty(k, sizeVars[k]+'px'));
   clone.style.position='fixed';
   clone.style.margin='0';
   clone.style.zIndex='6000';
   clone.style.pointerEvents='none';
   clone.style.filter='none';
-  clone.style.width='var(--card-w)';
-  clone.style.height='var(--card-h)';
+  clone.style.width=w+'px';
+  clone.style.height=h+'px';
   document.body.appendChild(clone);
   // Точечно включаем hover-подсказки на самом зуме (tooltip-система в ui.js слушает
   // документ целиком через mousemove — сработает и тут без доп. кода).
   clone.querySelectorAll('.card-tag-icon, .card-cost, .card-type-dot, .card-hp-box, .card-atk-box').forEach(icon=>{ icon.style.pointerEvents='auto'; });
 
-  // Та же техника, что и showFieldCardPreview в render.js: НЕ анимируем width/height
-  // напрямую (это ломает внутренние пропорции, см. коммент выше) — вместо этого клон сразу
-  // рисуется в его нормальном ("некапнутом") размере, а визуально стартует у позиции
-  // оригинала через обратный scale-transform, потом transition доводит его до центра экрана
-  // в увеличенном виде. Масштаб, текст, арт — всё растягивается как единое целое, без
-  // пересчёта внутренней раскладки.
-  const naturalRect=clone.getBoundingClientRect();
-  const scaleX=originRect.width/naturalRect.width;
-  const scaleY=originRect.height/naturalRect.height;
+  // Та же техника, что и showFieldCardPreview в render.js: клон рисуется в ТОЧНОЙ копии
+  // исходного размера (см. выше — сразу без искажений), затем растёт через transform:scale
+  // (а не через width/height) — так внутренняя раскладка растягивается как единое целое,
+  // без пересчёта.
   const cx=originRect.left+originRect.width/2;
   const cy=originRect.top+originRect.height/2;
   clone.style.left=cx+'px';
   clone.style.top=cy+'px';
-  clone.style.transform=`translate(-50%,-50%) scale(${scaleX},${scaleY})`;
+  clone.style.transform='translate(-50%,-50%) scale(1)';
   clone.style.transition='none';
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
 
@@ -226,7 +235,7 @@ function _showDbZoom(originEl){
   const instance={clone,backdrop};
   _dbZoomEl=instance;
 
-  const finalScale=Math.min(2.2, (window.innerWidth*0.42)/naturalRect.width, (window.innerHeight*0.8)/naturalRect.height);
+  const finalScale=Math.min(2.2, (window.innerWidth*0.42)/w, (window.innerHeight*0.8)/h);
   requestAnimationFrame(()=>{
     if(_dbZoomEl!==instance) return;
     clone.style.transition='left .2s cubic-bezier(.22,.9,.32,1), top .2s cubic-bezier(.22,.9,.32,1), transform .2s cubic-bezier(.22,.9,.32,1)';
