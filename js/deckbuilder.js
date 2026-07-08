@@ -47,8 +47,8 @@ function backFromDeckBuilder(){
 
 function _openDeckBuilderStep(){
   const faction=_dbFaction();
-  document.getElementById('deckBuilderTitle').textContent =
-    (faction==='tea' ? 'TAVERN' : 'JEET') + ' — BUILD YOUR DECK';
+  document.getElementById('deckBuilderTitle').textContent = 'CHOOSE YOUR DECK';
+  _dbFilter='all';
   _renderDeckBuilder(faction);
   const modal=document.getElementById('deckBuilderModal');
   modal.classList.remove('hidden');
@@ -66,7 +66,20 @@ const DB_TAG_ICONS = {
   'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
 };
 
-function _dbCardEl(faction,key,def,selected){
+// Категории для кнопок-фильтров над правой (пул) областью — переиспользует ту же
+// классификацию, что и .card-type-dot (getTypeDotLabel в render.js), просто сводит
+// Unique к Traveler (легендарки — всё ещё существа с hp/atk, отдельная кнопка под
+// них не нужна, тем более пока их нет в Rush-пуле).
+const DB_FILTERS = [
+  {id:'all',      label:'All',       test:()=>true},
+  {id:'traveler', label:'Travelers', test:def=>!def.world&&!def.artifact&&!def.spell},
+  {id:'spell',    label:'Spells',    test:def=>!!def.spell},
+  {id:'world',    label:'Worlds',    test:def=>!!def.world},
+  {id:'artifact', label:'Artifacts', test:def=>!!def.artifact},
+];
+let _dbFilter='all'; // сбрасывается на 'all' при каждом новом шаге (см. _openDeckBuilderStep)
+
+function _dbCardEl(faction,key,def){
   const isSW=def.spell||def.world||def.artifact;
   const tagIcons=(def.tags||[])
     .map(t=>t.split(':')[0])
@@ -75,12 +88,12 @@ function _dbCardEl(faction,key,def,selected){
     .join('');
 
   const div=document.createElement('div');
-  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${selected?'db-selected':''} ${def.world?'world-card':''}`;
+  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${def.world?'world-card':''}`;
   if(def.world && def.img) div.style.cssText += `;background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;`;
 
-  // Никаких надписей поверх карты (TAP TO ADD / IN DECK / +− степпер) — по просьбе автора
-  // выбранность показывает только рамка (.db-selected, см. styles.css), как настоящая
-  // физическая карта: она либо лежит в колоде, либо нет, без текстовых лейблов на самой карте.
+  // Никаких надписей/рамок поверх карты — сам факт того, в какой из двух колонок
+  // (пул/выбрано) она сейчас лежит, и есть индикация. Клик просто перебрасывает карту
+  // в другую колонку (см. _renderDeckBuilder ниже).
   div.innerHTML = def.world ? `
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
@@ -106,31 +119,80 @@ function _dbCardEl(faction,key,def,selected){
   return div;
 }
 
+// Стопка = одна физическая карта (count===1) или несколько одинаковых копий друг на
+// друге с небольшим сдвигом (count>1, только у заклинаний — см. getRushPool в deck.js).
+// count — сколько копий этого key лежит ИМЕННО в этой колонке сейчас (remaining в пуле
+// или qty в выбранных, см. _renderDeckBuilder). Клик по стопке снимает/добавляет ОДНУ
+// копию — caller передаёт onClick.
+function _dbStackEl(faction,key,def,count,onClick){
+  const wrap=document.createElement('div');
+  wrap.className='db-stack';
+  // Не рисуем больше 2 "теневых" слоёв под верхней картой, даже если копий больше —
+  // визуально это уже читается как "стопка", дальше только загромождает.
+  const shadowLayers=Math.min(count-1,2);
+  for(let s=shadowLayers;s>=1;s--){
+    const layer=document.createElement('div');
+    layer.className=`db-stack-layer ${def.f==='tea'?'tea-card':'jeet-card'}`;
+    layer.style.setProperty('--layer-i', s);
+    wrap.appendChild(layer);
+  }
+  const card=_dbCardEl(faction,key,def);
+  card.classList.add('db-stack-top');
+  card.onclick=onClick;
+  wrap.appendChild(card);
+  if(count>1){
+    const badge=document.createElement('div');
+    badge.className='db-stack-count';
+    badge.textContent='×'+count;
+    wrap.appendChild(badge);
+  }
+  return wrap;
+}
+
+function dbSetFilter(filterId){
+  _dbFilter=filterId;
+  _renderDeckBuilder(_dbFaction());
+}
+
+function _renderDbFilters(){
+  const bar=document.getElementById('deckBuilderFilters');
+  if(!bar) return;
+  bar.innerHTML=DB_FILTERS.map(f=>
+    `<button class="db-filter-btn ${f.id===_dbFilter?'active':''}" onclick="dbSetFilter('${f.id}')">${f.label}</button>`
+  ).join('');
+}
+
 function _renderDeckBuilder(faction){
   const pool=getRushPool(faction).slice().sort((a,b)=>{
     const da=DEFS[a.key], db=DEFS[b.key];
     return (da.cost-db.cost) || da.name.localeCompare(db.name);
   });
-  const grid=document.getElementById('deckBuilderGrid');
-  grid.innerHTML='';
+
+  _renderDbFilters();
+
+  const poolGrid=document.getElementById('deckBuilderPoolGrid');
+  const chosenGrid=document.getElementById('deckBuilderChosenGrid');
+  poolGrid.innerHTML='';
+  chosenGrid.innerHTML='';
+
+  const activeFilter=DB_FILTERS.find(f=>f.id===_dbFilter)||DB_FILTERS[0];
+
   pool.forEach(({key,max})=>{
     const def=DEFS[key];
     const qty=_db.picks[faction][key]||0;
-    // max>1 бывает только у заклинаний (см. getRushPool в deck.js) — вместо одной карты
-    // со степпером "x/3" рисуем ВСЕ max копий как отдельные физические карты (на будущее,
-    // когда карты станут NFT — игрок реально владеет N отдельными копиями, а не "стаком").
-    // Первые qty копий по порядку — выбранные (рамка); клик по выбранной копии убирает её
-    // и всё, что после неё (qty становится = её индексу); клик по невыбранной — добирает
-    // копии вплоть до неё (qty = её индекс + 1). Копии визуально неотличимы, так что какую
-    // именно из qty выбранных "снять" — не важно, ведёт себя как заполняемая шкала.
-    for(let i=0;i<max;i++){
-      const selected=i<qty;
-      const el=_dbCardEl(faction,key,def,selected);
-      el.onclick=()=>dbSetQty(faction,key,selected?i:i+1);
-      grid.appendChild(el);
+    const remaining=max-qty;
+    // Пул (справа) — фильтруется кнопками сверху; выбранные (слева) — всегда все, без фильтра,
+    // это же "твоя колода", её не прячем.
+    if(remaining>0 && activeFilter.test(def)){
+      poolGrid.appendChild(_dbStackEl(faction,key,def,remaining,()=>dbSetQty(faction,key,qty+1)));
+    }
+    if(qty>0){
+      chosenGrid.appendChild(_dbStackEl(faction,key,def,qty,()=>dbSetQty(faction,key,qty-1)));
     }
   });
+
   _updateDeckBuilderCount();
+  _renderDbCurve(faction);
 }
 
 function dbSetQty(faction,key,newQty){
@@ -143,16 +205,64 @@ function dbSetQty(faction,key,newQty){
   _renderDeckBuilder(faction);
 }
 
+// Кнопка "Очистить" в футере — полностью сбрасывает выбор ТЕКУЩЕГО шага (Tea или Jeet,
+// смотря чей сейчас черёд собирать колоду), возвращает все карты обратно в пул.
+function dbClearPicks(){
+  const faction=_dbFaction();
+  if(_dbTotal(faction)===0) return;
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  _db.picks[faction]={};
+  _renderDeckBuilder(faction);
+}
+
 function _dbTotal(faction){
   return Object.values(_db.picks[faction]).reduce((a,b)=>a+b,0);
+}
+
+// Кривая маны — просто столбики CSS высотой пропорционально количеству ВЫБРАННЫХ карт
+// на каждую стоимость (0..6, 6 = "6 и больше"), без канваса/библиотек. Кастомный арт —
+// отдельным заходом позже (автор ещё не решил, как хочет это визуально).
+function _renderDbCurve(faction){
+  const el=document.getElementById('deckBuilderCurve');
+  if(!el) return;
+  const buckets=new Array(7).fill(0); // индекс 6 = "6+"
+  Object.keys(_db.picks[faction]).forEach(key=>{
+    const qty=_db.picks[faction][key];
+    if(!qty) return;
+    const cost=Math.min(DEFS[key].cost, 6);
+    buckets[cost]+=qty;
+  });
+  const max=Math.max(1,...buckets);
+  el.innerHTML=buckets.map((n,i)=>`
+    <div class="db-curve-bar-wrap" title="${i===6?'6+':i} cost: ${n}">
+      <div class="db-curve-bar" style="height:${n?Math.round(n/max*100):0}%"></div>
+      <div class="db-curve-n">${n||''}</div>
+      <div class="db-curve-label">${i===6?'6+':i}</div>
+    </div>`).join('');
 }
 
 function _updateDeckBuilderCount(){
   const faction=_dbFaction();
   const total=_dbTotal(faction);
-  const el=document.getElementById('deckBuilderCount');
-  el.textContent=`Selected: ${total}  (minimum ${RUSH_MIN})`;
-  el.classList.toggle('db-count-ok', total>=RUSH_MIN);
+  const picks=_db.picks[faction];
+  const counts={traveler:0,spell:0,world:0,artifact:0};
+  Object.keys(picks).forEach(key=>{
+    const qty=picks[key]; if(!qty) return;
+    const def=DEFS[key];
+    if(def.world) counts.world+=qty;
+    else if(def.artifact) counts.artifact+=qty;
+    else if(def.spell) counts.spell+=qty;
+    else counts.traveler+=qty;
+  });
+  const el=document.getElementById('deckBuilderStats');
+  if(el){
+    el.innerHTML=
+      `<div class="db-stat-line ${total>=RUSH_MIN?'db-count-ok':''}">Selected: ${total} (min ${RUSH_MIN})</div>`+
+      `<div class="db-stat-line">Travelers: ${counts.traveler}</div>`+
+      `<div class="db-stat-line">Spells: ${counts.spell}</div>`+
+      `<div class="db-stat-line">Worlds: ${counts.world}</div>`+
+      `<div class="db-stat-line">Artifacts: ${counts.artifact}</div>`;
+  }
   const btn=document.getElementById('deckBuilderNextBtn');
   btn.disabled = total<RUSH_MIN;
   const isLastStep = _db.stepIndex >= _db.buildOrder.length-1;
