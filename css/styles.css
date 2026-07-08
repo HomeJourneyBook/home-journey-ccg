@@ -49,6 +49,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
+html{overflow-x:hidden;width:100%;}
 body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100vh;overflow-x:hidden;touch-action:pan-y;}
 .stars{
   position:fixed;
@@ -1132,22 +1133,20 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');filter:brightness(1);}
 .modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');filter:brightness(1);transform:none;}
 
-/* ── Кнопка "назад" — deckPickerModal/vsAiPickerModal/deckBuilderModal (НЕ mulliganScreen,
-   там автор явно попросил её не делать). Живёт СНАРУЖИ .modal — сиблинг внутри .modal-stack,
-   не потомок .modal (иначе её обрезает overflow:hidden/auto у .modal — та же история, что и
-   у .modal-footer-plate, см. комментарий там). .modal-stack — единственный in-flow ребёнок
-   которого это .modal, поэтому его собственный box ТОЧНО совпадает с внешней (border-box)
-   границей .modal — bottom:0;left:0 у absolute-потомка .modal-stack попадает РОВНО в
-   нижний левый угол рамки, встык с ней (по просьбе автора — сначала была в верхнем левом,
-   потом в нижнем правом, теперь тут). Размер — РОВНО толщина рамки (--modal-border-w,
-   было вдвое меньше — увеличено по просьбе автора, теперь полностью заполняет угловой
-   квадрат рамки). .modal-icon-btn уже умеет placeholder-фолбэк — тот же конвеньш, что у
-   Classic/Rush/Import/Export/OK кнопок: сейчас в HTML у кнопки классы "btn-back placeholder",
-   когда автор положит реальные img/btn_back1/H/2.png, достаточно убрать "placeholder" из
-   HTML — CSS ничего дораскомментировать не нужно.
-   ВАЖНО: в deckBuilderModal этой кнопки-уголка больше НЕТ — там "назад" переехала в общий
-   ряд кнопок футера (см. index.html/.btn-back.footer-style ниже), первой по счёту, того же
-   размера, что и остальные (.modal-icon-btn.sq). */
+/* ── Кнопка "назад" В УГЛУ МОДАЛКИ — deckPickerModal/vsAiPickerModal (НЕ mulliganScreen,
+   там автор явно попросил её не делать; и НЕ deckBuilderModal — там "назад" переехала в
+   общий ряд кнопок футера, обычная .btn-back того же размера, что остальные .sq — см. ниже).
+   Живёт СНАРУЖИ .modal — сиблинг внутри .modal-stack, не потомок .modal (иначе её обрезает
+   overflow:hidden/auto у .modal — та же история, что и у .modal-footer-plate, см. комментарий
+   там). .modal-stack — единственный in-flow ребёнок которого это .modal, поэтому его
+   собственный box ТОЧНО совпадает с внешней (border-box) границей .modal — bottom:0;left:0
+   у absolute-потомка .modal-stack попадает РОВНО в нижний левый угол рамки, встык с ней (по
+   просьбе автора — сначала была в верхнем левом, потом в нижнем правом, теперь тут). Размер —
+   РОВНО толщина рамки (--modal-border-w, было вдвое меньше — увеличено по просьбе автора,
+   теперь полностью заполняет угловой квадрат рамки).
+   Свой набор арта (btn_back_corner1/H/2.png) — ОТДЕЛЬНЫЙ от футерной .btn-back
+   (btn_back1/H/2.png), т.к. это разные по размеру/месту кнопки, автору может понадобиться
+   разный дизайн. Реальный арт уже есть — плейсхолдер-класс тут больше не нужен. */
 .modal-icon-btn.corner-back{
   position:absolute;
   bottom:0;
@@ -1156,6 +1155,14 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   height:var(--modal-border-w);
   z-index:6; /* выше .modal-decor(5), поверх рамки — как у footer-plate */
 }
+.modal-icon-btn.btn-back-corner{background-image:url('../img/btn_back_corner1.png');}
+.modal-icon-btn.btn-back-corner:hover{background-image:url('../img/btn_back_cornerH.png');filter:brightness(1);}
+.modal-icon-btn.btn-back-corner:active{background-image:url('../img/btn_back_corner2.png');filter:brightness(1);transform:none;}
+
+/* ── Кнопка "назад" В ФУТЕРЕ (deckBuilderModal — первая в общем ряду кнопок, того же
+   размера, что Clear/Import/Export/OK, .sq). Арта пока нет — плейсхолдер конвеньш, как у
+   Classic/Rush/Import/Export/OK: сейчас в HTML классы "btn-back placeholder", когда автор
+   положит реальные img/btn_back1/H/2.png, достаточно убрать "placeholder" из HTML. */
 .modal-icon-btn.btn-back.placeholder::after{content:'⬅';font-size:60%;}
 .modal-icon-btn.btn-back{background-image:url('../img/btn_back1.png');}
 .modal-icon-btn.btn-back:hover{background-image:url('../img/btn_backH.png');filter:brightness(1);}
@@ -1321,7 +1328,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .hidden{display:none!important;}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:#000000;z-index:650;display:flex;align-items:center;justify-content:center;}
+.modal-overlay{position:fixed;inset:0;background:#000000;z-index:650;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 /* Mulligan screen can end up taller than the viewport (5 cards + info text + buttons
    on a short phone screen). .modal-overlay centers with flex and has no scroll, so
    anything taller than the screen was simply unreachable. `align-items:safe center`
@@ -1580,6 +1587,10 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .modal-crt-screen h2,.modal-crt-screen p{position:relative;z-index:3;color:#4bbf72;}
 .modal-crt-screen p{color:#2f7a4a;}
+/* Карты муллигана должны быть ЧЁТКО видны, без полос скана поверх (репорт автора — на
+   картах это смотрится плохо, в отличие от текста, где полосы — часть задуманной
+   стилизации). Поднимаем контейнер карт НАД слоями ::after/::before (z-index:1/2 выше). */
+#mulliganCards{position:relative;z-index:3;}
 /* Убираем паддинг у самого .modal-body там, где есть CRT-экран — иначе он не дотягивается
    до рамки модалки и остаётся видимый зазор (тёмный фон .modal-body по краям, см. репорт
    автора). .modal-crt-screen сам держит свой внутренний отступ (padding:14px выше). */
