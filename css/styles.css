@@ -1133,22 +1133,26 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');filter:brightness(1);transform:none;}
 
 /* ── Кнопка "назад" — deckPickerModal/vsAiPickerModal/deckBuilderModal (НЕ mulliganScreen,
-   там автор явно попросил её не делать). По ТЗ: квадратная, в левом верхнем углу МОДАЛЬНОЙ
-   РАМКИ (.modal — у него уже есть свой position:relative, см. выше, он и есть якорь), сторона
-   = половина ширины .modal. .modal-icon-btn уже умеет placeholder-фолбэк (см. общее правило
-   выше) — тот же конвеншн: сейчас в HTML у кнопки классы "btn-back placeholder", когда автор
-   положит реальные img/btn_back1/H/2.png, достаточно просто убрать "placeholder" из HTML —
-   отдельно комментировать/раскомментировать CSS не нужно, background-image ниже уже готов
-   и ждёт файл (ровно так же уже сделано для btn-classic/btn-rush чуть выше). */
+   там автор явно попросил её не делать). Сидит ПРЯМО НА РАМКЕ модалки, в её углу — как
+   .modal-decor-tl/etc выше (тот же приём: top/left:0 у absolute-потомка position:relative
+   родителя — это ВНУТРЕННИЙ край рамки/padding-box, а не внешний; чтобы попасть НА рамку,
+   а не в зону контента под ней, нужен отрицательный сдвиг на её толщину — см. подробный
+   комментарий у .modal-decor выше, там же объяснено, почему в прошлый раз это не сработало
+   для другого плейсхолдера). Кнопка вдвое МЕНЬШЕ толщины рамки (--modal-border-w/2) и
+   отцентрована в её углу (top/left = -0.75 × border-w — центр угловой border-w×border-w
+   области минус половина размера самой кнопки). .modal-icon-btn уже умеет placeholder-
+   фолбэк — тот же конвеньш, что у Classic/Rush/Import/Export/OK кнопок: сейчас в HTML у
+   кнопки классы "btn-back placeholder", когда автор положит реальные img/btn_back1/H/2.png,
+   достаточно убрать "placeholder" из HTML — CSS ничего дораскомментировать не нужно. */
 .modal-icon-btn.corner-back{
   position:absolute;
-  top:0;
-  left:0;
-  width:50%;
-  aspect-ratio:1/1;
-  z-index:5;
+  top:calc(-0.75 * var(--modal-border-w));
+  left:calc(-0.75 * var(--modal-border-w));
+  width:calc(var(--modal-border-w) * 0.5);
+  height:calc(var(--modal-border-w) * 0.5);
+  z-index:6; /* выше .modal-decor(5), поверх рамки — как у footer-plate */
 }
-.modal-icon-btn.btn-back.placeholder::after{content:'⬅';font-size:clamp(24px,8vw,48px);}
+.modal-icon-btn.btn-back.placeholder::after{content:'⬅';font-size:60%;}
 .modal-icon-btn.btn-back{background-image:url('../img/btn_back1.png');}
 .modal-icon-btn.btn-back:hover{background-image:url('../img/btn_backH.png');filter:brightness(1);}
 .modal-icon-btn.btn-back:active{background-image:url('../img/btn_back2.png');filter:brightness(1);transform:none;}
@@ -2800,6 +2804,15 @@ img{
    the whole ~37-card pool is browsable inside the modal without leaving the
    deck-picker/faction-picker flow.
    ═══════════════════════════════════════════════════════════════════ */
+/* Рамка тоньше стандартной (вдвое) и с другой резкой угла (54 вместо 108) — под контент
+   дек-билдера, чтобы широкие стандартные борта не съедали место у 5-колоночной сетки карт.
+   Специфично для этой модалки (--modal-border-w переопределяется только тут, через cascade
+   вниз по дереву — все потомки .modal, включая .modal-decor-* и саму кнопку "назад" выше,
+   корректно подхватят новое значение). Автор позже заменит арт рамки под новые пропорции. */
+#deckBuilderModal .modal{
+  --modal-border-w: 27px;
+  border-image-slice: 54 fill;
+}
 #deckBuilderModal .modal-body{max-width:min(900px,90vw);}
 #deckBuilderCount{font-size:14px;letter-spacing:.5px;}
 #deckBuilderCount.db-count-ok{color:#5BDF7A;}
@@ -2807,19 +2820,21 @@ img{
 
 .db-grid{
   display:grid;
-  grid-template-columns:repeat(6, 1fr);
-  gap:8px;
+  grid-template-columns:repeat(5, 1fr);
+  gap:10px;
   container-type:inline-size;
-  max-height:60vh;
-  overflow-y:auto;
-  /* Горизонтальный паддинг увеличен с 2px до 6px: у .db-selected outline
-     (2px) + outline-offset (2px) вместе выступают на ~4px за пределы карты —
-     при 2px паддинга это выступание обрезалось родительским .modal
-     (overflow:hidden) у крайних левого/правого столбцов сетки. */
+  /* Раньше тут был свой max-height:60vh + overflow-y:auto — вложенный скролл ВНУТРИ
+     .modal, у которого и так уже есть overflow-y:auto max-height:92vh (см. index.html).
+     Двойной скроллбар был лишним — теперь скроллится только сама модалка целиком. */
   padding:4px 6px;
 }
 .db-card{
-  --card-w: calc((100cqw - 5 * 8px) / 6);
+  /* 5 колонок на десктопе/планшете, 2 на телефоне (медиа-запрос ниже) — ширина карты
+     считается от реальной ширины .db-grid (container query units), но не может
+     превысить --cat-card-w — тот же максимальный размер карты, что сейчас в Каталоге
+     (см. секцию CATALOG выше), чтобы карты не раздувались до гигантских на широких
+     экранах просто потому что колонок всего 5. */
+  --card-w: min(calc((100cqw - 4 * 10px) / 5), var(--cat-card-w));
   --card-h: calc(var(--card-w) / 0.716);
   --card-art-size: calc(var(--card-h) * 0.535);
   --card-pad: calc(var(--card-h) * 0.021);
@@ -2831,6 +2846,7 @@ img{
   width:var(--card-w)!important;
   height:var(--card-h)!important;
   padding:var(--card-pad)!important;
+  margin:0 auto;
   position:relative;
   outline:2px solid transparent;
   outline-offset:2px;
@@ -2841,48 +2857,10 @@ img{
 .db-card.db-selected{outline-color:#c8a84b;filter:none;}
 .db-card.jeet-card.db-selected{outline-color:#b44fd4;}
 
-@media(max-width:900px){
-  .db-grid{grid-template-columns:repeat(4, 1fr);}
-  .db-card{
-    --card-w: calc((100cqw - 3 * 8px) / 4);
-    --card-h: calc(var(--card-w) / 0.716);
-  }
-}
 @media(max-width:600px){
-  .db-grid{grid-template-columns:repeat(3, 1fr);}
-  .db-card{
-    --card-w: calc((100cqw - 2 * 8px) / 3);
-    --card-h: calc(var(--card-w) / 0.716);
-  }
+  .db-grid{grid-template-columns:repeat(2, 1fr);row-gap:16px;}
+  .db-card{--card-w: min(calc((100cqw - 1 * 10px) / 2), var(--cat-card-w));}
 }
-
-/* Quantity control pinned under the card's ability text. Single-copy cards
-   (max=1, i.e. everything except spells) get a plain "tap to add" label —
-   the whole card is clickable in that case (see dbSetQty() call in
-   deckbuilder.js); spell cards (max>1) get real −/+ stepper buttons instead,
-   since clicking the card itself would be ambiguous with only two states. */
-.db-stepper{
-  position:absolute;
-  left:6%;right:6%;bottom:3%;
-  height:14%;
-  display:flex;align-items:center;justify-content:center;gap:4px;
-  background:#00000099;
-  border:1px solid #ffffff33;
-  font-family:'MEK',monospace;
-  font-size:calc(var(--card-h) * 0.06);
-  color:#9B937F;
-  letter-spacing:.5px;
-}
-.db-card.db-selected .db-stepper{color:#c8a84b;border-color:#c8a84b88;}
-.db-card.jeet-card.db-selected .db-stepper{color:#b44fd4;border-color:#b44fd488;}
-.db-stepper-single{cursor:pointer;}
-.db-step-btn{
-  background:transparent;border:1px solid #ffffff55;color:inherit;
-  width:1.6em;height:1.6em;line-height:1;font-size:1em;cursor:pointer;
-  font-family:'MEK',monospace;
-}
-.db-step-btn:hover{border-color:#c8a84b;color:#c8a84b;}
-.db-qty{min-width:2.4em;text-align:center;}
 
 /* ── "z Z Z" на спящих картах ────────────────────────────────────────────────
    Вставляется в mkSmallEl (render.js) только когда card.sleeping. Три буквы
