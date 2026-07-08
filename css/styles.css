@@ -1366,17 +1366,17 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 /* Слабое мерцание всего экрана лога — почти незаметное, создаёт эффект "живого" монитора */
 @keyframes crtFlicker{
   0%,100%{ opacity:1; filter:brightness(1); }
-  6%     { opacity:0.82; filter:brightness(0.85); }
-  6.5%   { opacity:1;    filter:brightness(1.08); }
-  7%     { opacity:0.92; filter:brightness(0.95); }
+  6%     { opacity:0.88; filter:brightness(0.90); }
+  6.5%   { opacity:1;    filter:brightness(1.05); }
+  7%     { opacity:0.95; filter:brightness(0.97); }
   7.5%   { opacity:1;    filter:brightness(1); }
   38%    { opacity:1;    filter:brightness(1); }
-  39%    { opacity:0.86; filter:brightness(0.88); }
+  39%    { opacity:0.91; filter:brightness(0.92); }
   40%    { opacity:1;    filter:brightness(1); }
   68%    { opacity:1;    filter:brightness(1); }
-  69%    { opacity:0.9;  filter:brightness(0.9); }
-  70%    { opacity:1;    filter:brightness(1.05); }
-  70.5%  { opacity:0.94; filter:brightness(0.97); }
+  69%    { opacity:0.93; filter:brightness(0.93); }
+  70%    { opacity:1;    filter:brightness(1.03); }
+  70.5%  { opacity:0.96; filter:brightness(0.98); }
   71%    { opacity:1;    filter:brightness(1); }
 }
 .le{color:#555;}.le.imp{color:#c8a84b;}.le.dmg{color:#e05555;}.le.hl{color:#5BDF7A;}.le.die{color:#ff6666;}.le.trn{color:#BFCBFF;border-top:1px solid #ffffff11;padding-top:3px;margin-top:3px;}
@@ -1594,6 +1594,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 }
 .modal h2{font-family:'MEK',monospace;font-size:var(--modal-h2-fs);color:#D9d89e;margin-bottom:5px;}
 .modal p{font-size:clamp(13px,3.2vw,16px);color:#a2bf5e;margin-bottom:18px;line-height:1.6;}
+.modal p.deck-picker-line{margin-bottom:6px;}
+.deck-picker-line strong{color:#c8a84b;}
 /* Без этого последний элемент внутри CRT-экрана (обычно <p>, иногда просто <h2>) оставлял
    свой margin-bottom "висеть" ниже текста без всякой причины (там нет следующего соседа) —
    justify-content:center у .modal-crt-screen центрирует блок ВКЛЮЧАЯ этот хвостовой отступ,
@@ -3085,23 +3087,49 @@ img{
   flex:1 1 0;
   min-width:0;
   aspect-ratio:2/1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:'MEK',monospace;
-  font-size:11px;
-  padding:0 4px;
-  border:1px solid #9B937F;
-  background:transparent;
-  color:#666;
+  border:none;
+  background-color:transparent;
+  background-size:100% 100%;
+  background-repeat:no-repeat;
+  background-position:center;
+  font-size:0;
+  line-height:0;
+  padding:0;
   cursor:pointer;
-  transition:all .15s;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  transition:filter .1s;
 }
-.db-filter-btn:hover{color:#c8a84b;border-color:#c8a84b;}
-.db-filter-btn.active{color:#c8a84b;border-color:#c8a84b;background:#c8a84b11;}
+.db-filter-btn:hover{filter:brightness(1.1);}
+.db-filter-btn:active{filter:brightness(0.9);}
+
+.db-filter-btn.sort-all{background-image:url('../img/sort_all1.png');}
+.db-filter-btn.sort-all:hover{background-image:url('../img/sort_allH.png');}
+.db-filter-btn.sort-all:active{background-image:url('../img/sort_all2.png');}
+.db-filter-btn.sort-all.active{background-image:url('../img/sort_allH.png');}
+
+.db-filter-btn.sort-traveler{background-image:url('../img/sort_traveler1.png');}
+.db-filter-btn.sort-traveler:hover{background-image:url('../img/sort_travelerH.png');}
+.db-filter-btn.sort-traveler:active{background-image:url('../img/sort_traveler2.png');}
+.db-filter-btn.sort-traveler.active{background-image:url('../img/sort_travelerH.png');}
+
+.db-filter-btn.sort-unique{background-image:url('../img/sort_unique1.png');}
+.db-filter-btn.sort-unique:hover{background-image:url('../img/sort_uniqueH.png');}
+.db-filter-btn.sort-unique:active{background-image:url('../img/sort_unique2.png');}
+.db-filter-btn.sort-unique.active{background-image:url('../img/sort_uniqueH.png');}
+
+.db-filter-btn.sort-spell{background-image:url('../img/sort_spell1.png');}
+.db-filter-btn.sort-spell:hover{background-image:url('../img/sort_spellH.png');}
+.db-filter-btn.sort-spell:active{background-image:url('../img/sort_spell2.png');}
+.db-filter-btn.sort-spell.active{background-image:url('../img/sort_spellH.png');}
+
+.db-filter-btn.sort-world{background-image:url('../img/sort_world1.png');}
+.db-filter-btn.sort-world:hover{background-image:url('../img/sort_worldH.png');}
+.db-filter-btn.sort-world:active{background-image:url('../img/sort_world2.png');}
+.db-filter-btn.sort-world.active{background-image:url('../img/sort_worldH.png');}
+
+.db-filter-btn.sort-artifact{background-image:url('../img/sort_artifact1.png');}
+.db-filter-btn.sort-artifact:hover{background-image:url('../img/sort_artifactH.png');}
+.db-filter-btn.sort-artifact:active{background-image:url('../img/sort_artifact2.png');}
+.db-filter-btn.sort-artifact.active{background-image:url('../img/sort_artifactH.png');}
 
 .db-grid{
   display:grid;
