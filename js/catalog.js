@@ -62,7 +62,7 @@ function renderCatalog(){
     const tagIcons=(def.tags||[])
       .map(t=>t.split(':')[0])
       .filter(t=>TAG_ICONS[t])
-      .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
+      .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
       .join('');
 
     const div=document.createElement('div');
@@ -88,9 +88,9 @@ function renderCatalog(){
       ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
       ${!isSW?`<div class="card-stats">
-        <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
+        <div class="card-hp-box" data-hp="${def.hp}" data-maxhp="${def.hp}"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
         <img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
-        <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
+        <div class="card-atk-box" data-base="${def.atk}" data-bonus="0"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
       </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
@@ -119,7 +119,7 @@ function openCardDetail(def){
   const tagIcons = (def.tags||[])
     .map(t=>t.split(':')[0])
     .filter(t=>TAG_ICONS[t])
-    .map(t=>`<div class="card-tag-icon">${TAG_ICONS[t]}</div>`)
+    .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
     .join('');
 
   const typeDot = def.world?'img/type_world.png'
@@ -142,7 +142,7 @@ function openCardDetail(def){
   if(def.world){
     box.innerHTML = `
       <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
-      <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;${worldBg}">
+      <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="${worldBg}">
         <div class="card-cost">${def.cost}</div>
         <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
         <div class="card-name-box"><div class="card-name">${def.name}</div></div>
@@ -155,7 +155,7 @@ function openCardDetail(def){
 
   box.innerHTML = `
     <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
-    <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="pointer-events:none;${worldBg}">
+    <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="${worldBg}">
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img
@@ -165,9 +165,9 @@ function openCardDetail(def){
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
       ${!isSW
         ? `<div class="card-stats" style="width:var(--card-stats-w);">
-             <div class="card-hp-box"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
+             <div class="card-hp-box" data-hp="${def.hp}" data-maxhp="${def.hp}"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
              <img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
-             <div class="card-atk-box"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
+             <div class="card-atk-box" data-base="${def.atk}" data-bonus="0"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
            </div>`
         : `<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
