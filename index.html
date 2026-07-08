@@ -637,7 +637,6 @@
 
 <div class="modal-overlay hidden" id="deckBuilderModal">
   <div class="modal-stack">
-    <button class="modal-icon-btn corner-back btn-back placeholder" onclick="backFromDeckBuilder()" title="Back"></button>
     <div class="modal db-modal">
       <div class="db-header">
         <div class="db-header-title" id="deckBuilderTitle">CHOOSE YOUR DECK</div>
@@ -664,6 +663,7 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
+      <button class="modal-icon-btn sq btn-back placeholder" onclick="backFromDeckBuilder()" title="Back"></button>
       <button class="modal-icon-btn sq btn-clear placeholder" onclick="dbClearPicks()" title="Clear"></button>
       <button class="modal-icon-btn sq btn-imp placeholder" onclick="document.getElementById('deckBuilderImportInput').click()" title="Import deck (.json)"></button>
       <input type="file" id="deckBuilderImportInput" accept="application/json,.json" style="display:none;" onchange="dbImportDeck(this)">
