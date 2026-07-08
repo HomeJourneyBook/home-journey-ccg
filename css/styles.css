@@ -1137,18 +1137,17 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    не потомок .modal (иначе её обрезает overflow:hidden/auto у .modal — та же история, что и
    у .modal-footer-plate, см. комментарий там). .modal-stack — единственный in-flow ребёнок
    которого это .modal, поэтому его собственный box ТОЧНО совпадает с внешней (border-box)
-   границей .modal — top:0;left:0 у absolute-потомка .modal-stack попадает РОВНО в внешний
-   угол рамки, встык с ней (по прямой просьбе автора — раньше было со сложным центрированием
-   через -0.75×border-w, получалось смещение непонятно от чего; теперь просто и предсказуемо).
-   Кнопка вдвое МЕНЬШЕ толщины рамки (--modal-border-w/2). .modal-icon-btn уже умеет
-   placeholder-фолбэк — тот же конвеньш, что у Classic/Rush/Import/Export/OK кнопок: сейчас в
-   HTML у кнопки классы "btn-back placeholder", когда автор положит реальные
-   img/btn_back1/H/2.png, достаточно убрать "placeholder" из HTML — CSS ничего
+   границей .modal — bottom:0;right:0 у absolute-потомка .modal-stack попадает РОВНО в
+   нижний правый угол рамки, встык с ней (по просьбе автора — сначала была в верхнем левом,
+   переставлено сюда). Кнопка вдвое МЕНЬШЕ толщины рамки (--modal-border-w/2). .modal-icon-btn
+   уже умеет placeholder-фолбэк — тот же конвеньш, что у Classic/Rush/Import/Export/OK
+   кнопок: сейчас в HTML у кнопки классы "btn-back placeholder", когда автор положит
+   реальные img/btn_back1/H/2.png, достаточно убрать "placeholder" из HTML — CSS ничего
    дораскомментировать не нужно. */
 .modal-icon-btn.corner-back{
   position:absolute;
-  top:0;
-  left:0;
+  bottom:0;
+  right:0;
   width:calc(var(--modal-border-w) * 0.5);
   height:calc(var(--modal-border-w) * 0.5);
   z-index:6; /* выше .modal-decor(5), поверх рамки — как у footer-plate */
@@ -1264,7 +1263,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 /* LOG */
 .log{
   position:relative; /* нужен для ::after */
-  background:#020d02;
+  background:#03150a; /* тот же тон, что и у .modal-crt-screen — единый стиль CRT-экранов */
   border:none;
   padding:7px;
   height:85px;
@@ -1274,7 +1273,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   /* Цвет текста перекрашиваем в зелёный для CRT-атмосферы — переопределяем ниже через .le */
   color:#33ff66;
 }
-/* Слой строчек скана поверх текста (pointer-events:none — не мешает скроллу) */
+/* Слой строчек скана поверх текста (pointer-events:none — не мешает скроллу) — линии толще
+   (3px/3px вместо 2px/2px), тот же "пиксельный" вид, что у .modal-crt-screen. */
 .log::after{
   content:'';
   position:absolute;
@@ -1282,9 +1282,9 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   background:repeating-linear-gradient(
     to bottom,
     transparent 0px,
-    transparent 2px,
-    rgba(0,0,0,0.18) 2px,
-    rgba(0,0,0,0.18) 4px
+    transparent 3px,
+    rgba(0,0,0,0.32) 3px,
+    rgba(0,0,0,0.32) 6px
   );
   pointer-events:none;
   z-index:1;
@@ -1582,7 +1582,9 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 #deckPickerModal .modal-body,
 #vsAiPickerModal .modal-body,
 #confirmModal .modal-body,
-#winModal .modal-body{
+#winModal .modal-body,
+#mulliganScreen .modal-body,
+#passScreen .modal-body{
   padding:0;
 }
 
@@ -2993,7 +2995,7 @@ img{
 .db-grid{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
-  gap:10px;
+  gap:5px;
   container-type:inline-size;
   padding:4px 6px;
 }
@@ -3005,7 +3007,7 @@ img{
   /* 3 колонки в КАЖДОЙ из двух панелей (по просьбе автора) — ширина карты считается от
      реальной ширины .db-grid (container query units), но не может превысить --cat-card-w —
      тот же максимальный размер карты, что сейчас в Каталоге, "по максимуму как в каталоге". */
-  --card-w: min(calc((100cqw - 2 * 10px) / 3), var(--cat-card-w));
+  --card-w: min(calc((100cqw - 2 * 5px) / 3), var(--cat-card-w));
   --card-h: calc(var(--card-w) / 0.716);
   --card-art-size: calc(var(--card-h) * 0.535);
   --card-pad: calc(var(--card-h) * 0.021);
@@ -3025,14 +3027,13 @@ img{
   padding:var(--card-pad)!important;
   position:relative;
   z-index:1;
-  filter:brightness(.62) saturate(.7);
   transition:filter .12s;
 }
-.db-card:hover{filter:brightness(.85) saturate(.9);}
+.db-card:hover{filter:brightness(1.12);}
 
 @media(max-width:600px){
   .db-grid{grid-template-columns:repeat(2, 1fr);}
-  .db-stack{--card-w: min(calc((100cqw - 1 * 10px) / 2), var(--cat-card-w));}
+  .db-stack{--card-w: min(calc((100cqw - 1 * 5px) / 2), var(--cat-card-w));}
 }
 
 /* ── Стопки копий (заклинания с max>1, см. getRushPool в deck.js) ────────────────
@@ -3070,7 +3071,16 @@ img{
   gap:3px;
 }
 .db-curve-bar-wrap{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
-.db-curve-bar{width:100%;background:#c8a84b99;border-top:1px solid #c8a84b;transition:height .15s;}
+.db-curve-bar{
+  width:100%;
+  background:#c8a84b99;
+  border-top:2px solid #c8a84b;
+  transition:height .15s;
+}
+/* Цвет по фракции — зелёный у Tea, фиолетовый у Jeet (те же акцентные оттенки, что и
+   остальная фракционная палитра игры — #5BDF7A/#b44fd4). */
+.db-curve.tea-curve .db-curve-bar{background:#5BDF7A99;border-top-color:#5BDF7A;}
+.db-curve.jeet-curve .db-curve-bar{background:#b44fd499;border-top-color:#b44fd4;}
 .db-curve-n{font-size:9px;color:#9B937F;height:11px;}
 .db-curve-label{font-size:9px;color:#666;}
 
