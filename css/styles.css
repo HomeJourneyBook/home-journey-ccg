@@ -447,6 +447,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .fab-btn{display:block;width:calc(var(--card-small-w) * 0.65);height:calc(var(--card-small-w) * 0.65 * 44/122);border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
 .fab-btn.umbasir{background-image:url('../img/btn_spell.png');}
 .fab-btn.vardan{background-image:url('../img/btn_spell.png');}
+.fab-btn.heal{background-image:url('../img/btn_heal.png');} /* плейсхолдер — арта пока нет, автор подключит свой */
 .fab-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .fab-btn:active{transform:scale(0.95) translateY(2px);}
 .cap-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
@@ -603,25 +604,49 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    both upside-down AND mirrored left-right for the top slot, not just
    flipped top-to-bottom. scale(-1,-1) is equivalent to rotate(180deg). */
 #oppStats::before{transform:scale(-1,-1);}
-/* Остальные декоративные плейсхолдеры без текста (пустые "заглушки"/уже готовый арт —
-   hp-placeholder уже держит boltik.png, tea-правый край уже держит trubi1.png, остальные
-   пока просто чёрные прямоугольники под будущий арт) отражаются тем же приёмом, что и сам
-   фон бара выше. pcard/HP/Essence сюда НЕ входят — у них текст/иконки, зеркалить нельзя,
-   вместо этого местами меняется их порядок в разметке (см. _mkStatsBarHtml в render.js).
-   .statbar-edge-left/-right/-right-2 уже используют transform под собственное позиционирование
-   (центрирование по вертикали и т.п.) — scale(-1,-1) добавляется К нему, а не заменяет,
-   иначе для jeet поехало бы вертикальное центрирование этих плашек. */
+/* Декоративные плейсхолдеры без текста у бара сверху (#oppStats) отражаются ПОЛНОСТЬЮ —
+   и по контенту (transform), и по МЕСТУ на панели, как будто всю панель повернули на 180°
+   вокруг центра: то, что было в правом верхнем углу, оказывается в левом нижнем, а не
+   просто отражается там же, где стояло. pcard/HP/Essence сюда НЕ входят — у них текст/арт,
+   зеркалить нельзя; они лишь меняются местами через порядок в разметке (см. _mkStatsBarHtml
+   в render.js — там же и hp-placeholder/statbar-extra, они в обычном flex-потоке, их позиция
+   уже переставлена разворотом всего ряда, здесь им остаётся только отразить контент).
+   .statbar-edge-left/-right/-right-2 — position:absolute, порядок в разметке на их место
+   не влияет, поэтому позиция (left/right/top/bottom) прописана явно ниже. */
 #oppStats .hp-placeholder,
 #oppStats .statbar-extra{
   transform:scale(-1,-1);
 }
-#oppStats .statbar-edge-left,
-#oppStats.jeet .statbar-edge-right,
-#oppStats .statbar-edge-right-2{
+/* edge-left (обычно левый край, по центру высоты, только у jeet) → у оппонента занимает
+   место ПРАВОГО края с той же вертикальной центровкой (симметрично базовому
+   .statbar-edge-right по умолчанию: right:6px, top:50%). */
+#oppStats .statbar-edge-left{
+  left:auto;
+  right:6px;
   transform:translateY(-50%) scale(-1,-1);
 }
+/* edge-right у jeet (правый край, двойная ширина, по центру высоты) → у оппонента
+   занимает место ЛЕВОГО края с той же шириной и центровкой. */
+#oppStats.jeet .statbar-edge-right{
+  right:auto;
+  left:6px;
+  transform:translateY(-50%) scale(-1,-1);
+}
+/* edge-right у tea (прижат к ВЕРХНЕМУ правому углу, свой арт trubi1.png) → у оппонента
+   прижимается к НИЖНЕМУ левому углу — настоящая противоположная точка панели. */
 #oppStats.tea .statbar-edge-right{
-  transform:scale(-1,-1); /* у tea этот край без translateY — сидит в углу (top:0;right:0) */
+  top:auto;
+  bottom:0;
+  right:auto;
+  left:0;
+  transform:scale(-1,-1);
+}
+/* edge-right-2 у jeet (левее удвоенного правого края, по центру высоты) → у оппонента
+   занимает симметричное место у ЛЕВОГО края, на том же отступе от края. */
+#oppStats .statbar-edge-right-2{
+  right:auto;
+  left:calc(6px + (max(4vh, 2vw) * 2 / 3 * 2) + 6px);
+  transform:translateY(-50%) scale(-1,-1);
 }
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75))}
 .stat-val{font-weight:bold;}
