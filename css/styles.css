@@ -847,7 +847,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    в CLAUDE.md). Тёмная полупрозрачная плашка + тонкая рамка в цвет текста, без
    влияния на существующую пульсацию фона/текста (те анимации остались как были). */
 .target-prompt-box{
-  background:rgba(10,4,4,0.55);
+  background:rgba(10,4,4,1);
   border:1px solid #ff232399;
   border-radius:10px;
   padding:10px 18px;
@@ -2443,6 +2443,13 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .field-fx-popup.fx-squad-lost{color:#999999;}
 .field-fx-popup.fx-cleaned{color:#5be3ff;}
 .field-fx-popup.fx-fear{color:#b44fd4;}
+/* Текстовые плейсхолдеры (автор потом заменит на кастомные гифки, как SQUAD!/FEARED!/
+   CLEANED выше) — см. CLAUDE.md, "Анимации" в Art backlog. */
+.field-fx-popup.fx-untap{color:#ffe066;}      /* OBLIVION успешно активировал спящую/уставшую карту */
+.field-fx-popup.fx-sacrifice{color:#c94f4f;}  /* карта принесена в жертву Алтарю */
+.field-fx-popup.fx-shard{color:#ff9944;}      /* урон от активки Shard-артефакта */
+.field-fx-popup.fx-spell-dmg{color:#e05555;}  /* точечный урон от заклинания (spell_dmg_target) */
+.field-fx-popup.fx-spell-buff{color:#55aaff;} /* точечный баф от заклинания (spell_buff_temp) */
 
 
 /* fade death */
