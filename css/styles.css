@@ -1139,11 +1139,12 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    которого это .modal, поэтому его собственный box ТОЧНО совпадает с внешней (border-box)
    границей .modal — bottom:0;left:0 у absolute-потомка .modal-stack попадает РОВНО в
    нижний левый угол рамки, встык с ней (по просьбе автора — сначала была в верхнем левом,
-   потом в нижнем правом, теперь тут). Кнопка вдвое МЕНЬШЕ толщины рамки (--modal-border-w/2).
-   .modal-icon-btn уже умеет placeholder-фолбэк — тот же конвеньш, что у Classic/Rush/
-   Import/Export/OK кнопок: сейчас в HTML у кнопки классы "btn-back placeholder", когда
-   автор положит реальные img/btn_back1/H/2.png, достаточно убрать "placeholder" из HTML —
-   CSS ничего дораскомментировать не нужно.
+   потом в нижнем правом, теперь тут). Размер — РОВНО толщина рамки (--modal-border-w,
+   было вдвое меньше — увеличено по просьбе автора, теперь полностью заполняет угловой
+   квадрат рамки). .modal-icon-btn уже умеет placeholder-фолбэк — тот же конвеньш, что у
+   Classic/Rush/Import/Export/OK кнопок: сейчас в HTML у кнопки классы "btn-back placeholder",
+   когда автор положит реальные img/btn_back1/H/2.png, достаточно убрать "placeholder" из
+   HTML — CSS ничего дораскомментировать не нужно.
    ВАЖНО: в deckBuilderModal этой кнопки-уголка больше НЕТ — там "назад" переехала в общий
    ряд кнопок футера (см. index.html/.btn-back.footer-style ниже), первой по счёту, того же
    размера, что и остальные (.modal-icon-btn.sq). */
@@ -1151,8 +1152,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   position:absolute;
   bottom:0;
   left:0;
-  width:calc(var(--modal-border-w) * 0.5);
-  height:calc(var(--modal-border-w) * 0.5);
+  width:var(--modal-border-w);
+  height:var(--modal-border-w);
   z-index:6; /* выше .modal-decor(5), поверх рамки — как у footer-plate */
 }
 .modal-icon-btn.btn-back.placeholder::after{content:'⬅';font-size:60%;}
@@ -2998,7 +2999,12 @@ img{
 .db-grid{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
-  gap:5px;
+  /* По просьбе автора (лаптоп/десктоп): вертикальный отступ между рядами карт вдвое
+     БОЛЬШЕ, горизонтальный между колонками вдвое МЕНЬШЕ прежнего общего gap:5px.
+     На телефоне остаётся обычный column-gap (см. мобильный @media ниже — 3 колонки
+     там всё ещё используют column-gap в формуле --card-w, row-gap на неё не влияет). */
+  row-gap:10px;
+  column-gap:2.5px;
   container-type:inline-size;
   padding:4px 6px;
 }
@@ -3010,7 +3016,7 @@ img{
   /* 3 колонки в КАЖДОЙ из двух панелей (по просьбе автора) — ширина карты считается от
      реальной ширины .db-grid (container query units), но не может превысить --cat-card-w —
      тот же максимальный размер карты, что сейчас в Каталоге, "по максимуму как в каталоге". */
-  --card-w: min(calc((100cqw - 2 * 5px) / 3), var(--cat-card-w));
+  --card-w: min(calc((100cqw - 2 * 2.5px) / 3), var(--cat-card-w));
   --card-h: calc(var(--card-w) / 0.716);
   --card-art-size: calc(var(--card-h) * 0.535);
   --card-pad: calc(var(--card-h) * 0.021);
@@ -3052,8 +3058,38 @@ img{
     background:linear-gradient(to right, transparent, #9B937F99 10%, #9B937F99 90%, transparent);
   }
   .db-pane-chosen{order:0;}
-  .db-grid{grid-template-columns:repeat(4, 1fr);}
-  .db-stack{--card-w: min(calc((100cqw - 3 * 5px) / 4), var(--cat-card-w));}
+  /* 4 колонки оказались слишком узкими — карта настолько сжималась, что внутренние
+     элементы (cost/type-dot/арт) переставали помещаться и наезжали друг на друга (репорт
+     автора со скриншотом). 3 колонки читаются нормально. */
+  /* row-gap/column-gap асимметрия (2x/0.5x) — просьба была именно про лаптоп/десктоп;
+     на телефоне возвращаем обычный симметричный gap. */
+  .db-grid{grid-template-columns:repeat(3, 1fr);gap:5px;}
+  .db-stack{--card-w: min(calc((100cqw - 2 * 5px) / 3), var(--cat-card-w));}
+
+  /* Хедер — третья строка для кнопок-фильтров (были рядом со статистикой на второй строке,
+     тесно на узком экране). flex-wrap переносит .db-filters (flex-basis:100%) на новую
+     строку сам, без изменения HTML/DOM; вертикальный разделитель между "было рядом" тут
+     не нужен — прячем его и добавляем свой горизонтальный над фильтрами (::before). */
+  .db-header-row2{flex-wrap:wrap;row-gap:6px;}
+  .db-header-left{
+    flex:1 1 100%;
+    padding-right:0;
+    /* space-evenly (уже было) — статистика и диаграмма равномерно, с одинаковыми
+       отступами от краёв и друг от друга. */
+  }
+  .db-header-row2 > .db-divider-v{display:none;}
+  .db-filters{
+    flex:1 1 100%;
+    position:relative;
+    padding-top:8px;
+  }
+  .db-filters::before{
+    content:'';
+    position:absolute;
+    top:0; left:6px; right:6px;
+    height:2px;
+    background:linear-gradient(to right, transparent, #9B937F99 15%, #9B937F99 85%, transparent);
+  }
 }
 
 /* ── Стопки копий (заклинания с max>1, см. getRushPool в deck.js) ────────────────
