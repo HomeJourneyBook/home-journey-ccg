@@ -1137,17 +1137,20 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    не потомок .modal (иначе её обрезает overflow:hidden/auto у .modal — та же история, что и
    у .modal-footer-plate, см. комментарий там). .modal-stack — единственный in-flow ребёнок
    которого это .modal, поэтому его собственный box ТОЧНО совпадает с внешней (border-box)
-   границей .modal — bottom:0;right:0 у absolute-потомка .modal-stack попадает РОВНО в
-   нижний правый угол рамки, встык с ней (по просьбе автора — сначала была в верхнем левом,
-   переставлено сюда). Кнопка вдвое МЕНЬШЕ толщины рамки (--modal-border-w/2). .modal-icon-btn
-   уже умеет placeholder-фолбэк — тот же конвеньш, что у Classic/Rush/Import/Export/OK
-   кнопок: сейчас в HTML у кнопки классы "btn-back placeholder", когда автор положит
-   реальные img/btn_back1/H/2.png, достаточно убрать "placeholder" из HTML — CSS ничего
-   дораскомментировать не нужно. */
+   границей .modal — bottom:0;left:0 у absolute-потомка .modal-stack попадает РОВНО в
+   нижний левый угол рамки, встык с ней (по просьбе автора — сначала была в верхнем левом,
+   потом в нижнем правом, теперь тут). Кнопка вдвое МЕНЬШЕ толщины рамки (--modal-border-w/2).
+   .modal-icon-btn уже умеет placeholder-фолбэк — тот же конвеньш, что у Classic/Rush/
+   Import/Export/OK кнопок: сейчас в HTML у кнопки классы "btn-back placeholder", когда
+   автор положит реальные img/btn_back1/H/2.png, достаточно убрать "placeholder" из HTML —
+   CSS ничего дораскомментировать не нужно.
+   ВАЖНО: в deckBuilderModal этой кнопки-уголка больше НЕТ — там "назад" переехала в общий
+   ряд кнопок футера (см. index.html/.btn-back.footer-style ниже), первой по счёту, того же
+   размера, что и остальные (.modal-icon-btn.sq). */
 .modal-icon-btn.corner-back{
   position:absolute;
   bottom:0;
-  right:0;
+  left:0;
   width:calc(var(--modal-border-w) * 0.5);
   height:calc(var(--modal-border-w) * 0.5);
   z-index:6; /* выше .modal-decor(5), поверх рамки — как у footer-plate */
@@ -3032,8 +3035,25 @@ img{
 .db-card:hover{filter:brightness(1.12);}
 
 @media(max-width:600px){
-  .db-grid{grid-template-columns:repeat(2, 1fr);}
-  .db-stack{--card-w: min(calc((100cqw - 1 * 5px) / 2), var(--cat-card-w));}
+  /* Мобильная раскладка — по просьбе автора, вместо лево/право (тесно на узком экране,
+     см. репорт со скриншотом) теперь верх/низ: сверху ВЕСЬ пул (все доступные карты),
+     снизу — уже выбранная колода, каждая половина на всю ширину экрана и со своим
+     независимым скроллом (order управляет визуальным порядком, не трогая HTML/DOM —
+     .db-pane-pool физически идёт после .db-pane-chosen в разметке, но order:-2 ставит
+     её первой на экране). */
+  .db-split{flex-direction:column;}
+  .db-pane{flex:1 1 0;min-height:0;height:auto;}
+  .db-pane-pool{order:-2;}
+  .db-split > .db-divider-v{
+    order:-1;
+    width:auto;
+    align-self:stretch;
+    height:2px;
+    background:linear-gradient(to right, transparent, #9B937F99 10%, #9B937F99 90%, transparent);
+  }
+  .db-pane-chosen{order:0;}
+  .db-grid{grid-template-columns:repeat(4, 1fr);}
+  .db-stack{--card-w: min(calc((100cqw - 3 * 5px) / 4), var(--cat-card-w));}
 }
 
 /* ── Стопки копий (заклинания с max>1, см. getRushPool в deck.js) ────────────────
