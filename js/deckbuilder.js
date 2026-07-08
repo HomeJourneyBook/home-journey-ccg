@@ -167,6 +167,13 @@ function _renderDeckBuilder(faction){
 
   const poolGrid=document.getElementById('deckBuilderPoolGrid');
   const chosenGrid=document.getElementById('deckBuilderChosenGrid');
+  // Каждый клик по карте перестраивает оба грида с нуля (innerHTML=''), а карта, переезжая
+  // из пула в выбранное (или обратно), меняет высоту ОБЕИХ панелей (они рядом, flex-row —
+  // общая высота строки = максимум из двух), из-за чего скролл .modal-body мог "прыгать"
+  // вверх, если контент на миг становился короче текущей scrollTop-позиции. Запоминаем
+  // позицию до перестройки и жёстко возвращаем её после — простое и надёжное решение.
+  const scrollHost=document.querySelector('#deckBuilderModal .modal-body');
+  const savedScroll=scrollHost?scrollHost.scrollTop:0;
   poolGrid.innerHTML='';
   chosenGrid.innerHTML='';
 
@@ -185,6 +192,7 @@ function _renderDeckBuilder(faction){
       chosenGrid.appendChild(_dbStackEl(faction,key,def,qty,()=>dbSetQty(faction,key,qty-1)));
     }
   });
+  if(scrollHost) scrollHost.scrollTop=savedScroll;
 
   _updateDeckBuilderCount();
   _renderDbCurve(faction);
