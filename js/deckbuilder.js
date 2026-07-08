@@ -33,7 +33,7 @@ function _dbFaction(){ return _db.buildOrder[_db.stepIndex]; }
 // дек-билдером был выбор фракции) или deckPickerModal (флоу hotseat, дек-билдер шёл сразу
 // после выбора Classic/Rush).
 function backFromDeckBuilder(){
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
   const flow=_db?_db.flow:'hotseat';
   const modal=document.getElementById('deckBuilderModal');
   _modalPopOut(modal, ()=>{
@@ -115,7 +115,7 @@ function _dbCardEl(faction,key,def){
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
     `;
 
-  div.addEventListener('mouseenter',()=>playSfx('Navigation_Cursor'));
+  div.addEventListener('mouseenter',()=>playSfx('card_navigation_cursor'));
   div.style.cursor='pointer';
   return div;
 }
@@ -250,7 +250,7 @@ function dbSetQty(faction,key,newQty){
   newQty=Math.max(0,Math.min(max,newQty));
   if(_db.picks[faction][key]===newQty) return;
   _db.picks[faction][key]=newQty;
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
   _renderDeckBuilder(faction);
 }
 
@@ -259,7 +259,7 @@ function dbSetQty(faction,key,newQty){
 function dbClearPicks(){
   const faction=_dbFaction();
   if(_dbTotal(faction)===0) return;
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
   _db.picks[faction]={};
   _renderDeckBuilder(faction);
 }
@@ -325,7 +325,7 @@ function _updateDeckBuilderCount(){
 function deckBuilderConfirm(){
   const faction=_dbFaction();
   if(_dbTotal(faction)<RUSH_MIN) return;
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
   const modal=document.getElementById('deckBuilderModal');
   const proceed=()=>{
     modal.classList.add('hidden');
@@ -414,7 +414,7 @@ function dbExportDeck(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  playSfx('yellow_buttom');
 }
 
 // Wired to the hidden <input type=file> in #deckBuilderModal (see index.html)
@@ -469,6 +469,6 @@ function _applyImportedDeck(data){
   if(notes.length>0){
     showConfirm(notes.join(' '),'OK',null,{title:'IMPORT NOTICE',hideCancel:true});
   } else {
-    playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+    playSfx('yellow_buttom');
   }
 }
