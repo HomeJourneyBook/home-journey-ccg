@@ -68,8 +68,8 @@ function renderCatalog(){
     const div=document.createElement('div');
     div.className=`card cat-card ${def.f==='tea'?'tea-card':'jeet-card'}`;
     div.style.cursor='pointer';
-    div.onclick=()=>{playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');openCardDetail(def);};
-    div.addEventListener('mouseenter',()=>playSfx('Navigation_Cursor'));
+    div.onclick=()=>{playSfx('yellow_buttom');openCardDetail(def);};
+    div.addEventListener('mouseenter',()=>playSfx('card_navigation_cursor'));
     if(def.world){
   div.classList.add('world-card');
   if(def.img) div.style.cssText += ';background-image:url(\'img/cards/'+def.img+'\')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;';
