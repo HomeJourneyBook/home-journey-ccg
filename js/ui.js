@@ -484,6 +484,17 @@ function openDeckPicker(flow){
   modal.classList.remove('hidden');
   _modalPopIn(modal);
 }
+// Кнопка "назад" — самый первый шаг цепочки, дальше отступать некуда, кроме как на
+// landing. Landing физически не скрывался (см. chooseDeckConfig — .exit-center только
+// на реальном выборе конфига), так что просто прячем эту модалку, он уже виден под ней.
+function backFromDeckPicker(){
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  const modal=document.getElementById('deckPickerModal');
+  _modalPopOut(modal, ()=>{
+    modal.classList.add('hidden');
+    _pendingModeFlow=null;
+  }, 250);
+}
 function chooseDeckConfig(configKey){
   const modal=document.getElementById('deckPickerModal');
   // Start landing's own exit fade/shrink NOW, in parallel with the deck modal's
@@ -543,6 +554,19 @@ function openVsAiPicker(deckConfig){
   const modal=document.getElementById('vsAiPickerModal');
   modal.classList.remove('hidden');
   _modalPopIn(modal);
+}
+// Кнопка "назад" — возвращает к выбору Classic/Rush (deckPickerModal). Landing под обеими
+// модалками остаётся как есть (пока он скрыт под непрозрачным фоном модалки — не важно, в
+// каком именно .exit-center состоянии), трогать его тут не нужно.
+function backFromVsAiPicker(){
+  playSfx('yellow_buttom_play_endturn_menu_gravyard_loop');
+  const modal=document.getElementById('vsAiPickerModal');
+  _modalPopOut(modal, ()=>{
+    modal.classList.add('hidden');
+    const picker=document.getElementById('deckPickerModal');
+    picker.classList.remove('hidden');
+    _modalPopIn(picker);
+  }, 250);
 }
 
 function startGameVsAI(humanFaction){
