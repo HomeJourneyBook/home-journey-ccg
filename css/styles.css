@@ -3004,7 +3004,8 @@ img{
 }
 .db-header-title{
   font-family:'MEK',monospace;
-  font-size:20px;
+  font-size:250%; /* было 20px фикс — теперь % от унаследованных 16px (никто из предков
+    .db-header-title font-size не переопределяет — проверено), 250% = 40px, вдвое больше */
   letter-spacing:.5px;
   color:#E8E0C8;
   text-align:center;
@@ -3044,6 +3045,34 @@ img{
   align-items:center;
   gap:10px;
   padding-right:16px;
+}
+.db-decor{display:none;}
+/* Только лаптоп/десктоп (2026-07-08): 3 чёрных плейсхолдера под будущий декор-арт
+   (слева от статистики, между статистикой и диаграммой, справа до конца блока — см.
+   Art backlog в CLAUDE.md) + фикс "прыжка" окна: раньше .db-stats не имел явной ширины,
+   ширина считалась по самому длинному тексту внутри ("Selected: 10 (min 28)" шире, чем
+   "Selected: 0 (min 28)") — из-за этого весь ряд (space-evenly) чуть сдвигался при
+   каждом изменении количества карт. Теперь у КАЖДОГО ребёнка фиксированный flex-basis
+   в %, ширина ряда стабильна независимо от длины текста. container-type даёт cqw —
+   шрифты внутри тоже в %-подобных единицах, не хардкод px. */
+@media(min-width:601px){
+  .db-header-left{
+    container-type:inline-size;
+    justify-content:flex-start;
+    gap:1.5%;
+  }
+  .db-decor{
+    display:block;
+    height:100%;
+    background:#0d0d1a;
+    border-radius:2px;
+  }
+  .db-decor-left{flex:0 0 15%;}
+  .db-decor-mid{flex:0 0 12%;}
+  .db-decor-right{flex:1 1 auto;min-width:0;} /* добирает весь остаток ширины — не нужно точно считать, сколько места реально занимает диаграмма (aspect-ratio:1/1 от высоты) */
+  .db-stats{flex:0 0 30%;box-sizing:border-box;font-size:2.6cqw;}
+  .db-curve-n{font-size:1.7cqw;}
+  .db-curve-label{font-size:1.7cqw;}
 }
 /* Разделители — тонкие линии под заголовком и между двумя колонками (в хедере и в самой
    сетке карт). Сейчас просто градиент-полоска (прозрачный на концах, чтобы не утыкаться
@@ -3100,6 +3129,19 @@ img{
 }
 .db-filter-btn:hover{filter:brightness(1.1);}
 .db-filter-btn:active{filter:brightness(0.9);}
+
+/* Только лаптоп/десктоп (2026-07-08): кнопки сортировки вдвое МЕНЬШЕ — раньше flex:1 1 0
+   у каждой кнопки делил всю ширину ряда на 6 равных частей (~16.67% каждая), теперь
+   fixed flex-basis 8% (ровно половина) + justify-content:center, чтобы уменьшившийся
+   ряд не прилипал к левому краю. На телефоне (@media max-width:600px ниже, где кнопки
+   и так уже сжимаются в один ряд через flex:1 1 0) не трогаем — там своя раскладка.
+   Разделитель над рядом кнопок — та же линия и цвет (#212e37), что между строками
+   хедера на мобильной версии, просто тут это ГОРИЗОНТАЛЬНАЯ граница между заголовком
+   (сверху, в этой же .db-filters-col) и кнопками (снизу), а не отдельный элемент. */
+@media(min-width:601px){
+  .db-filters{justify-content:center;border-top:2px solid #212e37;padding-top:4px;}
+  .db-filter-btn{flex:0 0 8%;}
+}
 
 .db-filter-btn.sort-all{background-image:url('../img/sort_all1.png');}
 .db-filter-btn.sort-all:hover{background-image:url('../img/sort_allH.png');}
@@ -3212,7 +3254,7 @@ img{
      ширину хедера. */
   .db-header-row2{flex-wrap:wrap;row-gap:8px;}
   .db-filters-col{display:contents;}
-  .db-header-title{order:-3;flex:1 1 100%;font-size:16px;}
+  .db-header-title{order:-3;flex:1 1 100%;font-size:200%;} /* было 16px фикс — теперь 200% от 16px = 32px, вдвое больше */
   .db-header-left{
     order:-2;
     flex:1 1 100%;
