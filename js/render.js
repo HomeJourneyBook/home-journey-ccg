@@ -129,8 +129,7 @@ function render(){
   if(targetPromptOverlay){
     const showTargetPrompt=(
       G.phase==='spellDmgTarget'||G.phase==='spellBuffTarget'||
-      G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'||
-      G.phase==='healTarget'
+      G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'
     );
     targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
   }
@@ -418,8 +417,18 @@ ${!isSW?`<div class="card-small-stats">
       }
       if(hasHealTarget){
         const btn=document.createElement('button');
-        btn.className='fab-btn heal'; // плейсхолдер img/btn_heal.png — автор подключит свою картинку позже
-        btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;G.phase='healTarget';lg(`${card.name}: click an ALLY to heal.`,'hint');render();};
+        // Пока выбираем цель ИМЕННО для этого хилера — кнопка Heal превращается в
+        // Cancel (плейсхолдер, автор подключит свою картинку позже), вместо отдельного
+        // мигающего текста "click ALLY to heal / click hand to cancel" — цель и так
+        // подсвечена через .healable, отменить можно прямо этой же кнопкой.
+        const isCancelling=G.phase==='healTarget'&&G.sel===card.id;
+        if(isCancelling){
+          btn.className='fab-btn cancel';
+          btn.onclick=(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();};
+        } else {
+          btn.className='fab-btn heal'; // плейсхолдер img/btn_heal.png — автор подключит свою картинку позже
+          btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;G.phase='healTarget';render();};
+        }
         pop.appendChild(btn);
       }
       d.appendChild(pop);
