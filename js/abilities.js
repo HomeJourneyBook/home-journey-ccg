@@ -185,6 +185,7 @@ function triggerAbilities(card, timing, ctx={}){
         if(G[curK].hp<G[curK].maxHp){
           G[curK].hp=Math.min(G[curK].maxHp, G[curK].hp+a.val);
           lg(`${card.name}: ${curK} base +${a.val} HP → ${G[curK].hp}/${G[curK].maxHp}.`,'hl');
+          playSfx('heal');
           flashBase(curK, 'heal', a.val);
         }
         break;
@@ -202,29 +203,31 @@ function triggerAbilities(card, timing, ctx={}){
             }
           });
           if(healedAny){
-            playSfx('baf');
+            playSfx('heal');
             lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
           }
         } else if(a.self){
          if(!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
             const regenVal=(card.squadParam&&card.squadParam.regen)||a.val;
             card.hp=Math.min(card.maxHp,card.hp+regenVal);
-            playSfx('baf');
+            playSfx('heal');
             const regenId=card.id;
             requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(regenId,`+${regenVal}`,'heal')));
             lg(`${card.name}: regen +${regenVal} HP → ${card.hp}/${card.maxHp}.`,'hl');
           }
         } else if(ctx.target){
           ctx.target.hp=Math.min(ctx.target.maxHp,ctx.target.hp+a.val);
-          playSfx('baf');
+          playSfx('heal');
           lg(`${card.name}: +${a.val} HP to ${ctx.target.name} → ${ctx.target.hp}/${ctx.target.maxHp}.`,'hl');
         } else {
           cur.field.forEach(ally=>{
             if(!ally.spell&&!ally.world&&!ally.artifact)
               ally.hp=Math.min(ally.maxHp,ally.hp+a.val);
           });
+          playSfx('heal');
           lg(`${card.name}: heal all allies +${a.val} HP.`,'hl');
         } break;
+
 
       // maxhp_add removed — use aura:maxhp instead
 
@@ -239,6 +242,7 @@ function triggerAbilities(card, timing, ctx={}){
         setTimeout(()=>{
           teaReturning.forEach(x=>{resetC(x);G.tea.hand.push(x);});
           jeetReturning.forEach(x=>{resetC(x);G.jeet.hand.push(x);});
+          playSfx('wind_card');
           render();
         },400);
         lg(`${card.name}: all cards return to hands!`,'imp'); break;
@@ -256,6 +260,7 @@ function triggerAbilities(card, timing, ctx={}){
           if(a.val==='full'&&def){r.hp=def.hp;r.maxHp=def.hp;}
           else{r.hp=Math.min(a.val||1,r.maxHp);}
           reviveCard(r,curK); // use reviveCard for proper aura/squad checks
+          playSfx('rest');
           lg(`${card.name}: revives ${r.name}!`,'imp');
         } else lg(`${card.name}: graveyard empty.`);} break;
 
@@ -306,6 +311,7 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} 
           if(hasTag(r,'aura:maxhp')) G[curK]._auraMaxLog=r.id;
           applyAuras(curK);
           checkSquadBonuses(curK);
+          playSfx('rest');
           lg(`${card.name} raises ${r.name} at ${r.hp} HP!`,'imp');
         } else {
           lg(`${card.name}: both graveyards empty.`,'die');
