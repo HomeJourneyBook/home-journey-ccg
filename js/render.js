@@ -387,7 +387,14 @@ ${!isSW?`<div class="card-small-stats">
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
-    if(isUmb||isVard){
+    // Хилер: попап-кнопка "Heal" появляется, только если есть кого хилить (своя не-spell/
+    // world/artifact карта с hp<maxHp — та же проверка, что и у подсветки .healable ниже
+    // в healTarget). Клик по кнопке — и только он — переводит в healTarget с подсветкой
+    // целей; сам клик по существу (см. game.js) теперь просто выделяет его как обычную
+    // атаку (selectTarget), без прыжка сразу в режим лечения.
+    const isHealerAbility=card.tags.some(t=>t.startsWith('heal:'));
+    const hasHealTarget=isHealerAbility&&G[card.f].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.hp<c.maxHp);
+    if(isUmb||isVard||hasHealTarget){
       const pop=document.createElement('div');
       pop.className='field-ability-popup';
       if(isUmb){
@@ -400,6 +407,12 @@ ${!isSW?`<div class="card-small-stats">
         const btn=document.createElement('button');
         btn.className='fab-btn vardan';
         btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doVardan();};
+        pop.appendChild(btn);
+      }
+      if(hasHealTarget){
+        const btn=document.createElement('button');
+        btn.className='fab-btn heal'; // плейсхолдер img/btn_heal.png — автор подключит свою картинку позже
+        btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;G.phase='healTarget';lg(`${card.name}: click an ALLY to heal.`,'hint');render();};
         pop.appendChild(btn);
       }
       d.appendChild(pop);
@@ -958,12 +971,18 @@ function updateEndTurnBtn(){
 }
 
 // Строит HTML статус-бара одной фракции. mirrored=true — для бара, который сейчас сидит
-// СВЕРХУ (оппонент): pcard'ы (Мир/Артефакт) и HP/Essence-каунтеры меняются МЕСТАМИ (а не
-// зеркалятся — это текст/арт с читаемым содержимым, зеркальный текст был бы нечитаем),
-// чтобы сохранить правило «мир и HP слева от базы» в перевёрнутом виде (там — справа).
-// Декоративные плейсхолдеры без текста (edge-left/right/right-2, hp-placeholder,
-// statbar-extra) вместо этого зеркалятся transform'ом — см. #oppStats .statbar-edge-*
-// и т.п. в styles.css, тот же приём, что уже применён к фону бара (#oppStats::before).
+// СВЕРХУ (оппонент): вся панель должна выглядеть как РАЗВЁРНУТАЯ НА 180° копия нижней —
+// объект, что был у нас в правом верхнем углу, у оппонента оказывается в левом нижнем
+// (не просто "отражён на месте", а физически переезжает на противоположную сторону).
+// Для элементов, участвующих в обычном flex-потоке (extra/hp-placeholder/pcard/core) это
+// делается разворотом ПОРЯДКА всего ряда — простой .reverse() уже даёт нужную перестановку
+// позиций. pcard/HP/Essence — текст/арт с читаемым содержимым — при этом перемещаются, но
+// НЕ зеркалятся по контенту (иначе стали бы нечитаемы); зато порядок HP/база/Essence ВНУТРИ
+// statbar-core флипается отдельно (mirrored ? ess-name-hp : hp-name-ess), т.к. reverse()
+// всего ряда не заглядывает внутрь одной строки-блока.
+// Декоративные edge-элементы (statbar-edge-left/right/right-2) вне потока — position:absolute,
+// на них .reverse() не действует (порядок в DOM для absolute неважен), поэтому их зеркальные
+// координаты прописаны явно в styles.css (#oppStats .statbar-edge-*), см. комментарий там.
 // isPlayerSide — как раньше у _mkPcardSlotHtml: включает onclick для активации
 // Shard/Altar, актуально только для СВОЕЙ стороны (playerStats), не для оппонента.
 function _mkStatsBarHtml(faction, mirrored, isPlayerSide){
@@ -978,16 +997,18 @@ function _mkStatsBarHtml(faction, mirrored, isPlayerSide){
   const core=mirrored
     ? `<span class="statbar-core">${essBox}${nameBox}${hpBox}</span>`
     : `<span class="statbar-core">${hpBox}${nameBox}${essBox}</span>`;
-  const leftPcard=mirrored?artifactSlot:worldSlot;
-  const rightPcard=mirrored?worldSlot:artifactSlot;
+  const inFlow=[
+    '<span class="statbar-extra"></span>',
+    '<span class="hp-placeholder"></span>',
+    worldSlot,
+    core,
+    artifactSlot,
+    '<span class="statbar-extra"></span>',
+  ];
+  const orderedInFlow=(mirrored?inFlow.slice().reverse():inFlow).join('\n  ');
   return `
   ${edgeLeft}
-  <span class="statbar-extra"></span>
-  <span class="hp-placeholder"></span>
-  ${leftPcard}
-  ${core}
-  ${rightPcard}
-  <span class="statbar-extra"></span>
+  ${orderedInFlow}
   ${edgeRight2}
   <span class="statbar-edge-right"></span>`;
 }
