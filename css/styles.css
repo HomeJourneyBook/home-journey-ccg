@@ -359,6 +359,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .db-decor{display:block; height:100%; background:#0d0d1a;}
   .db-decor-left,.db-decor-right{flex:0 0 auto; aspect-ratio:1/3;}
   .db-decor-mid{flex:0 0 auto; aspect-ratio:1/2;}
+  .db-decor-right{background-image:url('../img/db_decorR.png');background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
   .db-curve{height:100%;}
   .db-filters-col{gap:8px;justify-content:space-between;}
   .db-header-title{flex:0 0 auto;align-self:center;}
