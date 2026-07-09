@@ -253,21 +253,44 @@ function dbSetQty(faction,key,newQty,sourceStackEl){
   if(oldQty===newQty) return;
   const movingToChosen=newQty>oldQty; // только пул→выбрано летит; обратно пока как было (по просьбе автора)
   let flyClone=null;
+  // 2026-07-09: клон раньше был position:fixed внутри document.body с z-index:3000 —
+  // полностью игнорировал overflow:hidden у .modal (letal за её границы, в чёрный фон
+  // снизу экрана) и рисовался ПОВЕРХ футера с кнопками (z-index:6 у .modal-footer-plate,
+  // 3000 всегда крупнее). Теперь клон — потомок САМОЙ .modal (там уже есть
+  // overflow:hidden), position:absolute с координатами, посчитанными относительно неё же,
+  // и z-index:2 — между сеткой карт (.db-card, z-index:1) и футером (6), так что видно
+  // ПОД футером и обрезается по границе модалки, а не летит по экрану дальше.
+  // ВАЖНО: containing block для position:absolute — это PADDING-box родителя, не border-box
+  // (getBoundingClientRect() отдаёт border-box) — толщину рамки (--modal-border-w) нужно
+  // вычесть отдельно, иначе клон окажется смещён ровно на неё.
+  let modalEl=null, modalRect=null, modalBorderL=0, modalBorderT=0;
   if(movingToChosen && sourceStackEl){
+    modalEl=sourceStackEl.closest('.modal');
     const r=sourceStackEl.getBoundingClientRect();
     flyClone=sourceStackEl.cloneNode(true);
     // --card-w/--card-h у .db-stack обычно считаются от cqw контейнера (.db-grid) —
-    // вне этого контейнера (клон уедет в document.body) cqw ничего не значит, поэтому
-    // пиним их как фиксированные px прямо на клоне, снятые с реального рендера в
-    // момент клика — все внутренние calc() у потомков продолжат резолвиться верно.
+    // вне этого контейнера cqw ничего не значит, поэтому пиним их как фиксированные px
+    // прямо на клоне, снятые с реального рендера в момент клика — все внутренние
+    // calc() у потомков продолжат резолвиться верно.
     flyClone.style.setProperty('--card-w', r.width+'px');
     flyClone.style.setProperty('--card-h', r.height+'px');
-    flyClone.style.position='fixed';
-    flyClone.style.left=r.left+'px';
-    flyClone.style.top=r.top+'px';
     flyClone.style.margin='0';
-    flyClone.style.zIndex='3000';
+    flyClone.style.zIndex='2';
     flyClone.style.pointerEvents='none';
+    if(modalEl){
+      modalRect=modalEl.getBoundingClientRect();
+      const cs=getComputedStyle(modalEl);
+      modalBorderL=parseFloat(cs.borderLeftWidth)||0;
+      modalBorderT=parseFloat(cs.borderTopWidth)||0;
+      flyClone.style.position='absolute';
+      flyClone.style.left=(r.left-modalRect.left-modalBorderL)+'px';
+      flyClone.style.top=(r.top-modalRect.top-modalBorderT)+'px';
+    }else{
+      // fallback — .modal почему-то не нашёлся, ведём себя как раньше, чтобы не сломать анимацию совсем
+      flyClone.style.position='fixed';
+      flyClone.style.left=r.left+'px';
+      flyClone.style.top=r.top+'px';
+    }
   }
   _db.picks[faction][key]=newQty;
   playSfx('yellow_buttom');
@@ -284,11 +307,16 @@ function dbSetQty(faction,key,newQty,sourceStackEl){
       const isNewStack=oldQty===0;
       if(isNewStack) destStack.style.opacity='0';
       const destRect=destStack.getBoundingClientRect();
-      document.body.appendChild(flyClone);
+      (modalEl||document.body).appendChild(flyClone);
       requestAnimationFrame(()=>{
         flyClone.style.transition='left 320ms cubic-bezier(.25,.85,.35,1), top 320ms cubic-bezier(.25,.85,.35,1), opacity 160ms ease-in 200ms';
-        flyClone.style.left=destRect.left+'px';
-        flyClone.style.top=destRect.top+'px';
+        if(modalEl&&modalRect){
+          flyClone.style.left=(destRect.left-modalRect.left-modalBorderL)+'px';
+          flyClone.style.top=(destRect.top-modalRect.top-modalBorderT)+'px';
+        }else{
+          flyClone.style.left=destRect.left+'px';
+          flyClone.style.top=destRect.top+'px';
+        }
         flyClone.style.opacity='0';
       });
       if(isNewStack){
