@@ -310,6 +310,8 @@ let _gateTimer=null;
 const GATE_AUTO_CLOSE_MS=10000;
 const GATE_FRAME_COUNT=7;
 const GATE_STEP_MS=150; // время между соседними кадрами
+let _gateOpening=false; // true всё время анимации открытия (frame 2..7) — блокирует повторный клик,
+                          // который иначе рестартовал бы анимацию с начала (см. openGates() ниже)
 
 let _gateAnimTimers=[];
 function _clearGateAnimTimers(){
@@ -328,6 +330,8 @@ function openGates(){
   const sprite=document.getElementById('playGateSprite');
   if(!wrap||!sprite) return;
   if(wrap.classList.contains('gates-open')) return; // уже открыто
+  if(_gateOpening) return; // анимация открытия уже идёт — клик "в никуда", не рестартуем с начала
+  _gateOpening=true;
   playSfx('open_door');
   _clearGateAnimTimers();
   wrap.classList.remove('gate-idle'); // анимация пошла — ховер больше не показываем
@@ -336,6 +340,7 @@ function openGates(){
     _gateAnimTimers.push(setTimeout(()=>{
       _setGateFrame(sprite,frame);
       if(frame===GATE_FRAME_COUNT){
+        _gateOpening=false;
         wrap.classList.add('gates-open');
         _startGateTimer();
       }
@@ -347,6 +352,7 @@ function closeGates(){
   const wrap=document.getElementById('playGateWrap');
   const sprite=document.getElementById('playGateSprite');
   if(!wrap||!sprite) return;
+  _gateOpening=false;
   clearGateTimer();
   _clearGateAnimTimers();
   wrap.classList.remove('gates-open');
