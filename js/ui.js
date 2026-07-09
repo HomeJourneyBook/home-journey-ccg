@@ -20,14 +20,28 @@ function _modalPopIn(overlayEl){
   void stack.offsetWidth;
   stack.classList.add('modal-pop-in');
 }
+// Общий лок на время перехода — БЕЗ него повторный клик по кнопке модалки посреди
+// pop-out анимации (~250-315мс) планирует ВТОРОЙ setTimeout(onDone,...), и оба onDone
+// срабатывают по очереди (репорт автора: два клика по "Ready" после муллигана — и
+// анимация "Battle begins!"/раскрытия арены играется дважды подряд). Пока лок взведён,
+// _modalPopOut() ничего не делает — визуально ровно то же "тыканье в никуда", что и у
+// ворот на лендинге (см. openGates()/_gateOpening). Снимается сам, в момент срабатывания
+// onDone — к этому моменту следующий экран/модалка уже показывается, и клики по НЕЙ
+// (не по той, что уже закрылась) снова работают нормально.
+let _modalTransitioning=false;
 function _modalPopOut(overlayEl, onDone, delay){
+  if(_modalTransitioning) return;
+  _modalTransitioning=true;
   const stack=overlayEl.querySelector('.modal-stack');
   if(stack){
     stack.classList.remove('modal-pop-in','modal-pop-out');
     void stack.offsetWidth;
     stack.classList.add('modal-pop-out');
   }
-  if(onDone) setTimeout(onDone, delay!=null?delay:250);
+  setTimeout(()=>{
+    _modalTransitioning=false;
+    if(onDone) onDone();
+  }, delay!=null?delay:250);
 }
 
 let musicEnabled = localStorage.getItem('hj_music') !== 'off';
