@@ -7,7 +7,7 @@
   font-style: normal;
 }
 
- 
+
 :root {
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716); 
@@ -1148,24 +1148,24 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-rush.placeholder::after{content:'⚡ Rush (28+)';}
 
 .modal-icon-btn.btn-home{background-image:url('../img/btn_home1.png');}
-.modal-icon-btn.btn-home:hover{background-image:url('../img/btn_homeH.png');}
-.modal-icon-btn.btn-home:active{background-image:url('../img/btn_home2.png');transform:none;}
+.modal-icon-btn.btn-home:hover{background-image:url('../img/btn_homeH.png');filter:brightness(1);}
+.modal-icon-btn.btn-home:active{background-image:url('../img/btn_home2.png');filter:brightness(1);transform:none;}
 
 .modal-icon-btn.btn-repeat{background-image:url('../img/btn_repeat1.png');}
-.modal-icon-btn.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');}
-.modal-icon-btn.btn-repeat:active{background-image:url('../img/btn_repeat2.png');transform:none;}
+.modal-icon-btn.btn-repeat:hover{background-image:url('../img/btn_repeatH.png');filter:brightness(1);}
+.modal-icon-btn.btn-repeat:active{background-image:url('../img/btn_repeat2.png');filter:brightness(1);transform:none;}
 
 .modal-icon-btn.btn-save{background-image:url('../img/btn_save1.png');}
-.modal-icon-btn.btn-save:hover{background-image:url('../img/btn_saveH.png');}
-.modal-icon-btn.btn-save:active{background-image:url('../img/btn_save2.png');transform:none;}
+.modal-icon-btn.btn-save:hover{background-image:url('../img/btn_saveH.png');filter:brightness(1);}
+.modal-icon-btn.btn-save:active{background-image:url('../img/btn_save2.png');filter:brightness(1);transform:none;}
 
 .modal-icon-btn.btn-classic{background-image:url('../img/btn_classic1.png');}
-.modal-icon-btn.btn-classic:hover{background-image:url('../img/btn_classicH.png');}
-.modal-icon-btn.btn-classic:active{background-image:url('../img/btn_classic2.png');transform:none;}
+.modal-icon-btn.btn-classic:hover{background-image:url('../img/btn_classicH.png');filter:brightness(1);}
+.modal-icon-btn.btn-classic:active{background-image:url('../img/btn_classic2.png');filter:brightness(1);transform:none;}
 
 .modal-icon-btn.btn-rush{background-image:url('../img/btn_rush1.png');}
-.modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');}
-.modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');transform:none;}
+.modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');filter:brightness(1);}
+.modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');filter:brightness(1);transform:none;}
 .modal-icon-btn.btn-imp{background-image:url('../img/btn_imp1.png');}
 .modal-icon-btn.btn-imp:hover{background-image:url('../img/btn_impH.png');filter:brightness(1);}
 .modal-icon-btn.btn-imp:active{background-image:url('../img/btn_imp2.png');filter:brightness(1);transform:none;}
@@ -1174,9 +1174,16 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-exp:hover{background-image:url('../img/btn_expH.png');filter:brightness(1);}
 .modal-icon-btn.btn-exp:active{background-image:url('../img/btn_exp2.png');filter:brightness(1);transform:none;}
 
-.modal-icon-btn.btn-ok{background-image:url('../img/btn_ok1.png');}
+/* 2026-07-09: idle (обычное, некликнутое, НЕ disabled) состояние теперь отдельный файл
+   btn_ok1_1.png — btn_ok1.png переехал на роль disabled-арта (см. :disabled ниже), автор
+   рисует их по-разному (уточнил явно: "diactive версию как btn_ok1"). */
+.modal-icon-btn.btn-ok{background-image:url('../img/btn_ok1_1.png');}
 .modal-icon-btn.btn-ok:hover{background-image:url('../img/btn_okH.png');filter:brightness(1);}
 .modal-icon-btn.btn-ok:active{background-image:url('../img/btn_ok2.png');filter:brightness(1);transform:none;}
+/* Disabled — раньше это был просто idle-арт с opacity:.4 (см. #deckBuilderNextBtn:disabled
+   ниже в файле, opacity убран оттуда) — теперь свой арт (btn_ok1.png) без искусственного
+   затемнения, автор рисует неактивный вид сам. */
+.modal-icon-btn.btn-ok:disabled{background-image:url('../img/btn_ok1.png');}
 
 
 /* ── Кнопка "назад" В УГЛУ МОДАЛКИ — deckPickerModal/vsAiPickerModal (НЕ mulliganScreen,
@@ -1202,8 +1209,8 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   z-index:6; /* выше .modal-decor(5), поверх рамки — как у footer-plate */
 }
 .modal-icon-btn.btn-back-corner{background-image:url('../img/btn_back_corner1.png');}
-.modal-icon-btn.btn-back-corner:hover{background-image:url('../img/btn_back_cornerH.png');}
-.modal-icon-btn.btn-back-corner:active{background-image:url('../img/btn_back_corner2.png');transform:none;}
+.modal-icon-btn.btn-back-corner:hover{background-image:url('../img/btn_back_cornerH.png');filter:brightness(1);}
+.modal-icon-btn.btn-back-corner:active{background-image:url('../img/btn_back_corner2.png');filter:brightness(1);transform:none;}
 
 /* ── Кнопка "назад" В ФУТЕРЕ (deckBuilderModal — первая в общем ряду кнопок, того же
    размера, что Clear/Import/Export/OK, .sq). Арта пока нет — плейсхолдер конвеньш, как у
@@ -1219,9 +1226,12 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    реального арт-правила вообще — добавлено по тому же конвеншну, что у остальных: три файла
    img/btn_clear1/H/2.png, никаких brightness-эффектов на hover/active (арт уже содержит
    нужный визуал сам по себе). */
-.modal-icon-btn.btn-clear{background-image:url('../img/btn_clear1.png');}
-.modal-icon-btn.btn-clear:hover{background-image:url('../img/btn_clearH.png');filter:brightness(1);}
-.modal-icon-btn.btn-clear:active{background-image:url('../img/btn_clear2.png');filter:brightness(1);transform:none;}
+/* Файл называется btn_clean1/H/2.png (не btn_clear — класс .btn-clear остался прежним,
+   поменялись только пути; раньше здесь стоял btn_clear1/H/2.png, которого не существовало
+   в img/, поэтому арт не подхватывался — 2026-07-09, по уточнению автора). */
+.modal-icon-btn.btn-clear{background-image:url('../img/btn_clean1.png');}
+.modal-icon-btn.btn-clear:hover{background-image:url('../img/btn_cleanH.png');filter:brightness(1);}
+.modal-icon-btn.btn-clear:active{background-image:url('../img/btn_clean2.png');filter:brightness(1);transform:none;}
 
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
@@ -3075,10 +3085,23 @@ img{
    clamp с тем же принципом (те же 1350/2025px брейкпоинты, тот же ×1.5), просто свой
    vw-коэффициент (2.963vw = вдвое от 1.4815vw, т.к. диапазон 40→60 вдвое шире, чем 20→30) —
    оба растут синхронно на одних и тех же брейкпоинтах, сохраняя соотношение 2:1 на любой
-   ширине экрана. */
+   ширине экрана.
+   2026-07-09 (доп. правка): --modal-footer-border-w ТОЖЕ переопределён здесь отдельно, тем же
+   способом — иначе (см. корневую формулу — border-w×7/54) он считался бы от ЛОКАЛЬНОГО
+   маленького border-w (20-30px) и давал бы ~2.6-3.9px вместо полноценных 7-10.5px. Это ломало
+   сразу две вещи: (1) высоту бокса с кнопками — в стандартных модалках она НИГДЕ явно не
+   задана, а получается сама как 40+7+7=54=border-w (тождество одной пропорции от одной
+   переменной); при few-px борте бокс получался бы ниже (~45px), чем везде остальные;
+   (2) пропорцию slice/толщина у самого арта (14/7=2:1, как везде) — при 2.6-3.9px давало бы
+   ~5.4:1, арт с 14px резкой угла выглядел бы сжатым сильнее, чем нарисован. Теперь то же
+   значение 7-10.5px, что и в стандартных модалках, — бокс с кнопками ВСЕГДА той же высоты
+   (40+7+7=54 .. 60+10.5+10.5=81 — идентично диапазону корневого --modal-border-w), а arst
+   bg_jest2.png/bg_jest2_border.png рендерятся в задуманной пропорции 2:1 независимо от того,
+   что сама рамка ОКНА (bg_modal_deck) тоньше. */
 #deckBuilderModal{
   --modal-border-w: clamp(20px, 1.4815vw, 30px);
   --modal-footer-btn-h: clamp(40px, 2.963vw, 60px);
+  --modal-footer-border-w: clamp(7px, 0.5185vw, 10.5px);
 }
 /* Кнопки футера (.sq) в деккбилдере используют --modal-footer-btn-h вместо общего 6vh
    (см. .modal-icon-btn.sq) — тот же приём, что уже применён к #winModal .modal-icon-btn.sq. */
@@ -3264,7 +3287,10 @@ img{
   flex:0 0 auto;
   background:#5a7278;
 }
-#deckBuilderNextBtn:disabled{opacity:.4;cursor:not-allowed;filter:none!important;}
+/* opacity:.4 убран 2026-07-09 — раньше это была временная "прозрачность"-заглушка на
+   старом idle-арте, теперь disabled показывает свой собственный файл (btn_ok1.png, см.
+   .modal-icon-btn.btn-ok:disabled выше в файле) без искусственного затемнения. */
+#deckBuilderNextBtn:disabled{cursor:not-allowed;filter:none!important;}
 
 .db-split{display:flex;gap:16px;align-items:stretch;height:100%;}
 /* Каждая панель скроллится СВОЯ, независимо от другой — раньше был один общий скролл на
