@@ -212,7 +212,7 @@ function preloadAssets(){
     // ── Кнопки модалок ──
     'img/btn_yes1.png', 'img/btn_yes2.png', 'img/btn_yesH.png',
     'img/btn_cancel1.png', 'img/btn_cancel2.png', 'img/btn_cancelH.png',
-    'img/btn_mulligan1.png', 'img/btn_mulliganH.png', 'img/btn_mulligan2.png',
+    'img/btn_mulligan1.png', 'img/btn_mulliganH.png', 'img/btn_mulligan2.png', 'img/btn_mulliganD.png',
     'img/btn_ready1.png', 'img/btn_readyH.png', 'img/btn_ready2.png',
     'img/btn_tea1.png', 'img/btn_tea2.png', 'img/btn_teaH.png',
     'img/btn_jeet1.png', 'img/btn_jeet2.png', 'img/btn_jeetH.png',
