@@ -288,7 +288,7 @@ function doAttack(att,target){
   if(!willFear && !willBurn) playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
-  if(!hasTag(att,'invisible') && !target.feared)
+  if(!hasTag(att,'invisible') && !target.feared && !target.exhausted)
   dmgCard(att,
     target.atk +
     (target.atkBonus || 0) + (target.tempAtkBonus || 0) +
@@ -834,10 +834,20 @@ function endTurn(){
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
 
-  G[G.turn].field.forEach(c=>{c.sleeping=false;c.exhausted=false;c.feared=false;c.tempAtkBonus=0;});
-  G[G.turn].artifacts.forEach(a=>{a.sleeping=false;a.exhausted=false;});
+  // sleeping/feared/tempAtkBonus — как раньше, снимаются у ВЫХОДЯЩЕГО игрока сразу
+  // (т.е. к ходу соперника его карты уже не "спят" — полноценно отвечают на атаки).
+  // exhausted — намеренно НЕ здесь: см. ниже, снимается только к СВОЕМУ следующему
+  // ходу владельца, чтобы уставшая карта весь ход соперника оставалась уязвима без
+  // ответки (см. AI BALANCE NOTES / CLAUDE.md "Version 1.01", п.11).
+  G[G.turn].field.forEach(c=>{c.sleeping=false;c.feared=false;c.tempAtkBonus=0;});
+  G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
   G.turn=next;
   const cur=G[G.turn];
+  // exhausted снимается здесь — у ИГРОКА, ЧЕЙ ход начинается, а не у того, чей закончился.
+  // Артефакты — туда же, для визуальной консистентности (симметрично картам, хотя
+  // геймплейно соперник артефакт всё равно не активирует).
+  cur.field.forEach(c=>{c.exhausted=false;});
+  cur.artifacts.forEach(a=>{a.exhausted=false;});
   cur.burned=false;
   if(G.jeetFirstTurn&&G.turn==='jeet'){
     cur.essMax=1;cur.ess=1;G.jeetFirstTurn=false;
