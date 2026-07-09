@@ -246,7 +246,7 @@ function preloadAssets(){
 
     // ── Карты — базовые фреймы ──
     'img/card_tea.png', 'img/card_jeet.png',
-    'img/card_name_bg.png', 'img/card_text_bg.png',
+    'img/card_name_bg.png', 'img/card_name_world_bg.png', 'img/card_text_bg.png',
     'img/card_stat_bg.png', 'img/card_text_world_bg.png',
     'img/pcard_bg.png',
     'img/pcard_tea_shutter_sheet.png', 'img/pcard_jeet_shutter_sheet.png',
