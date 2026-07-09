@@ -30,7 +30,9 @@ function renderCatalog(){
   if(!grid)return;
 
   let cards=Object.entries(DEFS).filter(([key,def])=>{
-    if(catalogFilters.faction!=='all'&&def.f!==catalogFilters.faction) return false;
+    if(catalogFilters.faction==='neutral'){
+      if(!def.neutral) return false;
+    } else if(catalogFilters.faction!=='all'&&def.f!==catalogFilters.faction) return false;
     const type=getCardType(def);
     if(catalogFilters.type!=='all'&&type!==catalogFilters.type) return false;
     if(search&&!def.name.toLowerCase().includes(search)&&!def.ab.toLowerCase().includes(search)) return false;
@@ -66,7 +68,7 @@ function renderCatalog(){
       .join('');
 
     const div=document.createElement('div');
-    div.className=`card cat-card ${def.f==='tea'?'tea-card':'jeet-card'}`;
+    div.className=`card cat-card ${def.f==='tea'?'tea-card':'jeet-card'}${def.neutral?' neutral-card':''}`;
     div.style.cursor='pointer';
     div.onclick=()=>{playSfx('yellow_buttom');openCardDetail(def);};
     div.addEventListener('mouseenter',()=>playSfx('card_navigation_cursor'));
@@ -134,6 +136,7 @@ function openCardDetail(def){
     : 'Traveler';
 
   const bgClass = faction==='tea'?'tea-card':'jeet-card';
+  const neutralClass = def.neutral?'neutral-card':'';
   const worldClass = (def.world||def.fullArt)?'world-card':'';
   const worldBg = (def.world||def.fullArt) && def.img ? `background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;` : '';
 
@@ -142,7 +145,7 @@ function openCardDetail(def){
   if(def.world||def.fullArt){
     box.innerHTML = `
       <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
-      <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="${worldBg}">
+      <div class="card ${bgClass} ${worldClass} ${neutralClass} card-detail-scaled" style="${worldBg}">
         <div class="card-cost">${def.cost}</div>
         <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
         <div class="card-name-box"><div class="card-name">${def.name}</div></div>
@@ -155,7 +158,7 @@ function openCardDetail(def){
 
   box.innerHTML = `
     <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
-    <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="${worldBg}">
+    <div class="card ${bgClass} ${worldClass} ${neutralClass} card-detail-scaled" style="${worldBg}">
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img
