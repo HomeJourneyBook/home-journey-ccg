@@ -3056,6 +3056,17 @@ img{
    в %, ширина ряда стабильна независимо от длины текста. container-type даёт cqw —
    шрифты внутри тоже в %-подобных единицах, не хардкод px. */
 @media(min-width:601px){
+  .db-header-row2{
+    height:11vh; /* КОРЕНЬ проблемы "хидер растягивается": раньше высоты не было вообще —
+      всё (title/stats/curve/buttons) сидело на content-driven auto-размере и через
+      align-items:stretch раздувало друг друга при любом изменении текста (например
+      "Selected: 0" → "Selected: 100"). Теперь высота фиксирована независимо от контента —
+      как у HP-баров/счётчиков (те тоже держатся на vh, а не на размере текста внутри).
+      Значение подобрано на глаз, можно смело подвинуть без побочных эффектов — все дети
+      ниже завязаны на % / height:100% от этой высоты, а не наоборот. Только лаптоп —
+      на телефоне хидер в 3 сложенные строки (title/stats+curve/buttons), фиксированная
+      высота там их бы сплющила, поэтому мобильный @media ниже эту высоту не трогает. */
+  }
   .db-header-left{
     container-type:inline-size;
     justify-content:flex-start;
@@ -3070,7 +3081,7 @@ img{
   .db-decor-left{flex:0 0 15%;}
   .db-decor-mid{flex:0 0 12%;}
   .db-decor-right{flex:1 1 auto;min-width:0;} /* добирает весь остаток ширины — не нужно точно считать, сколько места реально занимает диаграмма (aspect-ratio:1/1 от высоты) */
-  .db-stats{flex:0 0 30%;box-sizing:border-box;font-size:2.6cqw;}
+  .db-stats{flex:0 0 30%;box-sizing:border-box;font-size:2.6cqw;height:100%;overflow:hidden;}
   .db-curve-n{font-size:1.7cqw;}
   .db-curve-label{font-size:1.7cqw;}
 }
@@ -3139,8 +3150,8 @@ img{
    хедера на мобильной версии, просто тут это ГОРИЗОНТАЛЬНАЯ граница между заголовком
    (сверху, в этой же .db-filters-col) и кнопками (снизу), а не отдельный элемент. */
 @media(min-width:601px){
-  .db-filters{justify-content:center;border-top:2px solid #212e37;padding-top:4px;}
-  .db-filter-btn{flex:0 0 8%;}
+  .db-filters{justify-content:center;align-items:center;border-top:2px solid #212e37;padding-top:4px;}
+  .db-filter-btn{flex:0 0 auto;height:50%;align-self:center;} /* было flex:1 1 0 на всю высоту ряда — теперь высота явно = половине высоты ряда, ширина сама следует через aspect-ratio:2/1 (см. базовое правило выше) */
 }
 
 .db-filter-btn.sort-all{background-image:url('../img/sort_all1.png');}
