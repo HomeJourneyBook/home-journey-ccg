@@ -563,8 +563,11 @@ const tagIcons = (card.tags||[])
   .filter(t=>TAG_ICONS[t])
   .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
   .join('');
-  // ── Ветка для карт-Миров: своя разметка (без card-art и card-stats), свой фон ──
-  if(card.world){
+  // ── Ветка для карт-Миров И визуально-полноартовых карт (fullArt:true, напр. UNSEEN) ──
+  // fullArt — ЧИСТО визуальный флаг, не путать с card.world: механика (doPlay/таргетинг/
+  // персистентный слот) продолжает работать по card.spell/card.world как раньше, эта ветка
+  // только выбирает вёрстку (без card-art/card-stats, свой фон) — см. CLAUDE.md Version 1.01 п.1.
+  if(card.world||card.fullArt){
   d.classList.add('world-card');
   if(card.img){
     d.style.cssText += ';background-image:url(\'img/cards/'+card.img+'\')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;';
