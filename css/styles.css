@@ -4,7 +4,7 @@
   src: url('../fonts/MEK.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
-} 
+}
 :root{
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716);
@@ -331,7 +331,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* ═══════════════════════════════════════════════════════════════════════
    DECKBUILDER (Rush) — сборка колоды
    ═══════════════════════════════════════════════════════════════════════ */
-.modal-icon-btn.btn-ok:disabled{background-image:url('../img/btn_ok1.png');}
+.modal-icon-btn.btn-ok:disabled{background-image:url('../img/btn_ok1.png');pointer-events:none;}
 /*── Кнопка "назад" В УГЛУ МОДАЛКИ — deckPickerModal/vsAiPickerModal (НЕ mulliganScreen,*/
 .modal-icon-btn.corner-back{position:absolute; bottom:0; left:0; width:var(--modal-border-w); height:var(--modal-border-w); z-index:6;}
 /*── Кнопка "назад" В ФУТЕРЕ (deckBuilderModal — первая в общем ряду кнопок, того же*/
@@ -354,7 +354,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .db-decor{display:none;}
 /*Только лаптоп/десктоп (2026-07-08): 3 чёрных плейсхолдера под будущий декор-арт*/
 @media(min-width:601px){
-  .db-header-row2{height:11vh;}
+  .db-header-row2{height:20vh;}
   .db-header-left{container-type:inline-size; justify-content:flex-start; gap:1.5%; padding-top:8px; padding-bottom:8px; box-sizing:border-box;}
   .db-decor{display:block; height:100%; background:#0d0d1a; border-radius:2px;}
   .db-decor-left{flex:0 0 15%;}
