@@ -431,6 +431,12 @@
   <!-- Screen-edge glow on base damage/heal — see _applyPendingFlash() in game.js -->
   <div id="screenEdgeFlash" class="screen-edge-flash"></div>
 
+  <!-- "Battle begins!" — разовая надпись поверх арены сразу после последнего муллигана,
+       см. playArenaRevealAnimation() в ui.js. pointer-events:none — под ней всё кликабельно.
+       Внутренний span получает font-size из JS (подгонка под ~40% ширины экрана) и все
+       анимационные классы — внешний div только центрирует. -->
+  <div id="battleBeginsText" class="battle-begins-text hidden"><span id="battleBeginsInner" class="battle-begins-inner">Battle begins!</span></div>
+
   <!-- HEADER -->
   <div class="header">
 <div id="aiThinkingBanner" style="display:none;position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:50;background:#0a0a12ee;border:1px solid #b44fd4;color:#e0b8f0;font-family:'MEK',monospace;font-size:11px;letter-spacing:1px;padding:5px 14px;border-radius:4px;pointer-events:none;"></div>
