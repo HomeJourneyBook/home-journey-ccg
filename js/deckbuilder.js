@@ -47,7 +47,7 @@ function backFromDeckBuilder(){
 
 function _openDeckBuilderStep(){
   const faction=_dbFaction();
-  document.getElementById('deckBuilderTitle').textContent = 'CHOOSE YOUR DECK';
+  document.getElementById('deckBuilderTitle').textContent = 'BUILD YOUR DECK';
   _dbFilter='all';
   _renderDeckBuilder(faction);
   const modal=document.getElementById('deckBuilderModal');
