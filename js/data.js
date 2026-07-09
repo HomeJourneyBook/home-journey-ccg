@@ -121,5 +121,5 @@ const DEFS = {
   j_a2:        {name:"ALTAR",  cost:3,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Active: sacrifice 1 of your creatures, +1 Essence.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
-  unseen:      {name:"UNSEEN", cost:0,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return ALL field cards to their owners.",spell:true,fullArt:true},
+  unseen:      {name:"UNSEEN", cost:0,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return ALL field cards to their owners.",spell:true,fullArt:true,neutral:true},
 };
