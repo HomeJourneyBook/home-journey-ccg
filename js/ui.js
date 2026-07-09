@@ -661,6 +661,58 @@ function startMulliganFor(faction){
   }
 }
 
+// Плавная "сборка" арены после последнего муллигана (или сразу после vsAI-муллигана
+// человека): вместо плоского fade всего #game верхняя тройка полос (статус оппонента →
+// его рука → его поле) выезжает сверху вниз, нижняя (поле игрока → его рука → его
+// статус → активный bottom-bar) — снизу вверх, обе с одинаковой схемой задержек
+// "край первым, центр последним" — экран сходится к полям боя. Вызывать ПОСЛЕ render(),
+// чтобы к этому моменту уже был известен актуальный activeBottomBar (render() сам
+// решает teaBottomBar/jeetBottomBar через display) и руки лежали в верных зонах.
+function playArenaRevealAnimation(){
+  const header = document.querySelector('#game .header');
+  const topEls = ['oppStats','oppHandZone','oppFieldZone']
+    .map(id=>document.getElementById(id)).filter(Boolean);
+  const bottomBar = ['teaBottomBar','jeetBottomBar']
+    .map(id=>document.getElementById(id))
+    .find(el=>el && el.style.display!=='none');
+  const bottomEls = ['playerFieldZone','playerHandZone','playerStats']
+    .map(id=>document.getElementById(id)).filter(Boolean);
+  if(bottomBar) bottomEls.push(bottomBar);
+
+  const allEls=[header,...topEls,...bottomEls].filter(Boolean);
+  // Сброс на случай повторного показа арены в той же вкладке (напр. Restart) — без
+  // remove+reflow повторный add() на уже применённом классе анимацию не перезапустит.
+  allEls.forEach(el=>{
+    el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in');
+    el.style.animationDelay='';
+  });
+  void document.getElementById('game').offsetWidth;
+
+  if(header) header.classList.add('arena-header-fade-in');
+  topEls.forEach((el,i)=>{
+    el.style.animationDelay=(i*0.08)+'s';
+    el.classList.add('arena-slide-down-in');
+  });
+  // bottomEls в DOM-порядке идут от центра к краю (playerFieldZone…bottomBar) —
+  // задержку считаем в обратном порядке, чтобы край (bottomBar) вошёл первым, а
+  // playerFieldZone (ближе к центру арены) — последним, зеркально top-группе.
+  const n=bottomEls.length;
+  bottomEls.forEach((el,i)=>{
+    el.style.animationDelay=((n-1-i)*0.07)+'s';
+    el.classList.add('arena-slide-up-in');
+  });
+
+  // Косметическая уборка классов после завершения — чтобы анимационные правила не
+  // висели на элементах бесконечно (на итоговый вид не влияет, both держит финальный кадр).
+  const totalMs = 550 + (Math.max(topEls.length-1,0)*80) + (Math.max(n-1,0)*70) + 50;
+  setTimeout(()=>{
+    allEls.forEach(el=>{
+      el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in');
+      el.style.animationDelay='';
+    });
+  }, totalMs);
+}
+
 function doMulliganPhase(){
   doMulligan(G.mulliganTurn);
   startMulliganFor(G.mulliganTurn);
@@ -676,11 +728,8 @@ function readyFromMulligan(){
       // тут не нужен, сразу переходим к партии.
       G.phase='action';
       G.mulliganTurn=null;
-      const game=document.getElementById('game');
-      game.classList.remove('game-fade-in');
-      void game.offsetWidth;
-      game.classList.add('game-fade-in');
       render();
+      playArenaRevealAnimation();
       requestAnimationFrame(adjustHandOverlap);
       if(G.turn===G.aiFaction&&typeof runAiTurn==='function'){
         setTimeout(()=>runAiTurn(),600);
@@ -692,17 +741,15 @@ function readyFromMulligan(){
     } else {
       G.phase='action';
       G.mulliganTurn=null;
-      const game = document.getElementById('game');
-      game.classList.remove('game-fade-in');
-      void game.offsetWidth;
-      game.classList.add('game-fade-in');
       render();
+      playArenaRevealAnimation();
       requestAnimationFrame(adjustHandOverlap);
     }
   };
 
   _modalPopOut(mulliganEl, proceed, 250);
 }
+
 
 // ── Navigation ────────────────────────────────────────────────
 
