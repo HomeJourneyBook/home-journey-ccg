@@ -751,7 +751,8 @@ function _playFieldStarsGrowIn(){
   }, 1050); // 0.65s рост + до 0.39s разброс + запас
 }
 
-// "Battle begins!": вырастает из центра экрана → держится и пульсирует 2с → уходит в fade.
+// "Battle begins!": вырастает из точки шва между полями боя (чуть выше центра экрана) →
+// держится и пульсирует 1с → уходит в fade.
 // Font-size подгоняется под ~40% ширины экрана измерением фактической ширины отрисованного
 // текста (на глаз в vw для произвольного шрифта 'MEK' — ненадёжно, ширина глифов неизвестна).
 function _playBattleBeginsText(){
@@ -761,6 +762,17 @@ function _playBattleBeginsText(){
 
   inner.classList.remove('battle-begins-in','battle-begins-pulse','battle-begins-out');
   wrap.classList.remove('hidden');
+
+  // Вертикальный якорь — не центр экрана, а шов между полями боя (низ oppFieldZone
+  // встречается с верхом playerFieldZone), т.е. "чуть выше центра" по факту макета.
+  // Среднее двух краёв — на случай, если между зонами когда-нибудь появится зазор/бордер.
+  const oppField = document.getElementById('oppFieldZone');
+  const playerField = document.getElementById('playerFieldZone');
+  let seamY = window.innerHeight/2;
+  if(oppField && playerField){
+    seamY = (oppField.getBoundingClientRect().bottom + playerField.getBoundingClientRect().top)/2;
+  }
+  wrap.style.top = seamY+'px';
 
   // Замер: временный крупный базовый размер, смотрим фактическую ширину, пересчитываем
   // до 40% ширины окна, затем сразу перезаписываем — пользователь base-размер не видит,
@@ -772,11 +784,11 @@ function _playBattleBeginsText(){
   const fittedPx = Math.max(18, PROBE_PX * (targetWidth / measuredWidth));
   inner.style.fontSize = fittedPx+'px';
 
-  void wrap.offsetWidth; // reflow, чтобы новый font-size применился до старта анимации
+  void wrap.offsetWidth; // reflow, чтобы новый font-size/top применились до старта анимации
 
   inner.classList.add('battle-begins-in');
   const growMs = 500;
-  const holdMs = 2000;
+  const holdMs = 1000;
   const fadeMs = 500;
 
   setTimeout(()=>{
