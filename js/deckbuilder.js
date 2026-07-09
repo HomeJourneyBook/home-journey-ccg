@@ -324,7 +324,8 @@ function _dbTotal(faction){
 function _renderDbCurve(faction){
   const el=document.getElementById('deckBuilderCurve');
   if(!el) return;
-  el.className='db-curve '+(faction==='tea'?'tea-curve':'jeet-curve'); // цвет столбиков — по фракции, см. styles.css
+  el.classList.remove('tea-curve','jeet-curve');
+  el.classList.add(faction==='tea'?'tea-curve':'jeet-curve'); // цвет столбиков — по фракции, см. styles.css
   const buckets=new Array(7).fill(0); // индекс 6 = "6+"
   Object.keys(_db.picks[faction]).forEach(key=>{
     const qty=_db.picks[faction][key];
