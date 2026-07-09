@@ -1166,7 +1166,6 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-rush{background-image:url('../img/btn_rush1.png');}
 .modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');}
 .modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');transform:none;}
-/*
 .modal-icon-btn.btn-imp{background-image:url('../img/btn_imp1.png');}
 .modal-icon-btn.btn-imp:hover{background-image:url('../img/btn_impH.png');filter:brightness(1);}
 .modal-icon-btn.btn-imp:active{background-image:url('../img/btn_imp2.png');filter:brightness(1);transform:none;}
@@ -1214,6 +1213,16 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-icon-btn.btn-back{background-image:url('../img/btn_back1.png');}
 .modal-icon-btn.btn-back:hover{background-image:url('../img/btn_backH.png');filter:brightness(1);}
 .modal-icon-btn.btn-back:active{background-image:url('../img/btn_back2.png');filter:brightness(1);transform:none;}
+
+/* ── Кнопка "очистить" В ФУТЕРЕ (deckBuilderModal, тот же ряд, что Back/Import/Export/OK).
+   Раньше плейсхолдер-эмодзи (см. .btn-clear.placeholder::after чуть ниже в файле) без
+   реального арт-правила вообще — добавлено по тому же конвеншну, что у остальных: три файла
+   img/btn_clear1/H/2.png, никаких brightness-эффектов на hover/active (арт уже содержит
+   нужный визуал сам по себе). */
+.modal-icon-btn.btn-clear{background-image:url('../img/btn_clear1.png');}
+.modal-icon-btn.btn-clear:hover{background-image:url('../img/btn_clearH.png');filter:brightness(1);}
+.modal-icon-btn.btn-clear:active{background-image:url('../img/btn_clear2.png');filter:brightness(1);transform:none;}
+
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
@@ -3054,9 +3063,28 @@ img{
    на .modal — кнопка "назад" (см. index.html) теперь сидит РЯДОМ с .modal (сиблинг в
    .modal-stack, не потомок — иначе её обрезало бы overflow:hidden/auto у .modal, отдельная
    история, см. комментарий у .modal-footer-plate), и ей нужно то же самое значение, иначе
-   она посчитает себя от стандартных 54px и не совпадёт с реально более тонкой (27px) рамкой. */
+   она посчитает себя от стандартных 54px и не совпадёт с реально более тонкой рамкой.
+   2026-07-09: было плоских 20px (не растущих с шириной экрана) — по запросу автора переведено
+   на тот же приём, что у корневого --modal-border-w (clamp(54px,4vw,81px), диапазон
+   1350px–2025px viewport, потолок ровно ×1.5 от базового), пропорционально уменьшенный под
+   локальный масштаб деккбилдера (20px база вместо 54px → коэффициент 20/54, те же брейкпоинты
+   viewport, тот же ×1.5 потолок: 20px→30px). vw-коэффициент 4vw*(20/54)=1.4815vw.
+   --modal-footer-btn-h ЗДЕСЬ НЕ наследуется от корневой формулы (var(--modal-border-w)*40/54 —
+   та калибрована под 54px-масштаб остальных модалок, при локальных 20-30px дала бы ~15-22px,
+   а автору нужно 40→60px, т.е. другой базовый масштаб целиком) — задан отдельным независимым
+   clamp с тем же принципом (те же 1350/2025px брейкпоинты, тот же ×1.5), просто свой
+   vw-коэффициент (2.963vw = вдвое от 1.4815vw, т.к. диапазон 40→60 вдвое шире, чем 20→30) —
+   оба растут синхронно на одних и тех же брейкпоинтах, сохраняя соотношение 2:1 на любой
+   ширине экрана. */
 #deckBuilderModal{
-  --modal-border-w: 20px;
+  --modal-border-w: clamp(20px, 1.4815vw, 30px);
+  --modal-footer-btn-h: clamp(40px, 2.963vw, 60px);
+}
+/* Кнопки футера (.sq) в деккбилдере используют --modal-footer-btn-h вместо общего 6vh
+   (см. .modal-icon-btn.sq) — тот же приём, что уже применён к #winModal .modal-icon-btn.sq. */
+#deckBuilderModal .modal-icon-btn.sq{
+  width:var(--modal-footer-btn-h);
+  height:var(--modal-footer-btn-h);
 }
 /* Отдельный арт рамки — ТОЛЬКО для самого окна выбора карт (деккбилдер), не для всей
    цепочки подбора деки (по уточнению автора — deckPicker/vsAiPicker остаются на обычном
@@ -3065,6 +3093,41 @@ img{
    (сплошная рамка), а не пропадает совсем — отдельный текстовый плейсхолдер тут не нужен. */
 #deckBuilderModal .modal{
   border-image-source:url('../img/bg_modal_deck.png');
+}
+/* ── "Столбики" по бокам футера деккбилдера (bg_jest2_border.png) — отдельный 9-slice
+   фон ТОЛЬКО для #deckBuilderModal, не трогает .modal-footer в остальных модалках (те
+   как использовали обычный bg_jest2.png, так и используют). Автор нарисовал в файле
+   собственные углы (slice 14, тот же формат, что и у bg_jest2) — поэтому это полноценный
+   9-slice, а не border только слева/справа: border-image-repeat задан РАЗНО по осям —
+   "stretch repeat" = верх/низ тянутся (первое значение — горизонтальные грани), лево/право
+   ТАЙЛЯТСЯ по вертикали (второе значение — вертикальные грани), не искажаясь на любой
+   высоте бокса, как и просил автор ("тайлятся именно левые и правые центральные тайлы").
+   Позиционирование: .modal-footer становится containing block (position:relative), сам
+   .db-footer-pillars — position:absolute;inset:0 + отрицательный margin по горизонтали на
+   var(--modal-footer-border-w) — раздвигает его РОВНО на эту величину за пределы бокса с
+   каждой стороны (та же переменная, что и толщина border-image самого бокса, — гарантирует
+   "точное совпадение", а не два независимо подобранных числа, которые могут разъехаться).
+   Высота НЕ трогается (inset:0 сверху/снизу без модификации) — совпадает с бокса ровно.
+   Центральные тайлы файла у автора прозрачны, но геометрически элемент всё равно шире и
+   лежит поверх всей ширины футера (то же самое "fill" 9-slice заливает и центр, пусть и
+   прозрачным пикселем) — pointer-events:none ОБЯЗАТЕЛЕН, иначе он бы перехватывал клики по
+   кнопкам под собой, несмотря на визуальную прозрачность. */
+#deckBuilderModal .modal-footer{
+  position:relative;
+}
+#deckBuilderModal .db-footer-pillars{
+  position:absolute;
+  inset:0;
+  margin:0 calc(-1 * var(--modal-footer-border-w));
+  pointer-events:none;
+  border-style:solid;
+  border-width:var(--modal-footer-border-w);
+  border-image-source:url('../img/bg_jest2_border.png');
+  border-image-slice:14 fill;
+  border-image-width:var(--modal-footer-border-w);
+  border-image-outset:0;
+  border-image-repeat:stretch repeat;
+  z-index:2;
 }
 #deckBuilderModal .modal{
   border-image-slice: 40 fill;
