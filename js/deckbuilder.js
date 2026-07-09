@@ -89,13 +89,13 @@ function _dbCardEl(faction,key,def){
     .join('');
 
   const div=document.createElement('div');
-  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${def.world?'world-card':''}`;
-  if(def.world && def.img) div.style.cssText += `;background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;`;
+  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${(def.world||def.fullArt)?'world-card':''}`;
+  if((def.world||def.fullArt) && def.img) div.style.cssText += `;background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;`;
 
   // Никаких надписей/рамок поверх карты — сам факт того, в какой из двух колонок
   // (пул/выбрано) она сейчас лежит, и есть индикация. Клик просто перебрасывает карту
   // в другую колонку (см. _renderDeckBuilder ниже).
-  div.innerHTML = def.world ? `
+  div.innerHTML = (def.world||def.fullArt) ? `
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
