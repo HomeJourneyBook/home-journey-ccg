@@ -662,20 +662,23 @@ function startMulliganFor(faction){
 }
 
 // Плавная "сборка" арены после последнего муллигана (или сразу после vsAI-муллигана
-// человека): вместо плоского fade всего #game верхняя тройка полос (статус оппонента →
-// его рука → его поле) выезжает сверху вниз, нижняя (поле игрока → его рука → его
-// статус → активный bottom-bar) — снизу вверх, обе с одинаковой схемой задержек
-// "край первым, центр последним" — экран сходится к полям боя. Вызывать ПОСЛЕ render(),
-// чтобы к этому моменту уже был известен актуальный activeBottomBar (render() сам
-// решает teaBottomBar/jeetBottomBar через display) и руки лежали в верных зонах.
+// человека): вместо плоского fade всего #game верхняя пара полос (статус оппонента →
+// его рука) выезжает сверху вниз, нижняя (рука игрока → его статус → активный
+// bottom-bar) — снизу вверх, обе с одинаковой схемой задержек "край первым, центр
+// последним". Поля боя (field-zone) НЕ едут — там прямые дети-звёзды (.field-star,
+// см. spawnStars()), которые вместо этого получают отдельный "вырост из точки"
+// (иначе едут вертикально вместе с контейнером — смотрится странно поверх мерцания).
+// Плюс поверх всего один раз выезжает надпись "Battle begins!". Вызывать ПОСЛЕ render(),
+// чтобы к этому моменту уже был известен актуальный bottomBar (render() сам решает
+// teaBottomBar/jeetBottomBar через display) и руки лежали в верных зонах.
 function playArenaRevealAnimation(){
   const header = document.querySelector('#game .header');
-  const topEls = ['oppStats','oppHandZone','oppFieldZone']
+  const topEls = ['oppStats','oppHandZone']
     .map(id=>document.getElementById(id)).filter(Boolean);
   const bottomBar = ['teaBottomBar','jeetBottomBar']
     .map(id=>document.getElementById(id))
     .find(el=>el && el.style.display!=='none');
-  const bottomEls = ['playerFieldZone','playerHandZone','playerStats']
+  const bottomEls = ['playerHandZone','playerStats']
     .map(id=>document.getElementById(id)).filter(Boolean);
   if(bottomBar) bottomEls.push(bottomBar);
 
@@ -689,28 +692,108 @@ function playArenaRevealAnimation(){
   void document.getElementById('game').offsetWidth;
 
   if(header) header.classList.add('arena-header-fade-in');
+  // Шаг задержки 0.104s/0.091s — это исходные 0.08s/0.07s +30% (общее замедление реплея).
   topEls.forEach((el,i)=>{
-    el.style.animationDelay=(i*0.08)+'s';
+    el.style.animationDelay=(i*0.104)+'s';
     el.classList.add('arena-slide-down-in');
   });
-  // bottomEls в DOM-порядке идут от центра к краю (playerFieldZone…bottomBar) —
-  // задержку считаем в обратном порядке, чтобы край (bottomBar) вошёл первым, а
-  // playerFieldZone (ближе к центру арены) — последним, зеркально top-группе.
+  // bottomEls в DOM-порядке идут от центра к краю (playerHandZone…bottomBar) — задержку
+  // считаем в обратном порядке, чтобы край (bottomBar) вошёл первым, а playerStats/Hand
+  // (ближе к центру арены) — позже, зеркально top-группе.
   const n=bottomEls.length;
   bottomEls.forEach((el,i)=>{
-    el.style.animationDelay=((n-1-i)*0.07)+'s';
+    el.style.animationDelay=((n-1-i)*0.091)+'s';
     el.classList.add('arena-slide-up-in');
   });
 
-  // Косметическая уборка классов после завершения — чтобы анимационные правила не
-  // висели на элементах бесконечно (на итоговый вид не влияет, both держит финальный кадр).
-  const totalMs = 550 + (Math.max(topEls.length-1,0)*80) + (Math.max(n-1,0)*70) + 50;
+  // Длительность анимации задана в CSS (.arena-slide-*-in, .arena-header-fade-in) —
+  // 0.715s/0.455s (тоже +30%). Косметическая уборка классов после завершения, чтобы
+  // анимационные правила не висели на элементах бесконечно (both и так держит финальный кадр).
+  const barsTotalMs = 715 + Math.max(topEls.length-1,0)*104 + Math.max(n-1,0)*91 + 50;
   setTimeout(()=>{
     allEls.forEach(el=>{
       el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in');
       el.style.animationDelay='';
     });
-  }, totalMs);
+  }, barsTotalMs);
+
+  _playFieldStarsGrowIn();
+  _playBattleBeginsText();
+}
+
+// Звёзды на полях боя (.field-star, см. spawnStars()) уже крутят бесконечный starTwinkle
+// с собственными случайными animation-delay/-duration (заданы инлайново при спавне).
+// Здесь временно подменяем ИМЯ анимации на starGrowIn (см. styles.css — правило
+// .field-star.field-star-grow-in задаёт только animation-name/-timing-function/-fill-mode,
+// не трогая delay/duration) и на время роста подставляем свои короткие delay/duration —
+// после чего возвращаем оригинальные твинкл-значения, чтобы мерцание продолжилось как обычно.
+function _playFieldStarsGrowIn(){
+  const stars = document.querySelectorAll('.field-star');
+  stars.forEach(s=>{
+    if(s.dataset.twinkleDelay===undefined) s.dataset.twinkleDelay = s.style.animationDelay||'';
+    if(s.dataset.twinkleDuration===undefined) s.dataset.twinkleDuration = s.style.animationDuration||'';
+    s.classList.remove('field-star-grow-in');
+  });
+  void document.getElementById('game').offsetWidth;
+  stars.forEach(s=>{
+    // Длительность/разброс тоже +30% от первой прикидки (0.5s/0.3s → 0.65s/0.39s),
+    // чтобы рост звёзд не выбивался по темпу из замедленных баров.
+    s.style.animationDelay = (Math.random()*0.39)+'s';
+    s.style.animationDuration = '0.65s';
+    s.classList.add('field-star-grow-in');
+  });
+  setTimeout(()=>{
+    stars.forEach(s=>{
+      s.classList.remove('field-star-grow-in');
+      s.style.animationDelay = s.dataset.twinkleDelay||'';
+      s.style.animationDuration = s.dataset.twinkleDuration||'';
+    });
+  }, 1050); // 0.65s рост + до 0.39s разброс + запас
+}
+
+// "Battle begins!": вырастает из центра экрана → держится и пульсирует 2с → уходит в fade.
+// Font-size подгоняется под ~40% ширины экрана измерением фактической ширины отрисованного
+// текста (на глаз в vw для произвольного шрифта 'MEK' — ненадёжно, ширина глифов неизвестна).
+function _playBattleBeginsText(){
+  const wrap = document.getElementById('battleBeginsText');
+  const inner = document.getElementById('battleBeginsInner');
+  if(!wrap || !inner) return;
+
+  inner.classList.remove('battle-begins-in','battle-begins-pulse','battle-begins-out');
+  wrap.classList.remove('hidden');
+
+  // Замер: временный крупный базовый размер, смотрим фактическую ширину, пересчитываем
+  // до 40% ширины окна, затем сразу перезаписываем — пользователь base-размер не видит,
+  // т.к. рост (scale от 0) стартует только после этого на следующем кадре.
+  const PROBE_PX = 200;
+  inner.style.fontSize = PROBE_PX+'px';
+  const measuredWidth = inner.getBoundingClientRect().width || 1;
+  const targetWidth = window.innerWidth * 0.4;
+  const fittedPx = Math.max(18, PROBE_PX * (targetWidth / measuredWidth));
+  inner.style.fontSize = fittedPx+'px';
+
+  void wrap.offsetWidth; // reflow, чтобы новый font-size применился до старта анимации
+
+  inner.classList.add('battle-begins-in');
+  const growMs = 500;
+  const holdMs = 2000;
+  const fadeMs = 500;
+
+  setTimeout(()=>{
+    inner.classList.remove('battle-begins-in');
+    inner.classList.add('battle-begins-pulse');
+  }, growMs);
+
+  setTimeout(()=>{
+    inner.classList.remove('battle-begins-pulse');
+    inner.classList.add('battle-begins-out');
+  }, growMs+holdMs);
+
+  setTimeout(()=>{
+    inner.classList.remove('battle-begins-out');
+    wrap.classList.add('hidden');
+    inner.style.fontSize='';
+  }, growMs+holdMs+fadeMs);
 }
 
 function doMulliganPhase(){
