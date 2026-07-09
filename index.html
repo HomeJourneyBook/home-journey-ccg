@@ -681,12 +681,17 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button class="modal-icon-btn sq btn-back placeholder" onclick="backFromDeckBuilder()" title="Back"></button>
-      <button class="modal-icon-btn sq btn-clear placeholder" onclick="dbClearPicks()" title="Clear"></button>
-      <button class="modal-icon-btn sq btn-imp placeholder" onclick="document.getElementById('deckBuilderImportInput').click()" title="Import deck (.json)"></button>
+      <button class="modal-icon-btn sq btn-back" onclick="backFromDeckBuilder()" title="Back"></button>
+      <button class="modal-icon-btn sq btn-clear" onclick="dbClearPicks()" title="Clear"></button>
+      <button class="modal-icon-btn sq btn-imp" onclick="document.getElementById('deckBuilderImportInput').click()" title="Import deck (.json)"></button>
       <input type="file" id="deckBuilderImportInput" accept="application/json,.json" style="display:none;" onchange="dbImportDeck(this)">
-      <button class="modal-icon-btn sq btn-exp placeholder" onclick="playSfx('yellow_buttom');dbExportDeck()" title="Export deck (.json)"></button>
-      <button class="modal-icon-btn sq btn-ok placeholder" id="deckBuilderNextBtn" onclick="deckBuilderConfirm()" title="Start Game"></button>
+      <button class="modal-icon-btn sq btn-exp" onclick="playSfx('yellow_buttom');dbExportDeck()" title="Export deck (.json)"></button>
+      <button class="modal-icon-btn sq btn-ok" id="deckBuilderNextBtn" onclick="deckBuilderConfirm()" title="Start Game"></button>
+      <!-- "Столбики" bg_jest2_border.png по бокам футера — чисто декоративный слой, шире
+           самого бокса, торчит на var(--modal-footer-border-w) с каждой стороны (см. CSS,
+           styles.css, .db-footer-pillars). pointer-events:none там же — клики по кнопкам
+           проходят сквозь него как ни в чём не бывало. -->
+      <div class="db-footer-pillars"></div>
     </div>
   </div>
 </div>
