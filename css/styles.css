@@ -2639,7 +2639,9 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
    т.к. на глаз/vw подобрать точный процент для произвольного шрифта ('MEK') ненадёжно. */
 .battle-begins-text{
   position:fixed;
-  inset:0;
+  left:50%;
+  top:50%; /* дефолт на случай, если JS не успеет посчитать шов полей — переопределяется inline из _playBattleBeginsText() */
+  transform:translate(-50%,-50%);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -2670,7 +2672,7 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
   to   { opacity:0; }
 }
 /* Три фазы одной надписи, переключаются классами из JS (playArenaRevealAnimation()):
-   вырост из центра → держится 2с и пульсирует → фейд. Точные тайминги (2с задержки
+   вырост из центра → держится 1с и пульсирует → фейд. Точные тайминги (задержка
    отсчитывается ПОСЛЕ вырост-фазы, не с начала) считаются в JS, а не одной CSS-цепочкой. */
 .battle-begins-inner.battle-begins-in    { animation: battleBeginsIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
 .battle-begins-inner.battle-begins-pulse { animation: battleBeginsPulse 1s ease-in-out infinite; }
