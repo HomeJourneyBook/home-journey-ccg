@@ -70,7 +70,7 @@ function renderCatalog(){
     div.style.cursor='pointer';
     div.onclick=()=>{playSfx('yellow_buttom');openCardDetail(def);};
     div.addEventListener('mouseenter',()=>playSfx('card_navigation_cursor'));
-    if(def.world){
+    if(def.world||def.fullArt){
   div.classList.add('world-card');
   if(def.img) div.style.cssText += ';background-image:url(\'img/cards/'+def.img+'\')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;';
   div.innerHTML=`
@@ -134,12 +134,12 @@ function openCardDetail(def){
     : 'Traveler';
 
   const bgClass = faction==='tea'?'tea-card':'jeet-card';
-  const worldClass = def.world?'world-card':'';
-  const worldBg = def.world && def.img ? `background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;` : '';
+  const worldClass = (def.world||def.fullArt)?'world-card':'';
+  const worldBg = (def.world||def.fullArt) && def.img ? `background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;` : '';
 
   box.className = 'card-detail-box';
 
-  if(def.world){
+  if(def.world||def.fullArt){
     box.innerHTML = `
       <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
       <div class="card ${bgClass} ${worldClass} card-detail-scaled" style="${worldBg}">
