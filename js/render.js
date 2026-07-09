@@ -14,10 +14,10 @@ function _isTargetedSpell(card){
 }
 
 // Спеллы, у которых свой отдельный, узнаваемый звук эффекта (revive → 'rest',
-// draw → 'new_card' через анимацию прилёта карты в руку) — общий 'card_spell_atack'
-// на клик "Play" их перебивает/заглушает, поэтому для них его не играем.
+// draw → 'new_card' через анимацию прилёта карты в руку, bounce → 'wind_card') —
+// общий 'card_spell_atack' на клик "Play" их перебивает/заглушает, поэтому для них его не играем.
 function _spellHasOwnSfx(card){
-  return !!card.spell && (hasTag(card,'revive') || hasTag(card,'draw'));
+  return !!card.spell && (hasTag(card,'revive') || hasTag(card,'draw') || hasTag(card,'bounce'));
 }
 
 // ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
