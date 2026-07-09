@@ -379,11 +379,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .db-pane::-webkit-scrollbar-thumb:hover{background:#5a7278;}
 .db-filters{display:flex;gap:4px;flex:1 1 0;min-width:0;box-sizing:border-box;padding:6px 10px;background:#000;background-clip:content-box;}
 .db-filter-btn{flex:1 1 0; min-width:0; aspect-ratio:2/1; border:none; background-color:transparent; background-size:100% 100%; background-repeat:no-repeat; background-position:center; font-size:0; line-height:0; padding:0; cursor:pointer; transition:filter .1s;}
-.db-filter-btn:hover{filter:brightness(1.1);}
-.db-filter-btn:active{filter:brightness(0.9);}
+.db-filter-btn:hover{filter:brightness(1);}
+.db-filter-btn:active{filter:brightness(1);}
 @media(min-width:601px){
   .db-filters{justify-content:center;align-items:center;flex:0 0 auto;align-self:center;}
-  .db-filter-btn{flex:0 0 auto;height:6.17vh;align-self:center;}
+  .db-filter-btn{flex:0 0 auto;height:4vh;align-self:center;}
 }
 .db-grid{display:grid; grid-template-columns:repeat(3, 1fr); row-gap:10px; column-gap:2.5px; container-type:inline-size; padding:4px 6px;}
 .db-stack{--card-w: min(calc((100cqw - 2 * 2.5px) / 3), var(--cat-card-w)); --card-h: calc(var(--card-w) / 0.716); --card-art-size: calc(var(--card-h) * 0.535); --card-pad: calc(var(--card-h) * 0.021); --card-name-h: calc(var(--card-h) * 0.096); --card-stats-h: calc(var(--card-h) * 0.085); --card-text-h: calc(var(--card-h) * 0.24); --card-world-name-h: calc(var(--card-h) * 0.096); --card-world-text-h: calc(var(--card-h) * 0.16); position:relative; width:var(--card-w); height:var(--card-h); margin:0 auto;}
@@ -411,7 +411,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .db-stack-layer.tea-card{background-image:url('../img/card_tea.png');background-size:cover;background-position:center;}
 .db-stack-layer.jeet-card{background-image:url('../img/card_jeet.png');background-size:cover;background-position:center;}
 /*── Футер контента: статистика (слева, построчно) + кривая маны (справа, чистый CSS) ──*/
-.db-stats{flex:0 0 auto;font-size:11px;color:#E8E0C8;line-height:0.8; padding:4px 8px; border-radius:2px; border:1px solid #a9b5b2; box-shadow:inset 0 0 0 2px #000;}
+.db-stats{flex:0 0 auto;font-size:11px;color:#E8E0C8;line-height:1.2; padding:8px 8px; border-radius:2px; border:1px solid #a9b5b2; box-shadow:inset 0 0 0 2px #000;}
 .db-stat-line.db-count-ok{color:#5BDF7A;}
 .db-curve{flex:0 0 auto; aspect-ratio:1/1; height:100%; display:flex; align-items:flex-end; gap:3px; padding:4px; box-sizing:border-box; border-radius:2px; border:1px solid #a9b5b2; box-shadow:inset 0 0 0 2px #000;}
 .db-curve-bar-wrap{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
