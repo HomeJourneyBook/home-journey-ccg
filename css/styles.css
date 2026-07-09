@@ -2581,6 +2581,28 @@ html, body, body *{user-select: none;-webkit-user-select: none;}
 .modal-pop-out-fast { animation: modalPopOut 0.125s ease-in forwards; }
 .game-fade-in  { animation: gameFieldFadeIn 0.5s ease-out forwards; }
 
+/* Переход муллиган → арена: вместо плоского fade всего #game (см. .game-fade-in выше,
+   всё ещё используется как fallback) верхние полосы (статус оппонента → его рука → его
+   поле) выезжают сверху вниз, нижние (поле игрока → его рука → его статус → активный
+   bottom-bar) выезжают снизу вверх. Задержки навешиваются из JS (playArenaRevealAnimation()
+   в ui.js) по единой схеме "край входит первым, центр (поля боя) — последним", одинаковой
+   для обеих групп — так экран будто "собирается" к центру, а не просто проявляется.
+   animation-fill-mode:both держит from-состояние (translateY+opacity:0) до своей задержки,
+   чтобы элементы не мелькали в финальном положении раньше своей очереди. */
+@keyframes arenaSlideDownIn {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes arenaSlideUpIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.arena-slide-down-in { animation: arenaSlideDownIn 0.55s cubic-bezier(0.22,0.68,0,1) both; }
+.arena-slide-up-in   { animation: arenaSlideUpIn   0.55s cubic-bezier(0.22,0.68,0,1) both; }
+/* Шапка (лого/титул/кнопки) в эту "сборку" не входит — не бар, а хром интерфейса,
+   просто мягко проявляется отдельно и чуть быстрее. */
+.arena-header-fade-in { animation: gameFieldFadeIn 0.35s ease-out both; }
+
 /* animation open start game */
 .start-group{
   display:flex;
