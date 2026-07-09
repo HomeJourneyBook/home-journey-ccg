@@ -522,7 +522,7 @@ function closeZoomHandCard(){
 // для всех остальных типов карт: существ, заклинаний, артефактов.
 function mkEl(card,zone){
   const d=document.createElement('div');
-  d.className=`card ${card.f}-card`;
+  d.className=`card ${card.f}-card${card.neutral?' neutral-card':''}`;
   d.style.flexShrink='0';
   d.dataset.id=card.id;
   if(card.id===G.sel)d.classList.add('selected');
