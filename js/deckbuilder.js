@@ -89,7 +89,7 @@ function _dbCardEl(faction,key,def){
     .join('');
 
   const div=document.createElement('div');
-  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${(def.world||def.fullArt)?'world-card':''}`;
+  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${(def.world||def.fullArt)?'world-card':''}${def.neutral?' neutral-card':''}`;
   if((def.world||def.fullArt) && def.img) div.style.cssText += `;background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;`;
 
   // Никаких надписей/рамок поверх карты — сам факт того, в какой из двух колонок
