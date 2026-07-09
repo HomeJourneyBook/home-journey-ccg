@@ -1,6 +1,6 @@
 {
   "name": "Home's Journey CCG",
-  "short_name": "Home's Journey",
+  "short_name": "H's J CCG",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0a0a12",
