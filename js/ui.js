@@ -662,15 +662,20 @@ function startMulliganFor(faction){
 }
 
 // Плавная "сборка" арены после последнего муллигана (или сразу после vsAI-муллигана
-// человека): вместо плоского fade всего #game верхняя пара полос (статус оппонента →
-// его рука) выезжает сверху вниз, нижняя (рука игрока → его статус → активный
-// bottom-bar) — снизу вверх, обе с одинаковой схемой задержек "край первым, центр
-// последним". Поля боя (field-zone) НЕ едут — там прямые дети-звёзды (.field-star,
-// см. spawnStars()), которые вместо этого получают отдельный "вырост из точки"
-// (иначе едут вертикально вместе с контейнером — смотрится странно поверх мерцания).
-// Плюс поверх всего один раз выезжает надпись "Battle begins!". Вызывать ПОСЛЕ render(),
-// чтобы к этому моменту уже был известен актуальный bottomBar (render() сам решает
-// teaBottomBar/jeetBottomBar через display) и руки лежали в верных зонах.
+// человека): вместо плоского fade всего #game верхняя пара полос (статус оппонента +
+// его рука) выезжает сверху вниз ЕДИНЫМ блоком, нижняя (рука игрока + его статус +
+// активный bottom-bar) — снизу вверх, тоже единым блоком (без каскада между элементами
+// внутри группы — раньше был, убрали по просьбе). "Единый блок" технически — не общий
+// DOM-контейнер (не хотим лишний раз перестраивать разметку/flex #game), а одинаковое
+// пиксельное смещение (--slide-dist, см. styles.css) для всех элементов группы при
+// delay=0: если бы смещали на свои же 100% высоты, разные по высоте полосы ехали бы с
+// разной скоростью и группа "тянулась" бы; общий px-сдвиг = одинаковая скорость = едут
+// как одна цельная плита. Поля боя (field-zone) НЕ едут — там прямые дети-звёзды
+// (.field-star, см. spawnStars()), которые вместо этого получают отдельный "вырост из
+// точки" (иначе едут вертикально вместе с контейнером — смотрится странно поверх
+// мерцания). Плюс поверх всего один раз выезжает надпись "Battle begins!". Вызывать
+// ПОСЛЕ render(), чтобы к этому моменту уже был известен актуальный bottomBar (render()
+// сам решает teaBottomBar/jeetBottomBar через display) и руки лежали в верных зонах.
 function playArenaRevealAnimation(){
   const header = document.querySelector('#game .header');
   const topEls = ['oppStats','oppHandZone']
@@ -688,32 +693,35 @@ function playArenaRevealAnimation(){
   allEls.forEach(el=>{
     el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in');
     el.style.animationDelay='';
+    el.style.removeProperty('--slide-dist');
   });
   void document.getElementById('game').offsetWidth;
 
   if(header) header.classList.add('arena-header-fade-in');
-  // Шаг задержки 0.104s/0.091s — это исходные 0.08s/0.07s +30% (общее замедление реплея).
-  topEls.forEach((el,i)=>{
-    el.style.animationDelay=(i*0.104)+'s';
+
+  // Суммарная высота группы = дистанция, на которую каждый элемент группы стартует
+  // "за кадром" — одинаковая для всех, поэтому группа едет как единое целое, а не
+  // по частям с разной скоростью.
+  const topDist = topEls.reduce((sum,el)=>sum+el.offsetHeight,0);
+  topEls.forEach(el=>{
+    el.style.setProperty('--slide-dist', (-topDist)+'px');
     el.classList.add('arena-slide-down-in');
   });
-  // bottomEls в DOM-порядке идут от центра к краю (playerHandZone…bottomBar) — задержку
-  // считаем в обратном порядке, чтобы край (bottomBar) вошёл первым, а playerStats/Hand
-  // (ближе к центру арены) — позже, зеркально top-группе.
-  const n=bottomEls.length;
-  bottomEls.forEach((el,i)=>{
-    el.style.animationDelay=((n-1-i)*0.091)+'s';
+  const bottomDist = bottomEls.reduce((sum,el)=>sum+el.offsetHeight,0);
+  bottomEls.forEach(el=>{
+    el.style.setProperty('--slide-dist', bottomDist+'px');
     el.classList.add('arena-slide-up-in');
   });
 
   // Длительность анимации задана в CSS (.arena-slide-*-in, .arena-header-fade-in) —
-  // 0.715s/0.455s (тоже +30%). Косметическая уборка классов после завершения, чтобы
-  // анимационные правила не висели на элементах бесконечно (both и так держит финальный кадр).
-  const barsTotalMs = 715 + Math.max(topEls.length-1,0)*104 + Math.max(n-1,0)*91 + 50;
+  // 0.715s/0.455s. Косметическая уборка классов после завершения, чтобы анимационные
+  // правила не висели на элементах бесконечно (both и так держит финальный кадр).
+  const barsTotalMs = 715 + 50;
   setTimeout(()=>{
     allEls.forEach(el=>{
       el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in');
       el.style.animationDelay='';
+      el.style.removeProperty('--slide-dist');
     });
   }, barsTotalMs);
 
