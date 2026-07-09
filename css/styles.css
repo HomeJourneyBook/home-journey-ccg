@@ -358,7 +358,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .db-header-left{container-type:inline-size; justify-content:space-between;}
   .db-decor{display:block; height:100%; background:#0d0d1a; border-radius:2px;}
   .db-decor-left,.db-decor-right{flex:0 0 auto; aspect-ratio:1/3;}
-  .db-decor-mid{flex:0 0 auto; aspect-ratio:2/3;}
+  .db-decor-mid{flex:0 0 auto; aspect-ratio:1.5/3;}
   .db-curve{height:100%;}
   .db-filters-col{gap:8px;justify-content:space-between;}
   .db-header-title{flex:0 0 auto;align-self:center;}
@@ -417,7 +417,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .db-curve-n{font-size:9px;color:#E8E0C8;height:11px;}
 .db-curve-label{font-size:9px;color:#E8E0C8;}
 @media(min-width:601px){
-  .db-stats{flex:0 0 auto;aspect-ratio:4/3;box-sizing:border-box;font-size:1.7cqh;height:100%;overflow:hidden;container-type:size;}
+  .db-stats{flex:0 0 auto;aspect-ratio:4/3;box-sizing:border-box;font-size:2.2cqh;height:100%;overflow:hidden;container-type:size;}
   .db-curve-n{font-size:1.7cqw;}
   .db-curve-label{font-size:1.7cqw;}
 }
