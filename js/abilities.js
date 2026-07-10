@@ -305,7 +305,7 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} 
           G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
           // Reset state but keep base stats, set hp to raise value (NOT full)
           r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;
-          r.atkBonus=0;r.rageBonus=0;r.tempAtkBonus=0;r.maxHpBonus=0;r.baseMaxHp=null;
+          r.atkBonus=0;r.rageBonus=0;r.tempAtkBonus=0;r.maxHpBonus=0;r.baseMaxHp=null;r.auraMaxHpBonus=0;
           r.squadParam=null;r.squadAtkBonus=0;r.squadMaxHpBonus=0;r.squadArmorBonus=0;r.armorMax=undefined;r.auraArmorBonus=0;r.worldArmorBonus=0;
           r.f=curK;
           const def=DEFS[r.key];
