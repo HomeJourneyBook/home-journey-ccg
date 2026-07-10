@@ -108,7 +108,7 @@ function findC(id){
 }
 
 function resetC(c){
-  c.sleeping=false;c.exhausted=false;c.feared=false;c.burning=false;c.atkBonus=0;c.rageBonus=0;c.tempAtkBonus=0;c.maxHpBonus=0;c.squadMaxHpBonus=0;c.squadAtkBonus=0;c.squadParam=null;c.armor=0;
+  c.sleeping=false;c.exhausted=false;c.feared=false;c.burning=false;c.atkBonus=0;c.rageBonus=0;c.tempAtkBonus=0;c.maxHpBonus=0;c.squadMaxHpBonus=0;c.squadAtkBonus=0;c.squadArmorBonus=0;c.squadParam=null;c.armor=0;c.armorMax=undefined;
   const def=DEFS[c.key];if(def){c.hp=def.hp;c.maxHp=def.hp;}
 }
 
