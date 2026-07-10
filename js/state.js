@@ -13,21 +13,33 @@ function newPlayer(f, deckConfig, customList){
 
 // opts (необязательно) — конфиг режима игры:
 //   { mode:'vsai', humanFaction:'tea'|'jeet', deckConfig:'classic'|'rush',
-//     rushDecks:{tea:[...keys],jeet:[...keys]} }
+//     rushDecks:{tea:[...keys],jeet:[...keys]}, firstFaction:'tea'|'jeet' }
 // rushDecks — только для deckConfig:'rush': pre-picked deck lists from the
 // deckbuilder (human side(s)) + buildAiRushDeck() (AI side, vsAI only). Stashed
 // back onto G so "Restart (same setup)" (resetGame() in ui.js) can reuse the
 // exact same picks instead of re-opening the deckbuilder.
+// firstFaction — who goes first, decided by the order-roll dice-off
+// (openOrderRoll() in ui.js) before initState() is ever called. Defaults to
+// 'tea' only for the throwaway pre-landing boot state (see bottom of ui.js) —
+// every real match always passes one in explicitly.
 // Без opts — обычный Hot Seat, поведение полностью как раньше (deckConfig='classic').
 function initState(opts){
   UID=0;
   if(typeof _seenPcardPids!=='undefined') _seenPcardPids.clear(); // сброс между партиями, см. render.js/reorderZones
   const deckConfig=(opts&&opts.deckConfig)||'classic';
   const rushDecks=(opts&&opts.rushDecks)||null;
-  G={turn:'tea',turnNum:1,phase:'mulligan',mulliganTurn:'tea',sel:null,
+  const firstFaction=(opts&&opts.firstFaction==='jeet')?'jeet':'tea';
+  const secondFaction=firstFaction==='tea'?'jeet':'tea';
+  G={turn:firstFaction,turnNum:1,phase:'mulligan',mulliganTurn:firstFaction,sel:null,
     tea:newPlayer('tea',deckConfig,rushDecks&&rushDecks.tea),
     jeet:newPlayer('jeet',deckConfig,rushDecks&&rushDecks.jeet),
-    jeetFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}},
+    firstFaction,secondFaction,
+    // True until secondFaction's very first turn has happened — that turn
+    // gets essMax/ess=1 (not the usual +1 accrual) same as everyone's actual
+    // first turn. Was hardcoded to "jeetFirstTurn" back when Jeet was always
+    // 2nd; now tracks whichever faction the dice-roll made 2nd. See endTurn()
+    // in game.js.
+    secondFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}},
     mode:'hotseat',humanFaction:null,aiFaction:null,gameOver:false,deckConfig,rushDecks};
   if(opts&&opts.mode==='vsai'){
     G.mode='vsai';
