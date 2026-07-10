@@ -133,8 +133,14 @@ function triggerAbilities(card, timing, ctx={}){
     switch(a.effect){
 
       case 'aoe':
+        // Единственный источник, который попадает сюда — enter_aoe:N (on_enter timing,
+        // см. getAbilities() выше). Активная AOE-кнопка (Umbasir/Vardan) сюда НЕ доходит —
+        // у неё свой прямой путь через doUmbAsir()/doVardan() в game.js, с отдельным
+        // dmgCard(...,true) (магия, игнорирует броню). enter_aoe — по прямому запросу
+        // автора (2026-07-10) НЕ считается магией, броню не игнорирует — обычный dmgCard()
+        // без bypassArmor.
         playSfx('card_atack');
-        [...G[oppK].field].forEach(t=>dmgCard(t,a.val,oppK,true));
+        [...G[oppK].field].forEach(t=>dmgCard(t,a.val,oppK));
         lg(`${card.name}: ${a.val} dmg to all enemies!`,'imp');
         break;
 
@@ -300,7 +306,7 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} 
           // Reset state but keep base stats, set hp to raise value (NOT full)
           r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;
           r.atkBonus=0;r.rageBonus=0;r.tempAtkBonus=0;r.maxHpBonus=0;r.baseMaxHp=null;
-          r.squadParam=null;r.squadAtkBonus=0;r.squadMaxHpBonus=0;
+          r.squadParam=null;r.squadAtkBonus=0;r.squadMaxHpBonus=0;r.squadArmorBonus=0;r.armorMax=undefined;
           r.f=curK;
           const def=DEFS[r.key];
           if(def) r.maxHp=def.hp; // restore base maxHp
@@ -309,8 +315,10 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} 
           // Apply auras and squad bonuses
           if(hasTag(r,'aura:atk')) G[curK]._auraAtkLog=r.id;
           if(hasTag(r,'aura:maxhp')) G[curK]._auraMaxLog=r.id;
+          if(hasTag(r,'aura:armor')) G[curK]._auraArmorLog=r.id;
           applyAuras(curK);
           checkSquadBonuses(curK);
+          recalcArmor(curK);
           playSfx('rest');
           lg(`${card.name} raises ${r.name} at ${r.hp} HP!`,'imp');
         } else {
