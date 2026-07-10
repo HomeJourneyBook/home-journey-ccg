@@ -16,7 +16,7 @@ function onClick(card,zone){
     return;
   }
   if(G.phase==='healTarget'){
-    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp){
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared)){
       const healer=findC(G.sel);
       if(healer){
         const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
@@ -905,20 +905,11 @@ function endTurn(){
 
     [...G[G.turn].field].forEach(card=>{
     if(card.burning&&!card.spell&&!card.world&&!card.artifact){
-      let burnDmg=1;
-      // Same armor-absorbs-first math as dmgCard() — burn is still "damage",
-      // so armor should block it too, not just attacks/spells/AOE.
-      if(card.armor>0){
-        const absorbed=Math.min(card.armor,burnDmg);
-        card.armor-=absorbed;
-        burnDmg-=absorbed;
-      }
-      if(burnDmg<=0){
-        requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
-        lg(`${card.name}'s armor absorbs the burn tick (${card.armor} armor left).`,'dmg');
-        return;
-      }
-      card.hp-=burnDmg;
+      // Burn deliberately bypasses armor (author call, 2026-07-10) — it always
+      // hits HP directly, unlike every other damage source which goes through
+      // dmgCard()'s armor-absorbs-first math. Burn is meant to be a reliable,
+      // un-mitigatable ongoing HP loss.
+      card.hp-=1;
       const burnId=card.id;
       const lethal=card.hp<=0;
       // Same as dmgCard() — skip the shake on a lethal burn tick, so it doesn't
