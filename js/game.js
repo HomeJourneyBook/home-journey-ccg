@@ -179,6 +179,10 @@ function doCreature(card){
   const cur=G[G.turn];
   card.sleeping=!card.tags.includes('vanguard');
   card.exhausted=false;
+  // Armor — starts full the moment the creature enters (see dmgCard() for the
+  // absorb-first-then-hp math, and endTurn() for the refresh-on-owner's-turn
+  // timing). See CLAUDE.md Tag System.
+  if(hasTag(card,'armor')) card.armor=getTagVal(card,'armor')||0;
   cur.field.push(card);
   lg(`${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
 
@@ -382,6 +386,20 @@ function tryAttackBase(){
 
 function dmgCard(card,dmg,faction){
   if(dmg<=0)return;
+  // Armor absorbs first — see doCreature() (init on enter) / endTurn() (refresh
+  // on owner's turn start). Fully-absorbed hits still shake the card (visible
+  // feedback that *something* landed) but skip the HP float/log/lethal check
+  // entirely — there's no HP change to report.
+  if(card.armor>0){
+    const absorbed=Math.min(card.armor,dmg);
+    card.armor-=absorbed;
+    dmg-=absorbed;
+    if(dmg<=0){
+      requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+      lg(`${card.name}'s armor absorbs ${absorbed} dmg (${card.armor} armor left).`,'dmg');
+      return;
+    }
+  }
   card.hp-=dmg;
   const lethal=card.hp<=0;
   // Lethal hits skip the shake — the death fade (added by rZone's diff / the
@@ -836,17 +854,30 @@ function endTurn(){
 
   // sleeping/feared/tempAtkBonus — как раньше, снимаются у ВЫХОДЯЩЕГО игрока сразу
   // (т.е. к ходу соперника его карты уже не "спят" — полноценно отвечают на атаки).
-  // exhausted — намеренно НЕ здесь: см. ниже, снимается только к СВОЕМУ следующему
-  // ходу владельца, чтобы уставшая карта весь ход соперника оставалась уязвима без
-  // ответки (см. AI BALANCE NOTES / CLAUDE.md "Version 1.01", п.11).
-  G[G.turn].field.forEach(c=>{c.sleeping=false;c.feared=false;c.tempAtkBonus=0;});
+  // exhausted — намеренно НЕ здесь по умолчанию: см. ниже, снимается только к СВОЕМУ
+  // следующему ходу владельца, чтобы уставшая карта весь ход соперника оставалась
+  // уязвима без ответки (см. AI BALANCE NOTES / CLAUDE.md "Version 1.01", п.11).
+  // Исключение — тег `untamed` («Неукротимость», Anime pink Mood, см. Lore/Trait
+  // mapping): такое существо снимает exhausted уже ЗДЕСЬ, в момент когда его
+  // собственный ход заканчивается и начинается ход соперника — намеренный override
+  // общего правила для конкретных редких карт, не баг.
+  G[G.turn].field.forEach(c=>{
+    c.sleeping=false;c.feared=false;c.tempAtkBonus=0;
+    if(hasTag(c,'untamed')) c.exhausted=false;
+  });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
   G.turn=next;
   const cur=G[G.turn];
   // exhausted снимается здесь — у ИГРОКА, ЧЕЙ ход начинается, а не у того, чей закончился.
   // Артефакты — туда же, для визуальной консистентности (симметрично картам, хотя
   // геймплейно соперник артефакт всё равно не активирует).
-  cur.field.forEach(c=>{c.exhausted=false;});
+  // Armor — тоже обновляется здесь, у владельца в начале ЕГО хода (не хода соперника,
+  // в отличие от untamed выше) — "трата первой до HP, обновляется каждый ход игрока,
+  // чья это карта". См. Tag System / doCreature() (первичная инициализация при входе).
+  cur.field.forEach(c=>{
+    c.exhausted=false;
+    if(hasTag(c,'armor')) c.armor=getTagVal(c,'armor')||0;
+  });
   cur.artifacts.forEach(a=>{a.exhausted=false;});
   cur.burned=false;
   if(G.secondFirstTurn&&G.turn===G.secondFaction){
@@ -867,7 +898,20 @@ function endTurn(){
 
     [...G[G.turn].field].forEach(card=>{
     if(card.burning&&!card.spell&&!card.world&&!card.artifact){
-      card.hp-=1;
+      let burnDmg=1;
+      // Same armor-absorbs-first math as dmgCard() — burn is still "damage",
+      // so armor should block it too, not just attacks/spells/AOE.
+      if(card.armor>0){
+        const absorbed=Math.min(card.armor,burnDmg);
+        card.armor-=absorbed;
+        burnDmg-=absorbed;
+      }
+      if(burnDmg<=0){
+        requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+        lg(`${card.name}'s armor absorbs the burn tick (${card.armor} armor left).`,'dmg');
+        return;
+      }
+      card.hp-=burnDmg;
       const burnId=card.id;
       const lethal=card.hp<=0;
       // Same as dmgCard() — skip the shake on a lethal burn tick, so it doesn't
