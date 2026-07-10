@@ -562,6 +562,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 
 /* ── Order roll (dice-off for turn order) ─────────────────────────────── */
 .modal-art-btn:disabled{filter:brightness(0.5) saturate(0.4);cursor:not-allowed;pointer-events:none;}
+.modal-art-btn.btn-mulligan:disabled{filter:none;} /* уже есть готовый спрайт btn_mulliganD.png — общий dimming-фильтр поверх него выглядел как лишняя прозрачность */
 .order-roll-row{display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);margin:8px 0 10px;position:relative;z-index:3;}
 .order-roll-side{display:flex;flex-direction:column;align-items:center;gap:6px;transition:opacity .2s;}
 .order-roll-label{font-family:'MEK',monospace;font-size:clamp(11px,2.6vw,14px);letter-spacing:.05em;color:#4bbf72;}
@@ -793,6 +794,21 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-hp{color:#e05555;font-size:calc(var(--card-h) * 0.11);display:flex;align-items:center;gap:1px;}
 .card-atk{color:#55aaff;font-size:calc(var(--card-h) * 0.11);display:flex;align-items:center;gap:1px;}
 .stat-icon{width:0.45em;height:0.45em;vertical-align:middle;margin-right:1px;image-rendering:pixelated;}
+
+/* ── Armor box — left side, under cost, ratio 2:1, same height as a tag-icon box.
+   Icon+text+padding/font-size copied from .card-hp-box/.card-hp (same convention as
+   HP/ATK), only rendered when the card actually carries an `armor` tag. Position is a
+   first pass — author may nudge top/left later once they see it live. ── */
+.card-armor-box{position:absolute;left:calc(var(--card-w)*0.038);top:calc(var(--card-h)*0.29);
+  width:calc(var(--card-h)*0.108*2);height:calc(var(--card-h)*0.108);
+  background:url('../img/armor_bg.png') center/100% 100% no-repeat;
+  display:flex;align-items:center;justify-content:center;padding:1px 1px 4.5px 1px;z-index:3;}
+.card-armor{color:#cbd8e3;font-size:calc(var(--card-h) * 0.11);display:flex;align-items:center;gap:1px;}
+.card-small-armor-box{position:absolute;left:calc(var(--card-small-w)*0.048);top:calc(var(--card-small-h)*0.34);
+  width:calc(var(--card-small-h)*0.13*2);height:calc(var(--card-small-h)*0.13);
+  background:url('../img/armor_bg.png') center/100% 100% no-repeat;
+  display:flex;align-items:center;justify-content:center;padding:1px 1px 3.5px 1px;z-index:3;}
+.card-small-armor{color:#cbd8e3;font-size:var(--card-small-stat-fs);display:flex;align-items:center;gap:1px;}
 .card-ability-box{width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
 .card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:0.7;word-spacing:-1px;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
 .card-world-art{width:100%;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;}
