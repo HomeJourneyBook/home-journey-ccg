@@ -663,6 +663,13 @@ let _orderRollCtx=null;
 let _orderRollTimer=null;
 let _orderRollFirstFaction=null;
 
+// Sets a die's face art (img/dice_1.png … dice_6.png, added by the author —
+// same box size as the digit placeholder they replaced, see .order-roll-die
+// in styles.css).
+function _setDieFace(el,n){
+  el.style.backgroundImage=`url('img/dice_${n}.png')`;
+}
+
 function openOrderRoll(ctx){
   _orderRollCtx=ctx;
   _orderRollFirstFaction=null;
@@ -674,6 +681,8 @@ function openOrderRoll(ctx){
   ['orderRollSideTea','orderRollSideJeet'].forEach(id=>{
     document.getElementById(id).classList.remove('order-roll-winner','order-roll-loser');
   });
+  _setDieFace(document.getElementById('orderRollDieTea'),1);
+  _setDieFace(document.getElementById('orderRollDieJeet'),1);
   modal.classList.remove('hidden');
   _modalPopIn(modal);
   _rollOrderDice();
@@ -698,10 +707,10 @@ function backFromOrderRoll(){
   }, 250);
 }
 
-// Rolls both dice with a couple seconds of random face-cycling (placeholder:
-// plain digits — see index.html/styles.css, real 6-face art comes later per
-// author), then settles on the actual result. Ties auto-reroll after a short
-// pause until someone rolls higher — no manual reroll button, per spec.
+// Rolls both dice with a couple seconds of random face-cycling through the
+// real dice_1..6.png art (author-supplied, img/), then settles on the actual
+// result. Ties auto-reroll after a short pause until someone rolls higher —
+// no manual reroll button, per spec.
 function _rollOrderDice(){
   const dieT=document.getElementById('orderRollDieTea');
   const dieJ=document.getElementById('orderRollDieJeet');
@@ -711,16 +720,16 @@ function _rollOrderDice(){
   clearTimeout(_orderRollTimer);
   const tick=()=>{
     const elapsed=performance.now()-start;
-    dieT.textContent=1+Math.floor(Math.random()*6);
-    dieJ.textContent=1+Math.floor(Math.random()*6);
+    _setDieFace(dieT,1+Math.floor(Math.random()*6));
+    _setDieFace(dieJ,1+Math.floor(Math.random()*6));
     playSfx('card_navigation_cursor');
     if(elapsed<SPIN_MS){
       _orderRollTimer=setTimeout(tick,CYCLE_MS);
     } else {
       const rollT=1+Math.floor(Math.random()*6);
       const rollJ=1+Math.floor(Math.random()*6);
-      dieT.textContent=rollT;
-      dieJ.textContent=rollJ;
+      _setDieFace(dieT,rollT);
+      _setDieFace(dieJ,rollJ);
       if(rollT===rollJ){
         _typeOrderResult('Tie — rolling again...');
         _orderRollTimer=setTimeout(()=>_rollOrderDice(),900);
