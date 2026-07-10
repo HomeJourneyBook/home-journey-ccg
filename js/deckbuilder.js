@@ -8,17 +8,23 @@
 //   - VS AI: once — just the human. The AI gets an automatic random
 //     RUSH_MIN-card sample of the same pool (buildAiRushDeck() in deck.js),
 //     no deckbuilder UI for it.
-// Entry point: startRushBuild(flow, opts) — called from chooseDeckConfig()/
-// startGameVsAI() in ui.js once Rush has been picked (and, for vsAI, the
-// human's faction chosen).
+// Entry point: startRushBuild(flow, opts) — called from confirmOrderRoll() in
+// ui.js, once Rush has been picked (and, for vsAI, the human's faction chosen)
+// AND the order-roll dice-off has settled who goes first.
 
-let _db = null; // { flow:'hotseat'|'vsai', vsAiHumanFaction, buildOrder:[faction,...], stepIndex, picks:{tea:{key:qty}, jeet:{key:qty}} }
+let _db = null; // { flow:'hotseat'|'vsai', vsAiHumanFaction, firstFaction, buildOrder:[faction,...], stepIndex, picks:{tea:{key:qty}, jeet:{key:qty}} }
 
 function startRushBuild(flow, opts){
+  const firstFaction=(opts&&opts.firstFaction==='jeet')?'jeet':'tea';
+  // Hot Seat builds decks in dice-roll order (whoever goes first picks first —
+  // matches "мало ли кто-то для игры за 2й ход имеет другую стратегию и деку",
+  // see roadmap discussion) instead of the old hardcoded Tea-then-Jeet.
+  const secondFaction=firstFaction==='tea'?'jeet':'tea';
   _db = {
     flow,
     vsAiHumanFaction: opts && opts.vsAiHumanFaction,
-    buildOrder: flow==='hotseat' ? ['tea','jeet'] : [(opts && opts.vsAiHumanFaction) || 'tea'],
+    firstFaction,
+    buildOrder: flow==='hotseat' ? [firstFaction,secondFaction] : [(opts && opts.vsAiHumanFaction) || 'tea'],
     stepIndex: 0,
     picks: { tea:{}, jeet:{} },
   };
@@ -28,20 +34,20 @@ function startRushBuild(flow, opts){
 function _dbFaction(){ return _db.buildOrder[_db.stepIndex]; }
 
 // Кнопка "назад" — по требованию автора черновик Rush-колоды НЕ сохраняется: неважно,
-// на каком шаге (Tea/Jeet в hotseat), назад полностью аннулирует текущую сборку и
-// возвращает к модалке, из которой в неё попали — vsAiPickerModal (флоу vsai, там перед
-// дек-билдером был выбор фракции) или deckPickerModal (флоу hotseat, дек-билдер шёл сразу
-// после выбора Classic/Rush).
+// на каком шаге (1й/2й игрок в hotseat), назад полностью аннулирует текущую сборку и
+// возвращает к модалке, из которой в неё попали. С появлением order-roll (см.
+// openOrderRoll в ui.js) это сама дайс-модалка — re-roll, а не прыжок сразу на два шага
+// назад к vsAiPickerModal/deckPickerModal. Один "назад" — один шаг назад, как везде.
 function backFromDeckBuilder(){
   playSfx('yellow_buttom');
-  const flow=_db?_db.flow:'hotseat';
+  const ctx = _db && _db.flow==='vsai'
+    ? {mode:'vsai',deckConfig:'rush',humanFaction:_db.vsAiHumanFaction}
+    : {mode:'hotseat',deckConfig:'rush'};
   const modal=document.getElementById('deckBuilderModal');
   _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
     _db=null;
-    const backModal=document.getElementById(flow==='vsai'?'vsAiPickerModal':'deckPickerModal');
-    backModal.classList.remove('hidden');
-    _modalPopIn(backModal);
+    openOrderRoll(ctx);
   }, 250);
 }
 
@@ -433,19 +439,23 @@ function _dbPicksToList(faction){
 
 function _finishRushBuild(){
   const rushDecks={tea:null,jeet:null};
+  const firstFaction=_db.firstFaction;
 
   if(_db.flow==='hotseat'){
     rushDecks.tea=_dbPicksToList('tea');
-    rushDecks.jeet=_dbPicksToList('jeet').concat(['unseen']); // 2nd-player bonus, always Jeet for now
+    rushDecks.jeet=_dbPicksToList('jeet');
+    // No 'unseen' concat here anymore — grantUnseenBonus() in ui.js hands it
+    // straight to G.secondFaction's hand right after the mulligan ends,
+    // regardless of who that turns out to be. See CLAUDE.md "Version 1.01".
     _db=null;
     document.getElementById('game').style.display='flex';
     collapseStart();
-    initState({deckConfig:'rush',rushDecks});
+    initState({deckConfig:'rush',rushDecks,firstFaction});
     render(); // see startGame()/resetGame() in ui.js for why
     lg('─ NEW GAME ─','trn');
-    lg('TEA goes first.','imp');
-    logTurnSnapshot('tea');
-    startMulliganFor('tea'); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
+    lg(`${firstFaction==='tea'?'TAVERN':'JEET'} goes first.`,'imp');
+    logTurnSnapshot(firstFaction);
+    startMulliganFor(firstFaction); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
     return;
   }
 
@@ -453,16 +463,16 @@ function _finishRushBuild(){
   const human=_db.vsAiHumanFaction;
   const ai = human==='tea' ? 'jeet' : 'tea';
   rushDecks[human]=_dbPicksToList(human);
-  if(human==='jeet') rushDecks[human]=rushDecks[human].concat(['unseen']);
   rushDecks[ai]=buildAiRushDeck(ai);
   _db=null;
 
   document.getElementById('game').style.display='flex';
   collapseStart();
-  initState({mode:'vsai',humanFaction:human,deckConfig:'rush',rushDecks});
+  initState({mode:'vsai',humanFaction:human,deckConfig:'rush',rushDecks,firstFaction});
   render();
   lg('─ NEW GAME (VS AI) ─','trn');
-  logTurnSnapshot('tea');
+  lg(`${firstFaction==='tea'?'TAVERN':'JEET'} goes first.`,'imp');
+  logTurnSnapshot(firstFaction);
   aiAutoMulligan(G.aiFaction);
   startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
 }
