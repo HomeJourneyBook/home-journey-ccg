@@ -276,7 +276,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   card.f=toF;
   G[toF].field.push(card); 
   lg(`Revived ${card.name} at full HP.`,'hl');
@@ -443,6 +443,8 @@ function killCard(card,faction,toVoid=false){
   card.squadArmorBonus=0;
   card.armor=0;
   card.armorMax=undefined;
+  card.auraArmorBonus=0;
+  card.worldArmorBonus=0;
   card.squadParam=null;
   if(toVoid){
     card.voided=true;
@@ -730,6 +732,13 @@ function recalcArmor(faction){
     if(a.spell||a.world||a.artifact) return;
     // Aura sources never buff themselves — same rule as aura:atk/aura:maxhp above.
     const auraBonus=auraSources.reduce((sum,src)=>src.id===a.id?sum:sum+(getTagVal(src,'aura:armor')||1),0);
+    // Persisted separately from armorMax's total — NOT used for the absorb/refill math
+    // (that only ever needs the combined armorMax), only so _cardStatusEntries() (render.js)
+    // can show "this card is receiving an armor aura/world bonus" the same way it already
+    // does for atkBonus/worldMaxHpBonus. See bug report 2026-07-10 — these were silently
+    // missing from the status panel because nothing was ever storing them on the card.
+    a.auraArmorBonus=auraBonus;
+    a.worldArmorBonus=worldArmorVal;
     const newMax=(getTagVal(a,'armor')||0)+(a.squadArmorBonus||0)+worldArmorVal+auraBonus;
     if(a.armorMax===undefined){
       // First time this card has ever been through this function (just entered the field,
@@ -738,7 +747,14 @@ function recalcArmor(faction){
       a.armorMax=newMax;
       a.armor=newMax;
     } else if(newMax!==a.armorMax){
-      const wasFull=(a.armor||0)===a.armorMax&&a.armorMax>0;
+      // wasFull — deliberately NOT `&&a.armorMax>0`. A card sitting at 0/0 (no armor source
+      // at all yet) is trivially "at its cap" too — 0 used out of 0 available is still full,
+      // same as 2/2. Requiring armorMax>0 here was the bug reported 2026-07-10: a 3rd
+      // Merchird completing the squad correctly gave the FRESH entrant 1/1 (its own
+      // "armorMax===undefined" first-time branch above), but the two ALREADY-on-field
+      // Merchirds — sitting at a legitimate 0/0 from their own earlier first-time pass —
+      // failed this check (0>0 is false) and got clamped to 0/1 instead of growing to 1/1.
+      const wasFull=(a.armor||0)===a.armorMax;
       a.armorMax=newMax;
       a.armor=wasFull?newMax:Math.min(a.armor||0,newMax);
     }
