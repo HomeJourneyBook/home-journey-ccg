@@ -164,7 +164,7 @@ function triggerAbilities(card, timing, ctx={}){
         // on_attack: Ryvlen draws on each attack
         // on_turn: handled via extraDraw in endTurn — skip here
         if(a.timing==='instant'||a.timing==='on_attack'){
-          drawCardsAnimated(curK, a.val);
+          for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
           lg(`${card.name}: draws ${a.val} card(s).`,'imp');
         }
         break;
