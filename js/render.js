@@ -44,36 +44,6 @@ function render(){
     const deckBadge=document.getElementById(f+'DeckBadge');
     if(deckBadge)deckBadge.textContent=p.deck.length;
   });
-  // Видимость SidebarBtns/BottomBar (и через них — deckPlaceholder внутри BottomBar) должна
-  // быть актуальна ДО вызовов rZone() для рук ниже — rZone() для добора карт вызывает
-  // _deckPlaceholderRect(), а тот проверяет offsetParent (видимость), чтобы понять, откуда
-  // "лететь" карте. Если это раньше стояло ПОСЛЕ rZone (как было до 2026-07-10), то для
-  // добора карт, случившегося вне обычного хода взятия карты в начале хода (Hunger/Altar/
-  // Ryvlen on-attack/spell draw) — _deckPlaceholderRect() иногда видел УСТАРЕВШЕЕ состояние
-  // bottom bar с прошлого render() и молча пропускал анимацию+звук прилёта карты. См. баг,
-  // найденный автором в тесте.
-  const sfx=G.turn==='tea'?'T':'J';
-  updateMulliganBtn(G.turn);
-
-  const inactSB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'SidebarBtns');
-  if(inactSB)inactSB.style.display='none';
-  const actSB=document.getElementById(G.turn+'SidebarBtns');
-  if(actSB)actSB.style.display='flex';
-
-  if(G.mode==='vsai'){
-    const humanBB=document.getElementById(G.humanFaction+'BottomBar');
-    const aiBB=document.getElementById(G.aiFaction+'BottomBar');
-    if(aiBB)aiBB.style.display='none';
-    // Панель человека теперь видна ВСЕГДА в vsai, даже во время хода ИИ —
-    // на время хода ИИ у нее просто подменяется кнопка End Turn (см. updateEndTurnBtn ниже).
-    if(humanBB)humanBB.style.display='flex';
-  } else {
-    const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
-    if(inactBB)inactBB.style.display='none';
-    const actBB=document.getElementById(G.turn+'BottomBar');
-    if(actBB)actBB.style.display='flex';
-  }
-
   rZone('teaField',G.tea.field,'field');
   rZone('jeetField',G.jeet.field,'field');
   if(G.mode==='vsai'){
@@ -101,6 +71,28 @@ function render(){
     if(hel)hel.style.zIndex=G.previewCard?'500':'50';
   });
   requestAnimationFrame(()=>{ adjustHandOverlap(); requestAnimationFrame(adjustHandOverlap); });
+
+  const sfx=G.turn==='tea'?'T':'J';
+  updateMulliganBtn(G.turn);
+
+  const inactSB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'SidebarBtns');
+  if(inactSB)inactSB.style.display='none';
+  const actSB=document.getElementById(G.turn+'SidebarBtns');
+  if(actSB)actSB.style.display='flex';
+
+  if(G.mode==='vsai'){
+    const humanBB=document.getElementById(G.humanFaction+'BottomBar');
+    const aiBB=document.getElementById(G.aiFaction+'BottomBar');
+    if(aiBB)aiBB.style.display='none';
+    // Панель человека теперь видна ВСЕГДА в vsai, даже во время хода ИИ —
+    // на время хода ИИ у нее просто подменяется кнопка End Turn (см. updateEndTurnBtn ниже).
+    if(humanBB)humanBB.style.display='flex';
+  } else {
+    const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
+    if(inactBB)inactBB.style.display='none';
+    const actBB=document.getElementById(G.turn+'BottomBar');
+    if(actBB)actBB.style.display='flex';
+  }
 
   const oppKey=G.mode==='vsai'?G.aiFaction:(G.turn==='tea'?'jeet':'tea');
   const oppZoneEl=document.getElementById('oppStats');
@@ -807,12 +799,6 @@ function rZone(id,cards,zone){
   const existingIds=new Set([...el.querySelectorAll(cardSelector)].map(e=>e.dataset.id));
   el.innerHTML='';
   const faction=id.startsWith('tea')?'tea':'jeet'; // для полёта карты из колоды, см. _flyCardFromDeck
-  // Очередь id карт, добранных через drawCardsAnimated() (game.js — Hunger/Altar/Ryvlen
-  // on-attack/spell draw), которым fly-анимация+звук гарантированы НЕЗАВИСИМО от исхода
-  // обычной проверки ниже (existingIds) — см. комментарий у drawCardsAnimated(). Каждый id
-  // потребляется (splice) один раз, чтобы не переиграть анимацию повторно на следующем
-  // render() для той же карты, раз уже отыграли.
-  const pendingDraw=(zone==='hand'&&G._pendingDrawFx&&G._pendingDrawFx[faction])||null;
   let newHandCardIndex=0; // стаггер вылета, если за один render появилось сразу несколько карт
   cards.forEach(c=>{
     if(zone==='field'){
@@ -823,12 +809,7 @@ function rZone(id,cards,zone){
       const cardEl=mkEl(c,zone);
       // New card in hand (just drawn from deck) — gets the card-drawn entrance
       // animation. Cards already in hand don't replay it on every re-render.
-      let forcedNew=false;
-      if(pendingDraw){
-        const idx=pendingDraw.indexOf(c.id);
-        if(idx!==-1){ pendingDraw.splice(idx,1); forcedNew=true; }
-      }
-      const isNew=zone==='hand'&&(forcedNew||!existingIds.has(String(c.id)));
+      const isNew=zone==='hand'&&!existingIds.has(String(c.id));
       el.appendChild(cardEl);
       if(isNew){
         const restRect=cardEl.getBoundingClientRect(); // финальная позиция ДО навешивания card-drawn
