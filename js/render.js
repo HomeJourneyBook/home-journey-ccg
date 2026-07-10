@@ -350,7 +350,7 @@ function mkSmallEl(card){
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.sleeping&&!card.exhausted&&!card.feared) d.classList.add('healable');
   if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable');
-  if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp<card.maxHp)d.classList.add('healable');
+  if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared))d.classList.add('healable');
   if(G.phase==='healTarget'&&card.f!==G.turn){
     const oppField2=G[card.f].field;
     const attH=G.sel?findC(G.sel):null;
@@ -369,6 +369,7 @@ function mkSmallEl(card){
   'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
   'vanguard':'<img src="img/ico_vanguard.png" style="width:60%;height:60%;">',
   'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
+  'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
 };
 const tagIcons=(card.tags||[])
   .map(t=>t.split(':')[0])
@@ -387,19 +388,21 @@ const tagIcons=(card.tags||[])
 ${!isSW?`<div class="card-small-stats">
   <div class="card-small-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}"><span class="card-small-hp">${card.hp}</span></div>
 <img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
-  <div class="card-small-atk-box"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
+  <div class="card-small-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
 </div>`
 :`<div class="card-small-stats" style="justify-content:center;"><img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div></div>`}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
-    // Хилер: попап-кнопка "Heal" появляется, только если есть кого хилить (своя не-spell/
-    // world/artifact карта с hp<maxHp — та же проверка, что и у подсветки .healable ниже
-    // в healTarget). Клик по кнопке — и только он — переводит в healTarget с подсветкой
-    // целей; сам клик по существу (см. game.js) теперь просто выделяет его как обычную
-    // атаку (selectTarget), без прыжка сразу в режим лечения.
+    // Хилер: попап-кнопка "Heal" появляется, если есть кого хилить ИЛИ с кого снять
+    // дебафф (burning/feared) — своя не-spell/world/artifact карта с hp<maxHp ИЛИ
+    // дебаффом, та же проверка, что и у подсветки .healable ниже в healTarget (лечилка
+    // и снимает дебаффы разом, см. onClick() в game.js). Клик по кнопке — и только он —
+    // переводит в healTarget с подсветкой целей; сам клик по существу (см. game.js)
+    // теперь просто выделяет его как обычную атаку (selectTarget), без прыжка сразу в
+    // режим лечения.
     const isHealerAbility=card.tags.some(t=>t.startsWith('heal:'));
-    const hasHealTarget=isHealerAbility&&G[card.f].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.hp<c.maxHp);
+    const hasHealTarget=isHealerAbility&&G[card.f].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.hp<c.maxHp||c.burning||c.feared));
     if(isUmb||isVard||hasHealTarget){
       const pop=document.createElement('div');
       pop.className='field-ability-popup';
@@ -557,6 +560,7 @@ function mkEl(card,zone){
   'provoke': '<img src="img/ico_provoke.png" style="width:60%;height:60%;">',
   'vanguard':'<img src="img/ico_vanguard.png" style="width:60%;height:60%;">',
   'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
+  'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
 };
 const tagIcons = (card.tags||[])
   .map(t=>t.split(':')[0])
