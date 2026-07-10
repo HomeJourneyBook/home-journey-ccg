@@ -256,6 +256,7 @@ function preloadAssets(){
     'img/hands_border.png', 'img/hands_border2.png',
     'img/lore_pages.png',
     'img/ico_invis.png',
+    'img/ico_untamed.png',
     'img/trubi1.png',
 
     // ── Дайс-модалка (order-roll, выбор первого хода) — арт граней ──
@@ -1430,9 +1431,10 @@ const TAG_TOOLTIPS = {
   'provoke': { name: 'Provoke', desc: 'All enemy attacks must target this creature.' },
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
+  'untamed': { name: 'Untamed', desc: "Regains strength during the opponent's turn — clears exhausted as soon as its own turn ends, instead of waiting for its owner's next turn like everything else." },
 };
 
-const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box';
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
 
 let _tooltipEl = null;
@@ -1462,11 +1464,14 @@ function _tooltipDataFor(el){
   if(el.classList.contains('card-hp-box')){
     return { name: '', desc: `${el.dataset.hp}/${el.dataset.maxhp} HP` };
   }
-  // .card-atk-box — data-base/data-bonus навешаны в mkEl(). Если бонусов нет, просто
-  // "Attack power"; если есть — расшифровка, откуда взялась итоговая цифра (aura/rage/
-  // squad/combat-trick всё суммируются в один и тот же bonus на data-атрибуте, без
-  // разбивки по источнику — различать их тут не пытаемся, это уже детали реализации).
-  if(el.classList.contains('card-atk-box')){
+  // .card-atk-box / .card-small-atk-box — data-base/data-bonus навешаны в mkEl()
+  // (render.js, полноразмерная и мини-карта соответственно — та же логика бонуса,
+  // просто два разных DOM-узла для двух режимов отображения карты). Если бонусов нет,
+  // просто "Attack power"; если есть — расшифровка, откуда взялась итоговая цифра
+  // (aura/rage/squad/combat-trick всё суммируются в один и тот же bonus на
+  // data-атрибуте, без разбивки по источнику — различать их тут не пытаемся, это уже
+  // детали реализации).
+  if(el.classList.contains('card-atk-box')||el.classList.contains('card-small-atk-box')){
     const base=Number(el.dataset.base||0), bonus=Number(el.dataset.bonus||0);
     return { name: '', desc: bonus ? `Attack power: ${base} base + ${bonus} bonus` : 'Attack power' };
   }
