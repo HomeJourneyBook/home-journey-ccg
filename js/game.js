@@ -321,7 +321,7 @@ function doUmbAsir(){
   playSfx('card_spell_atack');
   const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
   lg(`${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
-  [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
+  [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK,true));
   umb.exhausted=true;
   G.sel=null;G.phase='action';
   checkWin();render();
@@ -337,7 +337,7 @@ function doVardan(){
   playSfx('card_spell_atack');
   const dmgAmt=getTagVal(vard,'aoe')||2;
   lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
-  [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK));
+  [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK,true));
   vard.exhausted=true;G.sel=null;G.phase='action';
   checkWin();render();
 }
@@ -387,13 +387,19 @@ function tryAttackBase(){
   activateCard(att.id); 
 }
 
-function dmgCard(card,dmg,faction){
+function dmgCard(card,dmg,faction,bypassArmor){
   if(dmg<=0)return;
   // Armor absorbs first — see doCreature() (init on enter) / endTurn() (refresh
   // on owner's turn start). Fully-absorbed hits still shake the card (visible
   // feedback that *something* landed) but skip the HP float/log/lethal check
   // entirely — there's no HP change to report.
-  if(card.armor>0){
+  // bypassArmor=true — magic damage (AOE active/enter_aoe, Shard, targeted spell
+  // damage) ignores armor entirely, same spirit as burn (see endTurn()): armor is
+  // a PHYSICAL defense (blocks attacks/counters), spells punch straight through
+  // it. Author call, 2026-07-10. Only doAttack()'s two dmgCard() calls (the
+  // actual attack + its counter-attack) omit this flag — everything else that
+  // deals damage through this function is magic.
+  if(card.armor>0 && !bypassArmor){
     const absorbed=Math.min(card.armor,dmg);
     card.armor-=absorbed;
     dmg-=absorbed;
@@ -711,7 +717,7 @@ function doSpellDmgTarget(card){
   lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   const oppK=G.turn==='tea'?'jeet':'tea';
   queueFieldFx(card.id,'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
-  dmgCard(card,dmg,oppK);
+  dmgCard(card,dmg,oppK,true);
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
@@ -785,7 +791,7 @@ function doShardTarget(card){
   const fearNote=card.feared?' (feared +1)':'';
   lg(`${artifact.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
   queueFieldFx(card.id,'SHARD!','fx-shard'); // плейсхолдер — позже заменится на гифку
-  dmgCard(card,dmg,oppK);
+  dmgCard(card,dmg,oppK,true);
   if(artifact) artifact.exhausted=true;
   G.phase='action';G.sel=null;
   checkWin();render();
