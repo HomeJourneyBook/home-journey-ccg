@@ -576,6 +576,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .order-roll-result::after{content:'';display:inline-block;width:0.5em;height:1em;background:#4bbf72;vertical-align:-2px;margin-left:2px;animation:orderRollCursorBlink .8s steps(1) infinite;}
 .order-roll-result.done::after{display:none;}
 @keyframes orderRollCursorBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+
+/* ── Generic CRT typing effect — reused on deckPicker/vsAiPicker copy ───── */
+.type-fx{position:relative;min-height:1.3em;}
+.type-fx::after{content:'';display:inline-block;width:0.5em;height:1em;background:#2f7a4a;vertical-align:-2px;margin-left:2px;animation:orderRollCursorBlink .8s steps(1) infinite;}
+.type-fx.done::after{display:none;}
+.type-fx.typing-hidden::after{display:none;}
 /*── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────*/
 /*── Бокс с кнопками модалок (confirm/win/mulligan/pass) ──────────────────*/
 .modal-footer{align-self:center; width:auto; background:transparent; border-style:solid; border-width:var(--modal-footer-border-w); border-image-source:url('../img/bg_jest2.png'); border-image-slice:14 fill; border-image-width:var(--modal-footer-border-w); border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; padding:0; display:flex; gap:var(--modal-footer-border-w); justify-content:center; align-items:center;}
