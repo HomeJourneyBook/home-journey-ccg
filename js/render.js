@@ -807,6 +807,12 @@ function rZone(id,cards,zone){
   const existingIds=new Set([...el.querySelectorAll(cardSelector)].map(e=>e.dataset.id));
   el.innerHTML='';
   const faction=id.startsWith('tea')?'tea':'jeet'; // для полёта карты из колоды, см. _flyCardFromDeck
+  // Очередь id карт, добранных через drawCardsAnimated() (game.js — Hunger/Altar/Ryvlen
+  // on-attack/spell draw), которым fly-анимация+звук гарантированы НЕЗАВИСИМО от исхода
+  // обычной проверки ниже (existingIds) — см. комментарий у drawCardsAnimated(). Каждый id
+  // потребляется (splice) один раз, чтобы не переиграть анимацию повторно на следующем
+  // render() для той же карты, раз уже отыграли.
+  const pendingDraw=(zone==='hand'&&G._pendingDrawFx&&G._pendingDrawFx[faction])||null;
   let newHandCardIndex=0; // стаггер вылета, если за один render появилось сразу несколько карт
   cards.forEach(c=>{
     if(zone==='field'){
@@ -817,7 +823,12 @@ function rZone(id,cards,zone){
       const cardEl=mkEl(c,zone);
       // New card in hand (just drawn from deck) — gets the card-drawn entrance
       // animation. Cards already in hand don't replay it on every re-render.
-      const isNew=zone==='hand'&&!existingIds.has(String(c.id));
+      let forcedNew=false;
+      if(pendingDraw){
+        const idx=pendingDraw.indexOf(c.id);
+        if(idx!==-1){ pendingDraw.splice(idx,1); forcedNew=true; }
+      }
+      const isNew=zone==='hand'&&(forcedNew||!existingIds.has(String(c.id)));
       el.appendChild(cardEl);
       if(isNew){
         const restRect=cardEl.getBoundingClientRect(); // финальная позиция ДО навешивания card-drawn
@@ -841,6 +852,14 @@ function rZone(id,cards,zone){
 // Поэтому сначала проверяем, что внутри уже лежат корректные .card-mini (а не "осиротевшие" .card
 // от прошлого хода, когда этот же контейнер был открытой рукой) — если нет, делаем полный ребилд.
 // Если тип верный — только дозаполняем/обрезаем по количеству, не трогая лишний раз DOM (анти-дёрганье).
+// Рисует ЧУЖУЮ руку — карты рубашкой вверх, без анимации/звука прилёта (по прямому запросу
+// автора, 2026-07-10 — раньше тут был playSfx('new_card')+класс 'entering' на каждую новую
+// карту, как у своей открытой руки, но это создавало отдельный баг: в hotseat при КАЖДОЙ
+// передаче хода этот же контейнер целиком меняет тип разметки (открытая рука соперника через
+// rZone → скрытая через эту функцию, и наоборот) — `wrongType` ниже почти всегда true на
+// каждой передаче, контейнер полностью вайпится и пересоздаётся с нуля, и ВСЯ рука (не только
+// реально новые карты) заново проигрывала анимацию+звук. Раз уж для скрытой чужой руки
+// анимация не нужна вообще — сняли её здесь целиком, а не пытались чинить диффинг.
 function rHiddenHand(id,cards,faction){
   const el=document.getElementById(id);
   el.className='hand-mini';
@@ -855,12 +874,11 @@ function rHiddenHand(id,cards,faction){
   } else if(need>have){
     for(let i=0;i<need-have;i++){
       const d=document.createElement('div');
-      d.className=`card-mini ${faction}-mini entering`;
+      d.className=`card-mini ${faction}-mini`;
       d.style.backgroundImage="url('img/runaha.png')";
       d.style.backgroundSize='cover';
       d.style.backgroundPosition='bottom';
       el.appendChild(d);
-      setTimeout(()=>playSfx('new_card'), i*90);
     }
   }
 }
