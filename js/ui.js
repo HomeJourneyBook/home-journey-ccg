@@ -553,8 +553,10 @@ function chooseDeckConfig(configKey){
   const proceed=()=>{
     modal.classList.add('hidden');
     if(_pendingModeFlow==='vsai') openVsAiPicker(configKey);
-    else if(configKey==='rush') startRushBuild('hotseat');
-    else startGame(configKey);
+    // Hot Seat: Classic AND Rush both now go through the order-roll dice-off
+    // first (see openOrderRoll below) — who goes first decides mulligan/
+    // deckbuilder order, so it has to happen before either.
+    else openOrderRoll({mode:'hotseat',deckConfig:configKey});
   };
   // Landing's own opacity/transform transition (see .landing.exit-center in
   // styles.css) takes 315ms, started at the same moment as the line above —
@@ -570,8 +572,9 @@ function chooseDeckConfig(configKey){
   _modalPopOut(modal, proceed, 315);
 }
 
-function startGame(deckConfig){
-  initState({deckConfig:deckConfig||'classic'});
+function startGame(deckConfig,firstFaction){
+  firstFaction=firstFaction||'tea';
+  initState({deckConfig:deckConfig||'classic',firstFaction});
   const landing=document.getElementById('landing');
   landing.style.display='none';
   landing.classList.remove('exit-center');
@@ -586,7 +589,8 @@ function startGame(deckConfig){
   // state. Harmless on a fresh page load (nothing to flicker from), visible
   // on Restart/New Game after a previous match.
   render();
-  startMulliganFor('tea'); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
+  lg(`${firstFaction==='tea'?'TAVERN':'JEET'} goes first.`,'imp');
+  startMulliganFor(firstFaction); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
 }
 
 // ── VS AI ──────────────────────────────────────────────────────
@@ -617,29 +621,181 @@ function backFromVsAiPicker(){
   }, 250);
 }
 
-function startGameVsAI(humanFaction){
+// Faction chosen — before actually starting anything, the order-roll dice-off
+// decides who goes first (see openOrderRoll below). deckConfig/humanFaction
+// are carried through in the roll's ctx and only consumed once Ready is hit.
+function chooseVsAiFaction(humanFaction){
   const modal=document.getElementById('vsAiPickerModal');
-  const proceed=()=>{
+  _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
-    const landing=document.getElementById('landing');
-    landing.style.display='none';
-    landing.classList.remove('exit-center');
-    if(_pendingVsAiDeckConfig==='rush'){
-      startRushBuild('vsai',{vsAiHumanFaction:humanFaction});
-      return;
+    openOrderRoll({mode:'vsai',deckConfig:_pendingVsAiDeckConfig,humanFaction});
+  }, 250);
+}
+
+// Actually starts the vsAI match once faction + deck config + dice-roll order
+// are all settled. Called from confirmOrderRoll() below (Classic path only —
+// Rush instead goes to startRushBuild()).
+function startGameVsAI(humanFaction,firstFaction){
+  const landing=document.getElementById('landing');
+  landing.style.display='none';
+  landing.classList.remove('exit-center');
+  document.getElementById('game').style.display='flex';
+  collapseStart();
+  initState({mode:'vsai',humanFaction,deckConfig:_pendingVsAiDeckConfig,firstFaction});
+  render(); // see startGame() above for why this can't wait for doMulligan()'s own render()
+  lg('─ NEW GAME (VS AI) ─','trn');
+  lg(`${firstFaction==='tea'?'TAVERN':'JEET'} goes first.`,'imp');
+  logTurnSnapshot(firstFaction);
+  // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
+  // человек видит только собственный муллиган.
+  aiAutoMulligan(G.aiFaction);
+  startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
+}
+
+// ── ORDER ROLL — dice-off deciding who goes first ────────────────────────
+// Sits between mode/config(/faction) selection and mulligan-or-deckbuilder,
+// for ALL four combos (hotseat×{classic,rush}, vsai×{classic,rush}). ctx
+// carries whatever the next step needs:
+//   hotseat: {mode:'hotseat', deckConfig}
+//   vsai:    {mode:'vsai', deckConfig, humanFaction}
+// See CLAUDE.md "Version 1.01" roadmap, turn-order item.
+let _orderRollCtx=null;
+let _orderRollTimer=null;
+let _orderRollFirstFaction=null;
+
+function openOrderRoll(ctx){
+  _orderRollCtx=ctx;
+  _orderRollFirstFaction=null;
+  const modal=document.getElementById('orderRollModal');
+  document.getElementById('orderRollReadyBtn').disabled=true;
+  const resultEl=document.getElementById('orderRollResult');
+  resultEl.textContent='\u00A0';
+  resultEl.classList.remove('done');
+  ['orderRollSideTea','orderRollSideJeet'].forEach(id=>{
+    document.getElementById(id).classList.remove('order-roll-winner','order-roll-loser');
+  });
+  modal.classList.remove('hidden');
+  _modalPopIn(modal);
+  _rollOrderDice();
+}
+
+// Кнопка "назад" — возвращает туда, откуда пришли: vsAiPickerModal (флоу vsai,
+// faction уже выбрана) или deckPickerModal (флоу hotseat, Classic/Rush уже
+// выбран). Дальше отступать некуда — обе эти модалки сами умеют идти назад
+// ещё на шаг (см. backFromVsAiPicker/backFromDeckPicker).
+function backFromOrderRoll(){
+  playSfx('yellow_buttom');
+  clearTimeout(_orderRollTimer);
+  const modal=document.getElementById('orderRollModal');
+  const ctx=_orderRollCtx;
+  _modalPopOut(modal, ()=>{
+    modal.classList.add('hidden');
+    _orderRollCtx=null;
+    const backId = ctx&&ctx.mode==='vsai' ? 'vsAiPickerModal' : 'deckPickerModal';
+    const backModal=document.getElementById(backId);
+    backModal.classList.remove('hidden');
+    _modalPopIn(backModal);
+  }, 250);
+}
+
+// Rolls both dice with a couple seconds of random face-cycling (placeholder:
+// plain digits — see index.html/styles.css, real 6-face art comes later per
+// author), then settles on the actual result. Ties auto-reroll after a short
+// pause until someone rolls higher — no manual reroll button, per spec.
+function _rollOrderDice(){
+  const dieT=document.getElementById('orderRollDieTea');
+  const dieJ=document.getElementById('orderRollDieJeet');
+  const resultEl=document.getElementById('orderRollResult');
+  const CYCLE_MS=90, SPIN_MS=1400;
+  const start=performance.now();
+  clearTimeout(_orderRollTimer);
+  const tick=()=>{
+    const elapsed=performance.now()-start;
+    dieT.textContent=1+Math.floor(Math.random()*6);
+    dieJ.textContent=1+Math.floor(Math.random()*6);
+    playSfx('card_navigation_cursor');
+    if(elapsed<SPIN_MS){
+      _orderRollTimer=setTimeout(tick,CYCLE_MS);
+    } else {
+      const rollT=1+Math.floor(Math.random()*6);
+      const rollJ=1+Math.floor(Math.random()*6);
+      dieT.textContent=rollT;
+      dieJ.textContent=rollJ;
+      if(rollT===rollJ){
+        _typeOrderResult('Tie — rolling again...');
+        _orderRollTimer=setTimeout(()=>_rollOrderDice(),900);
+        return;
+      }
+      const winner = rollT>rollJ ? 'tea' : 'jeet';
+      document.getElementById(winner==='tea'?'orderRollSideTea':'orderRollSideJeet').classList.add('order-roll-winner');
+      document.getElementById(winner==='tea'?'orderRollSideJeet':'orderRollSideTea').classList.add('order-roll-loser');
+      _orderRollFirstFaction=winner;
+      _typeOrderResult(`${winner==='tea'?'TAVERN':'JEET'} goes first!`, ()=>{
+        document.getElementById('orderRollReadyBtn').disabled=false;
+      });
     }
-    document.getElementById('game').style.display='flex';
-    collapseStart();
-    initState({mode:'vsai',humanFaction,deckConfig:_pendingVsAiDeckConfig});
-    render(); // see startGame() above for why this can't wait for doMulligan()'s own render()
-    lg('─ NEW GAME (VS AI) ─','trn');
-    logTurnSnapshot('tea');
-    // ИИ разыгрывает свой муллиган мгновенно и без интерфейса —
-    // человек видит только собственный муллиган.
-    aiAutoMulligan(G.aiFaction);
-    startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
   };
-  _modalPopOut(modal, proceed, 250);
+  tick();
+}
+
+// Character-by-character reveal, same CRT-terminal feel as the rest of these
+// modals — no existing typing helper elsewhere in the codebase to reuse.
+function _typeOrderResult(text,onDone){
+  const el=document.getElementById('orderRollResult');
+  el.classList.remove('done');
+  el.textContent='';
+  let i=0;
+  const CHAR_MS=28;
+  const step=()=>{
+    el.textContent=text.slice(0,i+1);
+    i++;
+    if(i<text.length){
+      _orderRollTimer=setTimeout(step,CHAR_MS);
+    } else {
+      el.classList.add('done');
+      if(onDone) onDone();
+    }
+  };
+  step();
+}
+
+// Ready — dispatches to whichever screen comes next for this ctx, now that
+// _orderRollFirstFaction is settled. Mirrors the dispatch that used to live
+// directly in chooseDeckConfig()/startGameVsAI() before the dice-off existed.
+function confirmOrderRoll(){
+  if(!_orderRollFirstFaction) return; // guard: button is disabled until settled anyway
+  const ctx=_orderRollCtx;
+  const firstFaction=_orderRollFirstFaction;
+  const modal=document.getElementById('orderRollModal');
+  _modalPopOut(modal, ()=>{
+    modal.classList.add('hidden');
+    _orderRollCtx=null;
+    _orderRollFirstFaction=null;
+    if(ctx.mode==='hotseat'){
+      if(ctx.deckConfig==='rush') startRushBuild('hotseat',{firstFaction});
+      else startGame('classic',firstFaction);
+    } else {
+      const landing=document.getElementById('landing');
+      landing.style.display='none';
+      landing.classList.remove('exit-center');
+      if(ctx.deckConfig==='rush') startRushBuild('vsai',{vsAiHumanFaction:ctx.humanFaction,firstFaction});
+      else startGameVsAI(ctx.humanFaction,firstFaction);
+    }
+  }, 250);
+}
+
+// Second-player bonus card — see CLAUDE.md "Version 1.01" roadmap. Unseen is
+// deliberately NOT part of the deck (see deck.js buildDeck()/buildAiRushDeck())
+// so it can never show up in — or be discarded during — the mulligan; instead
+// it's added directly to G.secondFaction's hand the moment the mulligan phase
+// actually ends (both mulligan chains funnel through readyFromMulligan(),
+// which is the single choke point for every mode/deck-config combo, so this
+// only needs to be called from there).
+function grantUnseenBonus(){
+  const second=G.secondFaction;
+  if(!second||!G[second]) return;
+  G[second].hand.push(mkCard('unseen'));
+  lg(`${second==='tea'?'TAVERN':'JEET'} receives UNSEEN — the 2nd-player bonus card.`,'imp');
 }
 
 function startMulliganFor(faction){
@@ -663,8 +819,9 @@ function startMulliganFor(faction){
     // Тот же голд-пульс, что у "affordable" карт в обычной руке (goldPulseWeak,
     // styles.css) — здесь чисто декоративно, не завязано на стоимость/эссенцию:
     // mkEl() сам ставит .affordable только если card.f===G.turn (а G.turn во
-    // время муллигана всегда 'tea', см. initState()) И cost<=ess — на муллигане
-    // Джита это условие никогда не сработает, да и по смыслу тут не "могу
+    // время муллигана всегда G.firstFaction — тот, кто выиграл бросок
+    // кубиков и ходит первым, см. initState()) И cost<=ess — на муллигане
+    // 2-го игрока это условие никогда не сработает, да и по смыслу тут не "могу
     // сыграть", а "вот эти карты у меня на руках" — подсвечиваем ВСЕ карты
     // муллигана одинаково, форсируя класс явно, а не полагаясь на встроенную
     // проверку mkEl().
@@ -857,6 +1014,7 @@ function readyFromMulligan(){
       // тут не нужен, сразу переходим к партии.
       G.phase='action';
       G.mulliganTurn=null;
+      grantUnseenBonus();
       render();
       playArenaRevealAnimation();
       requestAnimationFrame(adjustHandOverlap);
@@ -865,11 +1023,14 @@ function readyFromMulligan(){
       }
       return;
     }
-    if(G.mulliganTurn==='tea'){
-      showPassScreen('jeet', ()=>startMulliganFor('jeet'));
+    // Hot Seat: mulligan order follows dice-roll order (G.firstFaction goes
+    // first, see openOrderRoll/initState) — no longer hardcoded to tea→jeet.
+    if(G.mulliganTurn===G.firstFaction){
+      showPassScreen(G.secondFaction, ()=>startMulliganFor(G.secondFaction));
     } else {
       G.phase='action';
       G.mulliganTurn=null;
+      grantUnseenBonus();
       render();
       playArenaRevealAnimation();
       requestAnimationFrame(adjustHandOverlap);
@@ -934,21 +1095,27 @@ function resetGame(){
   document.getElementById('game').style.display='flex';
   document.getElementById('landing').style.display='none';
   const prevMode=G.mode, prevHuman=G.humanFaction, prevDeckConfig=G.deckConfig, prevRushDecks=G.rushDecks;
+  // Restart replays the exact same setup as the match that just ended — same
+  // deck config/picks (see prevRushDecks above) AND same dice-roll outcome,
+  // not a fresh roll. Falls back to 'tea' only if G.firstFaction is somehow
+  // unset (shouldn't happen post-initState, but keeps this defensive).
+  const prevFirstFaction=G.firstFaction||'tea';
   if(prevMode==='vsai'){
-    initState({mode:'vsai',humanFaction:prevHuman,deckConfig:prevDeckConfig,rushDecks:prevRushDecks});
+    initState({mode:'vsai',humanFaction:prevHuman,deckConfig:prevDeckConfig,rushDecks:prevRushDecks,firstFaction:prevFirstFaction});
     render(); // see startGame() for why — here the stale frame would be the JUST-FINISHED match
     lg('─ NEW GAME (VS AI) ─','trn');
-    logTurnSnapshot('tea');
+    lg(`${prevFirstFaction==='tea'?'TAVERN':'JEET'} goes first.`,'imp');
+    logTurnSnapshot(prevFirstFaction);
     aiAutoMulligan(G.aiFaction);
     startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
     return;
   }
-  initState({deckConfig:prevDeckConfig,rushDecks:prevRushDecks});
+  initState({deckConfig:prevDeckConfig,rushDecks:prevRushDecks,firstFaction:prevFirstFaction});
   render();
   lg('─ NEW GAME ─','trn');
-  lg('TEA goes first.','imp');
-  logTurnSnapshot('tea');
-  startMulliganFor('tea'); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
+  lg(`${prevFirstFaction==='tea'?'TAVERN':'JEET'} goes first.`,'imp');
+  logTurnSnapshot(prevFirstFaction);
+  startMulliganFor(prevFirstFaction); // synchronous — see 'flicker' note in CLAUDE.md backlog: a 50ms delay here left the bare arena visible for a frame between two black overlays
 }
 
 function toggleLog(){
