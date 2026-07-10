@@ -710,8 +710,39 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button class="modal-faction-btn btn-tea"  title="Tavern"    onclick="playSfx('yellow_buttom');startGameVsAI('tea')"></button>
-      <button class="modal-faction-btn btn-jeet" title="Jeet" onclick="playSfx('yellow_buttom');startGameVsAI('jeet')"></button>
+      <button class="modal-faction-btn btn-tea"  title="Tavern"    onclick="playSfx('yellow_buttom');chooseVsAiFaction('tea')"></button>
+      <button class="modal-faction-btn btn-jeet" title="Jeet" onclick="playSfx('yellow_buttom');chooseVsAiFaction('jeet')"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER ROLL — dice-off deciding who goes first, shown after mode+config (and,
+     for VS AI, faction) are picked, before mulligan/deckbuilder. See CLAUDE.md
+     "Version 1.01" roadmap, turn-order item. -->
+<div class="modal-overlay hidden" id="orderRollModal">
+  <div class="modal-stack">
+    <button class="modal-icon-btn corner-back btn-back-corner" onclick="backFromOrderRoll()" title="Back"></button>
+    <div class="modal">
+      <div class="modal-body">
+        <div class="modal-crt-screen order-roll-screen">
+          <h2>WHO GOES FIRST?</h2>
+          <div class="order-roll-row">
+            <div class="order-roll-side" id="orderRollSideTea">
+              <div class="order-roll-label">TAVERN</div>
+              <div class="order-roll-die" id="orderRollDieTea">1</div>
+            </div>
+            <div class="order-roll-vs">:</div>
+            <div class="order-roll-side" id="orderRollSideJeet">
+              <div class="order-roll-label">JEET</div>
+              <div class="order-roll-die" id="orderRollDieJeet">1</div>
+            </div>
+          </div>
+          <div class="order-roll-result" id="orderRollResult">&nbsp;</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer modal-footer-plate">
+      <button class="modal-art-btn btn-ready" id="orderRollReadyBtn" disabled onclick="playSfx('yellow_buttom');confirmOrderRoll()" title="Ready"></button>
     </div>
   </div>
 </div>
