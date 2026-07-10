@@ -261,7 +261,7 @@ function showFieldCardPreview(card, originEl, scale=FIELD_PREVIEW_SCALE){
   // .card-tag-icon — из-за этого в зуме подсказка показывалась ТОЛЬКО у способностей, а
   // cost/type/hp/atk молчали (баг-репорт). Клик по любому из них всё равно всплывает и
   // закрывает зум — тут включается только hover, не click-behaviour.
-  el.querySelectorAll('.card-tag-icon, .card-cost, .card-type-dot, .card-hp-box, .card-atk-box').forEach(icon=>{ icon.style.pointerEvents='auto'; });
+  el.querySelectorAll('.card-tag-icon, .card-cost, .card-type-dot, .card-hp-box, .card-atk-box, .card-armor-box').forEach(icon=>{ icon.style.pointerEvents='auto'; });
 
   const targetRect=el.getBoundingClientRect(); // естественный размер .card из CSS (--card-w/--card-h)
   const scaleX=originRect.width/targetRect.width;
@@ -378,6 +378,7 @@ const tagIcons=(card.tags||[])
   .join('');
   d.innerHTML=`
     <div class="card-small-cost">${card.cost}</div>
+    ${card.armorMax>0?`<div class="card-small-armor-box" data-armor="${card.armor}" data-maxarmor="${card.armorMax}"><span class="card-small-armor"><img src="./img/armor.png" class="stat-icon">${card.armor}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
@@ -630,6 +631,7 @@ const tagIcons = (card.tags||[])
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
+    ${card.armorMax>0?`<div class="card-armor-box" data-armor="${card.armor}" data-maxarmor="${card.armorMax}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${card.armor}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${card.burning?'<div class="burning-icon"></div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
