@@ -263,6 +263,9 @@ function preloadAssets(){
     'img/dice_1.png', 'img/dice_2.png', 'img/dice_3.png',
     'img/dice_4.png', 'img/dice_5.png', 'img/dice_6.png',
 
+    // ── Броня (armor) — фон бокса + иконка ──
+    'img/armor_bg.png', 'img/armor.png',
+
     // ── Карты — базовые фреймы ──
     'img/card_tea.png', 'img/card_jeet.png',
     'img/card_name_bg.png', 'img/card_name_world_bg.png', 'img/card_text_bg.png',
@@ -770,6 +773,18 @@ function _rollOrderDice(){
 // sequence early (e.g. modal closed mid-type) can clearTimeout() it.
 function _typeText(el,text,charMs,onDone){
   el.classList.remove('done','typing-hidden');
+  // Измеряем высоту ПОЛНОГО текста (с учётом переноса строк) ДО начала печати и
+  // фиксируем её через min-height — иначе контейнер (а с ним и вся модалка) растёт
+  // построчно по мере того, как textContent удлиняется, и всё, что ниже (кнопки в
+  // футере и т.п.), едет вниз вместе с текстом. Так модалка сразу открывается на
+  // финальном размере, а печатается уже внутри готового по высоте блока.
+  // scrollHeight, а не getBoundingClientRect().height — модалка в этот момент может
+  // ещё доигрывать pop-in анимацию (transform:scale(), см. .modal-pop-in в styles.css),
+  // а getBoundingClientRect() возвращает уже трансформированный (visually scaled) бокс;
+  // scrollHeight — чисто layout-свойство, transform на него не влияет.
+  el.style.minHeight='';
+  el.textContent=text;
+  el.style.minHeight=el.scrollHeight+'px';
   el.textContent='';
   let i=0;
   let timer=null;
@@ -794,7 +809,6 @@ function _typeText(el,text,charMs,onDone){
 // bold flag and re-wraps the revealed prefix into <strong>/plain runs.
 function _typeHtmlLine(el,segments,charMs,onDone){
   el.classList.remove('done','typing-hidden');
-  el.innerHTML='';
   const flat=[];
   segments.forEach(seg=>{ for(const ch of seg.text) flat.push({ch,bold:!!seg.bold}); });
   let i=0;
@@ -810,6 +824,14 @@ function _typeHtmlLine(el,segments,charMs,onDone){
     flush();
     el.innerHTML=html;
   };
+  // Тот же приём, что в _typeText() — измеряем высоту ПОЛНОГО (готового) контента
+  // и фиксируем min-height до начала посимвольной печати, чтобы модалка не росла
+  // по ходу тайпинга. scrollHeight, не getBoundingClientRect() — см. комментарий в
+  // _typeText(), тот же transform:scale() у pop-in анимации модалки.
+  el.style.minHeight='';
+  render(flat.length);
+  el.style.minHeight=el.scrollHeight+'px';
+  el.innerHTML='';
   const step=()=>{
     i++;
     render(i);
@@ -1434,7 +1456,7 @@ const TAG_TOOLTIPS = {
   'untamed': { name: 'Untamed', desc: "Regains strength during the opponent's turn — clears exhausted as soon as its own turn ends, instead of waiting for its owner's next turn like everything else." },
 };
 
-const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box';
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
 
 let _tooltipEl = null;
@@ -1455,6 +1477,13 @@ function _tooltipDataFor(el){
   }
   if(el.classList.contains('card-small-hp-box')){
     return { name: '', desc: `${el.dataset.hp}/${el.dataset.maxhp} HP` };
+  }
+  // .card-armor-box / .card-small-armor-box — data-armor/data-maxarmor навешаны в mkEl()
+  // (render.js) для живых карт (data-armor — текущий пул, может быть меньше max, если
+  // часть уже поглощена ударом в этом ходу) и в catalog.js/deckbuilder.js для превью карт
+  // вне игры (там armor===maxarmor всегда, живого состояния ещё нет).
+  if(el.classList.contains('card-armor-box') || el.classList.contains('card-small-armor-box')){
+    return { name: '', desc: `${el.dataset.armor}/${el.dataset.maxarmor} Armor` };
   }
   // Полноразмерная карта (рука/превью/зум) — data-hp/data-maxhp навешаны в mkEl()
   // (render.js). У карт в руке hp===maxHp (ещё не в бою); у зумленной карты поля
