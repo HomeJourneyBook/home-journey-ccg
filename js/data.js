@@ -49,7 +49,7 @@ const DEFS = {
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","aura:maxhp:1"],      ab:"Aura: +1 maxHP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:5,atk:2,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed"],       ab:"Aura: +1 ATK.",unique:true},
   t_faeron:    {name:"FAERON",     cost:4,hp:4,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","on_play_creature:1","untamed"], ab:"Each On play: Heal base 1 HP.",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","provoke","bushido","armor:2"], ab:"Bushido: ALL attacks must target him. Armor: 2.",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","provoke","bushido","armor:2"], ab:"Bushido: ALL attacks must target him.",unique:true},
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
   t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:2"],     ab:"Target ally: +2 ATK until end of turn.",spell:true},
@@ -104,7 +104,7 @@ const DEFS = {
   // ── JEET LEGENDARIES ────────────────────────────────────────────
   j_reap:      {name:"REAPER",      cost:5,hp:5,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_any_death_base:1"],        ab:"Any creature death: restore base 1 HP.",unique:true},
   j_ryv:       {name:"RYVLEN",      cost:5,hp:4,atk:2,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","fear","draw_attack:1"],        ab:"On attack: Draw 1 card.",unique:true},
-  j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1","armor:2","aura:armor:1"],          ab:"On enter: AOE 1 dmg. Armor: 2. Aura: allies +1 Armor.",unique:true},
+  j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1","armor:2","aura:armor:1"],          ab:"On enter: AOE 1 dmg. Aura: allies +1 Armor.",unique:true},
   j_phleg:     {name:"PHLEGMOR",    cost:5,hp:7,atk:1,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1"],                     ab:"On turn: Raise top graveyard card at 1 HP.",unique:true},
   j_vard:      {name:"SEEKER",      cost:5,hp:4,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear","pierce"],    ab:"\"Seek, and ye shall find.\"",unique:true},
 
