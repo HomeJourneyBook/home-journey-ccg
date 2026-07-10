@@ -849,8 +849,8 @@ function endTurn(){
   cur.field.forEach(c=>{c.exhausted=false;});
   cur.artifacts.forEach(a=>{a.exhausted=false;});
   cur.burned=false;
-  if(G.jeetFirstTurn&&G.turn==='jeet'){
-    cur.essMax=1;cur.ess=1;G.jeetFirstTurn=false;
+  if(G.secondFirstTurn&&G.turn===G.secondFaction){
+    cur.essMax=1;cur.ess=1;G.secondFirstTurn=false;
   } else {
     cur.essMax+=1;cur.ess=cur.essMax;
   }
@@ -894,13 +894,13 @@ function endTurn(){
   });
   checkWin();
 
-  const skipDraw=(G.turn==='jeet'&&G.turnNum===1);
+  const skipDraw=(G.turn===G.secondFaction&&G.turnNum===1);
   if(!skipDraw){
     const n=1+cur.extraDraw;
     for(let i=0;i<n;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
   }
 
-  if(G.turn==='tea')G.turnNum++;
+  if(G.turn===G.firstFaction)G.turnNum++;
   logTurnSnapshot(G.turn);
   lg(`─ Turn ${G.turnNum}: ${G.turn.toUpperCase()} · ${cur.ess}/${cur.essMax} Essence ─`,'trn');
   const lp=document.getElementById('logPanel');if(lp)lp.classList.remove('open');
