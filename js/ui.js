@@ -891,7 +891,17 @@ function confirmOrderRoll(){
 function grantUnseenBonus(){
   const second=G.secondFaction;
   if(!second||!G[second]) return;
-  G[second].hand.push(mkCard('unseen'));
+  const card=mkCard('unseen');
+  // DEFS.unseen has f:"jeet" hardcoded (data.js) — leftover from back when
+  // Unseen only ever went to Jeet. card.f drives "is this my card"/playability
+  // everywhere (click handling, .affordable highlight, hand rendering), so if
+  // the dice-roll makes TEA the 2nd player, the card must actually belong to
+  // tea — otherwise it sits in Tea's hand but reads as Jeet's and can't be
+  // clicked/played at all. Override after mkCard() rather than touching DEFS
+  // (DEFS.unseen.f still matters as the "neutral-ish default" for anything
+  // that reads it before a real owner is assigned, e.g. catalog display).
+  card.f=second;
+  G[second].hand.push(card);
   lg(`${second==='tea'?'TAVERN':'JEET'} receives UNSEEN — the 2nd-player bonus card.`,'imp');
 }
 
