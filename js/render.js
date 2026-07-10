@@ -193,6 +193,7 @@ function _squadBonusText(card){
   const parts=[];
   if(card.squadAtkBonus) parts.push(`+${card.squadAtkBonus} ATK`);
   if(card.squadMaxHpBonus) parts.push(`+${card.squadMaxHpBonus} Max HP`);
+  if(card.squadArmorBonus) parts.push(`+${card.squadArmorBonus} Armor`);
   const sp=card.squadParam;
   if(sp){
     if(sp.heal) parts.push(`heals ${sp.heal} on activation`);
@@ -211,9 +212,11 @@ function _cardStatusEntries(card){
   // Бафы
   if(card.atkBonus) entries.push({emoji:'✨', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
   if(card.worldMaxHpBonus) entries.push({emoji:'💗', text:`+${card.worldMaxHpBonus} Max HP from an aura on the battlefield.`});
+  if(card.auraArmorBonus) entries.push({emoji:'🛡️', text:`+${card.auraArmorBonus} Armor from an aura on the battlefield.`});
+  if(card.worldArmorBonus) entries.push({emoji:'🛡️', text:`+${card.worldArmorBonus} Armor from the World card.`});
   if(card.tempAtkBonus) entries.push({emoji:'⚔️', text:`+${card.tempAtkBonus} ATK until the end of this turn (combat trick).`});
   if(card.rageBonus) entries.push({icon:'img/ico_rage.png', text:`+${card.rageBonus} ATK permanently from Rage (gained by attacking).`});
-  if(card.squadAtkBonus||card.squadMaxHpBonus||card.squadParam) entries.push({emoji:'🛡️', text:_squadBonusText(card)});
+  if(card.squadAtkBonus||card.squadMaxHpBonus||card.squadArmorBonus||card.squadParam) entries.push({emoji:'🛡️', text:_squadBonusText(card)});
   return entries;
 }
 function _buildStatusPanel(entries){
@@ -323,6 +326,21 @@ function closeFieldCardPreview(){
 // Сюда же навешиваются игровые состояния: selected (выбрана), sleeping (спит), exhausted (устала),
 // feared (в страхе), burning (горит), targetable (можно выбрать целью в текущей фазе), healable (можно вылечить).
 // Это единственный рендерер поля боя — .card (mkEl) сюда никогда не попадает.
+// Броня для рендера — на поле armorMax уже посчитан recalcArmor() (own+squad+aura+world,
+// может быть >0 даже без своего тега armor). В РУКЕ recalcArmor() ни разу не запускался
+// для этой карты (он бежит только по cur.field) — armorMax===undefined там всегда, даже
+// если у карты есть свой тег armor:N (баг, найденный автором 2026-07-10: NABUNAGI с armor:2
+// не показывал бокс в руке, только после выхода на поле). Для карт вне поля просто
+// показываем "полную" собственную броню по тегу — squad/aura всё равно не действуют, пока
+// карта не сыграна, ничего не потеряно.
+function _armorDisplay(card){
+  if(card.armorMax>0) return {cur:card.armor, max:card.armorMax};
+  if(card.armorMax===undefined){
+    const own=getTagVal(card,'armor');
+    if(own) return {cur:own, max:own};
+  }
+  return null;
+}
 function mkSmallEl(card){
   const d=document.createElement('div');
   d.className=`card-small ${card.f}-card`;
@@ -376,9 +394,10 @@ const tagIcons=(card.tags||[])
   .filter(t=>TAG_ICONS[t])
   .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
   .join('');
+  const armorDisp=_armorDisplay(card);
   d.innerHTML=`
     <div class="card-small-cost">${card.cost}</div>
-    ${card.armorMax>0?`<div class="card-small-armor-box" data-armor="${card.armor}" data-maxarmor="${card.armorMax}"><span class="card-small-armor"><img src="./img/armor.png" class="stat-icon">${card.armor}</span></div>`:''}
+    ${armorDisp?`<div class="card-small-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-small-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
@@ -629,9 +648,10 @@ const tagIcons = (card.tags||[])
   return d;
 }
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
+  const armorDisp=_armorDisplay(card);
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
-    ${card.armorMax>0?`<div class="card-armor-box" data-armor="${card.armor}" data-maxarmor="${card.armorMax}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${card.armor}</span></div>`:''}
+    ${armorDisp?`<div class="card-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${card.burning?'<div class="burning-icon"></div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
