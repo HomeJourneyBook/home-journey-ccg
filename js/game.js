@@ -442,6 +442,30 @@ function dmgCard(card,dmg,faction,bypassArmor){
   if(lethal)killCard(card,faction);
 }
 
+// Добор карт ВНЕ обычного "начало хода" момента (Hunger/Altar/Ryvlen on-attack/spell draw) —
+// вместо голого `hand.push(deck.shift())` эти 4 источника используют это, чтобы гарантированно
+// получить fly-анимацию+звук прилёта карты из колоды. Обычная rZone()-диффинг (render.js,
+// сравнение "было ли id уже в DOM") в этих сценариях иногда не срабатывала (баг, найденный
+// автором 2026-07-10) — вместо попытки до конца понять, почему именно диффинг иногда мажет,
+// добор через этот хелпер ЯВНО кладёт id пришедших карт в G._pendingDrawFx[faction], и rZone()
+// принудительно анимирует их СВЕРХ обычной проверки — двойной подстраховки. Обычный
+// добор-в-начале-хода (endTurn()) этот хелпер не использует — он и так уже работал корректно,
+// трогать не стали, чтобы не рисковать регрессией.
+function drawCardsAnimated(faction, n){
+  const p=G[faction];
+  let drawn=0;
+  for(let i=0;i<n;i++){
+    if(p.deck.length===0) break;
+    const card=p.deck.shift();
+    p.hand.push(card);
+    drawn++;
+    if(!G._pendingDrawFx) G._pendingDrawFx={};
+    if(!G._pendingDrawFx[faction]) G._pendingDrawFx[faction]=[];
+    G._pendingDrawFx[faction].push(card.id);
+  }
+  return drawn;
+}
+
 function killCard(card,faction,toVoid=false){
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
   card.rageBonus=0;
@@ -476,7 +500,7 @@ function killCard(card,faction,toVoid=false){
     const world=G[faction].world;
     if(world&&hasTag(world,'on_own_death')){
       const val=getTagVal(world,'on_own_death')||1;
-      for(let i=0;i<val;i++) if(G[faction].deck.length>0) G[faction].hand.push(G[faction].deck.shift());
+      drawCardsAnimated(faction, val);
       lg(`${world.name}: ${card.name} died — draw ${val} card(s).`,'hl');
     }
   }
@@ -818,8 +842,7 @@ function doSacrifice_target(card){
   // Card draw added 2026-07-10 (author call) alongside the essence — sacrifice
   // now pays back both a resource AND a fresh card, not just the former.
   cur.ess+=1;
-  const drewCard = cur.deck.length>0;
-  if(drewCard) cur.hand.push(cur.deck.shift());
+  const drewCard = drawCardsAnimated(G.turn, 1)>0;
   lg(`${card.name} sacrificed to the Altar! +1 Essence${drewCard?' & 1 card':''}.`,'die');
   queueFieldFx(card.id,'SACRIFICED!','fx-sacrifice'); // плейсхолдер — позже заменится на гифку
   killCard(card,G.turn);
