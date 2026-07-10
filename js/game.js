@@ -179,13 +179,6 @@ function doCreature(card){
   const cur=G[G.turn];
   card.sleeping=!card.tags.includes('vanguard');
   card.exhausted=false;
-  // Armor — starts full the moment the creature enters (see dmgCard() for the
-  // absorb-first-then-hp math, and endTurn() for the refresh-on-owner's-turn
-  // timing). See CLAUDE.md Tag System.
-  if(hasTag(card,'armor')){
-    card.armor=getTagVal(card,'armor')||0;
-    lg(`${card.name} enters with ${card.armor} Armor.`,'imp');
-  }
   cur.field.push(card);
   lg(`${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
 
@@ -196,6 +189,7 @@ function doCreature(card){
   if(drawTag) cur.extraDraw+=drawTag;
   if(hasTag(card,'aura:atk')) cur._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) cur._auraMaxLog=card.id;
+  if(hasTag(card,'aura:armor')) cur._auraArmorLog=card.id;
   if(cur.world&&hasTag(cur.world,'world_maxhp')&&!card.worldMaxHpSet&&!card.spell&&!card.world&&!card.artifact){
     const val=getTagVal(cur.world,'world_maxhp')||1;
     const wasFull=card.hp===card.maxHp;
@@ -208,6 +202,16 @@ function doCreature(card){
   }
   applyAuras(G.turn);
   checkSquadBonuses(G.turn);
+  // Armor — see recalcArmor() for the full stacking model (own tag + squad + world +
+  // aura-from-ally). Deliberately NOT initialised inline here anymore (used to be a simple
+  // `if(hasTag(card,'armor')) card.armor=getTagVal(...)` right at entry) — that only ever
+  // covered the card's OWN tag, missing squad-completion-on-entry and any aura already on
+  // the field. recalcArmor()'s "armorMax===undefined" branch (this card has never been
+  // through it before) handles first-time init uniformly, own+squad+aura+world all at once.
+  recalcArmor(G.turn);
+  if(card.armorMax>0){
+    lg(`${card.name} enters with ${card.armor}/${card.armorMax} Armor.`,'imp');
+  }
 }
 
 function doWorld(card){
@@ -221,6 +225,7 @@ function doWorld(card){
     lg(`Replaced ${cur.world.name}.`);
   if(hasTag(cur.world,'aura:atk')||hasTag(cur.world,'aura:maxhp')) 
     applyAuras(G.turn);
+  if(hasTag(cur.world,'world_armor')) recalcArmor(G.turn);
   }
   cur.world=card;
   const drawTag=getTagVal(card,'draw');
@@ -231,8 +236,12 @@ function doWorld(card){
   if(hasTag(card,'aura:maxhp')){
     G[G.turn]._auraMaxLog=card.id;
   }
+  if(hasTag(card,'world_armor')){
+    G[G.turn]._worldArmorLog=true;
+  }
   applyAuras(G.turn);
   checkSquadBonuses(G.turn);
+  recalcArmor(G.turn);
   lg(`World: ${card.name} landed.`,'imp');
 }
 
@@ -267,15 +276,17 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;
   card.f=toF;
   G[toF].field.push(card); 
   lg(`Revived ${card.name} at full HP.`,'hl');
 
   if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) G[toF]._auraMaxLog=card.id;
+  if(hasTag(card,'aura:armor')) G[toF]._auraArmorLog=card.id;
   applyAuras(toF);
   checkSquadBonuses(toF); 
+  recalcArmor(toF);
 }
 
 function playAttackSfx(att){
@@ -429,6 +440,9 @@ function killCard(card,faction,toVoid=false){
   card.rageBonus=0;
   card.squadMaxHpBonus=0;
   card.squadAtkBonus=0;
+  card.squadArmorBonus=0;
+  card.armor=0;
+  card.armorMax=undefined;
   card.squadParam=null;
   if(toVoid){
     card.voided=true;
@@ -439,6 +453,10 @@ function killCard(card,faction,toVoid=false){
     lg(`${card.name} dies.`,'die');
   }
   checkSquadBonuses(faction);
+  // Пересчёт Брони при смерти — если умерший был aura:armor источником, оставшиеся
+  // существа теряют бонус; recalcArmor() сам всё это подхватит, т.к. умерший уже вырезан
+  // из G[faction].field строкой выше, и его больше нет в auraSources.
+  recalcArmor(faction);
   if(hasTag(card,'aura:atk')){
     G[faction].field.forEach(a=>{a.atkBonus=0;});
     lg(`${card.name} died — ATK aura removed.`);
@@ -609,13 +627,17 @@ function applyAuras(faction){
   }
 }
 
+// Szarg's squad bonus was Pierce (param) before 2026-07-10 — shelved by author request,
+// not deleted from the game's vocabulary, just currently unused by any SQUAD_DEFS entry.
+// If it comes back later, the 'param'/pierce branch in checkSquadBonuses() below still
+// knows how to handle it, nothing to re-implement.
 const SQUAD_DEFS = [
-  {gtype:'drg', count:2, effect:'maxhp', val:1},
-  {gtype:'mch', count:2, effect:'atk',   val:1},
-  {gtype:'orb', count:2, effect:'param', param:'heal',   val:2},
-  {gtype:'umb', count:2, effect:'param', param:'aoe',    val:2},
-  {gtype:'szg', count:2, effect:'param', param:'pierce', val:true},
-  {gtype:'xui', count:2, effect:'param', param:'regen',  val:2},
+  {gtype:'drg', count:3, effect:'maxhp', val:1},
+  {gtype:'mch', count:3, effect:'armor', val:1},
+  {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
+  {gtype:'umb', count:3, effect:'param', param:'aoe',    val:2},
+  {gtype:'szg', count:3, effect:'atk',   val:1},
+  {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
 ];
 
 function checkSquadBonuses(faction){
@@ -650,6 +672,21 @@ function checkSquadBonuses(faction){
           lg(`${card.name}: squad broken — ATK bonus lost.`,'die');
           queueFieldFx(card.id,'-SQUAD','fx-squad-lost');
         }
+      } else if(squad.effect==='armor'){
+        // Только флаг здесь — как squadAtkBonus, а не как squadMaxHpBonus (та ветка выше
+        // мутирует maxHp/hp напрямую). Сам пересчёт итогового armorMax/armor (с учётом
+        // ЕЩЁ aura:armor от других карт на поле и world_armor) — в recalcArmor(), которая
+        // вызывается СРАЗУ после checkSquadBonuses() на каждом её call site, так что этот
+        // флаг всегда свежий к моменту, когда recalcArmor его читает.
+        if(active&&!card.squadArmorBonus){
+          card.squadArmorBonus=squad.val;
+          lg(`Squad bonus! ${card.name} +${squad.val} Armor.`,'hl');
+          queueFieldFx(card.id,'SQUAD!','fx-squad');
+        } else if(!active&&card.squadArmorBonus){
+          card.squadArmorBonus=0;
+          lg(`${card.name}: squad broken — Armor bonus lost.`,'die');
+          queueFieldFx(card.id,'-SQUAD','fx-squad-lost');
+        }
       } else if(squad.effect==='param'){
         if(active&&!card.squadParam){
           card.squadParam={[squad.param]:squad.val};
@@ -665,6 +702,76 @@ function checkSquadBonuses(faction){
   });
 }
 
+// Armor — same "own tag + squad + world + aura-from-другое-существо" stacking model as
+// maxHp (applyAuras() above), but MUCH simpler to maintain: armor's "own" contribution is
+// always freely re-derivable from the card's own `armor:N` tag (a fixed DEFS value that
+// NEVER mutates at runtime), so — unlike maxHp, which needs a stored `baseMaxHp` snapshot
+// because its own value ISN'T tag-derived — this just recomputes the full total fresh on
+// every pass and diffs against the card's own previous `armorMax` to decide headroom
+// behaviour. No `baseMaxHp`-style bookkeeping needed anywhere.
+//
+// MUST be called AFTER checkSquadBonuses() at every one of ITS call sites (search for
+// "checkSquadBonuses(" — recalcArmor() should follow every single one), so squadArmorBonus
+// is always freshly set before this reads it. Independent of applyAuras() — doesn't need to
+// run in any particular order relative to it, only relative to checkSquadBonuses().
+//
+// Headroom rule (author spec, 2026-07-10): if a creature is CURRENTLY AT its armor cap when
+// the cap grows (new squad/aura/world source), its current armor grows by the same amount
+// (2/2 → 3/3, stays full). If it's NOT at cap (already took a hit this turn, e.g. 1/2), the
+// current NUMBER stays exactly the same — the new headroom is just unusable until the next
+// refill at the start of the owner's own turn (1/2 → 1/3, not 2/3) — see endTurn().
+// If the cap SHRINKS (aura source dies, squad breaks), current armor is clamped down to fit.
+function recalcArmor(faction){
+  const cur=G[faction];
+  const auraSources=cur.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'aura:armor'));
+  const worldArmorVal=(cur.world&&hasTag(cur.world,'world_armor'))?(getTagVal(cur.world,'world_armor')||1):0;
+  const worldIsSource=worldArmorVal>0;
+  cur.field.forEach(a=>{
+    if(a.spell||a.world||a.artifact) return;
+    // Aura sources never buff themselves — same rule as aura:atk/aura:maxhp above.
+    const auraBonus=auraSources.reduce((sum,src)=>src.id===a.id?sum:sum+(getTagVal(src,'aura:armor')||1),0);
+    const newMax=(getTagVal(a,'armor')||0)+(a.squadArmorBonus||0)+worldArmorVal+auraBonus;
+    if(a.armorMax===undefined){
+      // First time this card has ever been through this function (just entered the field,
+      // was revived/raised, etc) — no previous partial state to preserve, start at full,
+      // same as any creature's armor always has on entry.
+      a.armorMax=newMax;
+      a.armor=newMax;
+    } else if(newMax!==a.armorMax){
+      const wasFull=(a.armor||0)===a.armorMax&&a.armorMax>0;
+      a.armorMax=newMax;
+      a.armor=wasFull?newMax:Math.min(a.armor||0,newMax);
+    }
+  });
+  // Логи — только для карт, у которых явно взведён флаг "залогировать этот пересчёт"
+  // (аура только что вошла на поле / world только что сменился), тот же паттерн, что у
+  // _auraAtkLog/_auraMaxLog в applyAuras() — иначе КАЖДЫЙ вызов recalcArmor (а их много,
+  // после каждого checkSquadBonuses) спамил бы лог даже когда реально ничего не изменилось.
+  if(cur._auraArmorLog){
+    const src=cur.field.find(c=>c.id===cur._auraArmorLog);
+    if(src){
+      const affected=cur.field.filter(a=>a.id!==src.id&&!a.spell&&!a.world&&!a.artifact&&hasTag(src,'aura:armor'));
+      if(affected.length>0){
+        setTimeout(()=>playSfx('baf'), 150);
+        lg(`${src.name}: Armor aura → ${affected.map(a=>`${a.name}(${a.armor}/${a.armorMax})`).join(', ')}.`,'hl');
+        affected.forEach(a=>{
+          const aId=a.id;
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,'+Armor','maxhp')));
+        });
+      }
+    }
+    cur._auraArmorLog=null;
+  }
+  if(cur._worldArmorLog&&worldIsSource){
+    const affected=cur.field.filter(a=>!a.spell&&!a.world&&!a.artifact);
+    if(affected.length>0){
+      setTimeout(()=>playSfx('baf'), 150);
+      lg(`${cur.world.name}: Armor aura → ${affected.map(a=>`${a.name}(${a.armor}/${a.armorMax})`).join(', ')}.`,'hl');
+    }
+    cur._worldArmorLog=false;
+  }
+}
+
 
 function doSacrifice_target(card){
   if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
@@ -674,10 +781,15 @@ function doSacrifice_target(card){
   const altar=G[G.turn].artifacts.find(a=>hasTag(a,'sacrifice'));
   if(altar){altar.exhausted=true;lg('Altar exhausted until next turn.','die');}
   else lg('[DBG] Altar not found in artifacts!');
+  const cur=G[G.turn];
   // Baseline payoff so this is never a pure downgrade without HUNGER/REAPER on
   // board — those still stack additionally on top of this (draw/heal-base).
-  G[G.turn].ess+=1;
-  lg(`${card.name} sacrificed to the Altar! +1 Essence.`,'die');
+  // Card draw added 2026-07-10 (author call) alongside the essence — sacrifice
+  // now pays back both a resource AND a fresh card, not just the former.
+  cur.ess+=1;
+  const drewCard = cur.deck.length>0;
+  if(drewCard) cur.hand.push(cur.deck.shift());
+  lg(`${card.name} sacrificed to the Altar! +1 Essence${drewCard?' & 1 card':''}.`,'die');
   queueFieldFx(card.id,'SACRIFICED!','fx-sacrifice'); // плейсхолдер — позже заменится на гифку
   killCard(card,G.turn);
   G.phase='action';
@@ -757,6 +869,7 @@ function doSpellDispelTarget(card){
   if(card.atkBonus){card.atkBonus=0;removed.push('atk buff');}
   if(card.squadAtkBonus){card.squadAtkBonus=0;removed.push('squad atk');}
   if(card.squadMaxHpBonus){card.hp=Math.min(card.hp,card.maxHp-card.squadMaxHpBonus);card.maxHp-=card.squadMaxHpBonus;card.squadMaxHpBonus=0;removed.push('squad maxHP');}
+  if(card.squadArmorBonus){card.armor=Math.min(card.armor,(card.armorMax||0)-card.squadArmorBonus);card.armorMax=(card.armorMax||0)-card.squadArmorBonus;card.squadArmorBonus=0;removed.push('squad armor');}
   if(card.squadParam){card.squadParam=null;removed.push('squad bonus');}
   lg(`${spell.name}: ${card.name} dispelled${removed.length?' ('+removed.join(', ')+')':' (nothing to remove)'}.`,'imp');
   G[G.turn].void.push(spell);
@@ -882,13 +995,14 @@ function endTurn(){
   // геймплейно соперник артефакт всё равно не активирует).
   // Armor — тоже обновляется здесь, у владельца в начале ЕГО хода (не хода соперника,
   // в отличие от untamed выше) — "трата первой до HP, обновляется каждый ход игрока,
-  // чья это карта". См. Tag System / doCreature() (первичная инициализация при входе).
+  // чья это карта". Рефилл идёт до armorMax (own tag + squad + aura + world — см.
+  // recalcArmor()), не только до собственного тега — этот кусок больше не трогает
+  // getTagVal напрямую, только уже посчитанный armorMax.
   cur.field.forEach(c=>{
     c.exhausted=false;
-    if(hasTag(c,'armor')){
-      const max=getTagVal(c,'armor')||0;
-      if(c.armor<max) lg(`${c.name}'s armor refills to ${max}.`,'imp');
-      c.armor=max;
+    if(c.armorMax>0){
+      if(c.armor<c.armorMax) lg(`${c.name}'s armor refills to ${c.armorMax}.`,'imp');
+      c.armor=c.armorMax;
     }
   });
   cur.artifacts.forEach(a=>{a.exhausted=false;});
@@ -904,6 +1018,7 @@ function endTurn(){
   cur.artifacts.forEach(a=>triggerAbilities(a,'on_turn'));
   applyAuras(G.turn);
   checkSquadBonuses(G.turn);
+  recalcArmor(G.turn);
   
   [...cur.field].forEach(c=>triggerAbilities(c,'on_turn'));
   cur.field.forEach(c=>{
