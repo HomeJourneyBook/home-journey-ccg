@@ -638,8 +638,8 @@
       <div class="modal-body">
         <div class="modal-crt-screen">
           <h2>CHOOSE YOUR DECK</h2>
-          <p class="deck-picker-line"><strong>Classic</strong> — ready deck</p>
-          <p class="deck-picker-line"><strong>Rush</strong> — build your own deck</p>
+          <p class="deck-picker-line type-fx" id="deckPickerLine1"></p>
+          <p class="deck-picker-line type-fx" id="deckPickerLine2"></p>
         </div>
       </div>
     </div>
@@ -683,7 +683,7 @@
       </div>
     </div>
     <div class="modal-footer modal-footer-plate">
-      <button class="modal-icon-btn sq btn-back" onclick="backFromDeckBuilder()" title="Back"></button>
+      <button class="modal-icon-btn sq btn-home" onclick="backFromDeckBuilder()" title="Main Menu"></button>
       <button class="modal-icon-btn sq btn-clear" onclick="dbClearPicks()" title="Clear"></button>
       <button class="modal-icon-btn sq btn-imp" onclick="document.getElementById('deckBuilderImportInput').click()" title="Import deck (.json)"></button>
       <input type="file" id="deckBuilderImportInput" accept="application/json,.json" style="display:none;" onchange="dbImportDeck(this)">
@@ -705,7 +705,7 @@
       <div class="modal-body">
         <div class="modal-crt-screen">
           <h2>CHOOSE YOUR FACTION</h2>
-          <p>You'll play against a simple AI opponent. Which side do you want to control?</p>
+          <p class="type-fx" id="vsAiPickerText"></p>
         </div>
       </div>
     </div>
@@ -753,7 +753,7 @@
       <div class="modal-body">
         <div class="modal-crt-screen">
           <h2>LEAVE GAME?</h2>
-          <p>Current game will be lost. Return to menu?</p>
+          <p class="type-fx" id="confirmText">Current game will be lost. Return to menu?</p>
         </div>
       </div>
     </div>
@@ -771,7 +771,7 @@
       <div class="modal-body">
         <div class="modal-crt-screen">
           <h2 id="winTitle">VICTORY</h2>
-          <p id="winText"></p>
+          <p class="type-fx" id="winText"></p>
         </div>
       </div>
     </div>
