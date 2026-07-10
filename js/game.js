@@ -20,15 +20,22 @@ function onClick(card,zone){
       const healer=findC(G.sel);
       if(healer){
         const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
+        const oldHp=card.hp;
         card.hp=Math.min(card.maxHp,card.hp+healAmt);
+        const actualHeal=card.hp-oldHp;
         playSfx('heal');
         const healedId=card.id;
-        setTimeout(()=>showFloat(healedId, `+${healAmt}`, 'heal'), 50);
+        // +N HP float — только если реально что-то долечили. Кликнуть на дебаффнутую, но
+        // уже полную по HP цель (см. (card.hp<card.maxHp||card.burning||card.feared) выше —
+        // это легитимный кейс, только чтобы снять fear/burn) — clean срабатывает верно, но
+        // раньше здесь всё равно вылезало "+1 HP", хотя HP не менялось вообще. Баг, найденный
+        // автором 2026-07-10.
+        if(actualHeal>0) setTimeout(()=>showFloat(healedId, `+${actualHeal}`, 'heal'), 50);
         const debuffs=[];
         if(card.burning){card.burning=false;debuffs.push('fire');}
         if(card.feared){card.feared=false;debuffs.push('fear');}
         if(debuffs.length) queueFieldFx(card.id,'CLEANED','fx-cleaned');
-        lg(`${healer.name}: +${healAmt} HP to ${card.name}${debuffs.length?', removes '+debuffs.join(' & '):''}.`,'hl');
+        lg(`${healer.name}: ${actualHeal>0?`+${actualHeal} HP to ${card.name}`:`cleanses ${card.name}`}${debuffs.length?(actualHeal>0?', removes '+debuffs.join(' & '):' — removes '+debuffs.join(' & ')):''}.`,'hl');
         healer.exhausted=true;
       }
       G.sel=null;G.phase='action';
@@ -276,7 +283,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   card.f=toF;
   G[toF].field.push(card); 
   lg(`Revived ${card.name} at full HP.`,'hl');
@@ -568,6 +575,13 @@ function applyAuras(faction){
     },0);
     cur.field.forEach(a=>{
       if(a.spell||a.world||a.artifact) return;
+      // Персистентное поле для статус-панели (см. _cardStatusEntries() в render.js) — то же,
+      // что atkBonus уже делает для aura:atk. Сбрасываем тут же и пересчитываем ниже в цикле
+      // auraSources.forEach — до сих пор такого поля не было вообще, аура maxHP считалась
+      // "на лету" внутри baseMaxHp-математики и никуда не сохранялась, поэтому статус-панель
+      // не могла её показать (баг, найденный автором 2026-07-10 — Аслекс не показывал
+      // ауру-от-карты, только world_maxhp, у которого своё поле worldMaxHpBonus).
+      a.auraMaxHpBonus=0;
       if(a.baseMaxHp){
         const squadBonus=a.squadMaxHpBonus||0;
         const worldBonus=a.worldMaxHpBonus||0;
@@ -585,6 +599,7 @@ function applyAuras(faction){
         if(!a.baseMaxHp) a.baseMaxHp=a.maxHp-(a.squadMaxHpBonus||0)-(a.worldMaxHpBonus||0); 
         const wasFull=a.hp===a.maxHp;
         a.maxHp+=val;
+        a.auraMaxHpBonus=(a.auraMaxHpBonus||0)+val;
         if(wasFull) a.hp=a.maxHp;
         if(cur._auraMaxLog===src.id){
           affected.push(`${a.name}(${a.hp}/${a.maxHp})`);
