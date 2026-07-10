@@ -182,7 +182,10 @@ function doCreature(card){
   // Armor — starts full the moment the creature enters (see dmgCard() for the
   // absorb-first-then-hp math, and endTurn() for the refresh-on-owner's-turn
   // timing). See CLAUDE.md Tag System.
-  if(hasTag(card,'armor')) card.armor=getTagVal(card,'armor')||0;
+  if(hasTag(card,'armor')){
+    card.armor=getTagVal(card,'armor')||0;
+    lg(`${card.name} enters with ${card.armor} Armor.`,'imp');
+  }
   cur.field.push(card);
   lg(`${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
 
@@ -876,7 +879,11 @@ function endTurn(){
   // чья это карта". См. Tag System / doCreature() (первичная инициализация при входе).
   cur.field.forEach(c=>{
     c.exhausted=false;
-    if(hasTag(c,'armor')) c.armor=getTagVal(c,'armor')||0;
+    if(hasTag(c,'armor')){
+      const max=getTagVal(c,'armor')||0;
+      if(c.armor<max) lg(`${c.name}'s armor refills to ${max}.`,'imp');
+      c.armor=max;
+    }
   });
   cur.artifacts.forEach(a=>{a.exhausted=false;});
   cur.burned=false;
