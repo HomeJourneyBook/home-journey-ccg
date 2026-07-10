@@ -33,21 +33,22 @@ function startRushBuild(flow, opts){
 
 function _dbFaction(){ return _db.buildOrder[_db.stepIndex]; }
 
-// Кнопка "назад" — по требованию автора черновик Rush-колоды НЕ сохраняется: неважно,
-// на каком шаге (1й/2й игрок в hotseat), назад полностью аннулирует текущую сборку и
-// возвращает к модалке, из которой в неё попали. С появлением order-roll (см.
-// openOrderRoll в ui.js) это сама дайс-модалка — re-roll, а не прыжок сразу на два шага
-// назад к vsAiPickerModal/deckPickerModal. Один "назад" — один шаг назад, как везде.
+// Кнопка "назад" (теперь с иконкой btn_home, как остальные "в меню" кнопки) — по
+// требованию автора черновик Rush-колоды НЕ сохраняется, и с этой сессии "назад" здесь
+// не пере-роллит кубики и не идёт к faction/deck-config пикеру, а сразу возвращает на
+// landing — отменяя весь текущий сетап целиком (order-roll, faction, deck config).
+// Тот же "restore landing" паттерн, что и в backFromDeckPicker().
 function backFromDeckBuilder(){
   playSfx('yellow_buttom');
-  const ctx = _db && _db.flow==='vsai'
-    ? {mode:'vsai',deckConfig:'rush',humanFaction:_db.vsAiHumanFaction}
-    : {mode:'hotseat',deckConfig:'rush'};
   const modal=document.getElementById('deckBuilderModal');
   _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
     _db=null;
-    openOrderRoll(ctx);
+    const landing=document.getElementById('landing');
+    if(landing){
+      landing.style.display='flex';
+      landing.classList.remove('exit-center');
+    }
   }, 250);
 }
 
