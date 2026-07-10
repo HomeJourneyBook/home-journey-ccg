@@ -86,6 +86,7 @@ function renderCatalog(){
 }
     div.innerHTML=`
       <div class="card-cost">${def.cost}</div>
+      ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
       <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img?`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:def.art}</div>
       ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
@@ -162,6 +163,7 @@ function openCardDetail(def){
     <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
     <div class="card ${bgClass} ${worldClass} ${neutralClass} card-detail-scaled" style="${worldBg}">
       <div class="card-cost">${def.cost}</div>
+      ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
       <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img
         ? `<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`
