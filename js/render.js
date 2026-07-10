@@ -44,6 +44,36 @@ function render(){
     const deckBadge=document.getElementById(f+'DeckBadge');
     if(deckBadge)deckBadge.textContent=p.deck.length;
   });
+  // Видимость SidebarBtns/BottomBar (и через них — deckPlaceholder внутри BottomBar) должна
+  // быть актуальна ДО вызовов rZone() для рук ниже — rZone() для добора карт вызывает
+  // _deckPlaceholderRect(), а тот проверяет offsetParent (видимость), чтобы понять, откуда
+  // "лететь" карте. Если это раньше стояло ПОСЛЕ rZone (как было до 2026-07-10), то для
+  // добора карт, случившегося вне обычного хода взятия карты в начале хода (Hunger/Altar/
+  // Ryvlen on-attack/spell draw) — _deckPlaceholderRect() иногда видел УСТАРЕВШЕЕ состояние
+  // bottom bar с прошлого render() и молча пропускал анимацию+звук прилёта карты. См. баг,
+  // найденный автором в тесте.
+  const sfx=G.turn==='tea'?'T':'J';
+  updateMulliganBtn(G.turn);
+
+  const inactSB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'SidebarBtns');
+  if(inactSB)inactSB.style.display='none';
+  const actSB=document.getElementById(G.turn+'SidebarBtns');
+  if(actSB)actSB.style.display='flex';
+
+  if(G.mode==='vsai'){
+    const humanBB=document.getElementById(G.humanFaction+'BottomBar');
+    const aiBB=document.getElementById(G.aiFaction+'BottomBar');
+    if(aiBB)aiBB.style.display='none';
+    // Панель человека теперь видна ВСЕГДА в vsai, даже во время хода ИИ —
+    // на время хода ИИ у нее просто подменяется кнопка End Turn (см. updateEndTurnBtn ниже).
+    if(humanBB)humanBB.style.display='flex';
+  } else {
+    const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
+    if(inactBB)inactBB.style.display='none';
+    const actBB=document.getElementById(G.turn+'BottomBar');
+    if(actBB)actBB.style.display='flex';
+  }
+
   rZone('teaField',G.tea.field,'field');
   rZone('jeetField',G.jeet.field,'field');
   if(G.mode==='vsai'){
@@ -71,28 +101,6 @@ function render(){
     if(hel)hel.style.zIndex=G.previewCard?'500':'50';
   });
   requestAnimationFrame(()=>{ adjustHandOverlap(); requestAnimationFrame(adjustHandOverlap); });
-
-  const sfx=G.turn==='tea'?'T':'J';
-  updateMulliganBtn(G.turn);
-
-  const inactSB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'SidebarBtns');
-  if(inactSB)inactSB.style.display='none';
-  const actSB=document.getElementById(G.turn+'SidebarBtns');
-  if(actSB)actSB.style.display='flex';
-
-  if(G.mode==='vsai'){
-    const humanBB=document.getElementById(G.humanFaction+'BottomBar');
-    const aiBB=document.getElementById(G.aiFaction+'BottomBar');
-    if(aiBB)aiBB.style.display='none';
-    // Панель человека теперь видна ВСЕГДА в vsai, даже во время хода ИИ —
-    // на время хода ИИ у нее просто подменяется кнопка End Turn (см. updateEndTurnBtn ниже).
-    if(humanBB)humanBB.style.display='flex';
-  } else {
-    const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
-    if(inactBB)inactBB.style.display='none';
-    const actBB=document.getElementById(G.turn+'BottomBar');
-    if(actBB)actBB.style.display='flex';
-  }
 
   const oppKey=G.mode==='vsai'?G.aiFaction:(G.turn==='tea'?'jeet':'tea');
   const oppZoneEl=document.getElementById('oppStats');
@@ -211,7 +219,8 @@ function _cardStatusEntries(card){
   if(card.sleeping) entries.push({emoji:'💤', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
   // Бафы
   if(card.atkBonus) entries.push({emoji:'✨', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
-  if(card.worldMaxHpBonus) entries.push({emoji:'💗', text:`+${card.worldMaxHpBonus} Max HP from an aura on the battlefield.`});
+  if(card.auraMaxHpBonus) entries.push({emoji:'💗', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battlefield.`});
+  if(card.worldMaxHpBonus) entries.push({emoji:'💗', text:`+${card.worldMaxHpBonus} Max HP from the World card.`});
   if(card.auraArmorBonus) entries.push({emoji:'🛡️', text:`+${card.auraArmorBonus} Armor from an aura on the battlefield.`});
   if(card.worldArmorBonus) entries.push({emoji:'🛡️', text:`+${card.worldArmorBonus} Armor from the World card.`});
   if(card.tempAtkBonus) entries.push({emoji:'⚔️', text:`+${card.tempAtkBonus} ATK until the end of this turn (combat trick).`});
