@@ -258,6 +258,10 @@ function preloadAssets(){
     'img/ico_invis.png',
     'img/trubi1.png',
 
+    // ── Дайс-модалка (order-roll, выбор первого хода) — арт граней ──
+    'img/dice_1.png', 'img/dice_2.png', 'img/dice_3.png',
+    'img/dice_4.png', 'img/dice_5.png', 'img/dice_6.png',
+
     // ── Карты — базовые фреймы ──
     'img/card_tea.png', 'img/card_jeet.png',
     'img/card_name_bg.png', 'img/card_name_world_bg.png', 'img/card_text_bg.png',
@@ -483,7 +487,7 @@ function showLanding(){
 
 function showConfirm(text, btnText, onConfirm, opts){
   const modal=document.getElementById('confirmModal');
-  modal.querySelector('p').textContent=text;
+  const pEl=modal.querySelector('p');
   modal.querySelector('h2').textContent=(opts&&opts.title)||'ARE YOU SURE?';
   const yesBtn=modal.querySelector('#confirmYesBtn');
   yesBtn.textContent=btnText;
@@ -496,6 +500,7 @@ function showConfirm(text, btnText, onConfirm, opts){
   if(cancelBtn) cancelBtn.style.display=(opts&&opts.hideCancel)?'none':'';
   modal.classList.remove('hidden');
   _modalPopIn(modal);
+  _typeText(pEl,text,24);
 }
 
 function closeConfirmModal(onConfirm){
@@ -519,11 +524,18 @@ function askRestart(){
 
 // ── Deck picker (Full/Compact/Mini) — shown before either Hot Seat or VS AI ──
 let _pendingModeFlow=null; // 'hotseat' | 'vsai'
-function openDeckPicker(flow){
-  _pendingModeFlow=flow;
+// Single place that actually reveals deckPickerModal — reused by the initial
+// open AND every "back" that returns to it, so the line-typing animation
+// (_playDeckPickerTyping()) always replays, not just on first visit.
+function _showDeckPickerModal(){
   const modal=document.getElementById('deckPickerModal');
   modal.classList.remove('hidden');
   _modalPopIn(modal);
+  _playDeckPickerTyping();
+}
+function openDeckPicker(flow){
+  _pendingModeFlow=flow;
+  _showDeckPickerModal();
 }
 // Кнопка "назад" — самый первый шаг цепочки, дальше отступать некуда, кроме как на
 // landing. Раньше просто прятали модалку, предполагая, что landing и так виден под ней —
@@ -595,6 +607,14 @@ function startGame(deckConfig,firstFaction){
 
 // ── VS AI ──────────────────────────────────────────────────────
 let _pendingVsAiDeckConfig='classic';
+// Single place that actually reveals vsAiPickerModal — see _showDeckPickerModal()
+// above for why this exists (typing animation needs to replay every time).
+function _showVsAiPickerModal(){
+  const modal=document.getElementById('vsAiPickerModal');
+  modal.classList.remove('hidden');
+  _modalPopIn(modal);
+  _playVsAiPickerTyping();
+}
 function openVsAiPicker(deckConfig){
   _pendingVsAiDeckConfig=deckConfig||'classic';
   // NO playSfx here — the deck-choice button that led here already played the
@@ -603,9 +623,7 @@ function openVsAiPicker(deckConfig){
   // stray extra "click" between the two screens (reported 2026-07-06).
   // Landing is already fully faded by the time this runs (see chooseDeckConfig
   // above) — no extra wait needed before showing the faction-picker modal.
-  const modal=document.getElementById('vsAiPickerModal');
-  modal.classList.remove('hidden');
-  _modalPopIn(modal);
+  _showVsAiPickerModal();
 }
 // Кнопка "назад" — возвращает к выбору Classic/Rush (deckPickerModal). Landing под обеими
 // модалками остаётся как есть (пока он скрыт под непрозрачным фоном модалки — не важно, в
@@ -615,9 +633,7 @@ function backFromVsAiPicker(){
   const modal=document.getElementById('vsAiPickerModal');
   _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
-    const picker=document.getElementById('deckPickerModal');
-    picker.classList.remove('hidden');
-    _modalPopIn(picker);
+    _showDeckPickerModal();
   }, 250);
 }
 
@@ -662,6 +678,7 @@ function startGameVsAI(humanFaction,firstFaction){
 let _orderRollCtx=null;
 let _orderRollTimer=null;
 let _orderRollFirstFaction=null;
+let _orderRollResultTypeCancel=null;
 
 // Sets a die's face art (img/dice_1.png … dice_6.png, added by the author —
 // same box size as the digit placeholder they replaced, see .order-roll-die
@@ -695,15 +712,14 @@ function openOrderRoll(ctx){
 function backFromOrderRoll(){
   playSfx('yellow_buttom');
   clearTimeout(_orderRollTimer);
+  if(_orderRollResultTypeCancel) _orderRollResultTypeCancel();
   const modal=document.getElementById('orderRollModal');
   const ctx=_orderRollCtx;
   _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
     _orderRollCtx=null;
-    const backId = ctx&&ctx.mode==='vsai' ? 'vsAiPickerModal' : 'deckPickerModal';
-    const backModal=document.getElementById(backId);
-    backModal.classList.remove('hidden');
-    _modalPopIn(backModal);
+    if(ctx&&ctx.mode==='vsai') _showVsAiPickerModal();
+    else _showDeckPickerModal();
   }, 250);
 }
 
@@ -747,25 +763,97 @@ function _rollOrderDice(){
   tick();
 }
 
-// Character-by-character reveal, same CRT-terminal feel as the rest of these
-// modals — no existing typing helper elsewhere in the codebase to reuse.
-function _typeOrderResult(text,onDone){
-  const el=document.getElementById('orderRollResult');
-  el.classList.remove('done');
+// Character-by-character reveal, same CRT-terminal feel used across these
+// modals. Generic — el just needs the `.type-fx` cursor-blink class (see
+// styles.css); timer is returned so callers that need to cancel a whole
+// sequence early (e.g. modal closed mid-type) can clearTimeout() it.
+function _typeText(el,text,charMs,onDone){
+  el.classList.remove('done','typing-hidden');
   el.textContent='';
   let i=0;
-  const CHAR_MS=28;
+  let timer=null;
   const step=()=>{
     el.textContent=text.slice(0,i+1);
     i++;
     if(i<text.length){
-      _orderRollTimer=setTimeout(step,CHAR_MS);
+      timer=setTimeout(step,charMs);
     } else {
       el.classList.add('done');
       if(onDone) onDone();
     }
   };
   step();
+  return {cancel:()=>clearTimeout(timer)};
+}
+
+// Same idea but for a line with an inline <strong> run (deckPicker's "Classic
+// — ready deck" / "Rush — build your own deck") — plain textContent typing
+// would have to choose between showing the bold tag literally or dropping
+// the bold entirely, so this walks a flat char array carrying a per-char
+// bold flag and re-wraps the revealed prefix into <strong>/plain runs.
+function _typeHtmlLine(el,segments,charMs,onDone){
+  el.classList.remove('done','typing-hidden');
+  el.innerHTML='';
+  const flat=[];
+  segments.forEach(seg=>{ for(const ch of seg.text) flat.push({ch,bold:!!seg.bold}); });
+  let i=0;
+  let timer=null;
+  const render=count=>{
+    let html='',buf='',curBold=null;
+    const flush=()=>{ if(buf) html+=curBold?`<strong>${buf}</strong>`:buf; buf=''; };
+    for(let k=0;k<count;k++){
+      const f=flat[k];
+      if(f.bold!==curBold){ flush(); curBold=f.bold; }
+      buf+=f.ch;
+    }
+    flush();
+    el.innerHTML=html;
+  };
+  const step=()=>{
+    i++;
+    render(i);
+    if(i<flat.length){
+      timer=setTimeout(step,charMs);
+    } else {
+      el.classList.add('done');
+      if(onDone) onDone();
+    }
+  };
+  step();
+  return {cancel:()=>clearTimeout(timer)};
+}
+
+function _typeOrderResult(text,onDone){
+  const el=document.getElementById('orderRollResult');
+  const {cancel}=_typeText(el,text,28,onDone);
+  _orderRollResultTypeCancel=cancel;
+}
+
+// deckPickerModal — types both lines in sequence (Classic, then Rush) each
+// time the modal is shown (initial open AND every "back" that returns to it —
+// see _showDeckPickerModal() below, the single place that actually reveals
+// this modal).
+let _deckPickerTypeCancel=null;
+function _playDeckPickerTyping(){
+  if(_deckPickerTypeCancel) _deckPickerTypeCancel();
+  const l1=document.getElementById('deckPickerLine1');
+  const l2=document.getElementById('deckPickerLine2');
+  l1.classList.add('typing-hidden'); l1.textContent='';
+  l2.classList.add('typing-hidden'); l2.textContent='';
+  const t1=_typeHtmlLine(l1,[{text:'Classic',bold:true},{text:' — ready deck'}],26,()=>{
+    const t2=_typeHtmlLine(l2,[{text:'Rush',bold:true},{text:' — build your own deck'}],26);
+    _deckPickerTypeCancel=t2.cancel;
+  });
+  _deckPickerTypeCancel=t1.cancel;
+}
+
+// vsAiPickerModal — single line, same cadence as the rest.
+let _vsAiPickerTypeCancel=null;
+function _playVsAiPickerTyping(){
+  if(_vsAiPickerTypeCancel) _vsAiPickerTypeCancel();
+  const el=document.getElementById('vsAiPickerText');
+  const {cancel}=_typeText(el,"You'll play against a simple AI opponent. Which side do you want to control?",22);
+  _vsAiPickerTypeCancel=cancel;
 }
 
 // Ready — dispatches to whichever screen comes next for this ctx, now that
@@ -1054,10 +1142,11 @@ function readyFromMulligan(){
 
 function showWin(w){
   document.getElementById('winTitle').textContent=w.toUpperCase()+' WINS!';
-  document.getElementById('winText').textContent=w==='tea'?'The Tavern stands. The Great Return draws closer.':'Jeet consumes all. The cycle breaks.';
+  const text=w==='tea'?'The Tavern stands. The Great Return draws closer.':'Jeet consumes all. The cycle breaks.';
   const modal=document.getElementById('winModal');
   modal.classList.remove('hidden');
   _modalPopIn(modal);
+  _typeText(document.getElementById('winText'),text,26);
 }
 
 function closeWinModal(){
