@@ -68,15 +68,19 @@ function _composeDeckList(f, cfg){
 
 function buildDeck(f, configKey) {
   const cfg = DECK_CONFIGS[configKey] || DECK_CONFIGS.classic;
-  const t = f==='tea';
   let d = _composeDeckList(f, cfg);
-  if(!t) d.push('unseen'); // second-player bonus card (see CLAUDE.md — currently always Jeet)
+  // Unseen (2nd-player bonus card) is NOT part of the deck — it's granted
+  // directly to whichever faction the dice-roll made the 2nd player, straight
+  // into their hand right after the mulligan ends (grantUnseenBonus() in
+  // ui.js). Keeping it out of the deck means it can never appear in — or be
+  // discarded during — the mulligan itself. See CLAUDE.md "Version 1.01".
   return shuffleArr(d);
 }
 
 // Rush deckbuilder pool — same composition as Classic, unshuffled, WITHOUT the
-// Unseen bonus card (that's still granted automatically to whoever plays
-// second — see deckbuilder.js). Returned as unique {key,max} entries: max is
+// Unseen bonus card (that's granted automatically to whoever the dice-roll
+// makes the 2nd player — see grantUnseenBonus() in ui.js). Returned as unique
+// {key,max} entries: max is
 // almost always 1 (one physical copy in the "collection"), except spells,
 // which appear `spellCopies` times in Classic and so can be picked up to
 // that many times here.
@@ -96,7 +100,7 @@ function buildAiRushDeck(f){
   getRushPool(f).forEach(({key,max}) => { for(let i=0;i<max;i++) slots.push(key); });
   shuffleArr(slots);
   let d = slots.slice(0, RUSH_MIN);
-  if(f==='jeet') d.push('unseen');
+  // No 'unseen' push here either — see buildDeck() above.
   return shuffleArr(d);
 }
 
