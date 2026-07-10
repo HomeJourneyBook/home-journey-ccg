@@ -200,9 +200,11 @@ Returns the value after the tag name. Examples:
 |`invisible`    |Cannot be targeted while allies exist; no counter when attacked|
 |`aura:atk:N`   |All allies except self get +N ATK                              |
 |`aura:maxhp:N` |All allies except self get +N maxHP                            |
+|`aura:armor:N` |All allies except self get +N Armor (see `recalcArmor()`, Squad System section — stacks with squad-armor and `world_armor`). Added 2026-07-10, test-live on ABYSSWALKER (`aura:armor:1`).|
 |`world_maxhp:N`|All allies including aura sources get +N maxHP (world only)    |
+|`world_armor:N`|All allies get +N Armor (world only — mirrors `world_maxhp` naming, not `aura:armor`, since a World card isn't a creature and has no self-exclusion question). Added 2026-07-10, infrastructure only — no World card uses it yet.|
 |`gtype:xxx`    |Traveler type for squad bonuses (szg/orb/drg/umb/mch/xui)      |
-|`armor:N`      |Extra HP-like buffer, N points, absorbed BEFORE hp — but ONLY on PHYSICAL damage (the two `dmgCard()` calls inside `doAttack()`: the attack itself + its counter-attack). Magic damage bypasses armor entirely — AOE active (`doUmbAsir()`/`doVardan()`), the generic `aoe`/`enter_aoe` effect (`abilities.js`), Shard (`doShardTarget()`), and targeted-spell damage (`doSpellDmgTarget()`) all call `dmgCard(card,dmg,faction,true)` — the 4th `bypassArmor` param. Burn also bypasses it, via its own separate code path (see `burn` above) — armor is purely an anti-physical defense (author call, 2026-07-10). Refills to N at the start of the OWNER's own turn (`endTurn()`), NOT the opponent's. Set on enter (`doCreature()`) and reset to 0 when a card leaves field/gets reshuffled (`resetC()`). Added 2026-07-10, live on NABUNAGI/ABYSSWALKER (`armor:2`) — see Version 1.01.|
+|`armor:N`      |A creature's OWN contribution to its `armorMax` total (own tag + squad + aura-from-ally + world — see `recalcArmor()`, Squad System section, added 2026-07-10). Extra HP-like buffer, absorbed BEFORE hp — but ONLY on PHYSICAL damage (the two `dmgCard()` calls inside `doAttack()`: the attack itself + its counter-attack) AND `enter_aoe` (on-enter AOE burst — author call 2026-07-10: not considered "magic" for this purpose, unlike the rest of the AOE family). Magic damage bypasses armor entirely — AOE active (`doUmbAsir()`/`doVardan()`), Shard (`doShardTarget()`), and targeted-spell damage (`doSpellDmgTarget()`) all call `dmgCard(card,dmg,faction,true)` — the 4th `bypassArmor` param; `enter_aoe` deliberately does NOT pass it (same `case 'aoe':` in `abilities.js` handles only `enter_aoe` in practice — `triggerAbilities(card,'active')` is never actually called, active AOE has its own dedicated code path in `doUmbAsir()`/`doVardan()`). Burn also bypasses it, via its own separate code path (see `burn` above) — armor is purely an anti-physical defense (author call, 2026-07-10). Refills to `armorMax` (NOT just its own tag value anymore — see `recalcArmor()`) at the start of the OWNER's own turn (`endTurn()`), NOT the opponent's. Reset to 0/`undefined` when a card leaves field/gets reshuffled (`resetC()`/`killCard()`). Added 2026-07-10, live on NABUNAGI/ABYSSWALKER (`armor:2`) — see Version 1.01.|
 |`untamed`      |"Неукротимость" — this creature's `exhausted` clears already when ITS OWN turn ends (i.e. already usable/counter-attacking during the opponent's turn), instead of waiting for its owner's next turn like every other creature. Deliberate override of the normal exhausted-clears-on-owner's-turn rule (`endTurn()`) — Mood trait justification: Anime pink (see Lore/Trait mapping). Added 2026-07-10, live on FAERON/TUBORG (`untamed`). Renders as `ico_untamed.png` (author-supplied) via the same `TAG_ICONS`/`TAG_TOOLTIPS` pattern as fear/burn/etc — no longer spelled out in `ab` text on those two cards, same convention as every other tag icon.|
 
 **On Enter:**
@@ -332,26 +334,85 @@ Used by applyAuras to recalculate correctly each turn.
 ### SQUAD_DEFS (in game.js)
 
 ```js
+// Szarg's squad bonus was Pierce (param) before 2026-07-10 — shelved by author request
+// (not deleted from the game's vocabulary — the 'param'/pierce branch in
+// checkSquadBonuses() still knows how to handle it if it ever comes back).
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'maxhp', val:1},
-  {gtype:'mch', count:3, effect:'atk',   val:1},
+  {gtype:'mch', count:3, effect:'armor', val:1},
   {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
   {gtype:'umb', count:3, effect:'param', param:'aoe',    val:2},
-  {gtype:'szg', count:3, effect:'param', param:'pierce', val:true},
+  {gtype:'szg', count:3, effect:'atk',   val:1},
   {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
 ];
 ```
 
+Note the swap (2026-07-10, author call): Merchird used to give ATK, Szarg used to give Pierce
+— now Merchird gives Armor and Szarg gives ATK. `count:3` for all six (not 2 — see backlog
+below, this had regressed to 2 in a past session and was restored).
+
 ### checkSquadBonuses(faction)
 
 Called after every field change (doCreature, killCard, reviveCard, endTurn).
-Must be called AFTER applyAuras to avoid maxHp conflicts.
+Must be called AFTER applyAuras to avoid maxHp conflicts. **Must ALSO be immediately followed
+by `recalcArmor(faction)`** at every one of its own call sites (search for
+`checkSquadBonuses(` — `recalcArmor(` follows every single one) — squad-armor
+(`squadArmorBonus`) is only a flag here, same as `squadAtkBonus`; the actual armor math lives
+entirely in `recalcArmor()`, see below.
 
 Effects:
 
-- `maxhp` — adds `squadMaxHpBonus` to card
-- `atk` — adds `squadAtkBonus` to card
+- `maxhp` — adds `squadMaxHpBonus` to card, mutates `maxHp`/`hp` directly (with the same
+  "was-at-cap → grows with it" headroom rule as aura:maxhp — see `applyAuras()`)
+- `atk` — adds `squadAtkBonus` to card (flag only — actual ATK total is computed on the fly
+  wherever it's displayed/used: `atk+atkBonus+rageBonus+squadAtkBonus+tempAtkBonus`)
+- `armor` — adds `squadArmorBonus` to card (flag only, same pattern as `atk` — actual math in
+  `recalcArmor()`)
 - `param` — sets `card.squadParam = {param: val}` (read by heal/aoe/regen/pierce logic)
+
+### recalcArmor(faction) — Armor stacking (own tag + squad + world + aura-from-ally)
+
+Added 2026-07-10, mirrors `applyAuras()`'s maxHp stacking model but is meaningfully simpler:
+armor's "own" contribution is always freely re-derivable from the card's own `armor:N` tag (a
+fixed DEFS value that never mutates at runtime) — unlike maxHp, whose own value ISN'T
+tag-derived and needs a stored `baseMaxHp` snapshot to reconstruct. So `recalcArmor()` just
+recomputes each card's full total fresh on every pass:
+
+```
+newMax = ownArmorTag + squadArmorBonus + worldArmorVal + auraFromAllies
+```
+
+...and diffs against the card's stored `armorMax` from last pass to decide what happens to
+current `armor`:
+
+- **First time ever seen** (`armorMax===undefined` — just entered/revived/raised): starts at
+  full, `armor=armorMax=newMax`.
+- **Max grew, card was AT cap**: current grows by the same delta too (2/2 → 3/3).
+- **Max grew, card was BELOW cap** (already took a hit): current stays the same NUMBER — the
+  new headroom is only usable after the next refill, at the start of the owner's own turn
+  (1/2 → 1/3, not 2/3). Same rule the author specified for this exact scenario.
+- **Max shrank** (aura source died, squad broke, world changed): current is clamped down to
+  fit (`Math.min`).
+
+Three sources, all stacking automatically through the same formula:
+- **Own tag** — `armor:N` directly on a creature (e.g. NABUNAGI/ABYSSWALKER, `armor:2`).
+- **Aura from an ally on the field** — `aura:armor:N` tag on a creature (e.g. ABYSSWALKER also
+  carries `aura:armor:1` as a 2026-07-10 test — see below). Same self-exclusion rule as
+  `aura:atk`/`aura:maxhp`: a source never buffs itself, only OTHER creatures on the same field.
+- **World** — `world_armor:N` tag on a World card (separate tag name from `aura:armor`,
+  mirroring `world_maxhp` vs `aura:maxhp` — a World card isn't a creature, so there's no
+  self-exclusion question, and it's simpler to keep the two tag families visually distinct in
+  DEFS). **Not yet used by any World card** — pure infrastructure, ready for whenever one is
+  added; `doWorld()` already wires the `_worldArmorLog` flag and `recalcArmor()` call needed.
+
+Refill (`endTurn()`, start of the OWNER's own turn) now checks `card.armorMax>0` instead of
+`hasTag(card,'armor')` — a creature can have armor from squad/aura/world alone, with no
+`armor:N` tag of its own, and still needs to refill to its (externally-granted) cap.
+
+Render (`.card-armor-box`/`.card-small-armor-box`, see below) shows/hides based on the same
+`card.armorMax>0` check, not `hasTag(card,'armor')` — so a Merchird-squad member or an
+ABYSSWALKER-aura target that has NO armor tag of its own still gets the box once it's actually
+carrying armor from an external source.
 
 -----
 
@@ -909,7 +970,12 @@ Still open (не привязано к конкретной версии):
 - **`grave_scale:atk:N`** — +N ATK за каждую карту в СВОЁМ кладбище. Скейлящийся статтик,
   тема "чем дольше игра — тем я сильнее". Углубляет кладбищенскую тему (сейчас там только
   `raise`/`revive:full`/`on_own_death`).
-- **`sacrifice_draw`** — вариант `sacrifice` (Altar), но вместо +1 эссенции — карта в руку.
+- **`sacrifice_draw`** — ЧАСТИЧНО реализовано другим путём 2026-07-10: базовый пейофф Altar
+  расширен до "И эссенция, И карта" (было только эссенция) — см. Version 1.01 roadmap выше.
+  Изначальная идея была "карта ВМЕСТО эссенции" (альтернативный режим/отдельный тег) — то,
+  что реализовано, это "карта В ДОПОЛНЕНИЕ" (просто усиление базового Altar). Если позже
+  понадобится именно альтернативный режим (выбор между картой и эссенцией, а не оба сразу) —
+  это всё ещё открытая для дизайна идея.
 - **`evolve:N`** — после N выживших ходов на поле необратимо апгрейдится (+ATK/+HP или новый
   тег). Хорошая тема для 1/1 с уникальным артом под "финальную форму".
 - **`spell_dispel` — повесить наконец на реальную карту.** Тег уже полностью закодирован
@@ -1160,6 +1226,91 @@ Still open (не привязано к конкретной версии):
   одного общего источника. Добавлено во все 5. Новая идея в бэклог — «Невосприимчивость»
   (`warded`, working name): иммунитет к магическому урону + fear + burn, не реализовано.
 
+- [x] **5 точечных правок по запросу автора** — 2026-07-10.
+  1. **Squad-порог вернули на 3** (было ошибочно 2 в живом `game.js`, хотя и в этом же
+     `CLAUDE.md` — "Squad System" выше — и в `ai.js` (`aiGtypeCount`/`squadCompleteBonus`)
+     давно уже документирован и посчитан именно порог 3 — то есть `game.js` был единственным
+     местом, где значение реально разъехалось с остальным проектом). `SQUAD_DEFS`
+     (`count:2`→`count:3` во всех 6 записях) — единственное место, которое меняли, ИИ трогать
+     не пришлось, его веса уже были рассчитаны на 3.
+  2. **Модалки с тайпингом больше не растут по ходу печати.** `_typeText()`/`_typeHtmlLine()`
+     (ui.js) теперь измеряют высоту ПОЛНОГО (готового) текста ДО начала анимации и фиксируют
+     её через `min-height`, а не только потом — печать идёт уже внутри готового по размеру
+     блока. Намеренно `scrollHeight`, а не `getBoundingClientRect().height` — в момент вызова
+     модалка может ещё доигрывать pop-in анимацию (`transform:scale()`, см.
+     `.modal-pop-in`/`@keyframes modalPopIn` в styles.css), а `getBoundingClientRect()`
+     чувствителен к transform родителя (вернул бы уже отмасштабированный, неверный размер);
+     `scrollHeight` — чисто layout-свойство, transform на него не влияет.
+  3. **Disabled-версия кнопки мулигана больше не "прозрачная".** Причина — общий dimming-
+     фильтр `.modal-art-btn:disabled{filter:brightness(0.5) saturate(0.4)}` (добавлен в сессии
+     с order-roll для его Ready-кнопки, у которой не было своего disabled-арта) каскадом
+     применялся и к `.btn-mulligan`, у которой СВОЙ готовый спрайт (`btn_mulliganD.png`) —
+     фильтр поверх готового спрайта и выглядел как лишняя прозрачность/тусклость. Добавлен
+     override `.modal-art-btn.btn-mulligan:disabled{filter:none;}` (styles.css).
+  4. **`enter_aoe` больше не игнорирует броню** — armor/magic-bypass правку (прошлая сессия)
+     пришлось разделить: активная AOE-кнопка (Umbasir/Vardan, `doUmbAsir()`/`doVardan()` в
+     game.js) — отдельный код-путь, магия, по-прежнему игнорирует; а `enter_aoe:N` идёт через
+     ОБЩИЙ `case 'aoe':` в `abilities.js` (единственный потребитель — `triggerAbilities(card,
+     'on_enter')`, вызывается из `doCreature()`; `triggerAbilities(card,'active')` вообще
+     нигде не вызывается, тот код мёртв) — этому пути `bypassArmor` убрали, по прямому запросу
+     автора ("enter_aoe — не магический урон").
+  5. **ALTAR теперь даёт и карту, и эссенцию за жертву** (было — только эссенция) — см.
+     Version 1.01 roadmap выше.
+
+- [x] **Рендер Брони на карте** — 2026-07-10. `.card-armor-box`/`.card-small-armor-box`
+  (styles.css): позиция — слева, под cost (`left` совпадает с `.card-cost`, `top` сразу под
+  его нижним краем), высота бокса = высоте `.card-tag-icon` (`calc(var(--card-h)*0.108)` /
+  `calc(var(--card-small-h)*0.13)`), ширина = высота×2 (ратио 2:1, задан явно через
+  `calc(...*2)`, не через `aspect-ratio`, для консистентности с остальными calc-based
+  размерами карты). Фон — `armor_bg.png`, иконка — `armor.png` (оба файла — автор, добавлены
+  в `preloadAssets()`). Паддинги/font-size — скопированы буквально с `.card-hp-box`/`.card-hp`
+  (`padding:1px 1px 4.5px 1px`, `font-size:calc(var(--card-h)*0.11)`), иконка — существующий
+  общий класс `.stat-icon` (уже был `em`-based, автоматически подхватывает и полный, и
+  мини-размер через существующее правило `.card-small .stat-icon{width:0.6em;...}` — ничего
+  добавлять для этого не пришлось). Показывается ТОЛЬКО если `hasTag(card,'armor')` — как и
+  тег-иконки, не резервирует место, если тега нет.
+  — **Добавлено во ВСЕ рендер-контексты** (6 мест, отдельно от общего
+  `TAG_ICONS`-дублирования — тут отдельная вставка markup, а не общий список иконка↔тег):
+  render.js (полноразмерная карта + мини-карта), catalog.js (сетка + модалка деталей),
+  deckbuilder.js (пул Rush-подбора). Зум-режим (`zoomHandCardFly`→`showFieldCardPreview`)
+  использует тот же `mkEl()`, что и обычный рендер — отдельно ничего чинить не пришлось,
+  кроме списка `pointerEvents='auto'` для зум-клона (та же строка, что чинили для ATK на
+  мини-карте в прошлой сессии) — `.card-armor-box` туда тоже добавлен, иначе наведение в
+  зуме не ловилось бы (клон целиком `pointer-events:none`, кроме явно перечисленных детей).
+  — **Тултип** — `_tooltipDataFor()` (ui.js), новый case на `data-armor`/`data-maxarmor` →
+  `"N/M Armor"` (тот же формат, что и у HP-бокса). Для живых карт (render.js) — `data-armor`
+  реальный текущий пул (может быть меньше max, если часть уже поглощена в этом ходу);
+  для превью вне игры (catalog.js/deckbuilder.js, там нет живого `card`, только `def`) —
+  `data-armor`===`data-maxarmor` всегда (просто показывает базовое значение тега).
+
+- [x] **Аура Брони (`aura:armor`) + `world_armor` + переработка Squad-бонусов Merchird/Szarg**
+  — 2026-07-10, полная спецификация в разделах "Squad System"/"Tag System" выше, кратко:
+  — Новая функция `recalcArmor(faction)` (game.js) — тот же принцип, что у `applyAuras()` для
+  maxHp (own tag + squad + aura-от-союзника + world, все три стекуются), но проще: own-часть
+  всегда пересчитывается с нуля из тега `armor:N` (он не мутирует в рантайме, в отличие от
+  maxHp), поэтому не нужен `baseMaxHp`-подобный снэпшот — просто diff нового total против
+  сохранённого `card.armorMax` с прошлого прохода. Headroom-правило автора: на кэпе — кэп
+  растёт (2/2→3/3); не на кэпе — текущее число не меняется, новый запас доступен только со
+  следующего рефилла (1/2→1/3, не 2/3). Вызывается СРАЗУ после каждого `checkSquadBonuses()`
+  (все call sites, включая `abilities.js` raise-эффект).
+  — Merchird squad-бонус: было ATK+1 → стало Armor+1. Szarg squad-бонус: было Pierce (param) →
+  стало ATK+1 (забрал старый бонус Merchird). Старый Szarg-бонус (Pierce) НЕ удалён из кода —
+  просто убран из `SQUAD_DEFS`, ветка `param`/pierce в `checkSquadBonuses()` по-прежнему на
+  месте, если понадобится вернуть. Текст `ab` у всех 16 карт (8 mch + 8 szg) обновлён.
+  — `world_armor:N` — по аналогии с `world_maxhp` (не `aura:armor` — у World-карты нет вопроса
+  самобаффа). Чистая инфраструктура, ни одна World-карта пока его не использует —
+  `doWorld()` уже целиком готов (лог-флаг `_worldArmorLog`, вызов `recalcArmor()`).
+  — Тестовая аура: ABYSSWALKER (`j_mal`) получил `aura:armor:1` В ДОПОЛНЕНИЕ к своему
+  `armor:2` — как и остальные ауры, себя не бафает, но может получать бонус от других
+  источников (например будущего Мира с `world_armor`).
+  — Рендер (`.card-armor-box`) переведён с `hasTag(card,'armor')` на `card.armorMax>0` —
+  теперь бокс брони показывается и у карт БЕЗ собственного тега `armor`, если они получают её
+  извне (Merchird-сквад без своего armor-тега, союзник ABYSSWALKER и т.д.); `data-maxarmor`
+  тоже теперь `card.armorMax`, а не голый тег. Рефилл в `endTurn()` — та же замена условия.
+  — Везде, где раньше сбрасывались `squadMaxHpBonus`/`squadAtkBonus`/`squadParam`
+  (`killCard()`, `reviveCard()`, raise-эффект, `resetC()`, `doSpellDispelTarget()`) — рядом
+  добавлен сброс `squadArmorBonus`/`armorMax`.
+
 ### Приоритет — завтра
 
 - [x] ~**Кнопка “назад” во всех модалках до муллигана**~ — сделано 2026-07-08. mulliganScreen
@@ -1297,17 +1448,25 @@ Still open (не привязано к конкретной версии):
   разового боевого трюка) или что-то ещё; после уточнения решить, отдельный это тег/эффект или
   вариант существующего `spell_buff_temp` без сброса в конце хода.
 - [ ] THE BOOK (`ess_add:1`/ход) — слишком просто/слабо, пересмотреть механику.
-- [ ] ALTAR — базовый пейофф (+1 эссенция за жертву) шаг в нужную сторону, но не финал.
+- [x] ALTAR — базовый пейофф расширен 2026-07-10: теперь жертва даёт И карту, И эссенцию
+  (было — только +1 эссенция). `doSacrifice_target()` (game.js) — `cur.hand.push(cur.deck.shift())`
+  рядом с `cur.ess+=1`, no-op если колода уже пуста (просто без карты, эссенция всё равно
+  начисляется). Текст `ab` карты (data.js) обновлён.
 - [x] Механика «Броня» — реализовано 2026-07-10. Тег `armor:N`, отдельный пул `card.armor`
   поверх HP, но ТОЛЬКО против ФИЗИЧЕСКОГО урона (обычная атака + её контратака, оба вызова
   `dmgCard()` внутри `doAttack()`) — сначала вычитается из `armor`, и только остаток (если
   есть) — из HP. **Магический урон Броню полностью игнорирует** (правка того же дня, по
   прямому запросу автора: AOE-активка, Shard, направленное заклинание-урон — "удары магией,
   Броне не почём"; burn — туда же, свой отдельный путь мимо `dmgCard()`, но тот же принцип).
-  Технически: `dmgCard(card,dmg,faction,bypassArmor)` — 4-й параметр, `true` у AOE
-  (`doUmbAsir()`/`doVardan()`), у generic `aoe`/`enter_aoe` эффекта (`abilities.js`), у Shard
-  (`doShardTarget()`) и у targeted-spell урона (`doSpellDmgTarget()`); физическая атака/
-  контратака (`doAttack()`) параметр не передают — там броня работает как обычно. Обновляется
+  Технически: `dmgCard(card,dmg,faction,bypassArmor)` — 4-й параметр, `true` у AOE-активки
+  (`doUmbAsir()`/`doVardan()`), у Shard (`doShardTarget()`) и у targeted-spell урона
+  (`doSpellDmgTarget()`); физическая атака/контратака (`doAttack()`) параметр не передают —
+  там броня работает как обычно. **`enter_aoe` — ТОЖЕ БЕЗ bypassArmor** (правка в тот же день,
+  по отдельному прямому запросу автора: "enter_aoe — не магический урон", в отличие от
+  остальной AOE-семьи) — `case 'aoe':` в `abilities.js`, единственный реальный потребитель
+  которого — `enter_aoe` (`triggerAbilities(card,'on_enter')` из `doCreature()`;
+  `triggerAbilities(card,'active')` нигде не вызывается — активная AOE-кнопка обслуживается
+  отдельным кодом в `doUmbAsir()`/`doVardan()`, не через этот диспетчер). Обновляется
   до полного N в начале хода ВЛАДЕЛЬЦА (`endTurn()`, тот же блок, что снимает exhausted
   владельцу), не хода соперника. Инициализация при входе на поле — `doCreature()`; сброс в 0
   при возврате карты в колоду/руку — `resetC()` (state.js). Тестово повешена на NABUNAGI
@@ -1315,7 +1474,8 @@ Still open (не привязано к конкретной версии):
   так unique/tanky по роли — provoke/bushido и rage/AOE — Броня им подходит по духу).
   Видимость — 3 слоя без нового UI: текст в `ab` карты (уже рендерится как обычно), лог
   (enter/absorb/refill — 3 разных момента), и снапшот в экспортируемом battle log (JSON).
-  Иконка щита на самой карте — сознательно НЕ делали, автор распишет отдельно.
+  **Визуальный рендер добавлен 2026-07-10** (см. отдельную запись в журнале сессии ниже) —
+  `.card-armor-box`/`.card-small-armor-box`, автор предоставил `armor_bg.png`/`armor.png`.
 - [x] Механика «Неукротимость» (`untamed`, working name, Anime pink Mood — см. Trait mapping) —
   реализовано 2026-07-10. Существо с этим тегом снимает `exhausted` уже в момент, когда
   заканчивается его СОБСТВЕННЫЙ ход (т.е. весь ход соперника оно уже НЕ уставшее — может дать
