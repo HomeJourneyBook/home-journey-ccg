@@ -558,7 +558,24 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .modal-crt-screen h2,.modal-crt-screen p{position:relative;z-index:3;color:#4bbf72;}
 .modal-crt-screen p{color:#2f7a4a;}
 #mulliganCards{position:relative;z-index:3;}
-#deckPickerModal .modal-body, #vsAiPickerModal .modal-body, #confirmModal .modal-body, #winModal .modal-body, #mulliganScreen .modal-body, #passScreen .modal-body{padding:0;}
+#deckPickerModal .modal-body, #vsAiPickerModal .modal-body, #confirmModal .modal-body, #winModal .modal-body, #mulliganScreen .modal-body, #passScreen .modal-body, #orderRollModal .modal-body{padding:0;}
+
+/* ── Order roll (dice-off for turn order) ─────────────────────────────── */
+.modal-art-btn:disabled{filter:brightness(0.5) saturate(0.4);cursor:not-allowed;pointer-events:none;}
+.order-roll-row{display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);margin:8px 0 10px;position:relative;z-index:3;}
+.order-roll-side{display:flex;flex-direction:column;align-items:center;gap:6px;transition:opacity .2s;}
+.order-roll-label{font-family:'MEK',monospace;font-size:clamp(11px,2.6vw,14px);letter-spacing:.05em;color:#4bbf72;}
+.order-roll-die{width:clamp(46px,12vw,58px);height:clamp(46px,12vw,58px);display:flex;align-items:center;justify-content:center;
+  border:2px solid #4bbf72;border-radius:6px;background:#03150a;
+  font-family:'MEK',monospace;font-size:clamp(22px,6vw,30px);color:#a2bf5e;box-shadow:0 0 6px rgba(75,191,114,0.35) inset;}
+.order-roll-vs{font-family:'MEK',monospace;font-size:clamp(14px,3vw,18px);color:#2f7a4a;position:relative;z-index:3;margin-top:18px;}
+.order-roll-side.order-roll-winner .order-roll-die{border-color:#e8c95a;color:#e8c95a;box-shadow:0 0 10px rgba(232,201,90,0.55) inset,0 0 8px rgba(232,201,90,0.5);}
+.order-roll-side.order-roll-winner .order-roll-label{color:#e8c95a;}
+.order-roll-side.order-roll-loser{opacity:0.55;}
+.order-roll-result{position:relative;z-index:3;min-height:1.6em;font-family:'MEK',monospace;font-size:clamp(12px,2.8vw,15px);color:#4bbf72;white-space:pre;}
+.order-roll-result::after{content:'';display:inline-block;width:0.5em;height:1em;background:#4bbf72;vertical-align:-2px;margin-left:2px;animation:orderRollCursorBlink .8s steps(1) infinite;}
+.order-roll-result.done::after{display:none;}
+@keyframes orderRollCursorBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
 /*── Футер для классических модалок (confirm/win/pass — кнопки внизу) ──────────*/
 /*── Бокс с кнопками модалок (confirm/win/mulligan/pass) ──────────────────*/
 .modal-footer{align-self:center; width:auto; background:transparent; border-style:solid; border-width:var(--modal-footer-border-w); border-image-source:url('../img/bg_jest2.png'); border-image-slice:14 fill; border-image-width:var(--modal-footer-border-w); border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; padding:0; display:flex; gap:var(--modal-footer-border-w); justify-content:center; align-items:center;}
