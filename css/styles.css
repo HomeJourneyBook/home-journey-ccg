@@ -799,12 +799,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    Icon+text+padding/font-size copied from .card-hp-box/.card-hp (same convention as
    HP/ATK), only rendered when the card actually carries an `armor` tag. Position is a
    first pass — author may nudge top/left later once they see it live. ── */
-.card-armor-box{position:absolute;left:calc(var(--card-w)*0.038);top:calc(var(--card-h)*0.29);
+.card-armor-box{position:absolute;left:calc(var(--card-w)*0.038);
+  top:calc(var(--card-pad) + var(--card-art-size) - (var(--card-h)*0.108));
   width:calc(var(--card-h)*0.108*2);height:calc(var(--card-h)*0.108);
   background:url('../img/armor_bg.png') center/100% 100% no-repeat;
   display:flex;align-items:center;justify-content:center;padding:1px 1px 4.5px 1px;z-index:3;}
 .card-armor{color:#cbd8e3;font-size:calc(var(--card-h) * 0.11);display:flex;align-items:center;gap:1px;}
-.card-small-armor-box{position:absolute;left:calc(var(--card-small-w)*0.048);top:calc(var(--card-small-h)*0.34);
+.card-small-armor-box{position:absolute;left:calc(var(--card-small-w)*0.048);
+  top:calc(2px + var(--card-small-art-h) - (var(--card-small-h)*0.13));
   width:calc(var(--card-small-h)*0.13*2);height:calc(var(--card-small-h)*0.13);
   background:url('../img/armor_bg.png') center/100% 100% no-repeat;
   display:flex;align-items:center;justify-content:center;padding:1px 1px 3.5px 1px;z-index:3;}
