@@ -12,7 +12,7 @@ const DEFS = {
   t_trvl25_w:   {name:"TRAVELER #25",   cost:3,hp:1,atk:2,art:"🦈", img:"25.png",   f:"tea",tags:["vanguard","gtype:szg","untamed"],                  ab:"Squad: +1 maxHP."},
   t_trvl33_w:   {name:"TRAVELER #33",   cost:2,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["vanguard","gtype:szg"],                  ab:"Squad: +1 maxHP."},
   t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:1,atk:2,art:"🦈", img:"34.png",   f:"tea",tags:["vanguard","regen","gtype:szg"],           ab:"Squad: +1 maxHP."},
-  t_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:1,atk:2,art:"🦈", img:"434.png",  f:"tea",tags:["vanguard","fear","gtype:szg","incarnation:4"],            ab:"Squad: +1 maxHP. Incarnation 4."},
+  t_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:2,atk:2,art:"🦈", img:"434.png",  f:"tea",tags:["vanguard","fear","gtype:szg","incarnation:4"],            ab:"Squad: +1 maxHP. Incarnation 4."},
 
   // Orbiton Tea
   t_trvl10_w:   {name:"TRAVELER #10",   cost:3,hp:2,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:1","burn","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
