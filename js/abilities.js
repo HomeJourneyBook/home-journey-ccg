@@ -147,25 +147,17 @@ function triggerAbilities(card, timing, ctx={}){
 
       case 'burn':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
-          if(hasTag(ctx.target,'ward')){
-            lg(`${ctx.target.name}'s Ward resists the burn!`,'imp');
-          } else {
-            ctx.target.burning=true;
-            playSfx('card_fire_atack');
-            lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
-          }
+          ctx.target.burning=true;
+          playSfx('card_fire_atack');
+          lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
         } break;
 
       case 'fear':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
-          if(hasTag(ctx.target,'ward')){
-            lg(`${ctx.target.name}'s Ward resists the fear!`,'imp');
-          } else {
-            ctx.target.feared=true;
-            playSfx('debaf');
-            lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
-            queueFieldFx(ctx.target.id,'FEARED!','fx-fear');
-          }
+          ctx.target.feared=true;
+          playSfx('debaf');
+          lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
+          queueFieldFx(ctx.target.id,'FEARED!','fx-fear');
         } break;
 
       case 'draw':
