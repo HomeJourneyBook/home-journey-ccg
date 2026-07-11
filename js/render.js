@@ -652,6 +652,7 @@ const tagIcons = (card.tags||[])
   const armorDisp=_armorDisplay(card);
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
+    ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" title="Incarnation: returns in ${card.incarnTimer} turn(s)"><span class="card-incarn-icon">⏳</span>${card.incarnTimer}</div>`:''}
     ${armorDisp?`<div class="card-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${card.burning?'<div class="burning-icon"></div>':''}
