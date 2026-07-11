@@ -811,6 +811,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   background:url('../img/armor_bg.png') center/100% 100% no-repeat;
   display:flex;align-items:center;justify-content:center;padding:1px 1px 3.5px 1px;z-index:3;}
 .card-small-armor{color:#cbd8e3;font-size:var(--card-small-stat-fs);display:flex;align-items:center;gap:1px;}
+/* ── Incarnation badge — только в модалке кладбища (zone==='grave', mkEl), показывает
+   сколько ходов владельца осталось до self-revive. Нет готового арта — plain-фолбэк
+   (фон+рамка+эмодзи), симметрично card-cost в правом верхнем углу, как временная замена
+   до готового арта (тот же принцип, что и placeholder-кнопки, см. CLAUDE.md). ── */
+.card-incarn-badge{position:absolute;top:calc(var(--card-h) * 0.0125);right:calc(var(--card-w) * 0.038);
+  width:calc(var(--card-h)*0.12);height:calc(var(--card-h)*0.12*2.18);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.09);font-weight:bold;line-height:1;
+  background:rgba(20,10,30,0.75);border:1px solid #7a5fb0;border-radius:4px;color:#e0c8ff;z-index:4;}
+.card-incarn-badge .card-incarn-icon{font-size:calc(var(--card-h)*0.1);}
 .card-ability-box{width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
 .card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:0.7;word-spacing:-1px;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
 .card-world-art{width:100%;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;}
