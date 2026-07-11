@@ -687,11 +687,11 @@ function applyAuras(faction){
 // If it comes back later, the 'param'/pierce branch in checkSquadBonuses() below still
 // knows how to handle it, nothing to re-implement.
 const SQUAD_DEFS = [
-  {gtype:'drg', count:3, effect:'maxhp', val:1},
-  {gtype:'mch', count:3, effect:'armor', val:1},
+  {gtype:'drg', count:3, effect:'armor', val:1},
+  {gtype:'mch', count:3, effect:'atk',   val:1},
   {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
   {gtype:'umb', count:3, effect:'param', param:'aoe',    val:2},
-  {gtype:'szg', count:3, effect:'atk',   val:1},
+  {gtype:'szg', count:3, effect:'maxhp', val:1},
   {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
 ];
 
