@@ -269,9 +269,9 @@ function preloadAssets(){
     'img/bg_statbar_hp_jeet.png',
     'img/dat4ik_jeet.gif',
     'img/zabor1_jeet.png', 'img/zabor2_jeet.png',
-    'img/bottom_extra2_tea.png', 'img/bottom_extra2_jeet.png',
-    'img/bottom_extra3_tea.png', 'img/bottom_extra3_jeet.png',
-    'img/bottom_extra4_tea.png', 'img/bottom_extra4_jeet.png',
+    'img/screen1.gif', 'img/bottom_extra2_jeet.png',
+    'img/dat4ik_small.gif', 'img/bottom_extra3_jeet.png',
+    'img/boltics.png', 'img/bottom_extra4_jeet.png',
 
     // ── Дайс-модалка (order-roll, выбор первого хода) — арт граней ──
     'img/dice_1.png', 'img/dice_2.png', 'img/dice_3.png',
