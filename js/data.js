@@ -60,8 +60,8 @@ const DEFS = {
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1.",world:true},
   t_w2:        {name:"DOMUS",      cost:4,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_maxhp:1"],ab:"Aura: +1 maxHP.",world:true},
-  t_a1:        {name:"THE BOOK",   cost:3,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","ess_add:1"],   ab:"On turn: +1 Essence (this turn only).",artifact:true},
-  t_a2:        {name:"FOUNTAIN", cost:3,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Restore all allies 1 HP.",artifact:true},
+  t_a1:        {name:"THE BOOK",   cost:4,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","ess_add:1"],   ab:"On turn: +1 Essence (this turn only).",artifact:true},
+  t_a2:        {name:"FOUNTAIN", cost:4,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Restore all allies 1 HP.",artifact:true},
 
   // ── JEET CREATURES ──────────────────────────────────────────────
 
@@ -117,8 +117,8 @@ const DEFS = {
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
   j_w2:        {name:"NORRIA", cost:4,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","aura:atk:1"],     ab:"Aura: +1 ATK.",world:true},
-  j_a1:        {name:"SHARD",  cost:3,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:2"],     ab:"Active: deal 2 dmg to any enemy.",artifact:true},
-  j_a2:        {name:"ALTAR",  cost:3,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Active: sacrifice 1 of your creatures, +1 Essence & 1 card.",artifact:true},
+  j_a1:        {name:"SHARD",  cost:5,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:2"],     ab:"Active: deal 2 dmg to any enemy.",artifact:true},
+  j_a2:        {name:"ALTAR",  cost:4,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Active: sacrifice 1 of your creatures, +1 Essence & 1 card.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
   unseen:      {name:"UNSEEN", cost:0,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return ALL field cards to their owners.",spell:true,fullArt:true,neutral:true},
