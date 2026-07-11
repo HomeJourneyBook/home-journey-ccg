@@ -39,17 +39,17 @@ const DEFS = {
   t_trvl11_w:   {name:"TRAVELER #11",   cost:3,hp:4,atk:1,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 Armor."},
 
   // Xuiqtr Tea
-  t_trvl187_w:  {name:"TRAVELER #187",  cost:3,hp:4,atk:1,art:"🐙", img:"187.png",  f:"tea",tags:["regen:1","gtype:xui","untamed"],                   ab:"Squad: Regen 2."},
-  t_trvl704_w:  {name:"TRAVELER #704",  cost:5,hp:6,atk:2,art:"🐙", img:"704.png",  f:"tea",tags:["regen:1","fear","gtype:xui"],             ab:"Squad: Regen 2."},
-  t_trvl26_w:   {name:"TRAVELER #26",   cost:4,hp:4,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["regen:1","gtype:xui"],            ab:"Squad: Regen 2."},
-  t_trvl39_w:   {name:"TRAVELER #39",   cost:3,hp:4,atk:1,art:"🐙", img:"39.png",   f:"tea",tags:["regen:1","gtype:xui"],                   ab:"Squad: Regen 2."},
+  t_trvl187_w:  {name:"TRAVELER #187",  cost:3,hp:4,atk:1,art:"🐙", img:"187.png",  f:"tea",tags:["provoke","gtype:xui","untamed"],                   ab:"Squad: Regen 2."},
+  t_trvl704_w:  {name:"TRAVELER #704",  cost:5,hp:6,atk:2,art:"🐙", img:"704.png",  f:"tea",tags:["provoke","fear","gtype:xui"],             ab:"Squad: Regen 2."},
+  t_trvl26_w:   {name:"TRAVELER #26",   cost:4,hp:4,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["provoke","gtype:xui"],            ab:"Squad: Regen 2."},
+  t_trvl39_w:   {name:"TRAVELER #39",   cost:3,hp:4,atk:1,art:"🐙", img:"39.png",   f:"tea",tags:["provoke","gtype:xui"],                   ab:"Squad: Regen 2."},
 
   // ── TEA LEGENDARIES ─────────────────────────────────────────────
   t_tean:      {name:"TEANTIST",   cost:4,hp:4,atk:1,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1"],            ab:"On turn: Draw 1 card.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","aura:maxhp:1"],      ab:"Aura: +1 maxHP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:5,atk:2,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed"],       ab:"Aura: +1 ATK.",unique:true},
   t_faeron:    {name:"FAERON",     cost:4,hp:4,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","on_play_creature:1","untamed"], ab:"Each On play: Heal base 1 HP.",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","provoke","bushido","armor:2","ward"], ab:"Bushido: ALL attacks must target him. Ward.",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:2","ward"], ab:"Bushido: ALL attacks must target him. Ward.",unique:true},
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
   t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:2"],     ab:"Target ally: +2 ATK until end of turn.",spell:true},
@@ -96,17 +96,17 @@ const DEFS = {
   j_trvl804_w:  {name:"TRAVELER #804",  cost:4,hp:4,atk:2,art:"🤖", img:"804.png",  f:"jeet",tags:["pierce","regen","gtype:mch"],          ab:"Squad: +1 Armor."},
 
   // Xuiqtr Jeet
-  j_trvl579_w:  {name:"TRAVELER #579",  cost:4,hp:4,atk:2,art:"🐙", img:"579.png",  f:"jeet",tags:["regen:1","fear","gtype:xui"],          ab:"Squad: Regen 2."},
-  j_trvl972_w:  {name:"TRAVELER #972",  cost:4,hp:4,atk:2,art:"🐙", img:"972.png",  f:"jeet",tags:["regen:1","burn","gtype:xui"],          ab:"Squad: Regen 2."},
-  j_trvl50_w:   {name:"TRAVELER #50",   cost:3,hp:4,atk:1,art:"🐙", img:"50.png",   f:"jeet",tags:["regen:1","gtype:xui"],                 ab:"Squad: Regen 2."},
-  j_trvl37_w:   {name:"TRAVELER #37",   cost:3,hp:4,atk:1,art:"🐙", img:"37.png",   f:"jeet",tags:["regen:1","gtype:xui"],                 ab:"Squad: Regen 2."},
+  j_trvl579_w:  {name:"TRAVELER #579",  cost:4,hp:4,atk:2,art:"🐙", img:"579.png",  f:"jeet",tags:["provoke","fear","gtype:xui"],          ab:"Squad: Regen 2."},
+  j_trvl972_w:  {name:"TRAVELER #972",  cost:4,hp:4,atk:2,art:"🐙", img:"972.png",  f:"jeet",tags:["provoke","burn","gtype:xui"],          ab:"Squad: Regen 2."},
+  j_trvl50_w:   {name:"TRAVELER #50",   cost:3,hp:4,atk:1,art:"🐙", img:"50.png",   f:"jeet",tags:["provoke","gtype:xui"],                 ab:"Squad: Regen 2."},
+  j_trvl37_w:   {name:"TRAVELER #37",   cost:3,hp:4,atk:1,art:"🐙", img:"37.png",   f:"jeet",tags:["provoke","gtype:xui"],                 ab:"Squad: Regen 2."},
 
   // ── JEET LEGENDARIES ────────────────────────────────────────────
   j_reap:      {name:"REAPER",      cost:5,hp:5,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_any_death_base:1"],        ab:"Any creature death: restore base 1 HP.",unique:true},
   j_ryv:       {name:"RYVLEN",      cost:5,hp:4,atk:2,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","fear","draw_attack:1"],        ab:"On attack: Draw 1 card.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:2","aura:armor:1"],          ab:"Aura: allies +1 Armor.",unique:true},
   j_phleg:     {name:"PHLEGMOR",    cost:5,hp:7,atk:1,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:3"],                     ab:"On turn: Raise top graveyard card at 1 HP. Incarnation 3.",unique:true},
-  j_vard:      {name:"SEEKER",      cost:5,hp:4,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear","pierce"],    ab:"\"Seek, and ye shall find.\"",unique:true},
+  j_vard:      {name:"SEEKER",      cost:5,hp:4,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce"],    ab:"\"Seek, and ye shall find.\"",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2 cards.",spell:true},
