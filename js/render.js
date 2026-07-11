@@ -1140,6 +1140,12 @@ function reorderZones(){
   const playerHandZone=document.getElementById('playerHandZone');
   const jeetHand=document.getElementById('jeetHand');
   const teaHand=document.getElementById('teaHand');
+  // Фон/рамка руки — по фракции, которая СЕЙЧАС физически занимает эту позицию (см.
+  // .opp-hand-zone.jeet/.tea, .player-hand-zone.jeet/.tea в styles.css). Та же схема,
+  // что уже работает для oppStats/playerStats чуть выше — className выставляется заново
+  // каждый вызов, не только при реальной смене родителя ниже.
+  if(oppHandZone) oppHandZone.className='opp-hand-zone '+(oppK==='jeet'?'jeet':'tea');
+  if(playerHandZone) playerHandZone.className='player-hand-zone '+(playerK==='jeet'?'jeet':'tea');
   if(oppHandZone&&playerHandZone){
     if(oppK==='jeet'){
       if(jeetHand&&jeetHand.parentElement!==oppHandZone) oppHandZone.appendChild(jeetHand);
