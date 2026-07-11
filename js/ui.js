@@ -1454,7 +1454,7 @@ const TAG_TOOLTIPS = {
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
   'untamed': { name: 'Untamed', desc: "Regains strength during the opponent's turn — clears exhausted as soon as its own turn ends, instead of waiting for its owner's next turn like everything else." },
-  'ward':    { name: 'Ward', desc: 'Immune to magic damage (AOE, Shard, targeted spell damage) — the same category of damage that ignores Armor. Normal attacks still hurt it.' },
+  'ward':    { name: 'Ward', desc: 'Immune to magic damage (AOE, Shard, targeted spell damage — the category that ignores Armor), and also immune to Fear and Burn. Normal attack damage still hurts it.' },
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box';
