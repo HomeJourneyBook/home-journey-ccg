@@ -1064,7 +1064,7 @@ function _mkStatsBarHtml(faction, mirrored, isPlayerSide){
   const artifactSlot=_mkPcardSlotHtml(p.artifacts[0]||null, faction, isPlayerSide);
   const hpBox=`<span class="stat stat-hp-box ${faction}-hp-box"><img src="./img/hp_${faction}.png" class="stat-icon"> <span class="stat-val hp-val" id="${faction}Hp">${p.hp}</span></span>`;
   const nameBox=`<span class="player-name-box ${faction}-name-box hp-tier-${hpTier(p.hp)}" role="img" aria-label="${faction==='jeet'?'JEET':'TAVERN'}" onclick="event.stopPropagation();onBaseClick('${faction}')"></span>`;
-  const essBox=`<span class="stat stat-ess-box ${faction}-ess-box" data-max="${p.essMax}"><img src="./img/ess.png" class="stat-icon"> <span class="ess-val" id="${faction}Ess">${p.ess}</span></span>`;
+  const essBox=`<span class="stat stat-ess-box ${faction}-ess-box" data-max="${p.essMax}"><img src="./img/ess${faction==='jeet'?'_jeet':''}.png" class="stat-icon"> <span class="ess-val" id="${faction}Ess">${p.ess}</span></span>`;
   const core=mirrored
     ? `<span class="statbar-core">${essBox}${nameBox}${hpBox}</span>`
     : `<span class="statbar-core">${hpBox}${nameBox}${essBox}</span>`;
