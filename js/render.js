@@ -799,7 +799,7 @@ function rZone(id,cards,zone){
   const existingIds=new Set([...el.querySelectorAll(cardSelector)].map(e=>e.dataset.id));
   el.innerHTML='';
   const faction=id.startsWith('tea')?'tea':'jeet'; // для полёта карты из колоды, см. _flyCardFromDeck
-  let newHandCardIndex=0; // стаггер вылета, если за один render появилось сразу несколько карт
+  const newHandEls=[]; // копим новые карты руки — меряем rect и запускаем полёт ПОСЛЕ сжатия веера (ниже)
   cards.forEach(c=>{
     if(zone==='field'){
       const cardEl=mkSmallEl(c);
@@ -811,19 +811,32 @@ function rZone(id,cards,zone){
       // animation. Cards already in hand don't replay it on every re-render.
       const isNew=zone==='hand'&&!existingIds.has(String(c.id));
       el.appendChild(cardEl);
-      if(isNew){
-        const restRect=cardEl.getBoundingClientRect(); // финальная позиция ДО навешивания card-drawn
-        const deckRect=_deckPlaceholderRect(faction);
-        cardEl.classList.add('card-drawn');
-        if(deckRect){
-          cardEl.style.animationDelay=CARD_FLY_MS+'ms';
-          cardEl.style.animationFillMode='both';
-          _flyCardFromDeck(deckRect,restRect,newHandCardIndex*90);
-          newHandCardIndex++;
-        }
-      }
+      if(isNew) newHandEls.push(cardEl);
     }
   });
+  // ВАЖНО: restRect для только что добранных карт меряем ТОЛЬКО после того, как веер руки
+  // реально сжат (adjustHandOverlap ставит отрицательные margin-right по числу карт) —
+  // иначе (см. requestAnimationFrame ниже в render()) при большой руке несжатая раскладка
+  // стоит намного правее итоговой (может быть за пределами экрана), и полёт карты целится
+  // не в то место. Раньше compression происходил только на следующем кадре — здесь же
+  // вызываем adjustHandOverlap() СИНХРОННО сразу после появления новых карт в DOM, чтобы
+  // rect уже был актуальным к моменту измерения. Двойной вызов (этот + тот, что ниже в
+  // render() через requestAnimationFrame) не проблема — функция идемпотентна.
+  if(zone==='hand' && newHandEls.length>0){
+    adjustHandOverlap();
+    let newHandCardIndex=0;
+    newHandEls.forEach(cardEl=>{
+      const restRect=cardEl.getBoundingClientRect(); // финальная (уже сжатая) позиция ДО навешивания card-drawn
+      const deckRect=_deckPlaceholderRect(faction);
+      cardEl.classList.add('card-drawn');
+      if(deckRect){
+        cardEl.style.animationDelay=CARD_FLY_MS+'ms';
+        cardEl.style.animationFillMode='both';
+        _flyCardFromDeck(deckRect,restRect,newHandCardIndex*90);
+        newHandCardIndex++;
+      }
+    });
+  }
 }
 
 // Рисует ЧУЖУЮ руку — карты рубашкой вверх (картинка runaha.png), без данных о содержимом.
