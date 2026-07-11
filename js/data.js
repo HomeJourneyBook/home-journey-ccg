@@ -49,7 +49,7 @@ const DEFS = {
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:2,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","aura:maxhp:1"],      ab:"Aura: +1 maxHP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:5,atk:2,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed"],       ab:"Aura: +1 ATK.",unique:true},
   t_faeron:    {name:"FAERON",     cost:4,hp:4,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","on_play_creature:1","untamed"], ab:"Each On play: Heal base 1 HP.",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","provoke","bushido","armor:2"], ab:"Bushido: ALL attacks must target him.",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:5,hp:6,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","provoke","bushido","armor:2","ward"], ab:"Bushido: ALL attacks must target him. Ward.",unique:true},
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
   t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:2"],     ab:"Target ally: +2 ATK until end of turn.",spell:true},
