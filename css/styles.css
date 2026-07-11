@@ -931,10 +931,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .stat-ess-box{width:calc(max(4vh, 2vw) * 1.53 + 9px); justify-content:center; flex-shrink:0;}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
 .stat-ess-box{background-image:url('../img/bg_statbar_hp.png');}
-/* Jeet — своя рамка (была общая tea/jeet, теперь разведено). Белый фон — временный
-   плейсхолдер до прихода реального арта (та же схема, что и для остальных Jeet-плейсхолдеров
-   ниже — background-color виден, пока файл ещё не существует, потом арт ляжет поверх). */
-.stats-bar.jeet .stat-hp-box, .stats-bar.jeet .stat-ess-box{background-color:#fff; background-image:url('../img/bg_statbar_hp_jeet.png');}
+/* Jeet — своя рамка (была общая tea/jeet, теперь разведено). Единый файл на все счётчики
+   Jeet (HP/Essence/колода/кладбище) — bg_counters_jeet.png. Белый фон — временный
+   плейсхолдер до прихода реального арта. */
+.stats-bar.jeet .stat-hp-box, .stats-bar.jeet .stat-ess-box{background-color:#fff; background-image:url('../img/bg_counters_jeet.png');}
 /* Плейсхолдер слева от HP-индикатора — Tea использует существующий boltik.png, Jeet —
    свой новый файл (белый фон временно, пока арт не пришёл). Размер — квадрат, сторона =
    половина высоты .stat-hp-box (та же формула × 0.5). */
@@ -1041,7 +1041,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    родитель .bottom-slot растянут на все 7vh через align-items:stretch — см. выше).
    2:1, высота = треть высоты бара (7vh/3). Только лаптоп/десктоп. Разведено по фракциям. */
 .bottom-bar-extra-3{display:none; align-self:flex-end; width:calc(7vh / 3 * 2); height:calc(7vh / 3); background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
-#teaBottomBar .bottom-bar-extra-3{background-image:url('../img/dat4ik_small.gif');}
+#teaBottomBar .bottom-bar-extra-3{background-image:url('../img/boltics.png');}
 #jeetBottomBar .bottom-bar-extra-3{background-color:#fff; background-image:url('../img/bottom_extra3_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-3{display:block;}
@@ -1049,7 +1049,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*ПЛЕЙСХОЛДЕР 4 — квадрат, высота = треть высоты бара (7vh/3), справа от кнопки End Turn,
   разведено по фракциям.*/
 .bottom-bar-extra-4{display:none; position:absolute; left:calc(50% + (6vh * 4 / 2) + 8px); top:50%; transform:translateY(-50%); width:calc(7vh / 3); height:calc(7vh / 3); background-color:#000; background-size:cover; background-position:center; flex-shrink:0;}
-#teaBottomBar .bottom-bar-extra-4{background-image:url('../img/boltics.png');}
+#teaBottomBar .bottom-bar-extra-4{background-image:url('../img/dat4ik_small.gif');}
 #jeetBottomBar .bottom-bar-extra-4{background-color:#fff; background-image:url('../img/bottom_extra4_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-4{display:block;}
@@ -1085,7 +1085,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Stat-badge для кладбища (справа от кнопки) и колоды (слева от деки) ──*/
 .stat-badge{display:flex; align-items:center; justify-content:center; background-image:url('../img/bg_statbar_hp.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center; min-width:3.5vh; height:2.8vh; font-family:'MEK',monospace; font-size:2.2vh; font-weight:bold; pointer-events:none; padding:0 0.6vh; flex-shrink:0;}
 #teaBottomBar .stat-badge{color:#4DB854;}
-#jeetBottomBar .stat-badge{color:#b44fd4; background-color:#fff; background-image:url('../img/bg_statbar_hp_jeet.png');}
+#jeetBottomBar .stat-badge{color:#b44fd4; background-color:#fff; background-image:url('../img/bg_counters_jeet.png');}
 .card-detail-overlay{position:fixed;inset:0;background:#000000cc;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
 .card-detail-box{position:relative;display:flex;align-items:center;justify-content:center;}
 .card-detail-close{position:absolute;top:-32px;right:-8px;font-size:28px;cursor:pointer;color:#888;background:none;border:none;z-index:10;}
