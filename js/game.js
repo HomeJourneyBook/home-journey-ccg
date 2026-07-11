@@ -407,6 +407,18 @@ function tryAttackBase(){
 
 function dmgCard(card,dmg,faction,bypassArmor){
   if(dmg<=0)return;
+  // Ward — магический аналог Брони (тег ico_ward.png уже есть у автора): полный
+  // иммунитет именно к тому урону, который bypassArmor=true (AOE-активка/enter_aoe,
+  // Shard, точечный урон спеллом) — той же категории, что Броня НЕ блокирует (см.
+  // комментарий ниже про bypassArmor). Обычная атака/контратака Ward не блокирует —
+  // так же, как Броня не блокирует магию, здесь наоборот: Ward не блокирует физику.
+  // Сознательно НЕ трогает burn/fear (те применяются отдельными путями, не через
+  // dmgCard) — если нужно расширить Ward на них, это отдельная правка.
+  if(bypassArmor && hasTag(card,'ward')){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+    lg(`${card.name}'s Ward blocks the magic damage entirely.`,'dmg');
+    return;
+  }
   // Armor absorbs first — see doCreature() (init on enter) / endTurn() (refresh
   // on owner's turn start). Fully-absorbed hits still shake the card (visible
   // feedback that *something* landed) but skip the HP float/log/lethal check
@@ -453,10 +465,24 @@ function killCard(card,faction,toVoid=false){
   card.auraArmorBonus=0;
   card.worldArmorBonus=0;
   card.squadParam=null;
+  // Инкарнация — одноразовая (как в оригинале): если карта уже воскресала через
+  // incarnation:X раньше (card.incarnUsed, ставится в endTurn() в момент revive — см.
+  // блок "Инкарнация — тик по кладбищу"), повторная смерть форсирует toVoid=true —
+  // карта уходит СРАЗУ в войд, минуя кладбище, таймер по второму разу не запускается.
+  // Без этого получился бы вечный респавн каждые X ходов.
+  let _incarnSpent=false;
+  if(!toVoid && card.incarnUsed && hasTag(card,'incarnation')){
+    toVoid=true;
+    _incarnSpent=true;
+  }
   if(toVoid){
     card.voided=true;
     G[faction].void.push(card);
-    lg(`${card.name} burned to ash — lost forever.`,'die');
+    if(_incarnSpent){
+      lg(`${card.name}: Incarnation already spent — exiled for good.`,'die');
+    } else {
+      lg(`${card.name} burned to ash — lost forever.`,'die');
+    }
   } else {
     G[faction].grave.push(card);
     lg(`${card.name} dies.`,'die');
@@ -1061,6 +1087,7 @@ function endTurn(){
     if(c.incarnTimer<=0){
       cur.grave=cur.grave.filter(x=>x.id!==c.id);
       c.incarnTimer=undefined;
+      c.incarnUsed=true; // одноразовость — см. killCard(): вторая смерть уйдёт сразу в войд
       reviveCard(c,G.turn);
       lg(`${c.name}: Incarnation complete — rises again!`,'hl');
     }
