@@ -307,11 +307,9 @@ function doAttack(att,target){
 
   // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
   // один из этих эффектов (цель выживает после урона), звук самой атаки не играем.
-  // Ward у цели блокирует и Fear, и Burn (см. abilities.js) — поэтому обе проверки
-  // ниже учитывают его, иначе звук атаки пропадал бы вообще, хотя эффект не применится.
   const targetSurvives = (target.hp - atk) > 0;
-  const willFear = hasTag(att,'fear') && targetSurvives && !hasTag(target,'ward');
-  const willBurn = hasTag(att,'burn') && targetSurvives && !hasTag(target,'ward');
+  const willFear = hasTag(att,'fear') && targetSurvives;
+  const willBurn = hasTag(att,'burn') && targetSurvives;
   if(!willFear && !willBurn) playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
   dmgCard(target,atk,oppK);
