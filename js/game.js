@@ -460,6 +460,18 @@ function killCard(card,faction,toVoid=false){
   } else {
     G[faction].grave.push(card);
     lg(`${card.name} dies.`,'die');
+    // Инкарнация: тег incarnation:X — X = число ПОЛНЫХ ходов владельца ПОСЛЕ смерти
+    // (тикает в endTurn(), см. блок "Инкарнация — тик по кладбищу" ниже в этом файле).
+    // Только для существ (не spell/world/artifact — у тех своя логика ухода с поля,
+    // через killCard обычно не проходят как "существо в кладбище с таймером").
+    // ВАЖНО: этот код НЕ достижим при уничтожении в войд (см. ветку toVoid выше) —
+    // сожжённая карта уходит в G[faction].void, а не в grave, и тикающий цикл в endTurn()
+    // смотрит только в grave, так что "войд отменяет Инкарнацию" получается бесплатно,
+    // без отдельной проверки voided.
+    if(!card.spell&&!card.world&&!card.artifact&&hasTag(card,'incarnation')){
+      card.incarnTimer=getTagVal(card,'incarnation');
+      lg(`${card.name}: Incarnation — returns in ${card.incarnTimer} turn(s).`,'hl');
+    }
   }
   checkSquadBonuses(faction);
   // Пересчёт Брони при смерти — если умерший был aura:armor источником, оставшиеся
@@ -1037,6 +1049,23 @@ function endTurn(){
     }
   });
   cur.artifacts.forEach(a=>{a.exhausted=false;});
+
+  // Инкарнация — тик по СВОЕМУ кладбищу в начале СВОЕГО хода (тот же принцип, что и
+  // Броня/exhausted чуть выше — "раз в свой ход"). X = число полных ходов владельца
+  // ПОСЛЕ смерти: тикнуло X раз подряд — воскресло на полном HP. Итерируем копию массива
+  // (`[...cur.grave]`), т.к. reviveCard() пушит карту обратно в cur.field, а не трогает
+  // grave напрямую — сам вырезаем воскресшую из grave ниже, до вызова reviveCard.
+  [...cur.grave].forEach(c=>{
+    if(c.incarnTimer==null) return;
+    c.incarnTimer--;
+    if(c.incarnTimer<=0){
+      cur.grave=cur.grave.filter(x=>x.id!==c.id);
+      c.incarnTimer=undefined;
+      reviveCard(c,G.turn);
+      lg(`${c.name}: Incarnation complete — rises again!`,'hl');
+    }
+  });
+
   cur.burned=false;
   if(G.secondFirstTurn&&G.turn===G.secondFaction){
     cur.essMax=1;cur.ess=1;G.secondFirstTurn=false;
