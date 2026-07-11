@@ -260,6 +260,18 @@ function preloadAssets(){
     'img/ico_untamed.png',
     'img/ico_ward.png',
     'img/trubi1.png',
+    'img/trubi1_jeet.png',
+
+    // ── Декоративные плейсхолдеры статус-бара и боттом-бара — разведены tea/jeet в этой сессии ──
+    'img/statbar_edge_right2_jeet.png', 'img/statbar_edge_left_jeet.png',
+    'img/boltik_jeet.png',
+    'img/statbar_extra_tea.png', 'img/statbar_extra_jeet.png',
+    'img/bg_statbar_hp_jeet.png',
+    'img/dat4ik_jeet.gif',
+    'img/zabor1_jeet.png', 'img/zabor2_jeet.png',
+    'img/bottom_extra2_tea.png', 'img/bottom_extra2_jeet.png',
+    'img/bottom_extra3_tea.png', 'img/bottom_extra3_jeet.png',
+    'img/bottom_extra4_tea.png', 'img/bottom_extra4_jeet.png',
 
     // ── Дайс-модалка (order-roll, выбор первого хода) — арт граней ──
     'img/dice_1.png', 'img/dice_2.png', 'img/dice_3.png',
@@ -286,7 +298,7 @@ function preloadAssets(){
     'img/bg_handP_bar_jeet.png', 'img/bg_handO_bar_jeet.png',
 
     // ── Игровые иконки ──
-    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/chel2.png', 'img/ess.png',
+    'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/chel2.png', 'img/ess.png', 'img/ess_jeet.png',
     'img/hp_tea.png', 'img/hp_jeet.png',
     'img/deck.png', 'img/runaha.png', 'img/ef_burn.png',
 
