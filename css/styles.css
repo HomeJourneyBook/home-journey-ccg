@@ -955,23 +955,35 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .player-name-box.base-targetable{position:relative; cursor:crosshair; border-radius:6px; animation:pulseNameBox .8s infinite alternate;}
 .player-name-box.base-targetable::after{content:''; position:absolute;inset:0; background:#ff0000; border-radius:6px; pointer-events:none; animation:baseBlinkRed .8s infinite alternate;}
 .opp-hand-zone{height:7vh;padding:0 6px 4px;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
-.opp-hand-zone{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
+/*── Фон hand-zone — по фракции, которая сейчас занимает позицию (см. reorderZones() в
+   render.js, className выставляется туда динамически) ──*/
+.opp-hand-zone.tea{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
+.opp-hand-zone.jeet{background:url('../img/bg_handO_bar_jeet.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .field-zone{border:1px solid #80808080;background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;z-index:0;padding:2px;}
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
-.player-hand-zone{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
+.player-hand-zone.tea{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
+.player-hand-zone.jeet{background:url('../img/bg_handP_bar_jeet.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 @media(min-width:601px){
   .player-hand-zone{padding:6px calc(var(--card-action-btn-w) + 8px);}
   .opp-hand-zone{padding:0 15px 4px;}
 }
-/*── Hand-zone side rails (PLACEHOLDER images — swap once drawn) ──────────*/
-.player-hand-zone::after{content:''; position:absolute; inset:0; z-index:600; pointer-events:none; border-style:solid; border-width:calc(var(--card-action-btn-w) + 2px); border-image-source:url('../img/hands_border.png'); border-image-slice:60; border-image-width:calc(var(--card-action-btn-w) + 2px); border-image-outset:0; border-image-repeat:round;}
-.opp-hand-zone::after{content:''; position:absolute; inset:0; z-index:600; pointer-events:none; border-style:solid; border-width:15px; border-image-source:url('../img/hands_border2.png'); border-image-slice:30; border-image-width:15px; border-image-outset:0; border-image-repeat:round;}
+/*── Hand-zone side rails — Tea использует существующие файлы (были плейсхолдером,
+   теперь официально "тиевский" арт), Jeet — новые _jeet файлы. ──*/
+.player-hand-zone.tea::after{content:''; position:absolute; inset:0; z-index:600; pointer-events:none; border-style:solid; border-width:calc(var(--card-action-btn-w) + 2px); border-image-source:url('../img/hands_border.png'); border-image-slice:60; border-image-width:calc(var(--card-action-btn-w) + 2px); border-image-outset:0; border-image-repeat:round;}
+.player-hand-zone.jeet::after{content:''; position:absolute; inset:0; z-index:600; pointer-events:none; border-style:solid; border-width:calc(var(--card-action-btn-w) + 2px); border-image-source:url('../img/hands_border_jeet.png'); border-image-slice:60; border-image-width:calc(var(--card-action-btn-w) + 2px); border-image-outset:0; border-image-repeat:round;}
+.opp-hand-zone.tea::after{content:''; position:absolute; inset:0; z-index:600; pointer-events:none; border-style:solid; border-width:15px; border-image-source:url('../img/hands_border2.png'); border-image-slice:30; border-image-width:15px; border-image-outset:0; border-image-repeat:round;}
+.opp-hand-zone.jeet::after{content:''; position:absolute; inset:0; z-index:600; pointer-events:none; border-style:solid; border-width:15px; border-image-source:url('../img/hands_border2_jeet.png'); border-image-slice:30; border-image-width:15px; border-image-outset:0; border-image-repeat:round;}
 @media(max-width:600px){
-  .player-hand-zone::after{border-width:15px; border-image-source:url('../img/hands_border2.png'); border-image-slice:30; border-image-width:15px;}
-  .opp-hand-zone::after{border-width:7.5px; border-image-width:7.5px;}
+  /* На мобиле player-hand-zone переключается на "border2"-арт (тот же, что у opp-hand-zone),
+     просто тоньше — как и было до разделения по фракциям, только теперь для каждой фракции
+     свой border2-файл. */
+  .player-hand-zone.tea::after{border-width:15px; border-image-source:url('../img/hands_border2.png'); border-image-slice:30; border-image-width:15px;}
+  .player-hand-zone.jeet::after{border-width:15px; border-image-source:url('../img/hands_border2_jeet.png'); border-image-slice:30; border-image-width:15px;}
+  .opp-hand-zone.tea::after{border-width:7.5px; border-image-width:7.5px;}
+  .opp-hand-zone.jeet::after{border-width:7.5px; border-image-width:7.5px;}
 }
 /*── Target-prompt overlay — точечные заклинания (ARCHIVE/JOURNEY/OBLIVION/dispel) ──*/
 .target-prompt-overlay{position:absolute; inset:0; z-index:620; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; padding:0 4px; box-sizing:border-box; background:rgba(120,0,0,0.12); animation:targetPromptPulseBg 1.6s ease-in-out infinite;}
