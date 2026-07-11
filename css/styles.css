@@ -1016,7 +1016,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* Jeet's bottom bar: solid main color instead of the shared placeholder texture,
    cream border top/bottom only (matches her stats-bar treatment above). */
 #jeetBottomBar{background:var(--jeet-main);border-top:1px solid var(--color-cream);border-bottom:1px solid var(--color-cream);}
-#teaBottomBar{border-top:1px solid #829797;}
+#teaBottomBar{background:#3d494f;border-top:1px solid #829797;}
 /*ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2),
   разведены по фракциям (#teaBottomBar/#jeetBottomBar) — Jeet белый фон временно.*/
 .bottom-bar-extra{display:none; width:18.2vh; height:4.55vh; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
@@ -1032,7 +1032,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*ПЛЕЙСХОЛДЕР 2 — справа от zabor1 (margin-left отделяет от него), только лаптоп/десктоп.
   Tea — свой файл (был чёрным без арта, теперь путь под будущий), Jeet — белый фон.*/
 .bottom-bar-extra-2{display:none; width:10.5vh; height:3.5vh; margin-left:10px; background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
-#teaBottomBar .bottom-bar-extra-2{background-image:url('../img/bottom_extra2_tea.png');}
+#teaBottomBar .bottom-bar-extra-2{background-image:url('../img/screen1.gif');}
 #jeetBottomBar .bottom-bar-extra-2{background-color:#fff; background-image:url('../img/bottom_extra2_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-2{display:block;}
@@ -1041,7 +1041,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    родитель .bottom-slot растянут на все 7vh через align-items:stretch — см. выше).
    2:1, высота = треть высоты бара (7vh/3). Только лаптоп/десктоп. Разведено по фракциям. */
 .bottom-bar-extra-3{display:none; align-self:flex-end; width:calc(7vh / 3 * 2); height:calc(7vh / 3); background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
-#teaBottomBar .bottom-bar-extra-3{background-image:url('../img/bottom_extra3_tea.png');}
+#teaBottomBar .bottom-bar-extra-3{background-image:url('../img/dat4ik_small.gif');}
 #jeetBottomBar .bottom-bar-extra-3{background-color:#fff; background-image:url('../img/bottom_extra3_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-3{display:block;}
@@ -1049,7 +1049,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*ПЛЕЙСХОЛДЕР 4 — квадрат, высота = треть высоты бара (7vh/3), справа от кнопки End Turn,
   разведено по фракциям.*/
 .bottom-bar-extra-4{display:none; position:absolute; left:calc(50% + (6vh * 4 / 2) + 8px); top:50%; transform:translateY(-50%); width:calc(7vh / 3); height:calc(7vh / 3); background-color:#000; background-size:cover; background-position:center; flex-shrink:0;}
-#teaBottomBar .bottom-bar-extra-4{background-image:url('../img/bottom_extra4_tea.png');}
+#teaBottomBar .bottom-bar-extra-4{background-image:url('../img/boltics.png');}
 #jeetBottomBar .bottom-bar-extra-4{background-color:#fff; background-image:url('../img/bottom_extra4_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-4{display:block;}
