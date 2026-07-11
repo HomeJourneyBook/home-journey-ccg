@@ -9,10 +9,10 @@ const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
 
   // Szarg Tea
-  t_trvl25_w:   {name:"TRAVELER #25",   cost:3,hp:1,atk:2,art:"🦈", img:"25.png",   f:"tea",tags:["vanguard","gtype:szg","untamed"],                  ab:"Squad: +1 ATK."},
-  t_trvl33_w:   {name:"TRAVELER #33",   cost:2,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["vanguard","gtype:szg"],                  ab:"Squad: +1 ATK."},
-  t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:1,atk:2,art:"🦈", img:"34.png",   f:"tea",tags:["vanguard","regen","gtype:szg"],           ab:"Squad: +1 ATK."},
-  t_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:1,atk:2,art:"🦈", img:"434.png",  f:"tea",tags:["vanguard","fear","gtype:szg","incarnation:4"],            ab:"Squad: +1 ATK. Incarnation 4."},
+  t_trvl25_w:   {name:"TRAVELER #25",   cost:3,hp:1,atk:2,art:"🦈", img:"25.png",   f:"tea",tags:["vanguard","gtype:szg","untamed"],                  ab:"Squad: +1 maxHP."},
+  t_trvl33_w:   {name:"TRAVELER #33",   cost:2,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["vanguard","gtype:szg"],                  ab:"Squad: +1 maxHP."},
+  t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:1,atk:2,art:"🦈", img:"34.png",   f:"tea",tags:["vanguard","regen","gtype:szg"],           ab:"Squad: +1 maxHP."},
+  t_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:1,atk:2,art:"🦈", img:"434.png",  f:"tea",tags:["vanguard","fear","gtype:szg","incarnation:4"],            ab:"Squad: +1 maxHP. Incarnation 4."},
 
   // Orbiton Tea
   t_trvl10_w:   {name:"TRAVELER #10",   cost:3,hp:2,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:1","burn","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
@@ -21,10 +21,10 @@ const DEFS = {
   t_trvl1034_w: {name:"TRAVELER #1034", cost:2,hp:2,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:1","gtype:orb"],                   ab:"Active: Heal 1 HP. Squad: Heal 2."},
 
   // Dreegan Tea
-  t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:4,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad: +1 HP."},
-  t_trvl31_w:   {name:"TRAVELER #31",   cost:4,hp:4,atk:1,art:"🌳", img:"31.png",   f:"tea",tags:["provoke","burn","gtype:drg"],             ab:"Squad: +1 HP."},
-  t_trvl892_w:  {name:"TRAVELER #892",  cost:4,hp:5,atk:1,art:"🌳", img:"892.png",  f:"tea",tags:["provoke","regen","gtype:drg"],            ab:"Squad: +1 HP."},
-  t_trvl14_w:   {name:"TRAVELER #14",   cost:3,hp:4,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad: +1 HP."},
+  t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:4,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad: +1 Armor."},
+  t_trvl31_w:   {name:"TRAVELER #31",   cost:4,hp:4,atk:1,art:"🌳", img:"31.png",   f:"tea",tags:["provoke","burn","gtype:drg"],             ab:"Squad: +1 Armor."},
+  t_trvl892_w:  {name:"TRAVELER #892",  cost:4,hp:5,atk:1,art:"🌳", img:"892.png",  f:"tea",tags:["provoke","regen","gtype:drg"],            ab:"Squad: +1 Armor."},
+  t_trvl14_w:   {name:"TRAVELER #14",   cost:3,hp:4,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad: +1 Armor."},
 
   // Umbasir Tea
   t_trvl583_w:  {name:"TRAVELER #583",  cost:4,hp:5,atk:2,art:"🌀", img:"583.png",  f:"tea",tags:["aoe:1","regen","gtype:umb"],              ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
@@ -33,10 +33,10 @@ const DEFS = {
   t_trvl6_w:    {name:"TRAVELER #6",    cost:3,hp:5,atk:1,art:"🌀", img:"6.png",    f:"tea",tags:["aoe:1","gtype:umb"],                     ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
 
   // Mechird Tea
-  t_trvl38_w:   {name:"TRAVELER #38",   cost:3,hp:1,atk:1,art:"🤖", img:"38.png",   f:"tea",tags:["pierce","rage","gtype:mch"],              ab:"Squad: +1 Armor."},
-  t_trvl18_w:   {name:"TRAVELER #18",   cost:2,hp:1,atk:2,art:"🤖", img:"18.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 Armor."},
-  t_trvl35_w:   {name:"TRAVELER #35",   cost:2,hp:1,atk:2,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 Armor."},
-  t_trvl11_w:   {name:"TRAVELER #11",   cost:2,hp:1,atk:2,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 Armor."},
+  t_trvl38_w:   {name:"TRAVELER #38",   cost:3,hp:1,atk:1,art:"🤖", img:"38.png",   f:"tea",tags:["pierce","rage","gtype:mch"],              ab:"Squad: +1 ATK."},
+  t_trvl18_w:   {name:"TRAVELER #18",   cost:2,hp:1,atk:2,art:"🤖", img:"18.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 ATK."},
+  t_trvl35_w:   {name:"TRAVELER #35",   cost:2,hp:1,atk:2,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 ATK."},
+  t_trvl11_w:   {name:"TRAVELER #11",   cost:2,hp:1,atk:2,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 ATK."},
 
   // Xuiqtr Tea
   t_trvl187_w:  {name:"TRAVELER #187",  cost:4,hp:5,atk:1,art:"🐙", img:"187.png",  f:"tea",tags:["provoke","gtype:xui","untamed"],                   ab:"Squad: Regen 2."},
@@ -66,10 +66,10 @@ const DEFS = {
   // ── JEET CREATURES ──────────────────────────────────────────────
 
   // Szarg Jeet
-  j_trvl12_w:  {name:"TRAVELER #12",  cost:2,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: +1 ATK."},
-  j_trvl49_w:  {name:"TRAVELER #49",  cost:2,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: +1 ATK."},
-  j_trvl57_w:  {name:"TRAVELER #57",  cost:3,hp:1,atk:1,art:"🦈", img:"57.png",  f:"jeet",tags:["vanguard","burn","gtype:szg"],           ab:"Squad: +1 ATK."},
-  j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:1,atk:1,art:"🦈", img:"551.png", f:"jeet",tags:["vanguard","gtype:szg","incarnation:4"],      ab:"Squad: +1 ATK. Incarnation 4."},
+  j_trvl12_w:  {name:"TRAVELER #12",  cost:2,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: +1 maxHP."},
+  j_trvl49_w:  {name:"TRAVELER #49",  cost:2,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: +1 maxHP."},
+  j_trvl57_w:  {name:"TRAVELER #57",  cost:3,hp:1,atk:1,art:"🦈", img:"57.png",  f:"jeet",tags:["vanguard","burn","gtype:szg"],           ab:"Squad: +1 maxHP."},
+  j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:1,atk:1,art:"🦈", img:"551.png", f:"jeet",tags:["vanguard","gtype:szg","incarnation:4"],      ab:"Squad: +1 maxHP. Incarnation 4."},
 
   // Orbiton Jeet
   j_trvl170_w: {name:"TRAVELER #170", cost:2,hp:2,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:1","gtype:orb"],                  ab:"Active: Heal 1 HP. Squad: Heal 2."},
@@ -78,10 +78,10 @@ const DEFS = {
   j_trvl523_w: {name:"TRAVELER #523", cost:3,hp:3,atk:1,art:"👁️", img:"523.png", f:"jeet",tags:["heal:1","fear","gtype:orb"],            ab:"Active: Heal 1 HP. Squad: Heal 2."},
 
   // Dreegan Jeet
-  j_trvl36_w:   {name:"TRAVELER #36",   cost:4,hp:5,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","gtype:drg","untamed"],               ab:"Squad: +1 HP."},
-  j_trvl41_w:   {name:"TRAVELER #41",   cost:3,hp:4,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad: +1 HP."},
-  j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:5,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","gtype:drg"],        ab:"Squad: +1 HP."},
-  j_trvl859_w:  {name:"TRAVELER #859",  cost:5,hp:5,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad: +1 HP."},
+  j_trvl36_w:   {name:"TRAVELER #36",   cost:4,hp:5,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","gtype:drg","untamed"],               ab:"Squad: +1 Armor."},
+  j_trvl41_w:   {name:"TRAVELER #41",   cost:3,hp:4,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad: +1 Armor."},
+  j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:5,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","gtype:drg"],        ab:"Squad: +1 Armor."},
+  j_trvl859_w:  {name:"TRAVELER #859",  cost:5,hp:5,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad: +1 Armor."},
 
   // Umbasir Jeet
   j_trvl550_w:  {name:"TRAVELER #550",  cost:4,hp:5,atk:2,art:"🌀", img:"550.png",  f:"jeet",tags:["aoe:1","fear","gtype:umb"],           ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
@@ -90,10 +90,10 @@ const DEFS = {
   j_trvl20_w:   {name:"TRAVELER #20",   cost:5,hp:5,atk:2,art:"🌀", img:"20.png",   f:"jeet",tags:["aoe:1","vanguard","gtype:umb","untamed"],        ab:"Active: AOE 1 dmg. Squad: AOE 2 dmg."},
 
   // Mechird Jeet
-  j_trvl22_w:   {name:"TRAVELER #22",   cost:3,hp:1,atk:2,art:"🤖", img:"22.png",   f:"jeet",tags:["pierce","gtype:mch","untamed"],                 ab:"Squad: +1 Armor."},
-  j_trvl724_w:  {name:"TRAVELER #724",  cost:2,hp:1,atk:2,art:"🤖", img:"724.png",  f:"jeet",tags:["pierce","gtype:mch"],                 ab:"Squad: +1 Armor."},
-  j_trvl921_w:  {name:"TRAVELER #921",  cost:3,hp:1,atk:1,art:"🤖", img:"921.png",  f:"jeet",tags:["pierce","burn","gtype:mch"],           ab:"Squad: +1 Armor."},
-  j_trvl804_w:  {name:"TRAVELER #804",  cost:3,hp:1,atk:2,art:"🤖", img:"804.png",  f:"jeet",tags:["pierce","regen","gtype:mch"],          ab:"Squad: +1 Armor."},
+  j_trvl22_w:   {name:"TRAVELER #22",   cost:3,hp:1,atk:2,art:"🤖", img:"22.png",   f:"jeet",tags:["pierce","gtype:mch","untamed"],                 ab:"Squad: +1 ATK."},
+  j_trvl724_w:  {name:"TRAVELER #724",  cost:2,hp:1,atk:2,art:"🤖", img:"724.png",  f:"jeet",tags:["pierce","gtype:mch"],                 ab:"Squad: +1 ATK."},
+  j_trvl921_w:  {name:"TRAVELER #921",  cost:3,hp:1,atk:1,art:"🤖", img:"921.png",  f:"jeet",tags:["pierce","burn","gtype:mch"],           ab:"Squad: +1 ATK."},
+  j_trvl804_w:  {name:"TRAVELER #804",  cost:3,hp:1,atk:2,art:"🤖", img:"804.png",  f:"jeet",tags:["pierce","regen","gtype:mch"],          ab:"Squad: +1 ATK."},
 
   // Xuiqtr Jeet
   j_trvl579_w:  {name:"TRAVELER #579",  cost:4,hp:5,atk:1,art:"🐙", img:"579.png",  f:"jeet",tags:["provoke","fear","gtype:xui"],          ab:"Squad: Regen 2."},
