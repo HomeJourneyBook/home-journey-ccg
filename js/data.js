@@ -12,7 +12,7 @@ const DEFS = {
   t_trvl25_w:   {name:"TRAVELER #25",   cost:1,hp:1,atk:2,art:"🦈", img:"25.png",   f:"tea",tags:["vanguard","gtype:szg","untamed"],                  ab:"Squad: +1 ATK."},
   t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["vanguard","gtype:szg"],                  ab:"Squad: +1 ATK."},
   t_trvl34_w:   {name:"TRAVELER #34",   cost:2,hp:2,atk:2,art:"🦈", img:"34.png",   f:"tea",tags:["vanguard","regen","gtype:szg"],           ab:"Squad: +1 ATK."},
-  t_trvl434_w:  {name:"TRAVELER #434",  cost:3,hp:2,atk:2,art:"🦈", img:"434.png",  f:"tea",tags:["vanguard","fear","gtype:szg"],            ab:"Squad: +1 ATK."},
+  t_trvl434_w:  {name:"TRAVELER #434",  cost:3,hp:2,atk:2,art:"🦈", img:"434.png",  f:"tea",tags:["vanguard","fear","gtype:szg","incarnation:2"],            ab:"Squad: +1 ATK. Incarnation 2."},
 
   // Orbiton Tea
   t_trvl10_w:   {name:"TRAVELER #10",   cost:3,hp:4,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:1","burn","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
@@ -69,7 +69,7 @@ const DEFS = {
   j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: +1 ATK."},
   j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["vanguard","gtype:szg"],                 ab:"Squad: +1 ATK."},
   j_trvl57_w:  {name:"TRAVELER #57",  cost:2,hp:1,atk:2,art:"🦈", img:"57.png",  f:"jeet",tags:["vanguard","burn","gtype:szg"],           ab:"Squad: +1 ATK."},
-  j_trvl551_w: {name:"TRAVELER #551", cost:2,hp:2,atk:2,art:"🦈", img:"551.png", f:"jeet",tags:["vanguard","gtype:szg"],      ab:"Squad: +1 ATK."},
+  j_trvl551_w: {name:"TRAVELER #551", cost:2,hp:2,atk:2,art:"🦈", img:"551.png", f:"jeet",tags:["vanguard","gtype:szg","incarnation:2"],      ab:"Squad: +1 ATK. Incarnation 2."},
 
   // Orbiton Jeet
   j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:1","gtype:orb"],                  ab:"Active: Heal 1 HP. Squad: Heal 2."},
@@ -105,7 +105,7 @@ const DEFS = {
   j_reap:      {name:"REAPER",      cost:5,hp:5,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_any_death_base:1"],        ab:"Any creature death: restore base 1 HP.",unique:true},
   j_ryv:       {name:"RYVLEN",      cost:5,hp:4,atk:2,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","fear","draw_attack:1"],        ab:"On attack: Draw 1 card.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1","armor:2","aura:armor:1"],          ab:"On enter: AOE 1 dmg. Aura: allies +1 Armor.",unique:true},
-  j_phleg:     {name:"PHLEGMOR",    cost:5,hp:7,atk:1,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1"],                     ab:"On turn: Raise top graveyard card at 1 HP.",unique:true},
+  j_phleg:     {name:"PHLEGMOR",    cost:5,hp:7,atk:1,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:3"],                     ab:"On turn: Raise top graveyard card at 1 HP. Incarnation 3.",unique:true},
   j_vard:      {name:"SEEKER",      cost:5,hp:4,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear","pierce"],    ab:"\"Seek, and ye shall find.\"",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
@@ -116,7 +116,7 @@ const DEFS = {
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
-  j_w2:        {name:"NORRIA", cost:4,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","aura:atk:1"],     ab:"Aura: +1 ATK.",world:true},
+  j_w2:        {name:"NORRIA", cost:4,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: allies +1 Armor.",world:true},
   j_a1:        {name:"SHARD",  cost:5,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:2"],     ab:"Active: deal 2 dmg to any enemy.",artifact:true},
   j_a2:        {name:"ALTAR",  cost:4,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Active: sacrifice 1 of your creatures, +1 Essence & 1 card.",artifact:true},
 
