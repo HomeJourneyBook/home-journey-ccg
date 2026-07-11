@@ -104,7 +104,7 @@ const DEFS = {
   // ── JEET LEGENDARIES ────────────────────────────────────────────
   j_reap:      {name:"REAPER",      cost:5,hp:5,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_any_death_base:1"],        ab:"Any creature death: restore base 1 HP.",unique:true},
   j_ryv:       {name:"RYVLEN",      cost:5,hp:4,atk:2,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","fear","draw_attack:1"],        ab:"On attack: Draw 1 card.",unique:true},
-  j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","rage","enter_aoe:1","armor:2","aura:armor:1"],          ab:"On enter: AOE 1 dmg. Aura: allies +1 Armor.",unique:true},
+  j_mal:       {name:"ABYSSWALKER", cost:5,hp:5,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:2","aura:armor:1"],          ab:"Aura: allies +1 Armor.",unique:true},
   j_phleg:     {name:"PHLEGMOR",    cost:5,hp:7,atk:1,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:3"],                     ab:"On turn: Raise top graveyard card at 1 HP. Incarnation 3.",unique:true},
   j_vard:      {name:"SEEKER",      cost:5,hp:4,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear","pierce"],    ab:"\"Seek, and ye shall find.\"",unique:true},
 
