@@ -254,9 +254,11 @@ function preloadAssets(){
 
     // ── Бортики зоны рук + лор-страницы + новая иконка тега (эта сессия) ──
     'img/hands_border.png', 'img/hands_border2.png',
+    'img/hands_border_jeet.png', 'img/hands_border2_jeet.png',
     'img/lore_pages.png',
     'img/ico_invis.png',
     'img/ico_untamed.png',
+    'img/ico_ward.png',
     'img/trubi1.png',
 
     // ── Дайс-модалка (order-roll, выбор первого хода) — арт граней ──
@@ -281,6 +283,7 @@ function preloadAssets(){
     'img/bg_statbar_jeet1.png', 'img/bg_statbar_jeet2.png', 'img/bg_statbar_jeet3.png', 'img/bg_statbar_jeet4.png', 'img/bg_statbar_jeet5.png',
     'img/bg_cost_tea.png', 'img/bg_cost_jeet.png',
     'img/bg_handP_bar.png', 'img/bg_handO_bar.png',
+    'img/bg_handP_bar_jeet.png', 'img/bg_handO_bar_jeet.png',
 
     // ── Игровые иконки ──
     'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/chel2.png', 'img/ess.png',
