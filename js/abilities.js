@@ -59,6 +59,7 @@ function getAbilities(card){
       case 'shard':                ab.push({timing:'active',effect:'shard',val}); break;
       case 'sacrifice':            ab.push({timing:'active',effect:'sacrifice'}); break;
       case 'invisible':            ab.push({timing:'passive',effect:'invisible'}); break;
+      case 'ward':                 ab.push({timing:'passive',effect:'ward'}); break;
       case 'world_maxhp':          ab.push({timing:'on_turn',effect:'world_maxhp',val}); break;
       case 'raise':              ab.push({timing:'on_turn',effect:'raise',val}); break;
       case 'rage':         ab.push({timing:'on_attack',effect:'rage',val}); break;
