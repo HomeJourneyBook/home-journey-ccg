@@ -13,7 +13,11 @@ function newPlayer(f, deckConfig, customList){
 
 // opts (необязательно) — конфиг режима игры:
 //   { mode:'vsai', humanFaction:'tea'|'jeet', deckConfig:'classic'|'rush',
-//     rushDecks:{tea:[...keys],jeet:[...keys]}, firstFaction:'tea'|'jeet' }
+//     rushDecks:{tea:[...keys],jeet:[...keys]}, firstFaction:'tea'|'jeet',
+//     spectator:true }
+// spectator — оба игрока управляются ИИ (см. isAiTurn() ниже и startAiVsAiSpectator()
+// в ui.js) — humanFaction/aiFaction по-прежнему назначаются (для POV рендера: чья рука
+// открыта/закрыта), но НИКТО ход не отдаёт человеку — обе стороны всегда играет runAiTurn().
 // rushDecks — только для deckConfig:'rush': pre-picked deck lists from the
 // deckbuilder (human side(s)) + buildAiRushDeck() (AI side, vsAI only). Stashed
 // back onto G so "Restart (same setup)" (resetGame() in ui.js) can reuse the
@@ -40,11 +44,12 @@ function initState(opts){
     // 2nd; now tracks whichever faction the dice-roll made 2nd. See endTurn()
     // in game.js.
     secondFirstTurn:true,logs:[],previewCard:null,mulligan:{tea:{used:0},jeet:{used:0}},
-    mode:'hotseat',humanFaction:null,aiFaction:null,gameOver:false,deckConfig,rushDecks};
+    mode:'hotseat',humanFaction:null,aiFaction:null,spectatorMode:false,gameOver:false,deckConfig,rushDecks};
   if(opts&&opts.mode==='vsai'){
     G.mode='vsai';
     G.humanFaction=opts.humanFaction==='jeet'?'jeet':'tea';
     G.aiFaction=G.humanFaction==='tea'?'jeet':'tea';
+    G.spectatorMode=!!opts.spectator;
   }
   // Чистим DOM поля/руки/персиста СРАЗУ, синхронно с ресетом состояния — иначе между
   // стартом новой партии и появлением экрана муллигана (там есть небольшая задержка,
@@ -54,6 +59,14 @@ function initState(opts){
     const el=document.getElementById(id);
     if(el) el.innerHTML='';
   });
+}
+
+// Отвечает на вопрос "этот ход сейчас играет ИИ (а не человек)?" — единая точка
+// вместо разбросанных по ai.js/game.js/render.js проверок `G.mode==='vsai'&&G.turn===G.aiFaction`.
+// В спектаторском режиме (G.spectatorMode, оба игрока — ИИ, см. startAiVsAiSpectator()
+// в ui.js) это верно для ЛЮБОЙ стороны — человек тут вообще не участвует.
+function isAiTurn(faction=G.turn){
+  return G.mode==='vsai' && (G.spectatorMode || faction===G.aiFaction);
 }
 
 function lg(msg,cls=''){
