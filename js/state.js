@@ -5,7 +5,7 @@ let G={};
 // deckbuilder hands over picks in pool order) — shuffled here either way.
 function newPlayer(f, deckConfig, customList){
   const d = customList ? shuffleArr(customList.slice()) : buildDeck(f, deckConfig||'classic');
-  return{hp:20,maxHp:20,ess:1,essMax:1,
+  return{hp:30,maxHp:30,ess:1,essMax:1,
     hand:d.splice(0,5).map(k=>mkCard(k)),
     field:[],deck:d.map(k=>mkCard(k)),grave:[],void:[],
     world:null,artifacts:[],extraDraw:0,burned:false};
@@ -118,9 +118,9 @@ function resetC(c){
 // on the player-name-box. 20=1 (full/pristine), 15-19=2, 10-14=3, 5-9=4, 0-4=5
 // (most damaged). See reorderZones() in render.js for where this gets applied.
 function hpTier(hp){
-  if(hp>=20) return 1;
-  if(hp>=15) return 2;
-  if(hp>=10) return 3;
-  if(hp>=5) return 4;
+  if(hp>=24) return 1;
+  if(hp>=18) return 2;
+  if(hp>=12) return 3;
+  if(hp>=6) return 4;
   return 5;
 }
