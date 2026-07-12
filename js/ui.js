@@ -259,6 +259,7 @@ function preloadAssets(){
     'img/ico_invis.png',
     'img/ico_untamed.png',
     'img/ico_ward.png',
+    'img/ico_incarn.png',
     'img/trubi1.png',
     'img/trubi1_jeet.png',
 
@@ -1470,6 +1471,7 @@ const TAG_TOOLTIPS = {
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
   'untamed': { name: 'Untamed', desc: "Regains strength during the opponent's turn — clears exhausted as soon as its own turn ends, instead of waiting for its owner's next turn like everything else." },
   'ward':    { name: 'Ward', desc: 'Immune to magic damage (AOE, Shard, targeted spell damage) — the same category of damage that ignores Armor. Normal attacks, Fear, and Burn still work on it.' },
+  'incarnation': { name: 'Incarnation', desc: 'When this creature dies, it returns from the graveyard on its own after a set number of its owner\'s turns, at full HP. One-time — if it dies again after returning, it is exiled for good instead.' },
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box';
