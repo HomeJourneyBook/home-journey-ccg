@@ -946,6 +946,10 @@ function doSpellDmgTarget(card){
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
+  // Баг-фикс: таргетируемые спеллы обрывались в doPlay() ДО строки, где триггерится
+  // on_play_creature (FAERON и т.п.) — она никогда не срабатывала для JOURNEY/ARCHIVE/
+  // dispel/untap. Теперь триггерим здесь же, в момент реального разрешения спелла.
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
   checkWin();render();
 }
 
@@ -969,6 +973,7 @@ function doSpellBuffTarget(card){
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
   render();
 }
 
@@ -988,6 +993,7 @@ function doSpellDispelTarget(card){
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
   render();
 }
 
@@ -1002,6 +1008,7 @@ function doSpellUntapTarget(card){
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
   render();
 }
 
