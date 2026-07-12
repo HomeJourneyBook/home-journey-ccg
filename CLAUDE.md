@@ -216,6 +216,7 @@ Returns the value after the tag name. Examples:
 |`gtype:xxx`    |Traveler type for squad bonuses (szg/orb/drg/umb/mch/xui)      |
 |`armor:N`      |A creature's OWN contribution to its `armorMax` total (own tag + squad + aura-from-ally + world — see `recalcArmor()`, Squad System section, added 2026-07-10). Extra HP-like buffer, absorbed BEFORE hp — but ONLY on PHYSICAL damage (the two `dmgCard()` calls inside `doAttack()`: the attack itself + its counter-attack) AND `enter_aoe` (on-enter AOE burst — author call 2026-07-10: not considered "magic" for this purpose, unlike the rest of the AOE family). Magic damage bypasses armor entirely — AOE active (`doUmbAsir()`/`doVardan()`), Shard (`doShardTarget()`), and targeted-spell damage (`doSpellDmgTarget()`) all call `dmgCard(card,dmg,faction,true)` — the 4th `bypassArmor` param; `enter_aoe` deliberately does NOT pass it (same `case 'aoe':` in `abilities.js` handles only `enter_aoe` in practice — `triggerAbilities(card,'active')` is never actually called, active AOE has its own dedicated code path in `doUmbAsir()`/`doVardan()`). Burn also bypasses it, via its own separate code path (see `burn` above) — armor is purely an anti-physical defense (author call, 2026-07-10). Refills to `armorMax` (NOT just its own tag value anymore — see `recalcArmor()`) at the start of the OWNER's own turn (`endTurn()`), NOT the opponent's. Reset to 0/`undefined` when a card leaves field/gets reshuffled (`resetC()`/`killCard()`). Added 2026-07-10, live on NABUNAGI/ABYSSWALKER (`armor:2`) — see Version 1.01.|
 |`untamed`      |"Неукротимость" — this creature's `exhausted` clears already when ITS OWN turn ends (i.e. already usable/counter-attacking during the opponent's turn), instead of waiting for its owner's next turn like every other creature. Deliberate override of the normal exhausted-clears-on-owner's-turn rule (`endTurn()`) — Mood trait justification: Anime pink (see Lore/Trait mapping). Added 2026-07-10, live on FAERON/TUBORG (`untamed`). Renders as `ico_untamed.png` (author-supplied) via the same `TAG_ICONS`/`TAG_TOOLTIPS` pattern as fear/burn/etc — no longer spelled out in `ab` text on those two cards, same convention as every other tag icon.|
+|`shield`       |Solana Shield (World-trait) — absorbs the FIRST hit of ANY kind (physical or magic, including counter-attack) entirely, checked at the very top of `dmgCard()` (game.js), before both Armor and Ward — unlike those two (each blocks only their own damage category), Shield blocks either. Fully one-time for the card's CURRENT stint on the field — `card.shieldConsumed` flips true and never refills on its own, but DOES reset (recharges) via `resetC()`/`reviveCard()` if the creature leaves the field and is later replayed/revived, matching its "activates on entry" flavor. Sets a same-tick transient flag `card._shieldBlockedThisHit` that `fear`/`burn`/`taunt_break` (on_attack cases, abilities.js) also check — a fully-absorbed hit carries NONE of its side-effects either, not just no HP loss (deliberately stricter than Armor, which lets fear/burn through even on a fully-absorbed hit). Does NOT intercept the burn DoT tick (that bypasses `dmgCard()` entirely by design, same exemption Armor already has). Render: field-only (`mkSmallEl()`) swaps the HP number for `img/solana_shield.png` in `.card-small-hp-box` while active (hand/catalog/deckbuilder show no icon swap — just the `ab` text mentions "Solana Shield"); status panel (`_cardStatusEntries()`) gets an explanatory row while active. Added 2026-07-13, live on TRAVELER #704 (test) and reserved for the Solana World-trait — NOT to be confused with the already-assigned Mood:Солана trait (→`ward`, a different, permanent magic-immunity mechanic; no overlap).|
 
 **On Enter:**
 
@@ -246,6 +247,7 @@ Returns the value after the tag name. Examples:
 |`burn`         |Target takes 1 dmg each turn start       |
 |`rage`         |Self gets +1 ATK permanently             |
 |`draw_attack:N`|Draw N cards                             |
+|`taunt_break`  |If target has Provoke, suppresses it (target.provokeBroken=true) — can be freely attacked past this turn, ignoring Provoke, as if the tag weren't there. No-op (silent, no log/sfx/icon) if target has no Provoke. Clears at the same point `feared` clears in `endTurn()` (end of the TARGET OWNER's own next turn) — net effect: broken through the rest of the attacker's turn + the target owner's following turn, back to normal by the attacker's next turn. Added 2026-07-13, live on TRAVELER #26/#550 (test) and reserved for the Схема (Skhema) World-trait.|
 
 **On Kill / Death:**
 
@@ -755,9 +757,11 @@ game tags:
 | Пески | `vanguard` (как доп.тег — Szarg сам по себе без тега) | 0.66 |
 | Бамбук | `enter_heal:2` (при входе — хил 2 всем раненым союзникам, см. Tag System) | 0.33 |
 | Долина (Valley) | `enter_draw:1` (при входе — добор 1 карты владельцу, см. Tag System) | 0.66 |
+| Схема | `taunt_break` (на атаке — снимает Provoke с цели до конца хода, см. Tag System) | 0.66 |
+| Solana World | `shield` (Solana Shield — поглощает первый удар любого типа целиком, разово, см. Tag System). НЕ путать с Mood:Солана (→`ward`) — разные механики. | 0.66 |
 
 **Trait-слоты без назначения (ждут решения):**
-Optical Dope · Схема · Незабываемый (тентативно: вампиризм?) · Забудь всё (тентативно:
+Optical Dope · Незабываемый (тентативно: вампиризм?) · Забудь всё (тентативно:
 трупоедство/"вспомнить всё") · Розовые облака · Solana World (мир, не путать с Mood: Солана)
 
 **Механики "россыпью", ещё не привязанные к конкретному трейту** (тентативные цены,
@@ -1491,6 +1495,39 @@ SHARD (shard:2), ALTAR (sacrifice).
   `1.0`, правило записано в Session Workflow выше. Позже ТЕМ ЖЕ ДНЁМ автор сам явно попросил
   поднять версию — до `1.01` (не `1.1`), с этим ПОСЛЕДНИМ явным запросом версия и стоит на
   момент записи этого файла.
+- **Закрыты последние 2 незакреплённых World-трейта — Схема и Solana World.**
+  - **`taunt_break`** (новый тег, on_attack) — на атаке подавляет Provoke у цели
+    (`target.provokeBroken=true`), если он у неё есть (иначе тихий no-op). Снимается ТЕМ ЖЕ
+    путём, что и `feared` в `endTurn()` (конец следующего хода ВЛАДЕЛЬЦА цели) — по прямому
+    подтверждению автора: "к следующему ходу противника [атаковавшего], карта уже
+    реабилитируется". Учитывается в `getTargetableCards()` (game.js) — Provoke с
+    `provokeBroken=true` больше не форсирует атаку на себя. Рендер: иконка-способность
+    `ico_tb.png` добавлена во ВСЕ 5 мест `TAG_ICONS`/`DB_TAG_ICONS` (render.js×2,
+    catalog.js×2, deckbuilder.js×1) + `TAG_TOOLTIPS` (ui.js); на поле — третий слот
+    мини-значка над картой (`.card-small-tauntbroken`, по центру, между уже существующими
+    `.card-small-feared`/`.card-small-burning` на 35%/65%); строка в статус-панели зумленной
+    карты (`_cardStatusEntries()`). Протестирован на TRAVELER #26/#550 — закреплён за
+    трейтом **Схема**, цена 0.66.
+  - **`shield`** (новый тег, "Solana Shield") — одноразовый абсорб ПЕРВОГО удара любого типа
+    (физика/магия/контрудар), проверяется в самом начале `dmgCard()` (game.js), ДО Ward и
+    Брони. По прямому запросу автора — строже Брони: блокирует не только HP-урон, но и ЛЮБОЙ
+    сопутствующий эффект того же удара (fear/burn/taunt_break) через транзитный флаг
+    `card._shieldBlockedThisHit` (сбрасывается на каждый вызов `dmgCard()`, читается
+    `fear`/`burn`/`taunt_break` в abilities.js в тот же синхронный тик). НЕ перехватывает
+    burn-тик (тот в принципе идёт мимо `dmgCard()`, та же экземпция, что уже у Брони).
+    `shieldConsumed` — одноразовость НА ТЕКУЩЕЕ пребывание на поле, сбрасывается в
+    `resetC()`/`reviveCard()` (при возврате в руку/колоду или воскрешении щит "перезаряжается"
+    заново — по флейвору "активируется при входе"). Рендер: ТОЛЬКО на поле (`mkSmallEl()`) —
+    вместо числа HP в `.card-small-hp-box` показывается `img/solana_shield.png`, пока щит не
+    потрачен; в руке/каталоге/деккбилдере иконка НЕ подменяется, только текст "Solana Shield"
+    в `ab`. Строка в статус-панели зумленной карты, пока щит активен. Протестирован на
+    TRAVELER #704 — закреплён за трейтом **Solana World** (не путать с уже занятым
+    Mood:Солана→`ward`, другая механика), цена 0.66.
+  - ⚠️ **Стоимость/статы TRAVELER #26/#550/#704 НЕ менялись** — по правилу "доп.тег → +1 cost
+    и +1 к профильному стату" (см. Essence pricing shop) это, строго говоря, стоило бы
+    пересчитать, но автор в этот раз не давал конкретных цифр (в отличие от раунда
+    enter_heal/enter_draw, где цифры были явно продиктованы) — оставлено как есть до
+    отдельного запроса, чтобы не повторить историю с самовольным `GAME_VERSION`.
 
 -----
 
