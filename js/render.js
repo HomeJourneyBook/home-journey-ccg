@@ -394,9 +394,9 @@ function mkSmallEl(card){
   'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
 };
 const tagIcons=(card.tags||[])
-  .map(t=>t.split(':')[0])
-  .filter(t=>TAG_ICONS[t])
-  .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
+  .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
+  .filter(t=>TAG_ICONS[t.base])
+  .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${TAG_ICONS[t.base]}</div>`)
   .join('');
   const armorDisp=_armorDisplay(card);
   d.innerHTML=`
@@ -602,9 +602,9 @@ function mkEl(card,zone){
   'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
 };
 const tagIcons = (card.tags||[])
-  .map(t=>t.split(':')[0])
-  .filter(t=>TAG_ICONS[t])
-  .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
+  .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
+  .filter(t=>TAG_ICONS[t.base])
+  .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${TAG_ICONS[t.base]}</div>`)
   .join('');
   // ── Ветка для карт-Миров И визуально-полноартовых карт (fullArt:true, напр. UNSEEN) ──
   // fullArt — ЧИСТО визуальный флаг, не путать с card.world: механика (doPlay/таргетинг/
@@ -670,7 +670,7 @@ const tagIcons = (card.tags||[])
   const armorDisp=_armorDisplay(card);
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
-    ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" title="Incarnation: returns in ${card.incarnTimer} turn(s)"><span class="card-incarn-icon">⏳</span>${card.incarnTimer}</div>`:''}
+    ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" title="Incarnation: returns in ${card.incarnTimer} turn(s)"><img src="./img/ico_incarn.png" class="card-incarn-icon" style="width:70%;height:auto;">${card.incarnTimer}</div>`:''}
     ${armorDisp?`<div class="card-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${card.burning?'<div class="burning-icon"></div>':''}
