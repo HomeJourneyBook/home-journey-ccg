@@ -25,7 +25,18 @@ const AI_WEIGHTS = {
   tagBonus: { // безусловный бонус тега, независимо от ситуации на поле
     provoke:0.4, pierce:0.3, vanguard:0.3, rage:0.5, bushido:0.5, invisible:0.6,
     fear:0.5, burn:0.4, regen:0.3, draw_attack:0.6, heal:0.4, aoe:0.4, enter_aoe:0.4,
+    // Добавлено при аудите ai.js (см. CLAUDE.md "AI version tracking") — эти теги
+    // существовали в движке, но не были оценены ИИ вообще (0 влияния на выбор карты):
+    armor:0.4,       // Броня — доп. живучесть, сопоставимо по весу с provoke
+    untamed:0.3,     // отвечает контратакой весь ход соперника — доп. надёжность
+    incarnation:0.5, // существо не теряется по-настоящему при обычной смерти — дороже, чем кажется по статам
+    ward:0.5,        // полный иммунитет к магии (AOE/Shard/bolt/точечный спелл) — сильная защита от removal-тяжёлых колод
+    bolt:0.4,        // активка точечного магического урона (аналог aoe/heal по весу)
   },
+  permanentBuffBonus: 1.0, // spell_buff_temp (ARCHIVE) теперь живёт до смерти существа, а не до конца хода —
+                           // старая оценка (только "текущий урон + грубый лефал-чек") недооценивала его, т.к.
+                           // раньше это была одноразовая выгода за ход, а теперь постоянное усиление на все
+                           // оставшиеся атаки существа. См. CLAUDE.md — ARCHIVE rework.
   // Доп. вес СВЕРХ tagBonus, включается только в соответствующем состоянии
   // гонки (см. aiRaceState()) — т.е. "рискнуть vs сыграть стабильнее".
   stabilizeTagBonus: { provoke:0.5, heal:0.5, regen:0.4 }, // когда 'behind'
@@ -86,7 +97,25 @@ function aiGtypeCount(faction, gtype){
 // Если ПРЕФИКС разошёлся с GAME_VERSION — это сигнал (в консоли и в игровом
 // логе), что ИИ мог не узнать о недавних правках игры; ревизия сама по себе
 // предупреждение не вызывает.
-const AI_VERSION = "1.0.1";
+const AI_VERSION = "1.0.2";
+// v1.0.2 (аудит по запросу автора, эта сессия) — движок успел уйти вперёд ai.js на
+// несколько сессий без сверки (Броня, Ward, Неукротимость, Инкарнация, Bolt, перманентный
+// ARCHIVE, ALTAR-рефилл картой), см. полный разбор в чате/CLAUDE.md. Что исправлено:
+//   1. Ward полностью игнорировался — ИИ мог тратить AOE/Shard/точечный урон-спелл на
+//      цель, у которой этот урон не сработал бы вообще (см. dmgCard() bypassArmor+ward
+//      в game.js). Добавлены проверки во всех четырёх местах (aiTryUseAoe/aiTryUseShard/
+//      aiScoreCard spell_dmg_target/aiResolvePendingSpellTarget), плюс aiSpellHasValidTarget().
+//   2. Броня не учитывалась в бою — обычная атака НЕ игнорирует Броню (это делают только
+//      AOE-активка/Shard/Bolt/точечный спелл), а aiActWithCreature() сравнивал atk только
+//      с hp цели, не с hp+armor — мог решить, что удар добивает, хотя часть урона уходила
+//      в Броню. Поправлено.
+//   3. `bolt:N` (Umbasir, добавлено в движок 2026-07-12) был вообще не знаком ИИ — такие
+//      существа просто атаковали как обычные. Добавлен aiTryUseBolt().
+//   4. tagBonus не оценивал armor/untamed/incarnation/ward/bolt вообще (0 влияния на выбор
+//      карты) — часть этого была прямо отмечена как известный пробел в CLAUDE.md ("Known
+//      boundary"). Добавлены веса всем пяти.
+//   5. spell_buff_temp (ARCHIVE) теперь постоянный баф (живёт до смерти существа, не до
+//      конца хода) — старая оценка карты этого не учитывала, добавлен permanentBuffBonus.
 function _warnIfAiVersionStale(){
   if(AI_VERSION===GAME_VERSION || AI_VERSION.startsWith(GAME_VERSION+'.')) return;
   console.warn(`[AI] ai.js was last audited for game v${AI_VERSION}, but this build is v${GAME_VERSION} — the AI's card/mechanic knowledge may be out of date. See CLAUDE.md "AI version tracking".`);
@@ -234,7 +263,7 @@ function aiPlayCardsStep(iter){
 function aiResolvePendingSpellTarget(){
   const humanF=G.humanFaction;
   if(G.phase==='spellDmgTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
     if(targets.length===0){ cancelPendingSpell(); return; }
     const dmg=getTagVal(G.pendingSpell,'spell_dmg_target')||3;
     const killable=targets.filter(c=>dmg>=(c.hp+(c.feared?0:0)));
@@ -278,13 +307,17 @@ function aiTryUseAoe(){
   const humanF=G.humanFaction;
   const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
   if(enemyField.length===0) return false;
+  // Ward — полный иммунитет именно к этой категории урона (bypassArmor=true, см.
+  // dmgCard() в game.js) — считаем ценность AOE только по НЕ-warded целям.
+  const vulnerableField=enemyField.filter(c=>!hasTag(c,'ward'));
+  if(vulnerableField.length===0) return false; // всё поле противника под Ward — активка ничего не даст
   const aoeCreatures=me.field.filter(c=>hasTag(c,'aoe')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.spell&&!c.world&&!c.artifact);
   let used=false;
   aoeCreatures.forEach(umb=>{
     if(umb.exhausted) return; // could've been used by a squad-shared check already
     const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
-    const kills=enemyField.filter(c=>c.hp<=dmgAmt).length;
-    if(kills>0||enemyField.length>=2){
+    const kills=vulnerableField.filter(c=>c.hp<=dmgAmt).length;
+    if(kills>0||vulnerableField.length>=2){
       G.sel=umb.id;
       doUmbAsir();
       used=true;
@@ -301,7 +334,8 @@ function aiTryUseShard(){
   const shard=me.artifacts.find(a=>hasTag(a,'shard')&&!a.exhausted&&!a.sleeping);
   if(!shard) return false;
   const humanF=G.humanFaction;
-  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+  // Ward блокирует Shard целиком (тоже bypassArmor=true) — не тратим активку на них.
+  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
   if(enemyField.length===0) return false;
   const baseDmg=getTagVal(shard,'shard')||2;
   const withDmg=enemyField.map(c=>({c, dmg: baseDmg+(c.feared?1:0)}));
@@ -317,6 +351,45 @@ function aiTryUseShard(){
   doShard(shard);
   doShardTarget(target);
   return true;
+}
+
+// ── АКТИВКА: BOLT (Umbasir, точечный магический урон существом) ─
+// Добавлено 2026-07-12 в движок (см. CLAUDE.md), но ИИ об этом не знал вообще —
+// такие Umbasir просто атаковали как обычные существа. В отличие от Shard/AOE
+// (артефакт/бесплатная активка), использование Bolt тратит атаку этого же
+// существа за ход — так что это НЕ безусловно "лучше", это выбор между двумя
+// взаимоисключающими действиями. Используем Bolt ТОЛЬКО когда обычная атака
+// этим же существом не даёт того же килла — либо потому что Provoke/Bushido
+// заставили бы бить другую цель, либо потому что собственного ATK не хватает
+// там, где хватает Bolt-урона.
+function aiTryUseBolt(){
+  const me=G[G.aiFaction];
+  const humanF=G.humanFaction;
+  const oppField=G[humanF].field;
+  // Ward блокирует Bolt целиком (тоже bypassArmor=true) — исключаем warded цели.
+  const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+  if(enemyField.length===0) return false;
+  const boltCreatures=me.field.filter(c=>hasTag(c,'bolt')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.spell&&!c.world&&!c.artifact);
+  let used=false;
+  boltCreatures.forEach(bolt=>{
+    if(bolt.exhausted) return; // could've acted already earlier in this same pass
+    const baseDmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
+    const withDmg=enemyField.map(c=>({c, dmg: baseDmg+(c.feared?1:0)}));
+    const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
+    if(killable.length===0) return; // не тратим ход на чип-урон — только на реальный килл
+    killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+    const target=killable[0].c;
+    const forced = oppField.some(c=>hasTag(c,'bushido')) ||
+      (oppField.some(c=>c.tags.includes('provoke')) && !hasTag(bolt,'pierce') && !(bolt.squadParam&&bolt.squadParam.pierce));
+    const normalWouldKillSameTarget = !forced && effAtk(bolt)>=target.hp;
+    if(!normalWouldKillSameTarget){
+      G.sel=bolt.id;
+      doUmbBolt();
+      doBoltTarget(target);
+      used=true;
+    }
+  });
+  return used;
 }
 
 // Раньше AOE и Shard активки, а следом первая атака в очереди — все три —
@@ -337,7 +410,10 @@ function aiRunActivesThenAttack(){
   setTimeout(()=>{
     const usedShard=aiTryUseShard();
     setTimeout(()=>{
-      aiAttackStep(getAiCreatureQueue(), 0);
+      const usedBolt=aiTryUseBolt();
+      setTimeout(()=>{
+        aiAttackStep(getAiCreatureQueue(), 0);
+      }, usedBolt?AI_STEP_DELAY:0);
     }, usedShard?AI_STEP_DELAY:0);
   }, usedAoe?AI_STEP_DELAY:0);
 }
@@ -384,7 +460,10 @@ function aiTryUseSacrifice(){
 function aiSpellHasValidTarget(card){
   if(!card.spell) return true;
   const humanF=G.humanFaction;
-  if(hasTag(card,'spell_dmg_target')||hasTag(card,'spell_dispel')){
+  if(hasTag(card,'spell_dmg_target')){
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+  }
+  if(hasTag(card,'spell_dispel')){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact);
   }
   if(hasTag(card,'spell_buff_temp')){
@@ -431,7 +510,7 @@ function aiScoreCard(card, me){
 
     if(hasTag(card,'spell_dmg_target')){
       const dmg=getTagVal(card,'spell_dmg_target')||3;
-      const targets=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      const targets=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
       if(targets.length===0) return -1; // aiSpellHasValidTarget should already exclude this case
       const killable=targets.filter(t=>dmg>=t.hp);
       if(killable.length>0){
@@ -457,7 +536,7 @@ function aiScoreCard(card, me){
       // purpose (this is a scoring estimate, not the actual attack, which
       // still resolves through the normal forced-target logic either way).
       const roughLethal = opp && (effAtk(best)+buffAmt) >= opp.hp;
-      return card.cost*w.spellBase + effAtk(best)*w.buffTargetAtkWeight + (roughLethal?w.buffLethalBonus:0);
+      return card.cost*w.spellBase + effAtk(best)*w.buffTargetAtkWeight + w.permanentBuffBonus + (roughLethal?w.buffLethalBonus:0);
     }
 
     if(hasTag(card,'revive')){
@@ -570,7 +649,11 @@ function aiActWithCreature(creature){
       !hasTag(creature,'pierce') && !(creature.squadParam && creature.squadParam.pierce));
 
   // 1) Если можем убить кого-то без потери существа зря — убиваем самую опасную цель.
-  const killable = targetable.filter(t => atk >= t.hp);
+  // Броня поглощает физический урон ПЕРВОЙ (обычная атака её не игнорирует — см.
+  // dmgCard()/bypassArmor в game.js), поэтому реальный урон-до-смерти — hp + armor,
+  // не просто hp. Раньше это не учитывалось: ИИ мог решить, что удар добивает цель,
+  // хотя часть урона на самом деле уходила в Броню.
+  const killable = targetable.filter(t => atk >= t.hp + (t.armor||0));
   if(killable.length > 0){
     killable.sort((a,b) => effAtk(b) - effAtk(a));
     aiAttack(creature, killable[0]);
