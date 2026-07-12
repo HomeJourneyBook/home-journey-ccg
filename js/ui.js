@@ -1340,11 +1340,25 @@ document.addEventListener('click',function(e){
     const ls = document.getElementById('loadingScreen');
     const landing = document.getElementById('landing');
     if(!ls) return;
+    // Reveal landing NOW (at opacity 0) instead of after the fade finishes, so
+    // it can crossfade in under the loading screen rather than leaving a bare
+    // .stars background exposed while the loading screen becomes transparent.
+    // `.landing` already has its own `opacity 0.315s` transition defined in
+    // CSS (used for the exit-left/right/center screen transitions) — we reuse
+    // that same transition here, just kicking it from 0→1.
+    if(landing){
+      landing.style.opacity = '0';
+      landing.style.display = 'flex';
+      void landing.offsetWidth; // force a reflow so the opacity:0 is committed before we animate to 1
+    }
     ls.style.transition = 'opacity 0.4s ease';
     ls.style.opacity = '0';
+    if(landing){
+      requestAnimationFrame(()=>{ landing.style.opacity = '1'; });
+    }
     setTimeout(() => {
       ls.style.display = 'none';
-      if(landing) landing.style.display = 'flex';
+      if(landing) landing.style.opacity = ''; // hand back to the CSS-defined value
     }, 400);
   }
 
