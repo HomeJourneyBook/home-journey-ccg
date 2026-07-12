@@ -736,7 +736,7 @@ const SQUAD_DEFS = [
   {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
   {gtype:'umb', count:3, effect:'param', param:'bolt',   val:2},
   {gtype:'szg', count:3, effect:'maxhp', val:1},
-  {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
+  {gtype:'xui', count:3, effect:'atk',   val:1},
 ];
 
 function checkSquadBonuses(faction){
