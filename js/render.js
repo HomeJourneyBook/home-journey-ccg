@@ -208,6 +208,8 @@ function _cardStatusEntries(card){
   // Дебафы
   if(card.feared) entries.push({icon:'img/ico_fear.png', text:'Feared — skips its next turn and deals no counter-attack damage.'});
   if(card.burning) entries.push({icon:'img/ico_burn.png', text:'Burning — loses 1 HP at the start of each of its turns until it dies.'});
+  if(card.provokeBroken) entries.push({icon:'img/ico_tb.png', text:'Provoke suppressed — can be attacked freely, bypassing Provoke, until the end of its owner\'s next turn.'});
+  if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely, from any source (attack, counter-attack, spell, AOE), one time only.'});
   if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
   // Бафы
   if(card.atkBonus) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
@@ -388,6 +390,9 @@ function mkSmallEl(card){
   // spellBounceTarget (ПОРЫВ/REVERSE) — цель ЛЮБАЯ сторона (своя или вражеская), поэтому
   // без проверки card.f===/!==G.turn, в отличие от всех остальных targeted-спеллов выше.
   if(G.phase==='spellBounceTarget'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
+  // Solana Shield (2026-07-13) — визуальная подмена ТОЛЬКО на поле боя (mkSmallEl), не
+  // в руке/каталоге/деккбилдере (там просто текст "Solana Shield" в ab, по просьбе автора).
+  const shieldActive=hasTag(card,'shield')&&!card.shieldConsumed;
   const isSW=card.spell||card.world||card.artifact;
   const TAG_ICONS = {
   'fear':    '<img src="img/ico_fear.png" style="width:60%;height:60%;">',
@@ -401,6 +406,7 @@ function mkSmallEl(card){
   'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
   'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
   'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
+  'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -415,11 +421,12 @@ const tagIcons=(card.tags||[])
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.feared?'<div class="card-small-feared"><img src="img/ico_fear.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
+    ${card.provokeBroken?'<div class="card-small-tauntbroken"><img src="img/ico_tb.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.sleeping?'<div class="card-zzz"><span>z</span><span>Z</span><span>Z</span></div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
 ${!isSW?`<div class="card-small-stats">
-  <div class="card-small-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}"><span class="card-small-hp">${card.hp}</span></div>
+  <div class="card-small-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}">${shieldActive?'<img src="img/solana_shield.png" class="card-small-shield-icon" alt="Shield">':`<span class="card-small-hp">${card.hp}</span>`}</div>
 <img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
   <div class="card-small-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
 </div>`
@@ -609,6 +616,7 @@ function mkEl(card,zone){
   'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
   'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
   'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
+  'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
 };
 const tagIcons = (card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
