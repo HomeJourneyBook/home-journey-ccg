@@ -632,10 +632,10 @@
     </div>
     <div class="filter-group" id="sortFilters" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
       <span style="font-size:20px;color:#555;align-self:center;">Sort:</span>
-      <button class="filter-btn active" onclick="playSfx('yellow_buttom');setSort('name',this)">A-Z</button>
-      <button class="filter-btn" onclick="playSfx('yellow_buttom');setSort('cost',this)">Cost ↑</button>
-      <button class="filter-btn" onclick="playSfx('yellow_buttom');setSort('hp',this)">HP ↓</button>
-      <button class="filter-btn" onclick="playSfx('yellow_buttom');setSort('atk',this)">ATK ↓</button>
+      <button class="filter-btn active" data-label1="A-Z" data-label2="Z-A" onclick="playSfx('yellow_buttom');setSort('name',this)">A-Z</button>
+      <button class="filter-btn" data-label1="Cost ↑" data-label2="Cost ↓" onclick="playSfx('yellow_buttom');setSort('cost',this)">Cost ↑</button>
+      <button class="filter-btn" data-label1="HP ↓" data-label2="HP ↑" onclick="playSfx('yellow_buttom');setSort('hp',this)">HP ↓</button>
+      <button class="filter-btn" data-label1="ATK ↓" data-label2="ATK ↑" onclick="playSfx('yellow_buttom');setSort('atk',this)">ATK ↓</button>
     </div>
     <div class="cat-count" id="catalogCount"></div>
     <div class="catalog-grid" id="catalogGrid"></div>
