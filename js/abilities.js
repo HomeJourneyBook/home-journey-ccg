@@ -309,6 +309,10 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} 
           r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;
           r.atkBonus=0;r.rageBonus=0;r.tempAtkBonus=0;r.maxHpBonus=0;r.baseMaxHp=null;r.auraMaxHpBonus=0;
           r.squadParam=null;r.squadAtkBonus=0;r.squadMaxHpBonus=0;r.squadArmorBonus=0;r.armorMax=undefined;r.auraArmorBonus=0;r.worldArmorBonus=0;
+          // Инкарнация — та же причина, что и в reviveCard() (game.js): если раскопанная
+          // карта была на середине своего собственного incarnTimer-отсчёта, этот отсчёт
+          // прерван (карта больше не в grave) — гасим поле явно, incarnUsed не трогаем.
+          r.incarnTimer=undefined;
           r.f=curK;
           const def=DEFS[r.key];
           if(def) r.maxHp=def.hp; // restore base maxHp
