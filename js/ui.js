@@ -1484,7 +1484,16 @@ let _tooltipCurrentTarget = null;
 function _getTooltip(){ return _tooltipEl || (_tooltipEl = document.getElementById('card-tooltip')); }
 
 function _tooltipDataFor(el){
-  if(el.classList.contains('card-tag-icon')) return TAG_TOOLTIPS[el.dataset.tag] || null;
+  if(el.classList.contains('card-tag-icon')){
+    const base=TAG_TOOLTIPS[el.dataset.tag];
+    if(!base) return null;
+    // Инкарнация — единственный тег-иконка с переменным числом (X ходов), остальные теги
+    // без параметра в тексте тултипа не нуждаются в подстановке значения.
+    if(el.dataset.tag==='incarnation' && el.dataset.tagval){
+      return { name: `Incarnation ${el.dataset.tagval}`, desc: base.desc };
+    }
+    return base;
+  }
   if(el.classList.contains('card-cost') || el.classList.contains('card-small-cost')){
     return { name: '', desc: 'Cost of <img src="img/ess.png" class="tt-ess-icon" alt="Essence">' };
   }
