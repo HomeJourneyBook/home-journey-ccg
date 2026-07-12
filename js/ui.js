@@ -689,6 +689,44 @@ function startGameVsAI(humanFaction,firstFaction){
   startMulliganFor(G.humanFaction); // synchronous — same flicker fix as above
 }
 
+// ── AI vs AI (спектаторский тестовый режим) ──────────────────────
+// Кнопка на лендинге ("Watch AI vs AI") — полностью автоматический матч на
+// стартовых Classic-колодах, ни одного клика от человека: без пикера деки/
+// стороны, без ручного муллигана (обе стороны разыгрывают его сами, той же
+// эвристикой aiAutoMulligan(), что и раньше только AI-сторона обычного vsAI).
+// G.spectatorMode держит ОБЕ стороны под управлением ИИ — см. isAiTurn() и
+// G.aiFaction/G.humanFaction-флип в endTurn() (state.js/game.js): ai.js весь
+// написан вокруг "G.aiFaction — это я", так что флип на каждый ход — единственное,
+// что нужно, чтобы та же логика без изменений играла за обе стороны по очереди.
+function startAiVsAiSpectator(){
+  const landing=document.getElementById('landing');
+  landing.style.display='none';
+  landing.classList.remove('exit-center');
+  document.getElementById('game').style.display='flex';
+  collapseStart();
+  const firstFaction=Math.random()<0.5?'tea':'jeet';
+  // humanFaction — чисто для initState()'s "aiFaction = напротив humanFaction"
+  // арифметики, чтобы G.aiFaction совпадал с G.turn(=firstFaction) уже с 1-го хода;
+  // спектаторский режим тут же перестаёт значить "человек играет за эту сторону".
+  const humanFaction=firstFaction==='tea'?'jeet':'tea';
+  initState({mode:'vsai',humanFaction,deckConfig:'classic',firstFaction,spectator:true});
+  render();
+  lg('─ NEW GAME (AI vs AI — SPECTATOR) ─','trn');
+  lg(`${firstFaction==='tea'?'TAVERN':'JEET'} goes first.`,'imp');
+  logTurnSnapshot(firstFaction);
+  // Муллиган — обеим сторонам сразу, без интерфейса (то же, что aiAutoMulligan()
+  // уже делает для одной AI-стороны в startGameVsAI() выше).
+  aiAutoMulligan('tea');
+  aiAutoMulligan('jeet');
+  G.phase='action';
+  G.mulliganTurn=null;
+  grantUnseenBonus();
+  render();
+  playArenaRevealAnimation();
+  requestAnimationFrame(adjustHandOverlap);
+  if(typeof runAiTurn==='function') setTimeout(()=>runAiTurn(),600);
+}
+
 // ── ORDER ROLL — dice-off deciding who goes first ────────────────────────
 // Sits between mode/config(/faction) selection and mulligan-or-deckbuilder,
 // for ALL four combos (hotseat×{classic,rush}, vsai×{classic,rush}). ctx
@@ -1165,7 +1203,7 @@ function readyFromMulligan(){
       render();
       playArenaRevealAnimation();
       requestAnimationFrame(adjustHandOverlap);
-      if(G.turn===G.aiFaction&&typeof runAiTurn==='function'){
+      if(isAiTurn()&&typeof runAiTurn==='function'){
         setTimeout(()=>runAiTurn(),600);
       }
       return;
@@ -1220,6 +1258,7 @@ function downloadBattleLog(){
     // "brain" actually produced these decisions.
     aiVersion: (G.mode==='vsai' && typeof AI_VERSION!=='undefined') ? AI_VERSION : null,
     mode: G.mode,
+    spectatorMode: !!G.spectatorMode,
     turns: G.turnNum,
     winner: document.getElementById('winTitle')?.textContent || null,
     humanFaction: G.humanFaction || null,
@@ -1240,6 +1279,14 @@ function downloadBattleLog(){
 
 function resetGame(){
   document.getElementById('winModal').classList.add('hidden');
+  if(G.spectatorMode){
+    // Спектаторский AI vs AI — рестарт запускает НОВЫЙ случайный матч (та же
+    // логика, что и сама кнопка на лендинге), а не повтор того же расклада —
+    // это тестовый инструмент "посмотреть ещё одну партию", не hotseat/vsAI
+    // рестарт с сохранением исходного сетапа.
+    startAiVsAiSpectator();
+    return;
+  }
   document.getElementById('game').style.display='flex';
   document.getElementById('landing').style.display='none';
   const prevMode=G.mode, prevHuman=G.humanFaction, prevDeckConfig=G.deckConfig, prevRushDecks=G.rushDecks;
