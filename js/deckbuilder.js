@@ -73,6 +73,7 @@ const DB_TAG_ICONS = {
   'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
   'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
   'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
+  'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
 };
 
 // Категории для кнопок-фильтров над правой (пул) областью — переиспользует ту же
