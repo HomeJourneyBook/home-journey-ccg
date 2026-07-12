@@ -1063,14 +1063,23 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .btn-end{position:absolute; left:50%;top:50%; transform:translate(-50%,-50%); border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent; width:calc(6vh * 4);height:6vh; transition:transform .1s,filter .1s; flex-shrink:0;}
 .btn-end:hover{filter:brightness(1.25);}
 .btn-end:active{background-image:url('../img/button_2.png');transform:translate(-50%,-50%);}
+/*── Jeet получил свой арт для End Turn (обычное/нажатое состояние) — та же схема,
+   что у .bottom-bar-sensor/.bottom-bar-extra-4 (скоуп по #jeetBottomBar) ──────*/
+#jeetBottomBar .btn-end{background-image:url('../img/button_1_jeet.png');}
+#jeetBottomBar .btn-end:active{background-image:url('../img/button_2_jeet.png');}
 /*── Состояние "ход ИИ" (VS AI) — панель игрока не скрывается целиком, вместо*/
 .btn-end.btn-waiting{background-image:url('../img/btn_wait.gif') !important;cursor:default;pointer-events:none;filter:none !important;}
 .btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;transform:translate(-50%,-50%);}
+#jeetBottomBar .btn-end.btn-waiting{background-image:url('../img/btn_wait_jeet.gif') !important;}
 .btn-square{width:6vh;height:6vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
 .btn-graveyard{background-image:url('../img/button_grav_1.png');}
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
 .btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
+/*── Jeet: свой арт для кнопки кладбища (обычное/нажатое/открытое состояние) ──*/
+#jeetBottomBar .btn-graveyard{background-image:url('../img/button_grav_1_jeet.png');}
+#jeetBottomBar .btn-graveyard:active{background-image:url('../img/button_grav_2_jeet.png');}
+#jeetBottomBar .btn-graveyard.open{background-image:url('../img/button_grav_2_jeet.png');}
 .deck-placeholder-wrap{position:relative;width:6vh;height:6vh;flex-shrink:0;}
 /*── ПЛЕЙСХОЛДЕР: датчик/индикатор рядом со счётчиком кладбища — Tea оставлен на текущем
    dat4ik.gif, Jeet получил свой путь (белый фон, пока файла нет) ──────────────*/
@@ -1390,3 +1399,5 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75));}
 .bottom-slot{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .btn-deck-placeholder{background-image:url('../img/deck.png');width:6vh;height:6vh;background-size:contain;background-repeat:no-repeat;background-position:center;padding:2px;position:absolute;top:0;left:0;}
+/*── Jeet: своя картинка колоды-плейсхолдера ──────────────────────────────*/
+#deckPlaceholderJ{background-image:url('../img/deck_jeet.png');}
