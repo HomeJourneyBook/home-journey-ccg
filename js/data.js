@@ -45,7 +45,7 @@ const DEFS = {
      t_trvl39_w:    {name:"TRAVELER #39",   cost:2,hp:2,atk:2,art:"🐙", img:"39.png",   f:"tea",tags:["provoke","gtype:xui"],                   ab:"Squad: +1 ATK."},
 
   // ── TEA LEGENDARIES ─────────────────────────────────────────────
-  t_tean:      {name:"TEANTIST",   cost:4,hp:5,atk:1,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","ward"],            ab:"On turn: Draw 1 card.",unique:true},
+  t_tean:      {name:"TEANTIST",   cost:5,hp:5,atk:2,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","ward"],            ab:"On turn: Draw 1 card.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:6,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","aura:maxhp:1"],      ab:"Aura: +1 maxHP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:5,atk:2,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1"],       ab:"Aura: +1 ATK.",unique:true},
   t_faeron:    {name:"FAERON",     cost:4,hp:5,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","on_play_creature:1","untamed"], ab:"Each On play: Heal base 1 HP.",unique:true},
@@ -58,10 +58,10 @@ const DEFS = {
   t_sp4:       {name:"SCHEME",      cost:0,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:2"], ab:"Get 2 essence.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
-  t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1.",world:true},
-  t_w2:        {name:"DOMUS",      cost:4,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_maxhp:1"],ab:"Aura: +1 maxHP.",world:true},
-  t_a1:        {name:"THE BOOK",   cost:4,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","ess_add:1"],   ab:"On turn: +1 Essence (this turn only).",artifact:true},
-  t_a2:        {name:"FOUNTAIN", cost:4,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Restore all allies 1 HP.",artifact:true},
+  t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1.",world:true},
+  t_w2:        {name:"DOMUS",      cost:6,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_maxhp:1"],ab:"Aura: +1 maxHP.",world:true},
+  t_a1:        {name:"THE BOOK",   cost:6,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","ess_add:1"],   ab:"On turn: +1 Essence (this turn only).",artifact:true},
+  t_a2:        {name:"FOUNTAIN", cost:6,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Restore all allies 1 HP.",artifact:true},
 
   // ── JEET CREATURES ──────────────────────────────────────────────
 
@@ -110,15 +110,15 @@ const DEFS = {
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2 cards.",spell:true},
-  j_sp2:       {name:"OBLIVION",   cost:3,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png",  f:"jeet",tags:["spell","spell_untap"],     ab:"Target ally creature becomes active (removes sleeping/exhausted).",spell:true},
+  j_sp2:       {name:"OBLIVION",   cost:2,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png",  f:"jeet",tags:["spell","spell_untap"],     ab:"Target ally creature becomes active (removes sleeping/exhausted).",spell:true},
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤", img:"1_Forgetting.png",f:"jeet",tags:["spell","revive:full"],ab:"Revive last creature from your graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:0,hp:0,atk:0,art:"⚫", img:"1_Spell1.png",    f:"jeet",tags:["spell","ess_add:2"], ab:"Get 2 essence.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
-  j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
-  j_w2:        {name:"NORRIA", cost:4,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: allies +1 Armor.",world:true},
-  j_a1:        {name:"SHARD",  cost:5,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:2"],     ab:"Active: deal 2 dmg to any enemy.",artifact:true},
-  j_a2:        {name:"ALTAR",  cost:4,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Active: sacrifice 1 of your creatures, +1 Essence & 1 card.",artifact:true},
+  j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
+  j_w2:        {name:"NORRIA", cost:6,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: allies +1 Armor.",world:true},
+  j_a1:        {name:"SHARD",  cost:6,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:2"],     ab:"Active: deal 2 dmg to any enemy.",artifact:true},
+  j_a2:        {name:"ALTAR",  cost:6,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Active: sacrifice 1 of your creatures, +1 Essence & 1 card.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
   unseen:      {name:"UNSEEN", cost:0,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return ALL field cards to their owners.",spell:true,fullArt:true,neutral:true},
