@@ -3,7 +3,7 @@
 // no longer match reality — e.g. a card renamed/removed/rebalanced. Read by
 // dbExportDeck()/_applyImportedDeck() (deck JSON) and downloadBattleLog()
 // (ui.js), so old exports can be flagged instead of silently misapplied.
-const GAME_VERSION = "1.0";
+const GAME_VERSION = "1.1";
   
 const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
@@ -21,13 +21,13 @@ const DEFS = {
   t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:1","gtype:orb"],                   ab:"Active: Heal 1 HP. Squad: Heal 2."},
 
   // Dreegan Tea
-  t_trvl1_w:    {name:"TRAVELER #1",    cost:2,hp:3,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad: +1 Armor."},
+  t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:5,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","enter_heal:1","gtype:drg"],                   ab:"Squad: +1 Armor. On play: Heal 1 HP to wounded allies."},
   t_trvl31_w:   {name:"TRAVELER #31",   cost:5,hp:6,atk:3,art:"🌳", img:"31.png",   f:"tea",tags:["provoke","armor:1","burn","gtype:drg"],             ab:"Squad: +1 Armor."},
   t_trvl892_w:  {name:"TRAVELER #892",  cost:4,hp:5,atk:2,art:"🌳", img:"892.png",  f:"tea",tags:["provoke","regen","armor:1","gtype:drg"],            ab:"Squad: +1 Armor."},
   t_trvl14_w:   {name:"TRAVELER #14",   cost:3,hp:4,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","armor:1","gtype:drg"],                   ab:"Squad: +1 Armor."},
 
   // Umbasir Tea
-    t_trvl583_w:    {name:"TRAVELER #583",  cost:3,hp:4,atk:2,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","gtype:umb"],              ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
+    t_trvl583_w:    {name:"TRAVELER #583",  cost:3,hp:3,atk:2,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","enter_heal:1","gtype:umb"],              ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg. On play: Heal 1 HP to wounded allies."},
       t_trvl2_w:    {name:"TRAVELER #2",    cost:2,hp:2,atk:1,art:"🌀", img:"2.png",    f:"tea",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
      t_trvl52_w:    {name:"TRAVELER #52",   cost:1,hp:1,atk:0,art:"🌀", img:"52.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
       t_trvl6_w:    {name:"TRAVELER #6",    cost:2,hp:3,atk:1,art:"🌀", img:"6.png",    f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
@@ -36,7 +36,7 @@ const DEFS = {
   t_trvl38_w:   {name:"TRAVELER #38",   cost:3,hp:3,atk:2,art:"🤖", img:"38.png",   f:"tea",tags:["pierce","rage","gtype:mch"],              ab:"Squad: +1 ATK."},
   t_trvl18_w:   {name:"TRAVELER #18",   cost:2,hp:2,atk:2,art:"🤖", img:"18.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 ATK."},
   t_trvl35_w:   {name:"TRAVELER #35",   cost:4,hp:5,atk:3,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","armor:1","gtype:mch"],                    ab:"Squad: +1 ATK."},
-  t_trvl11_w:   {name:"TRAVELER #11",   cost:4,hp:5,atk:3,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","armor:1","gtype:mch"],                    ab:"Squad: +1 ATK."},
+  t_trvl11_w:   {name:"TRAVELER #11",   cost:4,hp:4,atk:3,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","armor:1","enter_heal:1","gtype:mch"],                    ab:"Squad: +1 ATK. On play: Heal 1 HP to wounded allies."},
 
   // Xuiqtr Tea
     t_trvl187_w:    {name:"TRAVELER #187",  cost:5,hp:6,atk:4,art:"🐙", img:"187.png",  f:"tea",tags:["provoke","armor:1","untamed","gtype:xui"],                   ab:"Squad: +1 ATK."},
