@@ -290,6 +290,13 @@ function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
   card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
+  // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
+  // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
+  // само поле нужно погасить явно. incarnUsed НЕ трогаем — эта карта не "потратила"
+  // инкарнацию, она была спасена ДРУГИМ эффектом, так что при следующей естественной
+  // смерти (killCard()) она снова законно получит полноценный incarnTimer.
+  card.incarnTimer=undefined;
   card.f=toF;
   G[toF].field.push(card); 
   lg(`Revived ${card.name} at full HP.`,'hl');
