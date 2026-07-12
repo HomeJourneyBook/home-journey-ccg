@@ -40,8 +40,8 @@ const DEFS = {
 
   // Xuiqtr Tea
     t_trvl187_w:    {name:"TRAVELER #187",  cost:5,hp:6,atk:4,art:"🐙", img:"187.png",  f:"tea",tags:["provoke","armor:1","untamed","gtype:xui"],                   ab:"Squad: +1 ATK."},
-    t_trvl704_w:    {name:"TRAVELER #704",  cost:3,hp:3,atk:2,art:"🐙", img:"704.png",  f:"tea",tags:["provoke","fear","gtype:xui"],             ab:"Squad: +1 ATK."},
-     t_trvl26_w:    {name:"TRAVELER #26",   cost:2,hp:2,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["provoke","gtype:xui"],            ab:"Squad: +1 ATK."},
+    t_trvl704_w:    {name:"TRAVELER #704",  cost:3,hp:3,atk:2,art:"🐙", img:"704.png",  f:"tea",tags:["provoke","fear","shield","gtype:xui"],             ab:"Squad: +1 ATK. Solana Shield: absorbs the first hit it takes entirely."},
+     t_trvl26_w:    {name:"TRAVELER #26",   cost:2,hp:2,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["provoke","taunt_break","gtype:xui"],            ab:"Squad: +1 ATK. On attack: suppresses target's Provoke for the rest of this turn."},
      t_trvl39_w:    {name:"TRAVELER #39",   cost:3,hp:3,atk:2,art:"🐙", img:"39.png",   f:"tea",tags:["provoke","armor:1","gtype:xui"],                   ab:"Squad: +1 ATK."},
 
   // ── TEA LEGENDARIES ─────────────────────────────────────────────
@@ -85,7 +85,7 @@ const DEFS = {
   j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:5,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad: +1 Armor."},
 
   // Umbasir Jeet
-    j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:2,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","armor:1","fear","gtype:umb"],           ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
+    j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:2,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","armor:1","fear","taunt_break","gtype:umb"],           ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg. On attack: suppresses target's Provoke for the rest of this turn."},
      j_trvl53_w:    {name:"TRAVELER #53",   cost:2,hp:1,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","invisible","gtype:umb"],                  ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
      j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:0,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
      j_trvl20_w:    {name:"TRAVELER #20",   cost:3,hp:3,atk:1,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
