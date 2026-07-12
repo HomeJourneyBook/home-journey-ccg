@@ -9,7 +9,7 @@
 function _isTargetedSpell(card){
   return !!card.spell && (
     hasTag(card,'spell_dmg_target') || hasTag(card,'spell_buff_temp') ||
-    hasTag(card,'spell_dispel') || hasTag(card,'spell_untap')
+    hasTag(card,'spell_dispel') || hasTag(card,'spell_untap') || hasTag(card,'spell_bounce_target')
   );
 }
 
@@ -17,7 +17,7 @@ function _isTargetedSpell(card){
 // draw → 'new_card' через анимацию прилёта карты в руку, bounce → 'wind_card') —
 // общий 'card_spell_atack' на клик "Play" их перебивает/заглушает, поэтому для них его не играем.
 function _spellHasOwnSfx(card){
-  return !!card.spell && (hasTag(card,'revive') || hasTag(card,'draw') || hasTag(card,'bounce'));
+  return !!card.spell && (hasTag(card,'revive') || hasTag(card,'draw') || hasTag(card,'bounce') || hasTag(card,'spell_bounce_target'));
 }
 
 // ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
@@ -385,6 +385,9 @@ function mkSmallEl(card){
   }
   if(G.phase==='vardanPick'&&card.f!==G.turn&&!card.sleeping&&!card.exhausted&&!card.feared)d.classList.add('targetable');
   if(G.phase==='vardanAttack'&&card.f===G.turn)d.classList.add('targetable');
+  // spellBounceTarget (ПОРЫВ/REVERSE) — цель ЛЮБАЯ сторона (своя или вражеская), поэтому
+  // без проверки card.f===/!==G.turn, в отличие от всех остальных targeted-спеллов выше.
+  if(G.phase==='spellBounceTarget'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
   const isSW=card.spell||card.world||card.artifact;
   const TAG_ICONS = {
   'fear':    '<img src="img/ico_fear.png" style="width:60%;height:60%;">',
