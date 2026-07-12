@@ -1074,7 +1074,7 @@ function updateEndTurnBtn(){
 // Shard/Altar, актуально только для СВОЕЙ стороны (playerStats), не для оппонента.
 function _mkStatsBarHtml(faction, mirrored, isPlayerSide){
   const p=G[faction];
-  const edgeLeft=faction==='jeet'?'<span class="statbar-edge-left"></span>':'';
+  const edgeLeft='<span class="statbar-edge-left"></span>';
   const edgeRight2=faction==='jeet'?'<span class="statbar-edge-right-2"></span>':'';
   const worldSlot=_mkPcardSlotHtml(p.world, faction, false);
   const artifactSlot=_mkPcardSlotHtml(p.artifacts[0]||null, faction, isPlayerSide);
