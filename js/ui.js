@@ -232,6 +232,7 @@ function preloadAssets(){
     'img/btn_jeet1.png', 'img/btn_jeet2.png', 'img/btn_jeetH.png',
     'img/btn_X.png', 'img/btn_Xh.png', 'img/btn_X2.png',
     'img/btn_wait.gif',
+    'img/btn_wait_jeet.gif',
     // ── Кнопки модалок (эта сессия — переделка футеров/bg_jest2) ──
     'img/btn_classic1.png', 'img/btn_classic2.png', 'img/btn_classicH.png',
     'img/btn_rush1.png', 'img/btn_rush2.png', 'img/btn_rushH.png',
@@ -302,7 +303,7 @@ function preloadAssets(){
     // ── Игровые иконки ──
     'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/chel2.png', 'img/ess.png', 'img/ess_jeet.png',
     'img/hp_tea.png', 'img/hp_jeet.png',
-    'img/deck.png', 'img/runaha.png', 'img/ef_burn.png',
+    'img/deck.png', 'img/deck_jeet.png', 'img/runaha.png', 'img/ef_burn.png',
 
     // ── Типы карт ──
     'img/type_creature.png', 'img/type_spell.png', 'img/type_world.png',
@@ -316,7 +317,9 @@ function preloadAssets(){
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
     'img/btn_zoom.png',
     'img/button_1.png', 'img/button_2.png',
+    'img/button_1_jeet.png', 'img/button_2_jeet.png',
     'img/button_grav_1.png', 'img/button_grav_2.png',
+    'img/button_grav_1_jeet.png', 'img/button_grav_2_jeet.png',
   ];
   criticalImages.forEach(src => { const img = new Image(); img.src = src; });
 
