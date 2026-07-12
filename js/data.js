@@ -4,7 +4,7 @@
 // dbExportDeck()/_applyImportedDeck() (deck JSON) and downloadBattleLog()
 // (ui.js), so old exports can be flagged instead of silently misapplied.
 const GAME_VERSION = "1.0";
- 
+  
 const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
 
