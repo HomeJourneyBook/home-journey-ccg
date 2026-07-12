@@ -281,7 +281,7 @@ function triggerAbilities(card, timing, ctx={}){
         } else lg(`${card.name}: graveyard empty.`);} break;
 
       case 'ess_max':
-        cur.essMax+=a.val;
+        cur.essMax=Math.min(ESS_CAP, cur.essMax+a.val);
         flashEssenceGain(curK);
         lg(`${card.name}: +${a.val} max Essence → ${cur.essMax}.`,'imp'); break;
 
