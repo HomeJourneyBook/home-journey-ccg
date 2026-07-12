@@ -1087,8 +1087,10 @@ function endTurn(){
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
 
-  // sleeping/feared/tempAtkBonus — как раньше, снимаются у ВЫХОДЯЩЕГО игрока сразу
-  // (т.е. к ходу соперника его карты уже не "спят" — полноценно отвечают на атаки).
+  // sleeping/feared — снимаются у ВЫХОДЯЩЕГО игрока сразу (т.е. к ходу соперника его карты
+  // уже не "спят" — полноценно отвечают на атаки). tempAtkBonus теперь НЕ здесь — часть
+  // бафов (см. ARCHIVE, "до конца боя") должны пережить ход соперника, снимаются в начале
+  // СЛЕДУЮЩЕГО хода владельца (см. блок армор-рефилла ниже в этой же функции).
   // exhausted — намеренно НЕ здесь по умолчанию: см. ниже, снимается только к СВОЕМУ
   // следующему ходу владельца, чтобы уставшая карта весь ход соперника оставалась
   // уязвима без ответки (см. AI BALANCE NOTES / CLAUDE.md "Version 1.01", п.11).
@@ -1097,7 +1099,7 @@ function endTurn(){
   // собственный ход заканчивается и начинается ход соперника — намеренный override
   // общего правила для конкретных редких карт, не баг.
   G[G.turn].field.forEach(c=>{
-    c.sleeping=false;c.feared=false;c.tempAtkBonus=0;
+    c.sleeping=false;c.feared=false;
     if(hasTag(c,'untamed')) c.exhausted=false;
   });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
@@ -1113,6 +1115,7 @@ function endTurn(){
   // getTagVal напрямую, только уже посчитанный armorMax.
   cur.field.forEach(c=>{
     c.exhausted=false;
+    c.tempAtkBonus=0; // "до конца боя" (ARCHIVE и т.п.) — переживает ход соперника, снимается только здесь
     if(c.armorMax>0){
       if(c.armor<c.armorMax) lg(`${c.name}'s armor refills to ${c.armorMax}.`,'imp');
       c.armor=c.armorMax;
