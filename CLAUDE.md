@@ -34,6 +34,15 @@ Built with vanilla HTML/CSS/JS. Hosted on GitHub Pages. No build step required.
   чеклисты/Done-список/Backlog в этом файле, (3) прислать обновлённый `CLAUDE.md` тем же
   способом (`.txt` в чат). В течение самой сессии обновлять `CLAUDE.md` НЕ нужно — только по
   явному запросу в конце.
+- **`GAME_VERSION` (`js/data.js`) НЕ поднимать без явного разрешения автора** (уточнено
+  2026-07-13, после случая, когда версию подняли самостоятельно на правках баланса/тегов —
+  автор попросил откатить). Даже если правка формально попадает под критерии из описания
+  `GAME_VERSION` ниже (rebalance/rename/новый тег и т.п.) — это необходимое, но НЕ достаточное
+  условие: ждать, пока автор сам попросит поднять версию. Текущее реальное состояние на
+  2026-07-13: `GAME_VERSION` всё ещё `"1.0"`, при этом контент/баланс уже готовятся к будущему
+  релизу, который в этом файле называется “Version 1.01” (см. Roadmap ниже) — это ДВЕ РАЗНЫЕ
+  вещи (номер релиза в roadmap ≠ строка `GAME_VERSION`), не путать и не синхронизировать
+  автоматически одно с другим.
 
 -----
 
@@ -212,6 +221,7 @@ Returns the value after the tag name. Examples:
 |Tag          |Effect                             |
 |-------------|-----------------------------------|
 |`enter_aoe:N`|N damage to all enemies when played|
+|`enter_heal:N`|Heal N HP to all WOUNDED allies when played (self included if already on field at trigger time, but a just-entered creature is always at full HP so this never applies to itself in practice). Reuses the same `hp_add`/`target:'all'` execution path as World's on-enter heal (see Ability System below) — added 2026-07-13, live on TRAVELER #1/#583/#11 (test) and reserved for the Bamboo World-trait (см. Essence pricing shop, `enter_heal:2`).|
 
 **On Turn Start:**
 
@@ -741,11 +751,11 @@ game tags:
 | Блад | `rage` | 0.66 |
 | Net | `invisible` | 0.66 |
 | Пески | `vanguard` (как доп.тег — Szarg сам по себе без тега) | 0.66 |
+| Бамбук | `enter_heal:2` (при входе — хил 2 всем раненым союзникам, см. Tag System) | 0.33 |
 
 **Trait-слоты без назначения (ждут решения):**
-Valley · Optical Dope · Схема · Бамбук (тентативно: хил при смерти?) · Незабываемый (тентативно:
-вампиризм?) · Забудь всё (тентативно: трупоедство/"вспомнить всё") · Розовые облака ·
-Solana World (мир, не путать с Mood: Солана)
+Valley · Optical Dope · Схема · Незабываемый (тентативно: вампиризм?) · Забудь всё (тентативно:
+трупоедство/"вспомнить всё") · Розовые облака · Solana World (мир, не путать с Mood: Солана)
 
 **Механики "россыпью", ещё не привязанные к конкретному трейту** (тентативные цены,
 не закреплены окончательно):
@@ -1381,6 +1391,62 @@ SHARD (shard:2), ALTAR (sacrifice).
   (vsAI и hotseat-ветка) вместо старого плоского `game-fade-in`. Новые keyframes/классы —
   `styles.css`, рядом со старым `.game-fade-in` (оставлен как есть, просто больше не
   используется в этих двух местах).
+
+-----
+
+### Итог сессии 2026-07-13
+
+Разношёрстная сессия — арт для Jeet, полировка анимаций, один найденный баг, один новый тег.
+
+- **Кастомный арт кнопок для Jeet** — автор прислал `button_1/2_jeet.png`, `button_grav_1/2_jeet.png`,
+  `btn_wait_jeet.gif`, `deck_jeet.png`. Подключены тем же паттерном, что уже был у
+  `.bottom-bar-sensor`/`.bottom-bar-extra-4` (скоуп через `#jeetBottomBar`/`#deckPlaceholderJ`,
+  без трогания Tea-стороны). Заодно найдены и добавлены в preload-список `js/ui.js` 8 файлов,
+  которые реально использовались в CSS/JS, но не грузились заранее (`bg_cost_neutral`,
+  `btn_heal`, `btn_spell_cncl`, `db_decorR`, `drill`, `icon-192`, `left_tea`, `zzz`).
+- **Полёт добора карты в руку — теперь настоящий клон карты, не рубашка `runaha.png`.**
+  `_flyCardFromDeck()` (render.js) клонирует уже готовый `cardEl` (снимается ДО навешивания
+  `card-drawn`/`animation-delay` на оригинал — иначе клон унаследовал бы `opacity:0`), летит
+  лицом вверх. Добавлен кроссфейд с самой картой в руке (`CARD_FLY_FADE_MS=140`) — карта в
+  руке проявляется в ТО ЖЕ окно, где тает клон (было — жёсткий стык без нахлёста), по аналогии
+  с `flyClone`/`isNewStack` в `dbSetQty()` (deckbuilder.js).
+  - `.card-fly-sprite` (фон `runaha.png`) удалён, заменён на `.card-fly-clone` (только
+    позиционирование/тень — визуал теперь несёт сам клонированный `.card`).
+- **Мишень (прицел) для точечных заклинаний/активок-кнопок/артефактов.** Новые классы
+  `aim-target`/`aim-heal` (доп. к существующим `targetable`/`healable` в `mkSmallEl()`,
+  render.js) — вешаются ТОЛЬКО на shard/bolt/sacrifice/spellDmgTarget/spellDispelTarget
+  (красная `mishen_red.png`) и spellBuffTarget/spellUntapTarget/healTarget-своя-сторона
+  (зелёная `mishen_green.png`). Обычное выделение цели атаки (`selectTarget`, и
+  enemy-ветка `healTarget` — атака хилером) — БЕЗ мишени, только исходная красная рамка.
+  Позиция — по центру АРТА карты (не всей карты): `top:calc(2px + var(--card-small-art-h)/2)`,
+  посчитано от паддинга `.card-small` и высоты арта, не магическое число. Лёгкое мигание
+  (`mishenBlink`, opacity 1↔0.55, 1.1s).
+- **Цвет `#e14c43`** унифицирован на: `CHOOSE TARGET` (`.target-prompt-main`), подпись
+  `CLICK HERE TO CANCEL` (`.target-prompt-sub`), рамку попапа (`.target-prompt-box`,
+  border+shadow), и `Battle begins!` (`.battle-begins-inner`) — весь красный текст/рамки
+  таргетинга и вступления теперь одного оттенка.
+- **Баг — тултип Инкарнации в Каталоге/Деккбилдере не показывал число ходов.** Причина:
+  `catalog.js` (2 места — сетка и попап деталей карты) и `deckbuilder.js` рендерили
+  `.card-tag-icon` БЕЗ `data-tagval` — только `data-tag`. `_tooltipDataFor()` (ui.js) ищёт
+  именно `dataset.tagval` для подстановки числа в "Incarnation N" — без него откатывался на
+  общее "Incarnation" без цифры. `render.js` (сама игра) всегда делал это правильно, три
+  остальных места — нет. Поправлено во всех трёх на ту же `{base,val}`-логику.
+- **Каталог — сортировка теперь разворачивается по повторному клику.** `catalogFilters.dir`
+  (±1) — клик по УЖЕ активной кнопке сортировки не пересортировывает тем же порядком, а
+  разворачивает направление. Подпись кнопки переключается между вариантами (`data-label1`/
+  `data-label2` в index.html, напр. `Cost ↑`/`Cost ↓`) — видно, в какую сторону сейчас сортирует.
+- **Новый тег `enter_heal:N`** — зеркало `enter_aoe`, тот же тайминг `on_enter`, но лечит
+  вместо вредит. Переиспользует ГОТОВЫЙ execution-путь `hp_add`/`target:'all'` (раньше
+  доступный только World-картам) — лечит только раненых союзников своей стороны, клампится
+  по maxHp, ничего не делает при полном HP без доп. условий в коде. См. Tag System выше.
+  - Протестирован на 3 рядовых (test-теги, не финальный баланс): TRAVELER #1 (cost 2→3,
+    hp 3→5), TRAVELER #583 (hp 4→3), TRAVELER #11 (hp 5→4) — у всех троих `enter_heal:1`.
+  - Закреплён за трейтом **Бамбук** (World-трейт, был в списке "без назначения") —
+    `enter_heal:2`, цена 0.33 эссенции (см. Essence pricing shop выше).
+- **`GAME_VERSION` НЕ поднят** — сначала было поднято до `1.1` вместе с ребалансом трёх
+  травелеров выше, автор попросил откатить (версию не поднимать без явного запроса, даже
+  под правки статов/тегов) — откачено обратно на `1.0`. Правило записано явно в Session
+  Workflow выше, чтобы не повторилось.
 
 -----
 
