@@ -145,7 +145,7 @@ function showAiBanner(show){
 
 // ── ГЛАВНЫЙ ВХОД ────────────────────────────────────────────────────
 function runAiTurn(){
-  if(!(G.mode === 'vsai' && G.turn === G.aiFaction) || G.gameOver) return;
+  if(!isAiTurn() || G.gameOver) return;
   showAiBanner(true);
   aiTryBurnCard();
   setTimeout(() => aiPlayCardsStep(0), 450);
@@ -218,7 +218,7 @@ function aiTryBurnCard(){
 
 // ── ФАЗА 1: розыгрыш карт из руки ────────────────────────────────
 function aiPlayCardsStep(iter){
-  if(!(G.mode === 'vsai' && G.turn === G.aiFaction)){ showAiBanner(false); return; }
+  if(!isAiTurn()){ showAiBanner(false); return; }
   if(iter > 20){ // защита от бесконечного цикла (не должно происходить)
     aiTryUseSacrifice();
     aiRunActivesThenAttack();
@@ -596,7 +596,7 @@ function getAiCreatureQueue(){
 }
 
 function aiAttackStep(queue, idx){
-  if(!(G.mode === 'vsai' && G.turn === G.aiFaction)){ showAiBanner(false); return; }
+  if(!isAiTurn()){ showAiBanner(false); return; }
   if(idx >= queue.length){ finishAiTurn(); return; }
   const stillThere = G[G.aiFaction].field.find(c => c.id === queue[idx].id);
   if(!stillThere || stillThere.exhausted || stillThere.sleeping || stillThere.feared){
@@ -705,7 +705,7 @@ function aiHeal(healer, target){
 // ── ЗАВЕРШЕНИЕ ХОДА ИИ ───────────────────────────────────────────
 function finishAiTurn(){
   showAiBanner(false);
-  if(!(G.mode === 'vsai' && G.turn === G.aiFaction)) return;
+  if(!isAiTurn()) return;
   G._aiIsEnding = true;
   endTurn();
   G._aiIsEnding = false;
