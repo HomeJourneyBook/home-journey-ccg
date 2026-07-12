@@ -365,6 +365,7 @@ function mkSmallEl(card){
     if(targetableS.includes(card.id))d.classList.add('targetable');
   }
   if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
+  if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
   if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.sleeping&&!card.exhausted&&!card.feared) d.classList.add('healable');
@@ -416,6 +417,7 @@ ${!isSW?`<div class="card-small-stats">
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
+    const isBolt=hasTag(card,'bolt'); // Umbasir v2 — точечный магический урон (см. doUmbBolt())
     // Хилер: попап-кнопка "Heal" появляется, если есть кого хилить ИЛИ с кого снять
     // дебафф (burning/feared) — своя не-spell/world/artifact карта с hp<maxHp ИЛИ
     // дебаффом, та же проверка, что и у подсветки .healable ниже в healTarget (лечилка
@@ -425,7 +427,7 @@ ${!isSW?`<div class="card-small-stats">
     // режим лечения.
     const isHealerAbility=card.tags.some(t=>t.startsWith('heal:'));
     const hasHealTarget=isHealerAbility&&G[card.f].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.hp<c.maxHp||c.burning||c.feared));
-    if(isUmb||isVard||hasHealTarget){
+    if(isUmb||isVard||isBolt||hasHealTarget){
       const pop=document.createElement('div');
       pop.className='field-ability-popup';
       if(isUmb){
@@ -438,6 +440,12 @@ ${!isSW?`<div class="card-small-stats">
         const btn=document.createElement('button');
         btn.className='fab-btn vardan';
         btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doVardan();};
+        pop.appendChild(btn);
+      }
+      if(isBolt){
+        const btn=document.createElement('button');
+        btn.className='fab-btn umbasir'; // переиспользуем существующий плейсхолдер-класс, пока нет своей иконки
+        btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doUmbBolt();};
         pop.appendChild(btn);
       }
       if(hasHealTarget){
