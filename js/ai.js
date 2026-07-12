@@ -173,6 +173,28 @@ function runAiTurn(){
 function aiTryBurnCard(){
   const me = G[G.aiFaction];
   if(!me || me.burned) return;
+
+  // Триггер 0: "мёртвая рука" — КАЖДАЯ карта в руке оценивается отрицательно
+  // (напр. единственный World/Artifact, когда такой уже активен — aiScoreCard()
+  // намеренно даёт -1, это не баг сам по себе). Раньше это могло привести к
+  // ПОСТОЯННОМУ затыку: карту нельзя ни сыграть (score<0 → aiPickBestCard()
+  // её не выберет), ни сжечь (обычный триггер ниже требует hand.length>=4) —
+  // рука просто копит бесполезные карты до конца игры. Здесь порог по размеру
+  // руки НЕ проверяем — держать мёртвую руку размером хоть в 1 карту строго
+  // хуже, чем превратить её в эссенцию. Найдено автором в спектаторских логах
+  // ("будто ждёт чего-то") и подтверждено прогоном игр напрямую.
+  if(me.hand.length > 0 && me.hand.every(c => c.unique || aiScoreCard(c, me) < 0)){
+    const nonUnique = me.hand.filter(c => !c.unique);
+    if(nonUnique.length > 0){
+      let worst=null, worstScore=Infinity;
+      nonUnique.forEach(c=>{
+        const s = aiScoreCard(c, me);
+        if(s < worstScore){ worstScore = s; worst = c; }
+      });
+      if(worst){ doBurnCard(worst); return; }
+    }
+  }
+
   if(me.hand.length < 4) return; // держим минимум вариантов, не сжигаем из тонкой руки
 
   // Триггер 1: разблокировка хода.
@@ -376,6 +398,21 @@ function aiTryUseBolt(){
     const baseDmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
     const withDmg=enemyField.map(c=>({c, dmg: baseDmg+(c.feared?1:0)}));
     const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
+    // 0-ATK bolt bodies (e.g. TRAVELER #52/#6/#54 — pure Umbasir utility, atk:0):
+    // a normal attack from these does NOTHING (0 dmg, and a full counter-attack
+    // eaten for free if Provoke/Bushido forces a creature fight) — Bolt's chip
+    // damage is strictly better even without a guaranteed kill, so these don't
+    // need the "killable" gate at all.
+    if(effAtk(bolt)<=0){
+      if(enemyField.length===0) return;
+      const pool=killable.length>0?killable:withDmg;
+      pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+      G.sel=bolt.id;
+      doUmbBolt();
+      doBoltTarget(pool[0].c);
+      used=true;
+      return;
+    }
     if(killable.length===0) return; // не тратим ход на чип-урон — только на реальный килл
     killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
     const target=killable[0].c;
@@ -654,15 +691,29 @@ function aiActWithCreature(creature){
   // не просто hp. Раньше это не учитывалось: ИИ мог решить, что удар добивает цель,
   // хотя часть урона на самом деле уходила в Броню.
   const killable = targetable.filter(t => atk >= t.hp + (t.armor||0));
-  if(killable.length > 0){
-    killable.sort((a,b) => effAtk(b) - effAtk(a));
-    aiAttack(creature, killable[0]);
+  // Не считаем "нужным" килл на цели, которая и так умрёт от собственного burn'а
+  // в начале хода ЕЁ владельца (endTurn(), тикает раньше её controller-а), если
+  // вместо этого можно бить прямо по базе — тратить атаку на гарантированно
+  // обречённую цель при доступном лице чистая потеря урона. Provoke/Bushido
+  // здесь не при чём — при forced=true целью всё равно распоряжается не ИИ.
+  const worthKilling = forced ? killable : killable.filter(t => !(t.burning && t.hp<=1));
+  if(worthKilling.length > 0){
+    worthKilling.sort((a,b) => effAtk(b) - effAtk(a));
+    aiAttack(creature, worthKilling[0]);
     return;
   }
 
   // 2) Иначе, если ничего не заставляет атаковать конкретную цель — бьём по базе.
   if(!forced && aiCanHitBase(creature, oppField)){
     aiAttack(creature, null);
+    return;
+  }
+
+  // Единственные доступные "киллы" были обречённые burn-цели, а по базе ударить
+  // нельзя (Provoke без Pierce и т.п.) — тогда всё же добиваем их, лучше чем простой.
+  if(killable.length > 0){
+    killable.sort((a,b) => effAtk(b) - effAtk(a));
+    aiAttack(creature, killable[0]);
     return;
   }
 
@@ -705,7 +756,7 @@ function aiHeal(healer, target){
 // ── ЗАВЕРШЕНИЕ ХОДА ИИ ───────────────────────────────────────────
 function finishAiTurn(){
   showAiBanner(false);
-  if(!isAiTurn()) return;
+  if(!isAiTurn() || G.gameOver) return;
   G._aiIsEnding = true;
   endTurn();
   G._aiIsEnding = false;
