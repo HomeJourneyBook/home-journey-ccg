@@ -134,6 +134,17 @@
           <span class="landing-square-label">SFX</span>
         </div>
       </div>
+
+      <!-- Тестовая кнопка — смотреть автоматический матч ИИ против ИИ (обе стороны,
+           стартовые Classic-колоды, без пикера деки/стороны и без ручного муллигана —
+           см. startAiVsAiSpectator() в ui.js). Намеренно простой текст без кастомного
+           арта — это тестовый инструмент автора, не часть основного флоу игрока. -->
+      <button onclick="playSfx('yellow_buttom');startAiVsAiSpectator()"
+              style="margin-top:8px;background:none;border:1px solid #9B937F;color:#9B937F;
+                     font-family:'MEK',monospace;font-size:11px;letter-spacing:.5px;
+                     padding:6px 10px;border-radius:4px;cursor:pointer;">
+        🤖 Watch AI vs AI
+      </button>
     </div>
 
   </div>
