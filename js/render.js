@@ -326,6 +326,12 @@ function closeFieldCardPreview(){
 // Рисует МАЛЕНЬКУЮ карту (.card-small) — это ВСЕ существа на боевом поле (battlefield), и только они.
 // Сюда же навешиваются игровые состояния: selected (выбрана), sleeping (спит), exhausted (устала),
 // feared (в страхе), burning (горит), targetable (можно выбрать целью в текущей фазе), healable (можно вылечить).
+// aim-target/aim-heal (2026-07-13, автор): доп. классы ТОЛЬКО для точечных заклинаний/активных
+// кнопок/артефактов (shard, bolt, sacrifice, spellDmg/Dispel/Buff/Untap) — рисуют мишень
+// (img/mishen_red.png для aim-target, img/mishen_green.png для aim-heal, см. styles.css)
+// поверх карты-цели. НЕ вешаются на обычное выделение цели атаки (selectTarget, а также
+// enemy-ветка healTarget — это атака хилером, а не спелл/кнопка) — там остаётся только
+// исходная красная подсветка targetable без мишени, по просьбе автора.
 // Это единственный рендерер поля боя — .card (mkEl) сюда никогда не попадает.
 // Броня для рендера — на поле armorMax уже посчитан recalcArmor() (own+squad+aura+world,
 // может быть >0 даже без своего тега armor). В РУКЕ recalcArmor() ни разу не запускался
@@ -357,25 +363,25 @@ function mkSmallEl(card){
   }
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
-  if(G.phase==='sacrificeTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
+  if(G.phase==='sacrificeTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
   if(G.phase==='selectTarget'&&card.f!==G.turn){
     const oppField=G[card.f].field;
     const attS=G.sel?findC(G.sel):null;
     const targetableS=getTargetableCards(oppField,attS);
-    if(targetableS.includes(card.id))d.classList.add('targetable');
+    if(targetableS.includes(card.id))d.classList.add('targetable'); // обычная атака — без мишени, только красная подсветка (см. aim-target ниже)
   }
-  if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
-  if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
-  if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
-  if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable');
-  if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.sleeping&&!card.exhausted&&!card.feared) d.classList.add('healable');
-  if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable');
-  if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared))d.classList.add('healable');
+  if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
+  if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.sleeping&&!card.exhausted&&!card.feared) d.classList.add('healable','aim-heal');
+  if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable','aim-heal');
+  if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared))d.classList.add('healable','aim-heal');
   if(G.phase==='healTarget'&&card.f!==G.turn){
     const oppField2=G[card.f].field;
     const attH=G.sel?findC(G.sel):null;
     const targetableH=getTargetableCards(oppField2,attH);
-    if(targetableH.includes(card.id))d.classList.add('targetable');
+    if(targetableH.includes(card.id))d.classList.add('targetable'); // атака хилером — не спелл/кнопка/артефакт, без мишени
   }
   if(G.phase==='vardanPick'&&card.f!==G.turn&&!card.sleeping&&!card.exhausted&&!card.feared)d.classList.add('targetable');
   if(G.phase==='vardanAttack'&&card.f===G.turn)d.classList.add('targetable');
