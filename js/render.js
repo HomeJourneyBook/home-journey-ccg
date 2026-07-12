@@ -391,6 +391,7 @@ function mkSmallEl(card){
   'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
   'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
   'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
+  'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
 };
 const tagIcons=(card.tags||[])
   .map(t=>t.split(':')[0])
@@ -444,8 +445,14 @@ ${!isSW?`<div class="card-small-stats">
       }
       if(isBolt){
         const btn=document.createElement('button');
-        btn.className='fab-btn umbasir'; // переиспользуем существующий плейсхолдер-класс, пока нет своей иконки
-        btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doUmbBolt();};
+        const isCancellingBolt=G.phase==='boltTarget'&&G.sel===card.id;
+        if(isCancellingBolt){
+          btn.className='fab-btn cancel'; // тот же красный крестик, что и у Heal при отмене
+          btn.onclick=(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();};
+        } else {
+          btn.className='fab-btn umbasir'; // переиспользуем существующий плейсхолдер-класс, пока нет своей иконки
+          btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doUmbBolt();};
+        }
         pop.appendChild(btn);
       }
       if(hasHealTarget){
@@ -592,6 +599,7 @@ function mkEl(card,zone){
   'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
   'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
   'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
+  'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
 };
 const tagIcons = (card.tags||[])
   .map(t=>t.split(':')[0])
