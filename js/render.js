@@ -742,16 +742,25 @@ const tagIcons = (card.tags||[])
 // в rZone) — этого добавляем "физику": клон САМОЙ этой карты (не обезличенная
 // рубашка runaha.png — автор попросил 2026-07-13 показывать реальный арт сразу,
 // по аналогии с flyClone в dbSetQty(), js/deckbuilder.js) стартует у плейсхолдера колоды
-// своей фракции, летит вверх к месту новой карты и исчезает ПРЯМО К МОМЕНТУ,
-// когда настоящая (уже находящаяся в руке) карта начинает свой fade — card-drawn
-// получает animation-delay = CARD_FLY_MS, поэтому она спрятана (fill-mode:both
-// держит "from"-состояние анимации, т.е. opacity:0), пока клон летит, и
-// проявляется сразу как он пропал.
+// своей фракции, летит вверх к месту новой карты.
+// ── Кроссфейд с картой в руке (2026-07-13, по аналогии с dbSetQty/isNewStack
+// в deckbuilder.js) ───────────────────────────────────────────────────────
+// Раньше стык был жёсткий: клон гас ПОЛНОСТЬЮ к концу полёта (t=CARD_FLY_MS),
+// и только В ЭТОТ ЖЕ момент настоящая карта начинала проявляться — ноль нахлёста,
+// ощущался "щелчок"/подмена. Теперь оба процесса делят ОДНО и то же окно —
+// последние CARD_FLY_FADE_MS миллисекунд полёта: клон гаснет (opacity 1→0)
+// и настоящая карта одновременно проявляется (opacity 0→1), точь-в-точь как
+// в деккбилдере destStack.opacity плавно возвращается в 1 в том же окне,
+// где ещё тает flyClone (см. dbSetQty: reveal начинается ДО конца transition,
+// оба заканчиваются вместе). Оба window'а начинаются и заканчиваются синхронно
+// (CARD_FLY_MS-CARD_FLY_FADE_MS → CARD_FLY_MS), поэтому "передача эстафеты"
+// выглядит одним плавным перетеканием, а не двумя отдельными шагами.
+const CARD_FLY_MS = 300;
+const CARD_FLY_FADE_MS = 140; // длина окна кроссфейда — общая для клона (fade-out) и карты в руке (fade-in)
 // ВАЖНО: клон снимается в rZone ДО того, как на оригинал повесят card-drawn/
 // animation-delay (см. вызов ниже) — иначе cloneNode(true) скопировал бы и эти
 // инлайн-стили/классы, и клон стартовал бы уже невидимым (opacity:0 от "from"
 // кейфрейма cardDrawn).
-const CARD_FLY_MS = 300;
 
 // Возвращает rect плейсхолдера колоды нужной фракции, ИЛИ null если он сейчас
 // не виден (например, скрыт под модалкой муллигана/деколадера) — в этом случае
@@ -783,7 +792,7 @@ function _flyCardFromDeck(cloneEl, deckRect, targetRect, delayMs){
     if(!cloneEl.parentElement) return; // на случай если экран уже перерисован/сцена сменилась
     playSfx('new_card');
     void cloneEl.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
-    cloneEl.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity 140ms ease-in ${CARD_FLY_MS-140}ms`;
+    cloneEl.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity ${CARD_FLY_FADE_MS}ms ease-in ${CARD_FLY_MS-CARD_FLY_FADE_MS}ms`;
     cloneEl.style.left=(targetRect.left+targetRect.width/2)+'px';
     cloneEl.style.top=(targetRect.top+targetRect.height/2)+'px';
     cloneEl.style.transform='translate(-50%,-50%) scale(1) rotate(0deg)';
@@ -864,7 +873,11 @@ function rZone(id,cards,zone){
       const flyClone = deckRect ? cardEl.cloneNode(true) : null;
       cardEl.classList.add('card-drawn');
       if(deckRect){
-        cardEl.style.animationDelay=CARD_FLY_MS+'ms';
+        // Окно проявления настоящей карты = то же окно, где гаснет клон
+        // (CARD_FLY_MS-CARD_FLY_FADE_MS → CARD_FLY_MS) — см. комментарий у
+        // _flyCardFromDeck выше про кроссфейд.
+        cardEl.style.animationDelay=(CARD_FLY_MS-CARD_FLY_FADE_MS)+'ms';
+        cardEl.style.animationDuration=CARD_FLY_FADE_MS+'ms';
         cardEl.style.animationFillMode='both';
         _flyCardFromDeck(flyClone,deckRect,restRect,newHandCardIndex*90);
         newHandCardIndex++;
