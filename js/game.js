@@ -336,13 +336,9 @@ function doUmbAsir(){
   const umb=findC(G.sel);
   if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
-  const cur=G[G.turn];
-  const AOE_ACTIVATION_COST=2; // AOE больше не бесплатная многоразовая кнопка — платим эссенцией
-  if(cur.ess<AOE_ACTIVATION_COST){lg(`Not enough essence for AOE — need ${AOE_ACTIVATION_COST}, have ${cur.ess}.`,'hint');return;}
-  cur.ess-=AOE_ACTIVATION_COST;
   playSfx('card_spell_atack');
   const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
-  lg(`${umb.name} hits ALL enemies for ${dmgAmt} dmg! (-${AOE_ACTIVATION_COST} essence)`,'imp');
+  lg(`${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK,true));
   umb.exhausted=true;
   G.sel=null;G.phase='action';
@@ -356,13 +352,9 @@ function doVardan(){
   const vard=findC(G.sel);
   if(!vard||!hasTag(vard,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(vard.exhausted){lg(`${vard.name} already acted this turn.`,'dmg');return;}
-  const cur=G[G.turn];
-  const AOE_ACTIVATION_COST=2;
-  if(cur.ess<AOE_ACTIVATION_COST){lg(`Not enough essence for AOE — need ${AOE_ACTIVATION_COST}, have ${cur.ess}.`,'hint');return;}
-  cur.ess-=AOE_ACTIVATION_COST;
   playSfx('card_spell_atack');
   const dmgAmt=getTagVal(vard,'aoe')||2;
-  lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies! (-${AOE_ACTIVATION_COST} essence)`,'imp');
+  lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK,true));
   vard.exhausted=true;G.sel=null;G.phase='action';
   checkWin();render();
