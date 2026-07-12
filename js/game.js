@@ -66,6 +66,12 @@ function onClick(card,zone){
     }
     G.phase='action';G.sel=null;render();return; // cancel
   }
+  if(G.phase==='boltTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doBoltTarget(card);return;
+    }
+    G.phase='action';G.sel=null;render();return; // cancel
+  }
   if(G.phase==='sacrificeTarget'){
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
       doSacrifice_target(card);return;
@@ -357,6 +363,38 @@ function doVardan(){
   lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK,true));
   vard.exhausted=true;G.sel=null;G.phase='action';
+  checkWin();render();
+}
+
+// Umbasir v2 — точечный магический урон вместо AOE (см. CLAUDE.md, новая уникальность
+// Umbasir после того, как он стал дублем Orbiton). По образцу SHARD (артефакт), но на
+// существе — свой Squad-бонус (param:'bolt', см. SQUAD_DEFS), тот же бонус за Feared цель.
+function doUmbBolt(){
+  const bolt=findC(G.sel);
+  if(!bolt||!hasTag(bolt,'bolt')){lg('Select a Bolt card first.','hint');return;}
+  if(bolt.exhausted){lg(`${bolt.name} already acted this turn.`,'dmg');return;}
+  if(G.phase==='boltTarget'){G.phase='action';G.sel=null;render();return;} // повторный клик — отмена
+  G.phase='boltTarget';
+  lg(`${bolt.name}: select an enemy creature to deal ${(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1} damage.`,'hint');
+  render();
+}
+
+function doBoltTarget(card){
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  const bolt=findC(G.sel);
+  if(!bolt){G.phase='action';G.sel=null;render();return;}
+  if(card.f===G.turn||card.spell||card.world||card.artifact){
+    lg('Select an enemy creature.','hint');return;
+  }
+  playSfx('card_spell_atack');
+  const baseDmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
+  const dmg=card.feared?baseDmg+1:baseDmg;
+  const fearNote=card.feared?' (feared +1)':'';
+  lg(`${bolt.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
+  queueFieldFx(card.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта
+  dmgCard(card,dmg,oppK,true);
+  bolt.exhausted=true;
+  G.phase='action';G.sel=null;
   checkWin();render();
 }
 
@@ -696,7 +734,7 @@ const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'armor', val:1},
   {gtype:'mch', count:3, effect:'atk',   val:1},
   {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
-  {gtype:'umb', count:3, effect:'param', param:'heal',   val:2},
+  {gtype:'umb', count:3, effect:'param', param:'bolt',   val:2},
   {gtype:'szg', count:3, effect:'maxhp', val:1},
   {gtype:'xui', count:3, effect:'param', param:'regen',  val:2},
 ];
