@@ -1014,9 +1014,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Target-prompt overlay — точечные заклинания (ARCHIVE/JOURNEY/OBLIVION/dispel) ──*/
 .target-prompt-overlay{position:absolute; inset:0; z-index:620; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; padding:0 4px; box-sizing:border-box; background:rgba(120,0,0,0.12); animation:targetPromptPulseBg 1.6s ease-in-out infinite;}
 .target-prompt-overlay.hidden{display:none;}
-.target-prompt-box{background:rgba(10,4,4,1); border:1px solid #ff232399; border-radius:10px; padding:10px 18px; box-shadow:0 4px 18px #00000088, 0 0 14px #ff232333;}
+.target-prompt-box{background:rgba(10,4,4,1); border:1px solid #e14c4399; border-radius:10px; padding:10px 18px; box-shadow:0 4px 18px #00000088, 0 0 14px #e14c4333;}
 .target-prompt-main{font-family:'MEK',monospace; font-size:min(7.5vw, 34px); line-height:1.05; color:#e14c43; letter-spacing:1.5px; text-align:center; text-shadow:0 0 10px #e14c4377, 0 2px 4px #000; animation:targetPromptBlink 1.6s ease-in-out infinite;}
-.target-prompt-sub{font-family:'MEK',monospace; font-size:min(3.6vw, 17px); line-height:1.2; color:#ff2323; letter-spacing:0.8px; text-align:center; margin-top:4px; text-shadow:0 0 6px #ff000066, 0 2px 3px #000; animation:targetPromptBlink 1.6s ease-in-out infinite;}
+.target-prompt-sub{font-family:'MEK',monospace; font-size:min(3.6vw, 17px); line-height:1.2; color:#e14c43; letter-spacing:0.8px; text-align:center; margin-top:4px; text-shadow:0 0 6px #e14c4366, 0 2px 3px #000; animation:targetPromptBlink 1.6s ease-in-out infinite;}
 @keyframes targetPromptBlink{
   0%,100%{opacity:1;}
   50%{opacity:0.55;}
