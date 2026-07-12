@@ -869,12 +869,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .fab-btn.umbasir{background-image:url('../img/btn_spell.png');}
 .fab-btn.vardan{background-image:url('../img/btn_spell.png');}
 /*Плейсхолдер под btn_heal.png — файла пока нет, а background-image с несуществующим*/
-.fab-btn.heal{background-image:url('../img/btn_heal.png'), linear-gradient(#2e9c67,#1f6e48); border:1px solid #7be0ab; border-radius:4px; box-shadow:0 0 4px #44ff8866; position:relative;}
-.fab-btn.heal::after{content:'♥'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#e8fff0; font-size:calc(var(--card-small-w) * 0.65 * 0.5); font-weight:bold; text-shadow:0 1px 2px #00000088;}
-/* Плейсхолдер под кнопку "Cancel" во время выбора цели хила (btn_heal_cancel.png или
-   похожее — автор подключит позже, тот же приём фолбэка, что у .fab-btn.heal выше). */
-.fab-btn.cancel{background-image:url('../img/btn_heal_cancel.png'), linear-gradient(#9c2e2e,#6e1f1f); border:1px solid #e07b7b; border-radius:4px; box-shadow:0 0 4px #ff444466; position:relative;}
-.fab-btn.cancel::after{content:'✕'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff0f0; font-size:calc(var(--card-small-w) * 0.65 * 0.5); font-weight:bold; text-shadow:0 1px 2px #00000088;}
+.fab-btn.heal{background-image:url('../img/btn_heal.png');}
+.fab-btn.cancel{background-image:url('../img/btn_spell_cncl.png')}
 .fab-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
 .fab-btn:active{transform:scale(0.95) translateY(2px);}
 .cap-btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
@@ -942,9 +938,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .stat-ess-box{width:calc(max(4vh, 2vw) * 1.53 + 9px); justify-content:center; flex-shrink:0;}
 .stat-hp-box{background-image:url('../img/bg_statbar_hp.png');}
 .stat-ess-box{background-image:url('../img/bg_statbar_hp.png');}
-/* Jeet — своя рамка (была общая tea/jeet, теперь разведено). Единый файл на все счётчики
-   Jeet (HP/Essence/колода/кладбище) — bg_counters_jeet.png. Белый фон — временный
-   плейсхолдер до прихода реального арта. */
 .stats-bar.jeet .stat-hp-box, .stats-bar.jeet .stat-ess-box{background-color:#fff; background-image:url('../img/bg_counters_jeet.png');}
 /* Плейсхолдер слева от HP-индикатора — Tea использует существующий boltik.png, Jeet —
    свой новый файл (белый фон временно, пока арт не пришёл). Размер — квадрат, сторона =
@@ -1027,7 +1020,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* Jeet's bottom bar: solid main color instead of the shared placeholder texture,
    cream border top/bottom only (matches her stats-bar treatment above). */
 #jeetBottomBar{background:var(--jeet-main);border-top:1px solid var(--color-cream);border-bottom:1px solid var(--color-cream);}
-#teaBottomBar{background:#3d494f;border-top:1px solid #829797;}
+#teaBottomBar{background:#3d494f;border-top:1px solid #829797;border-bottom:1px solid #829797;}
 /*ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2),
   разведены по фракциям (#teaBottomBar/#jeetBottomBar) — Jeet белый фон временно.*/
 .bottom-bar-extra{display:none; width:18.2vh; height:4.55vh; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
@@ -1078,9 +1071,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .btn-graveyard:hover{filter:brightness(1.2);}
 .btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
 .btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
-/* Обёртка была раньше инлайн-стилем в index.html (двумя одинаковыми копиями — tea/jeet),
-   вынесена сюда. Раньше 6.25vh не совпадало с 6vh самого .btn-deck-placeholder —
-   теперь размер грани один и тот же (6vh), как у соседней кнопки graveyard. */
 .deck-placeholder-wrap{position:relative;width:6vh;height:6vh;flex-shrink:0;}
 /*── ПЛЕЙСХОЛДЕР: датчик/индикатор рядом со счётчиком кладбища — Tea оставлен на текущем
    dat4ik.gif, Jeet получил свой путь (белый фон, пока файла нет) ──────────────*/
@@ -1172,7 +1162,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* Летящий спрайт-рубашка карты из колоды в руку (см. _flyCardFromDeck в render.js) —
    отдельный fixed-элемент поверх всего, не трогает сам DOM руки/колоды. Стартует
    у плейсхолдера колоды, летит к месту новой карты, тает в последние ~140мс полёта. */
-.card-fly-sprite{position:fixed; z-index:5500; pointer-events:none; background-image:url('img/runaha.png'); background-size:cover; background-position:center; border-radius:8%; box-shadow:0 6px 18px #000000aa;}
+.card-fly-sprite{position:fixed; z-index:5500; pointer-events:none; background-image:url('../img/runaha.png'); background-size:cover; background-position:center; border-radius:8%; box-shadow:0 6px 18px #000000aa;}
 .screen-edge-flash{position:fixed; inset:0; z-index:9999; pointer-events:none;}
 .screen-edge-flash.flash-red{animation: screenFlashRed 0.5s ease-out forwards;}
 .screen-edge-flash.flash-green{animation: screenFlashGreen 0.5s ease-out forwards;}
