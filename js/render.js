@@ -208,16 +208,16 @@ function _cardStatusEntries(card){
   // Дебафы
   if(card.feared) entries.push({icon:'img/ico_fear.png', text:'Feared — skips its next turn and deals no counter-attack damage.'});
   if(card.burning) entries.push({icon:'img/ico_burn.png', text:'Burning — loses 1 HP at the start of each of its turns until it dies.'});
-  if(card.sleeping) entries.push({emoji:'💤', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
+  if(card.sleeping) entries.push({emoji:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
   // Бафы
-  if(card.atkBonus) entries.push({emoji:'✨', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
-  if(card.auraMaxHpBonus) entries.push({emoji:'💗', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battlefield.`});
-  if(card.worldMaxHpBonus) entries.push({emoji:'💗', text:`+${card.worldMaxHpBonus} Max HP from the World card.`});
-  if(card.auraArmorBonus) entries.push({emoji:'🛡️', text:`+${card.auraArmorBonus} Armor from an aura on the battlefield.`});
-  if(card.worldArmorBonus) entries.push({emoji:'🛡️', text:`+${card.worldArmorBonus} Armor from the World card.`});
-  if(card.tempAtkBonus) entries.push({emoji:'⚔️', text:`+${card.tempAtkBonus} ATK until the end of this turn (combat trick).`});
+  if(card.atkBonus) entries.push({emoji:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
+  if(card.auraMaxHpBonus) entries.push({emoji:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battlefield.`});
+  if(card.worldMaxHpBonus) entries.push({emoji:'img/heart.png', text:`+${card.worldMaxHpBonus} Max HP from the World card.`});
+  if(card.auraArmorBonus) entries.push({emoji:'img/armor.png', text:`+${card.auraArmorBonus} Armor from an aura on the battlefield.`});
+  if(card.worldArmorBonus) entries.push({emoji:'img/armor.png', text:`+${card.worldArmorBonus} Armor from the World card.`});
+  if(card.tempAtkBonus) entries.push({emoji:'img/attack.png', text:`+${card.tempAtkBonus} ATK till gone from battlefield (combat trick).`});
   if(card.rageBonus) entries.push({icon:'img/ico_rage.png', text:`+${card.rageBonus} ATK permanently from Rage (gained by attacking).`});
-  if(card.squadAtkBonus||card.squadMaxHpBonus||card.squadArmorBonus||card.squadParam) entries.push({emoji:'🛡️', text:_squadBonusText(card)});
+  if(card.squadAtkBonus||card.squadMaxHpBonus||card.squadArmorBonus||card.squadParam) entries.push({emoji:'img/armor.png', text:_squadBonusText(card)});
   return entries;
 }
 function _buildStatusPanel(entries){
