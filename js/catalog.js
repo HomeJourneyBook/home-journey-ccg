@@ -6,13 +6,27 @@ function getCardType(def){
   return 'creature';
 }
 
-const catalogFilters={faction:'all',type:'all',sort:'name'};
+const catalogFilters={faction:'all',type:'all',sort:'name',dir:1};
 
 function setSort(val,btn){
-  catalogFilters.sort=val;
+  if(catalogFilters.sort===val){
+    // Повторный клик по УЖЕ активной кнопке сортировки — разворот направления
+    // (было по убыванию силы — станет по возрастанию, и наоборот), а не повторная
+    // пересортировка тем же порядком (по просьбе автора, 2026-07-13).
+    catalogFilters.dir*=-1;
+  } else {
+    catalogFilters.sort=val;
+    catalogFilters.dir=1; // новая кнопка — всегда стартует со своего "родного" направления
+  }
   const group=btn.parentElement;
-  group.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  group.querySelectorAll('.filter-btn').forEach(b=>{
+    b.classList.remove('active');
+    // Подпись остальных кнопок сбрасываем на дефолтный вариант (data-label1) — направление
+    // запоминается только у ТЕКУЩЕЙ активной кнопки, у остальных оно не имеет смысла.
+    if(b.dataset.label1) b.textContent=b.dataset.label1;
+  });
   btn.classList.add('active');
+  if(btn.dataset.label1) btn.textContent = catalogFilters.dir===1 ? btn.dataset.label1 : btn.dataset.label2;
   renderCatalog();
 }
 
@@ -39,10 +53,11 @@ function renderCatalog(){
     return true;
   });
   cards.sort(([,a],[,b])=>{
-    if(catalogFilters.sort==='name') return a.name.localeCompare(b.name);
-    if(catalogFilters.sort==='cost') return a.cost-b.cost;
-    if(catalogFilters.sort==='hp') return b.hp-a.hp;
-    if(catalogFilters.sort==='atk') return b.atk-a.atk;
+    const dir=catalogFilters.dir||1;
+    if(catalogFilters.sort==='name') return a.name.localeCompare(b.name)*dir;
+    if(catalogFilters.sort==='cost') return (a.cost-b.cost)*dir;
+    if(catalogFilters.sort==='hp') return (b.hp-a.hp)*dir;
+    if(catalogFilters.sort==='atk') return (b.atk-a.atk)*dir;
     return 0;
   });
 
@@ -65,9 +80,9 @@ function renderCatalog(){
   'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
     };
     const tagIcons=(def.tags||[])
-      .map(t=>t.split(':')[0])
-      .filter(t=>TAG_ICONS[t])
-      .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
+      .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
+      .filter(t=>TAG_ICONS[t.base])
+      .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${TAG_ICONS[t.base]}</div>`)
       .join('');
 
     const div=document.createElement('div');
@@ -126,9 +141,9 @@ function openCardDetail(def){
   'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
   };
   const tagIcons = (def.tags||[])
-    .map(t=>t.split(':')[0])
-    .filter(t=>TAG_ICONS[t])
-    .map(t=>`<div class="card-tag-icon" data-tag="${t}">${TAG_ICONS[t]}</div>`)
+    .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
+    .filter(t=>TAG_ICONS[t.base])
+    .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${TAG_ICONS[t.base]}</div>`)
     .join('');
 
   const typeDot = def.world?'img/type_world.png'
