@@ -268,6 +268,7 @@ function preloadAssets(){
     'img/boltik_jeet.png',
     'img/statbar_extra_tea.png', 'img/statbar_extra_jeet.png',
     'img/bg_counters_jeet.png',
+    'img/armor_bg.png',
     'img/dat4ik_jeet.gif',
     'img/zabor1_jeet.png', 'img/zabor2_jeet.png',
     'img/screen1.gif', 'img/bottom_extra2_jeet.png',
