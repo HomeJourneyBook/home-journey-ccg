@@ -795,15 +795,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-atk{color:#55aaff;font-size:calc(var(--card-h) * 0.11);display:flex;align-items:center;gap:1px;}
 .stat-icon{width:0.45em;height:0.45em;vertical-align:middle;margin-right:1px;image-rendering:pixelated;}
 
-/* ── Armor box — left side, under cost, ratio 2:1, same height as a tag-icon box.
-   Icon+text+padding/font-size copied from .card-hp-box/.card-hp (same convention as
-   HP/ATK), only rendered when the card actually carries an `armor` tag. Position is a
-   first pass — author may nudge top/left later once they see it live. ── */
-.card-armor-box{position:absolute;left:calc(var(--card-w)*0.038);
-  top:calc(var(--card-pad) + var(--card-art-size) - (var(--card-h)*0.108));
-  width:calc(var(--card-h)*0.108*2);height:calc(var(--card-h)*0.108);
+/* ── Armor box — раньше был absolute-оверлеем поверх арта (не на одной линии с HP/ATK),
+   теперь обычный flex-элемент ВНУТРИ .card-stats, третьим — так на одной строке снизу.
+   Когда брони нет, HP/ATK по 48% как раньше (.card-stats без .has-armor); когда есть —
+   все трое сужаются, см. .has-armor ниже. ── */
+.card-stats.has-armor .card-hp-box, .card-stats.has-armor .card-atk-box{width:36%;}
+.card-armor-box{width:20%;height:100%;flex-shrink:0;
   background:url('../img/armor_bg.png') center/100% 100% no-repeat;
-  display:flex;align-items:center;justify-content:center;padding:1px 1px 4.5px 1px;z-index:3;}
+  display:flex;align-items:center;justify-content:center;padding:1px 1px 4.5px 1px;}
 .card-armor{color:#cbd8e3;font-size:calc(var(--card-h) * 0.11);display:flex;align-items:center;gap:1px;}
 .card-small-armor-box{position:absolute;left:calc(var(--card-small-w)*0.048);
   top:calc(2px + var(--card-small-art-h) - (var(--card-small-h)*0.13));
