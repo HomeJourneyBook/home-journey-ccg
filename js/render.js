@@ -737,18 +737,25 @@ const tagIcons = (card.tags||[])
 // и обновлять уже существующие элементы на месте (чтобы не сбрасывалась подсветка targetable),
 // новые карты получают класс entering для анимации появления. Рисует через mkSmallEl.
 // Для остальных зон (zone='hand' и т.п.) — просто очищает контейнер и рисует заново через mkEl.
-// ── Полёт карты из колоды в руку (спрайт-рубашка) ────────────────────────────
+// ── Полёт карты из колоды в руку (клон РЕАЛЬНОЙ карты, лицом вверх) ──────────
 // Настоящая новая карта в руке уже умела fade-появляться (см. .card-drawn ниже
-// в rZone) — этого добавляем "физику": рубашка (runaha.png) стартует у плейсхолдера
-// колоды своей фракции, летит вверх к месту новой карты и исчезает ПРЯМО К МОМЕНТУ,
-// когда настоящая карта начинает свой fade — card-drawn получает animation-delay
-// = CARD_FLY_MS, поэтому карта спрятана (fill-mode:both держит "from"-состояние
-// анимации, т.е. opacity:0), пока спрайт летит, и проявляется сразу как он пропал.
+// в rZone) — этого добавляем "физику": клон САМОЙ этой карты (не обезличенная
+// рубашка runaha.png — автор попросил 2026-07-13 показывать реальный арт сразу,
+// по аналогии с flyClone в dbSetQty(), js/deckbuilder.js) стартует у плейсхолдера колоды
+// своей фракции, летит вверх к месту новой карты и исчезает ПРЯМО К МОМЕНТУ,
+// когда настоящая (уже находящаяся в руке) карта начинает свой fade — card-drawn
+// получает animation-delay = CARD_FLY_MS, поэтому она спрятана (fill-mode:both
+// держит "from"-состояние анимации, т.е. opacity:0), пока клон летит, и
+// проявляется сразу как он пропал.
+// ВАЖНО: клон снимается в rZone ДО того, как на оригинал повесят card-drawn/
+// animation-delay (см. вызов ниже) — иначе cloneNode(true) скопировал бы и эти
+// инлайн-стили/классы, и клон стартовал бы уже невидимым (opacity:0 от "from"
+// кейфрейма cardDrawn).
 const CARD_FLY_MS = 300;
 
 // Возвращает rect плейсхолдера колоды нужной фракции, ИЛИ null если он сейчас
 // не виден (например, скрыт под модалкой муллигана/деколадера) — в этом случае
-// полёт просто пропускается, карта появляется как раньше (обычный fade без спрайта).
+// полёт просто пропускается, карта появляется как раньше (обычный fade без клона).
 function _deckPlaceholderRect(faction){
   const deckEl=document.getElementById(faction==='tea'?'deckPlaceholderT':'deckPlaceholderJ');
   if(!deckEl || deckEl.offsetParent===null) return null;
@@ -757,26 +764,31 @@ function _deckPlaceholderRect(faction){
   return r;
 }
 
-function _flyCardFromDeck(deckRect, targetRect, delayMs){
-  const sprite=document.createElement('div');
-  sprite.className='card-fly-sprite';
-  sprite.style.width=Math.max(targetRect.width,30)+'px';
-  sprite.style.height=Math.max(targetRect.height,42)+'px';
-  sprite.style.left=(deckRect.left+deckRect.width/2)+'px';
-  sprite.style.top=(deckRect.top+deckRect.height/2)+'px';
-  sprite.style.transform='translate(-50%,-50%) scale(.35) rotate(-6deg)';
-  sprite.style.opacity='0.92';
-  document.body.appendChild(sprite);
+// cloneEl — уже готовый cloneNode(true) реальной карты (см. вызов в rZone), ЕЩЁ
+// не вставленный в DOM и без card-drawn/selected/previewed — этой функции он
+// передаётся "чистым", целиком её забота вставить/анимировать/убрать.
+function _flyCardFromDeck(cloneEl, deckRect, targetRect, delayMs){
+  cloneEl.classList.remove('selected','previewed','affordable','entering');
+  cloneEl.classList.add('card-fly-clone');
+  cloneEl.style.position='fixed';
+  cloneEl.style.margin='0';
+  cloneEl.style.width=Math.max(targetRect.width,30)+'px';
+  cloneEl.style.height=Math.max(targetRect.height,42)+'px';
+  cloneEl.style.left=(deckRect.left+deckRect.width/2)+'px';
+  cloneEl.style.top=(deckRect.top+deckRect.height/2)+'px';
+  cloneEl.style.transform='translate(-50%,-50%) scale(.35) rotate(-6deg)';
+  cloneEl.style.opacity='1';
+  document.body.appendChild(cloneEl);
   setTimeout(()=>{
-    if(!sprite.parentElement) return; // на случай если экран уже перерисован/сцена сменилась
+    if(!cloneEl.parentElement) return; // на случай если экран уже перерисован/сцена сменилась
     playSfx('new_card');
-    void sprite.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
-    sprite.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity 140ms ease-in ${CARD_FLY_MS-140}ms`;
-    sprite.style.left=(targetRect.left+targetRect.width/2)+'px';
-    sprite.style.top=(targetRect.top+targetRect.height/2)+'px';
-    sprite.style.transform='translate(-50%,-50%) scale(1) rotate(0deg)';
-    sprite.style.opacity='0';
-    setTimeout(()=>{ if(sprite.parentElement) sprite.remove(); }, CARD_FLY_MS+40);
+    void cloneEl.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+    cloneEl.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity 140ms ease-in ${CARD_FLY_MS-140}ms`;
+    cloneEl.style.left=(targetRect.left+targetRect.width/2)+'px';
+    cloneEl.style.top=(targetRect.top+targetRect.height/2)+'px';
+    cloneEl.style.transform='translate(-50%,-50%) scale(1) rotate(0deg)';
+    cloneEl.style.opacity='0';
+    setTimeout(()=>{ if(cloneEl.parentElement) cloneEl.remove(); }, CARD_FLY_MS+40);
   }, delayMs);
 }
 
@@ -847,11 +859,14 @@ function rZone(id,cards,zone){
     newHandEls.forEach(cardEl=>{
       const restRect=cardEl.getBoundingClientRect(); // финальная (уже сжатая) позиция ДО навешивания card-drawn
       const deckRect=_deckPlaceholderRect(faction);
+      // Клон снимаем СЕЙЧАС, пока cardEl ещё "чистая" (без card-drawn/animation-delay) —
+      // см. комментарий у _flyCardFromDeck выше.
+      const flyClone = deckRect ? cardEl.cloneNode(true) : null;
       cardEl.classList.add('card-drawn');
       if(deckRect){
         cardEl.style.animationDelay=CARD_FLY_MS+'ms';
         cardEl.style.animationFillMode='both';
-        _flyCardFromDeck(deckRect,restRect,newHandCardIndex*90);
+        _flyCardFromDeck(flyClone,deckRect,restRect,newHandCardIndex*90);
         newHandCardIndex++;
       }
     });
