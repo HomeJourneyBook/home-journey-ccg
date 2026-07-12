@@ -175,7 +175,7 @@ function _dbPreviewCard(faction,key,def){
   return Object.assign({}, def, {id:'dbzoom-'+key, f:faction, maxHp:def.hp});
 }
 function _dbAttachZoom(cardEl,faction,key,def){
-  let timer=null, longPressFired=false;
+  let timer=null, longPressFired=false, pressStart=null;
   const clear=()=>{ if(timer){ clearTimeout(timer); timer=null; } };
   const end=()=>{
     clear();
@@ -190,12 +190,23 @@ function _dbAttachZoom(cardEl,faction,key,def){
     },380);
     document.addEventListener('mouseup', end, {once:true});
   });
-  cardEl.addEventListener('touchstart',()=>{
+  cardEl.addEventListener('touchstart',(e)=>{
+    const t=e.touches[0];
+    pressStart={x:t.clientX,y:t.clientY};
     longPressFired=false; clear();
     timer=setTimeout(()=>{
       longPressFired=true; cardEl._dbLongPressFired=true;
       showFieldCardPreview(_dbPreviewCard(faction,key,def), cardEl, 1.6);
     },380);
+  },{passive:true});
+  // Cancel the pending long-press if the finger moves more than a few px before
+  // the timer fires — otherwise scrolling the deckbuilder pane with a finger
+  // resting on a card triggers an unwanted zoom (same fix already applied to
+  // field/hand cards in render.js — this was the one place it got missed).
+  cardEl.addEventListener('touchmove',(e)=>{
+    if(!timer||!pressStart) return;
+    const t=e.touches[0];
+    if(Math.abs(t.clientX-pressStart.x)>10||Math.abs(t.clientY-pressStart.y)>10) clear();
   },{passive:true});
   ['touchend','touchcancel'].forEach(ev=>cardEl.addEventListener(ev,end));
 }
