@@ -31,6 +31,13 @@ function getAbilities(card){
       // эффект, но доступный любой карте (существу) напрямую через собственный тег,
       // без завязки на card.world.
       case 'enter_heal': ab.push({timing:'on_enter',effect:'hp_add',val,target:'all'}); break;
+      // enter_draw:N (2026-07-13, автор) — существо при входе на поле даёт своему владельцу
+      // N карт добора. Переиспользует ГОТОВЫЙ execution-путь эффекта 'draw' (см. кейс 'draw'
+      // ниже) — тот уже умеет резолвиться синхронно для instant/on_attack, просто добавляем
+      // on_enter в тот же список таймингов, которые резолвятся сразу (без анимации/звука
+      // прилёта карты — как и все остальные "добор вне начала хода" источники в игре: Hunger/
+      // Altar/spell draw/Ryvlen on-attack, см. Приоритет в CLAUDE.md).
+      case 'enter_draw': ab.push({timing:'on_enter',effect:'draw',val}); break;
       case 'draw':
         if(card.spell)                    ab.push({timing:'instant',effect:'draw',val});
         else if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'draw',val});
@@ -171,8 +178,9 @@ function triggerAbilities(card, timing, ctx={}){
       case 'draw':
         // instant: spells draw immediately
         // on_attack: Ryvlen draws on each attack
+        // on_enter: enter_draw:N — creature draws for its owner when played (2026-07-13)
         // on_turn: handled via extraDraw in endTurn — skip here
-        if(a.timing==='instant'||a.timing==='on_attack'){
+        if(a.timing==='instant'||a.timing==='on_attack'||a.timing==='on_enter'){
           for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
           lg(`${card.name}: draws ${a.val} card(s).`,'imp');
         }
