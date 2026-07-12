@@ -2,7 +2,9 @@ function getTargetableCards(oppField, att){
   const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return [bushido.id];
   const visible=oppField.filter(c=>!hasTag(c,'invisible')||oppField.length===1);
-  const provokes=visible.filter(c=>c.tags.includes('provoke'));
+  // provokeBroken (taunt_break, 2026-07-13) — Provoke временно подавлен, эта карта больше
+  // не форсирует атаку на себя, как будто тега нет вообще.
+  const provokes=visible.filter(c=>c.tags.includes('provoke')&&!c.provokeBroken);
   const hasPierce=att&&(att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce));
   if(provokes.length>0&&!hasPierce) return provokes.map(c=>c.id);
   return visible.map(c=>c.id);
@@ -301,7 +303,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.shieldConsumed=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
   // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
   // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
@@ -463,7 +465,29 @@ function tryAttackBase(){
 }
 
 function dmgCard(card,dmg,faction,bypassArmor){
+  // Сбрасываем ПЕРЕД любым ранним return (включая dmg<=0 ниже) — иначе устаревший true с
+  // прошлого удара мог бы утечь в проверку fear/burn/taunt_break этого хода (см. ниже).
+  card._shieldBlockedThisHit=false;
   if(dmg<=0)return;
+  // Solana Shield (World-трейт, 2026-07-13) — абсолютный одноразовый абсорб ПЕРВОГО удара
+  // ЛЮБОГО типа (физика И магия, включая контратаку) — в отличие от Брони (только физика)
+  // и Ward (только магия), щит стоит ДО обеих проверок и гасит вообще любой источник урона
+  // целиком, сколько бы ни было урона. Одноразово на всю игру (как incarnUsed у Инкарнации) —
+  // не восстанавливается, `shieldConsumed` навсегда true после первого срабатывания.
+  // _shieldBlockedThisHit — транзитный флаг ТОЛЬКО на этот синхронный тик: doAttack() зовёт
+  // dmgCard() и triggerAbilities(att,'on_attack',{target}) одним и тем же синхронным блоком,
+  // поэтому fear/burn/taunt_break могут проверить его сразу после и понять "удар не долетел
+  // — значит и дебафф не вешаем" (по прямому запросу автора — щит блокирует ВСЁ, что несёт
+  // с собой этот конкретный удар, не только HP-урон).
+  // НЕ перехватывает burn-тик — тот намеренно идёт мимо dmgCard() (см. endTurn()), та же
+  // экземпция, что уже есть у Брони: "поджог непробиваем в принципе", щит это не меняет.
+  if(hasTag(card,'shield') && !card.shieldConsumed){
+    card.shieldConsumed=true;
+    card._shieldBlockedThisHit=true;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+    lg(`${card.name}'s Solana Shield absorbs the hit entirely — shield spent.`,'dmg');
+    return;
+  }
   // Ward — магический аналог Брони (тег ico_ward.png уже есть у автора): полный
   // иммунитет именно к тому урону, который bypassArmor=true (AOE-активка/enter_aoe,
   // Shard, точечный урон спеллом) — той же категории, что Броня НЕ блокирует (см.
@@ -1152,7 +1176,7 @@ function endTurn(){
   // собственный ход заканчивается и начинается ход соперника — намеренный override
   // общего правила для конкретных редких карт, не баг.
   G[G.turn].field.forEach(c=>{
-    c.sleeping=false;c.feared=false;
+    c.sleeping=false;c.feared=false;c.provokeBroken=false;
     if(hasTag(c,'untamed')) c.exhausted=false;
   });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
