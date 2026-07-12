@@ -33,6 +33,8 @@ The game is currently in active development. Rules, card catalog, and tutorial a
 |Full pack of art              |🔄 In progress|
 |Music & SFX                   |✅ Complete   |
 |Deckbuilder                   |✅ Complete   |
+|Balance all card              |🔄 In progress|
+|Polish AI                     |🔄 In progress|
 |NFT integration               |📋 Planned    |
 |Online multiplayer            |📋 Planned    |
 
