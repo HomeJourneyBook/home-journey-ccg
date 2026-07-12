@@ -317,6 +317,7 @@ function preloadAssets(){
     'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png', 'img/ico_vanguard.png',
     'img/zzz.png',
     'img/mishen_red.png', 'img/mishen_green.png',
+    'img/ico_tb.png', 'img/solana_shield.png',
 
     // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
@@ -1543,6 +1544,7 @@ const TAG_TOOLTIPS = {
   'untamed': { name: 'Untamed', desc: "Regains strength during the opponent's turn — clears exhausted as soon as its own turn ends, instead of waiting for its owner's next turn like everything else." },
   'ward':    { name: 'Ward', desc: 'Immune to magic damage (AOE, Shard, targeted spell damage) — the same category of damage that ignores Armor. Normal attacks, Fear, and Burn still work on it.' },
   'incarnation': { name: 'Incarnation', desc: 'When this creature dies, it returns from the graveyard on its own after a set number of its owner\'s turns, at full HP. One-time — if it dies again after returning, it is exiled for good instead.' },
+  'taunt_break': { name: 'Taunt Break', desc: 'On attack: suppresses Provoke on the target for the rest of this turn — it can be freely attacked past this turn, ignoring Provoke. Wears off at the end of its own owner\'s next turn.' },
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box';
