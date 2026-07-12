@@ -739,6 +739,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small:hover{transform:translateY(-2px);}
 .card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
 .card-small.targetable{box-shadow:0 0 6px #e05555;border-color:#e05555;animation:pulse .8s infinite alternate;}
+/*── Мишень поверх карты-цели для точечных заклинаний/кнопок-активок/артефактов
+   (см. комментарий у mkSmallEl в render.js — aim-target/aim-heal). Размер — половина
+   ширины маленькой карты (арт мишеней 1:1), по центру карты, клики не перехватывает. ──*/
+.card-small.aim-target::after,.card-small.aim-heal::after{content:'';position:absolute;top:50%;left:50%;width:calc(var(--card-small-w) / 2);height:calc(var(--card-small-w) / 2);transform:translate(-50%,-50%);background-size:contain;background-repeat:no-repeat;background-position:center;pointer-events:none;z-index:5;}
+.card-small.aim-target::after{background-image:url('../img/mishen_red.png');}
+.card-small.aim-heal::after{background-image:url('../img/mishen_green.png');}
 .card-small.exhausted{filter:brightness(.55) saturate(.8);}
 .card-small.sleeping{filter:brightness(.55) saturate(.8);}
 .card-small.feared{opacity:.5;border-style:solid;box-shadow:0 0 8px #66666688;}
