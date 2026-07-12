@@ -1168,10 +1168,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   to{opacity:1; transform:scale(1); filter:brightness(.55) blur(0);}
 }
 .card.card-drawn{animation: cardDrawn 0.3s ease-out forwards;}
-/* Летящий спрайт-рубашка карты из колоды в руку (см. _flyCardFromDeck в render.js) —
-   отдельный fixed-элемент поверх всего, не трогает сам DOM руки/колоды. Стартует
-   у плейсхолдера колоды, летит к месту новой карты, тает в последние ~140мс полёта. */
-.card-fly-sprite{position:fixed; z-index:5500; pointer-events:none; background-image:url('../img/runaha.png'); background-size:cover; background-position:center; border-radius:8%; box-shadow:0 6px 18px #000000aa;}
+/*── Клон реальной карты, летящий из колоды в руку (замена обезличенного
+   card-fly-sprite/runaha.png — автор попросил 2026-07-13 показывать настоящий
+   арт сразу). Сам визуал — это склонированный .card, тут только позиционирование
+   поверх интерфейса + тень; transform/left/top/opacity анимируются инлайново
+   из _flyCardFromDeck (render.js). ──────────────────────────────────────────*/
+.card-fly-clone{z-index:5500; pointer-events:none; box-shadow:0 6px 18px #000000aa;}
 .screen-edge-flash{position:fixed; inset:0; z-index:9999; pointer-events:none;}
 .screen-edge-flash.flash-red{animation: screenFlashRed 0.5s ease-out forwards;}
 .screen-edge-flash.flash-green{animation: screenFlashGreen 0.5s ease-out forwards;}
