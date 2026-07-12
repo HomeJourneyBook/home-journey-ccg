@@ -211,6 +211,7 @@ function preloadAssets(){
     'img/bg_jest_log.png', 'img/bg_jest_grav.png',
     'img/bones.png',
     'img/bg_bottom_bar.png',
+    'img/icon-192.png',
 
     // ── Кнопки лендинга ──
     'img/btn_playgame1.png', 'img/btn_playgame2.png',
@@ -252,6 +253,7 @@ function preloadAssets(){
     'img/sort_spell1.png', 'img/sort_spell2.png', 'img/sort_spellH.png',
     'img/sort_world1.png', 'img/sort_world2.png', 'img/sort_worldH.png',
     'img/sort_artifact1.png', 'img/sort_artifact2.png', 'img/sort_artifactH.png',
+    'img/db_decorR.png',
 
     // ── Бортики зоны рук + лор-страницы + новая иконка тега (эта сессия) ──
     'img/hands_border.png', 'img/hands_border2.png',
@@ -275,6 +277,7 @@ function preloadAssets(){
     'img/screen1.gif', 'img/bottom_extra2_jeet.png',
     'img/dat4ik_small.gif', 'img/bottom_extra3_jeet.png',
     'img/boltics.png', 'img/bottom_extra4_jeet.png',
+    'img/drill.png', 'img/left_tea.png',
 
     // ── Дайс-модалка (order-roll, выбор первого хода) — арт граней ──
     'img/dice_1.png', 'img/dice_2.png', 'img/dice_3.png',
@@ -296,7 +299,7 @@ function preloadAssets(){
     'img/bg_statbar_tea.png', 'img/bg_statbar_jeet.png',
     'img/bg_statbar_tea1.png', 'img/bg_statbar_tea2.png', 'img/bg_statbar_tea3.png', 'img/bg_statbar_tea4.png', 'img/bg_statbar_tea5.png',
     'img/bg_statbar_jeet1.png', 'img/bg_statbar_jeet2.png', 'img/bg_statbar_jeet3.png', 'img/bg_statbar_jeet4.png', 'img/bg_statbar_jeet5.png',
-    'img/bg_cost_tea.png', 'img/bg_cost_jeet.png',
+    'img/bg_cost_tea.png', 'img/bg_cost_jeet.png', 'img/bg_cost_neutral.png',
     'img/bg_handP_bar.png', 'img/bg_handO_bar.png',
     'img/bg_handP_bar_jeet.png', 'img/bg_handO_bar_jeet.png',
 
@@ -312,10 +315,12 @@ function preloadAssets(){
     // ── Иконки тегов ──
     'img/ico_fear.png', 'img/ico_pierce.png', 'img/ico_regen.png',
     'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png', 'img/ico_vanguard.png',
+    'img/zzz.png',
 
     // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
     'img/btn_zoom.png',
+    'img/btn_heal.png', 'img/btn_spell_cncl.png',
     'img/button_1.png', 'img/button_2.png',
     'img/button_1_jeet.png', 'img/button_2_jeet.png',
     'img/button_grav_1.png', 'img/button_grav_2.png',
