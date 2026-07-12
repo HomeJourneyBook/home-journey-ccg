@@ -315,6 +315,22 @@ function aiResolvePendingSpellTarget(){
     doSpellUntapTarget(candidates[0]);
     return;
   }
+  if(G.phase==='spellBounceTarget'){
+    // Приоритет — бounce сильнейшего существа человека (чистый темп-профит: он платит за
+    // карту заново). Если у человека нечего бaунсить — fallback на СВОЁ самое дешёвое
+    // существо (не идеально полезно, но не хуже, чем впустую отменить уже оплаченный спелл).
+    const enemyTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+    if(enemyTargets.length>0){
+      enemyTargets.sort((a,b)=>effAtk(b)-effAtk(a));
+      doSpellBounceTarget(enemyTargets[0]);
+      return;
+    }
+    const ownTargets=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+    if(ownTargets.length===0){ cancelPendingSpell(); return; }
+    ownTargets.sort((a,b)=>a.cost-b.cost);
+    doSpellBounceTarget(ownTargets[0]);
+    return;
+  }
 }
 
 // ── АКТИВКА: AOE (Umbasir) ───────────────────────────────────────
@@ -508,6 +524,11 @@ function aiSpellHasValidTarget(card){
   }
   if(hasTag(card,'spell_untap')){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
+  }
+  if(hasTag(card,'spell_bounce_target')){
+    // Цель любая сторона — валидно, если ЕСТЬ хоть одно существо где угодно на поле.
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact) ||
+           G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact);
   }
   return true;
 }
