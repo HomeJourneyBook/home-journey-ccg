@@ -22,6 +22,7 @@ function getAbilities(card){
       case 'fear':       ab.push({timing:'on_attack',effect:'fear'}); break;
       case 'burn':       ab.push({timing:'on_attack',effect:'burn'}); break;
       case 'aoe':        ab.push({timing:'active',effect:'aoe',val}); break;
+      case 'bolt':       ab.push({timing:'active',effect:'bolt',val}); break;
       case 'enter_aoe':  ab.push({timing:'on_enter',effect:'aoe',val}); break;
       case 'draw':
         if(card.spell)                    ab.push({timing:'instant',effect:'draw',val});
