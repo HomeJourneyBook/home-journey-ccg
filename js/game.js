@@ -109,6 +109,14 @@ function onClick(card,zone){
     }
     cancelPendingSpell();return;
   }
+  if(G.phase==='spellBounceTarget'){
+    // В отличие от остальных targeted-спеллов — цель ЛЮБАЯ сторона (своя или вражеская),
+    // поэтому нет проверки card.f===/!==G.turn, только что это существо на поле.
+    if(zone==='field'&&!card.spell&&!card.world&&!card.artifact){
+      doSpellBounceTarget(card);return;
+    }
+    cancelPendingSpell();return;
+  }
   if(G.phase==='action'){
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
@@ -174,6 +182,10 @@ function doPlay(card){
   if(card.spell&&hasTag(card,'spell_untap')){
     G.pendingSpell=card;G.phase='spellUntapTarget';
     lg(`${card.name}: select an ally creature to activate.`,'hint');render();return;
+  }
+  if(card.spell&&hasTag(card,'spell_bounce_target')){
+    G.pendingSpell=card;G.phase='spellBounceTarget';
+    lg(`${card.name}: select any creature on the field.`,'hint');render();return;
   }
   if(card.spell)doSpell(card);
   else if(card.world)doWorld(card);
@@ -1017,6 +1029,32 @@ function doSpellUntapTarget(card){
   G.pendingSpell=null;G.phase='action';G.sel=null;
   G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
   render();
+}
+
+// ПОРЫВ (Tea) / REVERSE (Jeet) — точечный баунс, "bounce на минималках": в отличие от
+// полного `bounce` (UNSEEN — ВСЕ карты с поля обеих сторон разом), тут ОДНА выбранная
+// карта, и цель может быть как своя, так и вражеская (card.f определяет владельца — куда
+// именно она вернётся, не обязательно в руку кастера). ownerK берётся из card.f, а не
+// G.turn, специально для этого.
+function doSpellBounceTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  const ownerK=card.f;
+  playSfx('wind_card'); // тот же звук, что у полного bounce (UNSEEN) — тематически один жест
+  lg(`${spell.name}: ${card.name} blown back to ${ownerK==='tea'?'Tea':'Jeet'}'s hand.`,'imp');
+  G[ownerK].field=G[ownerK].field.filter(c=>c.id!==card.id);
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
+  render(); // немедленный рендер — карта пропадает с поля, rZone(zone:'field') сам подхватывает
+            // "умирание" (класс dying + удаление через 400мс), см. комментарий там же в render.js
+  setTimeout(()=>{
+    resetC(card);
+    G[ownerK].hand.push(card);
+    render();
+  },400); // та же задержка, что у полного bounce — карта не появляется в руке ДО того,
+          // как её "призрак" на поле закончил гаснуть
 }
 
 function doShardTarget(card){
