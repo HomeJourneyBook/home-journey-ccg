@@ -819,7 +819,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   width:calc(var(--card-h)*0.12);height:calc(var(--card-h)*0.12*2.18);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.09);font-weight:bold;line-height:1;
-  background:rgba(20,10,30,0.75);border:1px solid #7a5fb0;border-radius:4px;color:#e0c8ff;z-index:4;}
+  overflow:hidden;border-radius:4px;color:#e0c8ff;z-index:4;}
+/* armor_bg.png — горизонтальный 2:1 ассет, тот же что у Брони, но здесь бокс вертикальный —
+   повёрнут на 90° через псевдоэлемент-подложку (ширина/высота свопнуты ДО поворота, чтобы
+   после rotate(90deg) итоговый повёрнутый прямоугольник точно перекрыл сам бокс). */
+.card-incarn-badge::before{content:'';position:absolute;top:50%;left:50%;
+  width:calc(var(--card-h)*0.12*2.18);height:calc(var(--card-h)*0.12);
+  background-image:url('../img/armor_bg.png');background-size:100% 100%;background-repeat:no-repeat;
+  transform:translate(-50%,-50%) rotate(90deg);z-index:-1;}
 .card-incarn-badge .card-incarn-icon{font-size:calc(var(--card-h)*0.1);}
 .card-ability-box{width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
 .card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:0.7;word-spacing:-1px;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
@@ -1086,8 +1093,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .stat-badge{display:flex; align-items:center; justify-content:center; background-image:url('../img/bg_statbar_hp.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center; min-width:3.5vh; height:2.8vh; font-family:'MEK',monospace; font-size:2.2vh; font-weight:bold; pointer-events:none; padding:0 0.6vh; flex-shrink:0;}
 #teaBottomBar .stat-badge{color:#4DB854;}
 #jeetBottomBar .stat-badge{color:#b44fd4; background-color:#fff; background-image:url('../img/bg_counters_jeet.png');}
-/* Счётчик кладбища — отдельный фон armor_bg.png (перебивает правило выше через #teaBottomBar/#jeetBottomBar + id, специфичность выше) */
-#teaBottomBar #teaGraveBadge, #jeetBottomBar #jeetGraveBadge{background-color:transparent; background-image:url('../img/armor_bg.png');}
 .card-detail-overlay{position:fixed;inset:0;background:#000000cc;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
 .card-detail-box{position:relative;display:flex;align-items:center;justify-content:center;}
 .card-detail-close{position:absolute;top:-32px;right:-8px;font-size:28px;cursor:pointer;color:#888;background:none;border:none;z-index:10;}
