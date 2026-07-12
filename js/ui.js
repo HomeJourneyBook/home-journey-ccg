@@ -316,6 +316,7 @@ function preloadAssets(){
     'img/ico_fear.png', 'img/ico_pierce.png', 'img/ico_regen.png',
     'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png', 'img/ico_vanguard.png',
     'img/zzz.png',
+    'img/mishen_red.png', 'img/mishen_green.png',
 
     // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
