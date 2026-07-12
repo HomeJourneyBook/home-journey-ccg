@@ -21,6 +21,15 @@ function getAbilities(card){
       case 'pierce':     ab.push({timing:'passive',effect:'pierce'}); break;
       case 'fear':       ab.push({timing:'on_attack',effect:'fear'}); break;
       case 'burn':       ab.push({timing:'on_attack',effect:'burn'}); break;
+      // taunt_break (2026-07-13, автор) — на атаке подавляет Provoke у цели (можно бить
+      // мимо танка до конца этого хода) — снимается тем же путём, что и fear/exhausted
+      // (см. endTurn() в game.js, "снимаются у ВЫХОДЯЩЕГО игрока сразу" — тот же блок,
+      // просто рядом с c.feared=false). Итоговое окно действия: остаток хода атакующего +
+      // весь следующий ход владельца танка (где это в любом случае неважно — Provoke не
+      // проверяется для СВОИХ же атак), снимается точно к следующему ходу атакующего —
+      // ровно то, что попросил автор ("к след ходу противника, его карта уже
+      // реабилитируется").
+      case 'taunt_break': ab.push({timing:'on_attack',effect:'taunt_break'}); break;
       case 'aoe':        ab.push({timing:'active',effect:'aoe',val}); break;
       case 'bolt':       ab.push({timing:'active',effect:'bolt',val}); break;
       case 'enter_aoe':  ab.push({timing:'on_enter',effect:'aoe',val}); break;
@@ -161,18 +170,31 @@ function triggerAbilities(card, timing, ctx={}){
         break;
 
       case 'burn':
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
           ctx.target.burning=true;
           playSfx('card_fire_atack');
           lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
         } break;
 
       case 'fear':
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
           ctx.target.feared=true;
           playSfx('debaf');
           lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
           queueFieldFx(ctx.target.id,'FEARED!','fx-fear');
+        } break;
+
+      case 'taunt_break':
+        // Осмысленно только против цели, у которой реально ЕСТЬ provoke — иначе тег просто
+        // молча ничего не делает (нечего снимать), без лога/звука/значка, как и остальные
+        // условные on_attack эффекты выше. _shieldBlockedThisHit — см. Solana Shield в
+        // dmgCard() (game.js): удар полностью поглощён щитом → и сам урон, и любой эффект,
+        // который он нёс с собой (fear/burn/taunt_break), не применяется вообще.
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&hasTag(ctx.target,'provoke')){
+          ctx.target.provokeBroken=true;
+          playSfx('debaf');
+          lg(`${card.name}: ${ctx.target.name}'s Provoke is suppressed!`,'imp');
+          queueFieldFx(ctx.target.id,'EXPOSED!','fx-fear'); // переиспользуем готовый fx-класс fear — тот же "красный всплеск"
         } break;
 
       case 'draw':
