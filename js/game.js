@@ -1096,6 +1096,7 @@ function closeGraveModal(){
 
 
 function endTurn(){
+  if(G.gameOver) return;
   if(isAiTurn()&&!G._aiIsEnding) return; // человек не может завершить ход ИИ
   playSfx('yellow_buttom');
   G.sel=null;G.phase='action';G.previewCard=null;
