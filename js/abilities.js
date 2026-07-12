@@ -24,6 +24,13 @@ function getAbilities(card){
       case 'aoe':        ab.push({timing:'active',effect:'aoe',val}); break;
       case 'bolt':       ab.push({timing:'active',effect:'bolt',val}); break;
       case 'enter_aoe':  ab.push({timing:'on_enter',effect:'aoe',val}); break;
+      // enter_heal:N (2026-07-13, автор) — зеркало enter_aoe: тот же тайминг on_enter,
+      // но во благо. Переиспользует ГОТОВЫЙ execution-путь hp_add/target:'all' (см. кейс
+      // 'hp_add' ниже — уже лечит только раненых своей стороны, клампится по maxHp,
+      // раньше использовался только у World-карт через тег hp_add/heal). Здесь — тот же
+      // эффект, но доступный любой карте (существу) напрямую через собственный тег,
+      // без завязки на card.world.
+      case 'enter_heal': ab.push({timing:'on_enter',effect:'hp_add',val,target:'all'}); break;
       case 'draw':
         if(card.spell)                    ab.push({timing:'instant',effect:'draw',val});
         else if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'draw',val});
