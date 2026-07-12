@@ -38,11 +38,12 @@ Built with vanilla HTML/CSS/JS. Hosted on GitHub Pages. No build step required.
   2026-07-13, после случая, когда версию подняли самостоятельно на правках баланса/тегов —
   автор попросил откатить). Даже если правка формально попадает под критерии из описания
   `GAME_VERSION` ниже (rebalance/rename/новый тег и т.п.) — это необходимое, но НЕ достаточное
-  условие: ждать, пока автор сам попросит поднять версию. Текущее реальное состояние на
-  2026-07-13: `GAME_VERSION` всё ещё `"1.0"`, при этом контент/баланс уже готовятся к будущему
-  релизу, который в этом файле называется “Version 1.01” (см. Roadmap ниже) — это ДВЕ РАЗНЫЕ
-  вещи (номер релиза в roadmap ≠ строка `GAME_VERSION`), не путать и не синхронизировать
-  автоматически одно с другим.
+  условие: ждать, пока автор сам попросит поднять версию. **Обновление того же дня:** автор
+  сам явно попросил поднять версию до `"1.01"` (не `"1.1"`) — сделано, `GAME_VERSION` теперь
+  `"1.01"`, синхронно с тем, как этот же релиз называется в Roadmap ниже (“Version 1.01”) —
+  то есть на этот раз номер релиза и строка `GAME_VERSION` СОВПАЛИ по факту явного запроса,
+  но это разовое совпадение по факту просьбы, а не новое общее правило синхронизировать их
+  автоматически — см. следующий раз снова ждать явного запроса.
 
 -----
 
@@ -221,7 +222,8 @@ Returns the value after the tag name. Examples:
 |Tag          |Effect                             |
 |-------------|-----------------------------------|
 |`enter_aoe:N`|N damage to all enemies when played|
-|`enter_heal:N`|Heal N HP to all WOUNDED allies when played (self included if already on field at trigger time, but a just-entered creature is always at full HP so this never applies to itself in practice). Reuses the same `hp_add`/`target:'all'` execution path as World's on-enter heal (see Ability System below) — added 2026-07-13, live on TRAVELER #1/#583/#11 (test) and reserved for the Bamboo World-trait (см. Essence pricing shop, `enter_heal:2`).|
+|`enter_heal:N`|Heal N HP to all WOUNDED allies when played (self included if already on field at trigger time, but a just-entered creature is always at full HP so this never applies to itself in practice). Reuses the same `hp_add`/`target:'all'` execution path as World's on-enter heal (see Ability System below) — added 2026-07-13, live on TRAVELER #1/#583/#11 (test, bumped 1→2 same day) and reserved for the Bamboo World-trait (см. Essence pricing shop, `enter_heal:2`).|
+|`enter_draw:N`|Owner draws N cards when this creature is played. Reuses the same `draw` execution path as instant/on_attack draw (see Ability System below) — no fly/sound animation, same as every other "draw outside turn start" source (Hunger/Altar/spell draw/Ryvlen). Added 2026-07-13, live on TRAVELER #6 (test) and reserved for the Valley World-trait (см. Essence pricing shop, `enter_draw:1`).|
 
 **On Turn Start:**
 
@@ -752,9 +754,10 @@ game tags:
 | Net | `invisible` | 0.66 |
 | Пески | `vanguard` (как доп.тег — Szarg сам по себе без тега) | 0.66 |
 | Бамбук | `enter_heal:2` (при входе — хил 2 всем раненым союзникам, см. Tag System) | 0.33 |
+| Долина (Valley) | `enter_draw:1` (при входе — добор 1 карты владельцу, см. Tag System) | 0.66 |
 
 **Trait-слоты без назначения (ждут решения):**
-Valley · Optical Dope · Схема · Незабываемый (тентативно: вампиризм?) · Забудь всё (тентативно:
+Optical Dope · Схема · Незабываемый (тентативно: вампиризм?) · Забудь всё (тентативно:
 трупоедство/"вспомнить всё") · Розовые облака · Solana World (мир, не путать с Mood: Солана)
 
 **Механики "россыпью", ещё не привязанные к конкретному трейту** (тентативные цены,
@@ -1440,13 +1443,37 @@ SHARD (shard:2), ALTAR (sacrifice).
   доступный только World-картам) — лечит только раненых союзников своей стороны, клампится
   по maxHp, ничего не делает при полном HP без доп. условий в коде. См. Tag System выше.
   - Протестирован на 3 рядовых (test-теги, не финальный баланс): TRAVELER #1 (cost 2→3,
-    hp 3→5), TRAVELER #583 (hp 4→3), TRAVELER #11 (hp 5→4) — у всех троих `enter_heal:1`.
+    hp 3→5), TRAVELER #583 (hp 4→3), TRAVELER #11 (hp 5→4) — изначально `enter_heal:1`,
+    ПОЗЖЕ ТЕМ ЖЕ ДНЁМ поднят автором до `enter_heal:2` на всех трёх (текст `ab` тоже обновлён).
   - Закреплён за трейтом **Бамбук** (World-трейт, был в списке "без назначения") —
     `enter_heal:2`, цена 0.33 эссенции (см. Essence pricing shop выше).
-- **`GAME_VERSION` НЕ поднят** — сначала было поднято до `1.1` вместе с ребалансом трёх
-  травелеров выше, автор попросил откатить (версию не поднимать без явного запроса, даже
-  под правки статов/тегов) — откачено обратно на `1.0`. Правило записано явно в Session
-  Workflow выше, чтобы не повторилось.
+- **Новый тег `enter_draw:N`** — тем же вечером, зеркало `enter_heal`/`enter_aoe`: существо
+  при входе даёт владельцу N карт добора. Переиспользует ГОТОВЫЙ execution-путь эффекта
+  `draw` (просто добавлен `on_enter` в список таймингов, которые резолвятся сразу, наравне с
+  `instant`/`on_attack`) — без анимации/звука прилёта, как и все остальные "добор вне начала
+  хода" источники (Hunger/Altar/spell draw/Ryvlen). См. Tag System выше.
+  - Протестирован на TRAVELER #6 (cost 2→3, hp 3→4, `enter_draw:1`).
+  - Закреплён за трейтом **Долина / Valley** (World-трейт, был в списке "без назначения") —
+    `enter_draw:1`, цена 0.66 эссенции (см. Essence pricing shop выше). ⚠️ Тёзка уже
+    существующей уникальной World-карты VALLEY (`t_w1`, `draw:1` on-turn) — та карта не
+    трогалась, это просто трейт с похожей темой добора на РЯДОВЫХ травелерах; если название
+    смущает (два "Valley" в разных смыслах) — стоит переименовать трейт при случае.
+- **Новый спелл — ПОРЫВ (Tea) / REVERSE (Jeet)**, cost 1, `1_windy.png`/`1_revers.png`,
+  3 копии в стартовой Classic-колоде каждой фракции (и в Rush-пуле деккбилдера — оба
+  автоматически, просто добавлены ключи `t_sp5`/`j_sp5` в список спеллов `deck.js`). Новый
+  тег `spell_bounce_target` — точечный баунс ("bounce на минималках"): в отличие от полного
+  `bounce` (UNSEEN — все карты с поля обеих сторон), тут ОДНА выбранная карта, и цель может
+  быть как своя, так и вражеская (владелец карты определяет, в чью руку она вернётся, не
+  обязательно в руку кастера). Пятый targeted-spell phase (`spellBounceTarget`) по образцу
+  существующих четырёх — `doPlay()`→пауза→`onClick()`→резолвер `doSpellBounceTarget()`
+  (game.js), с тем же паттерном задержки/анимации, что у полного bounce (звук `wind_card`,
+  карта пропадает с поля сразу, в руку — через 400мс). AI не зависает: приоритет — баунснуть
+  сильнейшее существо человека, фоллбэк — своё самое дешёвое. См. Targeted Spell System выше.
+- **`GAME_VERSION` — история дня**: сначала было поднято до `1.1` вместе с ребалансом трёх
+  травелеров, автор попросил откатить (версию не поднимать без явного запроса) — откачено на
+  `1.0`, правило записано в Session Workflow выше. Позже ТЕМ ЖЕ ДНЁМ автор сам явно попросил
+  поднять версию — до `1.01` (не `1.1`), с этим ПОСЛЕДНИМ явным запросом версия и стоит на
+  момент записи этого файла.
 
 -----
 
