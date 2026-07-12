@@ -121,7 +121,7 @@ function findC(id){
 }
 
 function resetC(c){
-  c.sleeping=false;c.exhausted=false;c.feared=false;c.burning=false;c.atkBonus=0;c.auraMaxHpBonus=0;c.rageBonus=0;c.tempAtkBonus=0;c.maxHpBonus=0;c.squadMaxHpBonus=0;c.squadAtkBonus=0;c.squadArmorBonus=0;c.squadParam=null;c.armor=0;c.armorMax=undefined;c.auraArmorBonus=0;c.worldArmorBonus=0;
+  c.sleeping=false;c.exhausted=false;c.feared=false;c.burning=false;c.provokeBroken=false;c.shieldConsumed=false;c.atkBonus=0;c.auraMaxHpBonus=0;c.rageBonus=0;c.tempAtkBonus=0;c.maxHpBonus=0;c.squadMaxHpBonus=0;c.squadAtkBonus=0;c.squadArmorBonus=0;c.squadParam=null;c.armor=0;c.armorMax=undefined;c.auraArmorBonus=0;c.worldArmorBonus=0;
   c.incarnTimer=undefined; // Инкарнация: если карта покидает grave не через revive-тик (см. endTurn()), таймер не должен тащиться дальше
   c.incarnUsed=undefined; // одноразовость — сброс, если карта когда-нибудь вернётся в колоду/руку (bounce и т.п.)
   const def=DEFS[c.key];if(def){c.hp=def.hp;c.maxHp=def.hp;}
