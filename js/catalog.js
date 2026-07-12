@@ -62,6 +62,7 @@ function renderCatalog(){
       'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
       'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
       'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
+  'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
     };
     const tagIcons=(def.tags||[])
       .map(t=>t.split(':')[0])
@@ -122,6 +123,7 @@ function openCardDetail(def){
     'invisible':'<img src="img/ico_invis.png" style="width:60%;height:60%;">',
     'untamed': '<img src="img/ico_untamed.png" style="width:60%;height:60%;">',
     'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
+  'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
   };
   const tagIcons = (def.tags||[])
     .map(t=>t.split(':')[0])
