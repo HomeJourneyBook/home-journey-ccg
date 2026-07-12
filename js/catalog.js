@@ -88,15 +88,15 @@ function renderCatalog(){
 }
     div.innerHTML=`
       <div class="card-cost">${def.cost}</div>
+      ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
       <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img?`<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:def.art}</div>
       ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
-      ${!isSW?`<div class="card-stats${hasTag(def,'armor')?' has-armor':''}">
+      ${!isSW?`<div class="card-stats">
         <div class="card-hp-box" data-hp="${def.hp}" data-maxhp="${def.hp}"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
         <img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
         <div class="card-atk-box" data-base="${def.atk}" data-bonus="0"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
-        ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
       </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
@@ -167,6 +167,7 @@ function openCardDetail(def){
     <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
     <div class="card ${bgClass} ${worldClass} ${neutralClass} card-detail-scaled" style="${worldBg}">
       <div class="card-cost">${def.cost}</div>
+      ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
       <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-art">${def.img
         ? `<img src="img/cards/${def.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`
@@ -174,11 +175,10 @@ function openCardDetail(def){
       ${tagIcons ? `<div class="card-tag-icons">${tagIcons}</div>` : ''}
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
       ${!isSW
-        ? `<div class="card-stats${hasTag(def,'armor')?' has-armor':''}" style="width:var(--card-stats-w);">
+        ? `<div class="card-stats" style="width:var(--card-stats-w);">
              <div class="card-hp-box" data-hp="${def.hp}" data-maxhp="${def.hp}"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${def.hp}</span></div>
              <img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
              <div class="card-atk-box" data-base="${def.atk}" data-bonus="0"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
-             ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
            </div>`
         : `<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
       <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
