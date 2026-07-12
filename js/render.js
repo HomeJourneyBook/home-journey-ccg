@@ -888,24 +888,27 @@ function rZone(id,cards,zone){
         cardEl.style.animationDelay=(CARD_FLY_MS-CARD_FLY_FADE_MS)+'ms';
         cardEl.style.animationDuration=CARD_FLY_FADE_MS+'ms';
         cardEl.style.animationFillMode='both';
-        // БАГ (найден автором 2026-07-13): animation-delay/duration/fill-mode, поставленные
-        // инлайново, НЕ привязаны к конкретному animation-name (cardDrawn) — они продолжают
-        // действовать на ЛЮБУЮ анимацию, которая запустится на этом же DOM-узле ПОСЛЕ, пока
-        // инлайн-стиль не снят. Карта в руке чаще всего сразу получает класс `affordable`
-        // (см. mkEl) с СВОЕЙ анимацией `goldPulseWeak 1.8s` — без очистки она наследует
-        // duration:140ms вместо 1.8s и мигает в ~13 раз быстрее задуманного. Раньше (до
-        // кроссфейда, когда инлайново стоял только animation-delay=300ms, без duration)
-        // это было почти незаметно; теперь — заметно. Чистим сразу по завершении cardDrawn:
-        // снимаем и инлайн-стили, и сам класс (он больше не нужен), любая анимация на этом
-        // узле после этого момента снова берёт длительность из своего собственного CSS-правила.
-        cardEl.addEventListener('animationend', function _clearDrawnAnim(e){
-          if(e.animationName!=='cardDrawn') return;
+        // БАГ (найден автором 2026-07-13, фикс уточнён после повторного репорта): animation-
+        // delay/duration/fill-mode, поставленные инлайново, НЕ привязаны к конкретному
+        // animation-name (cardDrawn) — они продолжают действовать на ЛЮБУЮ анимацию, которая
+        // запустится на этом же DOM-узле ПОСЛЕ, пока инлайн-стиль не снят. Карта в руке чаще
+        // всего сразу получает класс `affordable` (см. mkEl) со СВОЕЙ анимацией
+        // `goldPulseWeak 1.8s` — без очистки она наследует duration:140ms вместо 1.8s и
+        // мигает в ~13 раз быстрее задуманного.
+        // ПЕРВАЯ попытка фикса (animationend с проверкой e.animationName==='cardDrawn') не
+        // сработала для affordable-карт: `.hand .card.affordable` — 3 классовых селектора
+        // (специфичность 0,3,0), `.card.card-drawn` — 2 (0,2,0) → у affordable-карт ВЕСЬ
+        // animation-шорткод (включая имя) достаётся `goldPulseWeak`, `cardDrawn` для них не
+        // играет вообще, и т.к. goldPulseWeak `infinite` — событие 'animationend' для неё
+        // никогда не наступает, слушатель молча никогда не срабатывал именно для самого частого
+        // случая (affordable-карта в свой ход). Теперь — детерминированный setTimeout на то же
+        // окно (CARD_FLY_MS), не зависящий от того, чьё имя анимации реально победило в CSS:
+        setTimeout(()=>{
           cardEl.classList.remove('card-drawn');
           cardEl.style.animationDelay='';
           cardEl.style.animationDuration='';
           cardEl.style.animationFillMode='';
-          cardEl.removeEventListener('animationend', _clearDrawnAnim);
-        });
+        }, CARD_FLY_MS);
         _flyCardFromDeck(flyClone,deckRect,restRect,newHandCardIndex*90);
         newHandCardIndex++;
       }
