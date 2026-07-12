@@ -671,16 +671,16 @@ const tagIcons = (card.tags||[])
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
     ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" title="Incarnation: returns in ${card.incarnTimer} turn(s)"><img src="./img/ico_incarn.png" class="card-incarn-icon" style="width:70%;height:auto;">${card.incarnTimer}</div>`:''}
+    ${armorDisp?`<div class="card-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${card.burning?'<div class="burning-icon"></div>':''}
     <div class="card-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
-    ${!isSW?`<div class="card-stats${armorDisp?' has-armor':''}">
+    ${!isSW?`<div class="card-stats">
       <div class="card-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.maxHp}</span></div>
 <img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
       <div class="card-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
-      ${armorDisp?`<div class="card-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
     <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
