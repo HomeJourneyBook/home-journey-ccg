@@ -96,8 +96,8 @@ const DEFS = {
   j_trvl804_w:  {name:"TRAVELER #804",  cost:3,hp:3,atk:3,art:"🤖", img:"804.png",  f:"jeet",tags:["pierce","regen","gtype:mch"],          ab:"Squad: +1 ATK."},
 
   // Xuiqtr Jeet
-    j_trvl579_w:    {name:"TRAVELER #579",  cost:4,hp:5,atk:3,art:"🐙", img:"579.png",  f:"jeet",tags:["provoke","fear","gtype:xui"],          ab:"Squad: +1 ATK."},
-    j_trvl972_w:    {name:"TRAVELER #972",  cost:4,hp:4,atk:3,art:"🐙", img:"972.png",  f:"jeet",tags:["provoke","burn","gtype:xui"],          ab:"Squad: +1 ATK."},
+    j_trvl579_w:    {name:"TRAVELER #579",  cost:4,hp:3,atk:2,art:"🐙", img:"579.png",  f:"jeet",tags:["provoke","fear","gtype:xui"],          ab:"Squad: +1 ATK."},
+    j_trvl972_w:    {name:"TRAVELER #972",  cost:3,hp:3,atk:2,art:"🐙", img:"972.png",  f:"jeet",tags:["provoke","burn","gtype:xui"],          ab:"Squad: +1 ATK."},
      j_trvl50_w:    {name:"TRAVELER #50",   cost:2,hp:2,atk:2,art:"🐙", img:"50.png",   f:"jeet",tags:["provoke","gtype:xui"],                 ab:"Squad: +1 ATK."},
      j_trvl37_w:    {name:"TRAVELER #37",   cost:2,hp:2,atk:2,art:"🐙", img:"37.png",   f:"jeet",tags:["provoke","gtype:xui"],                 ab:"Squad: +1 ATK."},
 
