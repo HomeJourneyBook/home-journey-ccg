@@ -336,9 +336,13 @@ function doUmbAsir(){
   const umb=findC(G.sel);
   if(!umb||!hasTag(umb,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(umb.exhausted){lg(`${umb.name} already acted this turn.`,'dmg');return;}
+  const cur=G[G.turn];
+  const AOE_ACTIVATION_COST=2; // AOE больше не бесплатная многоразовая кнопка — платим эссенцией
+  if(cur.ess<AOE_ACTIVATION_COST){lg(`Not enough essence for AOE — need ${AOE_ACTIVATION_COST}, have ${cur.ess}.`,'hint');return;}
+  cur.ess-=AOE_ACTIVATION_COST;
   playSfx('card_spell_atack');
   const dmgAmt=(umb.squadParam&&umb.squadParam.aoe)||getTagVal(umb,'aoe')||1;
-  lg(`${umb.name} hits ALL enemies for ${dmgAmt} dmg!`,'imp');
+  lg(`${umb.name} hits ALL enemies for ${dmgAmt} dmg! (-${AOE_ACTIVATION_COST} essence)`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK,true));
   umb.exhausted=true;
   G.sel=null;G.phase='action';
@@ -352,9 +356,13 @@ function doVardan(){
   const vard=findC(G.sel);
   if(!vard||!hasTag(vard,'aoe')){lg('Select an AOE card first.','hint');return;}
   if(vard.exhausted){lg(`${vard.name} already acted this turn.`,'dmg');return;}
+  const cur=G[G.turn];
+  const AOE_ACTIVATION_COST=2;
+  if(cur.ess<AOE_ACTIVATION_COST){lg(`Not enough essence for AOE — need ${AOE_ACTIVATION_COST}, have ${cur.ess}.`,'hint');return;}
+  cur.ess-=AOE_ACTIVATION_COST;
   playSfx('card_spell_atack');
   const dmgAmt=getTagVal(vard,'aoe')||2;
-  lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
+  lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies! (-${AOE_ACTIVATION_COST} essence)`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK,true));
   vard.exhausted=true;G.sel=null;G.phase='action';
   checkWin();render();
@@ -560,7 +568,7 @@ function doBurnCard(card){
     cur.hand=cur.hand.filter(c=>c.id!==card.id);
     card.voided=true;
     cur.void.push(card);
-    cur.essMax+=1;cur.ess+=1;
+    cur.essMax=Math.min(ESS_CAP, cur.essMax+1);cur.ess+=1;
     flashEssenceGain(G.turn);
     lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax}.`,'imp');
     G.phase='action';render();
@@ -686,6 +694,12 @@ function applyAuras(faction){
 // not deleted from the game's vocabulary, just currently unused by any SQUAD_DEFS entry.
 // If it comes back later, the 'param'/pierce branch in checkSquadBonuses() below still
 // knows how to handle it, nothing to re-implement.
+// Потолок эссенции — экономика не должна расти бесконечно (см. обсуждение "на 15 ходу
+// вся рука выкладывается разом"). essMax никогда не растёт выше этого числа; cur.ess
+// в рамках одного хода всё ещё может временно превышать essMax (ess_add-эффекты, сжигание
+// карты) — капается именно ПОТОЛОК, а не разовый всплеск траты.
+const ESS_CAP = 10;
+
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'armor', val:1},
   {gtype:'mch', count:3, effect:'atk',   val:1},
@@ -1097,7 +1111,7 @@ function endTurn(){
   if(G.secondFirstTurn&&G.turn===G.secondFaction){
     cur.essMax=1;cur.ess=1;G.secondFirstTurn=false;
   } else {
-    cur.essMax+=1;cur.ess=cur.essMax;
+    cur.essMax=Math.min(ESS_CAP, cur.essMax+1);cur.ess=cur.essMax;
   }
   flashEssenceGain(G.turn);
   const oppK=G.turn==='tea'?'jeet':'tea';
