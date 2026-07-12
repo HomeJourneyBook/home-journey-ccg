@@ -1053,7 +1053,7 @@ const _seenPcardPids = new Set();
 function updateEndTurnBtn(){
   const btn=document.getElementById(G.humanFaction+'EndTurnBtn');
   if(!btn) return;
-  const aiTurn = (G.mode==='vsai' && G.turn===G.aiFaction);
+  const aiTurn = isAiTurn();
   btn.classList.toggle('btn-waiting', aiTurn);
 }
 
