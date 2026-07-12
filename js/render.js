@@ -885,6 +885,24 @@ function rZone(id,cards,zone){
         cardEl.style.animationDelay=(CARD_FLY_MS-CARD_FLY_FADE_MS)+'ms';
         cardEl.style.animationDuration=CARD_FLY_FADE_MS+'ms';
         cardEl.style.animationFillMode='both';
+        // БАГ (найден автором 2026-07-13): animation-delay/duration/fill-mode, поставленные
+        // инлайново, НЕ привязаны к конкретному animation-name (cardDrawn) — они продолжают
+        // действовать на ЛЮБУЮ анимацию, которая запустится на этом же DOM-узле ПОСЛЕ, пока
+        // инлайн-стиль не снят. Карта в руке чаще всего сразу получает класс `affordable`
+        // (см. mkEl) с СВОЕЙ анимацией `goldPulseWeak 1.8s` — без очистки она наследует
+        // duration:140ms вместо 1.8s и мигает в ~13 раз быстрее задуманного. Раньше (до
+        // кроссфейда, когда инлайново стоял только animation-delay=300ms, без duration)
+        // это было почти незаметно; теперь — заметно. Чистим сразу по завершении cardDrawn:
+        // снимаем и инлайн-стили, и сам класс (он больше не нужен), любая анимация на этом
+        // узле после этого момента снова берёт длительность из своего собственного CSS-правила.
+        cardEl.addEventListener('animationend', function _clearDrawnAnim(e){
+          if(e.animationName!=='cardDrawn') return;
+          cardEl.classList.remove('card-drawn');
+          cardEl.style.animationDelay='';
+          cardEl.style.animationDuration='';
+          cardEl.style.animationFillMode='';
+          cardEl.removeEventListener('animationend', _clearDrawnAnim);
+        });
         _flyCardFromDeck(flyClone,deckRect,restRect,newHandCardIndex*90);
         newHandCardIndex++;
       }
