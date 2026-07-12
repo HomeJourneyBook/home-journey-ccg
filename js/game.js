@@ -9,7 +9,7 @@ function getTargetableCards(oppField, att){
 }
 
 function onClick(card,zone){
-  if(G.mode==='vsai'&&G.turn===G.aiFaction) return; // ход ИИ — игнорируем клики человека
+  if(isAiTurn()) return; // ход ИИ (или спектаторский матч) — игнорируем клики человека
   const opp=G.turn==='tea'?'jeet':'tea';
   if(G.phase==='burn'){
     if(zone==='hand'&&card.f===G.turn)doBurnCard(card);
@@ -406,7 +406,7 @@ function doBoltTarget(card){
 }
 
 function onBaseClick(faction){
-  if(G.mode==='vsai'&&G.turn===G.aiFaction) return;
+  if(isAiTurn()) return;
   if(faction===G.turn) return;
   if((G.phase==='selectTarget'||G.phase==='action')&&G.sel&&canAttackBase()){
     tryAttackBase();
@@ -1096,7 +1096,7 @@ function closeGraveModal(){
 
 
 function endTurn(){
-  if(G.mode==='vsai'&&G.turn===G.aiFaction&&!G._aiIsEnding) return; // человек не может завершить ход ИИ
+  if(isAiTurn()&&!G._aiIsEnding) return; // человек не может завершить ход ИИ
   playSfx('yellow_buttom');
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
@@ -1118,6 +1118,14 @@ function endTurn(){
   });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
   G.turn=next;
+  // Спектаторский режим (оба игрока — ИИ, см. isAiTurn()/startAiVsAiSpectator()):
+  // ai.js весь построен вокруг "G.aiFaction — это я, G.humanFaction — противник"
+  // как фиксированной пары; здесь эта пара просто переворачивается на каждый ход,
+  // чтобы та же самая логика без изменений принимала решения за ОБЕ стороны по очереди.
+  if(G.spectatorMode){
+    G.aiFaction=G.turn;
+    G.humanFaction=G.turn==='tea'?'jeet':'tea';
+  }
   const cur=G[G.turn];
   // exhausted снимается здесь — у ИГРОКА, ЧЕЙ ход начинается, а не у того, чей закончился.
   // Артефакты — туда же, для визуальной консистентности (симметрично картам, хотя
@@ -1223,7 +1231,7 @@ function endTurn(){
   const lp=document.getElementById('logPanel');if(lp)lp.classList.remove('open');
   render();
 
-  if(G.mode==='vsai'&&G.turn===G.aiFaction&&typeof runAiTurn==='function'){
+  if(isAiTurn()&&typeof runAiTurn==='function'){
     setTimeout(()=>runAiTurn(),600);
   } else if(G.mode!=='vsai'&&!G.gameOver&&typeof showPassScreen==='function'){
     // Hotseat: hand the device over before the next player sees anything —
