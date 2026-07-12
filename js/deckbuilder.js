@@ -93,9 +93,9 @@ let _dbFilter='all'; // сбрасывается на 'all' при каждом 
 function _dbCardEl(faction,key,def){
   const isSW=def.spell||def.world||def.artifact;
   const tagIcons=(def.tags||[])
-    .map(t=>t.split(':')[0])
-    .filter(t=>DB_TAG_ICONS[t])
-    .map(t=>`<div class="card-tag-icon" data-tag="${t}">${DB_TAG_ICONS[t]}</div>`)
+    .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
+    .filter(t=>DB_TAG_ICONS[t.base])
+    .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${DB_TAG_ICONS[t.base]}</div>`)
     .join('');
 
   const div=document.createElement('div');
