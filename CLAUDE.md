@@ -248,6 +248,8 @@ Returns the value after the tag name. Examples:
 |`rage`         |Self gets +1 ATK permanently             |
 |`draw_attack:N`|Draw N cards                             |
 |`taunt_break`  |If target has Provoke, suppresses it (target.provokeBroken=true) — can be freely attacked past this turn, ignoring Provoke, as if the tag weren't there. No-op (silent, no log/sfx/icon) if target has no Provoke. Clears at the same point `feared` clears in `endTurn()` (end of the TARGET OWNER's own next turn) — net effect: broken through the rest of the attacker's turn + the target owner's following turn, back to normal by the attacker's next turn. Added 2026-07-13, live on TRAVELER #26/#550 (test) and reserved for the Схема (Skhema) World-trait.|
+|`vampiric`     |On its OWN attack (not counter-attacks — same scope as fear/burn/taunt_break): heals for the ACTUAL HP removed from the target (`ctx.realDmgDealt` in `doAttack()`, game.js — a before/after HP snapshot around `dmgCard()`, NOT nominal ATK), capped at its own missing HP. Armor/Solana Shield absorption doesn't count as "drained" — if the hit was fully absorbed, `realDmgDealt=0`, no heal. Fires whether or not the target survives (lifesteal doesn't require a kill, unlike necrophage below). Added 2026-07-13, reserved for the Незабываемый World-trait. No test card assigned yet.|
+|`necrophage` ("Erase" in `ab` text) |On its OWN attack, ONLY if the hit was lethal (`on_kill` timing — see doAttack()'s `if(target.hp<=0) triggerAbilities(att,'on_kill',{target})`): erases the fallen creature from ITS owner's graveyard straight into their void (bypassing grave entirely — breaks any ticking Incarnation timer, no return possible), fully heals this creature to max HP, and cleanses its own Burning. Scope: attack-kills only — Shard/Bolt/AOE kills do NOT trigger this (separate damage paths, don't route through `doAttack()`'s on_kill call). Added 2026-07-13, reserved for the Забудь всё World-trait. No test card assigned yet.|
 
 **On Kill / Death:**
 
@@ -759,17 +761,23 @@ game tags:
 | Долина (Valley) | `enter_draw:1` (при входе — добор 1 карты владельцу, см. Tag System) | 0.66 |
 | Схема | `taunt_break` (на атаке — снимает Provoke с цели до конца хода, см. Tag System) | 0.66 |
 | Solana World | `shield` (Solana Shield — поглощает первый удар любого типа целиком, разово, см. Tag System). НЕ путать с Mood:Солана (→`ward`) — разные механики. | 0.66 |
+| Незабываемый | `vampiric` (лайфстил по реально снятому HP, см. Tag System) | 0.66 |
+| Забудь всё | `necrophage` ("Erase" в тексте карты — стирает труп + полный хил + чистит ожог, см. Tag System) | 0.66 |
 
 **Trait-слоты без назначения (ждут решения):**
-Optical Dope · Незабываемый (тентативно: вампиризм?) · Забудь всё (тентативно:
-трупоедство/"вспомнить всё") · Розовые облака
+Optical Dope · Розовые облака (кандидат: иммунитет к Fear — не закреплено, см. Итог сессии)
 
 **Механики "россыпью", ещё не привязанные к конкретному трейту** (тентативные цены,
 не закреплены окончательно):
 - `enter_aoe` (AOE при входе) — ~0.66
-- Вампиризм (не реализовано) — ~0.66
-- Полный death-пакет: карта + урон базе врага + эссенция + хил (не реализовано) — ~0.33
-- Трупоедство/`necrophage` (не реализовано) — ~0.66
+- Полный death-пакет: карта + урон базе врага + эссенция + хил (не реализовано) — ~0.33.
+  Автор рассматривал и сознательно ОТЛОЖИЛ (2026-07-13) — комбинируется с уже существующими
+  Hunger (мир, добор при смерти своего существа) + Reaper (легендарка, хилит базу при ЛЮБОЙ
+  смерти), оба уже засвечены в AI BALANCE NOTES как источник "безопасного размена вне
+  зависимости от качества" у Jeet. Третий "смерть → ценность" источник на РЯДОВОЙ карте,
+  да ещё стекающийся с Алтарём (сакрифайс уже даёт +1 эссенция +1 карта) в одно действие —
+  прямая дорога туда же. Если делать — резервировать под ОДНОГО конкретного 1/1 с урезанными
+  статами-компенсацией, не под общий World-трейт.
 
 **Уникальные 1/1 — свои цены (эксклюзив, не путать с рядовыми):**
 
@@ -1528,6 +1536,50 @@ SHARD (shard:2), ALTAR (sacrifice).
     пересчитать, но автор в этот раз не давал конкретных цифр (в отличие от раунда
     enter_heal/enter_draw, где цифры были явно продиктованы) — оставлено как есть до
     отдельного запроса, чтобы не повторить историю с самовольным `GAME_VERSION`.
+  - **Позже тем же днём — ребаланс по факту, цифры продиктованы:** TRAVELER #26 cost 2→3
+    (hp 2→3, статлайн 3/2), TRAVELER #704 cost 3→4 (hp 3→4, статлайн 4/2), TRAVELER #550 —
+    снят `armor:1` (не нужен на этом теле). Баги найдены и исправлены при первом тесте: мишень
+    поднята/анимация мигания (см. отдельный пункт выше), а сам taunt_break/shield изначально
+    казались нерабочими — репорт автора оказался ложной тревогой (стейл-кэш/неполный набор
+    файлов), логика при повторной сверке (и при живом тесте автора) оказалась верной с первого
+    раза — оставлено как есть, без изменений в логике.
+- **Vampiric и Necrophage/"Erase"** (Незабываемый / Забудь всё) — и заодно **полный пересмотр
+  порядка резолва в `doAttack()`** (game.js), меняющий ВСЕ атаки в игре, не только эти два
+  тега (автор запросил явно, после того как через рассуждение о vampiric/necrophage сам нашёл
+  дыру в старой логике):
+  - **Было:** `dmgCard(target)` → контрудар (проверял только `feared`/`exhausted`, НЕ
+    проверял `target.hp>0`!) → `triggerAbilities(att,'on_attack',...)` в самом конце. То есть
+    мёртвая цель ФИЗИЧЕСКИ всё равно наносила контрудар — баг, вскрывшийся именно через
+    вопрос "если некрофаг съел труп, откуда тогда прилетает ответка?".
+  - **Стало:** `dmgCard(target)` → резолв `on_attack` (fear/burn/taunt_break/vampiric) СРАЗУ →
+    если удар был смертельным (`target.hp<=0`) — резолв `on_kill` (necrophage) → контрудар
+    ТОЛЬКО если `target.hp>0` (НОВАЯ проверка) И не feared/exhausted/invisible-атакующий.
+  - Сознательный балансный сдвиг (автор принял с пониманием): раньше смертельный удар всё
+    равно гарантированно возвращал урон атакующему — теперь чистый килл проходит без ответки.
+    Слегка усиливает высокий ATK/burst за счёт гарантированных прежде розменов.
+  - `realDmgDealt` (новое) — снимок `target.hp` до/после `dmgCard()`, а не номинальный ATK:
+    Броня/Solana Shield уже "съели" часть — та часть не считается "снятой кровью" для vampiric
+    (по прямому запросу автора: "сколько именно хп снято", не номинальный урон атаки).
+  - **`vampiric`** — лечит на `realDmgDealt` (клампится по своей нехватке HP), работает
+    независимо от того, убил удар цель или нет (лайфстилу килл не нужен, в отличие от
+    necrophage). НЕ реагирует на контратаки (тот же скоуп, что у fear/burn/taunt_break —
+    только собственная инициированная атака).
+  - **`necrophage`** (текст карты — **"Erase"**, само название тега в коде осталось техническим)
+    — оживил заодно МЁРТВУЮ инфраструктуру: `on_kill_base` был зарегистрирован в
+    `getAbilities()` с 2026-07-10+, но `triggerAbilities(...,'on_kill',...)` НИКТО никогда не
+    вызывал — теперь вызывается в `doAttack()` при смертельном ударе, `on_kill_base` тоже
+    ожил бесплатно (хотя пока ни одна карта его не носит). Necrophage: труп жертвы стирается
+    из кладбища ЕГО владельца прямо в войд (Инкарнация, если тикала — обрывается), сам
+    Erase-обладатель лечится до полного HP, снимает с себя ожог. Скоуп — только килл ПРЯМОЙ
+    атакой, Shard/Bolt/AOE это не подхватывают (свой урон, мимо `doAttack()`).
+  - Рендер обоих — новые постоянные иконки-способности (`ico_vamp.png`/`ico_erase.png`,
+    автор кладёт в репо сам) добавлены во все 5 мест TAG_ICONS/DB_TAG_ICONS + TAG_TOOLTIPS
+    (ui.js) + preload (ui.js), тем же паттерном, что taunt_break/incarnation до этого.
+  - Тестовых карт пока НЕ назначено ни одному из двух тегов — только инфраструктура.
+    Закреплены за трейтами **Незабываемый** (`vampiric`, 0.66) и **Забудь всё**
+    (`necrophage`/"Erase", 0.66) — обе таблицы/списки в Essence pricing shop выше обновлены.
+  - **Розовые облака** — пока НЕ закреплён, только предложена кандидатура (иммунитет к Fear,
+    `fear_immune`) — ждёт подтверждения автора, реализация не начата.
 
 -----
 
