@@ -163,14 +163,10 @@
 
   </div>
 
-  <!-- Тестовая кнопка — смотреть автоматический матч ИИ против ИИ. Вне
-       256-сетки намеренно (dev-инструмент, не часть игровой композиции). -->
-  <button onclick="playSfx('yellow_buttom');startAiVsAiSpectator()"
-          style="margin-top:1.5vh;background:none;border:1px solid #9B937F;color:#9B937F;
-                 font-family:'MEK',monospace;font-size:11px;letter-spacing:.5px;
-                 padding:6px 10px;border-radius:4px;cursor:pointer;flex-shrink:0;">
-    🤖 Watch AI vs AI
-  </button>
+  <!-- Тестовая кнопка "Watch AI vs AI" убрана отсюда 2026-07-13 по запросу
+       автора — съедала лишнее место снизу. Позже переедет внутрь какого-то
+       меню/секции. Функция startAiVsAiSpectator() (ui.js) не тронута —
+       просто временно нет входной точки на лендинге. -->
 
   <!-- ХВОСТ — copyright/версия. НЕ часть 256-сетки, чистый vh-отступ
        (см. .landing-tail в styles.css), ширина синхронизирована с
