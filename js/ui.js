@@ -223,6 +223,8 @@ function preloadAssets(){
     'img/btn_vsai1.png', 'img/btn_vsai2.png', 'img/btn_vsaiH.png', 'img/btn_online1.gif',
     'img/btn_music_on1.png', 'img/btn_music_on2.png',
     'img/btn_music_off1.png', 'img/btn_music_off2.png',
+    'img/btn_sfx_on1.png', 'img/btn_sfx_on2.png',
+    'img/btn_sfx_off1.png', 'img/btn_sfx_off2.png',
 
     // ── Стол (композиция лендинга, добавлено 2026-07-13) ──
     'img/top_table.png', 'img/front_table.png', 'img/bot_table.png',
