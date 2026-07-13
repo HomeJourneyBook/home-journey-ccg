@@ -224,6 +224,15 @@ function preloadAssets(){
     'img/btn_music_on1.png', 'img/btn_music_on2.png',
     'img/btn_music_off1.png', 'img/btn_music_off2.png',
 
+    // ── Стол (композиция лендинга, добавлено 2026-07-13) ──
+    'img/top_table.png', 'img/front_table.png', 'img/bot_table.png',
+    'img/left_table.png', 'img/right_table.png',
+
+    // ── Ящик Lore/Catalog (добавлено 2026-07-13) ──
+    'img/bg_lore_modal.png',
+    'img/btn_lore_archive1.png', 'img/btn_lore_archiveH.png', 'img/btn_lore_archive2.png',
+    'img/btn_lore_ru4ka1.png', 'img/btn_lore_ru4kaH.png', 'img/btn_lore_ru4ka2.png',
+
     // ── Кнопки модалок ──
     'img/btn_yes1.png', 'img/btn_yes2.png', 'img/btn_yesH.png',
     'img/btn_cancel1.png', 'img/btn_cancel2.png', 'img/btn_cancelH.png',
@@ -446,11 +455,23 @@ const SCREEN_DIRECTION={
   catalog: {exit:'exit-down',  enter:'slide-in-down',  back:'slide-out-down',  landingBack:'exit-up'},
 };
 
-function showScreen(name){
+// ── Переход лендинг↔экран теперь зум+блюр (не слайд) — см. .landing.exit-*
+// и @keyframes screenZoomIn/Out в styles.css. originEl (клик по конкретной
+// кнопке-ящику на лендинге) даёт transform-origin, чтобы зум визуально
+// сходился именно в её сторону, а не в центр экрана; _lastZoomOrigin
+// запоминается, чтобы обратный переход (hideScreen) зумил landing обратно
+// в ТУ ЖЕ точку, откуда он "уехал".
+let _lastZoomOrigin='50% 50%';
+function showScreen(name, originEl){
   const landing=document.getElementById('landing');
   const screen=document.getElementById(name+'Screen');
   if(!screen) return;
   const dir=SCREEN_DIRECTION[name]||{exit:'exit-right',enter:'slide-in-right',back:'slide-out-right'};
+  if(originEl){
+    const r=originEl.getBoundingClientRect();
+    _lastZoomOrigin=((r.left+r.width/2)/window.innerWidth*100).toFixed(1)+'% '+((r.top+r.height/2)/window.innerHeight*100).toFixed(1)+'%';
+  }
+  landing.style.transformOrigin=_lastZoomOrigin;
   // Лендинг уезжает
   landing.classList.add(dir.exit);
   // Экран въезжает
@@ -522,6 +543,7 @@ function hideScreen(name){
   screen.classList.add(dir.back);
   // Лендинг появляется
   landing.style.display='flex';
+  landing.style.transformOrigin=_lastZoomOrigin;
   landing.classList.add(dir.landingBack||'exit-left');
   // Небольшая задержка чтобы display:flex применился до старта анимации
   requestAnimationFrame(()=>{
