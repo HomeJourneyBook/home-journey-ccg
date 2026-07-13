@@ -78,7 +78,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .landing-wall{flex:0 0 calc(var(--lw) * 192 / 256); width:100%; position:relative; background-color:#232830; /* плейсхолдер — арт стены ещё не готов */ display:flex;align-items:center;justify-content:center;}
 .landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; background-color:#1c2028; /* плейсхолдер — пустая стена, режется первой */}
 /*── Иллюминатор — диаметр = % высоты .landing-wall (1:1, центр секции) ─────*/
-.landing-porthole{position:relative;z-index:1; height:80%; aspect-ratio:1/1; width:auto; border-radius:50%; overflow:hidden; flex-shrink:0;}
+.landing-porthole{position:relative;z-index:1; height:100%; aspect-ratio:1/1; width:auto; border-radius:50%; overflow:hidden; flex-shrink:0;}
 .porthole-space{position:absolute;inset:0;z-index:0; background-image:url('../img/logo_space.png'); background-size:100% auto; background-position:center; background-repeat:no-repeat;}
 .porthole-logo-wrap{position:absolute;inset:0;z-index:2; display:flex;align-items:center;justify-content:center; pointer-events:none;}
 .porthole-logo{max-width:65%; display:flex;flex-direction:column;align-items:center;}
@@ -126,21 +126,29 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .landing-bottom-ext-right{right:calc(var(--lw) * -64 / 256);}
 @media(min-width:600px){
   .landing-bottom-ext{display:block;}
-  /* Десктоп: высота теперь ведущая (40/60 по вьюпорту), а не ширина.
-     --lw пересчитан так, чтобы .landing-bottom (фикс 240/256 от --lw)
-     ровно попадал в 60vh — min(...,100vw) не даёт композиции физически
-     вылезти за пределы экрана по ширине на очень высоких мониторах
-     (тогда боковые выносы просто не поместятся и обрежутся, это ок). */
-  .landing{--lw: min(calc(60vh * 256 / 240), 100vw);}
-  /* .landing-top больше не "flex:1 1 auto против остатка вьюпорта" —
-     теперь у него жёсткие 40vh; внутри него ceiling/wall фикс (как и
-     раньше), а буфер (единственный flex-элемент) сам досчитывает разницу
-     до ровно 40vh — тот же механизм сжатия/роста, что уже был, просто
-     целевая высота теперь явно задана, а не "что осталось". */
-  .landing-top{flex:0 0 40vh; height:40vh;}
+  /* Десктоп: высота — ведущая, и ТЕПЕРЬ весь бюджет 100vh целиком
+     разложен без остатка: --tail-h откусывается первым (фикс кусок под
+     copyright/версию — раньше это была ДОБАВКА поверх 100vh, из-за чего
+     приходилось скроллить; теперь она часть тех же 100vh), а всё, что
+     осталось, делится 50/50 между верхом и низом.
+     --lw считается ДВУМЯ способами и берётся min() — раньше был только
+     один (от низа), и при 40/60 это ломало верх: низ хотел --lw такой,
+     что "потолок+стена" (224/256 от неё) требовали БОЛЬШЕ места, чем было
+     выделено верху (40vh) — отсюда обрезанный иллюминатор на скрине. При
+     50/50 обе величины равны, поэтому это будет строго безопасно и без
+     min() — но оставляю min() на будущее, если пропорция снова станет
+     несимметричной, чтобы обрезания не повторилось. */
+  .landing{
+    --tail-h: 6vh;
+    --top-vh: calc((100vh - var(--tail-h)) * 0.5);
+    --bottom-vh: calc((100vh - var(--tail-h)) * 0.5);
+    --lw: min(calc(var(--bottom-vh) * 256 / 240), calc(var(--top-vh) * 256 / 224), 100vw);
+  }
+  .landing-top{flex:0 0 var(--top-vh); height:var(--top-vh);}
+  .landing-tail{flex:0 0 var(--tail-h); height:var(--tail-h); padding:0 12px; align-items:center;}
 }
 /*── ХВОСТ — вне сетки, чистый vh-отступ под игрой (copyright+версия). ─────*/
-.landing-tail{width:var(--lw); flex:0 0 auto; padding:3.5vh 12px 1.5vh; box-sizing:border-box; display:flex;flex-direction:row;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2;}
+.landing-tail{width:var(--lw); flex:0 0 auto; padding:2vh 12px calc(3vh + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2;}
 /*── Переходы экранов (горизонтальный слайд с параллаксом фона) ─────*/
 .landing{transition:transform 0.315s cubic-bezier(0.4,0,0.2,1),opacity 0.315s;}
 .landing.exit-right{transform:translateX(-40%);opacity:0;pointer-events:none;}
