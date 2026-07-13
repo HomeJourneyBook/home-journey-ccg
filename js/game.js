@@ -332,6 +332,23 @@ function playAttackSfx(att){
   playSfx('card_atack');
 }
 
+// ── Боевая последовательность (закреплено 2026-07-13, автор — полный пересмотр порядка
+// ради vampiric/necrophage, но меняет ВСЕ атаки в игре, не только эти два тега) ──────────
+// 1. Атакующий наносит урон цели (dmgCard).
+// 2. Считаем РЕАЛЬНО снятый урон (realDmgDealt) — снимок HP цели до/после dmgCard(),
+//    а не номинальный ATK: если часть ушла в Броню или удар поглотила Solana Shield,
+//    та часть НЕ считается "снятой кровью" — vampiric лечит строго на то, что реально
+//    ушло с HP цели, не больше (по прямому запросу автора).
+// 3. Резолвим on_attack-эффекты этого удара (fear/burn/taunt_break/vampiric) — все они
+//    уже читают ctx.target.hp на этот момент, значит корректно видят "жива цель или нет".
+// 4. Если удар был смертельным (ctx.target.hp<=0) — резолвим on_kill (necrophage/Erase).
+// 5. Контрудар — ТОЛЬКО если цель ВЫЖИЛА (target.hp>0 — НОВАЯ проверка, раньше её не было
+//    вообще, только feared/exhausted) — мёртвая цель физически не может ударить в ответ.
+//    Это меняет баланс: раньше даже смертельный удар гарантированно возвращал урон
+//    атакующему (только fear/exhausted это предотвращали), теперь смертельный удар — чистый
+//    килл без ответки. Сознательный компромисс автора ради логичности vampiric/necrophage
+//    ("съел врага — он не может ударить в ответ"), принят с полным пониманием, что это
+//    чуть сильнее вознаграждает высокий ATK/burst за счёт гарантированных розменов.
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
@@ -344,8 +361,17 @@ function doAttack(att,target){
   const willBurn = hasTag(att,'burn') && targetSurvives;
   if(!willFear && !willBurn) playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
+
+  const hpBefore=target.hp;
   dmgCard(target,atk,oppK);
-  if(!hasTag(att,'invisible') && !target.feared && !target.exhausted)
+  // Math.max(0,target.hp) — если удар был лишним "оверкиллом" (hp ушло в минус), не даём
+  // realDmgDealt раздуться сверх того, сколько у цели реально БЫЛО жизни (hpBefore).
+  const realDmgDealt=Math.max(0, hpBefore-Math.max(0,target.hp));
+
+  triggerAbilities(att,'on_attack',{target,realDmgDealt});
+  if(target.hp<=0) triggerAbilities(att,'on_kill',{target});
+
+  if(target.hp>0 && !hasTag(att,'invisible') && !target.feared && !target.exhausted)
   dmgCard(att,
     target.atk +
     (target.atkBonus || 0) + (target.tempAtkBonus || 0) +
@@ -353,8 +379,7 @@ function doAttack(att,target){
     (target.squadAtkBonus || 0),
     curK
   );
-triggerAbilities(att,'on_attack',{target});
-  
+
   att.exhausted=true;
   G.sel=null;
   G.phase='action';
