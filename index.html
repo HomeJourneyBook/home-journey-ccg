@@ -50,48 +50,70 @@
   <div id="loadingDots" style="font-family:'MEK',monospace;font-size:clamp(12px,3vw,18px);color:#555;letter-spacing:2px;">Brewing<span id="ldots">.</span></div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════════════
+     LANDING — сетка 256 условных единиц по ширине (см. --lw в styles.css:
+     --lw: min(100vw,600px), все размеры ниже = calc(var(--lw) * N / 256)).
+     ВЕРХ (.landing-top, гибкий): потолок 32 (фикс) → стена+иллюминатор 192
+     (фикс) → пустой буфер ~36 (единственное, что сжимается до 0, когда не
+     хватает высоты вьюпорта — см. flex-shrink в styles.css).
+     НИЗ (.landing-bottom, НИКОГДА не сжимается, высота фикс = 240):
+     8 перспектива → 64 play-строка → 64 (64 music + 128 rules + 64 sfx) →
+     8 кромка стола → 96 (64 lore + 128 декор + 64 catalog). На ≥600px
+     экран центр (600px) больше не растёт, по бокам добавляются 64-юнитные
+     декоративные выносы (.landing-bottom-ext-*, пока плейсхолдер).
+     ХВОСТ (.landing-tail) — НЕ часть сетки, чистый vh (воздух под игрой). ═══ -->
 <div class="landing" id="landing" style="display:none;">
 
-  <!-- Обёртка иллюминатора — flex:1, центрирует иллюминатор по вертикали в пространстве
-       между верхом .landing и боксом кнопок (см. .landing-porthole-slot в styles.css). -->
-  <div class="landing-porthole-slot">
-    <!-- ИЛЛЮМИНАТОР — 4 слоя (назад → вперёд), см. подробный комментарий в styles.css
-         у .landing-porthole. Круглое окно 228×228px + гибкость на маленьких экранах. -->
-    <div class="landing-porthole">
-      <div class="porthole-space"></div>
-      <div class="porthole-glass"></div>
-      <div class="porthole-logo-wrap">
-        <div class="porthole-logo">
-          <div class="landing-title glitching-ready">HOME'S<br>JOURNEY</div>
-          <div class="landing-sub">CCG</div>
+  <div class="landing-top">
+    <!-- Слой 1: потолок — пока плейсхолдер-заливка, арт добавится позже. -->
+    <div class="landing-ceiling"></div>
+
+    <!-- Слой 2: стена с иллюминатором. Иллюминатор — те же 4 слоя, что и
+         раньше (см. подробности у .landing-porthole в styles.css), просто
+         теперь его диаметр = % высоты ЭТОЙ секции, а не vw/vh-клампы. -->
+    <div class="landing-wall">
+      <div class="landing-porthole">
+        <div class="porthole-space"></div>
+        <div class="porthole-glass"></div>
+        <div class="porthole-logo-wrap">
+          <div class="porthole-logo">
+            <div class="landing-title glitching-ready">HOME'S<br>JOURNEY</div>
+            <div class="landing-sub">CCG</div>
+          </div>
         </div>
+        <div class="porthole-frame"></div>
       </div>
-      <div class="porthole-frame"></div>
     </div>
+
+    <!-- Слой 3: пустая стена — гибкий буфер, единственный слой во всей
+         композиции, который может сжиматься (вплоть до 0) на экранах,
+         где по высоте не хватает места (напр. iPad-пропорции). -->
+    <div class="landing-buffer"></div>
   </div>
 
-  <!-- ПАНЕЛЬ С КНОПКАМИ (модалка-рамка) -->
-  <div class="landing-box" id="landingBox">
-    <div class="landing-box-body">
+  <!-- НИЖНИЙ ФУНКЦИОНАЛЬНЫЙ БЛОК — единый "лист" 5 полос, край-в-край. -->
+  <div class="landing-bottom" id="landingBottom">
 
+    <!-- Десктоп-выносы ≥600px — по всей высоте блока, чисто декор, плейсхолдер. -->
+    <div class="landing-bottom-ext landing-bottom-ext-left"></div>
+    <div class="landing-bottom-ext landing-bottom-ext-right"></div>
+
+    <!-- Полоса 1 (8/256): перспектива над Play — плейсхолдер. -->
+    <div class="landing-strip landing-strip-perspective"></div>
+
+    <!-- Полоса 2 (64/256): рамка + Play. Сама механика ворот НЕ меняется —
+         только контейнер теперь тянется на всю ширину полосы (aspect-ratio
+         4:1 у .play-gate-wrap как раз даёт ровно 64/256 высоты). -->
+    <div class="landing-strip landing-strip-play">
       <!-- БЛОК НАЧАТЬ ИГРУ — три слоя поверх друг друга:
            Слой 1 (z:1, в самом низу): три квадратные кнопки режима
            Слой 2 (z:3): ворота — спрайт открытия/закрытия (кликабельный).
-                         Пока класс .gate-idle на обёртке ниже — при наведении
+                         Класс .gate-idle на обёртке ниже — при наведении
                          кадр 1 подменяется на btn_playgame_hover.png (см. ui.js:
                          .gate-idle снимается в момент клика, возвращается когда
                          анимация закрытия полностью доедет обратно до кадра 1).
-           Слой 3 (z:4, самый верхний): статичная рамка — просто декоративная
-                                        обводка, видна ВСЕГДА и при любом состоянии
-                                        (idle/анимация/открыто), без исключений,
-                                        без ховера. pointer-events:none — сама
-                                        не кликается, клики проходят на слой 2/1.
-      -->
-      <!-- onmouseenter/leave теперь на ВСЁМ .play-gate-wrap (было только на .play-mode-buttons) —
-           надёжнее: работает независимо от pointer-events внутренних слоёв (ворота/рамка
-           периодически pointer-events:none, из-за чего события мыши могли не долетать
-           до узкого внутреннего слоя и таймер автозакрытия срабатывал раньше, чем должен,
-           пока курсор ещё в пределах кнопки). -->
+           Слой 3 (z:4, самый верхний): статичная рамка — декоративная обводка,
+                                        видна ВСЕГДА, pointer-events:none. -->
       <div class="play-gate-wrap gate-idle" id="playGateWrap"
            onmouseenter="pauseGateTimer()" onmouseleave="resumeGateTimer()">
 
@@ -107,54 +129,54 @@
                   disabled title="Online"></button>
         </div>
 
-        <!-- Слой 2: ворота — спрайт 7 кадров горизонтально (закрыто → открыто).
-             Внутри спрайта между створками ПРОЗРАЧНО, чтобы был виден Слой 1. -->
+        <!-- Слой 2: ворота — спрайт 7 кадров горизонтально (закрыто → открыто). -->
         <div class="play-gate-sprite" id="playGateSprite"
              onclick="openGates()"></div>
 
-        <!-- Слой 3: статичная рамка, тот же размер 240×60, видна всегда без исключений. -->
+        <!-- Слой 3: статичная рамка, видна всегда без исключений. -->
         <div class="play-gate-frame"></div>
 
       </div>
+    </div>
 
-      <button class="art-btn art-btn-rules"   onclick="playSfx('yellow_buttom');showScreen('rules')"></button>
+    <!-- Полоса 3 (64/256): Music 64 (1:1) + Rules-«журнал» 128 (2:1) + SFX 64 (1:1).
+         Существующий арт (btn_music_on/off, btn_rules) остаётся — просто
+         растягивается под новое соотношение (background-size:100% 100%
+         уже так и работал), автор перерисует под точный размер позже. -->
+    <div class="landing-row-audio">
+      <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
+      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules')"></button>
+      <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
+    </div>
+
+    <!-- Полоса 4 (8/256): кромка стола — плейсхолдер, арт от автора позже. -->
+    <div class="landing-strip landing-strip-edge"></div>
+
+    <!-- Полоса 5 (96/256): Lore 64 (2:3) + декор-заглушка 128 (4:3, некликабельно)
+         + Catalog 64 (2:3). Ratio у Lore/Catalog сильно изменился (было 3:1
+         landscape) — арт временно растянется криво, автор перерисует. -->
+    <div class="landing-row-nav">
+      <button class="art-btn art-btn-lore" onclick="playSfx('yellow_buttom');showScreen('lore')"></button>
+      <div class="landing-nav-decor"></div>
       <button class="art-btn art-btn-catalog" onclick="playSfx('yellow_buttom');showScreen('catalog')"></button>
-      <button class="art-btn art-btn-lore"    onclick="playSfx('yellow_buttom');showScreen('lore')"></button>
-
-      <!-- Раньше это был отдельный .landing-footer со своим фоном и линией-разделителем
-           (border-top) — убрали и то, и другое: теперь просто ряд внутри общего бокса,
-           без доп. фонов/линий, как просил. -->
-      <div class="landing-square-row">
-        <div class="landing-square-item">
-          <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-          <span class="landing-square-label">Music</span>
-        </div>
-        <div class="landing-square-item">
-          <button class="art-btn-square sfx-on"   id="sfxToggleBtn"   onclick="toggleSfx()"></button>
-          <span class="landing-square-label">SFX</span>
-        </div>
-      </div>
-
-      <!-- Тестовая кнопка — смотреть автоматический матч ИИ против ИИ (обе стороны,
-           стартовые Classic-колоды, без пикера деки/стороны и без ручного муллигана —
-           см. startAiVsAiSpectator() в ui.js). Намеренно простой текст без кастомного
-           арта — это тестовый инструмент автора, не часть основного флоу игрока. -->
-      <button onclick="playSfx('yellow_buttom');startAiVsAiSpectator()"
-              style="margin-top:8px;background:none;border:1px solid #9B937F;color:#9B937F;
-                     font-family:'MEK',monospace;font-size:11px;letter-spacing:.5px;
-                     padding:6px 10px;border-radius:4px;cursor:pointer;">
-        🤖 Watch AI vs AI
-      </button>
     </div>
 
   </div>
 
-  <!-- Мелкая строка copyright/версии — ширина ровно как у .landing-box (см.
-       .landing-legal-row в styles.css), чтобы левый край текста прав совпадал
-       с левым краем бокса кнопок, а версия справа — с его правым краем.
-       Версия подставляется в boot() (ui.js) из GAME_VERSION (data.js), чтобы
-       не разъезжалось с реальной версией сборки. -->
-  <div class="landing-legal-row">
+  <!-- Тестовая кнопка — смотреть автоматический матч ИИ против ИИ. Вне
+       256-сетки намеренно (dev-инструмент, не часть игровой композиции). -->
+  <button onclick="playSfx('yellow_buttom');startAiVsAiSpectator()"
+          style="margin-top:1.5vh;background:none;border:1px solid #9B937F;color:#9B937F;
+                 font-family:'MEK',monospace;font-size:11px;letter-spacing:.5px;
+                 padding:6px 10px;border-radius:4px;cursor:pointer;flex-shrink:0;">
+    🤖 Watch AI vs AI
+  </button>
+
+  <!-- ХВОСТ — copyright/версия. НЕ часть 256-сетки, чистый vh-отступ
+       (см. .landing-tail в styles.css), ширина синхронизирована с
+       .landing-bottom только визуально (тот же min(100vw,600px)).
+       Версия подставляется в boot() (ui.js) из GAME_VERSION (data.js). -->
+  <div class="landing-tail">
     <span>© 2026 All rights reserved. trianglecirclesquare</span>
     <span id="landingVersionLabel">v1.0</span>
   </div>
