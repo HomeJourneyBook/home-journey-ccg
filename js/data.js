@@ -13,7 +13,7 @@ const DEFS = {
   t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad: +1 maxHP."},
   t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:4,atk:4,art:"🦈", img:"34.png",   f:"tea",tags:["regen","gtype:szg"],           ab:"Squad: +1 maxHP."},
   t_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:3,atk:5,art:"🦈", img:"434.png",  f:"tea",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad: +1 maxHP."},
-  t_trvl734_w:  {name:"TRAVELER #734",  cost:3,hp:4,atk:3,art:"🦈", img:"734.png",  f:"tea",tags:["necrophage","gtype:szg"],            ab:"Squad: +1 maxHP. Erase: on kill, restore to full HP and erase the corpse."},
+  t_trvl734_w:  {name:"TRAVELER #734",  cost:3,hp:4,atk:3,art:"🦈", img:"734.png",  f:"tea",tags:["necrophage","gtype:szg"],            ab:"Squad: +1 maxHP."},
 
   // Orbiton Tea
   t_trvl10_w:   {name:"TRAVELER #10",   cost:2,hp:2,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:1","burn","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
@@ -22,27 +22,27 @@ const DEFS = {
   t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:1","gtype:orb"],                   ab:"Active: Heal 1 HP. Squad: Heal 2."},
 
   // Dreegan Tea
-  t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:5,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","enter_heal:2","gtype:drg"],                   ab:"Squad: +1 Armor. On play: Heal 2 HP to wounded allies."},
+  t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:5,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","enter_heal:2","gtype:drg"],                   ab:"On play: Heal 2 HP to wounded allies. Squad: +1 Armor."},
   t_trvl31_w:   {name:"TRAVELER #31",   cost:5,hp:6,atk:3,art:"🌳", img:"31.png",   f:"tea",tags:["provoke","armor:1","burn","gtype:drg"],             ab:"Squad: +1 Armor."},
   t_trvl892_w:  {name:"TRAVELER #892",  cost:4,hp:5,atk:2,art:"🌳", img:"892.png",  f:"tea",tags:["provoke","regen","armor:1","gtype:drg"],            ab:"Squad: +1 Armor."},
   t_trvl14_w:   {name:"TRAVELER #14",   cost:3,hp:4,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","armor:1","gtype:drg"],                   ab:"Squad: +1 Armor."},
 
   // Umbasir Tea
-    t_trvl583_w:    {name:"TRAVELER #583",  cost:3,hp:3,atk:2,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","enter_heal:2","gtype:umb"],              ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg. On play: Heal 2 HP to wounded allies."},
+    t_trvl583_w:    {name:"TRAVELER #583",  cost:3,hp:3,atk:2,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","enter_heal:2","gtype:umb"],              ab:"On play: Heal 2 HP to wounded allies. Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
       t_trvl2_w:    {name:"TRAVELER #2",    cost:2,hp:2,atk:1,art:"🌀", img:"2.png",    f:"tea",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
      t_trvl52_w:    {name:"TRAVELER #52",   cost:1,hp:1,atk:0,art:"🌀", img:"52.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
-      t_trvl6_w:    {name:"TRAVELER #6",    cost:3,hp:4,atk:1,art:"🌀", img:"6.png",    f:"tea",tags:["bolt:1","enter_draw:1","gtype:umb"],                     ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg. On play: Draw 1 card."},
+      t_trvl6_w:    {name:"TRAVELER #6",    cost:3,hp:4,atk:1,art:"🌀", img:"6.png",    f:"tea",tags:["bolt:1","enter_draw:1","gtype:umb"],                     ab:"On play: Draw 1 card. Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
 
   // Mechird Tea
   t_trvl38_w:   {name:"TRAVELER #38",   cost:3,hp:3,atk:2,art:"🤖", img:"38.png",   f:"tea",tags:["pierce","rage","gtype:mch"],              ab:"Squad: +1 ATK."},
   t_trvl18_w:   {name:"TRAVELER #18",   cost:2,hp:2,atk:2,art:"🤖", img:"18.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 ATK."},
   t_trvl35_w:   {name:"TRAVELER #35",   cost:4,hp:5,atk:3,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","armor:1","gtype:mch"],                    ab:"Squad: +1 ATK."},
-  t_trvl11_w:   {name:"TRAVELER #11",   cost:4,hp:4,atk:3,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","armor:1","enter_heal:2","gtype:mch"],                    ab:"Squad: +1 ATK. On play: Heal 2 HP to wounded allies."},
+  t_trvl11_w:   {name:"TRAVELER #11",   cost:4,hp:4,atk:3,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","armor:1","enter_heal:2","gtype:mch"],                    ab:"On play: Heal 2 HP to wounded allies. Squad: +1 ATK."},
 
   // Xuiqtr Tea
     t_trvl187_w:    {name:"TRAVELER #187",  cost:5,hp:6,atk:4,art:"🐙", img:"187.png",  f:"tea",tags:["provoke","armor:1","untamed","gtype:xui"],                   ab:"Squad: +1 ATK."},
-    t_trvl704_w:    {name:"TRAVELER #704",  cost:4,hp:4,atk:2,art:"🐙", img:"704.png",  f:"tea",tags:["provoke","fear","shield","gtype:xui"],             ab:"Squad: +1 ATK. Solana Shield: absorbs the first hit it takes entirely."},
-     t_trvl26_w:    {name:"TRAVELER #26",   cost:3,hp:3,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["provoke","taunt_break","gtype:xui"],            ab:"Squad: +1 ATK. On attack: suppresses target's Provoke for the rest of this turn."},
+    t_trvl704_w:    {name:"TRAVELER #704",  cost:4,hp:4,atk:2,art:"🐙", img:"704.png",  f:"tea",tags:["provoke","fear","shield","gtype:xui"],             ab:"Solana Shiel. Squad: +1 ATK."},
+     t_trvl26_w:    {name:"TRAVELER #26",   cost:3,hp:3,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["provoke","taunt_break","gtype:xui"],            ab:"Squad: +1 ATK."},
      t_trvl39_w:    {name:"TRAVELER #39",   cost:3,hp:3,atk:2,art:"🐙", img:"39.png",   f:"tea",tags:["provoke","armor:1","gtype:xui"],                   ab:"Squad: +1 ATK."},
 
   // ── TEA LEGENDARIES ─────────────────────────────────────────────
@@ -57,7 +57,7 @@ const DEFS = {
   t_sp2:       {name:"JOURNEY",     cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:3"],     ab:"Deal 3 damage to target enemy creature.",spell:true},
   t_sp3:       {name:"SHEN'S CALL", cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png",    f:"tea",tags:["spell","revive:full"],ab:"Revive last creature from your graveyard.",spell:true},
   t_sp4:       {name:"SCHEME",      cost:0,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:2"], ab:"Get 2 essence.",spell:true},
-  t_sp5:       {name:"GUST",        cost:1,hp:0,atk:0,art:"💨", img:"1_windy.png",   f:"tea",tags:["spell","spell_bounce_target"], ab:"Return target creature (yours or enemy's) to its owner's hand.",spell:true},
+  t_sp5:       {name:"GUST",        cost:1,hp:0,atk:0,art:"💨", img:"1_windy.png",   f:"tea",tags:["spell","spell_bounce_target"], ab:"Return target creature to its owner's hand.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1 card.",world:true},
@@ -84,10 +84,10 @@ const DEFS = {
   j_trvl41_w:   {name:"TRAVELER #41",   cost:2,hp:3,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad: +1 Armor."},
   j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:6,atk:3,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","gtype:drg"],        ab:"Squad: +1 Armor."},
   j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:5,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad: +1 Armor."},
-  j_trvl775_w:  {name:"TRAVELER #775",  cost:4,hp:5,atk:3,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad: +1 Armor. Vampiric: heals for the HP it actually deals."},
+  j_trvl775_w:  {name:"TRAVELER #775",  cost:4,hp:5,atk:3,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad: +1 Armor."},
 
   // Umbasir Jeet
-    j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:2,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg. On attack: suppresses target's Provoke for the rest of this turn."},
+    j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:2,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
      j_trvl53_w:    {name:"TRAVELER #53",   cost:2,hp:1,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","invisible","gtype:umb"],                  ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
      j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:0,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
      j_trvl20_w:    {name:"TRAVELER #20",   cost:3,hp:3,atk:1,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg."},
@@ -116,7 +116,7 @@ const DEFS = {
   j_sp2:       {name:"OBLIVION",   cost:2,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png",  f:"jeet",tags:["spell","spell_untap"],     ab:"Target ally creature becomes active.",spell:true},
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤", img:"1_Forgetting.png",f:"jeet",tags:["spell","revive:full"],ab:"Revive last creature from your graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:0,hp:0,atk:0,art:"⚫", img:"1_Spell1.png",    f:"jeet",tags:["spell","ess_add:2"], ab:"Get 2 essence.",spell:true},
-  j_sp5:       {name:"REVERSE",    cost:1,hp:0,atk:0,art:"🔄", img:"1_revers.png",    f:"jeet",tags:["spell","spell_bounce_target"], ab:"Return target creature (yours or enemy's) to its owner's hand.",spell:true},
+  j_sp5:       {name:"REVERSE",    cost:1,hp:0,atk:0,art:"🔄", img:"1_revers.png",    f:"jeet",tags:["spell","spell_bounce_target"], ab:"Return target creature to its owner's hand.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
