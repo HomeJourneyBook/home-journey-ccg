@@ -456,7 +456,6 @@ function showScreen(name){
   // Экран въезжает
   screen.classList.add('active',dir.enter);
   if(name==='catalog') setTimeout(renderCatalog,50);
-  if(name==='lore') setTimeout(_armLoreReveal,50);
   // После анимации прячем лендинг полностью
   setTimeout(()=>{
     landing.style.display='none';
@@ -483,6 +482,37 @@ function _armLoreReveal(){
   pages.forEach(el=>obs.observe(el));
 }
 
+// ── Лор: клик по закрытой стопке разворачивает её в обычный читаемый список.
+// FLIP-техника (First-Last-Invert-Play): меряем карточки ДО снятия .closed
+// (там, где они сложены стопкой), снимаем класс (layout сразу прыгает в
+// открытое, обычное расположение), меряем ПОСЛЕ, и проигрываем разницу как
+// transform от старого положения к нулю — визуально карточки "разъезжаются"
+// из стопки на свои места, а не просто мгновенно телепортируются.
+function openLoreStack(){
+  const stack=document.getElementById('loreStack');
+  if(!stack || !stack.classList.contains('closed')) return;
+  const pages=[...stack.querySelectorAll('.lore-page')];
+  const first=pages.map(p=>p.getBoundingClientRect());
+  stack.classList.remove('closed');
+  const last=pages.map(p=>p.getBoundingClientRect());
+  pages.forEach((p,i)=>{
+    const dx=first[i].left-last[i].left, dy=first[i].top-last[i].top;
+    const sx=last[i].width?first[i].width/last[i].width:1, sy=last[i].height?first[i].height/last[i].height:1;
+    p.style.zIndex=10-i;
+    p.style.transition='none';
+    p.style.transform=`translate(${dx}px,${dy}px) scale(${sx},${sy})`;
+    requestAnimationFrame(()=>{
+      p.style.transition='transform .6s cubic-bezier(.2,.7,.2,1)';
+      p.style.transform='';
+    });
+  });
+  playSfx('card_select_traveler');
+  setTimeout(()=>{
+    pages.forEach(p=>{p.style.transition=''; p.style.zIndex='';});
+    _armLoreReveal();
+  },650);
+}
+
 function hideScreen(name){
   const landing=document.getElementById('landing');
   const screen=document.getElementById(name+'Screen');
@@ -501,7 +531,11 @@ function hideScreen(name){
   });
   setTimeout(()=>{
     screen.classList.remove('active',dir.enter,dir.back);
-    if(name==='lore') screen.querySelectorAll('.lore-page').forEach(el=>el.classList.remove('revealed'));
+    if(name==='lore'){
+      screen.querySelectorAll('.lore-page').forEach(el=>{el.classList.remove('revealed'); el.style.transform=''; el.style.transition=''; el.style.zIndex='';});
+      const stack=document.getElementById('loreStack');
+      if(stack) stack.classList.add('closed');
+    }
   },315);
 }
 function showLanding(){
