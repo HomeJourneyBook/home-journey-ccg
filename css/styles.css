@@ -309,7 +309,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    LORE SCREEN
    ═══════════════════════════════════════════════════════════════════════ */
 /*── LORE SCREEN — звёздный фон (тот же арт, что у лендинга), страницы-панели*/
-#loreScreen{--modal-border-w: 11px; background-color:#0a0a12; border-style:solid; border-width:var(--modal-border-w); border-image-source:url('../img/bg_lore_modal.png'); border-image-slice:22; border-image-width:var(--modal-border-w); border-image-outset:0; border-image-repeat:stretch;}
+#loreScreen{--modal-border-w: 11px; max-width:760px; margin:0 auto; background-color:#0a0a12; border-style:solid; border-width:var(--modal-border-w); border-image-source:url('../img/bg_lore_modal.png'); border-image-slice:22; border-image-width:var(--modal-border-w); border-image-outset:0; border-image-repeat:stretch;}
 @media(min-width:600px){
   #loreScreen{--modal-border-w: 33px;} /* x3 — на десктопе тонкая мобильная рамка теряется, автор попросил утроить */
 }
@@ -336,9 +336,26 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .lore-page:nth-of-type(3){--r:-0.9deg;}
 .lore-page:nth-of-type(4){--r:1.4deg;}
 .lore-page:nth-of-type(5){--r:-1.2deg;}
+/*── Закрытая стопка (обложка книги) — .lore-page складываются друг на друга
+    внутри #loreStack, кликом раскрываются в обычный поток. Разворот сам —
+    FLIP-анимация в openLoreStack() (ui.js), эти правила отвечают только за
+    ЗАКРЫТЫЙ вид. opacity:1 здесь принудительно — иначе карточки, попадая
+    внутрь #loreStack, наследовали бы opacity:0 из базового .lore-page
+    (тот ждёт .revealed от scroll-in-view наблюдателя) и стопка была бы
+    невидимой; сам глитч-reveal теперь взводится ПОСЛЕ разворота (см.
+    _armLoreReveal() call в openLoreStack()), а не сразу при открытии
+    экрана — иначе он сыграл бы ещё на закрытой стопке. ──────────────────*/
+#loreStack{position:relative;}
+#loreStack .lore-page{opacity:1;}
+#loreStack.closed{height:clamp(180px, 42vw, 260px); overflow:hidden; cursor:pointer;}
+#loreStack.closed .lore-page{position:absolute; top:0; left:0; right:0; margin:0;}
+#loreStack.closed .lore-page:nth-of-type(1){z-index:4;}
+#loreStack.closed .lore-page:nth-of-type(2){z-index:3; transform:rotate(var(--r)) translateY(2.4vw);}
+#loreStack.closed .lore-page:nth-of-type(3){z-index:2; transform:rotate(var(--r)) translateY(4.8vw);}
+#loreStack.closed .lore-page:nth-of-type(4){z-index:1; transform:rotate(var(--r)) translateY(7.2vw);}
 .lore-page.revealed{animation:loreReveal 0.7s steps(4,end) forwards;}
 .lore-page h2{margin-top:0;text-align:center;}
-.lore-archive-link{display:block; margin:8vw auto 6vw; max-width:520px; padding:3.5vw 5vw; border:1px solid #c8a84b; background:#0d0d1ad0; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease;}
+.lore-archive-link{display:block; margin:4vw auto 6vw; max-width:520px; padding:3.5vw 5vw; border:1px solid #c8a84b; background:#0d0d1ad0; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease;}
 .lore-archive-link:hover{transform:translateY(-2px);box-shadow:0 4px 18px #c8a84b44;}
 .lore-archive-link-title{font-family:'MEK',monospace;font-size:5vw;color:#c8a84b;margin-bottom:1.5vw;}
 .lore-archive-link-sub{font-size:3.6vw;color:#9B937F;}
