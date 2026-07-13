@@ -13,6 +13,7 @@ const DEFS = {
   t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad: +1 maxHP."},
   t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:4,atk:4,art:"🦈", img:"34.png",   f:"tea",tags:["regen","gtype:szg"],           ab:"Squad: +1 maxHP."},
   t_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:3,atk:5,art:"🦈", img:"434.png",  f:"tea",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad: +1 maxHP."},
+  t_trvl734_w:  {name:"TRAVELER #734",  cost:3,hp:4,atk:3,art:"🦈", img:"734.png",  f:"tea",tags:["necrophage","gtype:szg"],            ab:"Squad: +1 maxHP. Erase: on kill, restore to full HP and erase the corpse."},
 
   // Orbiton Tea
   t_trvl10_w:   {name:"TRAVELER #10",   cost:2,hp:2,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:1","burn","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
@@ -83,6 +84,7 @@ const DEFS = {
   j_trvl41_w:   {name:"TRAVELER #41",   cost:2,hp:3,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad: +1 Armor."},
   j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:6,atk:3,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","gtype:drg"],        ab:"Squad: +1 Armor."},
   j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:5,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad: +1 Armor."},
+  j_trvl775_w:  {name:"TRAVELER #775",  cost:4,hp:5,atk:3,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad: +1 Armor. Vampiric: heals for the HP it actually deals."},
 
   // Umbasir Jeet
     j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:2,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active: Bolt 1 dmg. Squad: Bolt 2 dmg. On attack: suppresses target's Provoke for the rest of this turn."},
