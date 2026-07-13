@@ -248,8 +248,8 @@ Returns the value after the tag name. Examples:
 |`rage`         |Self gets +1 ATK permanently             |
 |`draw_attack:N`|Draw N cards                             |
 |`taunt_break`  |If target has Provoke, suppresses it (target.provokeBroken=true) — can be freely attacked past this turn, ignoring Provoke, as if the tag weren't there. No-op (silent, no log/sfx/icon) if target has no Provoke. Clears at the same point `feared` clears in `endTurn()` (end of the TARGET OWNER's own next turn) — net effect: broken through the rest of the attacker's turn + the target owner's following turn, back to normal by the attacker's next turn. Added 2026-07-13, live on TRAVELER #26/#550 (test) and reserved for the Схема (Skhema) World-trait.|
-|`vampiric`     |On its OWN attack (not counter-attacks — same scope as fear/burn/taunt_break): heals for the ACTUAL HP removed from the target (`ctx.realDmgDealt` in `doAttack()`, game.js — a before/after HP snapshot around `dmgCard()`, NOT nominal ATK), capped at its own missing HP. Armor/Solana Shield absorption doesn't count as "drained" — if the hit was fully absorbed, `realDmgDealt=0`, no heal. Fires whether or not the target survives (lifesteal doesn't require a kill, unlike necrophage below). Added 2026-07-13, reserved for the Незабываемый World-trait. No test card assigned yet.|
-|`necrophage` ("Erase" in `ab` text) |On its OWN attack, ONLY if the hit was lethal (`on_kill` timing — see doAttack()'s `if(target.hp<=0) triggerAbilities(att,'on_kill',{target})`): erases the fallen creature from ITS owner's graveyard straight into their void (bypassing grave entirely — breaks any ticking Incarnation timer, no return possible), fully heals this creature to max HP, and cleanses its own Burning. Scope: attack-kills only — Shard/Bolt/AOE kills do NOT trigger this (separate damage paths, don't route through `doAttack()`'s on_kill call). Added 2026-07-13, reserved for the Забудь всё World-trait. No test card assigned yet.|
+|`vampiric`     |On its OWN attack (not counter-attacks — same scope as fear/burn/taunt_break): heals for the ACTUAL HP removed from the target (`ctx.realDmgDealt` in `doAttack()`, game.js — a before/after HP snapshot around `dmgCard()`, NOT nominal ATK), capped at its own missing HP. Armor/Solana Shield absorption doesn't count as "drained" — if the hit was fully absorbed, `realDmgDealt=0`, no heal. Fires whether or not the target survives (lifesteal doesn't require a kill, unlike necrophage below). Added 2026-07-13, live on TRAVELER #775 (Jeet Dreegan) and reserved for the Незабываемый World-trait, 0.66.|
+|`necrophage` ("Erase" in `ab` text) |On its OWN attack, ONLY if the hit was lethal (`on_kill` timing — see doAttack()'s `if(target.hp<=0) triggerAbilities(att,'on_kill',{target})`): erases the fallen creature from ITS owner's graveyard straight into their void (bypassing grave entirely — breaks any ticking Incarnation timer, no return possible), fully heals this creature to max HP, and cleanses its own Burning. Scope: attack-kills only — Shard/Bolt/AOE kills do NOT trigger this (separate damage paths, don't route through `doAttack()`'s on_kill call). Added 2026-07-13, live on TRAVELER #734 (Tea Szarg) and reserved for the Забудь всё World-trait, 0.66.|
 
 **On Kill / Death:**
 
@@ -1575,9 +1575,27 @@ SHARD (shard:2), ALTAR (sacrifice).
   - Рендер обоих — новые постоянные иконки-способности (`ico_vamp.png`/`ico_erase.png`,
     автор кладёт в репо сам) добавлены во все 5 мест TAG_ICONS/DB_TAG_ICONS + TAG_TOOLTIPS
     (ui.js) + preload (ui.js), тем же паттерном, что taunt_break/incarnation до этого.
-  - Тестовых карт пока НЕ назначено ни одному из двух тегов — только инфраструктура.
-    Закреплены за трейтами **Незабываемый** (`vampiric`, 0.66) и **Забудь всё**
-    (`necrophage`/"Erase", 0.66) — обе таблицы/списки в Essence pricing shop выше обновлены.
+  - Тестовые карты: **TRAVELER #734** (Tea, Szarg gtype:szg, cost 3, 4/3) получил `necrophage`
+    (5-й член Szarg-группы у Tea); **TRAVELER #775** (Jeet, Dreegan gtype:drg, cost 4, 5/3,
+    provoke) получил `vampiric` (5-й член Dreegan-группы у Jeet) — оба архетипа уже были
+    симметрично представлены на обеих фракциях, просто добавлен 5-й рядовой в уже
+    существующую группу. Закреплены за трейтами **Незабываемый** (`vampiric`, 0.66) и
+    **Забудь всё** (`necrophage`/"Erase", 0.66) — обе таблицы/списки в Essence pricing shop
+    выше обновлены.
+  - ⚠️ **Важный технический нюанс, найденный при добавлении** — просто дописать новую карту
+    в `data.js` (DEFS) НЕДОСТАТОЧНО, чтобы она попала в стартовую Classic-колоду ИЛИ в
+    Rush-пул деккбилдера. `_composeDeckList()` (`deck.js`) держит СВОИ ОТДЕЛЬНЫЕ хардкоженные
+    массивы ключей по архетипам (`szarg`/`orb`/`drg`/`umb`/`mch`/`xui`, по 4 ключа на
+    фракцию — ровно `DECK_CONFIGS.classic.groupSize`), и `.slice(0, cfg.groupSize)` берёт
+    только ПЕРВЫЕ N из них. Новая карта, не вписанная в нужный массив, существовала бы только
+    в каталоге (тот, похоже, просто перебирает весь DEFS), но была бы НЕДОСТИЖИМА ни в одной
+    реальной колоде. Пришлось: (1) дописать `t_trvl734_w`/`j_trvl775_w` в конец соответствующих
+    массивов (`szarg`/`drg`), (2) поднять `groupSize: 4→5` в `DECK_CONFIGS.classic` — безопасно
+    для остальных 10 групп-массивов (5 архетипов × 2 фракции), которые всё ещё ровно по 4:
+    `.slice(0,5)` на 4-элементном массиве просто вернёт все 4, no-op. **На будущее: каждая
+    НОВАЯ рядовая карта (не ребаланс существующей) требует правки в ДВУХ файлах — `data.js`
+    (сама карта) И `deck.js` (массив архетипа + при необходимости `groupSize`), не только в
+    первом.**
   - **Розовые облака** — пока НЕ закреплён, только предложена кандидатура (иммунитет к Fear,
     `fear_immune`) — ждёт подтверждения автора, реализация не начата.
 
