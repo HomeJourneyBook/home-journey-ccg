@@ -79,6 +79,8 @@ function renderCatalog(){
       'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
   'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
   'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
+  'vampiric': '<img src="img/ico_vamp.png" style="width:60%;height:60%;">',
+  'necrophage': '<img src="img/ico_erase.png" style="width:60%;height:60%;">',
     };
     const tagIcons=(def.tags||[])
       .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -141,6 +143,8 @@ function openCardDetail(def){
     'ward':    '<img src="img/ico_ward.png" style="width:60%;height:60%;">',
   'incarnation': '<img src="img/ico_incarn.png" style="width:60%;height:60%;">',
   'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
+  'vampiric': '<img src="img/ico_vamp.png" style="width:60%;height:60%;">',
+  'necrophage': '<img src="img/ico_erase.png" style="width:60%;height:60%;">',
   };
   const tagIcons = (def.tags||[])
     .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
