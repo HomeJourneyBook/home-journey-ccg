@@ -10,7 +10,13 @@
 const RUSH_MIN = 28;
 
 const DECK_CONFIGS = {
-  classic: { groupCount:6, groupSize:4, legCount:5, spellCopies:3 },
+  // groupSize:5 (было 4) — с 2026-07-13 два архетипа (Tea Szarg, Jeet Dreegan) обзавелись
+  // 5-м рядовым (t_trvl734_w/j_trvl775_w, см. ниже). Остальные 10 групп-массивов (5
+  // архетипов × 2 фракции) по-прежнему ровно по 4 ключа — `.slice(0,5)` на 4-элементном
+  // массиве просто вернёт все 4, безопасный no-op, ничего не сломает нигде, где 5-й карты
+  // ещё нет. Когда остальные архетипы тоже получат 5-х — они уже подхватятся автоматически,
+  // ничего в этом объекте трогать не придётся.
+  classic: { groupCount:6, groupSize:5, legCount:5, spellCopies:3 },
 };
 
 function shuffleArr(d){
@@ -25,14 +31,14 @@ function shuffleArr(d){
 function _composeDeckList(f, cfg){
   const t = f==='tea';
 
-  const szarg  = t ? ['t_trvl25_w','t_trvl33_w','t_trvl34_w','t_trvl434_w']
+  const szarg  = t ? ['t_trvl25_w','t_trvl33_w','t_trvl34_w','t_trvl434_w','t_trvl734_w']
                    : ['j_trvl12_w','j_trvl49_w','j_trvl57_w','j_trvl551_w'];
 
   const orb    = t ? ['t_trvl10_w','t_trvl398_w','t_trvl433_w','t_trvl1034_w']
                    : ['j_trvl170_w','j_trvl429_w','j_trvl454_w','j_trvl523_w'];
 
   const drg    = t ? ['t_trvl1_w','t_trvl31_w','t_trvl892_w','t_trvl14_w']
-                   : ['j_trvl36_w','j_trvl41_w','j_trvl1015_w','j_trvl859_w'];
+                   : ['j_trvl36_w','j_trvl41_w','j_trvl1015_w','j_trvl859_w','j_trvl775_w'];
 
   const umb    = t ? ['t_trvl583_w','t_trvl2_w','t_trvl52_w','t_trvl6_w']
                    : ['j_trvl550_w','j_trvl53_w','j_trvl54_w','j_trvl20_w'];
