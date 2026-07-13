@@ -308,28 +308,54 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* ═══════════════════════════════════════════════════════════════════════
    LORE SCREEN
    ═══════════════════════════════════════════════════════════════════════ */
-/*── LORE SCREEN — звёздный фон (тот же арт, что у лендинга), страницы-панели*/
-#loreScreen{--modal-border-w: 11px; max-width:760px; margin:0 auto; background-color:#0a0a12; border-style:solid; border-width:var(--modal-border-w); border-image-source:url('../img/bg_lore_modal.png'); border-image-slice:22; border-image-width:var(--modal-border-w); border-image-outset:0; border-image-repeat:stretch;}
-@media(min-width:600px){
-  #loreScreen{--modal-border-w: 33px;} /* x3 — на десктопе тонкая мобильная рамка теряется, автор попросил утроить */
-}
-/*── Хедер — full-bleed до рамки экрана (гасим паддинг .screen отрицательным
-    margin), высота от контента (паддинг вокруг заголовка + кнопки, без
-    фикс-height). Фон — свой 9-слайс bg_lore_header.png (slice 8, fill —
-    тот же приём, что у .lore-page/.db-header-title: угол+край+залитая
-    середина одним ассетом). Кнопка "назад" прибита в верхний левый угол
-    хедера, теперь квадратная арт-иконка (idle/hover/active), не текст. ──*/
-#loreScreen .screen-header{--header-border-w: 4px; border-style:solid; border-width:var(--header-border-w); border-image-source:url('../img/bg_lore_header.png'); border-image-slice:8 fill; border-image-width:var(--header-border-w); border-image-outset:0; border-image-repeat:stretch; margin:-4vw -4vw 3vw -4vw; padding:3vw 4vw; position:relative;}
+/*── LORE/CATALOG — общая архитектура "ящик" ──────────────────────────────
+    Экран больше не залит рамкой на весь вьюпорт: сам #loreScreen/#catalogScreen
+    теперь просто плоский бэкдроп (#0c1013), который флексом центрирует
+    компактный .crate-modal (макс. 80vh, свой внутренний скролл) + ручку
+    (.crate-handle) сразу под ним — верхняя кромка ручки автоматически
+    встык к нижней кромке ящика, т.к. это соседние flex-элементы без зазора.
+    --crate-w расшарен на уровне экрана, чтобы и ящик, и ручка масштабировались
+    от одной и той же ширины. ────────────────────────────────────────────*/
+#loreScreen, #catalogScreen{--crate-w: min(92vw,760px); padding:0; overflow:hidden; background-color:#0c1013; flex-direction:column; align-items:center; justify-content:center; gap:0;}
+#catalogScreen{--crate-w: min(94vw,980px);} /* каталогу нужна сетка карт пошире — хедер там донастроим отдельным заходом */
+#loreScreen.active, #catalogScreen.active{display:flex;}
+.crate-modal{position:relative; width:var(--crate-w); max-height:78vh; overflow:hidden; display:flex; flex-direction:column; box-sizing:border-box; --modal-border-w:11px; border-style:solid; border-width:var(--modal-border-w); border-image-source:url('../img/bg_lore_modal.png'); border-image-slice:22 fill; border-image-width:var(--modal-border-w); border-image-outset:0; border-image-repeat:stretch;}
+@media(min-width:600px){ .crate-modal{--modal-border-w:33px;} } /* x3 — на десктопе тонкая мобильная рамка теряется, автор попросил утроить */
+.crate-modal .screen-body{flex:1 1 auto; min-height:0; overflow-y:auto; margin:0;}
+/*── Ручка — масштабируется вместе с --crate-w (тот же токен, что у ящика).
+    Ratio читаю как "высота:ширина" 1:13 (широкая тонкая планка-хват, не
+    наоборот — узкая цифра всегда высота, раз это ручка чемодана). ────────*/
+.crate-handle{display:block; width:calc(var(--crate-w) * 0.34); aspect-ratio:13/1; flex-shrink:0; border:none; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_loreru4ka1.png');}
+.crate-handle:hover{background-image:url('../img/btn_loreru4kaH.png');}
+.crate-handle:active{background-image:url('../img/btn_loreru4ka2.png');}
+/*── Кастомный квадратный (без скруглений) скролл внутри ящика ────────────*/
+.crate-modal .screen-body{scrollbar-width:thin; scrollbar-color:#829797 #0c1013;}
+.crate-modal .screen-body::-webkit-scrollbar{width:10px;}
+.crate-modal .screen-body::-webkit-scrollbar-track{background:#0c1013;}
+.crate-modal .screen-body::-webkit-scrollbar-thumb{background:#829797; border-radius:0;}
+/*── Хедер — теперь фикс-высота 5% от экрана (не от контента), заголовок
+    занимает всю область хедера без паддингов. Кнопка "назад" ушла ИЗ
+    хедера — она теперь прямой ребёнок .crate-modal, поверх рамки хедера,
+    впритык в левый верхний угол САМОГО ЯЩИКА (не тайла контента), размер
+    равен высоте хедера. ────────────────────────────────────────────────*/
+#loreScreen .screen-header{--header-border-w: 4px; flex:0 0 5vh; height:5vh; border-style:solid; border-width:var(--header-border-w); border-image-source:url('../img/bg_lore_header.png'); border-image-slice:8 fill; border-image-width:var(--header-border-w); border-image-outset:0; border-image-repeat:stretch; margin:0; padding:0;}
 @media(min-width:600px){
   #loreScreen .screen-header{--header-border-w: 12px;} /* x3, синхронно с --modal-border-w */
 }
-#loreScreen .screen-title{color:#000;}
-#loreScreen .screen-back{top:0; left:0; height:6vw; width:6vw; aspect-ratio:1/1; border:none; background-color:transparent; background-repeat:no-repeat; background-position:center; background-size:100% 100%; cursor:pointer; padding:0; transition:none; background-image:url('../img/btn_lore_header1.png');}
+#loreScreen .screen-title{color:#000; height:100%; width:100%; margin:0; display:flex; align-items:center; justify-content:center;}
+#loreScreen .screen-back{position:absolute; top:calc(-1 * var(--modal-border-w)); left:calc(-1 * var(--modal-border-w)); z-index:6; height:5vh; width:5vh; aspect-ratio:1/1; border:none; background-color:transparent; background-repeat:no-repeat; background-position:center; background-size:100% 100%; cursor:pointer; padding:0; transition:none; background-image:url('../img/btn_lore_header1.png');}
 #loreScreen .screen-back:hover{background-image:url('../img/btn_lore_headerH.png');}
 #loreScreen .screen-back:active{background-image:url('../img/btn_lore_header2.png');}
-@media(min-width:600px){
-  #loreScreen .screen-back{height:2.2vw; width:2.2vw;} /* синхронно с .screen-title 2.2vw на десктопе */
-}
+/*── ARCHIVE — теперь чистый арт-баттон (idle/hover/active), не текстовая
+    ссылка с рамкой. Впритык к нижнему краю ящика (screen-body держит
+    padding-bottom:0 специально под это), паддинги слева/справа вдвое
+    меньше, чем у остального контента (-2vw компенсации против 4vw паддинга
+    самого .screen-body). Ratio читаю как "высота:ширина" 1:3 (широкий
+    баннер), см. пояснение в чате. ─────────────────────────────────────*/
+.crate-modal .screen-body{padding:3vw 4vw 0;}
+.lore-archive-btn{display:block; width:calc(100% + 4vw); margin:4vw -2vw 0 -2vw; aspect-ratio:3/1; border:none; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_archive1.png');}
+.lore-archive-btn:hover{background-image:url('../img/btn_lore_archiveH.png');}
+.lore-archive-btn:active{background-image:url('../img/btn_lore_archive2.png');}
 .lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:50 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
 .lore-page:nth-of-type(1){--r:-1.6deg;}
 .lore-page:nth-of-type(2){--r:1.1deg;}
@@ -355,15 +381,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #loreStack.closed .lore-page:nth-of-type(4){z-index:1; transform:rotate(var(--r)) translateY(7.2vw);}
 .lore-page.revealed{animation:loreReveal 0.7s steps(4,end) forwards;}
 .lore-page h2{margin-top:0;text-align:center;}
-.lore-archive-link{display:block; margin:4vw auto 6vw; max-width:520px; padding:3.5vw 5vw; border:1px solid #c8a84b; background:#0d0d1ad0; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease;}
-.lore-archive-link:hover{transform:translateY(-2px);box-shadow:0 4px 18px #c8a84b44;}
-.lore-archive-link-title{font-family:'MEK',monospace;font-size:5vw;color:#c8a84b;margin-bottom:1.5vw;}
-.lore-archive-link-sub{font-size:3.6vw;color:#9B937F;}
 @media(min-width:600px){
   .lore-page{margin-bottom:3vw;}
-  .lore-archive-link{padding:1.4vw 2vw;margin:3vw auto 2vw;}
-  .lore-archive-link-title{font-size:1.3vw;}
-  .lore-archive-link-sub{font-size:0.95vw;}
 }
 @keyframes loreReveal{
   0%{opacity:0; transform:rotate(var(--r)) translateY(14px); text-shadow:none;}
