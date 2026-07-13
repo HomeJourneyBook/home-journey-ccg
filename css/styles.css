@@ -90,9 +90,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── НИЗ — единый функциональный блок, 240/256 высоты, НИКОГДА не сжимается ──*/
 .landing-bottom{width:var(--lw); flex:0 0 auto; position:relative; display:flex;flex-direction:column;}
 .landing-strip{width:100%; flex:0 0 auto;}
-.landing-strip-perspective{height:calc(var(--lw) * 8 / 256); background-color:#3d494f; /* плейсхолдер — арт перспективы над Play */}
+.landing-strip-perspective{height:calc(var(--lw) * 8 / 256); background-color:#3d494f; background-image:url('../img/top_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-strip-play{height:calc(var(--lw) * 64 / 256); position:relative; display:flex;align-items:center;justify-content:center;}
-.landing-strip-edge{height:calc(var(--lw) * 8 / 256); background-color:#2f3941; /* плейсхолдер — кромка стола, ждёт арт (см. Art backlog) */}
+.landing-strip-edge{height:calc(var(--lw) * 8 / 256); background-color:#2f3941; background-image:url('../img/front_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 /*── Play-ворота — раньше фикс 240×60px, теперь тянутся на всю ширину полосы;
     4:1 у самого арта = ровно 64/256 высоты полосы, без искажений. Механика
     (гейт-спрайт, рамка, hover, 3 кнопки режима) не менялась. ─────────────*/
@@ -118,7 +118,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Ряд Lore/декор/Catalog — 64(2:3) + 128(4:3) + 64(2:3) = 256, край-в-край ──*/
 .landing-row-nav{width:100%; height:calc(var(--lw) * 96 / 256); display:flex;flex-direction:row;}
 .landing-row-nav .art-btn-lore,.landing-row-nav .art-btn-catalog{width:calc(var(--lw) * 64 / 256); height:100%;}
-.landing-nav-decor{width:calc(var(--lw) * 128 / 256); height:100%; background-color:#333c46; /* плейсхолдер — арт "что под столом", некликабельно */}
+.landing-nav-decor{width:calc(var(--lw) * 128 / 256); height:100%; background-color:#333c46; background-image:url('../img/bot_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 /*── Десктоп-выносы (≥600px, тот же порог, что капает --lw) — по всей высоте
     .landing-bottom (240/256), 64/256 шириной каждый, чистый плейсхолдер. ──*/
 .landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 64 / 256); background-color:#2a323a;}
@@ -317,7 +317,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     её увидеть. Рамка прибита ровно к верху (0 сверху, никакого центрирования).
     --crate-w расшарен на уровне экрана, чтобы и ящик, и ручка масштабировались
     от одной и той же ширины. ────────────────────────────────────────────*/
-#loreScreen, #catalogScreen{--crate-w: min(92vw,760px); padding:0; overflow-y:auto; overflow-x:hidden; background-color:#181f27; flex-direction:column; align-items:center; justify-content:flex-start; gap:0;}
+#loreScreen, #catalogScreen{--crate-w: min(92vw,760px); padding:0 0 10px; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; background-color:#181f27; flex-direction:column; align-items:center; justify-content:flex-start; gap:0;}
 #catalogScreen{--crate-w: min(94vw,980px);} /* каталогу нужна сетка карт пошире — хедер там донастроим отдельным заходом */
 #loreScreen.active, #catalogScreen.active{display:flex;}
 /*── Кастомный квадратный (без скруглений) скролл теперь на самой странице ──*/
@@ -331,7 +331,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Ручка — масштабируется вместе с --crate-w (тот же токен, что у ящика).
     Ratio читаю как "высота:ширина" 1:13 (широкая тонкая планка-хват, не
     наоборот — узкая цифра всегда высота, раз это ручка чемодана). ────────*/
-.crate-handle{display:block; width:calc(var(--crate-w) * 0.34); aspect-ratio:13/1; flex-shrink:0; border:none; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_ru4ka1.png');}
+.crate-handle{display:block; width:calc(var(--crate-w) * 0.68); aspect-ratio:13/1; flex-shrink:0; border:none; background-color:transparent; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_ru4ka1.png');}
 .crate-handle:hover{background-image:url('../img/btn_lore_ru4kaH.png');}
 .crate-handle:active{background-image:url('../img/btn_lore_ru4ka2.png');}
 /*── Lore больше не имеет хедера вообще — кнопка "назад" убрана из DOM,
