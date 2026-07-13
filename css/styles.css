@@ -126,6 +126,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .landing-bottom-ext-right{right:calc(var(--lw) * -64 / 256);}
 @media(min-width:600px){
   .landing-bottom-ext{display:block;}
+  /* Десктоп: высота теперь ведущая (40/60 по вьюпорту), а не ширина.
+     --lw пересчитан так, чтобы .landing-bottom (фикс 240/256 от --lw)
+     ровно попадал в 60vh — min(...,100vw) не даёт композиции физически
+     вылезти за пределы экрана по ширине на очень высоких мониторах
+     (тогда боковые выносы просто не поместятся и обрежутся, это ок). */
+  .landing{--lw: min(calc(60vh * 256 / 240), 100vw);}
+  /* .landing-top больше не "flex:1 1 auto против остатка вьюпорта" —
+     теперь у него жёсткие 40vh; внутри него ceiling/wall фикс (как и
+     раньше), а буфер (единственный flex-элемент) сам досчитывает разницу
+     до ровно 40vh — тот же механизм сжатия/роста, что уже был, просто
+     целевая высота теперь явно задана, а не "что осталось". */
+  .landing-top{flex:0 0 40vh; height:40vh;}
 }
 /*── ХВОСТ — вне сетки, чистый vh-отступ под игрой (copyright+версия). ─────*/
 .landing-tail{width:var(--lw); flex:0 0 auto; padding:3.5vh 12px 1.5vh; box-sizing:border-box; display:flex;flex-direction:row;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2;}
