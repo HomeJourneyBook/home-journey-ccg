@@ -97,8 +97,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     4:1 у самого арта = ровно 64/256 высоты полосы, без искажений. Механика
     (гейт-спрайт, рамка, hover, 3 кнопки режима) не менялась. ─────────────*/
 .play-gate-wrap{position:relative; width:70%; aspect-ratio:4/1; flex-shrink:0; z-index:2;}
-.play-mode-buttons{position:absolute;inset:0;z-index:1; display:flex;flex-direction:row;align-items:center;justify-content:flex-start; padding:0 10.625%; box-sizing:border-box; gap:10.625%; pointer-events:none;}
-.art-btn-square.art-btn-mode{flex:none; width:19.1667%; height:76.667%;}
+.play-mode-buttons{position:absolute;inset:0;z-index:1; display:flex;flex-direction:row;align-items:center;justify-content:space-evenly; pointer-events:none;}
+.art-btn-square.art-btn-mode{flex:none; height:76.667%; width:auto; aspect-ratio:1/1;}
 .play-gate-sprite{position:absolute;inset:0;z-index:3;cursor:pointer; background-image:url('../img/btn_playgame_gates_sheet.png'); background-size:700% 100%;background-repeat:no-repeat; background-color:transparent;border:none;}
 /* Убираем плейсхолдер-текст: арт уже есть в PNG */
 .play-gate-sprite::after{content:none;}
@@ -309,7 +309,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    LORE SCREEN
    ═══════════════════════════════════════════════════════════════════════ */
 /*── LORE SCREEN — звёздный фон (тот же арт, что у лендинга), страницы-панели*/
-#loreScreen{background:linear-gradient(rgba(10,10,18,0.78),rgba(10,10,18,0.88)), url('../img/space_bg.png'); background-size:cover; background-position:center; background-color:#0a0a12;}
+#loreScreen{background:linear-gradient(rgba(10,10,18,0.78),rgba(10,10,18,0.88)), url('../img/space_bg.png'); background-size:cover; background-position:center; background-color:#0a0a12; border-style:solid; border-width:11px; border-image-source:url('../img/bg_lore_modal.png'); border-image-slice:22; border-image-width:11px; border-image-outset:0; border-image-repeat:stretch;}
+/*── Хедер — full-bleed до рамки экрана (гасим паддинг .screen отрицательным
+    margin), высота от контента (просто паддинг вокруг заголовка, без
+    фикс-height). Фон пока плоский плейсхолдер — заменится на свой 9-слайс
+    отдельным заходом, когда будет ассет. Кнопка "назад" прибита буквально
+    в верхний левый угол хедера (top:0;left:0), не по центру по вертикали
+    как в базовом .screen-back. ─────────────────────────────────────────*/
+#loreScreen .screen-header{background-color:#888; border-bottom:none; margin:-4vw -4vw 3vw -4vw; padding:3vw 4vw; position:relative;}
+#loreScreen .screen-title{color:#000;}
+#loreScreen .screen-back{top:0; left:0;}
 .lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:50 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
 .lore-page:nth-of-type(1){--r:-1.6deg;}
 .lore-page:nth-of-type(2){--r:1.1deg;}
