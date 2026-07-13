@@ -30,6 +30,18 @@ function getAbilities(card){
       // ровно то, что попросил автор ("к след ходу противника, его карта уже
       // реабилитируется").
       case 'taunt_break': ab.push({timing:'on_attack',effect:'taunt_break'}); break;
+      // vampiric (2026-07-13, автор) — на СВОЕЙ атаке лечится на РЕАЛЬНО снятый урон
+      // (ctx.realDmgDealt, см. doAttack() в game.js — снимок HP цели до/после удара,
+      // Броня/Solana Shield уже учтены самим фактом, что не убавили HP). НЕ реагирует на
+      // контратаки (как и fear/burn/taunt_break — только когда карта сама атакует).
+      case 'vampiric':    ab.push({timing:'on_attack',effect:'vampiric'}); break;
+      // necrophage / "Erase" (2026-07-13, автор) — при УБИЙСТВЕ через свою атаку (timing:
+      // on_kill, резолвится в doAttack() ТОЛЬКО если ctx.target.hp<=0 после удара): труп
+      // цели стирается из кладбища владельца прямо в войд (Инкарнация, если тикала, —
+      // обрывается), сам Erase-обладатель лечится ДО ПОЛНОГО HP и снимает с себя ожог.
+      // Скоуп: срабатывает только на килл ПРЯМОЙ атакой — Shard/Bolt/AOE-килы это НЕ
+      // подхватывают (у них свой урон, не через doAttack()/on_kill).
+      case 'necrophage':  ab.push({timing:'on_kill',effect:'necrophage'}); break;
       case 'aoe':        ab.push({timing:'active',effect:'aoe',val}); break;
       case 'bolt':       ab.push({timing:'active',effect:'bolt',val}); break;
       case 'enter_aoe':  ab.push({timing:'on_enter',effect:'aoe',val}); break;
@@ -195,6 +207,47 @@ function triggerAbilities(card, timing, ctx={}){
           playSfx('debaf');
           lg(`${card.name}: ${ctx.target.name}'s Provoke is suppressed!`,'imp');
           queueFieldFx(ctx.target.id,'EXPOSED!','fx-fear'); // переиспользуем готовый fx-класс fear — тот же "красный всплеск"
+        } break;
+
+      case 'vampiric':
+        // ctx.realDmgDealt — реально снятый урон (снимок HP цели до/после удара, см.
+        // doAttack()), НЕ номинальный ATK: если часть ушла в Броню или удар поглощён
+        // Solana Shield целиком (realDmgDealt=0 в этом случае), лечения не будет — по
+        // прямому запросу автора ("сколько именно хп снято"). Срабатывает независимо от
+        // того, выжила цель или нет (лайфстил не требует килла, в отличие от necrophage).
+        if(ctx.realDmgDealt>0){
+          const heal=Math.min(ctx.realDmgDealt,card.maxHp-card.hp);
+          if(heal>0){
+            card.hp+=heal;
+            playSfx('heal');
+            const vampId=card.id;
+            requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(vampId,`+${heal}`,'heal')));
+            lg(`${card.name}: drains ${heal} HP from ${ctx.target.name}.`,'hl');
+          }
+        } break;
+
+      case 'necrophage':
+        // Резолвится ТОЛЬКО когда doAttack() уже убедился, что ctx.target.hp<=0 (см. вызов
+        // triggerAbilities(att,'on_kill',{target}) там же) — эта проверка здесь не дублируется,
+        // достаточно проверить что karta ещё лежит в grave (не сожжена в войд/не вторая
+        // смерть после Инкарнации — те уже сами ушли в войд через killCard(), стирать
+        // оттуда нечего, no-op).
+        if(ctx.target){
+          const deadK=ctx.target.f;
+          if(G[deadK].grave.some(c=>c.id===ctx.target.id)){
+            G[deadK].grave=G[deadK].grave.filter(c=>c.id!==ctx.target.id);
+            ctx.target.voided=true;
+            ctx.target.incarnTimer=undefined; // Инкарнация ещё тикала — обрываем, стёртый труп не воскреснет
+            G[deadK].void.push(ctx.target);
+          }
+          const wasBurning=card.burning;
+          card.hp=card.maxHp;
+          card.burning=false;
+          playSfx('rest');
+          const eraseId=card.id;
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(eraseId,'FULL','heal')));
+          lg(`${card.name}: Erase — ${ctx.target.name}'s corpse is wiped from existence, ${card.name} is fully restored${wasBurning?' and cleansed of fire':''}.`,'hl');
+          queueFieldFx(card.id,'ERASED!','fx-fear');
         } break;
 
       case 'draw':
