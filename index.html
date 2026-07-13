@@ -149,7 +149,7 @@
          уже так и работал), автор перерисует под точный размер позже. -->
     <div class="landing-row-audio">
       <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules')"></button>
+      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules',this)"></button>
       <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
     </div>
 
@@ -160,9 +160,9 @@
          + Catalog 64 (2:3). Ratio у Lore/Catalog сильно изменился (было 3:1
          landscape) — арт временно растянется криво, автор перерисует. -->
     <div class="landing-row-nav">
-      <button class="art-btn art-btn-lore" onclick="playSfx('yellow_buttom');showScreen('lore')"></button>
+      <button class="art-btn art-btn-lore" onclick="playSfx('yellow_buttom');showScreen('lore',this)"></button>
       <div class="landing-nav-decor"></div>
-      <button class="art-btn art-btn-catalog" onclick="playSfx('yellow_buttom');showScreen('catalog')"></button>
+      <button class="art-btn art-btn-catalog" onclick="playSfx('yellow_buttom');showScreen('catalog',this)"></button>
     </div>
 
   </div>
@@ -635,7 +635,7 @@
     <button class="screen-back" onclick="playSfx('yellow_buttom');hideScreen('catalog')">← Back</button>
     <div class="screen-title">Card Catalog</div>
   </div>
-  <div class="screen-body" style="max-width:900px;margin:0 auto;padding:0 8px;">
+  <div class="screen-body" style="max-width:900px;margin:0 auto;padding:8px;">
     <div class="catalog-filters">
       <input class="search-input" id="catalogSearch" placeholder="Search cards..." oninput="renderCatalog()">
       <div class="filter-group" id="factionFilters">
