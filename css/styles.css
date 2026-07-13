@@ -308,7 +308,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #loreScreen::-webkit-scrollbar-thumb, #catalogScreen::-webkit-scrollbar-thumb{background:#829797; border-radius:0;}
 .crate-modal{position:relative; width:var(--crate-w); flex-shrink:0; overflow:hidden; display:flex; flex-direction:column; box-sizing:border-box; --modal-border-w:12px; border-style:solid; border-width:var(--modal-border-w); border-image-source:url('../img/bg_lore_modal.png'); border-image-slice:48 fill; border-image-width:var(--modal-border-w); border-image-outset:0; border-image-repeat:stretch;}
 @media(min-width:600px){ .crate-modal{--modal-border-w:24px;} }
-.crate-modal .screen-body{margin:0;}
+.crate-modal .screen-body{margin:0; width:100%; box-sizing:border-box;}
 /*── Ручка — масштабируется вместе с --crate-w (тот же токен, что у ящика).
     Ratio читаю как "высота:ширина" 1:13 (широкая тонкая планка-хват, не
     наоборот — узкая цифра всегда высота, раз это ручка чемодана). ────────*/
