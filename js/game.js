@@ -18,7 +18,7 @@ function onClick(card,zone){
     return;
   }
   if(G.phase==='healTarget'){
-    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared)){
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared||card.provokeBroken)){
       const healer=findC(G.sel);
       if(healer){
         const healAmt=(healer.squadParam&&healer.squadParam.heal)||getTagVal(healer,'heal')||1;
@@ -36,6 +36,11 @@ function onClick(card,zone){
         const debuffs=[];
         if(card.burning){card.burning=false;debuffs.push('fire');}
         if(card.feared){card.feared=false;debuffs.push('fear');}
+        // provokeBroken (taunt_break, 2026-07-13) — та же логика, что fire/fear: если враг
+        // taunt_break-атакой снял Provoke с ТВОЕГО танка, хил может восстановить его раньше
+        // естественного срока (см. getTargetableCards() — сама карта снова начинает форсить
+        // атаку на себя, как только флаг снят).
+        if(card.provokeBroken){card.provokeBroken=false;debuffs.push('provoke suppression');}
         if(debuffs.length) queueFieldFx(card.id,'CLEANED','fx-cleaned');
         lg(`${healer.name}: ${actualHeal>0?`+${actualHeal} HP to ${card.name}`:`cleanses ${card.name}`}${debuffs.length?(actualHeal>0?', removes '+debuffs.join(' & '):' — removes '+debuffs.join(' & ')):''}.`,'hl');
         healer.exhausted=true;
@@ -1027,6 +1032,7 @@ function doSpellDispelTarget(card){
   const removed=[];
   if(card.feared){card.feared=false;removed.push('fear');}
   if(card.burning){card.burning=false;removed.push('burn');}
+  if(card.provokeBroken){card.provokeBroken=false;removed.push('provoke suppression');}
   if(card.atkBonus){card.atkBonus=0;removed.push('atk buff');}
   if(card.squadAtkBonus){card.squadAtkBonus=0;removed.push('squad atk');}
   if(card.squadMaxHpBonus){card.hp=Math.min(card.hp,card.maxHp-card.squadMaxHpBonus);card.maxHp-=card.squadMaxHpBonus;card.squadMaxHpBonus=0;removed.push('squad maxHP');}
