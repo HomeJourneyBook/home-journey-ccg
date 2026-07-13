@@ -60,11 +60,25 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    ═══════════════════════════════════════════════════════════════════════ */
 /*── Кнопки выбора фракции (VS AI picker) — квадратные, кастомный арт ────────*/
 .modal-faction-btn{width:var(--modal-footer-btn-h);height:var(--modal-footer-btn-h); flex-shrink:0; border:none;background-color:transparent; background-repeat:no-repeat;background-position:center;background-size:100% 100%; cursor:pointer;padding:0;transition:none;}
-/*Фон всего лендинга — временный тёмно-серый плейсхолдер.*/
-.landing{position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; padding:4vh 12px 3vh; overflow-y:auto; background-color:#181f27; background-size:cover; background-position:center;}
-.landing-porthole-slot{flex:1; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; overflow:hidden;}
-/*── Иллюминатор — 4 слоя, круглое окно 228×228px + гибкость на маленьких экранах ──*/
-.landing-porthole{position:relative;z-index:1; width:min(273.6px, 72vw, 34vh); height:min(273.6px, 72vw, 34vh); border-radius:50%; overflow:hidden; flex-shrink:0;}
+/*── Композиция лендинга — сетка 256 условных единиц по ширине ──────────────
+   --lw = логическая ширина композиции: растёт вместе с экраном (100vw), но
+   не дальше 600px (см. договорённость с автором 2026-07-13) — на более
+   широких экранах центр замирает, а по бокам .landing-bottom добавляются
+   декоративные выносы (.landing-bottom-ext-*). Все "жёсткие" размеры ниже —
+   calc(var(--lw) * N / 256), где N — юнит из ТЗ автора; единственное
+   исключение — .landing-buffer (гибкий буфер) и .landing-tail (свой vh,
+   вне сетки вообще, см. ниже). ──────────────────────────────────────────*/
+.landing{--lw: min(100vw, 600px); position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; overflow-y:auto; overflow-x:hidden; background-color:#181f27; background-size:cover; background-position:center;}
+/*── ВЕРХ — потолок(32) + стена-с-иллюминатором(192) фикс, буфер(~36) гибкий.
+    .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
+    родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
+    min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
+.landing-top{width:var(--lw); flex:1 1 auto; min-height:0; display:flex;flex-direction:column; overflow:hidden;}
+.landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-color:#2a2f38; /* плейсхолдер — арт потолка ещё не готов */}
+.landing-wall{flex:0 0 calc(var(--lw) * 192 / 256); width:100%; position:relative; background-color:#232830; /* плейсхолдер — арт стены ещё не готов */ display:flex;align-items:center;justify-content:center;}
+.landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; background-color:#1c2028; /* плейсхолдер — пустая стена, режется первой */}
+/*── Иллюминатор — диаметр = % высоты .landing-wall (1:1, центр секции) ─────*/
+.landing-porthole{position:relative;z-index:1; height:80%; aspect-ratio:1/1; width:auto; border-radius:50%; overflow:hidden; flex-shrink:0;}
 .porthole-space{position:absolute;inset:0;z-index:0; background-image:url('../img/logo_space.png'); background-size:100% auto; background-position:center; background-repeat:no-repeat;}
 .porthole-logo-wrap{position:absolute;inset:0;z-index:2; display:flex;align-items:center;justify-content:center; pointer-events:none;}
 .porthole-logo{max-width:65%; display:flex;flex-direction:column;align-items:center;}
@@ -73,9 +87,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .porthole-glass{position:absolute;inset:0;z-index:1; background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.10), rgba(180,200,255,0.04) 55%, rgba(0,0,0,0.06) 100%); backdrop-filter:blur(0.6px); -webkit-backdrop-filter:blur(0.6px); overflow:hidden; pointer-events:none;}
 .porthole-glass::before{content:''; position:absolute; top:-60%;left:-150%; width:55%;height:220%; background:linear-gradient(75deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%); transform:rotate(20deg); animation:portholeGlare 13s ease-in-out infinite;}
 .porthole-frame{position:absolute;inset:0;z-index:3; background-image:url('../img/logo_window.png'); background-size:100% 100%; background-repeat:no-repeat; pointer-events:none;}
-.play-gate-wrap{position:relative; width:240px;height:60px; flex-shrink:0;}
-.play-mode-buttons{position:absolute;inset:0;z-index:1; display:flex;flex-direction:row;align-items:center;justify-content:flex-start; padding:0 25.5px; box-sizing:border-box; gap:25.5px; pointer-events:none;}
-.art-btn-square.art-btn-mode{flex:none; width:46px; height:46px;}
+/*── НИЗ — единый функциональный блок, 240/256 высоты, НИКОГДА не сжимается ──*/
+.landing-bottom{width:var(--lw); flex:0 0 auto; position:relative; display:flex;flex-direction:column;}
+.landing-strip{width:100%; flex:0 0 auto;}
+.landing-strip-perspective{height:calc(var(--lw) * 8 / 256); background-color:#3d494f; /* плейсхолдер — арт перспективы над Play */}
+.landing-strip-play{height:calc(var(--lw) * 64 / 256); display:flex;align-items:center;justify-content:center;}
+.landing-strip-edge{height:calc(var(--lw) * 8 / 256); background-color:#2f3941; /* плейсхолдер — кромка стола, ждёт арт (см. Art backlog) */}
+/*── Play-ворота — раньше фикс 240×60px, теперь тянутся на всю ширину полосы;
+    4:1 у самого арта = ровно 64/256 высоты полосы, без искажений. Механика
+    (гейт-спрайт, рамка, hover, 3 кнопки режима) не менялась. ─────────────*/
+.play-gate-wrap{position:relative; width:100%; aspect-ratio:4/1; flex-shrink:0;}
+.play-mode-buttons{position:absolute;inset:0;z-index:1; display:flex;flex-direction:row;align-items:center;justify-content:flex-start; padding:0 10.625%; box-sizing:border-box; gap:10.625%; pointer-events:none;}
+.art-btn-square.art-btn-mode{flex:none; width:19.1667%; height:76.667%;}
 .play-gate-sprite{position:absolute;inset:0;z-index:3;cursor:pointer; background-image:url('../img/btn_playgame_gates_sheet.png'); background-size:700% 100%;background-repeat:no-repeat; background-color:transparent;border:none;}
 /* Убираем плейсхолдер-текст: арт уже есть в PNG */
 .play-gate-sprite::after{content:none;}
@@ -88,6 +111,24 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .play-gate-sprite.gate-frame-7{background-position:100% 0; pointer-events:none;}
 .play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
 .play-gate-frame{position:absolute;inset:0;z-index:4; background-image:url('../img/btn_playgame_frame.png'); background-size:100% 100%;background-repeat:no-repeat; pointer-events:none;}
+/*── Ряд Music/Rules/SFX — 64(1:1) + 128(2:1) + 64(1:1) = 256, край-в-край ──*/
+.landing-row-audio{width:100%; height:calc(var(--lw) * 64 / 256); display:flex;flex-direction:row;}
+.landing-row-audio .art-btn-square{width:calc(var(--lw) * 64 / 256); height:100%;}
+.landing-row-audio .art-btn-rules{width:calc(var(--lw) * 128 / 256); height:100%;}
+/*── Ряд Lore/декор/Catalog — 64(2:3) + 128(4:3) + 64(2:3) = 256, край-в-край ──*/
+.landing-row-nav{width:100%; height:calc(var(--lw) * 96 / 256); display:flex;flex-direction:row;}
+.landing-row-nav .art-btn-lore,.landing-row-nav .art-btn-catalog{width:calc(var(--lw) * 64 / 256); height:100%;}
+.landing-nav-decor{width:calc(var(--lw) * 128 / 256); height:100%; background-color:#333c46; /* плейсхолдер — арт "что под столом", некликабельно */}
+/*── Десктоп-выносы (≥600px, тот же порог, что капает --lw) — по всей высоте
+    .landing-bottom (240/256), 64/256 шириной каждый, чистый плейсхолдер. ──*/
+.landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 64 / 256); background-color:#2a323a;}
+.landing-bottom-ext-left{left:calc(var(--lw) * -64 / 256);}
+.landing-bottom-ext-right{right:calc(var(--lw) * -64 / 256);}
+@media(min-width:600px){
+  .landing-bottom-ext{display:block;}
+}
+/*── ХВОСТ — вне сетки, чистый vh-отступ под игрой (copyright+версия). ─────*/
+.landing-tail{width:var(--lw); flex:0 0 auto; padding:3.5vh 12px 1.5vh; box-sizing:border-box; display:flex;flex-direction:row;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2;}
 /*── Переходы экранов (горизонтальный слайд с параллаксом фона) ─────*/
 .landing{transition:transform 0.315s cubic-bezier(0.4,0,0.2,1),opacity 0.315s;}
 .landing.exit-right{transform:translateX(-40%);opacity:0;pointer-events:none;}
@@ -126,13 +167,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   from{transform:translateY(0);opacity:1;}
   to{transform:translateY(40%);opacity:0;}
 }
-.landing-box{width:min(272px, 94vw); background:#3d494f; box-sizing:border-box; padding:0; display:flex; flex-direction:column; align-items:center; overflow:hidden; zoom:clamp(0.55, calc(100vh / 700), 1);}
-.landing-box-body{width:100%; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; align-items:center; gap:16px;}
-.landing-square-row{display:flex; flex-direction:row; align-items:flex-start; justify-content:center; gap:16px;}
-.landing-legal-row{width:min(272px, 94vw); margin-top:6px; display:flex; flex-direction:row; justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2; zoom:clamp(0.55, calc(100vh / 700), 1);}
-.landing-square-item{display:flex; flex-direction:column; align-items:center; gap:0;}
-.landing-square-label{width:54px; font-family:'MEK',monospace; font-size:20px; letter-spacing:0.5px; color:#E8E0C8; text-align:center; white-space:nowrap; pointer-events:none;}
-/*── Кастомные арт-кнопки лендинга ────────────────────────────────*/
+/*── Кастомные арт-кнопки лендинга — базовые/дефолтные размеры (fallback,
+    реальный размер на лендинге задаётся контекстно в .landing-row-audio/
+    .landing-row-nav выше; эти значения остаются на случай использования
+    вне новой сетки). ──────────────────────────────────────────────────*/
 .art-btn{width:162px; height:54px; border:none; background-color:transparent; background-repeat:no-repeat; background-position:center; background-size:100% 100%; cursor:pointer; padding:0; transition:none; filter:brightness(1);}
 .art-btn:not(.art-btn-catalog):not(.art-btn-rules):not(.art-btn-lore):hover{filter:brightness(1.25);}
 .art-btn-playgame{background-image:url('../img/btn_playgame1.png');}
