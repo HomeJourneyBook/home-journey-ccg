@@ -74,9 +74,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
     min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
 .landing-top{width:var(--lw); flex:1 1 auto; min-height:0; display:flex;flex-direction:column; overflow:hidden;}
-.landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-color:#2a2f38; /* плейсхолдер — арт потолка ещё не готов */}
-.landing-wall{flex:0 0 calc(var(--lw) * 192 / 256); width:100%; position:relative; background-color:#232830; /* плейсхолдер — арт стены ещё не готов */ display:flex;align-items:center;justify-content:center;}
-.landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; background-color:#1c2028; /* плейсхолдер — пустая стена, режется первой */}
+.landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; /* плейсхолдер — арт потолка ещё не готов, прозрачно */}
+.landing-wall{flex:0 0 calc(var(--lw) * 192 / 256); width:100%; position:relative; /* плейсхолдер — арт стены ещё не готов, прозрачно */ display:flex;align-items:center;justify-content:center;}
+.landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; /* плейсхолдер — пустая стена, режется первой, прозрачно */}
 /*── Иллюминатор — диаметр = % высоты .landing-wall (1:1, центр секции) ─────*/
 .landing-porthole{position:relative;z-index:1; height:100%; aspect-ratio:1/1; width:auto; border-radius:50%; overflow:hidden; flex-shrink:0;}
 .porthole-space{position:absolute;inset:0;z-index:0; background-image:url('../img/logo_space.png'); background-size:100% auto; background-position:center; background-repeat:no-repeat;}
@@ -90,9 +90,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── НИЗ — единый функциональный блок, 240/256 высоты, НИКОГДА не сжимается ──*/
 .landing-bottom{width:var(--lw); flex:0 0 auto; position:relative; display:flex;flex-direction:column;}
 .landing-strip{width:100%; flex:0 0 auto;}
-.landing-strip-perspective{height:calc(var(--lw) * 8 / 256); background-color:#3d494f; background-image:url('../img/top_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-strip-perspective{height:calc(var(--lw) * 8 / 256); background-image:url('../img/top_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-strip-play{height:calc(var(--lw) * 64 / 256); position:relative; display:flex;align-items:center;justify-content:center;}
-.landing-strip-edge{height:calc(var(--lw) * 8 / 256); background-color:#2f3941; background-image:url('../img/front_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-strip-edge{height:calc(var(--lw) * 8 / 256); background-image:url('../img/front_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 /*── Play-ворота — раньше фикс 240×60px, теперь тянутся на всю ширину полосы;
     4:1 у самого арта = ровно 64/256 высоты полосы, без искажений. Механика
     (гейт-спрайт, рамка, hover, 3 кнопки режима) не менялась. ─────────────*/
@@ -118,12 +118,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Ряд Lore/декор/Catalog — 64(2:3) + 128(4:3) + 64(2:3) = 256, край-в-край ──*/
 .landing-row-nav{width:100%; height:calc(var(--lw) * 96 / 256); display:flex;flex-direction:row;}
 .landing-row-nav .art-btn-lore,.landing-row-nav .art-btn-catalog{width:calc(var(--lw) * 64 / 256); height:100%;}
-.landing-nav-decor{width:calc(var(--lw) * 128 / 256); height:100%; background-color:#333c46; background-image:url('../img/bot_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-nav-decor{width:calc(var(--lw) * 128 / 256); height:100%; background-image:url('../img/bot_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 /*── Десктоп-выносы (≥600px, тот же порог, что капает --lw) — по всей высоте
     .landing-bottom (240/256), 64/256 шириной каждый, чистый плейсхолдер. ──*/
-.landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 64 / 256); background-color:#2a323a;}
-.landing-bottom-ext-left{left:calc(var(--lw) * -64 / 256);}
-.landing-bottom-ext-right{right:calc(var(--lw) * -64 / 256);}
+.landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 64 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-bottom-ext-left{left:calc(var(--lw) * -64 / 256); background-image:url('../img/left_table.png');}
+.landing-bottom-ext-right{right:calc(var(--lw) * -64 / 256); background-image:url('../img/right_table.png');}
 @media(min-width:600px){
   .landing-bottom-ext{display:block;}
   /* Десктоп: высота — ведущая, и ТЕПЕРЬ весь бюджет 100vh целиком
@@ -149,43 +149,24 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 }
 /*── ХВОСТ — вне сетки, чистый vh-отступ под игрой (copyright+версия). ─────*/
 .landing-tail{width:var(--lw); flex:0 0 auto; padding:2vh 12px calc(3vh + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2;}
-/*── Переходы экранов (горизонтальный слайд с параллаксом фона) ─────*/
-.landing{transition:transform 0.315s cubic-bezier(0.4,0,0.2,1),opacity 0.315s;}
-.landing.exit-right{transform:translateX(-40%);opacity:0;pointer-events:none;}
-.landing.exit-left{transform:translateX( 40%);opacity:0;pointer-events:none;}
-.landing.exit-down{transform:translateY(-30%);opacity:0;pointer-events:none;}
+/*── Переходы экранов (зум+блюр «в направлении ящика», см. showScreen/hideScreen
+    в ui.js — они задают landing.style.transformOrigin по месту клика). ────*/
+.landing{transition:transform 0.315s cubic-bezier(0.4,0,0.2,1) 0s, opacity 0.22s ease 0.08s, filter 0.2s ease 0.09s;}
+.landing.exit-right,.landing.exit-left,.landing.exit-down{transform:scale(1.45);opacity:0;filter:blur(24px);pointer-events:none;}
 .landing.exit-center{transform:scale(0.55);opacity:0;pointer-events:none;}
 .screen{position:fixed;inset:0;z-index:201;background:#0a0a12; overflow-y:auto;padding:4vw;display:none;}
 .screen.active{display:block;}
-.screen.slide-in-right{animation:screenFromRight 0.315s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-in-left{animation:screenFromLeft 0.315s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-in-down{animation:screenFromDown 0.315s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-out-right{animation:screenToRight 0.245s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-out-left{animation:screenToLeft 0.245s cubic-bezier(0.4,0,0.2,1) forwards;}
-.screen.slide-out-down{animation:screenToDown 0.245s cubic-bezier(0.4,0,0.2,1) forwards;}
-@keyframes screenFromRight{
-  from{transform:translateX(60%);opacity:0;}
-  to{transform:translateX(0);opacity:1;}
+.screen.slide-in-right,.screen.slide-in-left,.screen.slide-in-down{animation:screenZoomIn 0.315s cubic-bezier(0.4,0,0.2,1) forwards;}
+.screen.slide-out-right,.screen.slide-out-left,.screen.slide-out-down{animation:screenZoomOut 0.245s cubic-bezier(0.4,0,0.2,1) forwards;}
+@keyframes screenZoomIn{
+  0%{transform:scale(1.3);filter:blur(22px);opacity:0;}
+  55%{filter:blur(9px);}
+  100%{transform:scale(1);filter:blur(0px);opacity:1;}
 }
-@keyframes screenFromLeft{
-  from{transform:translateX(-60%);opacity:0;}
-  to{transform:translateX(0);opacity:1;}
-}
-@keyframes screenFromDown{
-  from{transform:translateY(40%);opacity:0;}
-  to{transform:translateY(0);opacity:1;}
-}
-@keyframes screenToRight{
-  from{transform:translateX(0);opacity:1;}
-  to{transform:translateX(60%);opacity:0;}
-}
-@keyframes screenToLeft{
-  from{transform:translateX(0);opacity:1;}
-  to{transform:translateX(-60%);opacity:0;}
-}
-@keyframes screenToDown{
-  from{transform:translateY(0);opacity:1;}
-  to{transform:translateY(40%);opacity:0;}
+@keyframes screenZoomOut{
+  0%{transform:scale(1) translateY(0);filter:blur(0px);opacity:1;}
+  30%{transform:scale(1.02) translateY(-2.5%);filter:blur(0px);opacity:1;}
+  100%{transform:scale(1.08) translateY(-7%);filter:blur(22px);opacity:0;}
 }
 /*── Кастомные арт-кнопки лендинга — базовые/дефолтные размеры (fallback,
     реальный размер на лендинге задаётся контекстно в .landing-row-audio/
@@ -340,8 +321,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── ARCHIVE — арт-баттон (idle/hover/active), впритык к нижнему краю ящика
     (screen-body держит padding-bottom:0), паддинги слева/справа вдвое
     меньше, чем у остального контента. Ratio теперь явно ширина:высота = 5:1. */
-.crate-modal .screen-body{padding:3vw 4vw 0;}
-.lore-archive-btn{display:block; width:calc(100% + 4vw); margin:4vw -2vw 0 -2vw; aspect-ratio:5/1; border:none; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_archive1.png');}
+.crate-modal .screen-body{padding:0 4px 0;}
+.lore-archive-btn{display:block; width:calc(100% - 2vw + 8px); margin:4vw calc(1vw - 4px) 0 calc(1vw - 4px); aspect-ratio:5/1; border:none; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_archive1.png');}
 .lore-archive-btn:hover{background-image:url('../img/btn_lore_archiveH.png');}
 .lore-archive-btn:active{background-image:url('../img/btn_lore_archive2.png');}
 .lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:50 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
@@ -359,11 +340,13 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     невидимой; сам глитч-reveal теперь взводится ПОСЛЕ разворота (см.
     _armLoreReveal() call в openLoreStack()), а не сразу при открытии
     экрана — иначе он сыграл бы ещё на закрытой стопке. ──────────────────*/
-#loreStack{position:relative;}
-#loreStack .lore-page{opacity:1;}
-#loreStack.closed{height:clamp(180px, 42vw, 260px); overflow:hidden; cursor:pointer;}
-#loreStack.closed .lore-page{position:absolute; top:0; left:0; right:0; margin:0;}
-#loreStack.closed .lore-page:nth-of-type(1){z-index:4;}
+#loreStack{position:relative; padding-top:8px;}
+#loreStack .lore-page{opacity:1; transform:rotate(var(--r)) translateY(0);}
+#loreStack.closed{cursor:pointer;}
+#loreStack.closed .lore-page:nth-of-type(2),
+#loreStack.closed .lore-page:nth-of-type(3),
+#loreStack.closed .lore-page:nth-of-type(4){position:absolute; top:0; left:0; right:0; margin:0;}
+#loreStack.closed .lore-page:nth-of-type(1){position:relative; z-index:4;}
 #loreStack.closed .lore-page:nth-of-type(2){z-index:3; transform:rotate(var(--r)) translateY(2.4vw);}
 #loreStack.closed .lore-page:nth-of-type(3){z-index:2; transform:rotate(var(--r)) translateY(4.8vw);}
 #loreStack.closed .lore-page:nth-of-type(4){z-index:1; transform:rotate(var(--r)) translateY(7.2vw);}
@@ -373,12 +356,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .lore-page{margin-bottom:3vw;}
 }
 @keyframes loreReveal{
-  0%{opacity:0; transform:rotate(var(--r)) translateY(14px); text-shadow:none;}
-  2%{opacity:1; transform:rotate(var(--r)) translateY(0);}
+  0%{opacity:0; text-shadow:none;}
+  2%{opacity:1;}
   22%{text-shadow:1px 0 #ff0044,-1px 0 #00e5ff;}
   48%{text-shadow:-1px 0 #ff0044,1px 0 #00e5ff;}
   74%{text-shadow:0.5px 0 #ff0044,-0.5px 0 #00e5ff;}
-  100%{opacity:1; transform:rotate(var(--r)) translateY(0); text-shadow:none;}
+  100%{opacity:1; text-shadow:none;}
 }
 /* ═══════════════════════════════════════════════════════════════════════
    CATALOG SCREEN
