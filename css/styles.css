@@ -3,7 +3,7 @@
   font-family: 'MEK';
   src: url('../fonts/MEK.woff2') format('woff2');
   font-weight: normal;
-  font-style: normal;
+  font-style: normal; 
 }
 :root{ 
   --card-h: 25vh;
