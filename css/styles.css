@@ -394,6 +394,23 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Декор-слои — чисто фоновые прокладки между функциональными рядами,
     без боксов внутри, той же тёмной заливкой во всех местах. ───────────*/
 .cat-row-decor{height:2vh; background-color:#151a21;}
+/*── Каждая из 12 строк хедера сверху вниз получает свой персональный фон
+    (порядок строго по вёрстке в index.html — см. классы .cat-line-N там).
+    background-image ложится ПОВЕРХ background-color с .cat-row/
+    .cat-row-decor — та заливка остаётся как fallback, пока/если в PNG
+    есть прозрачные места. ───────────────────────────────────────────*/
+.cat-line-1{background-image:url('../img/cat_1line.png');}
+.cat-line-2{background-image:url('../img/cat_2line.png');}
+.cat-line-3{background-image:url('../img/cat_3line.png');}
+.cat-line-4{background-image:url('../img/cat_4line.png');}
+.cat-line-5{background-image:url('../img/cat_5line.png');}
+.cat-line-6{background-image:url('../img/cat_6line.png');}
+.cat-line-7{background-image:url('../img/cat_7line.png');}
+.cat-line-8{background-image:url('../img/cat_8line.png');}
+.cat-line-9{background-image:url('../img/cat_9line.png');}
+.cat-line-10{background-image:url('../img/cat_10line.png');}
+.cat-line-11{background-image:url('../img/cat_11line.png');}
+.cat-line-12{background-image:url('../img/cat_12line.png');}
 /*── Back прибит слева абсолютным позиционированием внутри верхней
     декор-строки (не толкает соседей — там больше некому толкаться).
     Title сидит по центру своей строки за счёт justify-content:center
