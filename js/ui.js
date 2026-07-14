@@ -238,6 +238,7 @@ function preloadAssets(){
     // ── Ящик Lore/Catalog (добавлено 2026-07-13) ──
     'img/bg_lore_modal.png',
     'img/btn_lore_archive1.png', 'img/btn_lore_archiveH.png', 'img/btn_lore_archive2.png',
+    'img/lore_books.png',
     'img/btn_lore_ru4ka1.png', 'img/btn_lore_ru4kaH.png', 'img/btn_lore_ru4ka2.png',
 
     // ── Каталог — хедер: кнопки-плейсхолдеры по ratio (idle/hover/active),
