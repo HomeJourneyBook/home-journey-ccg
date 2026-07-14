@@ -296,6 +296,33 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @media(min-width:600px){
   .screen-lang-btn{font-size:1.1vw;padding:0.4vw 1vw;}
 }
+/*── КНИГА ПРАВИЛ — ФУНКЦИОНАЛЬНЫЙ ПРОТОТИП, БЕЗ АРТА (2026-07-14).
+    Логика (пагинация/навигация) — см. js/rules.js. Всё ниже — временная
+    плоская вёрстка, чтобы прототип можно было кликать и читать; 9-слайс
+    фон обложки/страниц, закладки-языки на верхней кромке и "застёжка"
+    для кнопок на правой кромке навешиваются отдельным заходом ПОВЕРХ
+    этих же классов — переименовывать/перестраивать структуру не должно
+    понадобиться, только заменить background/позиционирование. ─────────*/
+.rules-book{max-width:700px; margin:0 auto; display:flex; flex-direction:column; gap:16px; font-family:'MEK',monospace;}
+.rules-cover{border:1px solid #c8a84b55; padding:16px; display:flex; flex-direction:column; gap:12px;}
+.rules-cover-title{font-size:24px; color:#E8E0C8; text-align:center;}
+.rules-toc{display:flex; flex-direction:column; gap:4px;}
+.rules-toc-entry{cursor:pointer; color:#9B937F; padding:4px 8px; border:1px dashed #55555555;}
+.rules-toc-entry:hover{color:#c8a84b; border-color:#c8a84b;}
+.rules-pages{display:flex; flex-direction:row; gap:16px; justify-content:center;}
+.rules-spread{display:none; flex-direction:row; gap:16px;}
+.rules-page-text{font-size:13px; line-height:1.5; color:#c9c2ae;}
+.rules-page-text h2{font-size:17px; color:#E8E0C8; margin:0 0 6px;}
+.rules-page-text h3{font-size:14px; color:#c8a84b; margin:10px 0 4px;}
+.rules-page-text p{margin:0 0 8px;}
+.rules-page-text hr{border-color:#ffffff22; margin:12px 0;}
+.rules-page{width:320px; min-height:380px; box-sizing:border-box; border:1px solid #c8a84b33; padding:12px; overflow:hidden; transform:rotate(var(--r, 0deg));}
+.rules-page-probe{overflow:visible !important; height:auto !important; border:none !important; padding:0 !important;}
+.rules-edge-btns{display:flex; flex-direction:row; gap:8px; justify-content:center;}
+.rules-edge-btn{font-family:'MEK',monospace; font-size:13px; padding:6px 14px; cursor:pointer; background:#1c222b; color:#E8E0C8; border:1px solid #c8a84b55;}
+.rules-edge-btn:hover{border-color:#c8a84b;}
+.rules-cover .rules-lang-btns{position:static; display:flex; flex-direction:row; gap:6px; justify-content:center;}
+
 .screen-body{max-width:700px;margin:0 auto;font-size:4.56vw;line-height:1.9;color:#9B937F;}
 .screen-body h2{font-family:'MEK',monospace;font-size:6vw;color:#c8a84b;margin:5vw 0 2vw;}
 .screen-body h3{font-family:'MEK',monospace;font-size:4.56vw;color:#e8e0c8;margin:4vw 0 1.5vw;letter-spacing:1px;}
