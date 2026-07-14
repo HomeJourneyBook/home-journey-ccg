@@ -82,7 +82,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
     родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
     min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
-.landing-top{width:var(--lw); flex:1 1 auto; min-height:0; display:flex;flex-direction:column; overflow:hidden;}
+.landing-top{width:var(--lw); flex:1 1 auto; min-height:0; display:flex;flex-direction:column;}
 .landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-image:url('../img/land_fonar.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 .landing-wall{flex:0 0 var(--lw); width:100%; position:relative; /* плейсхолдер — арт стены ещё не готов, прозрачно */ display:flex;align-items:center;justify-content:center;}
 .landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; /* плейсхолдер — пустая стена, режется первой, прозрачно */}
@@ -387,7 +387,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Плейсхолдер над стопкой страниц — та же ширина/боковые отступы, что
     у кнопки Archive ниже, но высокий (1:2) и без верхнего отступа —
     только нижний, чтобы отделить от страниц под ним. ─────────────────*/
-.lore-books-placeholder{width:calc(100% - 2vw + 8px); margin:0 calc(1vw - 4px) 4vw calc(1vw - 4px); aspect-ratio:1/2; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/lore_books.png');}
+.lore-books-placeholder{width:calc(100% - 2vw + 8px); margin:0 calc(1vw - 4px) 4vw calc(1vw - 4px); aspect-ratio:5/2; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/lore_books.png');}
 /*── Текст-мостик в промежутке между последней страницей и кнопкой Archive.
     #loreStack уже резервирует под собой margin-bottom (7.5vw, у каждой
     .lore-page) + собственный padding-bottom (6vw) — это больше глубины
