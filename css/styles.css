@@ -68,7 +68,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    calc(var(--lw) * N / 256), где N — юнит из ТЗ автора; единственное
    исключение — .landing-buffer (гибкий буфер) и .landing-tail (свой vh,
    вне сетки вообще, см. ниже). ──────────────────────────────────────────*/
-.landing{--lw: min(100vw, 600px); position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; overflow-y:auto; overflow-x:hidden; background-color:#181f27; background-size:cover; background-position:center;}
+.landing{--lw: min(100vw, 600px); position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; overflow-y:auto; overflow-x:hidden; background-color:#11151f; background-size:cover; background-position:center;}
 /*── ВЕРХ — потолок(32) + стена-с-иллюминатором(256) фикс, буфер(~36) гибкий.
     .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
     родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
@@ -120,7 +120,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     4:1 у самого арта = ровно 64/256 высоты полосы, без искажений. Механика
     (гейт-спрайт, рамка, hover, 3 кнопки режима) не менялась. ─────────────*/
 .play-gate-wrap{position:relative; width:70%; aspect-ratio:4/1; flex-shrink:0; z-index:2;}
-.play-mode-buttons{position:absolute;inset:0;z-index:1; display:flex;flex-direction:row;align-items:center;justify-content:space-evenly; pointer-events:none;}
+.play-mode-buttons{position:absolute;inset:0;z-index:1; display:flex;flex-direction:row;align-items:center;justify-content:space-evenly; pointer-events:none; background-color:#3d494f;}
 .art-btn-square.art-btn-mode{flex:none; height:76.667%; width:auto; aspect-ratio:1/1;}
 .play-gate-sprite{position:absolute;inset:0;z-index:3;cursor:pointer; background-image:url('../img/btn_playgame_gates_sheet.png'); background-size:700% 100%;background-repeat:no-repeat; background-color:transparent;border:none;}
 /* Убираем плейсхолдер-текст: арт уже есть в PNG */
@@ -359,8 +359,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     её увидеть. Рамка прибита ровно к верху (0 сверху, никакого центрирования).
     --crate-w расшарен на уровне экрана, чтобы и ящик, и ручка масштабировались
     от одной и той же ширины. ────────────────────────────────────────────*/
-#loreScreen, #catalogScreen{--crate-w: min(92vw,760px); padding:0 0 5vh; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; background-color:#181f27; flex-direction:column; align-items:center; justify-content:flex-start; gap:0;}
-#catalogScreen{--crate-w: min(94vw,980px);} /* каталогу нужна сетка карт пошире — хедер там донастроим отдельным заходом */
+#loreScreen, #catalogScreen{--crate-w: min(92vw,760px); --handle-w: min(92vw,760px); padding:0 0 5vh; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; background-color:#181f27; flex-direction:column; align-items:center; justify-content:flex-start; gap:0;}
+#catalogScreen{--crate-w: min(94vw,980px);} /* каталогу нужна сетка карт пошире — хедер там донастроим отдельным заходом. --handle-w НЕ переопределяем — ручка Back должна остаться того же физического размера, что и в лоре, а не раздуваться вместе с более широким ящиком (см. чат 2026-07-14) */
 #loreScreen.active, #catalogScreen.active{display:flex;}
 /*── Кастомный квадратный (без скруглений) скролл теперь на самой странице ──*/
 #loreScreen, #catalogScreen{scrollbar-width:thin; scrollbar-color:#829797 #181f27;}
@@ -373,7 +373,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Ручка — масштабируется вместе с --crate-w (тот же токен, что у ящика).
     Ratio читаю как "высота:ширина" 1:13 (широкая тонкая планка-хват, не
     наоборот — узкая цифра всегда высота, раз это ручка чемодана). ────────*/
-.crate-handle{display:block; width:calc(var(--crate-w) * 0.68); aspect-ratio:13/1; flex-shrink:0; border:none; background-color:transparent; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_ru4ka1.png');}
+.crate-handle{display:block; width:calc(var(--handle-w) * 0.68); aspect-ratio:13/1; flex-shrink:0; border:none; background-color:transparent; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_ru4ka1.png');}
 .crate-handle:hover{background-image:url('../img/btn_lore_ru4kaH.png');}
 .crate-handle:active{background-image:url('../img/btn_lore_ru4ka2.png');}
 /*── Lore больше не имеет хедера вообще — кнопка "назад" убрана из DOM,
@@ -384,6 +384,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     меньше, чем у остального контента. Ratio теперь явно ширина:высота = 5:1. */
 .crate-modal .screen-body{padding:0 4px 0;}
 .lore-archive-btn{display:block; width:calc(100% - 2vw + 8px); margin:4vw calc(1vw - 4px) 0 calc(1vw - 4px); aspect-ratio:5/1; border:none; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_archive1.png');}
+/*── Плейсхолдер над стопкой страниц — та же ширина/боковые отступы, что
+    у кнопки Archive ниже, но высокий (1:2) и без верхнего отступа —
+    только нижний, чтобы отделить от страниц под ним. ─────────────────*/
+.lore-books-placeholder{width:calc(100% - 2vw + 8px); margin:0 calc(1vw - 4px) 4vw calc(1vw - 4px); aspect-ratio:1/2; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/lore_books.png');}
 /*── Текст-мостик в промежутке между последней страницей и кнопкой Archive.
     #loreStack уже резервирует под собой margin-bottom (7.5vw, у каждой
     .lore-page) + собственный padding-bottom (6vw) — это больше глубины
@@ -473,10 +477,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #typeFilters{container-type:inline-size; container-name:catTypeRow;}
 @container catTypeRow (max-width: 760px){
   #typeFilters{gap:0;}
-  #typeFilters .filter-btn:not(:first-child){margin-left:-1.4vh;}
+  #typeFilters .filter-btn:not(:first-child){margin-left:-2.6vh;}
 }
 @container catTypeRow (max-width: 600px){
-  #typeFilters .filter-btn:not(:first-child){margin-left:-2.6vh;}
+  #typeFilters .filter-btn:not(:first-child){margin-left:-1.4vh;}
 }
 .cat-row-4{height:2vh;}
 .cat-row-5{height:3vh; justify-content:flex-start;}
