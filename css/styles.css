@@ -90,8 +90,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     отсюда рассинхрон с размером самого иллюминатора на нестандартных
     пропорциях экрана. Переводим на calc(var(--lw) * N) — та же формула,
     что и у всех остальных элементов группы. ───────────────────────────*/
-.landing-title{font-family:'MEK',monospace;font-size:calc(var(--lw) * 0.0648); color:#E8E0C8;letter-spacing:calc(var(--lw) * 0.0140625);text-align:center; text-shadow:0 0 20px #c8a84b66; pointer-events:none;}
-.landing-sub{font-family:'MEK',monospace;font-size:calc(var(--lw) * 0.036); color:#9b937f;letter-spacing:calc(var(--lw) * 0.0140625);text-align:center;margin-top:calc(var(--lw) * 0.028125); pointer-events:none;}
+.landing-title{font-family:'MEK',monospace;font-size:calc(var(--lw) * 0.0972); color:#E8E0C8;letter-spacing:calc(var(--lw) * 0.02109375);text-align:center; text-shadow:0 0 20px #c8a84b66; pointer-events:none;}
+.landing-sub{font-family:'MEK',monospace;font-size:calc(var(--lw) * 0.054); color:#9b937f;letter-spacing:calc(var(--lw) * 0.02109375);text-align:center;margin-top:calc(var(--lw) * 0.0421875); pointer-events:none;}
 .porthole-glass{position:absolute;inset:0;z-index:1; background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.10), rgba(180,200,255,0.04) 55%, rgba(0,0,0,0.06) 100%); backdrop-filter:blur(0.6px); -webkit-backdrop-filter:blur(0.6px); overflow:hidden; pointer-events:none;}
 .porthole-glass::before{content:''; position:absolute; top:-60%;left:-150%; width:55%;height:220%; background:linear-gradient(75deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%); transform:rotate(20deg); animation:portholeGlare 13s ease-in-out infinite;}
 .porthole-frame{position:absolute;inset:0;z-index:3; background-image:url('../img/logo_window.png'); background-size:100% 100%; background-repeat:no-repeat; pointer-events:none;}
@@ -343,7 +343,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 }
 .lore-archive-btn:hover{background-image:url('../img/btn_lore_archiveH.png');}
 .lore-archive-btn:active{background-image:url('../img/btn_lore_archive2.png');}
-.lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:50 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
+.lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-color:transparent; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:50 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
 .lore-page:nth-of-type(1){--r:-1.6deg;}
 .lore-page:nth-of-type(2){--r:1.1deg;}
 .lore-page:nth-of-type(3){--r:-0.9deg;}
@@ -445,12 +445,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     сброс appearance/border/background — иначе на кнопках (<button>)
     остаётся нативный белый фон + 1px рамка от браузера, который
     просвечивает сквозь прозрачные углы трапециевидных PNG. ──────────*/
-.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#0c1013; cursor:pointer; padding:0; margin:0; flex-shrink:0; white-space:nowrap; overflow:hidden; background-repeat:no-repeat; background-position:center; background-size:100% 100%; border:none; background-color:transparent; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
+.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#0c1013; cursor:pointer; padding:0; margin:0; flex-shrink:0; white-space:nowrap; overflow:hidden; word-spacing:-0.3em; background-repeat:no-repeat; background-position:center; background-size:100% 100%; border:none; background-color:transparent; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
 .cat-box.filter-btn{font-size:1.3vh;}
 .cat-back{font-size:0.8vh; color:#E8E0C8;}
 .cat-title{font-size:3vh;}
 .cat-sort-label{cursor:default;}
-.cat-count{cursor:default; color:#E8E0C8;}
+.cat-count{cursor:default; color:#0c1013;}
 /*── Ratio-классы: aspect-ratio + фон-плейсхолдер (idle) по системе
     cat_N_1_X.png — N=ratio (2/3/4), X=1(idle)/H(hover)/2(active-клик).
     Кнопки (.filter-btn и .cat-back) получают hover/click-состояния;
