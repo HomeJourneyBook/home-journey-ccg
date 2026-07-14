@@ -228,7 +228,8 @@ function preloadAssets(){
 
     // ── Стол (композиция лендинга, добавлено 2026-07-13) ──
     'img/top_table.png', 'img/front_table.png', 'img/bot_table.png',
-    'img/left_table.png', 'img/right_table.png',
+    'img/left_table.gif', 'img/right_table.png',
+    'img/land_fonar.gif', 'img/land_wall.gif',
 
     // ── Ящик Lore/Catalog (добавлено 2026-07-13) ──
     'img/bg_lore_modal.png',
