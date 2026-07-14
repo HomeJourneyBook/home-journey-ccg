@@ -147,8 +147,34 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 64 / 256); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-bottom-ext-left{left:calc(var(--lw) * -64 / 256); background-image:url('../img/left_table.gif');}
 .landing-bottom-ext-right{right:calc(var(--lw) * -64 / 256); background-image:url('../img/right_table.png');}
+/*── Три новых парных выноса (2026-07-14), та же техника, что у
+    .landing-bottom-ext выше — absolute-позиционирование относительно
+    ближайшего НЕ-overflow:hidden предка, никакого пиксельного размера,
+    всё через calc(var(--lw) * N / 256), ratio 1:1 держится тем, что
+    width и height считаются одной и той же формулой.
+    1/2 — "стена+фонарь" (288 = потолок 32 + стена 256), встык с
+    .landing-wall, сдвинуты вверх на высоту потолка, чтобы верхний край
+    совпал с самым верхом композиции, а не с верхом .landing-wall. ─────*/
+.landing-wall-ext{display:none; position:absolute; top:calc(var(--lw) * -32 / 256); height:calc(var(--lw) * 288 / 256); width:calc(var(--lw) * 288 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-wall-ext-left{left:calc(var(--lw) * -288 / 256); background-image:url('../img/land_left_wall.gif');}
+.landing-wall-ext-right{right:calc(var(--lw) * -288 / 256); background-image:url('../img/land_right_wall.gif');}
+/*── 3/4 — "стол-стол" (240, та же высота, что у .landing-bottom и у
+    существующих *-table-выносов), сидят встык СНАРУЖИ от них (левее
+    left_table / правее right_table), поэтому смещение -304 = -(64+240):
+    крайняя точка существующего 64-выноса. ──────────────────────────────*/
+.landing-bottom-ext2{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 240 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-bottom-ext2-left{left:calc(var(--lw) * -304 / 256); background-image:url('../img/land_left_left_table.gif');}
+.landing-bottom-ext2-right{right:calc(var(--lw) * -304 / 256); background-image:url('../img/land_right_right_table.gif');}
+/*── 5/6 — "дно" под уже упомянутыми выносами, высота = высоте самого
+    .landing-tail (100%, не хардкожу vh — на десктопе это --tail-h=6vh,
+    но так работает при любом значении без дублирования магического
+    числа), ширина = 64+240=304, та же, что у пары выносов над ним. ────*/
+.landing-tail-ext{display:none; position:absolute; top:0; height:100%; width:calc(var(--lw) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-tail-ext-left{left:calc(var(--lw) * -304 / 256); background-image:url('../img/land_left_dno.gif');}
+.landing-tail-ext-right{right:calc(var(--lw) * -304 / 256); background-image:url('../img/land_right_dno.gif');}
 @media(min-width:600px){
   .landing-bottom-ext{display:block;}
+  .landing-wall-ext,.landing-bottom-ext2,.landing-tail-ext{display:block;}
   /* Десктоп: высота — ведущая, и ТЕПЕРЬ весь бюджет 100vh целиком
      разложен без остатка: --tail-h откусывается первым (фикс кусок под
      copyright/версию — раньше это была ДОБАВКА поверх 100vh, из-за чего
@@ -183,7 +209,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .landing-tail{flex:0 0 var(--tail-h); height:var(--tail-h); padding:0 12px; align-items:center;}
 }
 /*── ХВОСТ — вне сетки, чистый vh-отступ под игрой (copyright+версия). ─────*/
-.landing-tail{width:var(--lw); flex:0 0 auto; padding:2vh 12px calc(3vh + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2;}
+.landing-tail{width:var(--lw); flex:0 0 auto; position:relative; padding:2vh 12px calc(3vh + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2; background-image:url('../img/land_dno.gif'); background-size:100% 100%; background-repeat:no-repeat;}
 /*── Переходы экранов (зум+блюр «в направлении ящика», см. showScreen/hideScreen
     в ui.js — они задают landing.style.transformOrigin по месту клика). ────*/
 .landing{transition:transform 0.315s cubic-bezier(0.4,0,0.2,1) 0s, opacity 0.22s ease 0.08s, filter 0.2s ease 0.09s;}
@@ -432,6 +458,26 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cat-row-1{height:4vh;}
 .cat-row-2{height:2vh;}
 .cat-row-3{height:2vh;}
+/*── Тип-фильтры — 6 боксов фикс-ширины (aspect-ratio держит их пропорцию
+    к высоте ряда, а не к ширине контейнера), поэтому на узких/высоких
+    экранах (iPad portrait и т.п.) сумма их ширин может не влезать —
+    последний бокс просто обрезался бы. container query по СОБСТВЕННОЙ
+    ширине ряда (не viewport) — если места не хватает, кнопки съезжаются
+    внахлёст (как веер вкладок, отрицательный margin, обычный DOM-порядок
+    рисует более поздние поверх более ранних — z-index не нужен); если
+    места достаточно, gap остаётся обычным (0.6vh/1.2vh). Два порога —
+    грубая, но безопасная ступенчатая деградация без точной физики
+    переполнения (её нельзя точно посчитать в чистом CSS, т.к. ширина
+    каждого бокса зависит от vh, а не от cqw). Если на практике вылезет
+    другой брейкпоинт — подправить cqw-пороги ниже. ────────────────────*/
+#typeFilters{container-type:inline-size; container-name:catTypeRow;}
+@container catTypeRow (max-width: 760px){
+  #typeFilters{gap:0;}
+  #typeFilters .filter-btn:not(:first-child){margin-left:-1.4vh;}
+}
+@container catTypeRow (max-width: 600px){
+  #typeFilters .filter-btn:not(:first-child){margin-left:-2.6vh;}
+}
 .cat-row-4{height:2vh;}
 .cat-row-5{height:3vh; justify-content:flex-start;}
 .cat-row-6{height:2vh; justify-content:flex-end;}
