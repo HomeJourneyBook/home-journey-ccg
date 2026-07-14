@@ -76,9 +76,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .landing-top{width:var(--lw); flex:1 1 auto; min-height:0; display:flex;flex-direction:column; overflow:hidden;}
 .landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-image:url('../img/land_fonar.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 .landing-wall{flex:0 0 calc(var(--lw) * 192 / 256); width:100%; position:relative; /* плейсхолдер — арт стены ещё не готов, прозрачно */ display:flex;align-items:center;justify-content:center;}
-.landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; background-image:url('../img/land_wall.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
+.landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; /* плейсхолдер — пустая стена, режется первой, прозрачно */}
 /*── Иллюминатор — диаметр = % высоты .landing-wall (1:1, центр секции) ─────*/
-.landing-porthole{position:relative;z-index:1; height:100%; aspect-ratio:1/1; width:auto; border-radius:50%; overflow:hidden; flex-shrink:0;}
+/*── Раньше тут стояли border-radius:50%+overflow:hidden, чтобы обрезать
+    квадратные слои (space/glass) под круглую форму иллюминатора. Новый
+    ассет-рамка (logo_window.png, 256x256) уже сам содержит нужную форму
+    и должен ложиться цельным квадратом встык с потолком (land_fonar.gif)
+    без обрезки. Безопасно снимать: анимированный блик у .porthole-glass
+    клипается СВОИМ собственным overflow:hidden (см. ниже), от родителя
+    не зависит — при снятии клипа тут он не потечёт за пределы круга. ──*/
+.landing-porthole{position:relative;z-index:1; height:100%; aspect-ratio:1/1; width:auto; flex-shrink:0;}
 .porthole-space{position:absolute;inset:0;z-index:0; background-image:url('../img/logo_space.png'); background-size:100% auto; background-position:center; background-repeat:no-repeat;}
 .porthole-logo-wrap{position:absolute;inset:0;z-index:2; display:flex;align-items:center;justify-content:center; pointer-events:none;}
 .porthole-logo{max-width:65%; display:flex;flex-direction:column;align-items:center;}
