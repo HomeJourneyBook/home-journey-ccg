@@ -344,7 +344,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   font-family: 'MEK', monospace;
 
   border-style: solid;
-  border-width: 256px;
+  border-width: 42px;
   border-image-source: url('../img/rules_cover.png');
   border-image-slice: 42 fill;
   border-image-width: 100%;
