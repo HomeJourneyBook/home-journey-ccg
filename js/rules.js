@@ -181,6 +181,8 @@ function rulesRenderCover() {
 
   document.getElementById('rulesCover').style.display = '';
   document.getElementById('rulesPages').style.display = 'none';
+  const langBtnsCover = document.getElementById('rulesLangBtns');
+  if (langBtnsCover) langBtnsCover.style.display = '';
 
   document.querySelectorAll('.rules-lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
@@ -204,6 +206,8 @@ function rulesRenderPages() {
 
   document.getElementById('rulesCover').style.display = 'none';
   document.getElementById('rulesPages').style.display = '';
+  const langBtnsPages = document.getElementById('rulesLangBtns');
+  if (langBtnsPages) langBtnsPages.style.display = 'none';
   document.getElementById('rulesPageSingle').style.display = perView === 2 ? 'none' : '';
   document.getElementById('rulesSpread').style.display = perView === 2 ? 'flex' : 'none';
 
@@ -229,8 +233,12 @@ function rulesRenderEdgeButtons() {
   const onCover = rulesState.pageIndex === -1;
   const pages = rulesState.pages[rulesState.lang] || [];
 
+  // 2026-07-14 (дизайн-референс): Back теперь ВСЕГДА виден в кромке —
+  // на обложке просто неактивен (disabled + серый), а не display:none
+  // как раньше. Next по-прежнему прячется целиком в конце книги — для
+  // него в референсе отдельного "неактивного" состояния не заложено.
   const backBtn = document.getElementById('rulesBackBtn');
-  if (backBtn) backBtn.style.display = onCover ? 'none' : '';
+  if (backBtn) backBtn.disabled = onCover;
 
   const nextBtn = document.getElementById('rulesNextBtn');
   if (nextBtn) {
