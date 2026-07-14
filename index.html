@@ -72,6 +72,9 @@
          раньше (см. подробности у .landing-porthole в styles.css), просто
          теперь его диаметр = % высоты ЭТОЙ секции, а не vw/vh-клампы. -->
     <div class="landing-wall">
+      <!-- Десктоп-выносы ≥600px — "стена+фонарь" (288 квадрат), встык слева/справа. -->
+      <div class="landing-wall-ext landing-wall-ext-left"></div>
+      <div class="landing-wall-ext landing-wall-ext-right"></div>
       <div class="landing-porthole">
         <div class="porthole-space"></div>
         <div class="porthole-glass"></div>
@@ -97,6 +100,9 @@
     <!-- Десктоп-выносы ≥600px — по всей высоте блока, чисто декор, плейсхолдер. -->
     <div class="landing-bottom-ext landing-bottom-ext-left"></div>
     <div class="landing-bottom-ext landing-bottom-ext-right"></div>
+    <!-- Десктоп-выносы ≥600px — вторая пара "стол-стол" (240 квадрат), встык СНАРУЖИ от предыдущей пары. -->
+    <div class="landing-bottom-ext2 landing-bottom-ext2-left"></div>
+    <div class="landing-bottom-ext2 landing-bottom-ext2-right"></div>
 
     <!-- Полоса 1 (8/256): перспектива над Play — плейсхолдер. -->
     <div class="landing-strip landing-strip-perspective"></div>
@@ -177,6 +183,9 @@
        .landing-bottom только визуально (тот же min(100vw,600px)).
        Версия подставляется в boot() (ui.js) из GAME_VERSION (data.js). -->
   <div class="landing-tail">
+    <!-- Десктоп-выносы ≥600px — "дно", встык под парой "стол-стол" выше. -->
+    <div class="landing-tail-ext landing-tail-ext-left"></div>
+    <div class="landing-tail-ext landing-tail-ext-right"></div>
     <span>© 2026 All rights reserved. trianglecirclesquare</span>
     <span id="landingVersionLabel">v1.0</span>
   </div>
