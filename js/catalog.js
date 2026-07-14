@@ -46,7 +46,10 @@ function renderCatalog(){
   let cards=Object.entries(DEFS).filter(([key,def])=>{
     if(catalogFilters.faction==='neutral'){
       if(!def.neutral) return false;
-    } else if(catalogFilters.faction!=='all'&&def.f!==catalogFilters.faction) return false;
+    } else if(catalogFilters.faction!=='all'){
+      if(def.neutral) return false;
+      if(def.f!==catalogFilters.faction) return false;
+    }
     const type=getCardType(def);
     if(catalogFilters.type!=='all'&&type!==catalogFilters.type) return false;
     if(search&&!def.name.toLowerCase().includes(search)&&!def.ab.toLowerCase().includes(search)) return false;
