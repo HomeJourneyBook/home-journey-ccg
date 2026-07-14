@@ -242,7 +242,7 @@ function preloadAssets(){
     'img/cat_3_1_1.png', 'img/cat_3_1_H.png', 'img/cat_3_1_2.png',
     'img/cat_4_1_1.png', 'img/cat_4_1_H.png', 'img/cat_4_1_2.png',
     'img/cat_back_1.png', 'img/cat_back_H.png', 'img/cat_back_2.png',
-    'img/cat_title_6_1.png', 'img/cat_counter_4_1.png', 'img/cat_sort.png',
+    'img/cat_title_6_1.png', 'img/cat_counter_5_1.png', 'img/cat_sort.png',
     'img/cat_7_1.png',
     'img/cat_1line.png', 'img/cat_2line.png', 'img/cat_3line.png', 'img/cat_4line.png',
     'img/cat_5line.png', 'img/cat_6line.png', 'img/cat_7line.png', 'img/cat_8line.png',
