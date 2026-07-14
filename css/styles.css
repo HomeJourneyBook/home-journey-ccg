@@ -385,24 +385,30 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     / 4vh лаптоп через media-запрос ниже). ────────────────────────────*/
 .cat-header{width:100%; display:flex; flex-direction:column;}
 .cat-row{width:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:0.6vh; background-color:#1c222b; background-size:100% 100%; background-repeat:no-repeat; background-position:center; flex-shrink:0;}
-.cat-row-1{height:4vh; position:relative; justify-content:center;}
+.cat-row-1{height:4vh;}
 .cat-row-2{height:2vh;}
 .cat-row-3{height:2vh;}
 .cat-row-4{height:2vh;}
-.cat-row-5{height:3vh;}
+.cat-row-5{height:3vh; justify-content:flex-start;}
+.cat-row-6{height:2vh; justify-content:flex-end;}
 /*── Декор-слои — чисто фоновые прокладки между функциональными рядами,
     без боксов внутри, той же тёмной заливкой во всех местах. ───────────*/
 .cat-row-decor{height:2vh; background-color:#151a21;}
-/*── Back прибит слева абсолютным позиционированием (не толкает title),
-    title сидит по центру всей строки за счёт justify-content:center
-    на .cat-row-1 самой. ──────────────────────────────────────────────*/
+/*── Back прибит слева абсолютным позиционированием внутри верхней
+    декор-строки (не толкает соседей — там больше некому толкаться).
+    Title сидит по центру своей строки за счёт justify-content:center
+    на .cat-row (дефолт). ────────────────────────────────────────────*/
+.cat-row-decor-top{position:relative;}
 .cat-back{position:absolute; left:0; top:0;}
 /*── Базовый бокс — БЕЗ рамки/цветной заливки/transition-эффектов, это
     теперь просто контейнер под background-image (арт). Текст везде
-    чёрный (кроме инпута поиска — у него свой цвет, см. ниже). ────────*/
-.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#000; cursor:pointer; padding:0; flex-shrink:0; white-space:nowrap; overflow:hidden; background-repeat:no-repeat; background-position:center; background-size:100% 100%;}
+    чёрный (кроме инпута поиска — у него свой цвет, см. ниже). Явный
+    сброс appearance/border/background — иначе на кнопках (<button>)
+    остаётся нативный белый фон + 1px рамка от браузера, который
+    просвечивает сквозь прозрачные углы трапециевидных PNG. ──────────*/
+.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#000; cursor:pointer; padding:0; margin:0; flex-shrink:0; white-space:nowrap; overflow:hidden; background-repeat:no-repeat; background-position:center; background-size:100% 100%; border:none; background-color:transparent; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
 .cat-box.filter-btn{font-size:1.3vh;}
-.cat-back{font-size:1.6vh;}
+.cat-back{font-size:0.8vh;}
 .cat-title{font-size:3vh;}
 .cat-sort-label{cursor:default;}
 .cat-count{cursor:default;}
@@ -414,9 +420,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cat-w2{aspect-ratio:2/1; background-image:url('../img/cat_2_1_1.png');}
 .cat-w3{aspect-ratio:3/1; background-image:url('../img/cat_3_1_1.png');}
 .cat-w4{aspect-ratio:4/1; background-image:url('../img/cat_4_1_1.png');}
-.cat-back{aspect-ratio:2/1; cursor:pointer; background-image:url('../img/cat_2_1_1.png');}
-.cat-back:hover{background-image:url('../img/cat_2_1_H.png');}
-.cat-back:active{background-image:url('../img/cat_2_1_2.png');}
+.cat-back{aspect-ratio:2/1; cursor:pointer; background-image:url('../img/cat_back_1.png');}
+.cat-back:hover{background-image:url('../img/cat_back_H.png');}
+.cat-back:active{background-image:url('../img/cat_back_2.png');}
 .cat-w2.filter-btn:hover{background-image:url('../img/cat_2_1_H.png');}
 .cat-w2.filter-btn:active,.cat-w2.filter-btn.active{background-image:url('../img/cat_2_1_2.png');}
 .cat-w3.filter-btn:hover{background-image:url('../img/cat_3_1_H.png');}
@@ -427,14 +433,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     cat_N_1_X, т.к. у них нет idle/hover/active — только один фон). ───*/
 .cat-title{aspect-ratio:6/1; cursor:default; background-image:url('../img/cat_title_6_1.png');}
 .cat-count{background-image:url('../img/cat_counter_4_1.png');}
-/*── Поиск — двойной бокс. .cat-search-wrap — 9:1, свой отдельный фон
-    (cat_9_1.png, тоже без hover/active — не кликабелен), даёт запас
+.cat-sort-label{background-image:url('../img/cat_sort.png');}
+/*── Поиск — двойной бокс. .cat-search-wrap — 7:1, свой отдельный фон
+    (cat_7_1.png, тоже без hover/active — не кликабелен), даёт запас
     слева/справа/сверху/снизу под рамку. Внутри него сидит сам инпут —
-    высота ФИКСИРОВАНА (не 100% ряда), чтобы вокруг него было видно фон
-    рамки со всех сторон, а не только по бокам. ───────────────────────*/
-.cat-w9{aspect-ratio:9/1;}
-.cat-search-wrap{padding:0; background-image:url('../img/cat_9_1.png');}
-.cat-search-input{height:2vh; aspect-ratio:8/1; box-sizing:border-box; flex-shrink:0; border:none; background-color:#000; font-family:'MEK',monospace; font-size:1.5vh; color:#E8E0C8; text-align:left; padding:0 1vh;}
+    высота ФИКСИРОВАНА (не 100% ряда и не завязана на ratio обёртки),
+    поэтому смена 9:1→7:1 тут никак не влияет на размер самого инпута —
+    просто у обёртки меньше запаса по бокам. ────────────────────────*/
+.cat-w7{aspect-ratio:7/1;}
+.cat-search-wrap{padding:0; background-image:url('../img/cat_7_1.png');}
+.cat-search-input{height:2vh; aspect-ratio:8/1; box-sizing:border-box; flex-shrink:0; border:none; background-color:#000; font-family:'MEK',monospace; font-size:1.5vh; color:#E8E0C8; text-align:left; padding:0 1vh; -webkit-appearance:none; -moz-appearance:none; appearance:none; border-radius:0;}
 .cat-search-input:focus{outline:none;}
 .cat-search-input,.cat-search-input *{user-select:text;-webkit-user-select:text;}
 /*── Лаптоп/десктоп — хедер каталога выглядел слишком мелко на широких
@@ -451,9 +459,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .cat-row-3{height:4vh;}
   .cat-row-4{height:4vh;}
   .cat-row-5{height:6vh;}
+  .cat-row-6{height:4vh;}
   .cat-row-decor{height:4vh;}
   .cat-box.filter-btn{font-size:2.6vh;}
-  .cat-back{font-size:3.2vh;}
+  .cat-back{font-size:1.6vh;}
   .cat-title{font-size:6vh;}
   .cat-search-input{height:4vh; font-size:3vh;}
 }
