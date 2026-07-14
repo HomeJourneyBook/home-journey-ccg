@@ -437,18 +437,29 @@
        Next/Home (обложка) → Back/Next/Home (внутри чтения). ──────────── -->
   <div class="rules-book" id="rulesBook">
 
-    <!-- ОБЛОЖКА — заголовок (кремовым слева на кромке будут закладки-языки,
-         пока просто ряд кнопок) + языки. Показывается при pageIndex===-1.
-         Оглавление больше НЕ тут — это теперь отдельная(ые) сгенерированная
-         страница(ы) в потоке (см. paginateRulesLang в rules.js), первый
-         разворот после обложки = [цитата-плейсхолдер | оглавление]. -->
+    <!-- ЗАКЛАДКИ-ЯЗЫКИ — теперь прямой ребёнок .rules-book (не .rules-cover),
+         чтобы позиционироваться АБСОЛЮТНО от края книги и сидеть поверх
+         верхней кромки 9-слайса (см. дизайн-референс 2026-07-14: каждая
+         кнопка — отдельный "флажок", торчащий вверх). Видимость по-прежнему
+         только на обложке — управляется из rules.js (rulesRenderCover/
+         rulesRenderPages) вторым toggle рядом с #rulesCover. Каждая кнопка
+         сейчас плоский цветной бокс — сюда позже сядет кастомный арт
+         флажка (сам автор прикрутит per-язык фон). -->
+    <div class="rules-lang-btns" id="rulesLangBtns">
+      <button class="rules-lang-btn active" data-lang="ENG" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
+      <button class="rules-lang-btn" data-lang="RUS" onclick="playSfx('yellow_buttom');setRulesLang('RUS')">RUS</button>
+      <button class="rules-lang-btn" data-lang="POR" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
+      <button class="rules-lang-btn" data-lang="VN" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
+    </div>
+
+    <!-- ОБЛОЖКА — заголовок в боксе, центрированный внутри "тайла для
+         контента" (= content-box 9-слайса, авто-получается за счёт
+         border-image на .rules-book — см. styles.css). Показывается при
+         pageIndex===-1. Оглавление больше НЕ тут — это теперь отдельная(ые)
+         сгенерированная страница(ы) в потоке (см. paginateRulesLang в
+         rules.js), первый разворот после обложки = [цитата-плейсхолдер |
+         оглавление]. -->
     <div class="rules-cover" id="rulesCover">
-      <div class="rules-lang-btns">
-        <button class="rules-lang-btn active" data-lang="ENG" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
-        <button class="rules-lang-btn" data-lang="RUS" onclick="playSfx('yellow_buttom');setRulesLang('RUS')">RUS</button>
-        <button class="rules-lang-btn" data-lang="POR" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
-        <button class="rules-lang-btn" data-lang="VN" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
-      </div>
       <div class="rules-cover-title" id="rulesCoverTitle">Rules</div>
     </div>
 
@@ -465,12 +476,14 @@
     </div>
 
     <!-- КРОМКА — 2 кнопки на обложке (Next/Home), 3 при чтении
-         (Back появляется). Вертикальный стек — финальное позиционирование
-         (правый край книги) навесим вместе с артом. -->
+         (Back появляется). Вертикальный стек, "застёжка" — бокс наполовину
+         выходит за правый край книги (см. дизайн-референс 2026-07-14).
+         Сейчас плоские цветные кнопки-плейсхолдеры, кастомный арт застёжки
+         и самих кнопок автор прикрутит отдельным заходом. -->
     <div class="rules-edge-btns" id="rulesEdgeBtns">
-      <button class="rules-edge-btn" id="rulesBackBtn" style="display:none;" onclick="rulesBack()">Back</button>
-      <button class="rules-edge-btn" id="rulesNextBtn" onclick="rulesNext()">Next</button>
-      <button class="rules-edge-btn" id="rulesHomeBtn" onclick="rulesGoHome()">Home</button>
+      <button class="rules-edge-btn" id="rulesBackBtn" onclick="rulesBack()" title="Back">◀</button>
+      <button class="rules-edge-btn" id="rulesHomeBtn" onclick="rulesGoHome()" title="Home">🏠</button>
+      <button class="rules-edge-btn" id="rulesNextBtn" onclick="rulesNext()" title="Next">▶</button>
     </div>
 
   </div>
