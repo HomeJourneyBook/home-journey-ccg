@@ -412,6 +412,28 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cat-search-input{width:min(70%,320px); font-family:'MEK',monospace; font-size:1.3vh; color:#E8E0C8;}
 .cat-search-input:focus{outline:none; border-color:#c8a84b;}
 .cat-search-input,.cat-search-input *{user-select:text;-webkit-user-select:text;}
+/*── Лаптоп/десктоп — хедер каталога выглядел слишком мелко на широких
+    экранах (vh привязан к высоте вьюпорта, а не к --crate-w), поэтому
+    ТОЛЬКО от 600px удваиваем высоты рядов (4vh→8vh у row-1, 2vh→4vh у
+    всех остальных функциональных и декор-рядов) и вслед за высотой —
+    размеры шрифта в боксах (родные размеры завязаны на vh, а не на
+    высоту бокса, так что сами по себе от роста рядов не подрастут).
+    Мобила (<600px) не трогается вообще. ─────────────────────────────*/
+@media(min-width:600px){
+  .cat-row{gap:1.2vh;}
+  .cat-row-1{height:8vh;}
+  .cat-row-2{height:4vh;}
+  .cat-row-3{height:4vh;}
+  .cat-row-4{height:4vh;}
+  .cat-row-5{height:4vh;}
+  .cat-row-6{height:4vh;}
+  .cat-row-7{height:4vh;}
+  .cat-row-decor{height:4vh;}
+  .cat-box.filter-btn{font-size:2.6vh;}
+  .cat-back{font-size:3.2vh;}
+  .cat-title{font-size:6vh;}
+  .cat-search-input{font-size:2.6vh;}
+}
 .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;container-type:inline-size;}
 @media(max-width:600px){
   .catalog-grid{grid-template-columns:repeat(3, 1fr);row-gap:16px;}
