@@ -316,6 +316,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-page-text h3{font-size:14px; color:#c8a84b; margin:10px 0 4px;}
 .rules-page-text p{margin:0 0 8px;}
 .rules-page-text hr{border-color:#ffffff22; margin:12px 0;}
+.rules-quote-placeholder{height:100%; display:flex; align-items:center; justify-content:center; text-align:center; color:#555; font-style:italic;}
 .rules-page{width:320px; min-height:380px; box-sizing:border-box; border:1px solid #c8a84b33; padding:12px; overflow:hidden; transform:rotate(var(--r, 0deg));}
 .rules-page-probe{overflow:visible !important; height:auto !important; border:none !important; padding:0 !important;}
 .rules-edge-btns{display:flex; flex-direction:row; gap:8px; justify-content:center;}
