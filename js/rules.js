@@ -25,7 +25,7 @@
 //     готов реальный арт страницы, эти размеры (и сам механизм измерения
 //     — сейчас px, скорее всего захочется на vh/vw) надо будет пересчитать
 //     под реальную текстовую область рамки.
-//   - Лёгкий наклон каждой страницы (rulesPageRotation) — сейчас просто
+//   - Лёгкий наклон на разворот (rulesSpreadRotation) — сейчас просто
 //     назначает CSS-переменную --r, сам rotate() и transition навесить
 //     вместе с артом (та же идея, что уже работает на страницах лора).
 //   - Звук перелистывания — сейчас переиспользую 'card_navigation_cursor'
@@ -56,7 +56,49 @@ function rulesUpdatePagesPerView() {
   rulesState.pagesPerView = rulesMediaQuery().matches ? 2 : 1;
 }
 
+// ── Общий "упаковщик" блоков в страницы по замеренной высоте — общий для
+//    контента (с принудительным разрывом перед каждой главой) и для
+//    оглавления (без разрывов, просто жадная упаковка). ─────────────────
+function rulesPackNodes(nodes, probe, forceBreakBeforeH2) {
+  const pages = [];
+  let current = [];
+
+  function fits() {
+    probe.innerHTML = '';
+    current.forEach(n => probe.appendChild(n.cloneNode(true)));
+    return probe.scrollHeight <= RULES_PAGE_BOX.height;
+  }
+
+  nodes.forEach(node => {
+    if (forceBreakBeforeH2 && node.tagName === 'H2' && current.length) {
+      // Новая глава — всегда с чистой страницы. Хвост предыдущей главы
+      // (то, что не влезло) так и остаётся хвостом — это дальше решается
+      // вёрсткой/артом, не пагинацией.
+      pages.push(current);
+      current = [];
+    }
+    current.push(node);
+    if (!fits()) {
+      const overflowing = current.pop();
+      if (current.length === 0) {
+        // Один блок сам по себе выше страницы — известное ограничение v1,
+        // не разбиваем текст ВНУТРИ блока, странице даём переполниться.
+        current.push(overflowing);
+      } else {
+        pages.push(current);
+        current = [overflowing];
+      }
+    }
+  });
+  if (current.length) pages.push(current);
+  return pages;
+}
+
 // ── Пагинация: меряем реальную высоту в скрытом проб-контейнере ─────────
+// Итоговый порядок страниц по языку: [цитата-плейсхолдер, ...оглавление
+// (может быть больше 1 страницы, если глав много), ...контент(с разрывом
+// перед каждой главой)]. Обложка (pageIndex===-1) сюда не входит — она не
+// часть этого списка, а отдельное состояние.
 function paginateRulesLang(lang) {
   if (rulesState.pages[lang]) return; // уже посчитано — кэш
 
@@ -74,71 +116,77 @@ function paginateRulesLang(lang) {
   document.body.appendChild(probe);
 
   const blocks = Array.from(source.children);
-  const pages = [];
-  let current = [];
+  const contentPages = rulesPackNodes(blocks, probe, true);
 
-  function fits() {
-    probe.innerHTML = '';
-    current.forEach(n => probe.appendChild(n.cloneNode(true)));
-    return probe.scrollHeight <= RULES_PAGE_BOX.height;
-  }
-
-  blocks.forEach(node => {
-    current.push(node);
-    if (!fits()) {
-      const overflowing = current.pop();
-      if (current.length === 0) {
-        // Один блок сам по себе выше страницы (длинный абзац) — известное
-        // ограничение v1: не разбиваем текст ВНУТРИ блока, просто даём
-        // странице переполниться в одиночку. Если реально встретится —
-        // надо будет резать текст абзаца по словам, а не по блокам.
-        current.push(overflowing);
-      } else {
-        pages.push(current);
-        current = [overflowing];
-      }
-    }
-  });
-  if (current.length) pages.push(current);
-
-  const toc = [];
-  pages.forEach((page, i) => {
+  // {title, contentPageIndex} — contentPageIndex пока ОТНОСИТЕЛЬНО начала
+  // contentPages, финальный сквозной номер посчитаем ниже, когда узнаем,
+  // сколько страниц займёт само оглавление.
+  const tocRaw = [];
+  contentPages.forEach((page, i) => {
     page.forEach(node => {
-      if (node.tagName === 'H2') toc.push({ title: node.textContent.trim(), pageIndex: i });
+      if (node.tagName === 'H2') tocRaw.push({ title: node.textContent.trim(), contentPageIndex: i });
     });
   });
 
+  // Оглавление меряем и режем той же функцией (без принудительных
+  // разрывов) — если глав много, само оглавление становится 2+ страниц.
+  const tocNodes = tocRaw.map(entry => {
+    const div = document.createElement('div');
+    div.className = 'rules-toc-entry';
+    div.textContent = entry.title;
+    return div;
+  });
+  const tocPageGroups = rulesPackNodes(tocNodes, probe, false);
   probe.remove();
-  rulesState.pages[lang] = pages.map(page => page.map(n => n.outerHTML).join(''));
+
+  const frontMatterCount = 1 /* страница-цитата */ + tocPageGroups.length;
+  const toc = tocRaw.map(entry => ({
+    title: entry.title,
+    pageIndex: frontMatterCount + entry.contentPageIndex,
+  }));
+
+  const quotePageHtml = '<div class="rules-quote-placeholder">— quote / art placeholder —</div>';
+
+  let consumed = 0;
+  const tocPagesHtml = tocPageGroups.map(group => {
+    const entriesHtml = group.map((div, j) => {
+      const entry = toc[consumed + j];
+      return `<div class="rules-toc-entry" onclick="rulesGoTo(${entry.pageIndex})">${entry.title}</div>`;
+    }).join('');
+    consumed += group.length;
+    return `<div class="rules-toc">${entriesHtml}</div>`;
+  });
+
+  const contentPagesHtml = contentPages.map(page => page.map(n => n.outerHTML).join(''));
+
+  rulesState.pages[lang] = [quotePageHtml, ...tocPagesHtml, ...contentPagesHtml];
   rulesState.toc[lang] = toc;
 }
 
-// ── Небольшой фикс-наклон на страницу (детерминированный, не random —
-//    чтобы при повторном заходе на ту же страницу угол не прыгал) ───────
-function rulesPageRotation(pageNum) {
+// ── Наклон — ФИКСИРОВАН НА РАЗВОРОТ (пару страниц), не на отдельную
+//    страницу: раскрытая книга не может иметь левую и правую половину,
+//    наклонённые в разные стороны. На телефоне (по одной странице) угол
+//    из-за этого меняется не каждую страницу, а каждые две — тот же
+//    список пар, что и на десктопе, просто показывается по одной. ──────
+function rulesSpreadRotation(pageNum) {
   const seq = [-1.4, 0.9, -0.6, 1.6, -1.1, 0.5];
-  return seq[((pageNum % seq.length) + seq.length) % seq.length];
+  const spreadIndex = Math.floor(pageNum / 2);
+  return seq[((spreadIndex % seq.length) + seq.length) % seq.length];
 }
 
 // ── Рендер ────────────────────────────────────────────────────────────
 function rulesRenderCover() {
   const lang = rulesState.lang;
   paginateRulesLang(lang);
-  const toc = rulesState.toc[lang] || [];
 
   document.getElementById('rulesCover').style.display = '';
   document.getElementById('rulesPages').style.display = 'none';
-
-  const tocEl = document.getElementById('rulesToc');
-  tocEl.innerHTML = toc.map(entry =>
-    `<div class="rules-toc-entry" onclick="rulesGoTo(${entry.pageIndex})">${entry.title}</div>`
-  ).join('');
 
   document.querySelectorAll('.rules-lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
 
-  const title = document.getElementById('rulesTitleLabel');
+  const title = document.getElementById('rulesCoverTitle');
   if (title) {
     title.textContent = RULES_TITLES[lang] || 'Rules';
     title.classList.toggle('rus-title', lang === 'RUS');
@@ -167,7 +215,7 @@ function rulesRenderPages() {
     if (pageNum < pages.length) {
       el.innerHTML = pages[pageNum];
       el.style.visibility = 'visible';
-      el.style.setProperty('--r', rulesPageRotation(pageNum) + 'deg');
+      el.style.setProperty('--r', rulesSpreadRotation(pageNum) + 'deg');
     } else {
       el.innerHTML = '';
       el.style.visibility = 'hidden';
