@@ -197,14 +197,9 @@
 
 <!-- RULES SCREEN -->
 <div class="screen" id="rulesScreen">
-  <div class="screen-header">
-    <button class="screen-back" onclick="playSfx('yellow_buttom');hideScreen('rules')">← Back</button>
-    <div class="screen-title" id="rulesTitleLabel">RULES</div>
-  </div>
-  <!-- ПРОТОТИП без арта — .screen-back вверху временный "аварийный" выход,
-       чтобы можно было закрыть экран, пока не навешен финальный Home на
-       корешке книги (см. #rulesEdgeBtns ниже). Уберём/спрячем его отдельным
-       заходом, когда визуал будет готов. -->
+  <!-- ПРОТОТИП без арта — заголовок и Back/Home временно только в кромке
+       книги (#rulesEdgeBtns) и на обложке (см. ниже), верхней панели
+       экрана больше нет по просьбе 2026-07-14. -->
 
   <!-- ИСХОДНЫЙ ТЕКСТ — источник данных для пагинации, НИКОГДА не показывается
        напрямую (см. rules.js: paginateRulesLang читает эти блоки).
@@ -442,7 +437,11 @@
        Next/Home (обложка) → Back/Next/Home (внутри чтения). ──────────── -->
   <div class="rules-book" id="rulesBook">
 
-    <!-- ОБЛОЖКА — оглавление + языки. Показывается при pageIndex===-1. -->
+    <!-- ОБЛОЖКА — заголовок (кремовым слева на кромке будут закладки-языки,
+         пока просто ряд кнопок) + языки. Показывается при pageIndex===-1.
+         Оглавление больше НЕ тут — это теперь отдельная(ые) сгенерированная
+         страница(ы) в потоке (см. paginateRulesLang в rules.js), первый
+         разворот после обложки = [цитата-плейсхолдер | оглавление]. -->
     <div class="rules-cover" id="rulesCover">
       <div class="rules-lang-btns">
         <button class="rules-lang-btn active" data-lang="ENG" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
@@ -450,8 +449,7 @@
         <button class="rules-lang-btn" data-lang="POR" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
         <button class="rules-lang-btn" data-lang="VN" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
       </div>
-      <div class="rules-cover-title">Rules</div>
-      <div class="rules-toc" id="rulesToc"></div>
+      <div class="rules-cover-title" id="rulesCoverTitle">Rules</div>
     </div>
 
     <!-- ЧТЕНИЕ — либо один лист (телефон), либо разворот 2 листов (лаптоп,
