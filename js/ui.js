@@ -230,6 +230,10 @@ function preloadAssets(){
     'img/top_table.png', 'img/front_table.png', 'img/bot_table.png',
     'img/left_table.gif', 'img/right_table.png',
     'img/land_fonar.gif',
+    // ── Боковые выносы лендинга, 3 пары (добавлено 2026-07-14) ──
+    'img/land_left_wall.gif', 'img/land_right_wall.gif',
+    'img/land_left_left_table.gif', 'img/land_right_right_table.gif',
+    'img/land_left_dno.gif', 'img/land_right_dno.gif', 'img/land_dno.gif',
 
     // ── Ящик Lore/Catalog (добавлено 2026-07-13) ──
     'img/bg_lore_modal.png',
