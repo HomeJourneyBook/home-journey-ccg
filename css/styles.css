@@ -82,8 +82,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .porthole-space{position:absolute;inset:0;z-index:0; background-image:url('../img/logo_space.png'); background-size:100% auto; background-position:center; background-repeat:no-repeat;}
 .porthole-logo-wrap{position:absolute;inset:0;z-index:2; display:flex;align-items:center;justify-content:center; pointer-events:none;}
 .porthole-logo{max-width:65%; display:flex;flex-direction:column;align-items:center;}
-.landing-title{font-family:'MEK',monospace;font-size:clamp(28.08px,6.48vw,43.2px); color:#E8E0C8;letter-spacing:3.6px;text-align:center; text-shadow:0 0 20px #c8a84b66; pointer-events:none;}
-.landing-sub{font-family:'MEK',monospace;font-size:clamp(19.2px,3.6vw,28.8px); color:#9b937f;letter-spacing:3.6px;text-align:center;margin-top:7.2px; pointer-events:none;}
+/*── Логотип в иллюминаторе — раньше жил на clamp(px,vw,px), т.е. не был
+    завязан на --lw (ту же переменную, что держит пропорции ВСЕЙ
+    остальной композиции лендинга — стены/потолок/кнопки и т.д.).
+    На десктопе --lw считается по min() от vh И vw (см. комментарий выше
+    про --top-vh/--bottom-vh), а раньше лого следило только за vw —
+    отсюда рассинхрон с размером самого иллюминатора на нестандартных
+    пропорциях экрана. Переводим на calc(var(--lw) * N) — та же формула,
+    что и у всех остальных элементов группы. ───────────────────────────*/
+.landing-title{font-family:'MEK',monospace;font-size:calc(var(--lw) * 0.0648); color:#E8E0C8;letter-spacing:calc(var(--lw) * 0.0140625);text-align:center; text-shadow:0 0 20px #c8a84b66; pointer-events:none;}
+.landing-sub{font-family:'MEK',monospace;font-size:calc(var(--lw) * 0.036); color:#9b937f;letter-spacing:calc(var(--lw) * 0.0140625);text-align:center;margin-top:calc(var(--lw) * 0.028125); pointer-events:none;}
 .porthole-glass{position:absolute;inset:0;z-index:1; background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.10), rgba(180,200,255,0.04) 55%, rgba(0,0,0,0.06) 100%); backdrop-filter:blur(0.6px); -webkit-backdrop-filter:blur(0.6px); overflow:hidden; pointer-events:none;}
 .porthole-glass::before{content:''; position:absolute; top:-60%;left:-150%; width:55%;height:220%; background:linear-gradient(75deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%); transform:rotate(20deg); animation:portholeGlare 13s ease-in-out infinite;}
 .porthole-frame{position:absolute;inset:0;z-index:3; background-image:url('../img/logo_window.png'); background-size:100% 100%; background-repeat:no-repeat; pointer-events:none;}
@@ -323,6 +331,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     меньше, чем у остального контента. Ratio теперь явно ширина:высота = 5:1. */
 .crate-modal .screen-body{padding:0 4px 0;}
 .lore-archive-btn{display:block; width:calc(100% - 2vw + 8px); margin:4vw calc(1vw - 4px) 0 calc(1vw - 4px); aspect-ratio:5/1; border:none; padding:0; cursor:pointer; background-repeat:no-repeat; background-position:center; background-size:100% 100%; background-image:url('../img/btn_lore_archive1.png');}
+/*── Текст-мостик в промежутке между последней страницей и кнопкой Archive.
+    #loreStack уже резервирует под собой margin-bottom (7.5vw, у каждой
+    .lore-page) + собственный padding-bottom (6vw) — это больше глубины
+    самой нижней страницы в ЗАКРЫТОЙ стопке (offset 7.2vw), так что этот
+    текст, сидящий сразу ПОСЛЕ #loreStack, физически не может оказаться
+    под стопкой ни в открытом, ни в закрытом виде. ────────────────────*/
+.lore-archive-intro{font-family:'MEK',monospace; font-size:4.56vw; line-height:1.4; color:#E8E0C8; text-align:center; margin:0 calc(1vw - 4px);}
+@media(min-width:600px){
+  .lore-archive-intro{font-size:1.1vw;}
+}
 .lore-archive-btn:hover{background-image:url('../img/btn_lore_archiveH.png');}
 .lore-archive-btn:active{background-image:url('../img/btn_lore_archive2.png');}
 .lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:50 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
@@ -356,12 +374,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .lore-page{margin-bottom:3vw;}
 }
 @keyframes loreReveal{
-  0%{opacity:0; text-shadow:none;}
-  2%{opacity:1;}
+  0%{text-shadow:none;}
   22%{text-shadow:1px 0 #ff0044,-1px 0 #00e5ff;}
   48%{text-shadow:-1px 0 #ff0044,1px 0 #00e5ff;}
   74%{text-shadow:0.5px 0 #ff0044,-0.5px 0 #00e5ff;}
-  100%{opacity:1; text-shadow:none;}
+  100%{text-shadow:none;}
 }
 /* ═══════════════════════════════════════════════════════════════════════
    CATALOG SCREEN
@@ -421,7 +438,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     Title сидит по центру своей строки за счёт justify-content:center
     на .cat-row (дефолт). ────────────────────────────────────────────*/
 .cat-row-decor-top{position:relative;}
-.cat-back{position:absolute; left:0; top:0;}
+.cat-back{position:absolute; left:2vh; top:0;}
 /*── Базовый бокс — БЕЗ рамки/цветной заливки/transition-эффектов, это
     теперь просто контейнер под background-image (арт). Текст везде
     чёрный (кроме инпута поиска — у него свой цвет, см. ниже). Явный
@@ -430,10 +447,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     просвечивает сквозь прозрачные углы трапециевидных PNG. ──────────*/
 .cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#0c1013; cursor:pointer; padding:0; margin:0; flex-shrink:0; white-space:nowrap; overflow:hidden; background-repeat:no-repeat; background-position:center; background-size:100% 100%; border:none; background-color:transparent; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
 .cat-box.filter-btn{font-size:1.3vh;}
-.cat-back{font-size:0.8vh;}
+.cat-back{font-size:0.8vh; color:#E8E0C8;}
 .cat-title{font-size:3vh;}
 .cat-sort-label{cursor:default;}
-.cat-count{cursor:default;}
+.cat-count{cursor:default; color:#E8E0C8;}
 /*── Ratio-классы: aspect-ratio + фон-плейсхолдер (idle) по системе
     cat_N_1_X.png — N=ratio (2/3/4), X=1(idle)/H(hover)/2(active-клик).
     Кнопки (.filter-btn и .cat-back) получают hover/click-состояния;
@@ -442,6 +459,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cat-w2{aspect-ratio:2/1; background-image:url('../img/cat_2_1_1.png');}
 .cat-w3{aspect-ratio:3/1; background-image:url('../img/cat_3_1_1.png');}
 .cat-w4{aspect-ratio:4/1; background-image:url('../img/cat_4_1_1.png');}
+.cat-w5{aspect-ratio:5/1;}
 .cat-back{aspect-ratio:2/1; cursor:pointer; background-image:url('../img/cat_back_1.png');}
 .cat-back:hover{background-image:url('../img/cat_back_H.png');}
 .cat-back:active{background-image:url('../img/cat_back_2.png');}
@@ -454,7 +472,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Некликабельные боксы со своим именованным ассетом (не по системе
     cat_N_1_X, т.к. у них нет idle/hover/active — только один фон). ───*/
 .cat-title{aspect-ratio:6/1; cursor:default; background-image:url('../img/cat_title_6_1.png');}
-.cat-count{background-image:url('../img/cat_counter_4_1.png');}
+.cat-count{background-image:url('../img/cat_counter_5_1.png'); margin-right:2vh;}
 .cat-sort-label{background-image:url('../img/cat_sort.png');}
 /*── Поиск — двойной бокс. .cat-search-wrap — 7:1, свой отдельный фон
     (cat_7_1.png, тоже без hover/active — не кликабелен), даёт запас
@@ -463,7 +481,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     поэтому смена 9:1→7:1 тут никак не влияет на размер самого инпута —
     просто у обёртки меньше запаса по бокам. ────────────────────────*/
 .cat-w7{aspect-ratio:7/1;}
-.cat-search-wrap{padding:0; background-image:url('../img/cat_7_1.png');}
+.cat-search-wrap{padding:0; margin-left:2vh; background-image:url('../img/cat_7_1.png');}
 .cat-search-input{height:2vh; aspect-ratio:8/1; box-sizing:border-box; flex-shrink:0; border:none; background-color:#0c1013; font-family:'MEK',monospace; font-size:1.5vh; color:#E8E0C8; text-align:left; padding:0 1vh; -webkit-appearance:none; -moz-appearance:none; appearance:none; border-radius:0;}
 .cat-search-input:focus{outline:none;}
 .cat-search-input,.cat-search-input *{user-select:text;-webkit-user-select:text;}
@@ -542,7 +560,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #deckBuilderModal .modal{border-image-slice: 40 fill; width:95vw; height:88vh; max-width:95vw; max-height:88vh; display:flex; flex-direction:column;}
 #deckBuilderModal .modal-body{flex:1 1 auto; min-height:0; overflow:hidden;}
 .db-header{flex:0 0 auto; background:#3d494f; border:2px solid #a9b5b2;}
-.db-header-title{font-family:'MEK',monospace; font-size:250%; letter-spacing:.5px; color:#0c1013; text-align:center; line-height:1; flex:1 1 0; display:flex; align-items:center; justify-content:center; box-sizing:border-box; border-style:solid; border-width:20px; border-image-source:url('../img/bg_jest.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch;}
+.db-header-title{font-family:'MEK',monospace; font-size:2.8vw; letter-spacing:.5px; color:#0c1013; text-align:center; line-height:1; flex:1 1 0; display:flex; align-items:center; justify-content:center; box-sizing:border-box; border-style:solid; border-width:20px; border-image-source:url('../img/bg_jest.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch;}
 .db-header-title-divider{display:none;}
 .db-filters-col{flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:4px;}
 .db-header-row2{display:flex; align-items:stretch; padding:8px; gap:0;}
@@ -592,7 +610,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .db-stack{--card-w: min(calc((100cqw - 2 * 5px) / 3), var(--cat-card-w));}
   .db-header-row2{flex-wrap:wrap;row-gap:8px;}
   .db-filters-col{display:contents;}
-  .db-header-title{order:-3;flex:1 1 100%;font-size:200%;}
+  .db-header-title{order:-3;flex:1 1 100%;font-size:7vw;}
   .db-header-left{order:-2; flex:1 1 100%; padding-right:0; position:relative; padding-top:8px;}
   .db-header-left::before{content:''; position:absolute; top:0; left:6px; right:6px; height:2px; background:#212e37;}
   .db-header-row2 > .db-divider-v{display:none;}
@@ -759,6 +777,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* ── Order roll (dice-off for turn order) ─────────────────────────────── */
 .modal-art-btn:disabled{filter:brightness(0.5) saturate(0.4);cursor:not-allowed;pointer-events:none;}
 .modal-art-btn.btn-mulligan:disabled{filter:none;} /* уже есть готовый спрайт btn_mulliganD.png — общий dimming-фильтр поверх него выглядел как лишняя прозрачность */
+.modal-art-btn.btn-ready:disabled{filter:none;} /* пока ждём анимацию кубиков (order-roll) — просто её обычный idle-спрайт, без дополнительного затемнения */
 .order-roll-row{display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);margin:8px 0 10px;position:relative;z-index:3;}
 .order-roll-side{display:flex;flex-direction:column;align-items:center;gap:6px;transition:opacity .2s;}
 .order-roll-label{font-family:'MEK',monospace;font-size:clamp(11px,2.6vw,14px);letter-spacing:.05em;color:#4bbf72;}
