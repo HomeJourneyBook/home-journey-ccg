@@ -69,23 +69,31 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    исключение — .landing-buffer (гибкий буфер) и .landing-tail (свой vh,
    вне сетки вообще, см. ниже). ──────────────────────────────────────────*/
 .landing{--lw: min(100vw, 600px); position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; overflow-y:auto; overflow-x:hidden; background-color:#181f27; background-size:cover; background-position:center;}
-/*── ВЕРХ — потолок(32) + стена-с-иллюминатором(192) фикс, буфер(~36) гибкий.
+/*── ВЕРХ — потолок(32) + стена-с-иллюминатором(256) фикс, буфер(~36) гибкий.
+    .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
+    родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
+    min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
+/*── ВЕРХ — потолок(32) + стена-с-иллюминатором(256) фикс, буфер(~36) гибкий.
+    Стена теперь ровно 256 (не 192) — иллюминатор сам квадратный 256x256 и
+    должен ложиться встык по ШИРИНЕ с потолком (тоже 256 шириной), так что
+    стене нужно ровно столько же высоты, сколько ширины у всей композиции,
+    иначе иллюминатор либо обрежется, либо не совпадёт по краю (см. чат
+    2026-07-14 — ровно это и произошло при 192).
     .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
     родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
     min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
 .landing-top{width:var(--lw); flex:1 1 auto; min-height:0; display:flex;flex-direction:column; overflow:hidden;}
 .landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-image:url('../img/land_fonar.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
-.landing-wall{flex:0 0 calc(var(--lw) * 192 / 256); width:100%; position:relative; /* плейсхолдер — арт стены ещё не готов, прозрачно */ display:flex;align-items:center;justify-content:center;}
+.landing-wall{flex:0 0 var(--lw); width:100%; position:relative; /* плейсхолдер — арт стены ещё не готов, прозрачно */ display:flex;align-items:center;justify-content:center;}
 .landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; /* плейсхолдер — пустая стена, режется первой, прозрачно */}
-/*── Иллюминатор — диаметр = % высоты .landing-wall (1:1, центр секции) ─────*/
-/*── Раньше тут стояли border-radius:50%+overflow:hidden, чтобы обрезать
-    квадратные слои (space/glass) под круглую форму иллюминатора. Новый
-    ассет-рамка (logo_window.png, 256x256) уже сам содержит нужную форму
-    и должен ложиться цельным квадратом встык с потолком (land_fonar.gif)
-    без обрезки. Безопасно снимать: анимированный блик у .porthole-glass
-    клипается СВОИМ собственным overflow:hidden (см. ниже), от родителя
-    не зависит — при снятии клипа тут он не потечёт за пределы круга. ──*/
-.landing-porthole{position:relative;z-index:1; height:100%; aspect-ratio:1/1; width:auto; flex-shrink:0;}
+/*── Иллюминатор — раньше сидел на height:100% (от высоты .landing-wall,
+    192/256 lw) с width:auto — из-за этого его ФАКТИЧЕСКАЯ ширина выходила
+    меньше ширины потолка (те же 256 lw), хотя оба ассета нарисованы
+    одинаковой шириной. Теперь считаем от width:100% (= var(--lw), та же
+    величина, что и у потолка) — с aspect-ratio:1/1 высота подтягивается
+    автоматически и получается идеальный var(--lw) × var(--lw) квадрат,
+    встык с потолком по ширине. ────────────────────────────────────────*/
+.landing-porthole{position:relative;z-index:1; width:100%; aspect-ratio:1/1; height:auto; flex-shrink:0;}
 .porthole-space{position:absolute;inset:0;z-index:0; background-image:url('../img/logo_space.png'); background-size:100% auto; background-position:center; background-repeat:no-repeat;}
 .porthole-logo-wrap{position:absolute;inset:0;z-index:2; display:flex;align-items:center;justify-content:center; pointer-events:none;}
 .porthole-logo{max-width:65%; display:flex;flex-direction:column;align-items:center;}
@@ -148,8 +156,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
      осталось, делится 50/50 между верхом и низом.
      --lw считается ДВУМЯ способами и берётся min() — раньше был только
      один (от низа), и при 40/60 это ломало верх: низ хотел --lw такой,
-     что "потолок+стена" (224/256 от неё) требовали БОЛЬШЕ места, чем было
-     выделено верху (40vh) — отсюда обрезанный иллюминатор на скрине. При
+     что "потолок+стена" (288/256 от неё, после того как стену подняли
+     с 192 до 256 для стыковки иллюминатора с потолком — см. чат
+     2026-07-14) требовали БОЛЬШЕ места, чем было выделено верху (40vh) —
+     отсюда обрезанный иллюминатор на скрине. При
      50/50 обе величины равны, поэтому это будет строго безопасно и без
      min() — но оставляю min() на будущее, если пропорция снова станет
      несимметричной, чтобы обрезания не повторилось. */
@@ -157,7 +167,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     --tail-h: 6vh;
     --top-vh: calc((100vh - var(--tail-h)) * 0.5);
     --bottom-vh: calc((100vh - var(--tail-h)) * 0.5);
-    --lw: min(calc(var(--bottom-vh) * 256 / 240), calc(var(--top-vh) * 256 / 224), 100vw);
+    --lw: min(calc(var(--bottom-vh) * 256 / 240), calc(var(--top-vh) * 256 / 288), 100vw);
   }
   .landing-top{flex:0 0 var(--top-vh); height:var(--top-vh);}
   .landing-tail{flex:0 0 var(--tail-h); height:var(--tail-h); padding:0 12px; align-items:center;}
