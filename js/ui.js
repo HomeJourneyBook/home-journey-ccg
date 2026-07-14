@@ -235,6 +235,19 @@ function preloadAssets(){
     'img/btn_lore_archive1.png', 'img/btn_lore_archiveH.png', 'img/btn_lore_archive2.png',
     'img/btn_lore_ru4ka1.png', 'img/btn_lore_ru4kaH.png', 'img/btn_lore_ru4ka2.png',
 
+    // ── Каталог — хедер: кнопки-плейсхолдеры по ratio (idle/hover/active),
+    // одноразовые именованные ассеты (title/counter/sort/search-обёртка/back)
+    // и 12 фоновых линий рядов сверху вниз ──
+    'img/cat_2_1_1.png', 'img/cat_2_1_H.png', 'img/cat_2_1_2.png',
+    'img/cat_3_1_1.png', 'img/cat_3_1_H.png', 'img/cat_3_1_2.png',
+    'img/cat_4_1_1.png', 'img/cat_4_1_H.png', 'img/cat_4_1_2.png',
+    'img/cat_back_1.png', 'img/cat_back_H.png', 'img/cat_back_2.png',
+    'img/cat_title_6_1.png', 'img/cat_counter_4_1.png', 'img/cat_sort.png',
+    'img/cat_7_1.png',
+    'img/cat_1line.png', 'img/cat_2line.png', 'img/cat_3line.png', 'img/cat_4line.png',
+    'img/cat_5line.png', 'img/cat_6line.png', 'img/cat_7line.png', 'img/cat_8line.png',
+    'img/cat_9line.png', 'img/cat_10line.png', 'img/cat_11line.png', 'img/cat_12line.png',
+
     // ── Кнопки модалок ──
     'img/btn_yes1.png', 'img/btn_yes2.png', 'img/btn_yesH.png',
     'img/btn_cancel1.png', 'img/btn_cancel2.png', 'img/btn_cancelH.png',
