@@ -397,27 +397,45 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     title сидит по центру всей строки за счёт justify-content:center
     на .cat-row-1 самой. ──────────────────────────────────────────────*/
 .cat-back{position:absolute; left:0; top:0;}
-.cat-box{height:100%; box-sizing:border-box; border:1px dashed #556; background-color:rgba(255,255,255,0.04); display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#9B937F; cursor:pointer; padding:0; flex-shrink:0; white-space:nowrap; overflow:hidden; transition:color .15s,border-color .15s; background-repeat:no-repeat; background-position:center; background-size:100% 100%;}
+/*── Базовый бокс — БЕЗ рамки/цветной заливки/transition-эффектов, это
+    теперь просто контейнер под background-image (арт). Текст везде
+    чёрный (кроме инпута поиска — у него свой цвет, см. ниже). ────────*/
+.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#000; cursor:pointer; padding:0; flex-shrink:0; white-space:nowrap; overflow:hidden; background-repeat:no-repeat; background-position:center; background-size:100% 100%;}
 .cat-box.filter-btn{font-size:1.3vh;}
-.cat-box.filter-btn:hover{color:#c8a84b; border-color:#c8a84b;}
-.cat-box.filter-btn.active{color:#c8a84b; border-color:#c8a84b; background-color:#c8a84b11;}
-.cat-box.filter-btn.jeet-f.active{color:#b44fd4; border-color:#b44fd4; background-color:#b44fd411;}
-.cat-w2{aspect-ratio:2/1;}
-.cat-w3{aspect-ratio:3/1;}
-.cat-w4{aspect-ratio:4/1;}
-.cat-w9{aspect-ratio:9/1;}
-.cat-back{aspect-ratio:2/1; cursor:pointer; font-size:1.6vh;}
-.cat-title{aspect-ratio:6/1; cursor:default; font-size:3vh; color:#E8E0C8;}
+.cat-back{font-size:1.6vh;}
+.cat-title{font-size:3vh;}
 .cat-sort-label{cursor:default;}
-.cat-count{cursor:default; color:#9B937F;}
-/*── Поиск — двойной бокс. .cat-search-wrap — обычный .cat-box 9:1
-    (плейсхолдер под будущий кастомный фон-рамку). Внутри него сидит
-    сам .cat-search-input — 8:1, во всю высоту ряда, чёрная заливка,
-    именно в него вводится текст; разница в 1 юнит ratio (9 vs 8) —
-    запас по бокам слева/справа под рамку. ───────────────────────────*/
-.cat-search-wrap{padding:0;}
-.cat-search-input{height:100%; aspect-ratio:8/1; box-sizing:border-box; flex-shrink:0; border:1px solid #444; background-color:#000; font-family:'MEK',monospace; font-size:2.5vh; color:#E8E0C8; text-align:left; padding:0 1vh;}
-.cat-search-input:focus{outline:none; border-color:#c8a84b;}
+.cat-count{cursor:default;}
+/*── Ratio-классы: aspect-ratio + фон-плейсхолдер (idle) по системе
+    cat_N_1_X.png — N=ratio (2/3/4), X=1(idle)/H(hover)/2(active-клик).
+    Кнопки (.filter-btn и .cat-back) получают hover/click-состояния;
+    некликабельные боксы того же ratio (например .cat-sort-label)
+    молча используют тот же idle-фон, без hover/active правил. ───────*/
+.cat-w2{aspect-ratio:2/1; background-image:url('../img/cat_2_1_1.png');}
+.cat-w3{aspect-ratio:3/1; background-image:url('../img/cat_3_1_1.png');}
+.cat-w4{aspect-ratio:4/1; background-image:url('../img/cat_4_1_1.png');}
+.cat-back{aspect-ratio:2/1; cursor:pointer; background-image:url('../img/cat_2_1_1.png');}
+.cat-back:hover{background-image:url('../img/cat_2_1_H.png');}
+.cat-back:active{background-image:url('../img/cat_2_1_2.png');}
+.cat-w2.filter-btn:hover{background-image:url('../img/cat_2_1_H.png');}
+.cat-w2.filter-btn:active,.cat-w2.filter-btn.active{background-image:url('../img/cat_2_1_2.png');}
+.cat-w3.filter-btn:hover{background-image:url('../img/cat_3_1_H.png');}
+.cat-w3.filter-btn:active,.cat-w3.filter-btn.active{background-image:url('../img/cat_3_1_2.png');}
+.cat-w4.filter-btn:hover{background-image:url('../img/cat_4_1_H.png');}
+.cat-w4.filter-btn:active,.cat-w4.filter-btn.active{background-image:url('../img/cat_4_1_2.png');}
+/*── Некликабельные боксы со своим именованным ассетом (не по системе
+    cat_N_1_X, т.к. у них нет idle/hover/active — только один фон). ───*/
+.cat-title{aspect-ratio:6/1; cursor:default; background-image:url('../img/cat_title_6_1.png');}
+.cat-count{background-image:url('../img/cat_counter_4_1.png');}
+/*── Поиск — двойной бокс. .cat-search-wrap — 9:1, свой отдельный фон
+    (cat_9_1.png, тоже без hover/active — не кликабелен), даёт запас
+    слева/справа/сверху/снизу под рамку. Внутри него сидит сам инпут —
+    высота ФИКСИРОВАНА (не 100% ряда), чтобы вокруг него было видно фон
+    рамки со всех сторон, а не только по бокам. ───────────────────────*/
+.cat-w9{aspect-ratio:9/1;}
+.cat-search-wrap{padding:0; background-image:url('../img/cat_9_1.png');}
+.cat-search-input{height:2vh; aspect-ratio:8/1; box-sizing:border-box; flex-shrink:0; border:none; background-color:#000; font-family:'MEK',monospace; font-size:1.5vh; color:#E8E0C8; text-align:left; padding:0 1vh;}
+.cat-search-input:focus{outline:none;}
 .cat-search-input,.cat-search-input *{user-select:text;-webkit-user-select:text;}
 /*── Лаптоп/десктоп — хедер каталога выглядел слишком мелко на широких
     экранах (vh привязан к высоте вьюпорта, а не к --crate-w), поэтому
@@ -437,7 +455,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .cat-box.filter-btn{font-size:2.6vh;}
   .cat-back{font-size:3.2vh;}
   .cat-title{font-size:6vh;}
-  .cat-search-input{font-size:5vh;}
+  .cat-search-input{height:4vh; font-size:3vh;}
 }
 .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;container-type:inline-size;}
 @media(max-width:600px){
