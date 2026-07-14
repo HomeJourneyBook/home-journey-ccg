@@ -296,16 +296,168 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @media(min-width:600px){
   .screen-lang-btn{font-size:1.1vw;padding:0.4vw 1vw;}
 }
-/*── КНИГА ПРАВИЛ — ФУНКЦИОНАЛЬНЫЙ ПРОТОТИП, БЕЗ АРТА (2026-07-14).
-    Логика (пагинация/навигация) — см. js/rules.js. Всё ниже — временная
-    плоская вёрстка, чтобы прототип можно было кликать и читать; 9-слайс
-    фон обложки/страниц, закладки-языки на верхней кромке и "застёжка"
-    для кнопок на правой кромке навешиваются отдельным заходом ПОВЕРХ
-    этих же классов — переименовывать/перестраивать структуру не должно
-    понадобиться, только заменить background/позиционирование. ─────────*/
-.rules-book{max-width:700px; margin:0 auto; display:flex; flex-direction:column; gap:16px; font-family:'MEK',monospace;}
-.rules-cover{border:1px solid #c8a84b55; padding:16px; display:flex; flex-direction:column; gap:12px;}
-.rules-cover-title{font-size:24px; color:#E8E0C8; text-align:center;}
+/*── КНИГА ПРАВИЛ — ОБЛОЖКА, первый визуальный заход (2026-07-14).
+    Страницы чтения (.rules-pages/.rules-spread/.rules-page) НАМЕРЕННО не
+    трогаем в этом заходе — только обложка, дальше отдельным шагом.
+
+    ФОН ЭКРАНА — стол с лендинга, тот же серо-стальной тон, что уже
+    переиспользован для скроллбара/бордеров (#829797) — см. #rulesScreen
+    ниже.
+
+    9-СЛАЙС — .rules-book использует img/rules_cover.png (126×126,
+    углы 42px = ровно 1/3 стороны) как border-image. Толщина рамки
+    (border-width) НЕ произвольная — считается от высоты самой книги
+    через переменную --rules-book-h по формуле высота/6. Почему /6:
+    автор на референсе вручную скопировал боковой тайл рамки 4 раза по
+    высоте, чтобы не потерять пиксельную чёткость при масштабе (т.е.
+    на всю высоту книги укладывается 2 угла + 4 повтора бокового тайла
+    = 6 одинаковых квадратных "юнитов" — border-width и есть 1 такой
+    юнит). border-image-repeat:"stretch repeat" — верх/низ тянутся
+    (первое значение), лево/право повторяются тайлом (второе значение,
+    п.2 в ТЗ автора "боковые тайлы repeat") — при высоте=6×border это
+    даёт РОВНО 4 целых повтора без обрезки последнего тайла.
+
+    РАЗМЕР КНИГИ — адаптирован раздельно под телефон/лаптоп (та же
+    точка перелома 900px, что уже держит rulesMediaQuery() в rules.js
+    для разворота страниц, — переиспользуем её и здесь для консистентности):
+      - Телефон (<900px, портрет, узкий viewport): книга ШИРИНА-driven
+        (92vw), высота считается через реальный ratio арта (891/940 ≈
+        0.948 — источник: см. чат/референс 2026-07-14), иначе на узких
+        экранах vh-подход раздувает книгу далеко за пределы ширины экрана.
+      - Лаптоп (≥900px, широкий viewport): книга ВЫСОТА-driven (82vh —
+        снято прямо с референса: книга занимает ~82% высоты подложенного
+        макета 2239×1146), ширина считается тем же ratio.
+    --rules-book-h — общий источник правды и для рамки, и (ниже) для
+    размера шрифта заголовка/языковых закладок/кнопок кромки — именно
+    так, как просил автор ("от этого будут зависеть все остальные
+    значения"). ───────────────────────────────────────────────────────*/
+#rulesScreen{background:#829797;}
+
+.rules-book{
+  --rules-book-ratio: 0.948; /* width / height, снято с референса 891×940 */
+  --rules-book-h: calc(92vw / 0.948);
+  width: 92vw;
+  height: var(--rules-book-h);
+  margin: 2vh auto;
+  position: relative;
+  box-sizing: border-box;
+  font-family: 'MEK', monospace;
+
+  border-style: solid;
+  border-width: calc(var(--rules-book-h) / 6);
+  border-image-source: url('../img/rules_cover.png');
+  border-image-slice: 42 fill;
+  border-image-width: 100%;
+  border-image-outset: 0;
+  border-image-repeat: stretch repeat;
+  image-rendering: pixelated;
+}
+@media(min-width:900px){
+  .rules-book{
+    --rules-book-h: 82vh;
+    width: calc(var(--rules-book-h) * 0.948);
+    height: var(--rules-book-h);
+  }
+}
+
+/*── ЗАКЛАДКИ-ЯЗЫКИ — "флажки", торчащие поверх верхней кромки книги.
+    Плейсхолдер-цвета взяты прямо с референса (Eng кремовый/Por зелёный/
+    Rus розовый/Vn оливковый) — просто чтобы визуально считывались как
+    разные закладки до кастомного арта на каждую. Форма — CSS clip-path
+    (флажок с треугольным вырезом снизу), заменится на PNG когда будет
+    готов арт — тогда clip-path/фон просто убираются. ─────────────────*/
+.rules-lang-btns{
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  display: flex;
+  gap: calc(var(--rules-book-h) * 0.012);
+  z-index: 5;
+}
+.rules-lang-btn{
+  font-family: 'MEK', monospace;
+  font-size: calc(var(--rules-book-h) * 0.032);
+  padding: calc(var(--rules-book-h) * 0.022) calc(var(--rules-book-h) * 0.03) calc(var(--rules-book-h) * 0.05);
+  border: 2px solid #1a0a0d;
+  background: #e8c79a;
+  color: #2a1015;
+  cursor: pointer;
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
+}
+.rules-lang-btn:hover{ filter: brightness(1.12); }
+.rules-lang-btn.active{ outline: 2px solid #E8E0C8; outline-offset: -4px; }
+.rules-lang-btn[data-lang="POR"]{ background:#3f9c72; color:#0d2216; }
+.rules-lang-btn[data-lang="RUS"]{ background:#e39ac9; color:#3a0d24; }
+.rules-lang-btn[data-lang="VN"]{ background:#9aa23f; color:#20240c; }
+
+/*── ОБЛОЖКА — .rules-cover ЗАПОЛНЯЕТ ровно "тайл для контента" (среднюю
+    клетку 9-слайса — она и так уже отделена border-width'ом рамки, так
+    что тут просто 100%/100% + центрирование). Заголовок — бокс с
+    плейсхолдер-кремовым фоном (позже сюда сядет кастомный арт бокса,
+    п.3 ТЗ автора), размер/шрифт — доля от --rules-book-h. ─────────────*/
+.rules-cover{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rules-cover-title{
+  width: 80%;
+  height: 28%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #E8E0C8;
+  color: #2a1015;
+  font-size: calc(var(--rules-book-h) * 0.09);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: calc(var(--rules-book-h) * 0.014) solid #1a0a0d;
+}
+.rules-cover-title.rus-title{ font-family:'Press Start 2P',monospace; font-size: calc(var(--rules-book-h) * 0.06); }
+
+/*── ЗАСТЁЖКА — вертикальный стек Back/Home/Next, наполовину висит за
+    правым краем книги (см. референс). Плейсхолдер-панель тем же
+    серым тоном, что и нижние бары в самой игре (#3d494f), кастомный
+    арт застёжки — отдельным заходом. Back теперь всегда виден и просто
+    гасится/дизейблится на обложке (см. rulesRenderEdgeButtons в
+    rules.js) — не display:none, как раньше. ──────────────────────────*/
+.rules-edge-btns{
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--rules-book-h) * 0.01);
+  padding: calc(var(--rules-book-h) * 0.012);
+  background: #3d494f;
+  border: 2px solid #1a0a0d;
+  z-index: 5;
+}
+.rules-edge-btn{
+  width: calc(var(--rules-book-h) * 0.075);
+  height: calc(var(--rules-book-h) * 0.075);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'MEK', monospace;
+  font-size: calc(var(--rules-book-h) * 0.032);
+  cursor: pointer;
+  background: #5b6a72;
+  color: #E8E0C8;
+  border: 1px solid #1a0a0d;
+}
+.rules-edge-btn:hover{ filter: brightness(1.2); }
+.rules-edge-btn:disabled{ opacity: 0.4; cursor: default; filter: none; }
+
+/*── ЧТЕНИЕ (страницы) — НЕ переверстано в этом заходе, см. комментарий
+    в начале блока. Оставлено рабочим как было. ────────────────────────*/
 .rules-toc{display:flex; flex-direction:column; gap:4px;}
 .rules-toc-entry{cursor:pointer; color:#9B937F; padding:4px 8px; border:1px dashed #55555555;}
 .rules-toc-entry:hover{color:#c8a84b; border-color:#c8a84b;}
@@ -319,10 +471,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-quote-placeholder{height:100%; display:flex; align-items:center; justify-content:center; text-align:center; color:#555; font-style:italic;}
 .rules-page{width:320px; min-height:380px; box-sizing:border-box; border:1px solid #c8a84b33; padding:12px; overflow:hidden; transform:rotate(var(--r, 0deg));}
 .rules-page-probe{overflow:visible !important; height:auto !important; border:none !important; padding:0 !important;}
-.rules-edge-btns{display:flex; flex-direction:row; gap:8px; justify-content:center;}
-.rules-edge-btn{font-family:'MEK',monospace; font-size:13px; padding:6px 14px; cursor:pointer; background:#1c222b; color:#E8E0C8; border:1px solid #c8a84b55;}
-.rules-edge-btn:hover{border-color:#c8a84b;}
-.rules-cover .rules-lang-btns{position:static; display:flex; flex-direction:row; gap:6px; justify-content:center;}
 
 .screen-body{max-width:700px;margin:0 auto;font-size:4.56vw;line-height:1.9;color:#9B937F;}
 .screen-body h2{font-family:'MEK',monospace;font-size:6vw;color:#c8a84b;margin:5vw 0 2vw;}
@@ -343,15 +491,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   #loreScreen .screen-body h2{font-size:calc(1.8vw * 1.2);}
 }
 /* ═══════════════════════════════════════════════════════════════════════
-   RULES SCREEN
+   RULES SCREEN — стили ЧТЕНИЯ (сам контент страниц/иконки/языковые
+   размеры шрифта источника). Стили ОБЛОЖКИ (.rules-book/.rules-cover/
+   .rules-lang-btns/.rules-edge-btns) — см. блок выше, рядом с .rules-book.
    ═══════════════════════════════════════════════════════════════════════ */
-.rules-lang-btns{display:flex;gap:2px;position:absolute;right:0;}
-.rules-lang-btn{font-family:'MEK',monospace;font-size:2.8vw;padding:1vw 1.5vw;border:1px solid #444;background:transparent;color:#555;cursor:pointer;}
-.rules-lang-btn:hover{color:#c8a84b;border-color:#c8a84b55;}
-.rules-lang-btn.active{border-color:#c8a84b;color:#c8a84b;background:#c8a84b11;}
-@media(min-width:600px){
-  .rules-lang-btn{font-size:0.9vw;padding:0.4vw 0.8vw;}
-}
 #rulesRUS,#rulesRUS h2,#rulesRUS h3{font-family:'Press Start 2P',monospace;}
 #rulesRUS{font-size:calc(3.8vw * 0.65);}
 #rulesRUS h2{font-size:calc(5vw * 0.65);}
