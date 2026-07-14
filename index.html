@@ -155,7 +155,7 @@
          уже так и работал), автор перерисует под точный размер позже. -->
     <div class="landing-row-audio">
       <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules',this)"></button>
+      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules',this);rulesOpen();"></button>
       <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
     </div>
 
@@ -200,13 +200,17 @@
   <div class="screen-header">
     <button class="screen-back" onclick="playSfx('yellow_buttom');hideScreen('rules')">← Back</button>
     <div class="screen-title" id="rulesTitleLabel">RULES</div>
-    <div class="rules-lang-btns">
-      <button class="rules-lang-btn active" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('RUS')">RUS</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
-    </div>
   </div>
+  <!-- ПРОТОТИП без арта — .screen-back вверху временный "аварийный" выход,
+       чтобы можно было закрыть экран, пока не навешен финальный Home на
+       корешке книги (см. #rulesEdgeBtns ниже). Уберём/спрячем его отдельным
+       заходом, когда визуал будет готов. -->
+
+  <!-- ИСХОДНЫЙ ТЕКСТ — источник данных для пагинации, НИКОГДА не показывается
+       напрямую (см. rules.js: paginateRulesLang читает эти блоки).
+       Переводчики продолжают редактировать h2/h3/p как раньше — движок сам
+       нарежет их на страницы по фактической высоте рендера. -->
+  <div id="rulesSource" style="display:none;">
 
   <!-- ENGLISH -->
   <div class="screen-body rules-lang-body" id="rulesENG">
@@ -427,6 +431,52 @@
     <h3 style="font-family:system-ui,sans-serif;">Khi Tấn Công</h3><p>Hiệu ứng kích hoạt mỗi lần sinh vật này tấn công — dù là sinh vật kẻ thù hay căn cứ.</p>
     <h3 style="font-family:system-ui,sans-serif;">Khi Hạ Gục</h3><p>Hiệu ứng kích hoạt khi đòn tấn công của sinh vật này hạ gục một sinh vật kẻ thù trực tiếp.</p>
   </div>
+
+  </div><!-- /rulesSource -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       КНИГА ПРАВИЛ — рабочий прототип БЕЗ визуала (9-слайс/закладки/
+       застёжка навесим отдельным заходом поверх этой же разметки и логики,
+       см. rules.js). Сейчас важна только механика: пагинация, обложка с
+       оглавлением, языки ТОЛЬКО на обложке, лист/разворот, кромка с
+       Next/Home (обложка) → Back/Next/Home (внутри чтения). ──────────── -->
+  <div class="rules-book" id="rulesBook">
+
+    <!-- ОБЛОЖКА — оглавление + языки. Показывается при pageIndex===-1. -->
+    <div class="rules-cover" id="rulesCover">
+      <div class="rules-lang-btns">
+        <button class="rules-lang-btn active" data-lang="ENG" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
+        <button class="rules-lang-btn" data-lang="RUS" onclick="playSfx('yellow_buttom');setRulesLang('RUS')">RUS</button>
+        <button class="rules-lang-btn" data-lang="POR" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
+        <button class="rules-lang-btn" data-lang="VN" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
+      </div>
+      <div class="rules-cover-title">Rules</div>
+      <div class="rules-toc" id="rulesToc"></div>
+    </div>
+
+    <!-- ЧТЕНИЕ — либо один лист (телефон), либо разворот 2 листов (лаптоп,
+         ≥900px — см. rulesMediaQuery() в rules.js). Показывается когда
+         pageIndex>=0. Оба варианта в разметке всегда, viewport-переключение
+         чисто display:none/flex в JS (rulesRenderPages). -->
+    <div class="rules-pages" id="rulesPages" style="display:none;">
+      <div class="rules-page rules-page-text" id="rulesPageSingle"></div>
+      <div class="rules-spread" id="rulesSpread" style="display:none;">
+        <div class="rules-page rules-page-text" id="rulesPageLeft"></div>
+        <div class="rules-page rules-page-text" id="rulesPageRight"></div>
+      </div>
+    </div>
+
+    <!-- КРОМКА — 2 кнопки на обложке (Next/Home), 3 при чтении
+         (Back появляется). Вертикальный стек — финальное позиционирование
+         (правый край книги) навесим вместе с артом. -->
+    <div class="rules-edge-btns" id="rulesEdgeBtns">
+      <button class="rules-edge-btn" id="rulesBackBtn" style="display:none;" onclick="rulesBack()">Back</button>
+      <button class="rules-edge-btn" id="rulesNextBtn" onclick="rulesNext()">Next</button>
+      <button class="rules-edge-btn" id="rulesHomeBtn" onclick="rulesGoHome()">Home</button>
+    </div>
+
+  </div>
+
 </div>
 
 <!-- LORE SCREEN -->
@@ -936,6 +986,7 @@
 <script src="js/catalog.js"></script>
 <script src="js/deckbuilder.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/rules.js"></script>
 <script src="js/carousel.js"></script>
 <div id="card-tooltip" class="card-tooltip" aria-hidden="true"></div>
 </body>
