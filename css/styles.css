@@ -398,7 +398,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     (порядок строго по вёрстке в index.html — см. классы .cat-line-N там).
     background-image ложится ПОВЕРХ background-color с .cat-row/
     .cat-row-decor — та заливка остаётся как fallback, пока/если в PNG
-    есть прозрачные места. ───────────────────────────────────────────*/
+    есть прозрачные места. Repeat-x + auto-ширина (не 100% 100% как у
+    базового .cat-row) — картинки сделаны достаточно широкими сами по
+    себе, при нехватке ширины на большом экране лучше честно повторить
+    тайл, чем растянуть и размазать линию. ────────────────────────────*/
+.cat-line-1,.cat-line-2,.cat-line-3,.cat-line-4,.cat-line-5,.cat-line-6,
+.cat-line-7,.cat-line-8,.cat-line-9,.cat-line-10,.cat-line-11,.cat-line-12{background-repeat:repeat-x; background-size:auto 100%;}
 .cat-line-1{background-image:url('../img/cat_1line.png');}
 .cat-line-2{background-image:url('../img/cat_2line.png');}
 .cat-line-3{background-image:url('../img/cat_3line.png');}
@@ -423,7 +428,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     сброс appearance/border/background — иначе на кнопках (<button>)
     остаётся нативный белый фон + 1px рамка от браузера, который
     просвечивает сквозь прозрачные углы трапециевидных PNG. ──────────*/
-.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#000; cursor:pointer; padding:0; margin:0; flex-shrink:0; white-space:nowrap; overflow:hidden; background-repeat:no-repeat; background-position:center; background-size:100% 100%; border:none; background-color:transparent; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
+.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#0c1013; cursor:pointer; padding:0; margin:0; flex-shrink:0; white-space:nowrap; overflow:hidden; background-repeat:no-repeat; background-position:center; background-size:100% 100%; border:none; background-color:transparent; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
 .cat-box.filter-btn{font-size:1.3vh;}
 .cat-back{font-size:0.8vh;}
 .cat-title{font-size:3vh;}
@@ -459,7 +464,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     просто у обёртки меньше запаса по бокам. ────────────────────────*/
 .cat-w7{aspect-ratio:7/1;}
 .cat-search-wrap{padding:0; background-image:url('../img/cat_7_1.png');}
-.cat-search-input{height:2vh; aspect-ratio:8/1; box-sizing:border-box; flex-shrink:0; border:none; background-color:#000; font-family:'MEK',monospace; font-size:1.5vh; color:#E8E0C8; text-align:left; padding:0 1vh; -webkit-appearance:none; -moz-appearance:none; appearance:none; border-radius:0;}
+.cat-search-input{height:2vh; aspect-ratio:8/1; box-sizing:border-box; flex-shrink:0; border:none; background-color:#0c1013; font-family:'MEK',monospace; font-size:1.5vh; color:#E8E0C8; text-align:left; padding:0 1vh; -webkit-appearance:none; -moz-appearance:none; appearance:none; border-radius:0;}
 .cat-search-input:focus{outline:none;}
 .cat-search-input,.cat-search-input *{user-select:text;-webkit-user-select:text;}
 /*── Лаптоп/десктоп — хедер каталога выглядел слишком мелко на широких
@@ -484,6 +489,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .cat-search-input{height:4vh; font-size:3vh;}
 }
 .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;container-type:inline-size;}
+/*── .screen-body (родитель) красит весь текст в #9B937F — это глушило
+    кремовый цвет стоимости карт, который в игре/деккбилдере приходит
+    напрямую от body{color:#E8E0C8}, т.к. там карты не сидят внутри
+    .screen-body. Возвращаем тот же кремовый явно, только для .card-cost
+    внутри каталога. ──────────────────────────────────────────────────*/
+.catalog-grid .card-cost{color:#E8E0C8;}
 @media(max-width:600px){
   .catalog-grid{grid-template-columns:repeat(3, 1fr);row-gap:16px;}
   .cat-card{--card-w: calc((100cqw - 20px) / 3); --card-h: calc(var(--card-w) / 0.716); --card-art-size: calc(var(--card-h) * 0.535); --card-pad: calc(var(--card-h) * 0.021); --card-name-h: calc(var(--card-h) * 0.096); --card-stats-h: calc(var(--card-h) * 0.085); --card-text-h: calc(var(--card-h) * 0.24); --card-world-name-h: calc(var(--card-h) * 0.096); --card-world-text-h: calc(var(--card-h) * 0.16); width: var(--card-w) !important; height: var(--card-h) !important; padding: var(--card-pad) !important; cursor: pointer !important; overflow: hidden !important; margin: 0 auto;}
@@ -656,7 +667,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
 .log-panel-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_log.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex;justify-content:center;align-items:center; padding:0 6px; position:relative;}
-.log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#000000;font-family:'MEK',monospace;text-align:center;}
+.log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#0c1013;font-family:'MEK',monospace;text-align:center;}
 .log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:30px;height:30px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
@@ -806,7 +817,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   from{opacity:1; transform:scale(1);}
   to{opacity:0; transform:scale(0.9);}
 }
-.grave-modal-title{font-family:'MEK',monospace; font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665)); color:#000000; text-align:center;}
+.grave-modal-title{font-family:'MEK',monospace; font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665)); color:#0c1013; text-align:center;}
 .grave-modal-body{padding:10px 4px 34px; overflow-y:auto; flex:1; display:flex; flex-wrap:wrap; gap:4px; justify-content:center; align-content:flex-start;}
 .grave-modal-body::-webkit-scrollbar{width:4px;}
 .grave-modal-body::-webkit-scrollbar-track{background:#020d02;}
