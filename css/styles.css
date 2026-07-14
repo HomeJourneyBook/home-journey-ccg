@@ -374,24 +374,24 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .art-btn-catalog:hover{filter:brightness(1);background-image:url('../img/btn_catalogH.png');}
 .art-btn-catalog:active{background-image:url('../img/btn_catalog2.png');}
 .cat-card{width:var(--card-w)!important;height:var(--card-h)!important;padding:var(--card-pad)!important;cursor:pointer!important;}
-/*── КАТАЛОГ — хедер из 7 функциональных слоёв + 6 декор-слоёв между ними
-    (было 14vh дизайн + 2vh поиск = 16vh; +6vh декора = 22vh итого), см.
-    комментарий в index.html. Каждый .cat-row — свой full-width фон (пока
-    плейсхолдер, ждёт арт per-layer), внутри флексом сидят .cat-box —
-    у каждого свой aspect-ratio (2:1/3:1/4:1 по таблице из чата, плюс
+/*── КАТАЛОГ — хедер из 6 функциональных слоёв + 5 декор-слоёв между ними,
+    см. комментарий в index.html. Каждый .cat-row — свой full-width фон
+    (пока плейсхолдер, ждёт арт per-layer), внутри флексом сидят .cat-box —
+    у каждого свой aspect-ratio (2:1/3:1/4:1/9:1 по таблице из чата, плюс
     исключения: back 2:1 своей высоты, title 6:1). box-sizing:border-box
-    и НИГДЕ padding — только gap между боксами внутри ряда. ─────────────*/
+    и НИГДЕ padding на .cat-row/.cat-box — только gap между боксами внутри
+    ряда. Row-5 (счётчик+поиск) — единственный нестандартный по высоте:
+    3vh моб / 6vh лаптоп (остальные функциональные ряды и декор — 2vh моб
+    / 4vh лаптоп через media-запрос ниже). ────────────────────────────*/
 .cat-header{width:100%; display:flex; flex-direction:column;}
 .cat-row{width:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:0.6vh; background-color:#1c222b; background-size:100% 100%; background-repeat:no-repeat; background-position:center; flex-shrink:0;}
 .cat-row-1{height:4vh; position:relative; justify-content:center;}
 .cat-row-2{height:2vh;}
 .cat-row-3{height:2vh;}
 .cat-row-4{height:2vh;}
-.cat-row-5{height:2vh;}
-.cat-row-6{height:2vh; background-color:#151a21;}
-.cat-row-7{height:2vh;}
+.cat-row-5{height:3vh;}
 /*── Декор-слои — чисто фоновые прокладки между функциональными рядами,
-    без боксов внутри, той же тёмной заливкой, что и cat-row-6. ─────────*/
+    без боксов внутри, той же тёмной заливкой во всех местах. ───────────*/
 .cat-row-decor{height:2vh; background-color:#151a21;}
 /*── Back прибит слева абсолютным позиционированием (не толкает title),
     title сидит по центру всей строки за счёт justify-content:center
@@ -405,11 +405,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cat-w2{aspect-ratio:2/1;}
 .cat-w3{aspect-ratio:3/1;}
 .cat-w4{aspect-ratio:4/1;}
+.cat-w9{aspect-ratio:9/1;}
 .cat-back{aspect-ratio:2/1; cursor:pointer; font-size:1.6vh;}
 .cat-title{aspect-ratio:6/1; cursor:default; font-size:3vh; color:#E8E0C8;}
 .cat-sort-label{cursor:default;}
 .cat-count{cursor:default; color:#9B937F;}
-.cat-search-input{width:min(70%,320px); font-family:'MEK',monospace; font-size:1.3vh; color:#E8E0C8;}
+/*── Поиск — двойной бокс. .cat-search-wrap — обычный .cat-box 9:1
+    (плейсхолдер под будущий кастомный фон-рамку). Внутри него сидит
+    сам .cat-search-input — 8:1, во всю высоту ряда, чёрная заливка,
+    именно в него вводится текст; разница в 1 юнит ratio (9 vs 8) —
+    запас по бокам слева/справа под рамку. ───────────────────────────*/
+.cat-search-wrap{padding:0;}
+.cat-search-input{height:100%; aspect-ratio:8/1; box-sizing:border-box; flex-shrink:0; border:1px solid #444; background-color:#000; font-family:'MEK',monospace; font-size:2.5vh; color:#E8E0C8; text-align:left; padding:0 1vh;}
 .cat-search-input:focus{outline:none; border-color:#c8a84b;}
 .cat-search-input,.cat-search-input *{user-select:text;-webkit-user-select:text;}
 /*── Лаптоп/десктоп — хедер каталога выглядел слишком мелко на широких
@@ -425,14 +432,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .cat-row-2{height:4vh;}
   .cat-row-3{height:4vh;}
   .cat-row-4{height:4vh;}
-  .cat-row-5{height:4vh;}
-  .cat-row-6{height:4vh;}
-  .cat-row-7{height:4vh;}
+  .cat-row-5{height:6vh;}
   .cat-row-decor{height:4vh;}
   .cat-box.filter-btn{font-size:2.6vh;}
   .cat-back{font-size:3.2vh;}
   .cat-title{font-size:6vh;}
-  .cat-search-input{font-size:2.6vh;}
+  .cat-search-input{font-size:5vh;}
 }
 .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cat-card-w),1fr));gap:10px;container-type:inline-size;}
 @media(max-width:600px){
