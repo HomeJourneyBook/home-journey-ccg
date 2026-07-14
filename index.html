@@ -638,40 +638,42 @@
        ни на одном слое. Каждый слой = свой full-width background
        (растягивается на 100% ширины хидера), сверху на нём флексом сидят
        боксы (кнопки/лейблы) со своим ratio и своим фоном (idle/hover/
-       active). На ≥600px (см. media-запрос в styles.css) высоты рядов и
-       шрифты внутри боксов удвоены — на мобиле всё как задизайнено,
-       трогать только десктопные значения. ─────────────────────────── -->
+       active). Каждая из 12 строк хедера сверху вниз помечена классом
+       .cat-line-N (N=1..12) и получает свой персональный фон cat_Nline.png
+       — см. блок .cat-line-* в styles.css. На ≥600px (см. media-запрос в
+       styles.css) высоты рядов и шрифты внутри боксов удвоены — на мобиле
+       всё как задизайнено, трогать только десктопные значения. ──────── -->
   <div class="cat-header" id="catalogHeader">
 
-    <!-- Декор — 2vh. Теперь не чисто декоративная: держит Back (2:1),
+    <!-- Строка 1 — декор. Теперь не чисто декоративная: держит Back (2:1),
          прибитый слева абсолютом, свой отдельный ассет cat_back_X.png
          (не по общей системе cat_N_1_X — у back теперь свой арт). -->
-    <div class="cat-row cat-row-decor cat-row-decor-top">
+    <div class="cat-row cat-row-decor cat-row-decor-top cat-line-1">
       <button class="cat-box cat-back" onclick="playSfx('yellow_buttom');hideScreen('catalog')">Back</button>
     </div>
 
-    <!-- Слой 1 — 4vh: заголовок (6:1, исключение из системы 2/3/4 — один
+    <!-- Строка 2 — 4vh: заголовок (6:1, исключение из системы 2/3/4 — один
          на всё приложение, не таб) по центру всей строки. -->
-    <div class="cat-row cat-row-1">
+    <div class="cat-row cat-row-1 cat-line-2">
       <div class="cat-box cat-title">Card Catalogue</div>
     </div>
 
-    <!-- Декор — 2vh. -->
-    <div class="cat-row cat-row-decor"></div>
+    <!-- Строка 3 — декор. -->
+    <div class="cat-row cat-row-decor cat-line-3"></div>
 
-    <!-- Слой 2 — 2vh: фракции. All 2:1, Tea/Jeet 3:1 (под иконку), Neutral 4:1. -->
-    <div class="cat-row cat-row-2" id="factionFilters">
+    <!-- Строка 4 — 2vh: фракции. All 2:1, Tea/Jeet 3:1 (под иконку), Neutral 4:1. -->
+    <div class="cat-row cat-row-2 cat-line-4" id="factionFilters">
       <button class="cat-box filter-btn cat-w2 active" data-faction="all" onclick="playSfx('yellow_buttom');setFilter('faction','all',this)">All</button>
       <button class="cat-box filter-btn cat-w3" data-faction="tea" onclick="playSfx('yellow_buttom');setFilter('faction','tea',this)">Tea</button>
       <button class="cat-box filter-btn cat-w3 jeet-f" data-faction="jeet" onclick="playSfx('yellow_buttom');setFilter('faction','jeet',this)">Jeet</button>
       <button class="cat-box filter-btn cat-w4" data-faction="neutral" onclick="playSfx('yellow_buttom');setFilter('faction','neutral',this)">Neutral</button>
     </div>
 
-    <!-- Декор — 2vh. -->
-    <div class="cat-row cat-row-decor"></div>
+    <!-- Строка 5 — декор. -->
+    <div class="cat-row cat-row-decor cat-line-5"></div>
 
-    <!-- Слой 3 — 2vh: типы. All/Creatures/Unique/Artifacts 4:1, Spells/Worlds 3:1. -->
-    <div class="cat-row cat-row-3" id="typeFilters">
+    <!-- Строка 6 — 2vh: типы. All/Creatures/Unique/Artifacts 4:1, Spells/Worlds 3:1. -->
+    <div class="cat-row cat-row-3 cat-line-6" id="typeFilters">
       <button class="cat-box filter-btn cat-w2 active" data-type="all" onclick="playSfx('yellow_buttom');setFilter('type','all',this)">All</button>
       <button class="cat-box filter-btn cat-w4" data-type="creature" onclick="playSfx('yellow_buttom');setFilter('type','creature',this)">Creatures</button>
       <button class="cat-box filter-btn cat-w3" data-type="unique" onclick="playSfx('yellow_buttom');setFilter('type','unique',this)">Unique</button>
@@ -680,13 +682,13 @@
       <button class="cat-box filter-btn cat-w4" data-type="artifact" onclick="playSfx('yellow_buttom');setFilter('type','artifact',this)">Artifacts</button>
     </div>
 
-    <!-- Декор — 2vh. -->
-    <div class="cat-row cat-row-decor"></div>
+    <!-- Строка 7 — декор. -->
+    <div class="cat-row cat-row-decor cat-line-7"></div>
 
-    <!-- Слой 4 — 2vh: Sort: (3:1) + 4 кнопки сортировки, A-Z/HP 2:1, Cost/ATK 3:1
+    <!-- Строка 8 — 2vh: Sort: (3:1) + 4 кнопки сортировки, A-Z/HP 2:1, Cost/ATK 3:1
          (обе подписи toggle-пары — A-Z/Z-A, Cost ↑/↓ и т.д. — одинаковой длины,
          так что фикс-ratio не потребует ресайза при переключении направления). -->
-    <div class="cat-row cat-row-4" id="sortFilters">
+    <div class="cat-row cat-row-4 cat-line-8" id="sortFilters">
       <div class="cat-box cat-w3 cat-sort-label">Sort:</div>
       <button class="cat-box filter-btn cat-w2 active" data-label1="A-Z" data-label2="Z-A" onclick="playSfx('yellow_buttom');setSort('name',this)">A-Z</button>
       <button class="cat-box filter-btn cat-w3" data-label1="Cost ↑" data-label2="Cost ↓" onclick="playSfx('yellow_buttom');setSort('cost',this)">Cost ↑</button>
@@ -694,27 +696,27 @@
       <button class="cat-box filter-btn cat-w3" data-label1="ATK ↓" data-label2="ATK ↑" onclick="playSfx('yellow_buttom');setSort('atk',this)">ATK ↓</button>
     </div>
 
-    <!-- Декор — 2vh. -->
-    <div class="cat-row cat-row-decor"></div>
+    <!-- Строка 9 — декор. -->
+    <div class="cat-row cat-row-decor cat-line-9"></div>
 
-    <!-- Слой 5 — 3vh моб / 6vh лаптоп: поиск, прибит слева. Двойной бокс:
+    <!-- Строка 10 — 3vh моб / 6vh лаптоп: поиск, прибит слева. Двойной бокс:
          наружный (7:1) держит запас слева и справа под будущий кастомный
          фон-рамку, внутри него — сам инпут с чёрной заливкой (8:1, свой
          фиксированный размер, не завязан на высоту этого ряда), куда
          реально вводится текст. -->
-    <div class="cat-row cat-row-5">
+    <div class="cat-row cat-row-5 cat-line-10">
       <div class="cat-box cat-w7 cat-search-wrap">
         <input class="cat-search-input" id="catalogSearch" placeholder="Search cards..." oninput="renderCatalog()">
       </div>
     </div>
 
-    <!-- Слой 6 — 2vh: счётчик карт (4:1), прибит справа. -->
-    <div class="cat-row cat-row-6">
+    <!-- Строка 11 — 2vh: счётчик карт (4:1), прибит справа. -->
+    <div class="cat-row cat-row-6 cat-line-11">
       <div class="cat-box cat-w4 cat-count" id="catalogCount"></div>
     </div>
 
-    <!-- Декор — 2vh. -->
-    <div class="cat-row cat-row-decor"></div>
+    <!-- Строка 12 — декор. -->
+    <div class="cat-row cat-row-decor cat-line-12"></div>
 
   </div>
   <div class="screen-body" style="max-width:900px;margin:0 auto;padding:8px;">
