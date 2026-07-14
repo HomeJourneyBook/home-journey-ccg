@@ -74,9 +74,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
     min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
 .landing-top{width:var(--lw); flex:1 1 auto; min-height:0; display:flex;flex-direction:column; overflow:hidden;}
-.landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; /* плейсхолдер — арт потолка ещё не готов, прозрачно */}
+.landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-image:url('../img/land_fonar.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 .landing-wall{flex:0 0 calc(var(--lw) * 192 / 256); width:100%; position:relative; /* плейсхолдер — арт стены ещё не готов, прозрачно */ display:flex;align-items:center;justify-content:center;}
-.landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; /* плейсхолдер — пустая стена, режется первой, прозрачно */}
+.landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; background-image:url('../img/land_wall.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 /*── Иллюминатор — диаметр = % высоты .landing-wall (1:1, центр секции) ─────*/
 .landing-porthole{position:relative;z-index:1; height:100%; aspect-ratio:1/1; width:auto; border-radius:50%; overflow:hidden; flex-shrink:0;}
 .porthole-space{position:absolute;inset:0;z-index:0; background-image:url('../img/logo_space.png'); background-size:100% auto; background-position:center; background-repeat:no-repeat;}
@@ -130,7 +130,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Десктоп-выносы (≥600px, тот же порог, что капает --lw) — по всей высоте
     .landing-bottom (240/256), 64/256 шириной каждый, чистый плейсхолдер. ──*/
 .landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 64 / 256); background-size:100% 100%; background-repeat:no-repeat;}
-.landing-bottom-ext-left{left:calc(var(--lw) * -64 / 256); background-image:url('../img/left_table.png');}
+.landing-bottom-ext-left{left:calc(var(--lw) * -64 / 256); background-image:url('../img/left_table.gif');}
 .landing-bottom-ext-right{right:calc(var(--lw) * -64 / 256); background-image:url('../img/right_table.png');}
 @media(min-width:600px){
   .landing-bottom-ext{display:block;}
