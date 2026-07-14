@@ -169,7 +169,17 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     --bottom-vh: calc((100vh - var(--tail-h)) * 0.5);
     --lw: min(calc(var(--bottom-vh) * 256 / 240), calc(var(--top-vh) * 256 / 288), 100vw);
   }
-  .landing-top{flex:0 0 var(--top-vh); height:var(--top-vh);}
+  /*── landing-top ФИКСИРОВАН на var(--top-vh) только для расчёта --lw
+      (см. формулу min() выше) — сам --lw уже определяет пиксельный
+      размер потолка/стены независимо от того, растёт ли landing-top
+      дальше var(--top-vh) или нет. Если у landing-bottom (auto-высота,
+      240/256 от --lw) на факте выходит МЕНЬШЕ, чем --bottom-vh ей
+      выделили, остаток пустует в самом низу .landing — раньше там
+      просто зависал мёртвый воздух. flex:1 1 (вместо 0 0) отдаёт этот
+      остаток landing-top, а внутри него — ТОЛЬКО буферу (потолок/стена
+      flex-shrink:0, не тронутся), сдвигая нижний блок вниз, как и
+      просили 2026-07-14. min-height подстраховывает нижнюю границу. ──*/
+  .landing-top{flex:1 1 var(--top-vh); min-height:var(--top-vh);}
   .landing-tail{flex:0 0 var(--tail-h); height:var(--tail-h); padding:0 12px; align-items:center;}
 }
 /*── ХВОСТ — вне сетки, чистый vh-отступ под игрой (copyright+версия). ─────*/
