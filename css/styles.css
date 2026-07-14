@@ -478,6 +478,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @container catTypeRow (max-width: 760px){
   #typeFilters{gap:0;}
   #typeFilters .filter-btn:not(:first-child){margin-left:-2.6vh;}
+  #typeFilters .filter-btn{position:relative; z-index:1;}
+  #typeFilters .filter-btn.active{z-index:2;}
 }
 @container catTypeRow (max-width: 600px){
   #typeFilters .filter-btn:not(:first-child){margin-left:-1.4vh;}
