@@ -297,14 +297,17 @@ function preloadAssets(){
     'img/trubi1_jeet.png',
 
     // ── Книга правил (обложка, страницы, кнопки навигации) ──
-    'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_pages1.png', 'img/rules_pages2.png', 'img/rules_pages3.png', 'img/rules_navigation_box.png', 'img/rules_title_bg.png',
+    'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_pages1.png', 'img/rules_pages2.png', 'img/rules_pages3.png', 'img/rules_navigation_box.png', 'img/rules_title_bg.png', 'img/rules_bg.png',
     'img/rules_btn_left1.png', 'img/rules_btn_leftH.png', 'img/rules_btn_left2.png', 'img/rules_btn_leftD.png',
     'img/rules_btn_right1.png', 'img/rules_btn_rightH.png', 'img/rules_btn_right2.png', 'img/rules_btn_rightD.png',
     'img/rules_btn_home1.png', 'img/rules_btn_homeH.png', 'img/rules_btn_home2.png',
     'img/rules_btn_oglav1.png', 'img/rules_btn_oglavH.png', 'img/rules_btn_oglav2.png',
-    // Фоны языковых кнопок на обложке книги правил (idle + объединённый hover/active) — 2026-07-16.
-    'img/rules_eng1.png', 'img/rules_engH2.png', 'img/rules_rus1.png', 'img/rules_rusH2.png',
-    'img/rules_por1.png', 'img/rules_porH2.png', 'img/rules_vn1.png', 'img/rules_vnH2.png',
+    // Фоны языковых кнопок на обложке книги правил (idle/hover/active — та же
+    // конвенция 1/H/2, что у всех кастомных кнопок проекта) — 2026-07-16.
+    'img/rules_eng1.png', 'img/rules_engH.png', 'img/rules_eng2.png',
+    'img/rules_rus1.png', 'img/rules_rusH.png', 'img/rules_rus2.png',
+    'img/rules_por1.png', 'img/rules_porH.png', 'img/rules_por2.png',
+    'img/rules_vn1.png', 'img/rules_vnH.png', 'img/rules_vn2.png',
     // Иконки "Режимов игры" в книге правил — заменили кнопочные ассеты на
     // выделенные ico_*, чётче читаются в мелком размере (2026-07-15).
     'img/ico_hotseat.png', 'img/ico_ai.png', 'img/ico_classic.png', 'img/ico_rush.png',
