@@ -92,7 +92,7 @@ function onClick(card,zone){
     cancelPendingSpell();return; // cancel — refunds cost, returns card to hand
   }
   if(G.phase==='spellBuffTarget'){
-    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.sleeping&&!card.exhausted&&!card.feared){
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared){
       doSpellBuffTarget(card);return;
     }
     cancelPendingSpell();return;
@@ -1029,8 +1029,8 @@ function doSpellDmgTarget(card){
 function doSpellBuffTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
-  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact||card.sleeping||card.exhausted||card.feared){
-    lg('Select an ally that can act this turn.','hint');return;
+  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact||card.feared){
+    lg('Select an ally.','hint');return;
   }
   const val=getTagVal(spell,'spell_buff_temp')||2;
   playSfx('baf');
