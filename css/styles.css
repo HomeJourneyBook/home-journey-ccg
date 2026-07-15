@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
 @font-face{
   font-family: 'MEK';
   src: url('../fonts/MEK.woff2') format('woff2');
@@ -297,232 +296,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @media(min-width:600px){
   .screen-lang-btn{font-size:1.1vw;padding:0.4vw 1vw;}
 }
-/*── КНИГА ПРАВИЛ (2026-07-15, третий заход после фидбека).
-    Вернулись на CSS border-image (проще, работает прямо на исходных
-    файлах — rules_cover.png и rules_pages.png — без ручной нарезки на
-    9 тайлов-файлов). Ключевые правки от автора в этом заходе:
-      - НЕ считаем border-width строго под "ровно N повторов тайла" —
-        border-image-repeat теперь "round" (не "repeat"): браузер САМ
-        подгоняет масштаб тайла так, чтобы уместилось целое число
-        повторов, без остатка/обрезки — работает при ЛЮБОЙ толщине рамки,
-        отдельная арифметика под конкретное число повторов не нужна.
-      - Толщина рамки — просто % от высоты книги (--rules-frame-b), не
-        привязана к числу тайлов. Взял ~6% — при типичной высоте книги
-        700-750px (82vh на большинстве ноутбучных экранов) это ≈42-45px,
-        то есть отображается близко к РОДНОМУ разрешению тайла (42px в
-        самих rules_cover.png/rules_pages.png), без сильного апскейла и
-        замыливания пикселей.
-      - .rules-cover (обложка) — border-image прямо на самом элементе,
-        rules_cover.png.
-      - .rules-page-frame (страница) — border-image на ОТДЕЛЬНОМ
-        div-слое, а не на .rules-page целиком, СПЕЦИАЛЬНО чтобы можно
-        было зеркалить только рамку у левой страницы разворота
-        (.mirror{transform:scaleX(-1)}) не трогая текст — тот лежит
-        соседним .rules-page-content, а не внутри рамки.
-    ФОН ЭКРАНА — стол с лендинга (#829797). #rulesScreen ещё и
-    display:flex + centering — раньше книга просто лежала сверху с
-    небольшим отступом, снизу пустело; теперь по центру и по высоте, и
-    по ширине. ──────────────────────────────────────────────────────*/
-#rulesScreen{
-  background:#829797;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-
-.rules-book{
-  --rules-book-ratio: 0.948; /* width / height, снято с референса 891×940 */
-  --rules-book-h: calc(92vw / 0.948);
-  --rules-page-w: calc(var(--rules-book-h) * var(--rules-book-ratio));
-  --rules-page-gap: calc(var(--rules-book-h) * 0.02);
-  --rules-frame-b: calc(var(--rules-book-h) * 0.06);
-  width: var(--rules-page-w);
-  height: var(--rules-book-h);
-  position: relative;
-  box-sizing: border-box;
-  font-family: 'MEK', monospace;
-  flex-shrink: 0;
-}
-.rules-book.spread{ width: calc(var(--rules-page-w) * 2 + var(--rules-page-gap)); }
-@media(min-width:900px){
-  /* 82vh снято с референса, НО в развороте (2 страницы + зазор + кнопки
-     кромки, вылезающие на 0.5 своей ширины за край) суммарная
-     "физическая" ширина книги ≈ 1.95×--rules-book-h. На узких
-     ноутбучных экранах чистый 82vh даёт книгу шире вьюпорта — кромка с
-     кнопками улетает за край. min(82vh, 46vw) — тот же 82vh на
-     широких/квадратных экранах, но на узких по ширине окнах книга сама
-     ужимается по высоте, чтобы разворот+кромка гарантированно влезали
-     по горизонтали (см. предыдущий заход/чат). */
-  .rules-book{ --rules-book-h: min(82vh, 46vw); }
-}
-
-/*── ЗАКЛАДКИ-ЯЗЫКИ — "флажки", торчащие поверх верхней кромки книги.
-    Плейсхолдер-цвета взяты прямо с референса (Eng кремовый/Por зелёный/
-    Rus розовый/Vn оливковый) — просто чтобы визуально считывались как
-    разные закладки до кастомного арта на каждую. Форма — CSS clip-path
-    (флажок с треугольным вырезом снизу), заменится на PNG когда будет
-    готов арт — тогда clip-path/фон просто убираются. ─────────────────*/
-.rules-lang-btns{
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, -60%);
-  display: flex;
-  gap: calc(var(--rules-book-h) * 0.012);
-  z-index: 5;
-}
-.rules-lang-btn{
-  font-family: 'MEK', monospace;
-  font-size: calc(var(--rules-book-h) * 0.032);
-  padding: calc(var(--rules-book-h) * 0.022) calc(var(--rules-book-h) * 0.03) calc(var(--rules-book-h) * 0.05);
-  border: 2px solid #1a0a0d;
-  background: #e8c79a;
-  color: #2a1015;
-  cursor: pointer;
-  clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
-}
-.rules-lang-btn:hover{ filter: brightness(1.12); }
-.rules-lang-btn.active{ outline: 2px solid #E8E0C8; outline-offset: -4px; }
-.rules-lang-btn[data-lang="POR"]{ background:#3f9c72; color:#0d2216; }
-.rules-lang-btn[data-lang="RUS"]{ background:#e39ac9; color:#3a0d24; }
-.rules-lang-btn[data-lang="VN"]{ background:#9aa23f; color:#20240c; font-family:'Pixelify Sans', system-ui, sans-serif; }
-
-/*── ОБЛОЖКА — border-image прямо на .rules-cover (img/rules_cover.png,
-    резка угла 42, толщина рамки --rules-frame-b — см. общий комментарий
-    выше). Заголовок — бокс с плейсхолдер-кремовым фоном (позже сюда
-    сядет кастомный арт бокса, п.3 ТЗ автора), размер/шрифт — доля от
-    --rules-book-h. ─────────────────────────────────────────────────*/
-.rules-cover{
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-style: solid;
-  border-width: var(--rules-frame-b);
-  border-image-source: url('../img/rules_cover.png');
-  border-image-slice: 42 fill;
-  border-image-width: 100%;
-  border-image-outset: 0;
-  border-image-repeat: stretch round;
-  image-rendering: pixelated;
-}
-.rules-cover-title{
-  position: relative;
-  z-index: 1;
-  width: 80%;
-  height: 28%;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: #E8E0C8;
-  color: #2a1015;
-  font-size: calc(var(--rules-book-h) * 0.09);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  border-bottom: calc(var(--rules-book-h) * 0.014) solid #1a0a0d;
-}
-.rules-cover-title.rus-title{ font-family:'Press Start 2P',monospace; font-size: calc(var(--rules-book-h) * 0.06); }
-.rules-cover-title.vn-title{ font-family:'Pixelify Sans', system-ui, sans-serif; font-size: calc(var(--rules-book-h) * 0.08); }
-
-/*── ЗАСТЁЖКА — вертикальный стек Back/Home/Next, наполовину висит за
-    правым краем книги/разворота (см. референс + фикс позиционирования
-    выше в комментарии про --rules-page-w/.spread). Плейсхолдер-панель
-    тем же серым тоном, что и нижние бары в самой игре (#3d494f),
-    кастомный арт застёжки — отдельным заходом. Back всегда виден и
-    просто гасится/дизейблится на обложке (см. rulesRenderEdgeButtons
-    в rules.js) — не display:none. ─────────────────────────────────────*/
-.rules-edge-btns{
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translate(50%, -50%);
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--rules-book-h) * 0.01);
-  padding: calc(var(--rules-book-h) * 0.012);
-  background: #3d494f;
-  border: 2px solid #1a0a0d;
-  z-index: 5;
-}
-.rules-edge-btn{
-  width: calc(var(--rules-book-h) * 0.075);
-  height: calc(var(--rules-book-h) * 0.075);
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'MEK', monospace;
-  font-size: calc(var(--rules-book-h) * 0.032);
-  cursor: pointer;
-  background: #5b6a72;
-  color: #E8E0C8;
-  border: 1px solid #1a0a0d;
-}
-.rules-edge-btn:hover{ filter: brightness(1.2); }
-.rules-edge-btn:disabled{ opacity: 0.4; cursor: default; filter: none; }
-
-/*── ЧТЕНИЕ (страницы) — теперь тоже несёт 9-слайс (см. .ns-page выше),
-    каждая .rules-page = обёртка (позиция/поворот/зазор) вокруг ДВУХ
-    слоёв-сиблингов: .nine-slice (рамка/фон) и .rules-page-content
-    (текст, отдельный слой поверх — z-index:1 — именно поэтому зеркало
-    левой страницы не переворачивает текст, см. .ns-page-mirror). ─────*/
-.rules-toc{display:flex; flex-direction:column; gap:4px;}
-.rules-toc-entry{cursor:pointer; color:#9B937F; padding:4px 8px; border:1px dashed #55555555;}
-.rules-toc-entry:hover{color:#c8a84b; border-color:#c8a84b;}
-.rules-pages{display:flex; flex-direction:row; width:100%; height:100%; justify-content:center;}
-.rules-spread{display:none; flex-direction:row; gap:var(--rules-page-gap); width:100%; height:100%;}
-.rules-page{width:var(--rules-page-w); height:100%; flex:0 0 auto; box-sizing:border-box; position:relative; transform:rotate(var(--r, 0deg));}
-/*── РАМКА СТРАНИЦЫ — border-image на ОТДЕЛЬНОМ слое (не на .rules-page
-    целиком и не на .rules-page-content), именно чтобы левую страницу
-    разворота можно было отзеркалить (.mirror{scaleX(-1)}) БЕЗ переворота
-    текста — тот лежит соседним .rules-page-content, зеркало его не
-    касается. img/rules_pages.png — считаю уже лежащим в img/ (по
-    договорённости, даже если не вижу его в архиве в этой сессии). Резка
-    угла 42, та же --rules-frame-b, что и у обложки. */
-.rules-page-frame{
-  position: absolute;
-  inset: 0;
-  box-sizing: border-box;
-  pointer-events: none;
-  border-style: solid;
-  border-width: var(--rules-frame-b);
-  border-image-source: url('../img/rules_pages.png');
-  border-image-slice: 42 fill;
-  border-image-width: 100%;
-  border-image-outset: 0;
-  border-image-repeat: stretch round;
-  image-rendering: pixelated;
-}
-.rules-page-frame.mirror{ transform: scaleX(-1); }
-.rules-page-content{position:relative; z-index:1; width:100%; height:100%; box-sizing:border-box; padding:var(--rules-frame-b); overflow:hidden;}
-.rules-page-text{font-size:13px; line-height:1.5; color:#c9c2ae;}
-.rules-page-text h2{font-size:17px; color:#E8E0C8; margin:0 0 6px;}
-.rules-page-text h3{font-size:14px; color:#c8a84b; margin:10px 0 4px;}
-.rules-page-text p{margin:0 0 8px; overflow-wrap:break-word; word-break:break-word;}
-.rules-page-text hr{border-color:#ffffff22; margin:12px 0;}
-/*── Языковые шрифты для УЖЕ ОТРЕНДЕРЕННОГО контента страницы — через
-    data-rules-lang на .rules-page-content (см. rulesRenderPages в
-    rules.js), а НЕ через #rulesRUS/#rulesVN — те id остаются только на
-    скрытом источнике и после paginateRulesLang() (n.outerHTML) не
-    попадают в разметку страницы, так что селектор по id молча переставал
-    бы работать на реальной странице. Заодно чинит тот же скрытый баг
-    для RUS, который был и до этого захода. ───────────────────────────*/
-.rules-page-content[data-rules-lang="RUS"]{font-family:'Press Start 2P',monospace;}
-.rules-page-content[data-rules-lang="RUS"] h2{font-family:'Press Start 2P',monospace;}
-.rules-page-content[data-rules-lang="RUS"] h3{font-family:'Press Start 2P',monospace;}
-.rules-page-content[data-rules-lang="VN"]{font-family:'Pixelify Sans', system-ui, sans-serif;}
-.rules-page-content[data-rules-lang="VN"] h2{font-family:'Pixelify Sans', system-ui, sans-serif;}
-.rules-page-content[data-rules-lang="VN"] h3{font-family:'Pixelify Sans', system-ui, sans-serif;}
-.rules-quote-placeholder{height:100%; display:flex; align-items:center; justify-content:center; text-align:center; color:#555; font-style:italic;}
-.rules-page-probe{overflow:visible !important; height:auto !important; border:none !important; padding:0 !important;}
-
 .screen-body{max-width:700px;margin:0 auto;font-size:4.56vw;line-height:1.9;color:#9B937F;}
 .screen-body h2{font-family:'MEK',monospace;font-size:6vw;color:#c8a84b;margin:5vw 0 2vw;}
 .screen-body h3{font-family:'MEK',monospace;font-size:4.56vw;color:#e8e0c8;margin:4vw 0 1.5vw;letter-spacing:1px;}
@@ -542,19 +315,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   #loreScreen .screen-body h2{font-size:calc(1.8vw * 1.2);}
 }
 /* ═══════════════════════════════════════════════════════════════════════
-   RULES SCREEN — стили ЧТЕНИЯ (сам контент страниц/иконки/языковые
-   размеры шрифта источника). Стили ОБЛОЖКИ (.rules-book/.rules-cover/
-   .rules-lang-btns/.rules-edge-btns) — см. блок выше, рядом с .rules-book.
+   RULES SCREEN
    ═══════════════════════════════════════════════════════════════════════ */
-/* ПРИМЕЧАНИЕ: #rulesRUS/#rulesVN тут стилизуют СКРЫТЫЙ источник
-   (#rulesSource{display:none}) — в замер (rules-page-probe) и в
-   реальную страницу (.rules-page-content) попадают ГОЛЫЕ h2/h3/p без
-   id-обёртки, так что эти правила на сам процесс замера/рендера не
-   влияют (это уже было так с RUS до этого захода). Актуальный шрифт на
-   РЕАЛЬНОЙ странице — через .rules-page-content[data-rules-lang] выше.
-   Оставлено для консистентности/на случай прямого показа источника. */
+.rules-lang-btns{display:flex;gap:2px;position:absolute;right:0;}
+.rules-lang-btn{font-family:'MEK',monospace;font-size:2.8vw;padding:1vw 1.5vw;border:1px solid #444;background:transparent;color:#555;cursor:pointer;}
+.rules-lang-btn:hover{color:#c8a84b;border-color:#c8a84b55;}
+.rules-lang-btn.active{border-color:#c8a84b;color:#c8a84b;background:#c8a84b11;}
+@media(min-width:600px){
+  .rules-lang-btn{font-size:0.9vw;padding:0.4vw 0.8vw;}
+}
 #rulesRUS,#rulesRUS h2,#rulesRUS h3{font-family:'Press Start 2P',monospace;}
-#rulesVN,#rulesVN h2,#rulesVN h3{font-family:'Pixelify Sans', system-ui, sans-serif;}
 #rulesRUS{font-size:calc(3.8vw * 0.65);}
 #rulesRUS h2{font-size:calc(5vw * 0.65);}
 #rulesRUS h3{font-size:calc(3.8vw * 0.65);}
