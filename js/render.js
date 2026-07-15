@@ -129,7 +129,8 @@ function render(){
   if(targetPromptOverlay){
     const showTargetPrompt=(
       G.phase==='spellDmgTarget'||G.phase==='spellBuffTarget'||
-      G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'
+      G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'||
+      G.phase==='spellBounceTarget'||G.phase==='healTarget'
     );
     targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
   }
@@ -376,7 +377,7 @@ function mkSmallEl(card){
   if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
-  if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.sleeping&&!card.exhausted&&!card.feared) d.classList.add('healable','aim-heal');
+  if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared) d.classList.add('healable','aim-heal');
   if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable','aim-heal');
   if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared||card.provokeBroken))d.classList.add('healable','aim-heal');
   if(G.phase==='healTarget'&&card.f!==G.turn){
