@@ -14,6 +14,12 @@
 const RULES_LANGS = ['ENG', 'RUS', 'POR', 'VN'];
 const RULES_TOC_TITLE = { ENG: 'Contents', RUS: 'Оглавление', POR: 'Índice', VN: 'Mục Lục' };
 const RULES_QUOTE_PLACEHOLDER = { ENG: '— quote —', RUS: '— цитата —', POR: '— citação —', VN: '— trích dẫn —' };
+// Языки с нестандартным (не 'MEK') шрифтом — RUS: пиксельный шрифт не поддерживает
+// кириллицу нормально → Press Start 2P. VN: у вьетнамского почти нет пиксельных
+// шрифтов с полной поддержкой диакритики → обычный Be Vietnam Pro, чтобы буквы
+// не "разъезжались" наполовину пиксельные/наполовину нет (см. чат 2026-07-15).
+const RULES_LANG_CLASS = { RUS: 'rus-lang', VN: 'vn-lang' };
+const RULES_LANG_TITLE_CLASS = { RUS: 'rus-title', VN: 'vn-title' };
 
 const RB = { lang: 'ENG', open: false, index: 0, pages: [], builtKey: null, _resizeT: null };
 
@@ -45,7 +51,9 @@ function rulesUpdateCoverTitle() {
   const el = document.getElementById('rulesCoverTitle');
   if (!src || !el) return;
   el.textContent = src.dataset.title || 'RULES';
-  el.classList.toggle('rus-title', RB.lang === 'RUS');
+  el.classList.remove('rus-title', 'vn-title');
+  const cls = RULES_LANG_TITLE_CLASS[RB.lang];
+  if (cls) el.classList.add(cls);
 }
 
 function rulesUpdateCoverLangBtns() {
@@ -132,8 +140,7 @@ function rulesParseChapters(lang) {
 function rulesPaginate(lang) {
   const chapters = rulesParseChapters(lang);
   const measure = document.getElementById('rulesMeasureInner');
-  const isRus = lang === 'RUS';
-  measure.className = 'rules-page-inner' + (isRus ? ' rus-lang' : '');
+  measure.className = 'rules-page-inner' + (RULES_LANG_CLASS[lang] ? ' ' + RULES_LANG_CLASS[lang] : '');
 
   function fits() {
     return measure.scrollHeight <= measure.clientHeight + 1;
@@ -262,9 +269,9 @@ function rulesRender() {
   const leftInner = document.getElementById('rulesPageLeftInner');
   const rightInner = document.getElementById('rulesPageRightInner');
   if (!leftInner || !rightInner) return;
-  const isRus = RB.lang === 'RUS';
+  const langCls = RULES_LANG_CLASS[RB.lang];
   [leftInner, rightInner].forEach(el => {
-    el.className = 'rules-page-inner' + (isRus ? ' rus-lang' : '');
+    el.className = 'rules-page-inner' + (langCls ? ' ' + langCls : '');
     el.innerHTML = '';
   });
   const step = rulesStep();
