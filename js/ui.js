@@ -297,7 +297,7 @@ function preloadAssets(){
     'img/trubi1_jeet.png',
 
     // ── Книга правил (обложка, страницы, кнопки навигации) ──
-    'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_navigation_box.png',
+    'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_navigation_box.png', 'img/rules_title_bg.png',
     'img/rules_btn_left1.png', 'img/rules_btn_leftH.png', 'img/rules_btn_left2.png',
     'img/rules_btn_right1.png', 'img/rules_btn_rightH.png', 'img/rules_btn_right2.png',
     'img/rules_btn_home1.png', 'img/rules_btn_homeH.png', 'img/rules_btn_home2.png',
@@ -1748,10 +1748,11 @@ document.addEventListener('mousemove', (e) => {
 // mouseover + relatedTarget-проверка: срабатывает один раз при входе на кнопку,
 // а не на каждый пиксель движения мыши внутри неё. Один делегированный обработчик
 // на document покрывает вообще все <button> (лендинг, бургер, модалки, каталог,
-// попапы карт и т.д.), плюс .play-gate-sprite — это div, а не button.
+// попапы карт и т.д.), плюс .play-gate-sprite — это div, а не button, и
+// .rules-toc-entry — пункты оглавления в книге правил (тоже div).
 document.addEventListener('DOMContentLoaded', ()=>{
   document.addEventListener('mouseover', (e)=>{
-    const btn = e.target.closest('button, .play-gate-sprite');
+    const btn = e.target.closest('button, .play-gate-sprite, .rules-toc-entry');
     if(!btn) return;
     if(btn.contains(e.relatedTarget)) return;
     playSfx('card_navigation_cursor');
