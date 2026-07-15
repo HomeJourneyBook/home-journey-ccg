@@ -285,7 +285,7 @@ function preloadAssets(){
     'img/sort_artifact1.png', 'img/sort_artifact2.png', 'img/sort_artifactH.png',
     'img/db_decorR.png',
 
-    // ── Бортики зоны рук + лор-страницы + новая иконка тега (эта сессия) ──
+    // ── Бортики зоны рук + новая иконка тега (эта сессия) ──
     'img/hands_border.png', 'img/hands_border2.png',
     'img/hands_border_jeet.png', 'img/hands_border2_jeet.png',
     'img/lore_pages.png',
@@ -295,6 +295,13 @@ function preloadAssets(){
     'img/ico_incarn.png',
     'img/trubi1.png',
     'img/trubi1_jeet.png',
+
+    // ── Книга правил (обложка, страницы, кнопки навигации) ──
+    'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_navigation_box.png',
+    'img/rules_btn_left1.png', 'img/rules_btn_leftH.png', 'img/rules_btn_left2.png',
+    'img/rules_btn_right1.png', 'img/rules_btn_rightH.png', 'img/rules_btn_right2.png',
+    'img/rules_btn_home1.png', 'img/rules_btn_homeH.png', 'img/rules_btn_home2.png',
+    'img/rules_btn_oglav1.png', 'img/rules_btn_oglavH.png', 'img/rules_btn_oglav2.png',
 
     // ── Декоративные плейсхолдеры статус-бара и боттом-бара — разведены tea/jeet в этой сессии ──
     'img/statbar_edge_right2_jeet.png', 'img/statbar_edge_left_jeet.png',
