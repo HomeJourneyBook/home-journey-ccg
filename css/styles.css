@@ -354,10 +354,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 }
 .rules-book.open .rules-cover{display:none;}
 .rules-cover-title{
-  font-family:'MEK',monospace; color:#E8E0C8; text-align:center; line-height:1;
-  font-size:calc(var(--rpage-h) * 0.14); padding:0 8%; word-break:break-word;
+  font-family:'MEK',monospace; color:#0c1013; text-align:center; line-height:1;
+  font-size:calc(var(--rpage-h) * 0.14); padding:0; word-break:break-word;
+  display:inline-block; box-sizing:content-box;
+  border-style:solid; border-width:calc(1em / 3);
+  border-image-source:url('../img/rules_title_bg.png'); border-image-slice:10 fill;
+  border-image-width:calc(1em / 3); border-image-outset:0; border-image-repeat:stretch;
 }
-.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.0637);}
+.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.050968);}
 .rules-cover-title.vn-title{font-family:'Be Vietnam Pro',sans-serif;font-weight:700;}
 /*── Языковые кнопки — по верхней кромке обложки, квадратные, наполовину
     сидят поверх 9-slice рамки (translateY(-50%) от верхнего края). ────*/
@@ -393,15 +397,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 }
 .rules-page-inner{
   width:100%; height:100%; box-sizing:border-box; overflow:hidden;
-  padding:3% 5%; font-family:'MEK',monospace; color:#3b2a1a;
+  padding:3% 5%; font-family:'MEK',monospace; color:#5d2f35;
   font-size:calc(var(--rpage-h) * 0.028); line-height:1.35;
 }
 .rules-page-inner.rus-lang, .rules-page-inner.rus-lang h2, .rules-page-inner.rus-lang h3{font-family:'Press Start 2P',monospace;}
-.rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.02);}
+.rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.018);}
 .rules-page-inner.vn-lang, .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-family:'Be Vietnam Pro',sans-serif;}
 .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-weight:700;}
-.rules-page-inner h2{font-size:1.7em;color:#5c2415;margin:0 0 0.5em;line-height:1.15;}
-.rules-page-inner h3{font-size:1.2em;color:#4a2f1a;margin:0.9em 0 0.3em;letter-spacing:0.5px;}
+.rules-page-inner h2{font-size:1.7em;color:#322030;margin:0 0 0.5em;line-height:1.15;}
+.rules-page-inner h3{font-size:1.2em;color:#492833;margin:0.9em 0 0.3em;letter-spacing:0.5px;}
 .rules-page-inner p{margin:0 0 0.65em;}
 /* Измерительный клон — идентичная структура/шрифты, но невидим и вне потока */
 .rules-page-measure{position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none;}
@@ -415,10 +419,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-toc-list{list-style:none;margin:0;padding:0;}
 .rules-toc-entry{
   display:flex;justify-content:space-between;align-items:baseline;gap:0.5em;
-  padding:0.45em 0;border-bottom:1px dotted #3b2a1a55;cursor:pointer;
+  padding:0.45em 0;border-bottom:1px dotted #5d2f35;cursor:pointer;
+  color:#5d2f35;transition:color .15s,border-color .15s;
 }
-.rules-toc-entry:hover{color:#5c2415;}
-.rules-toc-entry .rules-toc-num{opacity:0.5;font-size:0.85em;flex-shrink:0;}
+.rules-toc-entry:hover{color:#E8E0C8;border-bottom-color:#E8E0C8;}
+.rules-toc-entry .rules-toc-num{font-size:0.85em;flex-shrink:0;}
 
 /*── Навигационный бокс — по правому краю книги, наполовину выходит за
     пределы (translate(50%,-50%) от правого-центра книги). Размер бокса
