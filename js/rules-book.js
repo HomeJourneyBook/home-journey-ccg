@@ -148,6 +148,7 @@ function rulesPaginate(lang) {
 
   const chapterPages = [];       // массив страниц (массив массивов клонов)
   const chapterStartIdx = {};    // title -> индекс в chapterPages, где начинается глава
+  const termPageMap = {};        // data-gl ключ -> АБСОЛЮТНЫЙ индекс в итоговом pages[]
 
   chapters.forEach(chapter => {
     let currentNodes = [];
@@ -162,9 +163,22 @@ function rulesPaginate(lang) {
     function markRecorded() {
       if (!recorded) { chapterStartIdx[chapter.title] = chapterPages.length; recorded = true; }
     }
+    // Любой h2/h3/rich-<p> с data-gl (см. rulesGotoTerm) регистрируется тут,
+    // независимо от того, стал ли он поводом для markRecorded() выше —
+    // это ДРУГАЯ карта (термин→страница, не глава→страница).
+    function markGlTarget(node) {
+      const key = node.getAttribute && node.getAttribute('data-gl');
+      if (key && !(key in termPageMap)) termPageMap[key] = 2 + chapterPages.length;
+    }
 
     chapter.nodes.forEach(node => {
-      if (node.tagName === 'P') {
+      // Параграфы С инлайн-контентом (иконки <img>, ссылки <a data-gl> —
+      // см. чат 2026-07-15) НЕЛЬЗЯ резать по словам: word-split ниже
+      // работает через node.textContent и пересобирает <p> заново из
+      // ЧИСТОГО ТЕКСТА — любая вложенная разметка была бы потеряна.
+      // Такие параграфы едут атомарно, как h2/h3, тем же кодом в else.
+      const isRichP = node.tagName === 'P' && node.querySelector('img, a');
+      if (node.tagName === 'P' && !isRichP) {
         // ── Параграфы режем по словам: на текущую страницу уходит ровно
         // столько слов, сколько влезает, остаток продолжается НОВЫМ <p>
         // на следующей странице — а не весь параграф целиком. ──────────
@@ -201,8 +215,9 @@ function rulesPaginate(lang) {
           if (words.length) finalizePage(); // страница заполнена — остаток идёт дальше
         }
       } else {
-        // h2/h3 — атомарные, не режутся; целиком переезжают на новую
-        // страницу, если не влезают на текущую с уже имеющимся контентом.
+        // h2/h3/rich-<p> — атомарные, не режутся; целиком переезжают на
+        // новую страницу, если не влезают на текущую с уже имеющимся
+        // контентом.
         const clone = node.cloneNode(true);
         measure.appendChild(clone);
         if (!fits() && currentNodes.length > 0) {
@@ -211,6 +226,7 @@ function rulesPaginate(lang) {
         }
         currentNodes.push(clone);
         markRecorded();
+        markGlTarget(node);
       }
     });
     if (currentNodes.length) chapterPages.push(currentNodes);
@@ -253,15 +269,27 @@ function rulesPaginate(lang) {
 
   const pages = [[quoteWrap], [tocWrap]];
   chapterPages.forEach(nodes => pages.push(nodes));
-  return pages;
+  return { pages, termPageMap };
 }
 
 function rulesEnsureBuilt(force) {
   const key = RB.lang + '|' + window.innerWidth + '|' + window.innerHeight;
   if (!force && RB.builtKey === key) return;
-  RB.pages = rulesPaginate(RB.lang);
+  const result = rulesPaginate(RB.lang);
+  RB.pages = result.pages;
+  RB.termPageMap = result.termPageMap;
   RB.builtKey = key;
   if (RB.index >= RB.pages.length) RB.index = 0;
+}
+
+// Переход по внутритекстовой ссылке (например "[Эссенции]" внутри абзаца) —
+// key соответствует data-gl="..." на целевом h2/h3 в источнике. Целевая
+// страница уже посчитана при пагинации (см. markGlTarget в rulesPaginate).
+function rulesGotoTerm(key) {
+  if (!RB.open || !RB.termPageMap) return;
+  const pageIndex = RB.termPageMap[key];
+  if (pageIndex === undefined) { console.warn('rulesGotoTerm: unknown key', key); return; }
+  rulesGoto(pageIndex);
 }
 
 // ── Рендер текущего разворота ──────────────────────────────────────
