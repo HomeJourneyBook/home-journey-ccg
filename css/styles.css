@@ -393,7 +393,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   font-size:calc(var(--rpage-h) * 0.14); padding:0; word-break:break-word;
   display:inline-block; box-sizing:content-box;
   border-style:solid; border-width:calc(1em / 3);
-  border-image-source:url('../img/rules_title_bg.png'); border-image-slice:10 fill;
+  border-image-source:url('../img/rules_title_bg.png'); border-image-slice:20 fill;
   border-image-width:calc(1em / 3); border-image-outset:0; border-image-repeat:stretch;
 }
 .rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.050968);}
@@ -496,7 +496,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   display:flex; flex-direction:column; gap:calc(var(--rnavbtn) * 0.25);
   padding:0; box-sizing:content-box;
   border-style:solid; border-width:var(--rnavbox-border);
-  border-image-source:url('../img/rules_navigation_box.png'); border-image-slice:8 fill;
+  border-image-source:url('../img/rules_navigation_box.png'); border-image-slice:20 fill;
   border-image-width:var(--rnavbox-border); border-image-outset:0; border-image-repeat:stretch;
 }
 .rules-navbtn{
