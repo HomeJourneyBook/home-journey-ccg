@@ -1516,7 +1516,24 @@ lg('TEA goes first. Good luck!','imp');
 
 window.addEventListener('resize', adjustHandOverlap);
 
-// ── Rules language toggle — moved to js/rules.js (paginated book engine) ──
+// ── Rules language toggle ────────────────────────────────────────
+const RULES_TITLES = { ENG:'RULES', RUS:'Правила', POR:'REGRAS', VN:'Luật Chơi' };
+function setRulesLang(lang) {
+  ['ENG','RUS','POR','VN'].forEach(l => {
+    const body = document.getElementById('rules' + l);
+    if (body) body.style.display = l === lang ? '' : 'none';
+  });
+  document.querySelectorAll('.rules-lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === lang);
+  });
+  const title = document.getElementById('rulesTitleLabel');
+  if (title) {
+    title.textContent = RULES_TITLES[lang] || 'Rules';
+    title.classList.toggle('rus-title', lang === 'RUS');
+  }
+  const screen = document.getElementById('rulesScreen');
+  if (screen) screen.scrollTop = 0;
+}
 
 // Generic pass-device screen — shows "Hand the device to <faction>" and, once
 // the Ready button is clicked, calls onReady() (or just closes if null/omitted).
