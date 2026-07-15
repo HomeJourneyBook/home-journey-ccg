@@ -155,7 +155,7 @@
          уже так и работал), автор перерисует под точный размер позже. -->
     <div class="landing-row-audio">
       <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules',this)"></button>
+      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules',this);rulesOnScreenOpened()"></button>
       <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
     </div>
 
@@ -195,21 +195,46 @@
 <audio id="bgMusic" src="audio/main_theme.mp3" loop preload="auto"></audio>
 <!-- SFX проигрываются через new Audio() из ui.js, отдельный тег не нужен -->
 
-<!-- RULES SCREEN -->
+<!-- RULES SCREEN — постраничная книга правил (обложка + разворот) ────────
+     Реальный текст правил лежит НИЖЕ в скрытых .rules-source блоках
+     (rulesENG/RUS/POR/VN, как и раньше) — они больше не показываются
+     напрямую, а служат источником данных для js/rules-book.js, который
+     разбивает их на "физические" страницы (по высоте контейнера страницы)
+     и рендерит текущий разворот в #rulesPageLeft/#rulesPageRight. ───────*/
 <div class="screen" id="rulesScreen">
-  <div class="screen-header">
-    <button class="screen-back" onclick="playSfx('yellow_buttom');hideScreen('rules')">← Back</button>
-    <div class="screen-title" id="rulesTitleLabel">RULES</div>
-    <div class="rules-lang-btns">
-      <button class="rules-lang-btn active" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('RUS')">RUS</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
-      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
+  <div class="rules-book-wrap">
+    <div class="rules-book" id="rulesBook">
+      <!-- ОБЛОЖКА -->
+      <div class="rules-cover" id="rulesCover">
+        <div class="rules-cover-langs">
+          <button class="rules-cover-lang" data-lang="ENG" onclick="playSfx('yellow_buttom');rulesSetLang('ENG')">ENG</button>
+          <button class="rules-cover-lang" data-lang="RUS" onclick="playSfx('yellow_buttom');rulesSetLang('RUS')">RUS</button>
+          <button class="rules-cover-lang" data-lang="POR" onclick="playSfx('yellow_buttom');rulesSetLang('POR')">POR</button>
+          <button class="rules-cover-lang" data-lang="VN" onclick="playSfx('yellow_buttom');rulesSetLang('VN')">VN</button>
+        </div>
+        <div class="rules-cover-title" id="rulesCoverTitle">RULES</div>
+      </div>
+      <!-- РАЗВОРОТ СТРАНИЦ -->
+      <div class="rules-pages" id="rulesPages">
+        <div class="rules-page rules-page-left" id="rulesPageLeft"><div class="rules-page-inner" id="rulesPageLeftInner"></div></div>
+        <div class="rules-page rules-page-right" id="rulesPageRight"><div class="rules-page-inner" id="rulesPageRightInner"></div></div>
+      </div>
+    </div>
+    <!-- БОКС НАВИГАЦИИ (плейсхолдер, серый — арт добавится позже) -->
+    <div class="rules-navbox" id="rulesNavbox">
+      <button class="rules-navbtn rules-navbtn-back" id="rulesBtnBack" disabled onclick="playSfx('yellow_buttom');rulesGoBack()" title="Back"></button>
+      <button class="rules-navbtn rules-navbtn-home" id="rulesBtnHome" onclick="playSfx('yellow_buttom');rulesGoHome()" title="Home"></button>
+      <button class="rules-navbtn rules-navbtn-fwd" id="rulesBtnFwd" onclick="playSfx('yellow_buttom');rulesGoForward()" title="Next"></button>
     </div>
   </div>
 
+  <!-- Измерительный клон страницы — используется js/rules-book.js для
+       постраничной разбивки текста (см. rulesPaginate). Никогда не виден. -->
+  <div class="rules-page rules-page-measure" id="rulesMeasure" aria-hidden="true"><div class="rules-page-inner" id="rulesMeasureInner"></div></div>
+
+  <!-- ═══ ИСТОЧНИКИ ТЕКСТА (скрыты, только для чтения из JS) ═══ -->
   <!-- ENGLISH -->
-  <div class="screen-body rules-lang-body" id="rulesENG">
+  <div class="rules-source" id="rulesENG" data-title="RULES">
     <h2>The Game</h2>
     <p>Two factions: the Tavern and Jeet. Each faction has its own followers, Artifacts, Worlds, and Spells to claim victory in the Great Confrontation. Currently the first game mode is available — Hot Seat — along with a starter set of 91 cards. In the future: AI opponent, Online play, and new card expansions.</p>
     <h2>Hot Seat Mode</h2>
@@ -264,7 +289,7 @@
   </div>
 
   <!-- RUSSIAN -->
-  <div class="screen-body rules-lang-body" id="rulesRUS" style="display:none;">
+  <div class="rules-source" id="rulesRUS" data-title="Правила">
     <h2>Суть игры</h2>
     <p>Два фракции: Таверна и Ядро Джит. Каждая из фракций имеет своих последователей, а также Артефакты, Миры и Заклинания, чтобы одержать победу в Великом противоборстве. На данный момент реализован первый режим игры — Горячий стул и стартовая колода включающая 91 карту. В будущем будет добавлена возможность играть против ИИ, игра Онлайн, а также новые дополнительные издания карт.</p>
     <h2>Механика игры «Горячий стул»</h2>
@@ -319,7 +344,7 @@
   </div>
 
   <!-- PORTUGUESE (BR) -->
-  <div class="screen-body rules-lang-body" id="rulesPOR" style="display:none;">
+  <div class="rules-source" id="rulesPOR" data-title="REGRAS">
     <h2>O Jogo</h2>
     <p>Duas facções: a Taverna e Jeet. Cada facção tem seus próprios seguidores, Artefatos, Mundos e Feitiços para conquistar a vitória na Grande Confrontação. Atualmente o primeiro modo de jogo está disponível — Hotseat — junto com um conjunto inicial de 91 cartas. No futuro: oponente IA, jogo Online e novas expansões de cartas.</p>
     <h2>Modo Hotseat</h2>
@@ -374,7 +399,7 @@
   </div>
 
   <!-- VIETNAMESE -->
-  <div class="screen-body rules-lang-body" id="rulesVN" style="display:none; font-family: system-ui, -apple-system, sans-serif;">
+  <div class="rules-source" id="rulesVN" data-title="Luật Chơi">
     <h2 style="font-family:system-ui,sans-serif;">Trò Chơi</h2>
     <p>Hai phe: Quán Trọ và Jeet. Mỗi phe có những người theo dõi riêng, Vật Phẩm, Thế Giới và Phép Thuật để giành chiến thắng trong Cuộc Đối Đầu Vĩ Đại. Hiện tại chế độ chơi đầu tiên đã có — Hotseat — cùng với bộ bài khởi đầu gồm 91 lá. Trong tương lai: đối thủ AI, chơi Trực Tuyến và các bản mở rộng mới.</p>
     <h2 style="font-family:system-ui,sans-serif;">Chế Độ Hotseat</h2>
@@ -936,6 +961,7 @@
 <script src="js/catalog.js"></script>
 <script src="js/deckbuilder.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/rules-book.js"></script>
 <script src="js/carousel.js"></script>
 <div id="card-tooltip" class="card-tooltip" aria-hidden="true"></div>
 </body>
