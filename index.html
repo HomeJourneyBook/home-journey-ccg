@@ -235,58 +235,137 @@
   <!-- ═══ ИСТОЧНИКИ ТЕКСТА (скрыты, только для чтения из JS) ═══ -->
   <!-- ENGLISH -->
   <div class="rules-source" id="rulesENG" data-title="RULES">
-    <h2>The Game</h2>
-    <p>Two factions: the Tavern and Jeet. Each faction has its own followers, Artifacts, Worlds, and Spells to claim victory in the Great Confrontation. Currently the first game mode is available — Hot Seat — along with a starter set of 91 cards. In the future: AI opponent, Online play, and new card expansions.</p>
-    <h2>Hot Seat Mode</h2>
-    <p>Two players take turns on one device. Player 1 plays as the Tavern and receives 45 cards, Player 2 plays as Jeet and has 46 cards in their deck. Each player's base starts at 20 HP. You build a field of Common and Unique Travelers, cast spells, activate artifacts and worlds. The first to bring the opponent's base to zero wins.</p>
-    <h2>What's On a Card</h2>
-    <p>Every card shows: cost (top left — how much Essence to play it), card type (top right), art in the center, tags nearby indicating the card's abilities, then the name, and for creatures — Health/HP (heart) and Attack/ATK (sword) at the bottom. Below that is the ability text describing what the card does.</p>
-    <h2>Mulligan</h2>
-    <p>Before the game begins, each player sees their opening hand of 5 cards and may shuffle it back and draw a new one — up to 3 times. The first reshuffle has no penalty. After the 2nd you receive 1 card fewer, after the 3rd attempt 2 fewer. Mulligan is optional: if you're happy with your hand, just press Ready. Once both players confirm — the game begins.</p>
-    <h2>Essence</h2>
-    <p>Essence is your resource. You start with a maximum of 1 and gain +1 each turn — so by turn 5 you have 5 Essence to spend. It fully refills at the start of every turn. Spend your Essence to play a chosen card by pressing Play.</p>
-    <h2>Burning</h2>
-    <p>Once per turn you may burn a card from your hand: it goes to the Void forever, but your Essence maximum permanently increases by 1. Press Burn above the chosen card to do so.</p>
-    <h2>Deck</h2>
-    <p>You draw 1 card from your deck at the start of each turn.</p>
-    <h2>Active Abilities</h2>
-    <p>Some Travelers and Artifacts have a special action you trigger manually by tapping the card and selecting the ability button that appears. Active abilities cost no Essence, but can only be used once per turn instead of attacking — after which the creature is considered exhausted.</p>
-    <h2>Graveyard and Void</h2>
-    <p>The Graveyard holds only creatures killed in battle. They can be revived. The Void holds burned cards, played spells, and replaced worlds — nothing can retrieve them.</p>
-    <h2>Card Types</h2>
+
+    <h2>What is a CCG</h2>
+    <p>A CCG (collectible card game) is a genre where each player builds a deck of cards with different creatures, spells and effects, then takes turns playing them during a match, spending a limited resource, trying to defeat the opponent before they defeat you. Whoever makes better use of their cards and resources in the moment wins.</p>
+    <p>In Home's Journey, two factions face off — the Tavern and Jeet. Each has its own followers (Travelers), as well as Artifacts, Worlds and Spells, all in service of the Great Confrontation. Whoever brings the opponent's base health down to zero first wins.</p>
+
+    <h2>Game Modes</h2>
+    <h3><img class="rules-icon" src="img/btn_hotseatH.png">Hot Seat</h3>
+    <p>Two players take turns on the same device, passing it to each other between turns — the opponent's screen is hidden during the handoff so nobody peeks at the other's hand.</p>
+    <h3><img class="rules-icon" src="img/btn_vsaiH.png">VS AI</h3>
+    <p>Play against a computer opponent on the same device. The rules are the same as Hot Seat — the AI simply takes the second player's turns.</p>
+    <h3><img class="rules-icon" src="img/btn_classicH.png">Classic</h3>
+    <p>Each side is handed a ready-made, balanced deck — nothing to build, you can start the match right away.</p>
+    <h3><img class="rules-icon" src="img/btn_rushH.png">Rush</h3>
+    <p>Instead of a ready-made deck, you're given a deckbuilder — build your own deck from the cards available to your faction.</p>
+    <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/btn_teaH.png"><img class="rules-icon" src="img/btn_jeetH.png"></span>Choosing a Faction and Who Goes First</h3>
+    <p>Before the match, you choose which faction to play — Tavern or Jeet. A dice roll then randomly decides who goes first. Whoever goes second gets a bonus card as compensation — UNSEEN: a neutral spell that isn't part of the deck and doesn't take part in the mulligan — it's granted separately, right after it ends.</p>
+    <h3><img class="rules-icon" src="img/btn_mulliganH.png">Mulligan</h3>
+    <p>Before the game begins, each player sees their opening hand of 5 cards and may shuffle it back into the deck and draw a new one — up to 3 times. The first reshuffle has no penalty, after the 2nd you get 1 fewer card, after the 3rd — 2 fewer. Mulligan isn't mandatory: if you're happy with your hand, just press Ready. Once both players confirm ready — the game begins.</p>
+
+    <h2>The Card</h2>
+    <p><em>[illustration: a card with numbers 1–9 pointing to each element below]</em></p>
+    <h3>1. Cost</h3>
+    <p>How much <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('essence')">Essence</a> it takes to play this card.</p>
+    <h3>2. Card Type</h3>
+    <p>The icon in the top-right corner shows <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('card_types')">this card's type</a>.</p>
+    <h3>3. Art</h3>
+    <p>The card's illustration, drawn on a 64x64 pixel canvas.</p>
+    <h3>4. Ability Tags</h3>
+    <p>Icons next to the art — the card's key abilities, all explained in the <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('glossary')">Glossary</a>.</p>
+    <h3>5. Name</h3>
+    <p>The card's name.</p>
+    <h3>6. Health (HP)</h3>
+    <p>How much damage the creature can take before it dies. Shown with a heart.</p>
+    <h3>7. Attack (ATK)</h3>
+    <p>How much damage the creature deals when attacking. Shown with a sword.</p>
+    <h3>8. Armor</h3>
+    <p>An extra buffer on top of health — not every creature has it. <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('armor')">More about Armor</a>.</p>
+    <h3>9. Ability Text</h3>
+    <p>Describes what the card does — from passive effects to active buttons. If anything written in a card's text contradicts these rules, the card's text always takes priority.</p>
+
+    <h2 data-gl="card_types">Card Types</h2>
     <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/type_creature.png"><img class="rules-icon" src="img/type_unique.png"></span>Common and Unique Travelers</h3>
-    <p>These are creature cards placed on the field. When played, they enter in a sleeping state and cannot act until your next turn. To attack: tap the creature, then tap an available enemy card or the opponent's Base at the top — after which the creature becomes exhausted and can act again next turn. When a creature attacks, the defender strikes back simultaneously. Creatures killed in battle go to the Graveyard and may be revived.</p>
+    <p>These are creature cards, placed on the field. When played, they enter the field <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('sleep')">Sleeping</a> and can't act until your next turn. After attacking an opponent's card or their Base, or using its active ability, a creature is considered <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('exhausted')">Exhausted</a>. Creatures killed in battle go to the <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('graveyard')">Graveyard</a> and can be revived.</p>
     <h3><img class="rules-icon" src="img/type_spell.png">Spells</h3>
-    <p>Spells take effect the moment they're played — drawing cards, reviving a fallen ally, bonus Essence, returning all field cards to hand — then disappear into the Void. They leave nothing on the battlefield.</p>
+    <p>Spells trigger instantly the moment they're played — then go to the <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Void</a>.</p>
     <h3><img class="rules-icon" src="img/type_world.png">Worlds</h3>
-    <p>A World is a permanent card that sits below your field and passively affects the game while active. Only one World can be active at a time. Playing a second replaces the first — the old one goes to the Void.</p>
+    <p>A World is a permanent card that sits below your field and passively affects the game while active. Only one World can be active at a time. Playing a second one replaces the first — the old one goes to the Void. A World can't be targeted by a creature's attack, a spell, or an Artifact's active ability.</p>
     <h3><img class="rules-icon" src="img/type_artifact.png">Artifacts</h3>
-    <p>Artifacts also sit below the field, but up to two can be active at once. Some trigger automatically each turn (draw, heal). Others are active — tap them to use their ability once per turn. Artifacts sleep their first turn, just like creatures.</p>
-    <hr style="border-color:#ffffff11;margin:24px 0;">
-    <h2>Glossary</h2>
-    <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguard</h3><p>The creature can act on the same turn it enters the field. It skips the sleeping state.</p>
-    <h3>Sleeping</h3><p>The creature entered the field this turn and cannot act. It wakes up at the start of your next turn.</p>
-    <h3>Exhausted</h3><p>The creature has already attacked or used an active ability this turn. It cannot act again until next turn. Shown with reduced opacity.</p>
-    <h3><img class="rules-icon" src="img/ico_provoke.png">Provoke</h3><p>All enemy attacks must target this creature.</p>
-    <h3>Bushido</h3><p>All attacks, including creatures with Pierce, must target this creature.</p>
-    <h3><img class="rules-icon" src="img/ico_pierce.png">Pierce</h3><p>This creature ignores Provoke and can attack the base or any enemy directly.</p>
-    <h3><img class="rules-icon" src="img/ico_fear.png">Fear</h3><p>When this creature attacks, the target becomes Feared: it skips its next turn and deals no counter-attack damage.</p>
-    <h3>Invisible</h3><p>This creature cannot be targeted while other allies are on the field. When it becomes the last one standing, it can be targeted normally. It also takes no counter-attack damage when attacked.</p>
-    <h3><img class="rules-icon" src="img/ico_rage.png">Rage</h3><p>Each time this creature attacks, it permanently gains +1 ATK. The bonus accumulates but resets if the creature dies and is revived.</p>
-    <h3><img class="rules-icon" src="img/ico_burn.png">Burn</h3><p>When this creature attacks, the target catches fire. Burning creatures lose 1 HP at the start of each of their turns. The effect is permanent until death. A creature that dies from burning goes to the Void.</p>
-    <h3><img class="rules-icon" src="img/ico_regen.png">Regen</h3><p>The creature restores X HP to itself at the start of each of your turns, up to its maximum.</p>
-    <h3>Aura</h3><p>A passive field effect that buffs all allies while the aura card is on the field. The bonus disappears immediately when the card leaves. Multiple aura sources stack. An aura does not buff itself — only allies.</p>
-    <h3>Squad</h3><p>When 3 or more Travelers of the same Gate type are on your field simultaneously, they all automatically receive a bonus. The bonus activates the moment the third arrives and disappears as soon as the squad drops below three. Each squad has its own type of bonus.</p>
-    <h3>Gates</h3><p>The different forms of Travelers. You can easily tell them apart by their shape. There are 6 main Gate types: Szarg, Xuiqtr, Umbasir, Mechird, Orbiton, Dreegan.</p>
-    <h3>Max HP</h3><p>Some abilities increase a creature's maximum HP. If the creature is at full health, current HP rises too (3/3 becomes 4/4). If already wounded, only the maximum grows (2/3 becomes 2/4).</p>
-    <h3>Revive</h3><p>Returns a creature from the Graveyard to the field with X HP. It enters in a sleeping state and can act next turn. Revived creatures do not trigger On Enter effects.</p>
-    <h3>Bounce</h3><p>Returns a card from the battlefield to the player's hand.</p>
-    <h3>Sacrifice</h3><p>Intentionally destroy one of your own creatures. It goes to the Graveyard and can be revived. Some artifacts require a sacrifice to activate.</p>
-    <h3>On Turn Start</h3><p>The effect triggers automatically at the start of your turn, before any actions.</p>
-    <h3>On Enter</h3><p>The effect triggers the moment the card is played from hand to the field. Does not trigger on revives or raises from the graveyard.</p>
-    <h3>On Attack</h3><p>The effect triggers each time this creature attacks — whether targeting an enemy creature or the base.</p>
-    <h3>On Kill</h3><p>The effect triggers when this creature's attack kills an enemy creature directly.</p>
-  </div>
+    <p>Artifacts also sit below the field, and likewise only one can be active at a time — playing a second replaces the first, sending it to the Void. Artifacts with active abilities sleep on their first turn, just like creatures. An Artifact also can't be targeted by a creature, a spell, or another Artifact's active ability.</p>
+
+    <h2>The Board</h2>
+    <p><em>[illustration: a screenshot of the battlefield with labeled zones]</em></p>
+    <h3>1. Opponent's Status Bar</h3>
+    <p>Shows the opponent's base health and Essence, and the base itself, which can be targeted by an attacking creature. It also shows the opponent's active World and Artifact once played (press and hold with mouse or finger to see the card's details).</p>
+    <h3>2. Opponent's Hand Zone</h3>
+    <p>The opponent's cards face down — only their count is visible.</p>
+    <h3>3. Field</h3>
+    <p>Where both sides' creatures are placed.</p>
+    <h3>4. Your Hand Zone</h3>
+    <p>Your cards, drawn from the Deck, ready to play.</p>
+    <h3>5. Your Status Bar</h3>
+    <p>Shows your base health, your Essence, and the base itself. Your played World and Artifact also appear here (press and hold with mouse or finger to see the card's details).</p>
+    <h3>6. Bottom Bar</h3>
+    <p>The centered "End Turn" button, counters for cards left in the Deck and creature cards in the Graveyard, and the button that opens the Graveyard window.</p>
+    <h3>7. Deck</h3>
+    <p>Cards you haven't drawn yet. Only their count is visible. You draw 1 card from the deck at the start of every turn. Once the deck is empty, there are no more cards to draw.</p>
+    <h3 data-gl="graveyard">8. Graveyard</h3>
+    <p>Where creature cards killed in battle go and are displayed. Cards at the top of the window are the ones "on top of the graveyard."</p>
+    <h3 data-gl="void">9. Void</h3>
+    <p>Holds burned cards, played spells, and replaced worlds — nothing can bring them back. The Void has no zone of its own on screen — cards there simply vanish from the game forever.</p>
+    <h3>10. Battle Log</h3>
+    <p>A side panel with the match's event history.</p>
+
+    <h2>Playing a Turn</h2>
+    <h3 data-gl="essence">Essence</h3>
+    <p><img class="rules-icon" src="img/ess.png"> Essence is your resource. You start with a maximum of 1 and gain +1 every turn — so by turn 5 you have 5 Essence, up to a maximum of 10. Any unused Essence is lost at the end of the turn and refills to its maximum at the start of your next one.</p>
+    <h3>Playing a Card</h3>
+    <p>Select a card in your hand and press <img class="rules-icon" src="img/btn_play.png"> to play it, spending the matching amount of Essence. Travelers and Worlds/Artifacts stay on the field, Spells trigger immediately and go to the Void.</p>
+    <h3>Burning</h3>
+    <p>Once per turn you may burn a card from your hand: it goes to the Void forever, but your Essence maximum permanently increases by 1. Press <img class="rules-icon" src="img/btn_burn.png"> above the chosen card to do so.</p>
+    <h3>Inspecting a Card</h3>
+    <p>Press <img class="rules-icon" src="img/btn_zoom.png"> if you want to see a card enlarged. For cards on the battlefield, press and hold (or long-press on a touchscreen) the card you're interested in to see its full version along with any status effects currently active on it.</p>
+    <h3>Targeted Spells</h3>
+    <p>Some spells and active abilities require choosing a target — after trying to play a card or use an ability, the game pauses and asks you to click the target card. You can also tap your hand zone to cancel — for a spell, the card returns to your hand and the Essence cost isn't spent.</p>
+    <h3>Attacking</h3>
+    <p>To attack: press your creature card, then press an available target — highlighted in red — either an enemy card or the opponent's Base above. You can't attack your own creatures or your own base.</p>
+    <h3>Exchanging Blows</h3>
+    <p>When a creature attacks: the target takes damage first, then "On attack" effects trigger (Fear, Burn, Rage, Vampiric, etc.) — and if the target died, "On death" effects too. If the target survived, it strikes back — unless it's Exhausted.</p>
+    <h3>Sleeping and Exhausted</h3>
+    <p>A creature card that just entered the field is Sleeping and can't act until your next turn. After attacking or using an active ability, a creature becomes Exhausted: it can't act again — or counter-attack — until the opponent's turn ends.</p>
+    <h3>Active Abilities</h3>
+    <p>Some creature cards and Artifacts have a special action you trigger manually by pressing the card and choosing the ability button that appears. Active abilities don't cost Essence, but can only be used once per turn, instead of attacking — after which the creature card or Artifact is considered exhausted.</p>
+    <h3>Victory</h3>
+    <p>As soon as one base reaches 0 health, that player loses — and the other player wins!</p>
+
+    <h2 data-gl="glossary">Glossary</h2>
+
+    <h3 data-gl="sleep">Sleeping</h3><p><img class="rules-icon" src="img/zzz.png"> A creature card or Artifact entered the field this turn and can't act. Wakes up at the start of your next turn.</p>
+    <h3 data-gl="exhausted">Exhausted</h3><p>A creature card or Artifact has already attacked or used an active ability this turn. Can't act again — or counter-attack — until the following turn. Shown as a darkened card.</p>
+    <h3>Aura</h3><p>A passive field effect that boosts all allies while the card with the aura is on the field. The bonus disappears immediately once the card leaves the field. Multiple aura sources stack. An aura doesn't boost itself — only allies.</p>
+    <h3>Squad</h3><p>When you have 3 or more Travelers of the same type on your field at once, they all automatically get a bonus. The bonus activates the moment the third one enters and disappears as soon as the squad drops below three. Each squad has its own bonus type.</p>
+    <h3>Max Health (maxHP)</h3><p>Auras and spells can increase a creature card's maximum health. If the creature is at full health, its current health also grows (3/3 becomes 4/4). If it's already wounded, only the maximum grows (2/3 becomes 2/4). Healing never pushes health above the maximum. You can always hover a creature card's health indicator on the field to see its current maximum.</p>
+    <h3>Heal</h3><p>If a card's text says "Active: Heal X", it means that on the battlefield, instead of attacking, you can press the card and then <img class="rules-icon" src="img/btn_heal.png"> — target an ally and heal it for X health. This ability also clears negative effects such as <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('burn')">Burn</a>, <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('fear')">Fear</a> and <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('taunt_break')">Taunt Break</a>. After using this ability, the creature card that used it is considered exhausted.</p>
+    <h3>Bolt</h3><p>If a card's text says "Active: Bolt X", it means that on the battlefield, instead of attacking, you can press the card and then <img class="rules-icon" src="img/btn_spell.png"> — target an enemy creature card and deal it X damage. This ability counts as magical, meaning it ignores Armor, but it cannot damage creatures with <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('ward')">Ward</a>.</p>
+    <h3>Revive</h3><p>Returns a creature from the Graveyard to the field at X health, or at full health if no number is written on the card's text. A revived creature enters the field Sleeping. Revived creatures don't trigger "On play" effects.</p>
+    <h3>Sacrifice</h3><p>An active action that destroys one of your own creatures in exchange for the bonus written on the card with this ability. The destroyed creature card goes to the Graveyard and can be revived.</p>
+    <h3>Draw</h3><p>If a card's text mentions "Draw" for some action, performing that action immediately grants you an extra card from the deck, as long as any are left.</p>
+    <h3>On Turn</h3><p>The effect triggers automatically at the start of the player's turn, before any actions.</p>
+    <h3>On Play</h3><p>The effect triggers the moment a card is played from hand onto the field.</p>
+    <h3>On Attack</h3><p>The effect triggers every time this creature card attacks — whether an enemy creature or the base (negative effects don't affect the base).</p>
+    <h3>On Death</h3><p>The effect triggers when this creature card's attack kills an enemy creature card directly.</p>
+
+    <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguard</h3><p>A creature card can act the same turn it enters the field. It skips the Sleeping state.</p>
+    <h3><img class="rules-icon" src="img/ico_provoke.png">Provoke</h3><p>All of the opponent's creature card attacks must target this creature.</p>
+    <h3><img class="rules-icon" src="img/ico_pierce.png">Pierce</h3><p>The creature ignores Provoke and can attack the base or any enemy creature card directly.</p>
+    <h3><img class="rules-icon" src="img/ico_fear.png">Fear</h3><p>With this ability, a creature card inflicts the "Fear" negative effect on the enemy card the moment it attacks. Creature cards under Fear skip their next turn and deal no counter-damage.</p>
+    <h3><img class="rules-icon" src="img/ico_invis.png">Invisible</h3><p>This creature card can't be targeted for attack while other allies are on the field. Once it's the last one left, it can be attacked. It also takes no counter-damage when it attacks.</p>
+    <h3><img class="rules-icon" src="img/ico_rage.png">Rage</h3><p>Every time this creature attacks, it permanently gains +1 attack. The bonus resets if the creature dies. Stacks with other bonuses from Auras, Squads, or Spells.</p>
+    <h3 data-gl="burn"><img class="rules-icon" src="img/ico_burn.png">Burn</h3><p>When this creature attacks, the enemy creature gets the "Burn" negative effect. Burning creatures lose 1 health at the start of each of their turns. The effect is permanent until the creature dies. A creature that dies from Burn goes to the Void.</p>
+    <h3><img class="rules-icon" src="img/ico_regen.png">Regen X</h3><p>The creature restores X health to itself at the start of each of your turns, but never above its maximum.</p>
+    <h3 data-gl="armor"><img class="rules-icon" src="img/armor.png">Armor</h3><p>An extra buffer on top of health. Absorbs damage first, but only from regular attacks. Magic damage ignores Armor completely. Refills to its maximum at the start of your turn. Can stack from different Auras, Squad bonuses, or Spells.</p>
+    <h3><img class="rules-icon" src="img/solana_shield.png">Solana Shield</h3><p>A protective layer on top of health — fully absorbs the first incoming hit on this creature, of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the field. If the creature leaves the field and returns, the shield recharges.</p>
+    <h3><img class="rules-icon" src="img/ico_untamed.png">Untamed</h3><p>The creature clears its own Exhausted state at the start of the opponent's turn.</p>
+    <h3 data-gl="ward"><img class="rules-icon" src="img/ico_ward.png">Ward</h3><p>This creature card completely ignores magic damage.</p>
+    <h3><img class="rules-icon" src="img/ico_incarn.png">Incarnation X</h3><p>When this creature dies, it revives from the Graveyard onto the field X of your turns later, at full health and Sleeping. Triggers only once — if it dies again after returning, it goes to the Void instead.</p>
+    <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Taunt Break</h3><p>On attack, inflicts a negative effect that removes Provoke from the target until the end of the turn.</p>
+    <h3><img class="rules-icon" src="img/ico_vamp.png">Vampiric</h3><p>On its own attack, the creature heals itself for exactly the health it actually removed from the target (damage absorbed by Armor or Shield doesn't count) — but never more than its own missing health.</p>
+    <h3><img class="rules-icon" src="img/ico_erase.png">Erase</h3><p>If this creature's attack kills an enemy, the fallen card is sent to the Void instead of the Graveyard, and this creature fully restores its health and clears its own Burn. Only triggers on a kill by direct attack.</p>
+
+</div>
+
 
   <!-- RUSSIAN -->
   <div class="rules-source" id="rulesRUS" data-title="Правила">
