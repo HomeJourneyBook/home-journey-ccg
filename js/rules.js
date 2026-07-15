@@ -183,6 +183,9 @@ function rulesRenderCover() {
   document.getElementById('rulesPages').style.display = 'none';
   const langBtnsCover = document.getElementById('rulesLangBtns');
   if (langBtnsCover) langBtnsCover.style.display = '';
+  // Обложка — всегда одна "страница" по ширине, даже если до этого
+  // читали разворот (2 страницы) на лаптопе.
+  document.getElementById('rulesBook').classList.remove('spread');
 
   document.querySelectorAll('.rules-lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
@@ -192,6 +195,7 @@ function rulesRenderCover() {
   if (title) {
     title.textContent = RULES_TITLES[lang] || 'Rules';
     title.classList.toggle('rus-title', lang === 'RUS');
+    title.classList.toggle('vn-title', lang === 'VN');
   }
 
   rulesRenderEdgeButtons();
@@ -208,20 +212,27 @@ function rulesRenderPages() {
   document.getElementById('rulesPages').style.display = '';
   const langBtnsPages = document.getElementById('rulesLangBtns');
   if (langBtnsPages) langBtnsPages.style.display = 'none';
+  // Разворот (2 страницы) — книга РАСШИРЯЕТСЯ до 2×--rules-page-w (см.
+  // .rules-book.spread в styles.css) — без этого класса кромка с
+  // кнопками оставалась прижатой к старой узкой ширине и наезжала на
+  // правую страницу вместо того, чтобы висеть за её краем.
+  document.getElementById('rulesBook').classList.toggle('spread', perView === 2);
   document.getElementById('rulesPageSingle').style.display = perView === 2 ? 'none' : '';
   document.getElementById('rulesSpread').style.display = perView === 2 ? 'flex' : 'none';
 
   const slotIds = perView === 2 ? ['rulesPageLeft', 'rulesPageRight'] : ['rulesPageSingle'];
   slotIds.forEach((id, i) => {
     const el = document.getElementById(id);
-    if (!el) return;
+    const content = document.getElementById(id + 'Content');
+    if (!el || !content) return;
     const pageNum = idx + i;
     if (pageNum < pages.length) {
-      el.innerHTML = pages[pageNum];
+      content.innerHTML = pages[pageNum];
+      content.dataset.rulesLang = lang; // хук для языковых шрифтов (RUS/VN) — переживает innerHTML, в отличие от id-обёртки источника
       el.style.visibility = 'visible';
       el.style.setProperty('--r', rulesSpreadRotation(pageNum) + 'deg');
     } else {
-      el.innerHTML = '';
+      content.innerHTML = '';
       el.style.visibility = 'hidden';
     }
   });
