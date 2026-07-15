@@ -91,7 +91,14 @@ function rulesGoBack() {
 }
 
 function rulesGoHome() {
-  hideScreen('rules');
+  // Первые 3 "страницы" (обложка → плейсхолдер → оглавление, т.е. index<2)
+  // — кнопка закрывает книгу целиком. Начиная с контента глав (index>=2)
+  // — та же кнопка возвращает к оглавлению, а не закрывает экран.
+  if (RB.open && RB.index >= 2) {
+    rulesGoto(1);
+  } else {
+    hideScreen('rules');
+  }
 }
 
 // Переход по клику из оглавления — pageIndex абсолютный индекс в RB.pages
@@ -139,18 +146,65 @@ function rulesPaginate(lang) {
     let currentNodes = [];
     let recorded = false;
     measure.innerHTML = '';
-    chapter.nodes.forEach(node => {
-      const clone = node.cloneNode(true);
-      measure.appendChild(clone);
-      if (!fits() && currentNodes.length > 0) {
-        chapterPages.push(currentNodes);
-        currentNodes = [clone];
-        measure.innerHTML = '';
-        measure.appendChild(clone);
-      } else {
-        currentNodes.push(clone);
-      }
+
+    function finalizePage() {
+      chapterPages.push(currentNodes);
+      currentNodes = [];
+      measure.innerHTML = '';
+    }
+    function markRecorded() {
       if (!recorded) { chapterStartIdx[chapter.title] = chapterPages.length; recorded = true; }
+    }
+
+    chapter.nodes.forEach(node => {
+      if (node.tagName === 'P') {
+        // ── Параграфы режем по словам: на текущую страницу уходит ровно
+        // столько слов, сколько влезает, остаток продолжается НОВЫМ <p>
+        // на следующей странице — а не весь параграф целиком. ──────────
+        let words = (node.textContent || '').split(/\s+/).filter(Boolean);
+        while (words.length) {
+          const p = document.createElement('p');
+          measure.appendChild(p);
+          let lo = 0, hi = words.length;
+          while (lo < hi) {
+            const mid = Math.ceil((lo + hi) / 2);
+            p.textContent = words.slice(0, mid).join(' ');
+            if (fits()) lo = mid; else hi = mid - 1;
+          }
+          if (lo === 0) {
+            measure.removeChild(p);
+            if (currentNodes.length === 0) {
+              // страница пуста, но даже одно слово не влезает — форсируем
+              // (не даём алгоритму зациклиться на пустых страницах)
+              const forced = document.createElement('p');
+              forced.textContent = words[0];
+              measure.appendChild(forced);
+              currentNodes.push(forced.cloneNode(true));
+              markRecorded();
+              words = words.slice(1);
+              continue;
+            }
+            finalizePage();
+            continue; // те же слова пробуем уже на чистой странице
+          }
+          p.textContent = words.slice(0, lo).join(' ');
+          currentNodes.push(p.cloneNode(true));
+          markRecorded();
+          words = words.slice(lo);
+          if (words.length) finalizePage(); // страница заполнена — остаток идёт дальше
+        }
+      } else {
+        // h2/h3 — атомарные, не режутся; целиком переезжают на новую
+        // страницу, если не влезают на текущую с уже имеющимся контентом.
+        const clone = node.cloneNode(true);
+        measure.appendChild(clone);
+        if (!fits() && currentNodes.length > 0) {
+          finalizePage();
+          measure.appendChild(clone);
+        }
+        currentNodes.push(clone);
+        markRecorded();
+      }
     });
     if (currentNodes.length) chapterPages.push(currentNodes);
   });
@@ -228,13 +282,17 @@ function rulesRender() {
 function rulesUpdateNavButtons() {
   const backBtn = document.getElementById('rulesBtnBack');
   const fwdBtn = document.getElementById('rulesBtnFwd');
-  if (!backBtn || !fwdBtn) return;
+  const homeBtn = document.getElementById('rulesBtnHome');
+  if (!backBtn || !fwdBtn || !homeBtn) return;
   backBtn.disabled = !RB.open;
   if (!RB.open) {
     fwdBtn.disabled = false;
   } else {
     fwdBtn.disabled = (RB.index + rulesStep()) >= RB.pages.length;
   }
+  const tocMode = RB.open && RB.index >= 2;
+  homeBtn.title = tocMode ? 'Contents' : 'Home';
+  homeBtn.classList.toggle('rules-navbtn-home-toc', tocMode);
 }
 
 // ── Пересчёт при ресайзе/повороте экрана (дебаунс) ─────────────────
