@@ -302,6 +302,10 @@ function preloadAssets(){
     'img/rules_btn_right1.png', 'img/rules_btn_rightH.png', 'img/rules_btn_right2.png',
     'img/rules_btn_home1.png', 'img/rules_btn_homeH.png', 'img/rules_btn_home2.png',
     'img/rules_btn_oglav1.png', 'img/rules_btn_oglavH.png', 'img/rules_btn_oglav2.png',
+    // Иконки "Режимов игры" в книге правил — заменили кнопочные ассеты на
+    // выделенные ico_*, чётче читаются в мелком размере (2026-07-15).
+    'img/ico_hotseat.png', 'img/ico_ai.png', 'img/ico_classic.png', 'img/ico_rush.png',
+    'img/ico_tea.png', 'img/ico_jeet.png', 'img/ico_mulligan.png',
 
     // ── Декоративные плейсхолдеры статус-бара и боттом-бара — разведены tea/jeet в этой сессии ──
     'img/statbar_edge_right2_jeet.png', 'img/statbar_edge_left_jeet.png',
