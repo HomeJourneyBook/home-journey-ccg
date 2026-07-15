@@ -384,7 +384,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   position:relative; display:flex; align-items:center; justify-content:center;
   border-style:solid; border-width:var(--rborder);
   border-image-source:url('../img/rules_cover.png'); border-image-slice:42 fill;
-  border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:repeat;
+  border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:round;
   cursor:default;
 }
 .rules-book.open .rules-cover{display:none;}
@@ -423,7 +423,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   width:var(--rpage-w); height:var(--rpage-h); box-sizing:border-box; position:relative; overflow:hidden;
   border-style:solid; border-width:var(--rborder);
   border-image-source:url('../img/rules_pages.png'); border-image-slice:54 fill;
-  border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:repeat;
+  border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:round;
 }
 .rules-page-left{display:none;}
 @media(min-width:601px){
