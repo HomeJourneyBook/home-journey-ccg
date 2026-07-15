@@ -1749,10 +1749,11 @@ document.addEventListener('mousemove', (e) => {
 // а не на каждый пиксель движения мыши внутри неё. Один делегированный обработчик
 // на document покрывает вообще все <button> (лендинг, бургер, модалки, каталог,
 // попапы карт и т.д.), плюс .play-gate-sprite — это div, а не button, и
-// .rules-toc-entry — пункты оглавления в книге правил (тоже div).
+// .rules-toc-entry/.rules-gloss-link — кликабельные ссылки внутри книги правил
+// (тоже не button).
 document.addEventListener('DOMContentLoaded', ()=>{
   document.addEventListener('mouseover', (e)=>{
-    const btn = e.target.closest('button, .play-gate-sprite, .rules-toc-entry');
+    const btn = e.target.closest('button, .play-gate-sprite, .rules-toc-entry, .rules-gloss-link');
     if(!btn) return;
     if(btn.contains(e.relatedTarget)) return;
     playSfx('card_navigation_cursor');
