@@ -397,7 +397,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   border-image-width:calc(1em / 3); border-image-outset:0; border-image-repeat:stretch;
 }
 .rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.050968);}
-.rules-cover-title.vn-title{font-family:'Be Vietnam Pro',sans-serif;font-weight:700;}
+.rules-cover-title.vn-title{font-family:'Be Vietnam Pro',sans-serif;font-weight:700;font-size:calc(var(--rpage-h) * 0.098);}
 /*── Языковые кнопки — по верхней кромке обложки, квадратные, наполовину
     сидят поверх 9-slice рамки (translateY(-50%) от верхнего края). ────*/
 .rules-cover-langs{
@@ -425,6 +425,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   border-image-source:url('../img/rules_pages.png'); border-image-slice:54 fill;
   border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:round;
 }
+/*── 4 варианта текстуры страницы — какой достанется конкретной странице
+    решается один раз при пагинации (см. rulesPaginate()/RB.pageVariants в
+    rules-book.js) и не меняется при пролистывании туда-сюда, только при
+    пересборке книги (смена языка/ресайз). variant-1/2/3 переопределяют
+    только источник картинки, cut и repeat/border-width — те же. ────────*/
+.rules-page.variant-1{border-image-source:url('../img/rules_pages1.png');}
+.rules-page.variant-2{border-image-source:url('../img/rules_pages2.png');}
+.rules-page.variant-3{border-image-source:url('../img/rules_pages3.png');}
 .rules-page-left{display:none;}
 @media(min-width:601px){
   .rules-page-left{display:block;transform:scaleX(-1);} /* зеркалим фон/рамку страницы */
@@ -440,10 +448,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     2026-07-15: где-то текст уменьшить, а иконки при этом увеличить —
     через 1em (как было раньше) это невозможно, т.к. они жёстко связаны). */
 .rules-page-inner.rus-lang, .rules-page-inner.rus-lang h2, .rules-page-inner.rus-lang h3{font-family:'Press Start 2P',monospace;}
-.rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.0216); --ricon-h:calc(var(--rpage-h) * 0.0216 * 1.2);} /* телефон: шрифт как раньше (+20% от 2026-07-15), иконки теперь ещё +20% */
-.rules-page-inner.eng-lang, .rules-page-inner.por-lang{font-size:calc(var(--rpage-h) * 0.028 * 1.2); --ricon-h:calc(var(--rpage-h) * 0.028 * 1.1);} /* телефон: шрифт +20%, иконки +10% */
+.rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.0216); --ricon-h:calc(var(--rpage-h) * 0.0216 * 1.44);} /* телефон: шрифт как раньше, иконки — было ×1.2, теперь ещё +20% (×1.44 итого) */
+.rules-page-inner.eng-lang, .rules-page-inner.por-lang{font-size:calc(var(--rpage-h) * 0.028 * 1.2); --ricon-h:calc(var(--rpage-h) * 0.028 * 1.32);} /* телефон: шрифт +20%, иконки — было ×1.1, теперь ещё +20% (×1.32 итого) */
 .rules-page-inner.vn-lang, .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-family:'Be Vietnam Pro',sans-serif;}
 .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-weight:700;}
+.rules-page-inner.vn-lang{--ricon-h:calc(var(--rpage-h) * 0.028 * 1.2);} /* телефон: раньше не было отдельного буста иконок — теперь +20%, шрифт не трогаю */
 .rules-page-inner h2{font-size:1.7em;color:#322030;margin:0 0 0.5em;line-height:1.15;}
 .rules-page-inner h3{font-size:1.2em;color:#492833;margin:0.9em 0 0.3em;letter-spacing:0.5px;}
 .rules-page-inner p{margin:0 0 0.65em;}
@@ -455,14 +464,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     десктопные переопределения были в @media-блоке ВЫШЕ по файлу и
     базовые мобильные правила их всегда перебивали, даже на десктопе. ──*/
 @media(min-width:601px){
-  .rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.018 * 0.8); --ricon-h:calc(var(--rpage-h) * 0.018 * 1.2);} /* текст -20%, иконки +20% от исходных 0.018 */
+  .rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.018 * 0.8); --ricon-h:calc(var(--rpage-h) * 0.018 * 1.44);} /* текст -20% (как раньше), иконки — было ×1.2, теперь ещё +20% (×1.44 итого) */
   .rules-page-inner.eng-lang, .rules-page-inner.por-lang{font-size:calc(var(--rpage-h) * 0.028); --ricon-h:calc(var(--rpage-h) * 0.028);} /* без изменений — буст только для телефона */
+  .rules-page-inner.vn-lang{--ricon-h:calc(var(--rpage-h) * 0.028);} /* без изменений — буст иконок только для телефона, как у остальных языков */
 }
 /* Измерительный клон — идентичная структура/шрифты, но невидим и вне потока */
 .rules-page-measure{position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none;}
 
 /*── Стр.1 — пустая, плейсхолдер под цитату ─────────────────────────*/
-.rules-quote-page{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;}
+.rules-quote-page{height:100%;display:flex;align-items:flex-end;justify-content:flex-end;text-align:right;}
 .rules-quote-placeholder{font-style:italic;opacity:0.35;font-size:1.1em;line-height:1.6;}
 
 /*── Стр.2 — оглавление ──────────────────────────────────────────────*/
