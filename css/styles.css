@@ -68,7 +68,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    calc(var(--lw) * N / 256), где N — юнит из ТЗ автора; единственное
    исключение — .landing-buffer (гибкий буфер) и .landing-tail (свой vh,
    вне сетки вообще, см. ниже). ──────────────────────────────────────────*/
-.landing{--lw: min(100vw, 600px); position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; overflow-y:auto; overflow-x:hidden; background-color:#11151f; background-size:cover; background-position:center;}
+.landing{--lw: min(100vw, 600px); --lw-bottom: var(--lw); position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; overflow-y:auto; overflow-x:hidden; background-color:#11151f; background-size:cover; background-position:center;}
 /*── ВЕРХ — потолок(32) + стена-с-иллюминатором(256) фикс, буфер(~36) гибкий.
     .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
     родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
@@ -82,8 +82,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
     родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
     min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
-.landing-top{width:var(--lw); flex:1 1 auto; min-height:0; display:flex;flex-direction:column;}
-.landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-image:url('../img/land_fonar.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
+.landing-top{width:var(--lw); flex:1 1 auto; min-height:var(--lw); display:flex;flex-direction:column;}
+.landing-ceiling{display:none; flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-image:url('../img/land_fonar.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 .landing-wall{flex:0 0 var(--lw); width:100%; position:relative; /* плейсхолдер — арт стены ещё не готов, прозрачно */ display:flex;align-items:center;justify-content:center;}
 .landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; /* плейсхолдер — пустая стена, режется первой, прозрачно */}
 /*── Иллюминатор — раньше сидел на height:100% (от высоты .landing-wall,
@@ -110,12 +110,24 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .porthole-glass{position:absolute;inset:0;z-index:1; background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.10), rgba(180,200,255,0.04) 55%, rgba(0,0,0,0.06) 100%); backdrop-filter:blur(0.6px); -webkit-backdrop-filter:blur(0.6px); overflow:hidden; pointer-events:none;}
 .porthole-glass::before{content:''; position:absolute; top:-60%;left:-150%; width:55%;height:220%; background:linear-gradient(75deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%); transform:rotate(20deg); animation:portholeGlare 13s ease-in-out infinite;}
 .porthole-frame{position:absolute;inset:0;z-index:3; background-image:url('../img/logo_window.png'); background-size:100% 100%; background-repeat:no-repeat; pointer-events:none;}
-/*── НИЗ — единый функциональный блок, 240/256 высоты, НИКОГДА не сжимается ──*/
-.landing-bottom{width:var(--lw); flex:0 0 auto; position:relative; display:flex;flex-direction:column;}
+/*── НИЗ — единый функциональный блок, 240/256 высоты, НИКОГДА не сжимается.
+    Автор попросил (2026-07-15) сделать эту группу на 20% крупнее физически,
+    но НЕ трогать формулу верхней группы/--lw — поэтому: (1) все внутренние
+    calc() здесь и у выносов -ext/-ext2/-tail-ext переведены на отдельную
+    переменную --lw-bottom = --lw × 1.2 (см. .landing{} выше), а не на --lw
+    напрямую; (2) чтобы это не отъедало место у .landing-top (не меняло
+    --lw/буфер), высота, которую блок РЕЗЕРВИРУЕТ в потоке, остаётся
+    ПРЕЖНЕЙ (на базе --lw, не --lw-bottom) — лишние 20% высоты "вылезают"
+    вверх через отрицательный margin-top (ровно на величину прироста), и
+    z-index поднимает блок над буфером, чтобы прирост визуально лёг поверх
+    него, а не был им перекрыт. Итог: нижний край стола остаётся ровно там
+    же, где и был (стык с .landing-tail не ломается), а верхний — приближается
+    к окну, поедая буфер визуально, а не по факту в layout. ───────────────*/
+.landing-bottom{width:var(--lw-bottom); flex:0 0 auto; position:relative; z-index:2; margin-top:0; display:flex;flex-direction:column;}
 .landing-strip{width:100%; flex:0 0 auto;}
-.landing-strip-perspective{height:calc(var(--lw) * 8 / 256); background-image:url('../img/top_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
-.landing-strip-play{height:calc(var(--lw) * 64 / 256); position:relative; display:flex;align-items:center;justify-content:center;}
-.landing-strip-edge{height:calc(var(--lw) * 8 / 256); background-image:url('../img/front_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-strip-perspective{height:calc(var(--lw-bottom) * 8 / 256); background-image:url('../img/top_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-strip-play{height:calc(var(--lw-bottom) * 64 / 256); position:relative; display:flex;align-items:center;justify-content:center;}
+.landing-strip-edge{height:calc(var(--lw-bottom) * 8 / 256); background-image:url('../img/front_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 /*── Play-ворота — раньше фикс 240×60px, теперь тянутся на всю ширину полосы;
     4:1 у самого арта = ровно 64/256 высоты полосы, без искажений. Механика
     (гейт-спрайт, рамка, hover, 3 кнопки режима) не менялась. ─────────────*/
@@ -135,44 +147,50 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
 .play-gate-frame{position:absolute;inset:0;z-index:4; background-image:url('../img/btn_playgame_frame.png'); background-size:100% 100%;background-repeat:no-repeat; pointer-events:none;}
 /*── Ряд Music/Rules/SFX — 64(1:1) + 128(2:1) + 64(1:1) = 256, край-в-край ──*/
-.landing-row-audio{width:100%; height:calc(var(--lw) * 64 / 256); display:flex;flex-direction:row;}
-.landing-row-audio .art-btn-square{width:calc(var(--lw) * 64 / 256); height:100%;}
-.landing-row-audio .art-btn-rules{width:calc(var(--lw) * 128 / 256); height:100%;}
+.landing-row-audio{width:100%; height:calc(var(--lw-bottom) * 64 / 256); display:flex;flex-direction:row;}
+.landing-row-audio .art-btn-square{width:calc(var(--lw-bottom) * 64 / 256); height:100%;}
+.landing-row-audio .art-btn-rules{width:calc(var(--lw-bottom) * 128 / 256); height:100%;}
 /*── Ряд Lore/декор/Catalog — 64(2:3) + 128(4:3) + 64(2:3) = 256, край-в-край ──*/
-.landing-row-nav{width:100%; height:calc(var(--lw) * 96 / 256); display:flex;flex-direction:row;}
-.landing-row-nav .art-btn-lore,.landing-row-nav .art-btn-catalog{width:calc(var(--lw) * 64 / 256); height:100%;}
-.landing-nav-decor{width:calc(var(--lw) * 128 / 256); height:100%; background-image:url('../img/bot_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-row-nav{width:100%; height:calc(var(--lw-bottom) * 96 / 256); display:flex;flex-direction:row;}
+.landing-row-nav .art-btn-lore,.landing-row-nav .art-btn-catalog{width:calc(var(--lw-bottom) * 64 / 256); height:100%;}
+.landing-nav-decor{width:calc(var(--lw-bottom) * 128 / 256); height:100%; background-image:url('../img/bot_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 /*── Десктоп-выносы (≥600px, тот же порог, что капает --lw) — по всей высоте
     .landing-bottom (240/256), 64/256 шириной каждый, чистый плейсхолдер. ──*/
-.landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 64 / 256); background-size:100% 100%; background-repeat:no-repeat;}
-.landing-bottom-ext-left{left:calc(var(--lw) * -64 / 256); background-image:url('../img/left_table.gif');}
-.landing-bottom-ext-right{right:calc(var(--lw) * -64 / 256); background-image:url('../img/right_table.png');}
+.landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw-bottom) * 240 / 256); width:calc(var(--lw-bottom) * 64 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-bottom-ext-left{left:calc(var(--lw-bottom) * -64 / 256); background-image:url('../img/left_table.gif');}
+.landing-bottom-ext-right{right:calc(var(--lw-bottom) * -64 / 256); background-image:url('../img/right_table.png');}
 /*── Три новых парных выноса (2026-07-14), та же техника, что у
     .landing-bottom-ext выше — absolute-позиционирование относительно
     ближайшего НЕ-overflow:hidden предка, никакого пиксельного размера,
-    всё через calc(var(--lw) * N / 256), ratio 1:1 держится тем, что
+    всё через calc(var(--lw-N) * N / 256), ratio 1:1 держится тем, что
     width и height считаются одной и той же формулой.
     1/2 — "стена+фонарь" (288 = потолок 32 + стена 256), встык с
     .landing-wall, сдвинуты вверх на высоту потолка, чтобы верхний край
-    совпал с самым верхом композиции, а не с верхом .landing-wall. ─────*/
+    совпал с самым верхом композиции, а не с верхом .landing-wall.
+    ОСТАЁТСЯ на --lw (не --lw-bottom) — структурно это часть ВЕРХНЕЙ
+    группы (буквально вложен в .landing-wall в HTML), должен совпадать
+    по размеру с окном/потолком, а не со столом. ─────────────────────*/
 .landing-wall-ext{display:none; position:absolute; top:calc(var(--lw) * -32 / 256); height:calc(var(--lw) * 288 / 256); width:calc(var(--lw) * 288 / 256); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-wall-ext-left{left:calc(var(--lw) * -288 / 256); background-image:url('../img/land_left_wall.gif');}
 .landing-wall-ext-right{right:calc(var(--lw) * -288 / 256); background-image:url('../img/land_right_wall.gif');}
 /*── 3/4 — "стол-стол" (240, та же высота, что у .landing-bottom и у
     существующих *-table-выносов), сидят встык СНАРУЖИ от них (левее
     left_table / правее right_table), поэтому смещение -304 = -(64+240):
-    крайняя точка существующего 64-выноса. ──────────────────────────────*/
-.landing-bottom-ext2{display:none; position:absolute; top:0; height:calc(var(--lw) * 240 / 256); width:calc(var(--lw) * 240 / 256); background-size:100% 100%; background-repeat:no-repeat;}
-.landing-bottom-ext2-left{left:calc(var(--lw) * -304 / 256); background-image:url('../img/land_left_left_table.gif');}
-.landing-bottom-ext2-right{right:calc(var(--lw) * -304 / 256); background-image:url('../img/land_right_right_table.gif');}
+    крайняя точка существующего 64-выноса. На --lw-bottom, как и стол. ───*/
+.landing-bottom-ext2{display:none; position:absolute; top:0; height:calc(var(--lw-bottom) * 240 / 256); width:calc(var(--lw-bottom) * 240 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-bottom-ext2-left{left:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_left_left_table.gif');}
+.landing-bottom-ext2-right{right:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_right_right_table.gif');}
 /*── 5/6 — "дно" под уже упомянутыми выносами, высота = высоте самого
     .landing-tail (100%, не хардкожу vh — на десктопе это --tail-h=6vh,
     но так работает при любом значении без дублирования магического
-    числа), ширина = 64+240=304, та же, что у пары выносов над ним. ────*/
-.landing-tail-ext{display:none; position:absolute; top:0; height:100%; width:calc(var(--lw) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
-.landing-tail-ext-left{left:calc(var(--lw) * -304 / 256); background-image:url('../img/land_left_dno.gif');}
-.landing-tail-ext-right{right:calc(var(--lw) * -304 / 256); background-image:url('../img/land_right_dno.gif');}
+    числа), ширина = 64+240=304, та же, что у пары выносов над ним.
+    На --lw-bottom — визуально продолжает стол, должен совпадать по
+    ширине с .landing-bottom-ext/-ext2, а не с исходным --lw. ──────────*/
+.landing-tail-ext{display:none; position:absolute; top:0; height:100%; width:calc(var(--lw-bottom) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-tail-ext-left{left:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_left_dno.gif');}
+.landing-tail-ext-right{right:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_right_dno.gif');}
 @media(min-width:600px){
+  .landing-ceiling{display:block;}
   .landing-bottom-ext{display:block;}
   .landing-wall-ext,.landing-bottom-ext2,.landing-tail-ext{display:block;}
   /* Десктоп: высота — ведущая, и ТЕПЕРЬ весь бюджет 100vh целиком
@@ -194,7 +212,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     --top-vh: calc((100vh - var(--tail-h)) * 0.5);
     --bottom-vh: calc((100vh - var(--tail-h)) * 0.5);
     --lw: min(calc(var(--bottom-vh) * 256 / 240), calc(var(--top-vh) * 256 / 288), 100vw);
+    --lw-bottom: calc(var(--lw) * 1.2);
   }
+  /*── Нижняя группа физически на 20% крупнее (--lw-bottom), только на
+      десктопе (автор попросил именно "для лаптопа", не для телефона —
+      на телефоне буфер часто МЕНЬШЕ прироста, и стол залезал бы на само
+      окно, не на буфер — проверено 2026-07-15 в headless-браузере).
+      margin-top тянет её вверх ровно на добавленные 20% высоты (в
+      единицах ИСХОДНОГО --lw, не --lw-bottom), чтобы место, которое блок
+      резервирует в потоке, осталось прежним — нижний край остаётся
+      прибит к .landing-tail, а верхний прирост визуально ложится на
+      буфер (z-index:2 красит его поверх). ────────────────────────────*/
+  .landing-bottom{margin-top:calc(var(--lw) * -48 / 256);}
   /*── landing-top ФИКСИРОВАН на var(--top-vh) только для расчёта --lw
       (см. формулу min() выше) — сам --lw уже определяет пиксельный
       размер потолка/стены независимо от того, растёт ли landing-top
