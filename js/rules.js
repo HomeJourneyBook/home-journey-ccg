@@ -19,12 +19,9 @@
 // списка страниц (по одной или парами). Единый источник правды.
 //
 // TODO (визуал, отдельным заходом):
-//   - 9-слайс фон обложки/страниц, "пружинка", закладки-языки как таб на
-//     верхней кромке, "застёжка" как оформление кромки с кнопками.
-//   - RULES_PAGE_BOX сейчас условные px-плейсхолдеры — как только будет
-//     готов реальный арт страницы, эти размеры (и сам механизм измерения
-//     — сейчас px, скорее всего захочется на vh/vw) надо будет пересчитать
-//     под реальную текстовую область рамки.
+//   - "Пружинка" книги, доп. полировка кромки/застёжки — сам 9-слайс
+//     обложки/страниц и закладки-языки уже на месте (border-image на
+//     img/rules_cover.png / img/rules_pages.png, см. styles.css).
 //   - Лёгкий наклон на разворот (rulesSpreadRotation) — сейчас просто
 //     назначает CSS-переменную --r, сам rotate() и transition навесить
 //     вместе с артом (та же идея, что уже работает на страницах лора).
@@ -36,8 +33,32 @@
 const RULES_LANGS = ['ENG', 'RUS', 'POR', 'VN'];
 const RULES_TITLES = { ENG: 'RULES', RUS: 'Правила', POR: 'REGRAS', VN: 'Luật Chơi' };
 
-// ПЛЕЙСХОЛДЕР — реальная текстовая область придёт из арта страницы.
-const RULES_PAGE_BOX = { width: 320, height: 380 }; // px
+// ── Реальная область текста страницы, СЧИТАННАЯ, а не захардкоженная.
+//    Раньше тут была заглушка {width:320,height:380}, из-за которой
+//    пагинация меряла текст против размера, никак не связанного с тем,
+//    что реально показывается — отсюда обрезанный текст на страницах.
+//    Формулы здесь ДУБЛИРУЮТ CSS (.rules-book/.rules-page-content в
+//    styles.css) вместо живого замера DOM — потому что во время самой
+//    пагинации #rulesPages зачастую ещё display:none (например, первый
+//    заход сразу на обложку), а у display:none элементов
+//    getBoundingClientRect всегда 0×0, измерить нечем. Чисто
+//    математический пересчёт работает независимо от того, что сейчас
+//    видно на экране.
+//    ВАЖНО: если поменяешь константы в .rules-book (ratio/--rules-frame-b/
+//    точку перелома 900px) в styles.css — продублируй изменение и сюда,
+//    иначе пагинация снова разъедется с реальной вёрсткой. */
+function rulesPageContentBoxPx() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const isDesktop = vw >= 900; // == rulesMediaQuery()
+  const bookH = isDesktop ? Math.min(0.82 * vh, 0.46 * vw) : (0.92 * vw) / 0.948;
+  const pageW = bookH * 0.948;
+  const frameB = bookH * 0.06; // == --rules-frame-b
+  return {
+    width: Math.max(0, pageW - 2 * frameB),
+    height: Math.max(0, bookH - 2 * frameB),
+  };
+}
 
 const rulesState = {
   lang: 'ENG',
@@ -59,14 +80,14 @@ function rulesUpdatePagesPerView() {
 // ── Общий "упаковщик" блоков в страницы по замеренной высоте — общий для
 //    контента (с принудительным разрывом перед каждой главой) и для
 //    оглавления (без разрывов, просто жадная упаковка). ─────────────────
-function rulesPackNodes(nodes, probe, forceBreakBeforeH2) {
+function rulesPackNodes(nodes, probe, forceBreakBeforeH2, boxHeight) {
   const pages = [];
   let current = [];
 
   function fits() {
     probe.innerHTML = '';
     current.forEach(n => probe.appendChild(n.cloneNode(true)));
-    return probe.scrollHeight <= RULES_PAGE_BOX.height;
+    return probe.scrollHeight <= boxHeight;
   }
 
   nodes.forEach(node => {
@@ -105,9 +126,10 @@ function paginateRulesLang(lang) {
   const source = document.getElementById('rules' + lang);
   if (!source) { rulesState.pages[lang] = []; rulesState.toc[lang] = []; return; }
 
+  const box = rulesPageContentBoxPx();
   const probe = document.createElement('div');
   probe.className = 'rules-page-text rules-page-probe';
-  probe.style.width = RULES_PAGE_BOX.width + 'px';
+  probe.style.width = box.width + 'px';
   probe.style.position = 'absolute';
   probe.style.visibility = 'hidden';
   probe.style.left = '-9999px';
@@ -116,7 +138,7 @@ function paginateRulesLang(lang) {
   document.body.appendChild(probe);
 
   const blocks = Array.from(source.children);
-  const contentPages = rulesPackNodes(blocks, probe, true);
+  const contentPages = rulesPackNodes(blocks, probe, true, box.height);
 
   // {title, contentPageIndex} — contentPageIndex пока ОТНОСИТЕЛЬНО начала
   // contentPages, финальный сквозной номер посчитаем ниже, когда узнаем,
@@ -136,7 +158,7 @@ function paginateRulesLang(lang) {
     div.textContent = entry.title;
     return div;
   });
-  const tocPageGroups = rulesPackNodes(tocNodes, probe, false);
+  const tocPageGroups = rulesPackNodes(tocNodes, probe, false, box.height);
   probe.remove();
 
   const frontMatterCount = 1 /* страница-цитата */ + tocPageGroups.length;
@@ -313,10 +335,29 @@ function rulesOpen() {
   rulesUpdatePagesPerView();
   if (!rulesState.initialized) {
     rulesState.initialized = true;
+    let resizeTimer = null;
     window.addEventListener('resize', () => {
-      const prev = rulesState.pagesPerView;
-      rulesUpdatePagesPerView();
-      if (prev !== rulesState.pagesPerView && rulesState.pageIndex !== -1) rulesRenderPages();
+      // Дебаунс — во время растягивания окна resize стреляет десятками
+      // раз в секунду, а полная перепагинация (клонирование узлов в
+      // probe) не бесплатна. 150мс — не заметно на глаз, но не молотит
+      // на каждый пиксель.
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        rulesUpdatePagesPerView();
+        // Реальная область текста (rulesPageContentBoxPx) зависит от
+        // vw/vh непрерывно, не только от точки перелома 900px — так что
+        // кэш страниц сбрасываем на КАЖДЫЙ ресайз, не только когда
+        // поменялся pagesPerView, иначе после изменения размера окна
+        // текст остаётся нарезан под старый размер и обрезается/остаётся
+        // с лишним пустым местом.
+        rulesState.pages = {};
+        rulesState.toc = {};
+        if (rulesState.pageIndex !== -1) {
+          rulesRenderPages();
+        } else {
+          rulesRenderCover();
+        }
+      }, 150);
     });
   }
   // Каждое открытие с лендинга — на обложку (язык остаётся тем, что выбрали
