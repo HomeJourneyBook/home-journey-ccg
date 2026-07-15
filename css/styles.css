@@ -335,9 +335,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   десктопе видно обе, левая зеркалит СВОЙ ФОН через двойной scaleX(-1)
   (контент внутри остаётся читаемым, не зеркалится).
   ═══════════════════════════════════════════════════════════════════════*/
-#rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:84px; --rnavbtn:min(5vh,9vw);}
+#rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:42px; --rnavbtn:min(5vh,9vw);}
 @media(min-width:601px){
-  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4);}
+  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:84px;}
 }
 #rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;}
 .rules-book-wrap{position:relative;display:inline-flex;}
@@ -355,13 +355,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-book.open .rules-cover{display:none;}
 .rules-cover-title{
   font-family:'MEK',monospace; color:#E8E0C8; text-align:center; line-height:1;
-  font-size:calc(var(--rpage-h) * 0.2); padding:0 8%; word-break:break-word;
+  font-size:calc(var(--rpage-h) * 0.14); padding:0 8%; word-break:break-word;
 }
-.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.13);}
+.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.091);}
 /*── Языковые кнопки — по верхней кромке обложки, квадратные, наполовину
     сидят поверх 9-slice рамки (translateY(-50%) от верхнего края). ────*/
 .rules-cover-langs{
-  position:absolute; top:0; left:50%; transform:translate(-50%,-50%);
+  /* top:0 у absolute-потомка отсчитывается от padding-edge родителя, т.е.
+     ВНУТРИ его собственной border-width — поэтому сдвигаем на -rborder,
+     чтобы верх кнопок совпал с самым верхним пикселем фона обложки. */
+  position:absolute; top:calc(-1 * var(--rborder)); left:50%; transform:translate(-50%,0);
   display:flex; gap:calc(var(--rnavbtn) * 0.25); z-index:2;
 }
 .rules-cover-lang{
@@ -379,7 +382,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-page{
   width:var(--rpage-w); height:var(--rpage-h); box-sizing:border-box; position:relative; overflow:hidden;
   border-style:solid; border-width:var(--rborder);
-  border-image-source:url('../img/lore_pages.png'); border-image-slice:42 fill;
+  border-image-source:url('../img/rules_pages.png'); border-image-slice:42 fill;
   border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:repeat;
 }
 .rules-page-left{display:none;}
@@ -430,6 +433,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-navbtn:hover:not(:disabled){background:#a0a0a0;}
 .rules-navbtn:active:not(:disabled){background:#6e6e6e;}
 .rules-navbtn:disabled{opacity:0.3;cursor:default;}
+.rules-navbtn-home.rules-navbtn-home-toc{background:#767654;} /* плейсхолдер-акцент, пока нет арта: кнопка "домой" временно работает как "к оглавлению" */
 /*── На десктопе, при открытом развороте, бокс должен "висеть" именно у
     правой страницы — т.к. .rules-book при открытии и так становится
     шириной в 2 страницы, right:0 у .rules-navbox уже прибивает его к
