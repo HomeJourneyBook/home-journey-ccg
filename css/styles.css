@@ -1506,6 +1506,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @media(min-width:601px){
   .bottom-bar-extra{display:block;}
 }
+/*── На планшетах (айпад и т.п.) в ВЕРТИКАЛЬНОЙ ориентации — прячем эти
+    декоративные плейсхолдеры (zabor1/zabor2 обеих фракций и их аналоги).
+    601px — уже существующий порог "не телефон" по всему проекту; 1024px —
+    ширина iPad Pro 12.9" в портрете, самого широкого реального планшета в
+    этой ориентации (обычные landscape-мониторы/лаптопы под это не
+    попадают, они всегда шире, чем выше). Автор попросил 2026-07-15. ────*/
+@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
+  .bottom-bar-extra{display:none;}
+}
 /*ПЛЕЙСХОЛДЕР 2 — справа от zabor1 (margin-left отделяет от него), только лаптоп/десктоп.
   Tea — свой файл (был чёрным без арта, теперь путь под будущий), Jeet — белый фон.*/
 .bottom-bar-extra-2{display:none; width:10.5vh; height:3.5vh; margin-left:10px; background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
@@ -1513,6 +1522,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #jeetBottomBar .bottom-bar-extra-2{background-color:#fff; background-image:url('../img/bottom_extra2_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-2{display:block;}
+}
+@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
+  .bottom-bar-extra-2{display:none;}
 }
 /* ПЛЕЙСХОЛДЕР 3 — правый слот, левее zabor2, сам прижат к низу бара (align-self:flex-end,
    родитель .bottom-slot растянут на все 7vh через align-items:stretch — см. выше).
@@ -1522,6 +1534,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #jeetBottomBar .bottom-bar-extra-3{background-color:#fff; background-image:url('../img/bottom_extra3_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-3{display:block;}
+}
+@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
+  .bottom-bar-extra-3{display:none;}
 }
 /*ПЛЕЙСХОЛДЕР 4 — квадрат, высота = треть высоты бара (7vh/3), справа от кнопки End Turn,
   разведено по фракциям.*/
