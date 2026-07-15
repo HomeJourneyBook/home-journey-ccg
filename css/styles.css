@@ -374,7 +374,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @media(min-width:601px){
   #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:84px;}
 }
-#rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;background:#829797;}
+#rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;background:#829797 url('../img/rules_bg.png') repeat center;}
 .rules-book-wrap{position:relative;display:inline-flex;}
 .rules-book{position:relative;display:flex;flex-direction:row;}
 
@@ -415,13 +415,17 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   display:flex; align-items:center; justify-content:center; padding:0;
 }
 .rules-cover-lang[data-lang="ENG"]{background-image:url('../img/rules_eng1.png');}
-.rules-cover-lang[data-lang="ENG"]:hover,.rules-cover-lang[data-lang="ENG"].active{background-image:url('../img/rules_engH2.png');}
+.rules-cover-lang[data-lang="ENG"]:hover{background-image:url('../img/rules_engH.png');}
+.rules-cover-lang[data-lang="ENG"]:active,.rules-cover-lang[data-lang="ENG"].active{background-image:url('../img/rules_eng2.png');}
 .rules-cover-lang[data-lang="RUS"]{background-image:url('../img/rules_rus1.png');}
-.rules-cover-lang[data-lang="RUS"]:hover,.rules-cover-lang[data-lang="RUS"].active{background-image:url('../img/rules_rusH2.png');}
+.rules-cover-lang[data-lang="RUS"]:hover{background-image:url('../img/rules_rusH.png');}
+.rules-cover-lang[data-lang="RUS"]:active,.rules-cover-lang[data-lang="RUS"].active{background-image:url('../img/rules_rus2.png');}
 .rules-cover-lang[data-lang="POR"]{background-image:url('../img/rules_por1.png');}
-.rules-cover-lang[data-lang="POR"]:hover,.rules-cover-lang[data-lang="POR"].active{background-image:url('../img/rules_porH2.png');}
+.rules-cover-lang[data-lang="POR"]:hover{background-image:url('../img/rules_porH.png');}
+.rules-cover-lang[data-lang="POR"]:active,.rules-cover-lang[data-lang="POR"].active{background-image:url('../img/rules_por2.png');}
 .rules-cover-lang[data-lang="VN"]{background-image:url('../img/rules_vn1.png');}
-.rules-cover-lang[data-lang="VN"]:hover,.rules-cover-lang[data-lang="VN"].active{background-image:url('../img/rules_vnH2.png');}
+.rules-cover-lang[data-lang="VN"]:hover{background-image:url('../img/rules_vnH.png');}
+.rules-cover-lang[data-lang="VN"]:active,.rules-cover-lang[data-lang="VN"].active{background-image:url('../img/rules_vn2.png');}
 .rules-cover-lang:hover,.rules-cover-lang.active{color:#E8E0C8;}
 
 /*── Страницы ────────────────────────────────────────────────────────*/
