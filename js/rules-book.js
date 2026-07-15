@@ -136,6 +136,41 @@ function rulesParseChapters(lang) {
   return chapters;
 }
 
+// ── Токенизация параграфа для постраничной резки ────────────────────
+// Разбивает <p> на последовательность токенов: {type:'text', text} для
+// каждого отдельного слова текстовых узлов, {type:'el', el} для целого
+// инлайн-элемента (<img>-иконка, <a>-ссылка — САМА ссылка не режется по
+// словам, едет одним куском). Порядок исходный, поэтому пересборка через
+// rulesRenderTokens() восстанавливает абзац 1-в-1, просто с возможностью
+// остановиться в любой точке между токенами.
+function rulesTokenizeP(node) {
+  const tokens = [];
+  node.childNodes.forEach(child => {
+    if (child.nodeType === 3) { // текстовый узел
+      (child.textContent || '').split(/\s+/).filter(Boolean).forEach(w => tokens.push({ type: 'text', text: w }));
+    } else if (child.nodeType === 1) { // <img>, <a> и т.п.
+      tokens.push({ type: 'el', el: child });
+    }
+  });
+  return tokens;
+}
+
+// Рендерит первые n токенов в переданный <p> (перезаписывая его содержимое).
+// Пробел между токенами не ставится ПЕРЕД чистой пунктуацией (,.;:!?)) —
+// иначе "Горение , Страх" вместо "Горение, Страх" (см. чат 2026-07-15,
+// абзац Лечения с 3 подряд идущими ссылками через запятую).
+const RULES_NO_SPACE_BEFORE = /^[,.;:!?)]/;
+function rulesRenderTokens(p, tokens, n) {
+  p.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const t = tokens[i];
+    const needsSpace = i > 0 && !(t.type === 'text' && RULES_NO_SPACE_BEFORE.test(t.text));
+    if (needsSpace) p.appendChild(document.createTextNode(' '));
+    if (t.type === 'text') p.appendChild(document.createTextNode(t.text));
+    else p.appendChild(t.el.cloneNode(true));
+  }
+}
+
 // ── Пагинация: возвращает массив страниц, каждая — массив DOM-узлов ─
 function rulesPaginate(lang) {
   const chapters = rulesParseChapters(lang);
@@ -172,47 +207,45 @@ function rulesPaginate(lang) {
     }
 
     chapter.nodes.forEach(node => {
-      // Параграфы С инлайн-контентом (иконки <img>, ссылки <a data-gl> —
-      // см. чат 2026-07-15) НЕЛЬЗЯ резать по словам: word-split ниже
-      // работает через node.textContent и пересобирает <p> заново из
-      // ЧИСТОГО ТЕКСТА — любая вложенная разметка была бы потеряна.
-      // Такие параграфы едут атомарно, как h2/h3, тем же кодом в else.
-      const isRichP = node.tagName === 'P' && node.querySelector('img, a');
-      if (node.tagName === 'P' && !isRichP) {
-        // ── Параграфы режем по словам: на текущую страницу уходит ровно
-        // столько слов, сколько влезает, остаток продолжается НОВЫМ <p>
-        // на следующей странице — а не весь параграф целиком. ──────────
-        let words = (node.textContent || '').split(/\s+/).filter(Boolean);
-        while (words.length) {
+      if (node.tagName === 'P') {
+        // ── Параграфы режем по "токенам" — слово ИЛИ целый инлайн-элемент
+        // (<img>-иконка, <a>-ссылка целиком, не разрывая её саму) — так и
+        // обычный текст, и абзацы с иконками/ссылками внутри одинаково
+        // переносятся по месту, без потери разметки (в отличие от старой
+        // версии, которая работала через node.textContent и уничтожала
+        // вложенные теги — багфикс 2026-07-15, см. чат: абзац "Болт" с
+        // иконкой не влезал целиком и уезжал ВЕСЬ на следующую страницу,
+        // хотя явно оставалось видимое место под заголовком). ──────────
+        let tokens = rulesTokenizeP(node);
+        while (tokens.length) {
           const p = document.createElement('p');
           measure.appendChild(p);
-          let lo = 0, hi = words.length;
+          let lo = 0, hi = tokens.length;
           while (lo < hi) {
             const mid = Math.ceil((lo + hi) / 2);
-            p.textContent = words.slice(0, mid).join(' ');
+            rulesRenderTokens(p, tokens, mid);
             if (fits()) lo = mid; else hi = mid - 1;
           }
           if (lo === 0) {
             measure.removeChild(p);
             if (currentNodes.length === 0) {
-              // страница пуста, но даже одно слово не влезает — форсируем
+              // страница пуста, но даже один токен не влезает — форсируем
               // (не даём алгоритму зациклиться на пустых страницах)
-              const forced = document.createElement('p');
-              forced.textContent = words[0];
-              measure.appendChild(forced);
-              currentNodes.push(forced.cloneNode(true));
+              rulesRenderTokens(p, tokens, 1);
+              measure.appendChild(p);
+              currentNodes.push(p.cloneNode(true));
               markRecorded();
-              words = words.slice(1);
+              tokens = tokens.slice(1);
               continue;
             }
             finalizePage();
-            continue; // те же слова пробуем уже на чистой странице
+            continue; // те же токены пробуем уже на чистой странице
           }
-          p.textContent = words.slice(0, lo).join(' ');
+          rulesRenderTokens(p, tokens, lo);
           currentNodes.push(p.cloneNode(true));
           markRecorded();
-          words = words.slice(lo);
-          if (words.length) finalizePage(); // страница заполнена — остаток идёт дальше
+          tokens = tokens.slice(lo);
+          if (tokens.length) finalizePage(); // страница заполнена — остаток идёт дальше
         }
       } else {
         // h2/h3/rich-<p> — атомарные, не режутся; целиком переезжают на
