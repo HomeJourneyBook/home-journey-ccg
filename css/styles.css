@@ -353,6 +353,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-icon{width:1em;height:1em;vertical-align:middle;margin-right:0.4em;image-rendering:pixelated;flex-shrink:0;}
 .rules-icon-pair{display:inline-flex;align-items:center;gap:0.15em;margin-right:0.4em;}
 .rules-icon-pair .rules-icon{margin-right:0;}
+/*── Внутритекстовые ссылки на термины/разделы (например "[Эссенции]" →
+    прыжок на нужную страницу, см. rulesGotoTerm в rules-book.js). Цвет
+    чуть темнее тела текста + подчёркивание, при наведении — кремовый,
+    тот же, что и у пунктов оглавления. ────────────────────────────────*/
+.rules-gloss-link{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;cursor:pointer;transition:color .15s;}
+.rules-gloss-link:hover{color:#E8E0C8;}
 
 /*═══════════════════════════════════════════════════════════════════════
   RULES BOOK — обложка + постраничный разворот
