@@ -335,11 +335,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   десктопе видно обе, левая зеркалит СВОЙ ФОН через двойной scaleX(-1)
   (контент внутри остаётся читаемым, не зеркалится).
   ═══════════════════════════════════════════════════════════════════════*/
-#rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:42px; --rnavbtn:min(5vh,9vw); --rnavbox-border:2px;}
+#rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:42px; --rnavbtn:min(5vh,9vw); --rnavbox-border:calc(var(--rnavbtn) / 3);}
 @media(min-width:601px){
-  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:84px; --rnavbox-border:4px;}
+  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:84px;}
 }
-#rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;}
+#rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;background:#829797;}
 .rules-book-wrap{position:relative;display:inline-flex;}
 .rules-book{position:relative;display:flex;flex-direction:row;}
 
@@ -383,7 +383,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-page{
   width:var(--rpage-w); height:var(--rpage-h); box-sizing:border-box; position:relative; overflow:hidden;
   border-style:solid; border-width:var(--rborder);
-  border-image-source:url('../img/rules_pages.png'); border-image-slice:42 fill;
+  border-image-source:url('../img/rules_pages.png'); border-image-slice:54 fill;
   border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:repeat;
 }
 .rules-page-left{display:none;}
@@ -423,12 +423,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Навигационный бокс — по правому краю книги, наполовину выходит за
     пределы (translate(50%,-50%) от правого-центра книги). Размер бокса
     ПОЛНОСТЬЮ определяется кнопками: без отступов по краям (padding:0),
-    только зазор МЕЖДУ кнопками, равный половине их высоты — итого высота
-    контента = 3 кнопки + 2 зазора по 0.5 = 4 высоты кнопки (ratio 1:4
-    ширина:высота, как и задумывалось изначально). ─────────────────────*/
+    только зазор МЕЖДУ кнопками, равный четверти их высоты — итого высота
+    контента = 3 кнопки + 2 зазора по 0.25 = 3.5 высоты кнопки. ─────────*/
 .rules-navbox{
   position:absolute; top:50%; right:0; transform:translate(50%,-50%); z-index:5;
-  display:flex; flex-direction:column; gap:calc(var(--rnavbtn) * 0.5);
+  display:flex; flex-direction:column; gap:calc(var(--rnavbtn) * 0.25);
   padding:0; box-sizing:content-box;
   border-style:solid; border-width:var(--rnavbox-border);
   border-image-source:url('../img/rules_navigation_box.png'); border-image-slice:8 fill;
