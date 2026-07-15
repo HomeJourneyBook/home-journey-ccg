@@ -503,58 +503,137 @@
 
   <!-- PORTUGUESE (BR) -->
   <div class="rules-source" id="rulesPOR" data-title="REGRAS">
-    <h2>O Jogo</h2>
-    <p>Duas facções: a Taverna e Jeet. Cada facção tem seus próprios seguidores, Artefatos, Mundos e Feitiços para conquistar a vitória na Grande Confrontação. Atualmente o primeiro modo de jogo está disponível — Hotseat — junto com um conjunto inicial de 91 cartas. No futuro: oponente IA, jogo Online e novas expansões de cartas.</p>
-    <h2>Modo Hotseat</h2>
-    <p>Dois jogadores se alternam em um dispositivo. Jogador 1 joga como a Taverna e recebe 45 cartas, Jogador 2 joga como Jeet e tem 46 cartas no baralho. A base de cada jogador começa com 20 HP. Você constrói um campo com Viajantes Comuns e Únicos, lança feitiços, ativa artefatos e mundos. O primeiro a zerar a base do oponente vence.</p>
-    <h2>O Que Está na Carta</h2>
-    <p>Cada carta mostra: custo (canto superior esquerdo — quanta Essência é necessária), tipo de carta (canto superior direito), arte no centro, tags indicando as habilidades, depois o nome, e para criaturas — Saúde/HP (coração) e Ataque/ATK (espada) na parte inferior. Abaixo está o texto da habilidade.</p>
-    <h2>Mulligan</h2>
-    <p>Antes do jogo começar, cada jogador vê sua mão inicial de 5 cartas e pode embaralhar de volta e comprar uma nova — até 3 vezes. A primeira não tem penalidade. Após a 2ª você recebe 1 carta a menos, após a 3ª tentativa 2 a menos. O mulligan é opcional. Quando ambos confirmam — o jogo começa.</p>
-    <h2>Essência</h2>
-    <p>Essência é seu recurso. Você começa com máximo 1 e ganha +1 a cada turno — no turno 5 você tem 5 de Essência. Ela recarrega completamente no início de cada turno. Gaste sua Essência para jogar uma carta pressionando Play.</p>
-    <h2>Queimar</h2>
-    <p>Uma vez por turno você pode queimar uma carta da mão: ela vai para o Vazio para sempre, mas seu máximo de Essência aumenta permanentemente em 1. Pressione Burn acima da carta escolhida.</p>
-    <h2>Baralho</h2>
-    <p>Você compra 1 carta do baralho no início de cada turno.</p>
-    <h2>Habilidades Ativas</h2>
-    <p>Alguns Viajantes e Artefatos têm uma ação especial que você ativa manualmente tocando na carta e selecionando o botão de habilidade. Habilidades ativas não custam Essência, mas só podem ser usadas uma vez por turno em vez de atacar — após isso a criatura fica exausta.</p>
-    <h2>Cemitério e Vazio</h2>
-    <p>O Cemitério guarda apenas criaturas mortas em batalha. Elas podem ser revividas. O Vazio guarda cartas queimadas, feitiços jogados e mundos substituídos — nada pode recuperá-los.</p>
-    <h2>Tipos de Carta</h2>
+
+    <h2>O que é um JCC</h2>
+    <p>Um JCC (jogo de cartas colecionável) é um gênero em que cada jogador monta um baralho com cartas de diferentes criaturas, feitiços e efeitos, e depois joga essas cartas por turnos durante uma partida, gastando um recurso limitado, tentando derrotar o oponente antes que ele derrote você. Vence quem usa melhor suas cartas e recursos na situação do momento.</p>
+    <p>Em Home's Journey, duas facções se enfrentam — a Taverna e o Jeet. Cada uma tem seus próprios seguidores (Viajantes), além de Artefatos, Mundos e Feitiços, tudo a serviço do Grande Confronto. Vence quem reduzir a vida da base do oponente a zero primeiro.</p>
+
+    <h2>Modos de Jogo</h2>
+    <h3><img class="rules-icon" src="img/btn_hotseatH.png">Cadeira Quente</h3>
+    <p>Dois jogadores se revezam no mesmo dispositivo, passando-o um para o outro entre os turnos — a tela do oponente fica oculta durante a troca para que ninguém veja a mão do outro.</p>
+    <h3><img class="rules-icon" src="img/btn_vsaiH.png">Contra IA</h3>
+    <p>Jogue contra um oponente controlado pelo computador, no mesmo dispositivo. As regras são as mesmas da Cadeira Quente — a IA simplesmente joga os turnos do segundo jogador.</p>
+    <h3><img class="rules-icon" src="img/btn_classicH.png">Clássico</h3>
+    <p>Cada lado recebe um baralho já pronto e balanceado — não é preciso montar nada, dá para começar a partida na hora.</p>
+    <h3><img class="rules-icon" src="img/btn_rushH.png">Rush</h3>
+    <p>Em vez de um baralho pronto, você recebe um montador de baralhos — monte o seu próprio, a partir das cartas disponíveis para sua facção.</p>
+    <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/btn_teaH.png"><img class="rules-icon" src="img/btn_jeetH.png"></span>Escolha de Facção e Quem Começa</h3>
+    <p>Antes da partida, você escolhe qual facção jogar — Taverna ou Jeet. Depois, um lançamento de dado decide aleatoriamente quem começa. Quem joga em segundo recebe uma carta bônus como compensação — UNSEEN: um feitiço neutro que não faz parte do baralho e não participa do mulligan — é concedido separadamente, logo depois dele.</p>
+    <h3><img class="rules-icon" src="img/btn_mulliganH.png">Mulligan</h3>
+    <p>Antes do jogo começar, cada jogador vê sua mão inicial de 5 cartas e pode embaralhá-la de volta no baralho e comprar uma nova — até 3 vezes. O primeiro reembaralhamento não tem penalidade, depois do 2º você recebe 1 carta a menos, depois da 3ª tentativa — 2 a menos. O mulligan não é obrigatório: se a mão estiver boa, basta pressionar Ready. Quando os dois jogadores confirmam que estão prontos — o jogo começa.</p>
+
+    <h2>A Carta</h2>
+    <p><em>[ilustração: uma carta com números de 1 a 9 apontando para cada elemento abaixo]</em></p>
+    <h3>1. Custo</h3>
+    <p>Quanto de <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('essence')">Essência</a> é preciso gastar para jogar esta carta.</p>
+    <h3>2. Tipo de Carta</h3>
+    <p>O ícone no canto superior direito mostra <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('card_types')">o tipo desta carta</a>.</p>
+    <h3>3. Arte</h3>
+    <p>A ilustração da carta, desenhada em uma tela de 64x64 pixels.</p>
+    <h3>4. Tags de Habilidade</h3>
+    <p>Ícones ao lado da arte — as habilidades-chave da carta, todas explicadas no <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('glossary')">Glossário</a>.</p>
+    <h3>5. Nome</h3>
+    <p>O nome da carta.</p>
+    <h3>6. Vida (HP)</h3>
+    <p>Quanto de dano a criatura aguenta antes de morrer. Indicado por um coração.</p>
+    <h3>7. Ataque (ATK)</h3>
+    <p>Quanto de dano a criatura causa ao atacar. Indicado por uma espada.</p>
+    <h3>8. Armadura</h3>
+    <p>Uma reserva extra além da vida — nem toda criatura tem. <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('armor')">Mais sobre Armadura</a>.</p>
+    <h3>9. Texto de Habilidade</h3>
+    <p>Descreve o que a carta faz — de efeitos passivos a botões ativos. Se algo escrito no texto de uma carta contradisser estas regras, o texto da carta sempre tem prioridade.</p>
+
+    <h2 data-gl="card_types">Tipos de Carta</h2>
     <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/type_creature.png"><img class="rules-icon" src="img/type_unique.png"></span>Viajantes Comuns e Únicos</h3>
-    <p>São cartas de criaturas colocadas no campo. Quando jogadas, entram em estado de sono e não podem agir até seu próximo turno. Para atacar: toque na criatura, depois em uma carta inimiga disponível ou na Base do oponente no topo — após isso a criatura fica exausta. Quando ataca, o defensor contra-ataca simultaneamente. Criaturas mortas vão para o Cemitério.</p>
+    <p>São cartas de criatura, colocadas no campo. Ao serem jogadas, entram no campo <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('sleep')">Adormecidas</a> e não podem agir até o seu próximo turno. Depois de atacar uma carta do oponente ou sua Base, ou usar sua habilidade ativa, a criatura é considerada <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('exhausted')">Exausta</a>. Criaturas mortas em batalha vão para o <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('graveyard')">Cemitério</a> e podem ser revividas.</p>
     <h3><img class="rules-icon" src="img/type_spell.png">Feitiços</h3>
-    <p>Têm efeito imediato — comprar cartas, reviver aliado, Essência bônus, retornar todas as cartas do campo para a mão — depois vão para o Vazio.</p>
+    <p>Feitiços disparam instantaneamente no momento em que são jogados — depois vão para o <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Vazio</a>.</p>
     <h3><img class="rules-icon" src="img/type_world.png">Mundos</h3>
-    <p>Carta permanente que fica abaixo do seu campo e afeta o jogo passivamente. Apenas um Mundo ativo por vez. Jogar um segundo substitui o primeiro.</p>
+    <p>Um Mundo é uma carta permanente que fica sob o seu campo e afeta o jogo passivamente enquanto ativo. Só pode haver um Mundo ativo por vez. Jogar um segundo substitui o primeiro — o antigo vai para o Vazio. Um Mundo não pode ser alvo do ataque de uma criatura, de um feitiço, ou da habilidade ativa de um Artefato.</p>
     <h3><img class="rules-icon" src="img/type_artifact.png">Artefatos</h3>
-    <p>Também ficam abaixo do campo, até dois ativos simultaneamente. Alguns disparam automaticamente a cada turno. Outros são ativos — toque para usar uma vez por turno. Artefatos dormem no primeiro turno.</p>
-    <hr style="border-color:#ffffff11;margin:24px 0;">
-    <h2>Glossário</h2>
-    <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguarda</h3><p>A criatura pode agir no mesmo turno em que entrou no campo. Ignora o estado de sono.</p>
-    <h3>Dormindo</h3><p>A criatura entrou no campo neste turno e não pode agir. Acorda no início do seu próximo turno.</p>
-    <h3>Exausta</h3><p>A criatura já atacou ou usou habilidade ativa neste turno. Não pode agir novamente até o próximo turno. Mostrada com opacidade reduzida.</p>
-    <h3><img class="rules-icon" src="img/ico_provoke.png">Provocar</h3><p>Todos os ataques inimigos devem mirar nesta criatura.</p>
-    <h3>Bushido</h3><p>Todos os ataques, incluindo criaturas com Perfurar, devem mirar nesta criatura.</p>
-    <h3><img class="rules-icon" src="img/ico_pierce.png">Perfurar</h3><p>Esta criatura ignora Provocar e pode atacar a base ou qualquer inimigo diretamente.</p>
-    <h3><img class="rules-icon" src="img/ico_fear.png">Medo</h3><p>Quando esta criatura ataca, o alvo fica Amedrontado: pula seu próximo turno e não causa dano de contra-ataque.</p>
-    <h3>Invisível</h3><p>Esta criatura não pode ser escolhida como alvo enquanto houver aliados no campo. Quando for a última, pode ser atacada normalmente. Também não recebe dano de contra-ataque.</p>
-    <h3><img class="rules-icon" src="img/ico_rage.png">Fúria</h3><p>Cada vez que esta criatura ataca, ganha permanentemente +1 ATK. O bônus acumula mas é resetado se morrer e for revivida.</p>
-    <h3><img class="rules-icon" src="img/ico_burn.png">Queimar</h3><p>Quando esta criatura ataca, o alvo pega fogo. Criaturas em chamas perdem 1 HP no início de cada turno. Efeito permanente até a morte. Uma criatura que morre pelo fogo vai para o Vazio.</p>
-    <h3><img class="rules-icon" src="img/ico_regen.png">Regenerar</h3><p>A criatura restaura X HP para si mesma no início de cada um dos seus turnos, até o máximo.</p>
-    <h3>Aura</h3><p>Efeito de campo passivo que fortalece todos os aliados enquanto a carta com aura estiver no campo. O bônus desaparece quando a carta sai. Múltiplas auras acumulam. A aura não fortalece a si mesma.</p>
-    <h3>Esquadrão</h3><p>Quando 3 ou mais Viajantes do mesmo tipo de Portal estão no seu campo simultaneamente, todos recebem um bônus automaticamente. O bônus ativa quando o terceiro chega e desaparece quando o esquadrão cai abaixo de três.</p>
-    <h3>Portais</h3><p>As diferentes formas dos Viajantes. Há 6 tipos principais: Szarg, Xuiqtr, Umbasir, Mechird, Orbiton, Dreegan.</p>
-    <h3>HP Máximo</h3><p>Algumas habilidades aumentam o HP máximo de uma criatura. Se estiver com saúde plena, o HP atual também sobe (3/3 vira 4/4). Se já estiver ferida, apenas o máximo cresce (2/3 vira 2/4).</p>
-    <h3>Reviver</h3><p>Retorna uma criatura do Cemitério ao campo com X HP. Entra em estado de sono. Criaturas revividas não disparam efeitos Ao Entrar.</p>
-    <h3>Repelir</h3><p>Retorna uma carta do campo para a mão do jogador.</p>
-    <h3>Sacrifício</h3><p>Destruir intencionalmente uma de suas criaturas. Vai para o Cemitério e pode ser revivida. Alguns artefatos requerem sacrifício para ativar.</p>
-    <h3>No Início do Turno</h3><p>O efeito dispara automaticamente no início do seu turno, antes de qualquer ação.</p>
-    <h3>Ao Entrar</h3><p>O efeito dispara quando a carta é jogada da mão para o campo. Não dispara em revividas.</p>
-    <h3>Ao Atacar</h3><p>O efeito dispara cada vez que esta criatura ataca — seja criatura inimiga ou base.</p>
-    <h3>Ao Matar</h3><p>O efeito dispara quando o ataque desta criatura mata uma criatura inimiga diretamente.</p>
-  </div>
+    <p>Artefatos também ficam sob o campo, e da mesma forma só um pode estar ativo por vez — jogar um segundo substitui o primeiro, mandando-o para o Vazio. Artefatos com habilidades ativas dormem no primeiro turno, assim como as criaturas. Um Artefato também não pode ser alvo de uma criatura, de um feitiço, ou da habilidade ativa de outro Artefato.</p>
+
+    <h2>O Campo</h2>
+    <p><em>[ilustração: uma captura de tela do campo de batalha com as zonas indicadas]</em></p>
+    <h3>1. Barra de Status do Oponente</h3>
+    <p>Mostra a vida da base do oponente e sua Essência, além da própria base, que pode ser alvo de uma criatura atacante. Também mostra o Mundo e o Artefato ativos do oponente assim que jogados (pressione e segure com o mouse ou o dedo para ver os detalhes da carta).</p>
+    <h3>2. Zona da Mão do Oponente</h3>
+    <p>As cartas do oponente ficam viradas para baixo — só a quantidade é visível.</p>
+    <h3>3. Campo</h3>
+    <p>Onde as criaturas de ambos os lados são colocadas.</p>
+    <h3>4. Zona da Sua Mão</h3>
+    <p>Suas cartas, compradas do Baralho, prontas para jogar.</p>
+    <h3>5. Sua Barra de Status</h3>
+    <p>Mostra a vida da sua base, sua Essência, e a própria base. Seu Mundo e Artefato jogados também aparecem aqui (pressione e segure com o mouse ou o dedo para ver os detalhes da carta).</p>
+    <h3>6. Barra Inferior</h3>
+    <p>O botão central "Fim de Turno", contadores de cartas restantes no Baralho e de cartas-criatura no Cemitério, e o botão que abre a janela do Cemitério.</p>
+    <h3>7. Baralho</h3>
+    <p>Cartas que você ainda não comprou. Só a quantidade é visível. Você compra 1 carta do baralho no início de cada turno. Quando o baralho acabar, não há mais cartas para comprar.</p>
+    <h3 data-gl="graveyard">8. Cemitério</h3>
+    <p>Onde vão parar e são exibidas as cartas-criatura mortas em batalha. As cartas no topo da janela são as que estão "no topo do cemitério".</p>
+    <h3 data-gl="void">9. Vazio</h3>
+    <p>Guarda cartas queimadas, feitiços jogados e mundos substituídos — nada pode trazê-los de volta. O Vazio não tem uma zona própria na tela — as cartas que vão parar lá simplesmente desaparecem do jogo para sempre.</p>
+    <h3>10. Registro de Batalha</h3>
+    <p>Um painel lateral com o histórico de eventos da partida.</p>
+
+    <h2>Jogando um Turno</h2>
+    <h3 data-gl="essence">Essência</h3>
+    <p><img class="rules-icon" src="img/ess.png"> Essência é seu recurso. Você começa com um máximo de 1 e ganha +1 a cada turno — ou seja, no turno 5 você tem 5 de Essência, até um máximo de 10. Essência não usada é perdida no fim do turno e volta ao máximo no início do seu próximo turno.</p>
+    <h3>Jogando uma Carta</h3>
+    <p>Selecione uma carta na sua mão e pressione <img class="rules-icon" src="img/btn_play.png"> para jogá-la, gastando a quantidade correspondente de Essência. Viajantes e Mundos/Artefatos permanecem no campo, Feitiços disparam imediatamente e vão para o Vazio.</p>
+    <h3>Queima de Carta</h3>
+    <p>Uma vez por turno você pode queimar uma carta da sua mão: ela vai para o Vazio para sempre, mas seu máximo de Essência aumenta permanentemente em 1. Pressione <img class="rules-icon" src="img/btn_burn.png"> acima da carta escolhida para fazer isso.</p>
+    <h3>Inspecionando uma Carta</h3>
+    <p>Pressione <img class="rules-icon" src="img/btn_zoom.png"> se quiser ver uma carta ampliada. Para cartas no campo de batalha, pressione e segure (ou toque e segure na tela sensível ao toque) a carta que te interessa para ver sua versão completa junto com quaisquer efeitos de status ativos nela no momento.</p>
+    <h3>Feitiços Direcionados</h3>
+    <p>Alguns feitiços e habilidades ativas exigem a escolha de um alvo — depois de tentar jogar uma carta ou usar uma habilidade, o jogo pausa e pede para você clicar na carta-alvo. Você também pode tocar na zona da sua mão para cancelar — no caso de um feitiço, a carta volta para sua mão e o custo em Essência não é gasto.</p>
+    <h3>Atacando</h3>
+    <p>Para atacar: pressione sua carta-criatura, depois pressione um alvo disponível — destacado em vermelho — seja uma carta inimiga ou a Base do oponente, acima. Você não pode atacar suas próprias criaturas nem sua própria base.</p>
+    <h3>Troca de Golpes</h3>
+    <p>Quando uma criatura ataca: o alvo recebe dano primeiro, depois disparam os efeitos "Ao atacar" (Medo, Queimadura, Fúria, Vampírico etc.) — e se o alvo morreu, também os efeitos "Ao matar". Se o alvo sobreviveu, ele revida — a menos que esteja Exausto.</p>
+    <h3>Adormecido e Exausto</h3>
+    <p>Uma carta-criatura que acabou de entrar no campo está Adormecida e não pode agir até o seu próximo turno. Depois de atacar ou usar uma habilidade ativa, a criatura fica Exausta: não pode agir de novo — nem contra-atacar — até o fim do turno do oponente.</p>
+    <h3>Habilidades Ativas</h3>
+    <p>Algumas cartas-criatura e Artefatos têm uma ação especial que você aciona manualmente, pressionando a carta e escolhendo o botão de habilidade que aparece. Habilidades ativas não custam Essência, mas só podem ser usadas uma vez por turno, no lugar de atacar — depois disso a carta-criatura ou Artefato é considerada exausta.</p>
+    <h3>Vitória</h3>
+    <p>Assim que uma das bases chegar a 0 de vida, aquele jogador perde — e o outro jogador vence!</p>
+
+    <h2 data-gl="glossary">Glossário</h2>
+
+    <h3 data-gl="sleep">Adormecido</h3><p><img class="rules-icon" src="img/zzz.png"> Uma carta-criatura ou Artefato entrou no campo neste turno e não pode agir. Acorda no início do seu próximo turno.</p>
+    <h3 data-gl="exhausted">Exausto</h3><p>Uma carta-criatura ou Artefato já atacou ou usou uma habilidade ativa neste turno. Não pode agir de novo — nem contra-atacar — até o turno seguinte. Aparece como uma carta escurecida.</p>
+    <h3>Aura</h3><p>Um efeito passivo de campo que fortalece todos os aliados enquanto a carta com a aura estiver no campo. O bônus desaparece imediatamente quando a carta sai do campo. Várias fontes de aura se somam. Uma aura não fortalece a si mesma — só os aliados.</p>
+    <h3>Esquadrão</h3><p>Quando você tem 3 ou mais Viajantes do mesmo tipo no seu campo ao mesmo tempo, todos ganham um bônus automaticamente. O bônus é ativado no momento em que o terceiro entra e desaparece assim que o esquadrão cai para menos de três. Cada esquadrão tem seu próprio tipo de bônus.</p>
+    <h3>Vida Máxima (maxHP)</h3><p>Auras e feitiços podem aumentar a vida máxima de uma carta-criatura. Se a criatura estiver com a vida cheia, a vida atual também aumenta (3/3 vira 4/4). Se já estiver ferida, só o máximo aumenta (2/3 vira 2/4). A cura nunca leva a vida acima do máximo. Você sempre pode passar o cursor sobre o indicador de vida de uma carta-criatura no campo para ver seu máximo atual.</p>
+    <h3>Cura</h3><p>Se o texto de uma carta disser "Active: Heal X", significa que no campo de batalha, em vez de atacar, você pode pressionar a carta e depois <img class="rules-icon" src="img/btn_heal.png"> — escolher um aliado como alvo e curá-lo em X de vida. Essa habilidade também remove efeitos negativos como <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('burn')">Queimadura</a>, <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('fear')">Medo</a> e <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('taunt_break')">Quebra de Provocação</a>. Depois de usar essa habilidade, a carta-criatura que a usou é considerada exausta.</p>
+    <h3>Bolt</h3><p>Se o texto de uma carta disser "Active: Bolt X", significa que no campo de batalha, em vez de atacar, você pode pressionar a carta e depois <img class="rules-icon" src="img/btn_spell.png"> — escolher uma carta-criatura inimiga como alvo e causar X de dano a ela. Essa habilidade é considerada mágica, ou seja, ignora a Armadura, mas não consegue ferir criaturas com <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('ward')">Proteção</a>.</p>
+    <h3>Reviver</h3><p>Traz uma criatura do Cemitério de volta ao campo com X de vida, ou com a vida cheia se nenhum número estiver escrito no texto da carta. Uma criatura revivida entra no campo Adormecida. Criaturas revividas não disparam efeitos "Ao jogar".</p>
+    <h3>Sacrifício</h3><p>Uma ação ativa que destrói uma de suas próprias criaturas em troca do bônus escrito na carta com essa habilidade. A carta-criatura destruída vai para o Cemitério e pode ser revivida.</p>
+    <h3>Compra de Carta</h3><p>Se o texto de uma carta menciona "Draw" em alguma ação, ao realizar essa ação você recebe imediatamente uma carta extra do baralho, desde que ainda haja alguma disponível.</p>
+    <h3>No Turno</h3><p>O efeito dispara automaticamente no início do turno do jogador, antes de qualquer ação.</p>
+    <h3>Ao Jogar</h3><p>O efeito dispara no momento em que uma carta é jogada da mão para o campo.</p>
+    <h3>Ao Atacar</h3><p>O efeito dispara toda vez que essa carta-criatura ataca — seja uma criatura inimiga ou a base (efeitos negativos não afetam a base).</p>
+    <h3>Ao Matar</h3><p>O efeito dispara quando o ataque dessa carta-criatura mata uma carta-criatura inimiga diretamente.</p>
+
+    <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguarda</h3><p>Uma carta-criatura pode agir no mesmo turno em que entra no campo. Ela pula o estado Adormecido.</p>
+    <h3><img class="rules-icon" src="img/ico_provoke.png">Provocação</h3><p>Todos os ataques de cartas-criatura do oponente devem ter essa criatura como alvo.</p>
+    <h3><img class="rules-icon" src="img/ico_pierce.png">Perfuração</h3><p>A criatura ignora a Provocação e pode atacar a base ou qualquer carta-criatura inimiga diretamente.</p>
+    <h3><img class="rules-icon" src="img/ico_fear.png">Medo</h3><p>Com essa habilidade, uma carta-criatura aplica o efeito negativo "Medo" na carta inimiga no momento em que ataca. Cartas-criatura sob efeito de Medo pulam seu próximo turno e não causam dano de contra-ataque.</p>
+    <h3><img class="rules-icon" src="img/ico_invis.png">Invisível</h3><p>Essa carta-criatura não pode ser alvo de ataque enquanto houver outros aliados no campo. Quando ela for a última restante, pode ser atacada. Também não sofre dano de contra-ataque quando ataca.</p>
+    <h3><img class="rules-icon" src="img/ico_rage.png">Fúria</h3><p>Toda vez que essa criatura ataca, ela ganha +1 de ataque permanentemente. O bônus é zerado se a criatura morrer. Acumula com outros bônus de Auras, Esquadrões ou Feitiços.</p>
+    <h3 data-gl="burn"><img class="rules-icon" src="img/ico_burn.png">Queimadura</h3><p>Quando essa criatura ataca, a criatura inimiga recebe o efeito negativo "Queimadura". Criaturas queimando perdem 1 de vida no início de cada um de seus turnos. O efeito é permanente até a criatura morrer. Uma criatura que morre por Queimadura vai para o Vazio.</p>
+    <h3><img class="rules-icon" src="img/ico_regen.png">Regeneração X</h3><p>A criatura recupera X de vida no início de cada um dos seus turnos, mas nunca acima do máximo.</p>
+    <h3 data-gl="armor"><img class="rules-icon" src="img/armor.png">Armadura</h3><p>Uma reserva extra além da vida. Absorve dano primeiro, mas só de ataques normais. Dano mágico ignora a Armadura completamente. É restaurada ao máximo no início do seu turno. Pode acumular de diferentes Auras, bônus de Esquadrão ou Feitiços.</p>
+    <h3><img class="rules-icon" src="img/solana_shield.png">Escudo Solana</h3><p>Uma camada de proteção sobre a vida — absorve completamente o primeiro golpe recebido por essa criatura, de qualquer tipo, incluindo quaisquer efeitos colaterais que viriam com esse golpe. Ativa uma vez a cada vez que a carta entra no campo. Se a criatura sair do campo e voltar, o escudo recarrega.</p>
+    <h3><img class="rules-icon" src="img/ico_untamed.png">Indomável</h3><p>A criatura remove seu próprio estado Exausto no início do turno do oponente.</p>
+    <h3 data-gl="ward"><img class="rules-icon" src="img/ico_ward.png">Proteção</h3><p>Essa carta-criatura ignora completamente dano mágico.</p>
+    <h3><img class="rules-icon" src="img/ico_incarn.png">Encarnação X</h3><p>Quando essa criatura morre, ela revive do Cemitério de volta ao campo X turnos seus depois, com vida cheia e Adormecida. Dispara só uma vez — se morrer de novo depois de voltar, vai para o Vazio em vez disso.</p>
+    <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Quebra de Provocação</h3><p>Ao atacar, aplica um efeito negativo que remove a Provocação do alvo até o fim do turno.</p>
+    <h3><img class="rules-icon" src="img/ico_vamp.png">Vampírico</h3><p>No seu próprio ataque, a criatura se cura exatamente na quantidade de vida que realmente retirou do alvo (dano absorvido por Armadura ou Escudo não conta) — mas nunca mais do que sua própria vida faltante.</p>
+    <h3><img class="rules-icon" src="img/ico_erase.png">Apagar</h3><p>Se o ataque dessa criatura mata um inimigo, a carta derrotada vai para o Vazio em vez do Cemitério, e essa criatura restaura totalmente sua vida e remove sua própria Queimadura. Só dispara ao matar por ataque direto.</p>
+
+</div>
+
 
   <!-- VIETNAMESE -->
   <div class="rules-source" id="rulesVN" data-title="Luật Chơi">
