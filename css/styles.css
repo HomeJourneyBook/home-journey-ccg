@@ -391,12 +391,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-cover-title{
   font-family:'MEK',monospace; color:#0c1013; text-align:center; line-height:1;
   font-size:calc(var(--rpage-h) * 0.14); padding:0; word-break:break-word;
-  display:inline-block; box-sizing:content-box;
-  border-style:solid; border-width:calc(1em / 3);
+  display:inline-block; box-sizing:content-box; flex-shrink:0;
+  border-style:solid; border-width:calc(1em / 6);
   border-image-source:url('../img/rules_title_bg.png'); border-image-slice:40 fill;
-  border-image-width:calc(1em / 3); border-image-outset:0; border-image-repeat:stretch;
+  border-image-width:calc(1em / 6); border-image-outset:0; border-image-repeat:stretch;
 }
-.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.050968);}
+/*── RUS-рамка автору нравится как есть (1em/3 от своего, уже некрупного,
+    шрифта — впритык к тексту) — явно фиксируем её отдельно, раз базовое
+    правило выше поменялось (стало 1em/6) под остальные языки. ──────────*/
+.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.050968);border-width:calc(1em / 3);border-image-width:calc(1em / 3);}
 .rules-cover-title.vn-title{font-family:'Be Vietnam Pro',sans-serif;font-weight:700;font-size:calc(var(--rpage-h) * 0.098);}
 /*── Языковые кнопки — по верхней кромке обложки, квадратные, наполовину
     сидят поверх 9-slice рамки (translateY(-50%) от верхнего края). ────*/
