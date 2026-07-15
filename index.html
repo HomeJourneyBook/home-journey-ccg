@@ -195,12 +195,12 @@
 <audio id="bgMusic" src="audio/main_theme.mp3" loop preload="auto"></audio>
 <!-- SFX проигрываются через new Audio() из ui.js, отдельный тег не нужен -->
 
-<!-- RULES SCREEN — постраничная книга правил (обложка + разворот) ────────
+<!-- RULES SCREEN — постраничная книга правил (обложка + разворот).
      Реальный текст правил лежит НИЖЕ в скрытых .rules-source блоках
      (rulesENG/RUS/POR/VN, как и раньше) — они больше не показываются
      напрямую, а служат источником данных для js/rules-book.js, который
      разбивает их на "физические" страницы (по высоте контейнера страницы)
-     и рендерит текущий разворот в #rulesPageLeft/#rulesPageRight. ───────*/
+     и рендерит текущий разворот в #rulesPageLeft/#rulesPageRight. -->
 <div class="screen" id="rulesScreen">
   <div class="rules-book-wrap">
     <div class="rules-book" id="rulesBook">
