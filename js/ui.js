@@ -297,7 +297,7 @@ function preloadAssets(){
     'img/trubi1_jeet.png',
 
     // ── Книга правил (обложка, страницы, кнопки навигации) ──
-    'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_navigation_box.png', 'img/rules_title_bg.png',
+    'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_pages1.png', 'img/rules_pages2.png', 'img/rules_pages3.png', 'img/rules_navigation_box.png', 'img/rules_title_bg.png',
     'img/rules_btn_left1.png', 'img/rules_btn_leftH.png', 'img/rules_btn_left2.png',
     'img/rules_btn_right1.png', 'img/rules_btn_rightH.png', 'img/rules_btn_right2.png',
     'img/rules_btn_home1.png', 'img/rules_btn_homeH.png', 'img/rules_btn_home2.png',
