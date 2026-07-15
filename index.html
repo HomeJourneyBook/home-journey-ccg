@@ -155,7 +155,7 @@
          уже так и работал), автор перерисует под точный размер позже. -->
     <div class="landing-row-audio">
       <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
-      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules',this);rulesOpen();"></button>
+      <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules',this)"></button>
       <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
     </div>
 
@@ -197,15 +197,16 @@
 
 <!-- RULES SCREEN -->
 <div class="screen" id="rulesScreen">
-  <!-- ПРОТОТИП без арта — заголовок и Back/Home временно только в кромке
-       книги (#rulesEdgeBtns) и на обложке (см. ниже), верхней панели
-       экрана больше нет по просьбе 2026-07-14. -->
-
-  <!-- ИСХОДНЫЙ ТЕКСТ — источник данных для пагинации, НИКОГДА не показывается
-       напрямую (см. rules.js: paginateRulesLang читает эти блоки).
-       Переводчики продолжают редактировать h2/h3/p как раньше — движок сам
-       нарежет их на страницы по фактической высоте рендера. -->
-  <div id="rulesSource" style="display:none;">
+  <div class="screen-header">
+    <button class="screen-back" onclick="playSfx('yellow_buttom');hideScreen('rules')">← Back</button>
+    <div class="screen-title" id="rulesTitleLabel">RULES</div>
+    <div class="rules-lang-btns">
+      <button class="rules-lang-btn active" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
+      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('RUS')">RUS</button>
+      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
+      <button class="rules-lang-btn" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
+    </div>
+  </div>
 
   <!-- ENGLISH -->
   <div class="screen-body rules-lang-body" id="rulesENG">
@@ -373,135 +374,59 @@
   </div>
 
   <!-- VIETNAMESE -->
-  <div class="screen-body rules-lang-body" id="rulesVN" style="display:none;">
-    <h2>Trò Chơi</h2>
+  <div class="screen-body rules-lang-body" id="rulesVN" style="display:none; font-family: system-ui, -apple-system, sans-serif;">
+    <h2 style="font-family:system-ui,sans-serif;">Trò Chơi</h2>
     <p>Hai phe: Quán Trọ và Jeet. Mỗi phe có những người theo dõi riêng, Vật Phẩm, Thế Giới và Phép Thuật để giành chiến thắng trong Cuộc Đối Đầu Vĩ Đại. Hiện tại chế độ chơi đầu tiên đã có — Hotseat — cùng với bộ bài khởi đầu gồm 91 lá. Trong tương lai: đối thủ AI, chơi Trực Tuyến và các bản mở rộng mới.</p>
-    <h2>Chế Độ Hotseat</h2>
+    <h2 style="font-family:system-ui,sans-serif;">Chế Độ Hotseat</h2>
     <p>Hai người chơi thay phiên nhau trên một thiết bị. Người chơi 1 chơi với Quán Trọ và nhận 45 lá, Người chơi 2 chơi với Jeet và có 46 lá trong bộ bài. Mỗi người có căn cứ với 20 HP. Bạn xây dựng chiến trường với các Du Hành Giả Thường và Độc Nhất, thi triển phép thuật, kích hoạt vật phẩm và thế giới. Người đầu tiên đưa căn cứ đối thủ về không sẽ thắng.</p>
-    <h2>Thông Tin Trên Lá Bài</h2>
+    <h2 style="font-family:system-ui,sans-serif;">Thông Tin Trên Lá Bài</h2>
     <p>Mỗi lá bài hiển thị: chi phí (góc trên trái — cần bao nhiêu Tinh Chất), loại lá (góc trên phải), hình ảnh ở giữa, các thẻ chỉ năng lực, sau đó tên, và với sinh vật — Máu/HP (tim) và Tấn Công/ATK (kiếm) ở dưới. Bên dưới là văn bản năng lực.</p>
-    <h2>Mulligan</h2>
+    <h2 style="font-family:system-ui,sans-serif;">Mulligan</h2>
     <p>Trước khi trò chơi bắt đầu, mỗi người chơi xem 5 lá bài đầu và có thể rút lại và lấy bộ mới — tối đa 3 lần. Lần đầu không bị phạt. Sau lần 2 bạn nhận ít hơn 1 lá, sau lần 3 ít hơn 2 lá. Mulligan là tùy chọn. Khi cả hai xác nhận — trò chơi bắt đầu.</p>
-    <h2>Tinh Chất</h2>
+    <h2 style="font-family:system-ui,sans-serif;">Tinh Chất</h2>
     <p>Tinh Chất là tài nguyên của bạn. Bạn bắt đầu với tối đa 1 và nhận thêm +1 mỗi lượt — đến lượt 5 bạn có 5 Tinh Chất. Nó phục hồi hoàn toàn vào đầu mỗi lượt. Hãy dùng Tinh Chất để chơi lá bài bằng cách nhấn Play.</p>
-    <h2>Đốt Lá</h2>
+    <h2 style="font-family:system-ui,sans-serif;">Đốt Lá</h2>
     <p>Một lần mỗi lượt bạn có thể đốt một lá từ tay: nó vào Hư Không mãi mãi, nhưng tối đa Tinh Chất của bạn tăng vĩnh viễn thêm 1. Nhấn Burn phía trên lá đã chọn.</p>
-    <h2>Bộ Bài</h2>
+    <h2 style="font-family:system-ui,sans-serif;">Bộ Bài</h2>
     <p>Bạn rút 1 lá từ bộ bài vào đầu mỗi lượt.</p>
-    <h2>Kỹ Năng Chủ Động</h2>
+    <h2 style="font-family:system-ui,sans-serif;">Kỹ Năng Chủ Động</h2>
     <p>Một số Du Hành Giả và Vật Phẩm có hành động đặc biệt bạn kích hoạt thủ công bằng cách chạm vào lá và chọn nút kỹ năng. Kỹ năng chủ động không tốn Tinh Chất, nhưng chỉ dùng được một lần mỗi lượt thay vì tấn công — sau đó sinh vật bị kiệt sức.</p>
-    <h2>Nghĩa Địa và Hư Không</h2>
+    <h2 style="font-family:system-ui,sans-serif;">Nghĩa Địa và Hư Không</h2>
     <p>Nghĩa Địa chỉ chứa sinh vật bị giết trong trận chiến. Chúng có thể được hồi sinh. Hư Không chứa lá bị đốt, phép thuật đã dùng và thế giới bị thay thế — không thể lấy lại.</p>
-    <h2>Loại Lá Bài</h2>
-    <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/type_creature.png"><img class="rules-icon" src="img/type_unique.png"></span>Du Hành Giả Thường và Độc Nhất</h3>
+    <h2 style="font-family:system-ui,sans-serif;">Loại Lá Bài</h2>
+    <h3 style="font-family:system-ui,sans-serif;"><span class="rules-icon-pair"><img class="rules-icon" src="img/type_creature.png"><img class="rules-icon" src="img/type_unique.png"></span>Du Hành Giả Thường và Độc Nhất</h3>
     <p>Đây là các lá sinh vật đặt trên chiến trường. Khi chơi, chúng vào trạng thái ngủ và không thể hành động đến lượt tiếp theo. Để tấn công: chạm vào sinh vật, sau đó chạm vào lá đối thủ hoặc Căn Cứ trên cùng — sau đó sinh vật bị kiệt sức. Khi tấn công, người phòng thủ phản công đồng thời. Sinh vật chết trong trận vào Nghĩa Địa.</p>
-    <h3><img class="rules-icon" src="img/type_spell.png">Phép Thuật</h3>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/type_spell.png">Phép Thuật</h3>
     <p>Có hiệu lực ngay khi chơi — rút lá, hồi sinh đồng minh, Tinh Chất bổ sung, trả tất cả lá về tay — sau đó vào Hư Không.</p>
-    <h3><img class="rules-icon" src="img/type_world.png">Thế Giới</h3>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/type_world.png">Thế Giới</h3>
     <p>Lá vĩnh viễn nằm dưới chiến trường và ảnh hưởng thụ động trong khi hoạt động. Chỉ một Thế Giới hoạt động cùng lúc. Chơi lá thứ hai sẽ thay thế lá đầu tiên.</p>
-    <h3><img class="rules-icon" src="img/type_artifact.png">Vật Phẩm</h3>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/type_artifact.png">Vật Phẩm</h3>
     <p>Cũng nằm dưới chiến trường, tối đa hai hoạt động cùng lúc. Một số kích hoạt tự động mỗi lượt. Số khác là chủ động — chạm để dùng một lần mỗi lượt. Vật phẩm ngủ lượt đầu tiên.</p>
     <hr style="border-color:#ffffff11;margin:24px 0;">
-    <h2>Bảng Thuật Ngữ</h2>
-    <h3><img class="rules-icon" src="img/ico_vanguard.png">Tiên Phong</h3><p>Sinh vật có thể hành động ngay lượt nó vào chiến trường. Bỏ qua trạng thái ngủ.</p>
-    <h3>Ngủ</h3><p>Sinh vật vừa vào chiến trường lượt này và không thể hành động. Thức dậy vào đầu lượt tiếp theo của bạn.</p>
-    <h3>Kiệt Sức</h3><p>Sinh vật đã tấn công hoặc dùng kỹ năng chủ động lượt này. Không thể hành động lại đến lượt sau. Hiển thị với độ mờ giảm.</p>
-    <h3><img class="rules-icon" src="img/ico_provoke.png">Khiêu Khích</h3><p>Tất cả các đòn tấn công của kẻ thù phải nhắm vào sinh vật này.</p>
-    <h3>Bushido</h3><p>Tất cả các đòn tấn công, kể cả sinh vật có Xuyên Giáp, phải nhắm vào sinh vật này.</p>
-    <h3><img class="rules-icon" src="img/ico_pierce.png">Xuyên Giáp</h3><p>Sinh vật này bỏ qua Khiêu Khích và có thể tấn công căn cứ hoặc bất kỳ kẻ thù nào trực tiếp.</p>
-    <h3><img class="rules-icon" src="img/ico_fear.png">Khiếp Sợ</h3><p>Khi sinh vật này tấn công, mục tiêu bị Khiếp Sợ: bỏ lượt tiếp theo và không gây sát thương phản công.</p>
-    <h3>Vô Hình</h3><p>Sinh vật này không thể bị chọn làm mục tiêu khi còn đồng minh trên chiến trường. Khi là cuối cùng, có thể bị tấn công bình thường. Cũng không nhận sát thương phản công.</p>
-    <h3><img class="rules-icon" src="img/ico_rage.png">Cuồng Nộ</h3><p>Mỗi lần sinh vật này tấn công, nó vĩnh viễn nhận +1 ATK. Cộng dồn nhưng reset nếu chết và được hồi sinh.</p>
-    <h3><img class="rules-icon" src="img/ico_burn.png">Đốt Cháy</h3><p>Khi sinh vật này tấn công, mục tiêu bắt lửa. Sinh vật đang cháy mất 1 HP vào đầu mỗi lượt. Hiệu ứng vĩnh viễn cho đến khi chết. Sinh vật chết vì lửa vào Hư Không.</p>
-    <h3><img class="rules-icon" src="img/ico_regen.png">Hồi Phục</h3><p>Sinh vật phục hồi X HP cho bản thân vào đầu mỗi lượt của bạn, tối đa HP tối đa.</p>
-    <h3>Hào Quang</h3><p>Hiệu ứng chiến trường thụ động tăng sức mạnh tất cả đồng minh khi lá có hào quang còn trên chiến trường. Biến mất ngay khi lá rời đi. Nhiều nguồn hào quang cộng dồn. Hào quang không tăng sức mạnh cho chính nó.</p>
-    <h3>Đội Hình</h3><p>Khi có 3 hoặc nhiều Du Hành Giả cùng loại Cổng trên chiến trường, tất cả tự động nhận thưởng. Thưởng kích hoạt khi người thứ ba xuất hiện và mất đi khi đội hình dưới ba.</p>
-    <h3>Cổng</h3><p>Các hình dạng khác nhau của Du Hành Giả. Có 6 loại Cổng chính: Szarg, Xuiqtr, Umbasir, Mechird, Orbiton, Dreegan.</p>
-    <h3>HP Tối Đa</h3><p>Một số năng lực tăng HP tối đa của sinh vật. Nếu đang khỏe hoàn toàn, HP hiện tại cũng tăng (3/3 thành 4/4). Nếu đã bị thương, chỉ HP tối đa tăng (2/3 thành 2/4).</p>
-    <h3>Hồi Sinh</h3><p>Đưa sinh vật từ Nghĩa Địa về chiến trường với X HP. Vào trạng thái ngủ. Sinh vật được hồi sinh không kích hoạt hiệu ứng Khi Vào.</p>
-    <h3>Đẩy Lùi</h3><p>Trả một lá từ chiến trường về tay người chơi.</p>
-    <h3>Hiến Tế</h3><p>Cố ý tiêu diệt một trong những sinh vật của bạn. Vào Nghĩa Địa và có thể được hồi sinh. Một số vật phẩm yêu cầu hiến tế để kích hoạt.</p>
-    <h3>Đầu Lượt</h3><p>Hiệu ứng kích hoạt tự động vào đầu lượt của bạn, trước bất kỳ hành động nào.</p>
-    <h3>Khi Vào</h3><p>Hiệu ứng kích hoạt khi lá được chơi từ tay lên chiến trường. Không kích hoạt khi hồi sinh.</p>
-    <h3>Khi Tấn Công</h3><p>Hiệu ứng kích hoạt mỗi lần sinh vật này tấn công — dù là sinh vật kẻ thù hay căn cứ.</p>
-    <h3>Khi Hạ Gục</h3><p>Hiệu ứng kích hoạt khi đòn tấn công của sinh vật này hạ gục một sinh vật kẻ thù trực tiếp.</p>
+    <h2 style="font-family:system-ui,sans-serif;">Bảng Thuật Ngữ</h2>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/ico_vanguard.png">Tiên Phong</h3><p>Sinh vật có thể hành động ngay lượt nó vào chiến trường. Bỏ qua trạng thái ngủ.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Ngủ</h3><p>Sinh vật vừa vào chiến trường lượt này và không thể hành động. Thức dậy vào đầu lượt tiếp theo của bạn.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Kiệt Sức</h3><p>Sinh vật đã tấn công hoặc dùng kỹ năng chủ động lượt này. Không thể hành động lại đến lượt sau. Hiển thị với độ mờ giảm.</p>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/ico_provoke.png">Khiêu Khích</h3><p>Tất cả các đòn tấn công của kẻ thù phải nhắm vào sinh vật này.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Bushido</h3><p>Tất cả các đòn tấn công, kể cả sinh vật có Xuyên Giáp, phải nhắm vào sinh vật này.</p>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/ico_pierce.png">Xuyên Giáp</h3><p>Sinh vật này bỏ qua Khiêu Khích và có thể tấn công căn cứ hoặc bất kỳ kẻ thù nào trực tiếp.</p>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/ico_fear.png">Khiếp Sợ</h3><p>Khi sinh vật này tấn công, mục tiêu bị Khiếp Sợ: bỏ lượt tiếp theo và không gây sát thương phản công.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Vô Hình</h3><p>Sinh vật này không thể bị chọn làm mục tiêu khi còn đồng minh trên chiến trường. Khi là cuối cùng, có thể bị tấn công bình thường. Cũng không nhận sát thương phản công.</p>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/ico_rage.png">Cuồng Nộ</h3><p>Mỗi lần sinh vật này tấn công, nó vĩnh viễn nhận +1 ATK. Cộng dồn nhưng reset nếu chết và được hồi sinh.</p>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/ico_burn.png">Đốt Cháy</h3><p>Khi sinh vật này tấn công, mục tiêu bắt lửa. Sinh vật đang cháy mất 1 HP vào đầu mỗi lượt. Hiệu ứng vĩnh viễn cho đến khi chết. Sinh vật chết vì lửa vào Hư Không.</p>
+    <h3 style="font-family:system-ui,sans-serif;"><img class="rules-icon" src="img/ico_regen.png">Hồi Phục</h3><p>Sinh vật phục hồi X HP cho bản thân vào đầu mỗi lượt của bạn, tối đa HP tối đa.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Hào Quang</h3><p>Hiệu ứng chiến trường thụ động tăng sức mạnh tất cả đồng minh khi lá có hào quang còn trên chiến trường. Biến mất ngay khi lá rời đi. Nhiều nguồn hào quang cộng dồn. Hào quang không tăng sức mạnh cho chính nó.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Đội Hình</h3><p>Khi có 3 hoặc nhiều Du Hành Giả cùng loại Cổng trên chiến trường, tất cả tự động nhận thưởng. Thưởng kích hoạt khi người thứ ba xuất hiện và mất đi khi đội hình dưới ba.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Cổng</h3><p>Các hình dạng khác nhau của Du Hành Giả. Có 6 loại Cổng chính: Szarg, Xuiqtr, Umbasir, Mechird, Orbiton, Dreegan.</p>
+    <h3 style="font-family:system-ui,sans-serif;">HP Tối Đa</h3><p>Một số năng lực tăng HP tối đa của sinh vật. Nếu đang khỏe hoàn toàn, HP hiện tại cũng tăng (3/3 thành 4/4). Nếu đã bị thương, chỉ HP tối đa tăng (2/3 thành 2/4).</p>
+    <h3 style="font-family:system-ui,sans-serif;">Hồi Sinh</h3><p>Đưa sinh vật từ Nghĩa Địa về chiến trường với X HP. Vào trạng thái ngủ. Sinh vật được hồi sinh không kích hoạt hiệu ứng Khi Vào.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Đẩy Lùi</h3><p>Trả một lá từ chiến trường về tay người chơi.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Hiến Tế</h3><p>Cố ý tiêu diệt một trong những sinh vật của bạn. Vào Nghĩa Địa và có thể được hồi sinh. Một số vật phẩm yêu cầu hiến tế để kích hoạt.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Đầu Lượt</h3><p>Hiệu ứng kích hoạt tự động vào đầu lượt của bạn, trước bất kỳ hành động nào.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Khi Vào</h3><p>Hiệu ứng kích hoạt khi lá được chơi từ tay lên chiến trường. Không kích hoạt khi hồi sinh.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Khi Tấn Công</h3><p>Hiệu ứng kích hoạt mỗi lần sinh vật này tấn công — dù là sinh vật kẻ thù hay căn cứ.</p>
+    <h3 style="font-family:system-ui,sans-serif;">Khi Hạ Gục</h3><p>Hiệu ứng kích hoạt khi đòn tấn công của sinh vật này hạ gục một sinh vật kẻ thù trực tiếp.</p>
   </div>
-
-  </div><!-- /rulesSource -->
-
-  <!-- ═══════════════════════════════════════════════════════════════════
-       КНИГА ПРАВИЛ — рабочий прототип БЕЗ визуала (9-слайс/закладки/
-       застёжка навесим отдельным заходом поверх этой же разметки и логики,
-       см. rules.js). Сейчас важна только механика: пагинация, обложка с
-       оглавлением, языки ТОЛЬКО на обложке, лист/разворот, кромка с
-       Next/Home (обложка) → Back/Next/Home (внутри чтения). ──────────── -->
-  <div class="rules-book" id="rulesBook">
-
-    <!-- ЗАКЛАДКИ-ЯЗЫКИ — теперь прямой ребёнок .rules-book (не .rules-cover),
-         чтобы позиционироваться АБСОЛЮТНО от края книги и сидеть поверх
-         верхней кромки 9-слайса (см. дизайн-референс 2026-07-14: каждая
-         кнопка — отдельный "флажок", торчащий вверх). Видимость по-прежнему
-         только на обложке — управляется из rules.js (rulesRenderCover/
-         rulesRenderPages) вторым toggle рядом с #rulesCover. Каждая кнопка
-         сейчас плоский цветной бокс — сюда позже сядет кастомный арт
-         флажка (сам автор прикрутит per-язык фон). -->
-    <div class="rules-lang-btns" id="rulesLangBtns">
-      <button class="rules-lang-btn active" data-lang="ENG" onclick="playSfx('yellow_buttom');setRulesLang('ENG')">ENG</button>
-      <button class="rules-lang-btn" data-lang="RUS" onclick="playSfx('yellow_buttom');setRulesLang('RUS')">RUS</button>
-      <button class="rules-lang-btn" data-lang="POR" onclick="playSfx('yellow_buttom');setRulesLang('POR')">POR</button>
-      <button class="rules-lang-btn" data-lang="VN" onclick="playSfx('yellow_buttom');setRulesLang('VN')">VN</button>
-    </div>
-
-    <!-- ОБЛОЖКА — заголовок в боксе, центрированный внутри книги. Фон —
-         border-image прямо на .rules-cover (img/rules_cover.png, резка
-         угла 42 — см. styles.css). Показывается при pageIndex===-1.
-         Оглавление больше НЕ тут — это отдельная(ые) сгенерированная
-         страница(ы) в потоке (см. paginateRulesLang в rules.js), первый
-         разворот после обложки = [цитата-плейсхолдер | оглавление]. -->
-    <div class="rules-cover" id="rulesCover">
-      <div class="rules-cover-title" id="rulesCoverTitle">Rules</div>
-    </div>
-
-    <!-- ЧТЕНИЕ — либо один лист (телефон), либо разворот 2 листов (лаптоп,
-         ≥900px — см. rulesMediaQuery() в rules.js). Показывается когда
-         pageIndex>=0. Оба варианта в разметке всегда, viewport-переключение
-         чисто display:none/flex в JS (rulesRenderPages).
-         Каждая .rules-page = .rules-page-frame (border-image на
-         img/rules_pages.png, отдельным слоем) + отдельный
-         .rules-page-content (текст, ЭТО и есть то, во что rules.js пишет
-         innerHTML — рамка-сосед не затирается). Левая страница разворота —
-         та же рамка, но класс .mirror (transform:scaleX(-1)) отражает
-         ТОЛЬКО фон, текст не трогает (см. комментарий в styles.css). -->
-    <div class="rules-pages" id="rulesPages" style="display:none;">
-      <div class="rules-page" id="rulesPageSingle">
-        <div class="rules-page-frame"></div>
-        <div class="rules-page-content rules-page-text" id="rulesPageSingleContent"></div>
-      </div>
-      <div class="rules-spread" id="rulesSpread" style="display:none;">
-        <div class="rules-page" id="rulesPageLeft">
-          <div class="rules-page-frame mirror"></div>
-          <div class="rules-page-content rules-page-text" id="rulesPageLeftContent"></div>
-        </div>
-        <div class="rules-page" id="rulesPageRight">
-          <div class="rules-page-frame"></div>
-          <div class="rules-page-content rules-page-text" id="rulesPageRightContent"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- КРОМКА — 2 кнопки на обложке (Next/Home), 3 при чтении
-         (Back появляется). Вертикальный стек, "застёжка" — бокс наполовину
-         выходит за правый край книги (см. дизайн-референс 2026-07-14).
-         Сейчас плоские цветные кнопки-плейсхолдеры, кастомный арт застёжки
-         и самих кнопок автор прикрутит отдельным заходом. -->
-    <div class="rules-edge-btns" id="rulesEdgeBtns">
-      <button class="rules-edge-btn" id="rulesBackBtn" onclick="rulesBack()" title="Back">◀</button>
-      <button class="rules-edge-btn" id="rulesHomeBtn" onclick="rulesGoHome()" title="Home">🏠</button>
-      <button class="rules-edge-btn" id="rulesNextBtn" onclick="rulesNext()" title="Next">▶</button>
-    </div>
-
-  </div>
-
 </div>
 
 <!-- LORE SCREEN -->
@@ -1011,7 +936,6 @@
 <script src="js/catalog.js"></script>
 <script src="js/deckbuilder.js"></script>
 <script src="js/ui.js"></script>
-<script src="js/rules.js"></script>
 <script src="js/carousel.js"></script>
 <div id="card-tooltip" class="card-tooltip" aria-hidden="true"></div>
 </body>
