@@ -350,7 +350,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     это просто источник текста для js/rules-book.js, который клонирует их
     h2/h3/p в реальные страницы книги (.rules-page-inner, стили ниже). ──*/
 .rules-source{display:none !important;}
-.rules-icon{width:1em;height:1em;vertical-align:middle;margin-right:0.4em;image-rendering:pixelated;flex-shrink:0;}
+.rules-icon{height:1em;width:auto;vertical-align:-0.15em;margin-right:0.4em;image-rendering:pixelated;flex-shrink:0;}
 .rules-icon-pair{display:inline-flex;align-items:center;gap:0.15em;margin-right:0.4em;}
 .rules-icon-pair .rules-icon{margin-right:0;}
 /*── Внутритекстовые ссылки на термины/разделы (например "[Эссенции]" →
@@ -373,6 +373,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:42px; --rnavbtn:min(5vh,9vw); --rnavbox-border:calc(var(--rnavbtn) / 3);}
 @media(min-width:601px){
   #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:84px;}
+  .rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.018);} /* десктоп — без +20%, просили только для телефона */
 }
 #rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;background:#829797;}
 .rules-book-wrap{position:relative;display:inline-flex;}
@@ -436,7 +437,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   font-size:calc(var(--rpage-h) * 0.028); line-height:1.35;
 }
 .rules-page-inner.rus-lang, .rules-page-inner.rus-lang h2, .rules-page-inner.rus-lang h3{font-family:'Press Start 2P',monospace;}
-.rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.018);}
+.rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.0216);} /* +20% на телефоне, см. чат 2026-07-15 — h2/h3 в em, тянутся автоматически */
 .rules-page-inner.vn-lang, .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-family:'Be Vietnam Pro',sans-serif;}
 .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-weight:700;}
 .rules-page-inner h2{font-size:1.7em;color:#322030;margin:0 0 0.5em;line-height:1.15;}
