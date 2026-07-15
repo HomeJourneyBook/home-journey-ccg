@@ -317,36 +317,124 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* ═══════════════════════════════════════════════════════════════════════
    RULES SCREEN
    ═══════════════════════════════════════════════════════════════════════ */
-.rules-lang-btns{display:flex;gap:2px;position:absolute;right:0;}
-.rules-lang-btn{font-family:'MEK',monospace;font-size:2.8vw;padding:1vw 1.5vw;border:1px solid #444;background:transparent;color:#555;cursor:pointer;}
-.rules-lang-btn:hover{color:#c8a84b;border-color:#c8a84b55;}
-.rules-lang-btn.active{border-color:#c8a84b;color:#c8a84b;background:#c8a84b11;}
-@media(min-width:600px){
-  .rules-lang-btn{font-size:0.9vw;padding:0.4vw 0.8vw;}
-}
-#rulesRUS,#rulesRUS h2,#rulesRUS h3{font-family:'Press Start 2P',monospace;}
-#rulesRUS{font-size:calc(3.8vw * 0.65);}
-#rulesRUS h2{font-size:calc(5vw * 0.65);}
-#rulesRUS h3{font-size:calc(3.8vw * 0.65);}
-@media(min-width:600px){
-  #rulesRUS{font-size:calc(1.1vw * 0.65);}
-  #rulesRUS h2{font-size:calc(1.8vw * 0.65);}
-  #rulesRUS h3{font-size:calc(1.1vw * 0.65);}
-}
+/*── .rules-source (ENG/RUS/POR/VN) больше никогда не показываются напрямую —
+    это просто источник текста для js/rules-book.js, который клонирует их
+    h2/h3/p в реальные страницы книги (.rules-page-inner, стили ниже). ──*/
+.rules-source{display:none !important;}
 .rules-icon{width:1em;height:1em;vertical-align:middle;margin-right:0.4em;image-rendering:pixelated;flex-shrink:0;}
 .rules-icon-pair{display:inline-flex;align-items:center;gap:0.15em;margin-right:0.4em;}
 .rules-icon-pair .rules-icon{margin-right:0;}
-#rulesENG{font-size:4.56vw;}
-#rulesENG h2{font-size:6vw;}
-#rulesENG h3{font-size:4.56vw;}
-#rulesPOR{font-size:4.56vw;}
-#rulesPOR h2{font-size:6vw;}
-#rulesPOR h3{font-size:4.56vw;}
-@media(min-width:600px){
-  #rulesENG,#rulesPOR{font-size:1.32vw;}
-  #rulesENG h2,#rulesPOR h2{font-size:2.16vw;}
-  #rulesENG h3,#rulesPOR h3{font-size:1.32vw;}
+
+/*═══════════════════════════════════════════════════════════════════════
+  RULES BOOK — обложка + постраничный разворот
+  ---------------------------------------------------------------------
+  Размер "страницы" (--rpage-w/--rpage-h) — это размер ОДНОГО объекта
+  ratio 3:4 (высота:ширина): на обложке она же и есть вся книга, на
+  развороте это половина (разворот = 2 таких объекта рядом). На мобиле
+  видно только .rules-page-right (левая скрыта медиа-запросом); на
+  десктопе видно обе, левая зеркалит СВОЙ ФОН через двойной scaleX(-1)
+  (контент внутри остаётся читаемым, не зеркалится).
+  ═══════════════════════════════════════════════════════════════════════*/
+#rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:84px; --rnavbtn:min(5vh,9vw);}
+@media(min-width:601px){
+  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4);}
 }
+#rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;}
+.rules-book-wrap{position:relative;display:inline-flex;}
+.rules-book{position:relative;display:flex;flex-direction:row;}
+
+/*── Обложка ─────────────────────────────────────────────────────────*/
+.rules-cover{
+  width:var(--rpage-w); height:var(--rpage-h); box-sizing:border-box;
+  position:relative; display:flex; align-items:center; justify-content:center;
+  border-style:solid; border-width:var(--rborder);
+  border-image-source:url('../img/rules_cover.png'); border-image-slice:42 fill;
+  border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:repeat;
+  cursor:default;
+}
+.rules-book.open .rules-cover{display:none;}
+.rules-cover-title{
+  font-family:'MEK',monospace; color:#E8E0C8; text-align:center; line-height:1;
+  font-size:calc(var(--rpage-h) * 0.2); padding:0 8%; word-break:break-word;
+}
+.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.13);}
+/*── Языковые кнопки — по верхней кромке обложки, квадратные, наполовину
+    сидят поверх 9-slice рамки (translateY(-50%) от верхнего края). ────*/
+.rules-cover-langs{
+  position:absolute; top:0; left:50%; transform:translate(-50%,-50%);
+  display:flex; gap:calc(var(--rnavbtn) * 0.25); z-index:2;
+}
+.rules-cover-lang{
+  width:var(--rnavbtn); height:var(--rnavbtn); box-sizing:border-box;
+  font-family:'MEK',monospace; font-size:calc(var(--rnavbtn) * 0.34);
+  border:2px solid #555; background:#3a3a3a; color:#aaa; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; padding:0;
+}
+.rules-cover-lang:hover{color:#c8a84b;border-color:#c8a84b88;}
+.rules-cover-lang.active{border-color:#c8a84b;color:#c8a84b;background:#4a4230;}
+
+/*── Страницы ────────────────────────────────────────────────────────*/
+.rules-pages{display:none;flex-direction:row;}
+.rules-book.open .rules-pages{display:flex;}
+.rules-page{
+  width:var(--rpage-w); height:var(--rpage-h); box-sizing:border-box; position:relative; overflow:hidden;
+  border-style:solid; border-width:var(--rborder);
+  border-image-source:url('../img/lore_pages.png'); border-image-slice:42 fill;
+  border-image-width:var(--rborder); border-image-outset:0; border-image-repeat:repeat;
+}
+.rules-page-left{display:none;}
+@media(min-width:601px){
+  .rules-page-left{display:block;transform:scaleX(-1);} /* зеркалим фон/рамку страницы */
+  .rules-page-left .rules-page-inner{transform:scaleX(-1);} /* и обратно зеркалим контент, чтобы текст читался нормально */
+}
+.rules-page-inner{
+  width:100%; height:100%; box-sizing:border-box; overflow:hidden;
+  padding:3% 5%; font-family:'MEK',monospace; color:#3b2a1a;
+  font-size:calc(var(--rpage-h) * 0.028); line-height:1.35;
+}
+.rules-page-inner.rus-lang, .rules-page-inner.rus-lang h2, .rules-page-inner.rus-lang h3{font-family:'Press Start 2P',monospace;}
+.rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.02);}
+.rules-page-inner h2{font-size:1.7em;color:#5c2415;margin:0 0 0.5em;line-height:1.15;}
+.rules-page-inner h3{font-size:1.2em;color:#4a2f1a;margin:0.9em 0 0.3em;letter-spacing:0.5px;}
+.rules-page-inner p{margin:0 0 0.65em;}
+/* Измерительный клон — идентичная структура/шрифты, но невидим и вне потока */
+.rules-page-measure{position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none;}
+
+/*── Стр.1 — пустая, плейсхолдер под цитату ─────────────────────────*/
+.rules-quote-page{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;}
+.rules-quote-placeholder{font-style:italic;opacity:0.35;font-size:1.1em;line-height:1.6;}
+
+/*── Стр.2 — оглавление ──────────────────────────────────────────────*/
+.rules-toc-title{text-align:center;}
+.rules-toc-list{list-style:none;margin:0;padding:0;}
+.rules-toc-entry{
+  display:flex;justify-content:space-between;align-items:baseline;gap:0.5em;
+  padding:0.45em 0;border-bottom:1px dotted #3b2a1a55;cursor:pointer;
+}
+.rules-toc-entry:hover{color:#5c2415;}
+.rules-toc-entry .rules-toc-num{opacity:0.5;font-size:0.85em;flex-shrink:0;}
+
+/*── Навигационный бокс — по правому краю книги, наполовину выходит за
+    пределы (translate(50%,-50%) от правого-центра книги). Пока просто
+    серый плейсхолдер — арт добавится позже. ──────────────────────────*/
+.rules-navbox{
+  position:absolute; top:50%; right:0; transform:translate(50%,-50%); z-index:5;
+  display:flex; flex-direction:column; justify-content:space-evenly;
+  gap:calc(var(--rnavbtn) * 0.6); padding:calc(var(--rnavbtn) * 0.6) calc(var(--rnavbtn) * 0.6);
+  background:#5a5a5a; border:2px solid #2c2c2c; box-sizing:content-box;
+}
+.rules-navbtn{
+  width:var(--rnavbtn); height:var(--rnavbtn); flex-shrink:0; padding:0; cursor:pointer;
+  background:#8a8a8a; border:2px solid #333; box-sizing:border-box;
+}
+.rules-navbtn:hover:not(:disabled){background:#a0a0a0;}
+.rules-navbtn:active:not(:disabled){background:#6e6e6e;}
+.rules-navbtn:disabled{opacity:0.3;cursor:default;}
+/*── На десктопе, при открытом развороте, бокс должен "висеть" именно у
+    правой страницы — т.к. .rules-book при открытии и так становится
+    шириной в 2 страницы, right:0 у .rules-navbox уже прибивает его к
+    правому краю книги = правому краю правой страницы. Ничего доп. не
+    нужно, оставлено для ясности намерения. ───────────────────────────*/
 /* ═══════════════════════════════════════════════════════════════════════
    LORE SCREEN
    ═══════════════════════════════════════════════════════════════════════ */
