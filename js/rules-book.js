@@ -13,7 +13,7 @@
 
 const RULES_LANGS = ['ENG', 'RUS', 'POR', 'VN'];
 const RULES_TOC_TITLE = { ENG: 'Contents', RUS: 'Оглавление', POR: 'Índice', VN: 'Mục Lục' };
-const RULES_QUOTE_PLACEHOLDER = { ENG: '— quote —', RUS: '— цитата —', POR: '— citação —', VN: '— trích dẫn —' };
+const RULES_QUOTE_PLACEHOLDER = { ENG: 'Candles in Space', RUS: 'Свечи в космосе', POR: 'Velas no Espaço', VN: 'Nến Trong Không Gian' };
 // Языки с нестандартным (не 'MEK') шрифтом — RUS: пиксельный шрифт не поддерживает
 // кириллицу нормально → Press Start 2P. VN: у вьетнамского почти нет пиксельных
 // шрифтов с полной поддержкой диакритики → обычный Be Vietnam Pro, чтобы буквы
@@ -302,7 +302,12 @@ function rulesPaginate(lang) {
 
   const pages = [[quoteWrap], [tocWrap]];
   chapterPages.forEach(nodes => pages.push(nodes));
-  return { pages, termPageMap };
+  // Случайный вариант фона (0-3, см. .rules-page.variant-N в styles.css) —
+  // назначается ОДИН РАЗ на страницу здесь, при пагинации, и переживает
+  // пролистывание туда-сюда без изменений (пересчитывается заново только
+  // при перестройке книги целиком — смена языка/ресайз).
+  const pageVariants = pages.map(() => Math.floor(Math.random() * 4));
+  return { pages, termPageMap, pageVariants };
 }
 
 function rulesEnsureBuilt(force) {
@@ -311,6 +316,7 @@ function rulesEnsureBuilt(force) {
   const result = rulesPaginate(RB.lang);
   RB.pages = result.pages;
   RB.termPageMap = result.termPageMap;
+  RB.pageVariants = result.pageVariants;
   RB.builtKey = key;
   if (RB.index >= RB.pages.length) RB.index = 0;
 }
@@ -327,6 +333,8 @@ function rulesGotoTerm(key) {
 
 // ── Рендер текущего разворота ──────────────────────────────────────
 function rulesRender() {
+  const leftOuter = document.getElementById('rulesPageLeft');
+  const rightOuter = document.getElementById('rulesPageRight');
   const leftInner = document.getElementById('rulesPageLeftInner');
   const rightInner = document.getElementById('rulesPageRightInner');
   if (!leftInner || !rightInner) return;
@@ -338,6 +346,8 @@ function rulesRender() {
   const step = rulesStep();
   const rightIdx = step === 2 ? RB.index + 1 : RB.index;
   const leftIdx = step === 2 ? RB.index : -1;
+  rulesApplyPageVariant(leftOuter, leftIdx);
+  rulesApplyPageVariant(rightOuter, rightIdx);
   if (leftIdx >= 0 && RB.pages[leftIdx]) {
     RB.pages[leftIdx].forEach(n => leftInner.appendChild(n.cloneNode(true)));
   }
@@ -345,6 +355,15 @@ function rulesRender() {
     RB.pages[rightIdx].forEach(n => rightInner.appendChild(n.cloneNode(true)));
   }
   rulesUpdateNavButtons();
+}
+
+// Ставит/снимает .variant-N (1-3, 0 = дефолтный rules_pages.png без класса)
+// на внешний .rules-page элемент — см. RB.pageVariants в rulesPaginate().
+function rulesApplyPageVariant(el, pageIndex) {
+  if (!el) return;
+  el.classList.remove('variant-1', 'variant-2', 'variant-3');
+  const v = RB.pageVariants && RB.pageVariants[pageIndex];
+  if (v) el.classList.add('variant-' + v);
 }
 
 function rulesUpdateNavButtons() {
