@@ -175,7 +175,6 @@ function openCardDetail(def){
 
   if(def.world||def.fullArt){
     box.innerHTML = `
-      <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
       <div class="card ${bgClass} ${worldClass} ${neutralClass} card-detail-scaled" style="${worldBg}">
         <div class="card-cost">${def.cost}</div>
         <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
@@ -188,7 +187,6 @@ function openCardDetail(def){
   }
 
   box.innerHTML = `
-    <button class="card-detail-close" onclick="closeCardDetail()">✕</button>
     <div class="card ${bgClass} ${worldClass} ${neutralClass} card-detail-scaled" style="${worldBg}">
       <div class="card-cost">${def.cost}</div>
       ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
@@ -213,6 +211,6 @@ function openCardDetail(def){
 }
 
 function closeCardDetail(e){
-  if(e&&e.target!==document.getElementById('cardDetailOverlay')&&!e.target.classList.contains('card-detail-close')) return;
+  if(e&&e.target!==document.getElementById('cardDetailOverlay')) return;
   document.getElementById('cardDetailOverlay').style.display='none';
 }
