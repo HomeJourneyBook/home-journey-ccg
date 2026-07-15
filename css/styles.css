@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Be+Vietnam+Pro:wght@400;700&display=swap');
 @font-face{
   font-family: 'MEK';
   src: url('../fonts/MEK.woff2') format('woff2');
@@ -335,9 +335,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   десктопе видно обе, левая зеркалит СВОЙ ФОН через двойной scaleX(-1)
   (контент внутри остаётся читаемым, не зеркалится).
   ═══════════════════════════════════════════════════════════════════════*/
-#rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:42px; --rnavbtn:min(5vh,9vw);}
+#rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:42px; --rnavbtn:min(5vh,9vw); --rnavbox-border:2px;}
 @media(min-width:601px){
-  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:84px;}
+  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:84px; --rnavbox-border:4px;}
 }
 #rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;}
 .rules-book-wrap{position:relative;display:inline-flex;}
@@ -357,7 +357,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   font-family:'MEK',monospace; color:#E8E0C8; text-align:center; line-height:1;
   font-size:calc(var(--rpage-h) * 0.14); padding:0 8%; word-break:break-word;
 }
-.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.091);}
+.rules-cover-title.rus-title{font-family:'Press Start 2P',monospace;font-size:calc(var(--rpage-h) * 0.0637);}
+.rules-cover-title.vn-title{font-family:'Be Vietnam Pro',sans-serif;font-weight:700;}
 /*── Языковые кнопки — по верхней кромке обложки, квадратные, наполовину
     сидят поверх 9-slice рамки (translateY(-50%) от верхнего края). ────*/
 .rules-cover-langs{
@@ -397,6 +398,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 }
 .rules-page-inner.rus-lang, .rules-page-inner.rus-lang h2, .rules-page-inner.rus-lang h3{font-family:'Press Start 2P',monospace;}
 .rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.02);}
+.rules-page-inner.vn-lang, .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-family:'Be Vietnam Pro',sans-serif;}
+.rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-weight:700;}
 .rules-page-inner h2{font-size:1.7em;color:#5c2415;margin:0 0 0.5em;line-height:1.15;}
 .rules-page-inner h3{font-size:1.2em;color:#4a2f1a;margin:0.9em 0 0.3em;letter-spacing:0.5px;}
 .rules-page-inner p{margin:0 0 0.65em;}
@@ -418,22 +421,39 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-toc-entry .rules-toc-num{opacity:0.5;font-size:0.85em;flex-shrink:0;}
 
 /*── Навигационный бокс — по правому краю книги, наполовину выходит за
-    пределы (translate(50%,-50%) от правого-центра книги). Пока просто
-    серый плейсхолдер — арт добавится позже. ──────────────────────────*/
+    пределы (translate(50%,-50%) от правого-центра книги). Размер бокса
+    ПОЛНОСТЬЮ определяется кнопками: без отступов по краям (padding:0),
+    только зазор МЕЖДУ кнопками, равный половине их высоты — итого высота
+    контента = 3 кнопки + 2 зазора по 0.5 = 4 высоты кнопки (ratio 1:4
+    ширина:высота, как и задумывалось изначально). ─────────────────────*/
 .rules-navbox{
   position:absolute; top:50%; right:0; transform:translate(50%,-50%); z-index:5;
-  display:flex; flex-direction:column; justify-content:space-evenly;
-  gap:calc(var(--rnavbtn) * 0.6); padding:calc(var(--rnavbtn) * 0.6) calc(var(--rnavbtn) * 0.6);
-  background:#5a5a5a; border:2px solid #2c2c2c; box-sizing:content-box;
+  display:flex; flex-direction:column; gap:calc(var(--rnavbtn) * 0.5);
+  padding:0; box-sizing:content-box;
+  border-style:solid; border-width:var(--rnavbox-border);
+  border-image-source:url('../img/rules_navigation_box.png'); border-image-slice:8 fill;
+  border-image-width:var(--rnavbox-border); border-image-outset:0; border-image-repeat:stretch;
 }
 .rules-navbtn{
   width:var(--rnavbtn); height:var(--rnavbtn); flex-shrink:0; padding:0; cursor:pointer;
-  background:#8a8a8a; border:2px solid #333; box-sizing:border-box;
+  border:none; background-color:transparent; background-repeat:no-repeat;
+  background-position:center; background-size:100% 100%;
 }
-.rules-navbtn:hover:not(:disabled){background:#a0a0a0;}
-.rules-navbtn:active:not(:disabled){background:#6e6e6e;}
 .rules-navbtn:disabled{opacity:0.3;cursor:default;}
-.rules-navbtn-home.rules-navbtn-home-toc{background:#767654;} /* плейсхолдер-акцент, пока нет арта: кнопка "домой" временно работает как "к оглавлению" */
+.rules-navbtn-back{background-image:url('../img/rules_btn_left1.png');}
+.rules-navbtn-back:hover:not(:disabled){background-image:url('../img/rules_btn_leftH.png');}
+.rules-navbtn-back:active:not(:disabled){background-image:url('../img/rules_btn_left2.png');}
+.rules-navbtn-fwd{background-image:url('../img/rules_btn_right1.png');}
+.rules-navbtn-fwd:hover:not(:disabled){background-image:url('../img/rules_btn_rightH.png');}
+.rules-navbtn-fwd:active:not(:disabled){background-image:url('../img/rules_btn_right2.png');}
+.rules-navbtn-home{background-image:url('../img/rules_btn_home1.png');}
+.rules-navbtn-home:hover:not(:disabled){background-image:url('../img/rules_btn_homeH.png');}
+.rules-navbtn-home:active:not(:disabled){background-image:url('../img/rules_btn_home2.png');}
+/*── Начиная со страниц глав (index>=2) та же кнопка "домой" ведёт назад
+    в оглавление (см. rulesGoHome() в rules-book.js) — подменяем и арт. ──*/
+.rules-navbtn-home.rules-navbtn-home-toc{background-image:url('../img/rules_btn_oglav1.png');}
+.rules-navbtn-home.rules-navbtn-home-toc:hover:not(:disabled){background-image:url('../img/rules_btn_oglavH.png');}
+.rules-navbtn-home.rules-navbtn-home-toc:active:not(:disabled){background-image:url('../img/rules_btn_oglav2.png');}
 /*── На десктопе, при открытом развороте, бокс должен "висеть" именно у
     правой страницы — т.к. .rules-book при открытии и так становится
     шириной в 2 страницы, right:0 у .rules-navbox уже прибивает его к
