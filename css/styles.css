@@ -297,122 +297,65 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @media(min-width:600px){
   .screen-lang-btn{font-size:1.1vw;padding:0.4vw 1vw;}
 }
-/*── КНИГА ПРАВИЛ (2026-07-14, второй заход после фидбека).
-    ГЛАВНАЯ ПРАВКА: ушли с CSS border-image на РУЧНОЙ 9-слайс (9 диков на
-    заранее нарезанных тайлах-PNG + обычный background-repeat). Почему:
-    border-image-repeat:"repeat" крайне ненадёжен по браузерам (особенно
-    Safari часто вообще не тайлит, а просто растягивает всю картинку) —
-    именно это и увидел автор. background-repeat:repeat на уже
-    ОТДЕЛЬНО НАРЕЗАННОМ тайле-файле работает одинаково и предсказуемо
-    везде, это стандартная техника для пиксель-арт 9-слайсов в вебе.
-    Тайлы обложки нарезаны из img/rules_cover.png (126×126, углы 42px)
-    в img/rules_cover_{tl,tm,tr,ml,mm,mr,bl,bm,br}.png — 9 файлов по
-    42×42. Для страниц (.ns-page) та же схема на img/rules_pages_*.png —
-    ПОКА ПЛЕЙСХОЛДЕР (см. комментарий у .ns-page ниже), автор прислал
-    сам файл rules_pages.png отдельным сообщением, но не приложил его в
-    архиве — нарезать его на 9 тайлов смогу как только он окажется в
-    файлах чата (сам процесс нарезки идентичен — см. bash-скрипт, которым
-    нарезан rules_cover, просто другой источник).
-
-    .nine-slice — универсальный "движок": 9 div'ов, position:absolute
-    внутри position:relative родителя, размер каждого — доля от общей
-    переменной --ns-b (толщина рамки). Уголки (--ns-b × --ns-b) просто
-    растягивают свою 42×42 картинку (background-size:100% 100%) — уголки
-    в 9-слайсе ВСЕГДА масштабируются, никогда не тайлятся, это норма.
-    Верх/низ — тоже растягиваются по ширине (соответствует п.2 ТЗ автора
-    "боковые тайлы repeat" — раз боковые repeat, то верх/низ, по
-    остаточному принципу, растягиваются). Левый/правый край —
-    background-repeat:repeat-y с background-size РОВНО --ns-b — то есть
-    тайл повторяется квадратами со стороной --ns-b, без масштабных
-    искажений формы.
-
-    --ns-b = var(--rules-book-h) / 6 — та же логика, что и в первом
-    заходе (2 угла + 4 повтора бокового тайла = 6 юнитов на высоту),
-    просто теперь она гарантированно СРАБОТАЕТ визуально, а не просто
-    "не обрежется по арифметике" как раньше.
-
-    РАЗМЕР КНИГИ/СТРАНИЦЫ — --rules-page-w = ширина ОДНОЙ книги/страницы
-    (var(--rules-book-h) * 0.948, ratio с референса). #rulesBook по
-    умолчанию = --rules-page-w (обложка И одиночная страница на
-    телефоне — у них ОДНА и та же ширина). Когда открыт разворот на
-    лаптопе (2 страницы) — JS вешает класс .spread на #rulesBook, тогда
-    ширина книги = 2×--rules-page-w + зазор-"корешок". Кнопки кромки
-    (#rulesEdgeBtns) как стояли — position:absolute; right:0 от
-    #rulesBook — так и остаются, но раз книга теперь ПРАВИЛЬНО меняет
-    ширину под разворот, кромка сама автоматически уезжает к правому
-    краю ПРАВОЙ страницы, а не остаётся зажатой в старой узкой ширине
-    (это и была причина, почему кнопки "лезли внутрь и на страницы"). */
-#rulesScreen{background:#829797;}
+/*── КНИГА ПРАВИЛ (2026-07-15, третий заход после фидбека).
+    Вернулись на CSS border-image (проще, работает прямо на исходных
+    файлах — rules_cover.png и rules_pages.png — без ручной нарезки на
+    9 тайлов-файлов). Ключевые правки от автора в этом заходе:
+      - НЕ считаем border-width строго под "ровно N повторов тайла" —
+        border-image-repeat теперь "round" (не "repeat"): браузер САМ
+        подгоняет масштаб тайла так, чтобы уместилось целое число
+        повторов, без остатка/обрезки — работает при ЛЮБОЙ толщине рамки,
+        отдельная арифметика под конкретное число повторов не нужна.
+      - Толщина рамки — просто % от высоты книги (--rules-frame-b), не
+        привязана к числу тайлов. Взял ~6% — при типичной высоте книги
+        700-750px (82vh на большинстве ноутбучных экранов) это ≈42-45px,
+        то есть отображается близко к РОДНОМУ разрешению тайла (42px в
+        самих rules_cover.png/rules_pages.png), без сильного апскейла и
+        замыливания пикселей.
+      - .rules-cover (обложка) — border-image прямо на самом элементе,
+        rules_cover.png.
+      - .rules-page-frame (страница) — border-image на ОТДЕЛЬНОМ
+        div-слое, а не на .rules-page целиком, СПЕЦИАЛЬНО чтобы можно
+        было зеркалить только рамку у левой страницы разворота
+        (.mirror{transform:scaleX(-1)}) не трогая текст — тот лежит
+        соседним .rules-page-content, а не внутри рамки.
+    ФОН ЭКРАНА — стол с лендинга (#829797). #rulesScreen ещё и
+    display:flex + centering — раньше книга просто лежала сверху с
+    небольшим отступом, снизу пустело; теперь по центру и по высоте, и
+    по ширине. ──────────────────────────────────────────────────────*/
+#rulesScreen{
+  background:#829797;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
 
 .rules-book{
   --rules-book-ratio: 0.948; /* width / height, снято с референса 891×940 */
   --rules-book-h: calc(92vw / 0.948);
   --rules-page-w: calc(var(--rules-book-h) * var(--rules-book-ratio));
   --rules-page-gap: calc(var(--rules-book-h) * 0.02);
+  --rules-frame-b: calc(var(--rules-book-h) * 0.06);
   width: var(--rules-page-w);
   height: var(--rules-book-h);
-  margin: 2vh auto;
   position: relative;
   box-sizing: border-box;
   font-family: 'MEK', monospace;
+  flex-shrink: 0;
 }
 .rules-book.spread{ width: calc(var(--rules-page-w) * 2 + var(--rules-page-gap)); }
 @media(min-width:900px){
-  /* 82vh снято с референса (см. комментарий выше), НО в развороте (2
-     страницы + зазор + кнопки кромки, вылезающие на 0.5 своей ширины за
-     край) суммарная "физическая" ширина книги ≈ 1.95×--rules-book-h
-     (2×0.948 ratio + gap 0.02 + нахлёст кромки 0.0375 — см. форматулы
-     --rules-page-w/--rules-page-gap/.rules-edge-btn ниже). На узких
-     ноутбучных экранах (обычно как раз ~900-1366px) чистый 82vh даёт
-     книгу шире вьюпорта — кромка с кнопками улетает за край экрана.
-     min(82vh, 46vw) — тот же 82vh на широких/квадратных экранах (46vw
-      organически выходит к тому же числу на 16:9), но на узких по
-     ширине окнах книга сама ужимается по высоте, чтобы разворот+кромка
-     гарантированно влезали по горизонтали. */
+  /* 82vh снято с референса, НО в развороте (2 страницы + зазор + кнопки
+     кромки, вылезающие на 0.5 своей ширины за край) суммарная
+     "физическая" ширина книги ≈ 1.95×--rules-book-h. На узких
+     ноутбучных экранах чистый 82vh даёт книгу шире вьюпорта — кромка с
+     кнопками улетает за край. min(82vh, 46vw) — тот же 82vh на
+     широких/квадратных экранах, но на узких по ширине окнах книга сама
+     ужимается по высоте, чтобы разворот+кромка гарантированно влезали
+     по горизонтали (см. предыдущий заход/чат). */
   .rules-book{ --rules-book-h: min(82vh, 46vw); }
 }
-
-/*── ДВИЖОК 9-СЛАЙСА — см. большой комментарий выше. Параметризуется
-    через --ns-b/--ns-t*/--ns-m*/--ns-b* CSS-переменные, назначенные
-    модификатором (.ns-cover / .ns-page ниже под конкретный набор
-    тайлов). ─────────────────────────────────────────────────────────*/
-.nine-slice{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
-.nine-slice > div{ position:absolute; image-rendering:pixelated; }
-.ns-tl{ top:0; left:0; width:var(--ns-b); height:var(--ns-b); background-image:var(--ns-img-tl); background-size:100% 100%; }
-.ns-tr{ top:0; right:0; width:var(--ns-b); height:var(--ns-b); background-image:var(--ns-img-tr); background-size:100% 100%; }
-.ns-bl{ bottom:0; left:0; width:var(--ns-b); height:var(--ns-b); background-image:var(--ns-img-bl); background-size:100% 100%; }
-.ns-br{ bottom:0; right:0; width:var(--ns-b); height:var(--ns-b); background-image:var(--ns-img-br); background-size:100% 100%; }
-.ns-tm{ top:0; left:var(--ns-b); right:var(--ns-b); height:var(--ns-b); background-image:var(--ns-img-tm); background-size:100% 100%; }
-.ns-bm{ bottom:0; left:var(--ns-b); right:var(--ns-b); height:var(--ns-b); background-image:var(--ns-img-bm); background-size:100% 100%; }
-.ns-ml{ left:0; top:var(--ns-b); bottom:var(--ns-b); width:var(--ns-b); background-image:var(--ns-img-ml); background-size:var(--ns-b) var(--ns-b); background-repeat:repeat-y; }
-.ns-mr{ right:0; top:var(--ns-b); bottom:var(--ns-b); width:var(--ns-b); background-image:var(--ns-img-mr); background-size:var(--ns-b) var(--ns-b); background-repeat:repeat-y; }
-.ns-mm{ left:var(--ns-b); right:var(--ns-b); top:var(--ns-b); bottom:var(--ns-b); background-image:var(--ns-img-mm); background-size:var(--ns-b) var(--ns-b); background-repeat:repeat; }
-
-.ns-cover{
-  --ns-b: calc(var(--rules-book-h) / 6);
-  --ns-img-tl:url('../img/rules_cover_tl.png'); --ns-img-tm:url('../img/rules_cover_tm.png'); --ns-img-tr:url('../img/rules_cover_tr.png');
-  --ns-img-ml:url('../img/rules_cover_ml.png'); --ns-img-mm:url('../img/rules_cover_mm.png'); --ns-img-mr:url('../img/rules_cover_mr.png');
-  --ns-img-bl:url('../img/rules_cover_bl.png'); --ns-img-bm:url('../img/rules_cover_bm.png'); --ns-img-br:url('../img/rules_cover_br.png');
-}
-/*── СТРАНИЦА — ЖДЁТ img/rules_pages.png от автора (пока не в файлах
-    чата/архива). Пути ниже указывают на файлы, которых пока НЕТ —
-    по конвенции автора (см. CLAUDE.md, "плейсхолдеры под будущий
-    арт") это ок: не загрузится — фон останется прозрачным, а плоский
-    fallback-цвет на .rules-page ниже держит страницу читаемой до тех
-    пор. Как только rules_pages.png окажется в чате — нарежу его тем же
-    скриптом, что и обложку (см. bash в сессии), и всё заработает без
-    дополнительных правок CSS. ──────────────────────────────────────*/
-.ns-page{
-  --ns-b: calc(var(--rules-book-h) / 6);
-  --ns-img-tl:url('../img/rules_pages_tl.png'); --ns-img-tm:url('../img/rules_pages_tm.png'); --ns-img-tr:url('../img/rules_pages_tr.png');
-  --ns-img-ml:url('../img/rules_pages_ml.png'); --ns-img-mm:url('../img/rules_pages_mm.png'); --ns-img-mr:url('../img/rules_pages_mr.png');
-  --ns-img-bl:url('../img/rules_pages_bl.png'); --ns-img-bm:url('../img/rules_pages_bm.png'); --ns-img-br:url('../img/rules_pages_br.png');
-}
-/*── ЗЕРКАЛО ДЛЯ ЛЕВОЙ СТРАНИЦЫ РАЗВОРОТА — переворачиваем ТОЛЬКО слой
-    рамки (.nine-slice — отдельный div, соседний с текстовым контентом,
-    а не родитель для него), поэтому текст внутри .rules-page-content
-    зеркало не затрагивает вообще, разворачивать его обратно не нужно. */
-.ns-page-mirror{ transform: scaleX(-1); }
 
 /*── ЗАКЛАДКИ-ЯЗЫКИ — "флажки", торчащие поверх верхней кромки книги.
     Плейсхолдер-цвета взяты прямо с референса (Eng кремовый/Por зелёный/
@@ -445,17 +388,28 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-lang-btn[data-lang="RUS"]{ background:#e39ac9; color:#3a0d24; }
 .rules-lang-btn[data-lang="VN"]{ background:#9aa23f; color:#20240c; font-family:'Pixelify Sans', system-ui, sans-serif; }
 
-/*── ОБЛОЖКА — .rules-cover ЗАПОЛНЯЕТ весь #rulesBook, несёт свой
-    9-слайс (.ns-cover) + заголовок поверх (z-index:1). Заголовок —
-    бокс с плейсхолдер-кремовым фоном (позже сюда сядет кастомный арт
-    бокса, п.3 ТЗ автора), размер/шрифт — доля от --rules-book-h. ─────*/
+/*── ОБЛОЖКА — border-image прямо на .rules-cover (img/rules_cover.png,
+    резка угла 42, толщина рамки --rules-frame-b — см. общий комментарий
+    выше). Заголовок — бокс с плейсхолдер-кремовым фоном (позже сюда
+    сядет кастомный арт бокса, п.3 ТЗ автора), размер/шрифт — доля от
+    --rules-book-h. ─────────────────────────────────────────────────*/
 .rules-cover{
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border-style: solid;
+  border-width: var(--rules-frame-b);
+  border-image-source: url('../img/rules_cover.png');
+  border-image-slice: 42 fill;
+  border-image-width: 100%;
+  border-image-outset: 0;
+  border-image-repeat: stretch round;
+  image-rendering: pixelated;
 }
 .rules-cover-title{
   position: relative;
@@ -525,11 +479,33 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-pages{display:flex; flex-direction:row; width:100%; height:100%; justify-content:center;}
 .rules-spread{display:none; flex-direction:row; gap:var(--rules-page-gap); width:100%; height:100%;}
 .rules-page{width:var(--rules-page-w); height:100%; flex:0 0 auto; box-sizing:border-box; position:relative; transform:rotate(var(--r, 0deg));}
-.rules-page-content{position:relative; z-index:1; width:100%; height:100%; box-sizing:border-box; padding:calc(var(--rules-book-h) * 0.045); overflow:hidden; background:#7a1f30;}
+/*── РАМКА СТРАНИЦЫ — border-image на ОТДЕЛЬНОМ слое (не на .rules-page
+    целиком и не на .rules-page-content), именно чтобы левую страницу
+    разворота можно было отзеркалить (.mirror{scaleX(-1)}) БЕЗ переворота
+    текста — тот лежит соседним .rules-page-content, зеркало его не
+    касается. img/rules_pages.png — считаю уже лежащим в img/ (по
+    договорённости, даже если не вижу его в архиве в этой сессии). Резка
+    угла 42, та же --rules-frame-b, что и у обложки. */
+.rules-page-frame{
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+  border-style: solid;
+  border-width: var(--rules-frame-b);
+  border-image-source: url('../img/rules_pages.png');
+  border-image-slice: 42 fill;
+  border-image-width: 100%;
+  border-image-outset: 0;
+  border-image-repeat: stretch round;
+  image-rendering: pixelated;
+}
+.rules-page-frame.mirror{ transform: scaleX(-1); }
+.rules-page-content{position:relative; z-index:1; width:100%; height:100%; box-sizing:border-box; padding:var(--rules-frame-b); overflow:hidden;}
 .rules-page-text{font-size:13px; line-height:1.5; color:#c9c2ae;}
 .rules-page-text h2{font-size:17px; color:#E8E0C8; margin:0 0 6px;}
 .rules-page-text h3{font-size:14px; color:#c8a84b; margin:10px 0 4px;}
-.rules-page-text p{margin:0 0 8px;}
+.rules-page-text p{margin:0 0 8px; overflow-wrap:break-word; word-break:break-word;}
 .rules-page-text hr{border-color:#ffffff22; margin:12px 0;}
 /*── Языковые шрифты для УЖЕ ОТРЕНДЕРЕННОГО контента страницы — через
     data-rules-lang на .rules-page-content (см. rulesRenderPages в
