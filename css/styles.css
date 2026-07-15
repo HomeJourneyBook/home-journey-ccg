@@ -1596,7 +1596,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #jeetBottomBar .stat-badge{color:#b44fd4; background-color:#fff; background-image:url('../img/bg_counters_jeet.png');}
 .card-detail-overlay{position:fixed;inset:0;background:#000000cc;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
 .card-detail-box{position:relative;display:flex;align-items:center;justify-content:center;}
-.card-detail-close{position:absolute;top:-32px;right:-8px;font-size:28px;cursor:pointer;color:#888;background:none;border:none;z-index:10;}
+.card-detail-close{position:absolute;top:-32px;right:-8px;font-size:28px;font-family:'MEK',monospace;cursor:pointer;color:#888;background:none;border:none;z-index:10;}
 .card-detail-close:hover{color:#c8a84b;}
 .card-detail-scaled{--card-h: min(68vw, 52vh); --card-w: calc(var(--card-h) * 0.716); --card-art-size: calc(var(--card-h) * 0.535); --card-pad: calc(var(--card-h) * 0.021); --card-name-h: calc(var(--card-h) * 0.096); --card-stats-h: calc(var(--card-h) * 0.085); --card-text-h: calc(var(--card-h) * 0.24); --card-world-name-h: calc(var(--card-h) * 0.096); --card-world-text-h: calc(var(--card-h) * 0.16); width: var(--card-w) !important; height: var(--card-h) !important; cursor: default !important; transform: none !important; opacity: 1 !important; font-size: calc(var(--card-h) * 0.05) !important;}
 @media(max-width:600px){
