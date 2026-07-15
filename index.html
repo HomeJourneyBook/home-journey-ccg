@@ -453,19 +453,12 @@
     </div>
 
     <!-- ОБЛОЖКА — заголовок в боксе, центрированный внутри книги. Фон —
-         .nine-slice (9 диков на нарезанных тайлах rules_cover_*.png,
-         см. styles.css .ns-cover) — рендерится РУЧНЫМ 9-слайсом, не
-         border-image (тот ненадёжно тайлит боковые тайлы по браузерам).
-         Показывается при pageIndex===-1. Оглавление больше НЕ тут — это
-         отдельная(ые) сгенерированная страница(ы) в потоке (см.
-         paginateRulesLang в rules.js), первый разворот после обложки =
-         [цитата-плейсхолдер | оглавление]. -->
+         border-image прямо на .rules-cover (img/rules_cover.png, резка
+         угла 42 — см. styles.css). Показывается при pageIndex===-1.
+         Оглавление больше НЕ тут — это отдельная(ые) сгенерированная
+         страница(ы) в потоке (см. paginateRulesLang в rules.js), первый
+         разворот после обложки = [цитата-плейсхолдер | оглавление]. -->
     <div class="rules-cover" id="rulesCover">
-      <div class="nine-slice ns-cover">
-        <div class="ns-tl"></div><div class="ns-tm"></div><div class="ns-tr"></div>
-        <div class="ns-ml"></div><div class="ns-mm"></div><div class="ns-mr"></div>
-        <div class="ns-bl"></div><div class="ns-bm"></div><div class="ns-br"></div>
-      </div>
       <div class="rules-cover-title" id="rulesCoverTitle">Rules</div>
     </div>
 
@@ -473,37 +466,24 @@
          ≥900px — см. rulesMediaQuery() в rules.js). Показывается когда
          pageIndex>=0. Оба варианта в разметке всегда, viewport-переключение
          чисто display:none/flex в JS (rulesRenderPages).
-         Каждая .rules-page = .nine-slice (фон-рамка страницы, тайлы
-         rules_pages_*.png — см. styles.css .ns-page, ждёт файл от автора)
-         + отдельный .rules-page-content (текст, ЭТО и есть то, во что
-         rules.js пишет innerHTML — рамка-сосед не затирается). Левая
-         страница разворота — та же рамка, но .ns-page-mirror
-         (transform:scaleX(-1)) отражает ТОЛЬКО фон, текст не трогает
-         (см. комментарий в styles.css). -->
+         Каждая .rules-page = .rules-page-frame (border-image на
+         img/rules_pages.png, отдельным слоем) + отдельный
+         .rules-page-content (текст, ЭТО и есть то, во что rules.js пишет
+         innerHTML — рамка-сосед не затирается). Левая страница разворота —
+         та же рамка, но класс .mirror (transform:scaleX(-1)) отражает
+         ТОЛЬКО фон, текст не трогает (см. комментарий в styles.css). -->
     <div class="rules-pages" id="rulesPages" style="display:none;">
       <div class="rules-page" id="rulesPageSingle">
-        <div class="nine-slice ns-page">
-          <div class="ns-tl"></div><div class="ns-tm"></div><div class="ns-tr"></div>
-          <div class="ns-ml"></div><div class="ns-mm"></div><div class="ns-mr"></div>
-          <div class="ns-bl"></div><div class="ns-bm"></div><div class="ns-br"></div>
-        </div>
+        <div class="rules-page-frame"></div>
         <div class="rules-page-content rules-page-text" id="rulesPageSingleContent"></div>
       </div>
       <div class="rules-spread" id="rulesSpread" style="display:none;">
         <div class="rules-page" id="rulesPageLeft">
-          <div class="nine-slice ns-page ns-page-mirror">
-            <div class="ns-tl"></div><div class="ns-tm"></div><div class="ns-tr"></div>
-            <div class="ns-ml"></div><div class="ns-mm"></div><div class="ns-mr"></div>
-            <div class="ns-bl"></div><div class="ns-bm"></div><div class="ns-br"></div>
-          </div>
+          <div class="rules-page-frame mirror"></div>
           <div class="rules-page-content rules-page-text" id="rulesPageLeftContent"></div>
         </div>
         <div class="rules-page" id="rulesPageRight">
-          <div class="nine-slice ns-page">
-            <div class="ns-tl"></div><div class="ns-tm"></div><div class="ns-tr"></div>
-            <div class="ns-ml"></div><div class="ns-mm"></div><div class="ns-mr"></div>
-            <div class="ns-bl"></div><div class="ns-bm"></div><div class="ns-br"></div>
-          </div>
+          <div class="rules-page-frame"></div>
           <div class="rules-page-content rules-page-text" id="rulesPageRightContent"></div>
         </div>
       </div>
