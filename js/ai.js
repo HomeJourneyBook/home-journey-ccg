@@ -198,9 +198,10 @@ function aiTryBurnCard(){
   if(me.hand.length < 4) return; // держим минимум вариантов, не сжигаем из тонкой руки
 
   // Триггер 1: разблокировка хода.
-  const affordableNow = me.hand.some(c => c.cost <= me.ess && aiSpellHasValidTarget(c));
+  const fieldFullForUnlock = me.field.length >= 6;
+  const affordableNow = me.hand.some(c => c.cost <= me.ess && aiSpellHasValidTarget(c) && !(fieldFullForUnlock && !c.spell && !c.world && !c.artifact));
   if(!affordableNow){
-    const unlockables = me.hand.filter(c => c.cost === me.ess+1 && aiSpellHasValidTarget(c));
+    const unlockables = me.hand.filter(c => c.cost === me.ess+1 && aiSpellHasValidTarget(c) && !(fieldFullForUnlock && !c.spell && !c.world && !c.artifact));
     if(unlockables.length > 0){
       const unlockIds = new Set(unlockables.map(c=>c.id));
       // Жжём худшую карту среди НЕ-открываемых (открываемые — то, ради чего
@@ -535,7 +536,15 @@ function aiSpellHasValidTarget(card){
 
 function aiPickBestCard(){
   const me = G[G.aiFaction];
-  const affordable = me.hand.filter(c => c.cost <= me.ess && aiSpellHasValidTarget(c));
+  // 2026-07-16: лимит поля 6 существ (см. doPlay() в game.js) — существо сверх лимита
+  // просто не сыграется (essence не спишется, карта останется в руке), поэтому при
+  // полном поле его вообще нельзя пускать в число "доступных" кандидатов: иначе AI
+  // раз за разом выбирает ЭТУ ЖЕ карту (aiScoreCard её не штрафует за нехватку места),
+  // doPlay() молча ничего не делает, и цикл aiPlayCardsStep впустую крутится до
+  // iter>20 (до ~11 секунд по AI_STEP_DELAY), вместо того чтобы сразу пойти
+  // разыгрывать заклинания/Мир/Артефакт или переходить к атаке.
+  const fieldFull = me.field.length >= 6;
+  const affordable = me.hand.filter(c => c.cost <= me.ess && aiSpellHasValidTarget(c) && !(fieldFull && !c.spell && !c.world && !c.artifact));
   if(affordable.length === 0) return null;
   let best = null, bestScore = -Infinity;
   affordable.forEach(c => {
