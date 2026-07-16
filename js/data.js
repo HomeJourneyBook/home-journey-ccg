@@ -16,10 +16,10 @@ const DEFS = {
   t_trvl734_w:  {name:"TRAVELER #734",  cost:3,hp:2,atk:6,art:"🦈", img:"734.png",  f:"tea",tags:["necrophage","gtype:szg"],            ab:"Squad: +1 maxHP."},
 
   // Orbiton Tea
-  t_trvl10_w:   {name:"TRAVELER #10",   cost:2,hp:3,atk:2,art:"👁️", img:"10.png",   f:"tea",tags:["heal:1","burn","gtype:orb"],             ab:"Active: Heal 1 HP. Squad: Heal 2."},
-  t_trvl398_w:  {name:"TRAVELER #398",  cost:3,hp:6,atk:4,art:"👁️", img:"398.png",  f:"tea",tags:["heal:1","vanguard","untamed","armor:1","gtype:orb"],         ab:"Active: Heal 1 HP. Squad: Heal 2."},
-  t_trvl433_w:  {name:"TRAVELER #433",  cost:1,hp:1,atk:1,art:"👁️", img:"433.png",  f:"tea",tags:["heal:1","gtype:orb"],                   ab:"Active: Heal 1 HP. Squad: Heal 2."},
-  t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:1","gtype:orb"],                   ab:"Active: Heal 1 HP. Squad: Heal 2."},
+  t_trvl10_w:   {name:"TRAVELER #10",   cost:2,hp:3,atk:2,art:"👁️", img:"10.png",   f:"tea",tags:["heal:2","burn","gtype:orb"],             ab:"Active: Heal 2 HP. Squad: Heal 4."},
+  t_trvl398_w:  {name:"TRAVELER #398",  cost:3,hp:6,atk:4,art:"👁️", img:"398.png",  f:"tea",tags:["heal:2","vanguard","untamed","armor:1","gtype:orb"],         ab:"Active: Heal 2 HP. Squad: Heal 4."},
+  t_trvl433_w:  {name:"TRAVELER #433",  cost:1,hp:1,atk:1,art:"👁️", img:"433.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active: Heal 2 HP. Squad: Heal 4."},
+  t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active: Heal 2 HP. Squad: Heal 4."},
 
   // Dreegan Tea
   t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:7,atk:2,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","enter_heal:2","gtype:drg"],                   ab:"On play: Heal 2 HP to wounded allies. Squad: +1 Armor."},
@@ -74,10 +74,10 @@ const DEFS = {
   j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:2,atk:6,art:"🦈", img:"551.png", f:"jeet",tags:["incarnation:4","gtype:szg"],      ab:"Squad: +1 maxHP."},
 
   // Orbiton Jeet
-  j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:1","gtype:orb"],                  ab:"Active: Heal 1 HP. Squad: Heal 2."},
-  j_trvl429_w: {name:"TRAVELER #429", cost:1,hp:1,atk:1,art:"👁️", img:"429.png", f:"jeet",tags:["heal:1","gtype:orb"],                  ab:"Active: Heal 1 HP. Squad: Heal 2."},
-  j_trvl454_w: {name:"TRAVELER #454", cost:3,hp:5,atk:4,art:"👁️", img:"454.png", f:"jeet",tags:["heal:1","regen","armor:1","gtype:orb"],           ab:"Active: Heal 1 HP. Squad: Heal 2."},
-  j_trvl523_w: {name:"TRAVELER #523", cost:2,hp:3,atk:2,art:"👁️", img:"523.png", f:"jeet",tags:["heal:1","fear","gtype:orb"],            ab:"Active: Heal 1 HP. Squad: Heal 2."},
+  j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active: Heal 2 HP. Squad: Heal 4."},
+  j_trvl429_w: {name:"TRAVELER #429", cost:1,hp:1,atk:1,art:"👁️", img:"429.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active: Heal 2 HP. Squad: Heal 4."},
+  j_trvl454_w: {name:"TRAVELER #454", cost:3,hp:5,atk:4,art:"👁️", img:"454.png", f:"jeet",tags:["heal:2","regen","armor:1","gtype:orb"],           ab:"Active: Heal 2 HP. Squad: Heal 4."},
+  j_trvl523_w: {name:"TRAVELER #523", cost:2,hp:3,atk:2,art:"👁️", img:"523.png", f:"jeet",tags:["heal:2","fear","gtype:orb"],            ab:"Active: Heal 2 HP. Squad: Heal 4."},
 
   // Dreegan Jeet
   j_trvl36_w:   {name:"TRAVELER #36",   cost:3,hp:7,atk:2,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","untamed","gtype:drg"],               ab:"Squad: +1 Armor."},
