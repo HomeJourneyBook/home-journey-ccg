@@ -353,7 +353,7 @@ function preloadAssets(){
     // ── Игровые иконки ──
     'img/heart.png', 'img/attack.png', 'img/chel.png', 'img/chel2.png', 'img/ess.png', 'img/ess_jeet.png',
     'img/hp_tea.png', 'img/hp_jeet.png',
-    'img/deck.png', 'img/deck_jeet.png', 'img/runaha.png', 'img/ef_burn.png',
+    'img/deck.png', 'img/deck_jeet.png', 'img/runaha.png', 'img/ef_burn.png', 'img/ef_fear.png', 'img/ef_tb.png',
 
     // ── Типы карт ──
     'img/type_creature.png', 'img/type_spell.png', 'img/type_world.png',
