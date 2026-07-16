@@ -331,17 +331,25 @@ function aiResolvePendingSpellTarget(){
   }
   if(G.phase==='spellBounceTarget'){
     // Приоритет — бounce сильнейшего существа человека (чистый темп-профит: он платит за
-    // карту заново). Если у человека нечего бaунсить — fallback на СВОЁ самое дешёвое
-    // существо (не идеально полезно, но не хуже, чем впустую отменить уже оплаченный спелл).
+    // карту заново). Если у человека нечего бaунсить — фолбэк на СВОЮ карту, но только
+    // если это реально того стоит (aiWorthBouncingOwn — см. определение выше): просто
+    // "чтобы спелл не пропал" больше не считается поводом бaунсить своё же существо, это
+    // чистый минус темпа без всякой компенсации.
     const enemyTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
     if(enemyTargets.length>0){
       enemyTargets.sort((a,b)=>effAtk(b)-effAtk(a));
       doSpellBounceTarget(enemyTargets[0]);
       return;
     }
-    const ownTargets=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+    const ownTargets=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
     if(ownTargets.length===0){ cancelPendingSpell(); return; }
-    ownTargets.sort((a,b)=>a.cost-b.cost);
+    // Среди подходящих — сперва vanguard-редетаплой (сразу доп.атака тем же ходом),
+    // затем среди прочих (on-enter эффект) подешевле — меньше жалко пересыграть.
+    ownTargets.sort((a,b)=>{
+      const va=hasTag(a,'vanguard')&&a.exhausted, vb=hasTag(b,'vanguard')&&b.exhausted;
+      if(va!==vb) return va?-1:1;
+      return a.cost-b.cost;
+    });
     doSpellBounceTarget(ownTargets[0]);
     return;
   }
@@ -524,6 +532,17 @@ function aiTryUseSacrifice(){
 // иначе он будет выбран как "лучшая карта", разыгран, тут же отменён
 // (cancelPendingSpell — нет цели) и выбран СНОВА на следующей итерации —
 // до 20 раз подряд, не давая ИИ дойти до других карт в руке в принципе.
+// 2026-07-16: раньше AI баунсил СВОЮ дешёвую карту просто чтобы не "потратить спелл
+// впустую", когда у врага не было целей — само по себе это чистый минус (теряешь тело
+// с поля, платишь за карту заново без всякой пользы). Стоит того ТОЛЬКО если повторный
+// розыгрыш реально что-то даёт: on-enter эффект (draw/heal/aoe при входе — retrigger)
+// или vanguard, который уже отходил в этот ход и может ударить СНОВА (vanguard
+// игнорирует sleeping — редетаплой = дополнительная атака тем же ходом).
+function aiWorthBouncingOwn(c){
+  return hasTag(c,'enter_aoe') || hasTag(c,'enter_heal') || hasTag(c,'enter_draw') ||
+         (hasTag(c,'vanguard') && c.exhausted);
+}
+
 function aiSpellHasValidTarget(card){
   if(!card.spell) return true;
   const humanF=G.humanFaction;
@@ -540,9 +559,10 @@ function aiSpellHasValidTarget(card){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
   }
   if(hasTag(card,'spell_bounce_target')){
-    // Цель любая сторона — валидно, если ЕСТЬ хоть одно существо где угодно на поле.
+    // Цель любая сторона — но СВОЮ карту бaунсить валидно только если это реально того
+    // стоит (aiWorthBouncingOwn), а не просто "чтобы не потратить спелл впустую".
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact) ||
-           G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact);
+           G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
   }
   if(hasTag(card,'revive')){
     // 2026-07-16: воскрешённая карта всегда идёт на СВОЁ поле кастующего (см. reviveCard()
