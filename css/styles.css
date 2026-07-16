@@ -372,7 +372,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   ═══════════════════════════════════════════════════════════════════════*/
 #rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:42px; --rnavbtn:min(5vh,9vw); --rnavbox-border:calc(var(--rnavbtn) / 3);}
 @media(min-width:601px){
-  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:84px;}
+  #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:calc(var(--rpage-h) * 7 / 60);}
 }
 #rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;background:#829797 url('../img/rules_bg.png') repeat center;}
 .rules-book-wrap{position:relative;display:inline-flex;}
@@ -974,7 +974,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
 .log-panel-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_log.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex;justify-content:center;align-items:center; padding:0 6px; position:relative;}
 .log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#0c1013;font-family:'MEK',monospace;text-align:center;}
-.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:30px;height:30px;cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:max(calc(5vh * 0.9975), calc(2.5vw * 0.9975));height:max(calc(5vh * 0.9975), calc(2.5vw * 0.9975));cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
 .log-panel .log{height:180px;border:none;}
@@ -1092,7 +1092,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Graveyard modal — рамка и хедер как у battle log ────────────────*/
 .grave-modal{position:fixed; box-sizing:border-box; width:min(calc(2 * var(--card-w) + 44px), 92vw); max-height:65vh; overflow-y:hidden; background:#0a0a12; border-style:solid; border-width:20px; border-image-source:url('../img/grav_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; padding:0; pointer-events:all; z-index:650; display:flex; flex-direction:column; filter:drop-shadow(0 4px 20px #000000aa);}
 .grave-modal-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_grav.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex; justify-content:center; align-items:center; padding:0 8px; position:relative; flex-shrink:0;}
-.grave-close-btn{position:absolute; right:6px;top:50%;transform:translateY(-50%); background-image:url('../img/btn_X.png'); background-size:100% 100%; background-color:transparent; border:none;padding:0; width:30px;height:30px; font-size:0;line-height:0; cursor:pointer;}
+.grave-close-btn{position:absolute; right:6px;top:50%;transform:translateY(-50%); background-image:url('../img/btn_X.png'); background-size:100% 100%; background-color:transparent; border:none;padding:0; width:max(calc(5vh * 0.9975), calc(2.5vw * 0.9975));height:max(calc(5vh * 0.9975), calc(2.5vw * 0.9975)); font-size:0;line-height:0; cursor:pointer;}
 .grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
 .grave-close-btn:active{background-image:url('../img/btn_X2.png');}
 /*── Modal pop-in/pop-out ────────────────────────────────────────────*/
@@ -1153,10 +1153,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 }
 .header-desktop-btns{display:none;}
 .header-mobile-btn{display:block;}
-.hamburger-btn{width: calc(5vh * 0.8);height: calc(5vh * 0.8);border:1px solid #E8E0C8;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:6px;transition:all .2s;position:relative;margin:1px;}
+.hamburger-btn{width: max(calc(5vh * 0.8), calc(2.5vw * 0.8));height: max(calc(5vh * 0.8), calc(2.5vw * 0.8));border:1px solid #E8E0C8;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12%;padding:16%;transition:all .2s;position:relative;margin:1px;box-sizing:border-box;}
 .hamburger-btn:hover{border-color:#F2ECD8;box-shadow:0 0 8px #CBBE9A66, 0 0 16px #8A7D6244;}
 .hamburger-btn:active{transform:scale(0.92) translateY(1px);}
-.ham-line{width:100%;height:2px;background:#E8E0C8;border-radius:1px;transition:transform .3s,opacity .3s;transform-origin:center;}
+.ham-line{width:100%;height:12%;background:#E8E0C8;border-radius:1px;transition:transform .3s,opacity .3s;transform-origin:center;flex-shrink:0;}
 .hamburger-btn.open .ham-line:nth-child(1){transform:translateY(7px) rotate(45deg);}
 .hamburger-btn.open .ham-line:nth-child(2){opacity:0;transform:scaleX(0);}
 .hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
