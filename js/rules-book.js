@@ -206,7 +206,21 @@ function rulesPaginate(lang) {
       if (key && !(key in termPageMap)) termPageMap[key] = 2 + chapterPages.length;
     }
 
-    chapter.nodes.forEach(node => {
+    // Пробует "заглянуть" на 1 токен вперёд после только что размещённого h3 —
+    // см. вызов ниже, orphan-заголовок.
+    function nextParaHasRoom(nextNode) {
+      if (!nextNode || nextNode.tagName !== 'P') return true; // не абзац следом — правило не касается
+      const tokens = rulesTokenizeP(nextNode);
+      if (!tokens.length) return true; // пустой абзац — нечему сиротеть
+      const testP = document.createElement('p');
+      measure.appendChild(testP);
+      rulesRenderTokens(testP, tokens, 1);
+      const ok = fits();
+      measure.removeChild(testP);
+      return ok;
+    }
+
+    chapter.nodes.forEach((node, i, arr) => {
       if (node.tagName === 'P') {
         // ── Параграфы режем по "токенам" — слово ИЛИ целый инлайн-элемент
         // (<img>-иконка, <a>-ссылка целиком, не разрывая её саму) — так и
@@ -254,6 +268,21 @@ function rulesPaginate(lang) {
         const clone = node.cloneNode(true);
         measure.appendChild(clone);
         if (!fits() && currentNodes.length > 0) {
+          finalizePage();
+          measure.appendChild(clone);
+        }
+        // ── Orphan-заголовок (просьба автора 2026-07-16): h3 сам по себе
+        // влезает внизу страницы, но следом сразу идёт <p> — его "тело" —
+        // и под этим h3 не остаётся места ДАЖЕ на один токен (слово/иконку/
+        // ссылку) абзаца. Получался огрызок вида "Spells" без единой
+        // строки текста, а весь абзац целиком уезжал на след. страницу.
+        // Если это тот случай (и на странице уже что-то есть — иначе
+        // переносить некуда, тот же принцип, что у "форс" ниже для P) —
+        // сдёргиваем и сам h3 на чистую страницу, вместе с его текстом.
+        // currentNodes.length>0 тут проверяется ДО push этого h3 (см. ниже) —
+        // т.е. "есть ли на странице что-то, кроме самого этого заголовка".
+        if (node.tagName === 'H3' && currentNodes.length > 0 && !nextParaHasRoom(arr[i + 1])) {
+          measure.removeChild(clone);
           finalizePage();
           measure.appendChild(clone);
         }
