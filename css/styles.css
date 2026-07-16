@@ -474,7 +474,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-page-inner.vn-lang, .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-family:'Be Vietnam Pro',sans-serif;}
 .rules-page-inner.vn-lang h2, .rules-page-inner.vn-lang h3{font-weight:700;}
 .rules-page-inner.vn-lang{--ricon-h:calc(var(--rpage-h) * 0.028 * 1.2);} /* телефон: раньше не было отдельного буста иконок — теперь +20%, шрифт не трогаю */
-.rules-page-inner h2{font-size:1.7em;color:#322030;margin:0 0 0.5em;line-height:1.15;}
+.rules-page-inner h2{font-size:2.04em;color:#322030;margin:0 0 0.5em;line-height:1.15;text-align:center;}
 .rules-page-inner h3{font-size:1.2em;color:#492833;margin:0.9em 0 0.3em;letter-spacing:0.5px;}
 .rules-page-inner p{margin:0 0 0.65em;}
 /*── Полностраничный арт-атомик (сейчас: rules_card.png в главе "Карта").
@@ -1613,7 +1613,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .deck-placeholder-wrap{position:relative;width:6vh;height:6vh;flex-shrink:0;}
 /*── ПЛЕЙСХОЛДЕР: датчик/индикатор рядом со счётчиком кладбища — Tea оставлен на текущем
    dat4ik.gif, Jeet получил свой путь (белый фон, пока файла нет) ──────────────*/
-.bottom-bar-sensor{display:none; width:60px; height:60px; background-size:cover; background-position:center; flex-shrink:0;}
+.bottom-bar-sensor{display:none; width:7vh; height:7vh; background-size:cover; background-position:center; flex-shrink:0;}
 #teaBottomBar .bottom-bar-sensor{background-image:url('../img/dat4ik.gif');}
 #jeetBottomBar .bottom-bar-sensor{background-color:#fff; background-image:url('../img/dat4ik_jeet.gif');}
 @media(min-width:601px){
