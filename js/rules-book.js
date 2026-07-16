@@ -260,6 +260,18 @@ function rulesPaginate(lang) {
         currentNodes.push(clone);
         markRecorded();
         markGlTarget(node);
+        // .rules-full-art (см. styles.css) — это flex:1 картинка, которая
+        // ВСЕГДА растягивается/сжимается ровно под остаток страницы и
+        // поэтому никогда не переполнит measure — fits() тут всегда
+        // вернёт true, даже если следом идёт ещё контент (h3/p), который
+        // должен уйти на новую страницу. Поэтому вместо того чтобы
+        // полагаться на fits(), сразу принудительно закрываем страницу
+        // после такой картинки — весь остаток главы начинается с чистого
+        // листа (баг найден и пофикшен в предыдущей сессии, см. чат
+        // 2026-07-16).
+        if (node.tagName === 'IMG' && node.classList.contains('rules-full-art')) {
+          finalizePage();
+        }
       }
     });
     if (currentNodes.length) chapterPages.push(currentNodes);
