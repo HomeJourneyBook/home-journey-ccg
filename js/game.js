@@ -169,9 +169,13 @@ function doPlay(card){
   const cur=G[G.turn];
   if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');return;}
   // Лимит поля (2026-07-16): максимум 6 существ одновременно на своей стороне поля.
-  // Миры/Артефакты/Заклинания сюда не попадают (не трогают cur.field вообще — см. doWorld/
-  // doArtifact/doSpell), поэтому проверяем только "чистые" карты-существа, как и в doCreature().
-  if(!card.spell&&!card.world&&!card.artifact&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');return;}
+  // Миры/Артефакты/обычные Заклинания сюда не попадают (не трогают cur.field вообще —
+  // см. doWorld/doArtifact/doSpell), поэтому проверяем только "чистые" карты-существа,
+  // как и в doCreature(). Отдельно — спеллы с тегом revive (SHEN'S CALL/FORGETTING):
+  // воскрешённая карта ТОЖЕ садится на cur.field (см. reviveCard()), так что тот же лимит
+  // распространяется и на них — иначе рес выдал бы 7-ю карту в обход правила.
+  const wouldAddToField = (!card.spell&&!card.world&&!card.artifact) || (card.spell&&hasTag(card,'revive'));
+  if(wouldAddToField&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');return;}
   cur.ess-=card.cost;
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   // Targeted spells pause for a target click instead of resolving instantly —
@@ -827,7 +831,7 @@ const ESS_CAP = 10;
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'armor', val:1},
   {gtype:'mch', count:3, effect:'atk',   val:1},
-  {gtype:'orb', count:3, effect:'param', param:'heal',   val:2},
+  {gtype:'orb', count:3, effect:'param', param:'heal',   val:4},
   {gtype:'umb', count:3, effect:'param', param:'bolt',   val:2},
   {gtype:'szg', count:3, effect:'maxhp', val:1},
   {gtype:'xui', count:3, effect:'atk',   val:1},
