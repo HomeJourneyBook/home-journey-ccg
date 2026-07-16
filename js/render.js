@@ -711,13 +711,25 @@ const tagIcons = (card.tags||[])
     d.style.zIndex='';
     const cur=G[G.turn];
     // Play — попап по центру сверху карты (как было)
-    if(cur.ess>=card.cost){
+    // 2026-07-16: лимит поля (6 существ) проверяем ТОЛЬКО для чистых существ (не spell/world/
+    // artifact — те не трогают cur.field, см. doPlay()) — если он упёрт, Play-кнопка уступает
+    // место такому же по стилю индикатору "Battleground is full", как у "Not enough essence".
+    const fieldFull = !card.spell&&!card.world&&!card.artifact&&cur.field.length>=6;
+    if(cur.ess>=card.cost && !fieldFull){
       const popup=document.createElement('div');
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
       playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
+      d.appendChild(popup);
+    } else if(fieldFull){
+      const popup=document.createElement('div');
+      popup.className='card-actions-popup';
+      const noRoom=document.createElement('div');
+      noRoom.className='cap-no-ess cap-field-full';
+      noRoom.textContent='Battleground is full';
+      popup.appendChild(noRoom);
       d.appendChild(popup);
     } else {
       const popup=document.createElement('div');
