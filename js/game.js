@@ -696,9 +696,15 @@ function doBurnCard(card){
     cur.hand=cur.hand.filter(c=>c.id!==card.id);
     card.voided=true;
     cur.void.push(card);
-    cur.essMax=Math.min(ESS_CAP, cur.essMax+1);cur.ess+=1;
+    // 2026-07-16: сжигание больше НЕ поднимает потолок essMax навсегда — только разовая
+    // +1 эссенция на ЭТОТ ход (как ess_add у спеллов). essMax теперь растёт исключительно
+    // по обычному приросту хода (+1/ход, см. endTurn()), без "срезания угла" через сжигание —
+    // темп игры от этого идёт более планомерно, а не скачками. cur.ess МОЖЕТ временно
+    // превысить cur.essMax в рамках этого хода — тот же паттерн, что и у ess_add-эффектов
+    // (см. комментарий у ESS_CAP выше): капается потолок, а не разовый всплеск траты.
+    cur.ess+=1;
     flashEssenceGain(G.turn);
-    lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax}.`,'imp');
+    lg(`Burned ${card.name} → Essence now ${cur.ess}/${cur.essMax} (+1 this turn only).`,'imp');
     G.phase='action';render();
   }, 450); // держать в синхроне с длительностью .burning-out (styles.css)
 }
