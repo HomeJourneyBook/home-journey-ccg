@@ -423,8 +423,8 @@ const tagIcons=(card.tags||[])
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
-    ${card.feared?'<div class="card-small-feared"><img src="img/ico_fear.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
-    ${card.provokeBroken?'<div class="card-small-tauntbroken"><img src="img/ico_tb.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
+    ${card.feared?'<div class="card-small-feared"><img src="img/ef_fear.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
+    ${card.provokeBroken?'<div class="card-small-tauntbroken"><img src="img/ef_tb.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.sleeping?'<div class="card-zzz"><span>z</span><span>Z</span><span>Z</span></div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
