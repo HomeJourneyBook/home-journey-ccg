@@ -346,13 +346,17 @@ function playAttackSfx(att){
 // 3. Резолвим on_attack-эффекты этого удара (fear/burn/taunt_break/vampiric) — все они
 //    уже читают ctx.target.hp на этот момент, значит корректно видят "жива цель или нет".
 // 4. Если удар был смертельным (ctx.target.hp<=0) — резолвим on_kill (necrophage/Erase).
-// 5. Контрудар — ТОЛЬКО если цель ВЫЖИЛА (target.hp>0 — НОВАЯ проверка, раньше её не было
-//    вообще, только feared/exhausted) — мёртвая цель физически не может ударить в ответ.
-//    Это меняет баланс: раньше даже смертельный удар гарантированно возвращал урон
-//    атакующему (только fear/exhausted это предотвращали), теперь смертельный удар — чистый
-//    килл без ответки. Сознательный компромисс автора ради логичности vampiric/necrophage
-//    ("съел врага — он не может ударить в ответ"), принят с полным пониманием, что это
-//    чуть сильнее вознаграждает высокий ATK/burst за счёт гарантированных розменов.
+// 5. Контрудар — возвращён ДАЖЕ на смертельный удар (2026-07-16, второй пересмотр —
+//    см. п.6 ниже про причину и историю). Раньше (13→16 июля) было наоборот: "target.hp>0"
+//    как условие, мёртвая цель не бьёт в ответ — по просьбе автора вернули обратно к
+//    одновременному разрешению урона (как в MTG/Hearthstone: обе стороны боя наносят урон
+//    "как есть на момент удара", а не по очереди с проверкой "жив ли ещё"). Причина отката:
+//    без ответки высокий ATK убивал вообще без риска для атакующего — это ощущалось не как
+//    бой, а как "чит-кнопка убей-и-ничего-не-будет". targetCounterAtk снимается ДО
+//    dmgCard()/killCard() — иначе killCard() успевает обнулить squadAtkBonus/rageBonus
+//    мёртвой карты, и контрудар оказался бы слабее, чем цель реально имела в момент удара.
+//    Fear/exhausted/invisible-атакующего всё ещё блокируют контрудар как и раньше — это
+//    про "не может действовать", не про "жив ли ещё".
 // 6. Fear (2026-07-16): контрудар блокируется только если цель БЫЛА feared ДО этого удара
 //    (wasFearedBefore, снимок перед resolve on_attack) — иначе fear-атакующий бил бы первый
 //    раз безнаказанно (fear наложился бы этим же ударом и тут же снял бы его собственную
@@ -375,6 +379,15 @@ function doAttack(att,target){
   // (target.feared уже true к моменту проверки ниже, хотя цель была feared только что, этим
   // же ударом). Дальше, на СЛЕДУЮЩИХ атаках по уже feared цели, контратака как и раньше не идёт.
   const wasFearedBefore = target.feared;
+  const wasExhaustedBefore = target.exhausted;
+  // 2026-07-16, второй пересмотр боевой последовательности: контрудар возвращён ДАЖЕ если
+  // цель гибнет от этого же удара (см. п.5 в шапке файла выше) — поэтому её боевую силу
+  // нужно снять СЕЙЧАС, до dmgCard()/killCard(): killCard() обнуляет squadAtkBonus и
+  // rageBonus у мёртвой карты, и если считать контрудар ПОСЛЕ смерти, он окажется слабее,
+  // чем цель реально имела в момент удара — то же самое одновременное разрешение урона,
+  // что в MTG/Hearthstone (обе стороны бьют "как есть на момент боя", а не по очереди).
+  const targetCounterAtk = target.atk + (target.atkBonus||0) + (target.tempAtkBonus||0) +
+                            (target.rageBonus||0) + (target.squadAtkBonus||0);
 
   const hpBefore=target.hp;
   dmgCard(target,atk,oppK);
@@ -385,14 +398,8 @@ function doAttack(att,target){
   triggerAbilities(att,'on_attack',{target,realDmgDealt});
   if(target.hp<=0) triggerAbilities(att,'on_kill',{target});
 
-  if(target.hp>0 && !hasTag(att,'invisible') && !wasFearedBefore && !target.exhausted)
-  dmgCard(att,
-    target.atk +
-    (target.atkBonus || 0) + (target.tempAtkBonus || 0) +
-    (target.rageBonus || 0) +
-    (target.squadAtkBonus || 0),
-    curK
-  );
+  if(!hasTag(att,'invisible') && !wasFearedBefore && !wasExhaustedBefore)
+  dmgCard(att, targetCounterAtk, curK);
 
   att.exhausted=true;
   G.sel=null;
