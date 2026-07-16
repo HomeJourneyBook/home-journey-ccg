@@ -365,6 +365,11 @@ function playAttackSfx(att){
 //    (wasFearedBefore, снимок перед resolve on_attack) — иначе fear-атакующий бил бы первый
 //    раз безнаказанно (fear наложился бы этим же ударом и тут же снял бы его собственную
 //    контратаку). На следующих атаках по уже feared цели контрудара по-прежнему нет.
+// 7. necrophage/"Erase" (2026-07-16): резолвится СВОИМ timing'ом on_kill_survive ПОСЛЕ
+//    контрудара (не вместе с обычным on_kill, который по-прежнему фильтрует до контрудара —
+//    им пользуется on_kill_base и подобное). Условие — target.hp<=0 && att.hp>0: килл
+//    состоялся, и атакующий пережил ответку. Если атакующий сам погиб от контрудара —
+//    necrophage не срабатывает вообще (труп цели остаётся в кладбище как обычно).
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
@@ -404,6 +409,12 @@ function doAttack(att,target){
 
   if(!hasTag(att,'invisible') && !wasFearedBefore && !wasExhaustedBefore)
   dmgCard(att, targetCounterAtk, curK);
+
+  // necrophage/"Erase" (2026-07-16, см. abilities.js) — резолвится ЗДЕСЬ, ПОСЛЕ контрудара,
+  // и только если атакующий его реально пережил (att.hp>0). До этого изменения лечение до
+  // полного HP срабатывало ДО контрудара — существо с necrophage фактически не могло
+  // проиграть размен, независимо от того, что должно было прилететь в ответ.
+  if(target.hp<=0 && att.hp>0) triggerAbilities(att,'on_kill_survive',{target});
 
   att.exhausted=true;
   G.sel=null;
@@ -1283,8 +1294,17 @@ function endTurn(){
   // grave напрямую — сам вырезаем воскресшую из grave ниже, до вызова reviveCard.
   [...cur.grave].forEach(c=>{
     if(c.incarnTimer==null) return;
-    c.incarnTimer--;
+    if(c.incarnTimer>0) c.incarnTimer--;
     if(c.incarnTimer<=0){
+      // 2026-07-16: лимит поля 6 существ — если место занято ровно в момент, когда
+      // инкарнация должна была завершиться, НЕ форсим 7-ю карту на поле. Таймер
+      // остаётся на 0 (не уходит в минус — c.incarnTimer>0 выше не даёт декрементить
+      // дальше), и на КАЖДОМ следующем ходу владельца снова проверяем место — как
+      // только освобождается, воскрешение доигрывается как обычно.
+      if(cur.field.length>=6){
+        lg(`${c.name}: Incarnation ready, but the battleground is full — waiting.`,'hint');
+        return;
+      }
       cur.grave=cur.grave.filter(x=>x.id!==c.id);
       c.incarnTimer=undefined;
       c.incarnUsed=true; // одноразовость — см. killCard(): вторая смерть уйдёт сразу в войд
