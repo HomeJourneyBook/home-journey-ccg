@@ -391,7 +391,13 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} 
         break;
 
       case 'raise':
-        {const all=[...G[curK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
+        {
+        // 2026-07-16: лимит поля 6 существ — этот триггер автоматический (on_turn), у него
+        // нет Play-кнопки, которую можно было бы подменить на "Battleground is full", так что
+        // просто тихо не срабатываем при полном поле (тот же принцип, что и у revive-спеллов
+        // и обычных существ — см. doPlay() в game.js).
+        if(G[curK].field.length>=6){ lg(`${card.name}: Battleground is full — can't raise.`,'hint'); break; }
+        const all=[...G[curK].grave].filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
         if(all.length>0){
           const r=all[all.length-1];
           G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
