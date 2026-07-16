@@ -1134,7 +1134,21 @@ const _seenPcardPids = new Set();
 // в режиме VS AI. Панель у человека при этом НЕ скрывается (см. render()/reorderZones()) —
 // меняется только сама кнопка, клик по ней недоступен на время хода ИИ.
 function updateEndTurnBtn(){
-  const btn=document.getElementById(G.humanFaction+'EndTurnBtn');
+  // 2026-07-16: раньше здесь брали ТОЛЬКО G.humanFaction+'EndTurnBtn' — а в hotseat
+  // G.humanFaction всегда null (см. initState()), так что document.getElementById
+  // возвращал null и функция была тихим no-op. Кнопки #teaEndTurnBtn/#jeetEndTurnBtn —
+  // статичные DOM-элементы, переживающие между партиями, поэтому если предыдущий матч
+  // был VS AI и закончился ИМЕННО в момент хода ИИ (класс btn-waiting уже добавлен),
+  // следующая hotseat-партия эту иконку снять не могла — виснет "ожидание" насовсем,
+  // хотя ход спокойно переключается (пробел дёргает endTurn() напрямую, мимо
+  // pointer-events:none кнопки). Поэтому сперва чистим ОБЕ кнопки безусловно, потом
+  // вешаем класс обратно только туда, где он действительно нужен прямо сейчас.
+  const teaBtn=document.getElementById('teaEndTurnBtn');
+  const jeetBtn=document.getElementById('jeetEndTurnBtn');
+  if(teaBtn) teaBtn.classList.remove('btn-waiting');
+  if(jeetBtn) jeetBtn.classList.remove('btn-waiting');
+  const activeFaction = G.mode==='vsai' ? G.humanFaction : G.turn;
+  const btn=document.getElementById(activeFaction+'EndTurnBtn');
   if(!btn) return;
   const aiTurn = isAiTurn();
   btn.classList.toggle('btn-waiting', aiTurn);
