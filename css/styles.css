@@ -457,7 +457,13 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   width:100%; height:100%; box-sizing:border-box; overflow:hidden;
   padding:3% 5%; font-family:'MEK',monospace; color:#5d2f35;
   font-size:calc(var(--rpage-h) * 0.028); --ricon-h:calc(var(--rpage-h) * 0.028); line-height:1.35;
+  display:flex; flex-direction:column;
 }
+/*── flex-column только чтобы .rules-full-art (см. ниже) могло flex:1 и
+    дозаполнить остаток страницы под заголовком — на h2/h3/p/остальные
+    блоки это влиять не должно, поэтому у них flex:0 0 auto (= обычная
+    block-высота по контенту, как было и до перехода на flex). ─────────*/
+.rules-page-inner > *{flex:0 0 auto;}
 /*── Размер иконок (--ricon-h) НАМЕРЕННО отвязан от размера шрифта — так
     можно крутить их независимо по языку/брейкпоинту (просьба автора
     2026-07-15: где-то текст уменьшить, а иконки при этом увеличить —
@@ -471,6 +477,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .rules-page-inner h2{font-size:1.7em;color:#322030;margin:0 0 0.5em;line-height:1.15;}
 .rules-page-inner h3{font-size:1.2em;color:#492833;margin:0.9em 0 0.3em;letter-spacing:0.5px;}
 .rules-page-inner p{margin:0 0 0.65em;}
+/*── Полностраничный арт-атомик (сейчас: rules_card.png в главе "Карта").
+    Всегда идёт сразу под h2 и должен дозаполнить всю оставшуюся высоту
+    страницы, сохранив родные пропорции 3:4 (у арта уже есть свои
+    прозрачные поля на случай несовпадения с реальной высотой контейнера
+    на разных экранах — оттого object-fit:contain, а не cover/fill).
+    flex:1 переопределяет общее flex:0 0 auto выше — см. правило
+    .rules-page-inner > *. Соответствующий page-break форсируется в JS
+    (rulesPaginate) сразу после этого узла — см. комментарий там же. ───*/
+.rules-full-art{width:100%;flex:1 1 0;min-height:0;object-fit:contain;display:block;}
 /*── Десктопные переопределения размера шрифта/иконок по языку — ВАЖНО:
     этот блок должен стоять ПОСЛЕ базовых .rules-page-inner.xxx-lang правил
     выше (а не до них, как было по ошибке 2026-07-15) — при равной
