@@ -568,7 +568,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     её увидеть. Рамка прибита ровно к верху (0 сверху, никакого центрирования).
     --crate-w расшарен на уровне экрана, чтобы и ящик, и ручка масштабировались
     от одной и той же ширины. ────────────────────────────────────────────*/
-#loreScreen, #catalogScreen{--crate-w: min(92vw,760px); --handle-w: min(92vw,760px); padding:0 0 5vh; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; background-color:#181f27; flex-direction:column; align-items:center; justify-content:flex-start; gap:0;}
+#loreScreen, #catalogScreen{--crate-w: min(92vw,760px); --handle-w: min(92vw,760px); padding:0 0 5vh; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; background-color:#181f27; background-image:url('../img/floor_bg.png'); background-repeat:repeat; image-rendering:pixelated; flex-direction:column; align-items:center; justify-content:flex-start; gap:0;}
 #catalogScreen{--crate-w: min(94vw,980px);} /* каталогу нужна сетка карт пошире — хедер там донастроим отдельным заходом. --handle-w НЕ переопределяем — ручка Back должна остаться того же физического размера, что и в лоре, а не раздуваться вместе с более широким ящиком (см. чат 2026-07-14) */
 #loreScreen.active, #catalogScreen.active{display:flex;}
 /*── Кастомный квадратный (без скруглений) скролл теперь на самой странице ──*/
