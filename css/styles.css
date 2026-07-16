@@ -1931,6 +1931,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   100%{opacity:0; transform:translateY(-55%) rotate(12deg);}
 }
 .cap-no-ess{display:flex; align-items:center; justify-content:center; gap:6px; font-family:'MEK',monospace; font-size:clamp(12px,3vw,17px); color:#E8E0C8; background:transparent; border:transparent; padding:6px 10px; white-space:nowrap; pointer-events:none; text-shadow:0 0 8px #8A7D62;}
+.cap-no-ess.cap-field-full{white-space:normal; text-align:center; line-height:1.15;}
 .cap-no-ess-icon{width:1.1em; height:1.1em; object-fit:contain; vertical-align:middle; filter:drop-shadow(0 0 3px #8A7D62);}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75));}
 .bottom-slot{display:flex;align-items:center;gap:10px;flex-shrink:0;}
