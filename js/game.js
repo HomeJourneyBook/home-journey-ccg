@@ -168,6 +168,10 @@ function onClick(card,zone){
 function doPlay(card){
   const cur=G[G.turn];
   if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');return;}
+  // Лимит поля (2026-07-16): максимум 6 существ одновременно на своей стороне поля.
+  // Миры/Артефакты/Заклинания сюда не попадают (не трогают cur.field вообще — см. doWorld/
+  // doArtifact/doSpell), поэтому проверяем только "чистые" карты-существа, как и в doCreature().
+  if(!card.spell&&!card.world&&!card.artifact&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');return;}
   cur.ess-=card.cost;
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   // Targeted spells pause for a target click instead of resolving instantly —
@@ -349,6 +353,10 @@ function playAttackSfx(att){
 //    килл без ответки. Сознательный компромисс автора ради логичности vampiric/necrophage
 //    ("съел врага — он не может ударить в ответ"), принят с полным пониманием, что это
 //    чуть сильнее вознаграждает высокий ATK/burst за счёт гарантированных розменов.
+// 6. Fear (2026-07-16): контрудар блокируется только если цель БЫЛА feared ДО этого удара
+//    (wasFearedBefore, снимок перед resolve on_attack) — иначе fear-атакующий бил бы первый
+//    раз безнаказанно (fear наложился бы этим же ударом и тут же снял бы его собственную
+//    контратаку). На следующих атаках по уже feared цели контрудара по-прежнему нет.
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
@@ -362,6 +370,12 @@ function doAttack(att,target){
   if(!willFear && !willBurn) playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
 
+  // Снимок ДО on_attack-эффектов этого удара: fear, наложенный ИМЕННО этим ударом, не должен
+  // отменять контратаку за этот же удар — иначе fear-существо бьёт первый раз безнаказанно
+  // (target.feared уже true к моменту проверки ниже, хотя цель была feared только что, этим
+  // же ударом). Дальше, на СЛЕДУЮЩИХ атаках по уже feared цели, контратака как и раньше не идёт.
+  const wasFearedBefore = target.feared;
+
   const hpBefore=target.hp;
   dmgCard(target,atk,oppK);
   // Math.max(0,target.hp) — если удар был лишним "оверкиллом" (hp ушло в минус), не даём
@@ -371,7 +385,7 @@ function doAttack(att,target){
   triggerAbilities(att,'on_attack',{target,realDmgDealt});
   if(target.hp<=0) triggerAbilities(att,'on_kill',{target});
 
-  if(target.hp>0 && !hasTag(att,'invisible') && !target.feared && !target.exhausted)
+  if(target.hp>0 && !hasTag(att,'invisible') && !wasFearedBefore && !target.exhausted)
   dmgCard(att,
     target.atk +
     (target.atkBonus || 0) + (target.tempAtkBonus || 0) +
