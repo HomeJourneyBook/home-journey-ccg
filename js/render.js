@@ -714,7 +714,9 @@ const tagIcons = (card.tags||[])
     // 2026-07-16: лимит поля (6 существ) проверяем ТОЛЬКО для чистых существ (не spell/world/
     // artifact — те не трогают cur.field, см. doPlay()) — если он упёрт, Play-кнопка уступает
     // место такому же по стилю индикатору "Battleground is full", как у "Not enough essence".
-    const fieldFull = !card.spell&&!card.world&&!card.artifact&&cur.field.length>=6;
+    // Спеллы с тегом revive — отдельный случай: они ТОЖЕ сажают карту на cur.field (см.
+    // reviveCard()), так что при полном поле для них действует та же блокировка.
+    const fieldFull = ((!card.spell&&!card.world&&!card.artifact) || (card.spell&&hasTag(card,'revive'))) && cur.field.length>=6;
     if(cur.ess>=card.cost && !fieldFull){
       const popup=document.createElement('div');
       popup.className='card-actions-popup';
