@@ -974,7 +974,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
 .log-panel-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_log.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex;justify-content:center;align-items:center; padding:0 6px; position:relative;}
 .log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#0c1013;font-family:'MEK',monospace;text-align:center;}
-.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:max(calc(5vh * 0.9975), calc(2.5vw * 0.9975));height:max(calc(5vh * 0.9975), calc(2.5vw * 0.9975));cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
+.log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:max(calc(5vh * 0.798), calc(2.5vw * 0.798));height:max(calc(5vh * 0.798), calc(2.5vw * 0.798));cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
 .log-panel .log{height:180px;border:none;}
@@ -1092,7 +1092,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Graveyard modal — рамка и хедер как у battle log ────────────────*/
 .grave-modal{position:fixed; box-sizing:border-box; width:min(calc(2 * var(--card-w) + 44px), 92vw); max-height:65vh; overflow-y:hidden; background:#0a0a12; border-style:solid; border-width:20px; border-image-source:url('../img/grav_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; padding:0; pointer-events:all; z-index:650; display:flex; flex-direction:column; filter:drop-shadow(0 4px 20px #000000aa);}
 .grave-modal-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_grav.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex; justify-content:center; align-items:center; padding:0 8px; position:relative; flex-shrink:0;}
-.grave-close-btn{position:absolute; right:6px;top:50%;transform:translateY(-50%); background-image:url('../img/btn_X.png'); background-size:100% 100%; background-color:transparent; border:none;padding:0; width:max(calc(5vh * 0.9975), calc(2.5vw * 0.9975));height:max(calc(5vh * 0.9975), calc(2.5vw * 0.9975)); font-size:0;line-height:0; cursor:pointer;}
+.grave-close-btn{position:absolute; right:6px;top:50%;transform:translateY(-50%); background-image:url('../img/btn_X.png'); background-size:100% 100%; background-color:transparent; border:none;padding:0; width:max(calc(5vh * 0.798), calc(2.5vw * 0.798));height:max(calc(5vh * 0.798), calc(2.5vw * 0.798)); font-size:0;line-height:0; cursor:pointer;}
 .grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
 .grave-close-btn:active{background-image:url('../img/btn_X2.png');}
 /*── Modal pop-in/pop-out ────────────────────────────────────────────*/
@@ -1255,9 +1255,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small.exhausted{filter:brightness(.55) saturate(.8);}
 .card-small.sleeping{filter:brightness(.55) saturate(.8);}
 .card-small.feared{opacity:.5;border-style:solid;box-shadow:0 0 8px #66666688;}
-.card-small-feared{position:absolute;top:calc(var(--card-small-h) * -0.085);left:20%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);}
-.card-small-burning{position:absolute;top:calc(var(--card-small-h) * -0.085);left:80%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);}
-.card-small-tauntbroken{position:absolute;top:calc(var(--card-small-h) * -0.085);left:50%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);}
+.card-small-feared{position:absolute;top:calc(var(--card-small-h) * -0.085);left:20%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
+.card-small-burning{position:absolute;top:calc(var(--card-small-h) * -0.085);left:80%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
+.card-small-tauntbroken{position:absolute;top:calc(var(--card-small-h) * -0.085);left:50%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small.burning{box-shadow:0 0 5px #ff6600 !important;}
 .card-small.healable{box-shadow:0 0 6px #44ff88 !important;border-color:#44ff88 !important;opacity:1 !important;}
 .card-small-art{width:var(--card-small-art-h);height:var(--card-small-art-h);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 0 auto;border:1px solid #ffffff11;background:transparent;overflow:hidden;}
@@ -1277,7 +1277,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small .card-tag-icons{right:calc(var(--card-small-w)*0.048);top:calc(var(--card-small-h)*0.165);gap:calc(var(--card-small-h)*0.01);}
 .card-small .card-tag-icon{width:calc(var(--card-small-h)*0.13);height:calc(var(--card-small-h)*0.13);}
 .card-small.hit{animation: hitShake .25s ease;}
-.burning-icon{position:absolute;top:-6px;right:-6px;width:calc(var(--card-h)*0.107);height:calc(var(--card-h)*0.107);}
+.burning-icon{position:absolute;top:-6px;right:-6px;width:calc(var(--card-h)*0.107);height:calc(var(--card-h)*0.107);z-index:4;}
 .card-small.entering{animation: cardEnter 0.35s ease-out forwards;}
 .card-small.entering:not(.sleeping){animation: cardEnterAwake 0.35s ease-out forwards;}
 .card-small .stat-icon{width:0.6em;height:0.6em;}
@@ -1474,7 +1474,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .statbar-extra{display:block;}
 }
 .statbar-core{display:flex;align-items:center;gap:0;flex-shrink:0;}
-.player-name-box{width:calc(max(4vh, 2vw) * 2);height:max(4vh, 2vw);background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;}
+.player-name-box{width:calc(max(4vh, 2vw) * 2);height:max(4vh, 2vw);background-repeat:no-repeat;background-position:center;background-size:100% 100%;flex-shrink:0;transition:transform .1s;cursor:pointer;position:relative;z-index:2;}
 /* Base "portal" icon (.player-name-box) tiers — PLACEHOLDER: all 5 tiers point
    to the same original single-state art for now. Swap in 5 real per-tier
    files later, same naming pattern as the panel background above. */
