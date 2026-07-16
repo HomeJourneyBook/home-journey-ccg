@@ -41,7 +41,12 @@ function getAbilities(card){
       // обрывается), сам Erase-обладатель лечится ДО ПОЛНОГО HP и снимает с себя ожог.
       // Скоуп: срабатывает только на килл ПРЯМОЙ атакой — Shard/Bolt/AOE-килы это НЕ
       // подхватывают (у них свой урон, не через doAttack()/on_kill).
-      case 'necrophage':  ab.push({timing:'on_kill',effect:'necrophage'}); break;
+      // 2026-07-16: собственный timing 'on_kill_survive' (не обычный 'on_kill') — necrophage
+      // теперь резолвится ПОСЛЕ контрудара (см. doAttack() в game.js), а не до него. Раньше
+      // (13→16 июля, пока контрудар не бил по смертельным ударам) порядок был неважен; теперь,
+      // когда контрудар вернули, лечить атакующего ДО того как он получит сдачи — это, по сути,
+      // бесплатный неуязвимый килл. Сначала пусть переживёт ответку, и только потом — эрейз+хил.
+      case 'necrophage':  ab.push({timing:'on_kill_survive',effect:'necrophage'}); break;
       case 'aoe':        ab.push({timing:'active',effect:'aoe',val}); break;
       case 'bolt':       ab.push({timing:'active',effect:'bolt',val}); break;
       case 'enter_aoe':  ab.push({timing:'on_enter',effect:'aoe',val}); break;
