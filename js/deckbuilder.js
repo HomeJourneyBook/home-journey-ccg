@@ -116,7 +116,7 @@ function _dbCardEl(faction,key,def){
       <div class="card-cost">${def.cost}</div>
       <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
       <div class="card-name-box"><div class="card-name">${def.name}</div></div>
-      <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
+      <div class="card-ability-box"><div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>
     ` : `
       <div class="card-cost">${def.cost}</div>
       ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
@@ -130,7 +130,7 @@ function _dbCardEl(faction,key,def){
         <div class="card-atk-box" data-base="${def.atk}" data-bonus="0"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
       </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
-      <div class="card-ability-box"><div class="card-ability">${def.ab||''}</div></div>
+      <div class="card-ability-box"><div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>
     `;
 
   div.addEventListener('mouseenter',()=>playSfx('card_navigation_cursor'));
