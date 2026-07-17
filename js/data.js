@@ -49,19 +49,19 @@ const DEFS = {
   t_tean:      {name:"TEANTIST",   cost:5,hp:9,atk:2,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","ward","stealth"],            ab:"On turn: Draw 1 card.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:8,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1"],      ab:"When your creature dies: Heal base 1 HP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:7,atk:4,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1"],       ab:"Aura: +1 ATK.",unique:true},
-  t_faeron:    {name:"FAERON",     cost:4,hp:7,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed"], ab:"Fire Shield: whoever attacks this creature takes 2 dmg.",unique:true},
+  t_faeron:    {name:"FAERON",     cost:4,hp:7,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed"], ab:"\“Yet another one burned.\”",unique:true},
   t_nab:       {name:"NABUNAGI",   cost:6,hp:11,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1","ward"], ab:"\"Bushido\": ALL attacks must target him.",unique:true},
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
   t_sp1:       {name:"ARCHIVE",     cost:3,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:2"],     ab:"Target ally: +2 ATK until end of battle.",spell:true},
-  t_sp2:       {name:"JOURNEY",     cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:3"],     ab:"Deal 3 damage to target enemy creature.",spell:true},
+  t_sp2:       {name:"JOURNEY",     cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:3"],     ab:"Bolt 3.",spell:true},
   t_sp3:       {name:"SHEN'S CALL", cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png",    f:"tea",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
   t_sp4:       {name:"SCHEME",      cost:0,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:1"], ab:"Get 1 essence.",spell:true},
   t_sp5:       {name:"GUST",        cost:1,hp:0,atk:0,art:"💨", img:"1_windy.png",   f:"tea",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
-  t_sp6:       {name:"RECKONING",   cost:4,hp:0,atk:0,art:"⚖️", img:"1_Reckoning.png", f:"tea",tags:["spell","spell_aoe_count"], ab:"Deal dmg to ALL enemy creatures equal to how many are on the field.",spell:true},
-  t_sp7:       {name:"FORGET-ME-NOT", cost:4,hp:0,atk:0,art:"🥀", img:"1_ForgetMeNot.png", f:"tea",tags:["spell","lose:2"], ab:"Opponent loses 2 random cards from hand.",spell:true},
-  t_sp8:       {name:"EXPOSE",     cost:2,hp:0,atk:0,art:"👁️", img:"1_Expose.png", f:"tea",tags:["spell","spell_provoke_break_target"], ab:"Target enemy Provoke creature: suppress its Provoke until the end of this turn.",spell:true},
-  t_sp9:       {name:"BREACH",     cost:4,hp:0,atk:0,art:"💥", img:"1_Breach.png", f:"tea",tags:["spell","spell_dmg_trample_target:5"], ab:"Deal 5 damage to target enemy creature. If it dies, overkill damage carries over to the enemy base.",spell:true},
+  t_sp6:       {name:"RECKONING",   cost:4,hp:0,atk:0,art:"⚖️", img:"1_Reckoning.png", f:"tea",tags:["spell","spell_aoe_count"], ab:"AOE equal to how many creatures are on the battleground.",spell:true},
+  t_sp7:       {name:"FORGET-ME-NOT", cost:4,hp:0,atk:0,art:"🥀", img:"1_ForgetMeNot.png", f:"tea",tags:["spell","lose:2"], ab:"Opponent Lose 2.",spell:true},
+  t_sp8:       {name:"EXPOSE",     cost:2,hp:0,atk:0,art:"👁️", img:"1_Expose.png", f:"tea",tags:["spell","spell_provoke_break_target"], ab:"Taunt Breake to enemy Provoke creature.",spell:true},
+  t_sp9:       {name:"BREACH",     cost:4,hp:0,atk:0,art:"💥", img:"1_Breach.png", f:"tea",tags:["spell","spell_dmg_trample_target:5"], ab:"Bolt 5. If creature dies, overkill damage carries over to the enemy base.",spell:true},
   t_sp10:      {name:"STILLNESS",  cost:5,hp:0,atk:0,art:"🌫️", img:"1_Stillness.png", f:"tea",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
   t_sp11:      {name:"REKINDLE",   cost:2,hp:0,atk:0,art:"🕯️", img:"1_Rekindle.png", f:"tea",tags:["spell","spell_untap"], ab:"Target ally creature becomes active.",spell:true},
   t_sp12:      {name:"BULWARK",    cost:2,hp:0,atk:0,art:"🛡️", img:"1_Bulwark.png", f:"tea",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
@@ -70,7 +70,7 @@ const DEFS = {
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1"],       ab:"When an enemy creature dies: Draw 1 card.",world:true},
   t_w2:        {name:"DOMUS",      cost:6,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","aura:atk:1"],ab:"Aura: +1 ATK.",world:true},
-  t_a1:        {name:"THE BOOK",   cost:6,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:1","shard_burn_scale"],   ab:"Active: deal 1 dmg to target enemy creature, +1 for each currently burning enemy creature.",artifact:true},
+  t_a1:        {name:"THE BOOK",   cost:6,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:1","shard_burn_scale"],   ab:"Active: Bolt 1 (+1 for each currently burning enemy creature).",artifact:true},
   t_a2:        {name:"FOUNTAIN", cost:6,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Heal 1 all allies.",artifact:true},
 
   // ── JEET CREATURES ──────────────────────────────────────────────
@@ -96,7 +96,7 @@ const DEFS = {
 
   // Umbasir Jeet
     j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:7,atk:1,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active: Bolt 1. Squad: Bolt 2."},
-     j_trvl53_w:    {name:"TRAVELER #53",   cost:2,hp:2,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play: Opponent lose 1. Active: Bolt 1. Squad: Bolt 2."},
+     j_trvl53_w:    {name:"TRAVELER #53",   cost:2,hp:2,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play: Opponent Lose 1. Active: Bolt 1. Squad: Bolt 2."},
      j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:1,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active: Bolt 1. Squad: Bolt 2."},
      j_trvl20_w:    {name:"TRAVELER #20",   cost:3,hp:5,atk:1,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active: Bolt 1. Squad: Bolt 2."},
 
@@ -125,20 +125,20 @@ const DEFS = {
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤", img:"1_Forgetting.png",f:"jeet",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:0,hp:0,atk:0,art:"⚫", img:"1_Spell1.png",    f:"jeet",tags:["spell","ess_add:1"], ab:"Get 1 essence.",spell:true},
   j_sp5:       {name:"REVERSE",    cost:1,hp:0,atk:0,art:"🔄", img:"1_revers.png",    f:"jeet",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
-  j_sp6:       {name:"SWARM CULL", cost:4,hp:0,atk:0,art:"🩸", img:"1_SwarmCull.png", f:"jeet",tags:["spell","spell_aoe_count"], ab:"Deal dmg to ALL enemy creatures equal to how many are on the field.",spell:true},
-  j_sp7:       {name:"MINDROT",    cost:4,hp:0,atk:0,art:"🧠", img:"1_Mindrot.png", f:"jeet",tags:["spell","lose:2"], ab:"Opponent loses 2 random cards from hand.",spell:true},
-  j_sp8:       {name:"UNMASK",     cost:2,hp:0,atk:0,art:"🎭", img:"1_Unmask.png", f:"jeet",tags:["spell","spell_provoke_break_target"], ab:"Target enemy Provoke creature: suppress its Provoke until the end of this turn.",spell:true},
-  j_sp9:       {name:"RUPTURE",    cost:4,hp:0,atk:0,art:"🗡️", img:"1_Rupture.png", f:"jeet",tags:["spell","spell_dmg_trample_target:5"], ab:"Deal 5 damage to target enemy creature. If it dies, overkill damage carries over to the enemy base.",spell:true},
+  j_sp6:       {name:"SWARM CULL", cost:4,hp:0,atk:0,art:"🩸", img:"1_SwarmCull.png", f:"jeet",tags:["spell","spell_aoe_count"], ab:"AOE equal to how many creatures are on the battleground.",spell:true},
+  j_sp7:       {name:"MINDROT",    cost:4,hp:0,atk:0,art:"🧠", img:"1_Mindrot.png", f:"jeet",tags:["spell","lose:2"], ab:"Opponent Lose 2.",spell:true},
+  j_sp8:       {name:"UNMASK",     cost:2,hp:0,atk:0,art:"🎭", img:"1_Unmask.png", f:"jeet",tags:["spell","spell_provoke_break_target"], ab:"Taunt Breake to enemy Provoke creature.",spell:true},
+  j_sp9:       {name:"RUPTURE",    cost:4,hp:0,atk:0,art:"🗡️", img:"1_Rupture.png", f:"jeet",tags:["spell","spell_dmg_trample_target:5"], ab:"Bolt 5. If creature dies, overkill damage carries over to the enemy base.",spell:true},
   j_sp10:      {name:"NIGHTMARE",  cost:5,hp:0,atk:0,art:"👹", img:"1_Nightmare.png", f:"jeet",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
   j_sp11:      {name:"FRENZY",     cost:3,hp:0,atk:0,art:"😤", img:"1_Frenzy.png", f:"jeet",tags:["spell","spell_buff_temp:2"], ab:"Target ally: +2 ATK until end of battle.",spell:true},
   j_sp12:      {name:"CARAPACE",   cost:2,hp:0,atk:0,art:"🪲", img:"1_Carapace.png", f:"jeet",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
-  j_sp13:      {name:"HEX",        cost:3,hp:0,atk:0,art:"💀", img:"1_Hex.png", f:"jeet",tags:["spell","spell_dmg_target:3"], ab:"Deal 3 damage to target enemy creature.",spell:true},
+  j_sp13:      {name:"HEX",        cost:3,hp:0,atk:0,art:"💀", img:"1_Hex.png", f:"jeet",tags:["spell","spell_dmg_target:3"], ab:"Bolt 3.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
-  j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
+  j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: Draw 1 card.",world:true},
   j_w2:        {name:"NORRIA", cost:6,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: +1 Armor.",world:true},
-  j_a1:        {name:"SHARD",  cost:6,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active: deal 1 dmg to target enemy creature, +1 for each currently Feared enemy creature.",artifact:true},
-  j_a2:        {name:"ALTAR",  cost:6,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and draw 1.",artifact:true},
+  j_a1:        {name:"SHARD",  cost:6,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active: Bolt 1 (+1 for each currently Feared enemy creature).",artifact:true},
+  j_a2:        {name:"ALTAR",  cost:6,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
   unseen:      {name:"UNSEEN", cost:0,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return All creatures.",spell:true,fullArt:true,neutral:true},
