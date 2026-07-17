@@ -90,7 +90,7 @@ const DEFS = {
   // Dreegan Jeet
   j_trvl36_w:   {name:"TRAVELER #36",   cost:3,hp:7,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","untamed","gtype:drg"],               ab:"Squad: +1 Armor."},
   j_trvl41_w:   {name:"TRAVELER #41",   cost:2,hp:2,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad: +1 Armor."},
-  j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:9,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","gtype:drg"],        ab:"Squad: +1 Armor."},
+  j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:10,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","vanguard","gtype:drg"],        ab:"Squad: +1 Armor."},
   j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:9,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad: +1 Armor."},
   j_trvl775_w:  {name:"TRAVELER #775",  cost:4,hp:8,atk:1,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad: +1 Armor."},
 
