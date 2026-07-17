@@ -435,10 +435,21 @@ function mkSmallEl(card){
   'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
   'vampiric': '<img src="img/ico_vamp.png" style="width:60%;height:60%;">',
   'necrophage': '<img src="img/ico_erase.png" style="width:60%;height:60%;">',
+  'intercept': '<img src="img/ico_intercept.png" style="width:60%;height:60%;">',
+  'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
+  'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
+  'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
-  .filter(t=>TAG_ICONS[t.base])
+  // 'shield' исключён здесь намеренно: на поле боя (mkSmallEl) у Solana Shield уже есть
+  // свой бесповый рендер — подмена HP-бокса (см. card-small-hp-box ниже, shieldActive),
+  // который корректно реагирует на card.shieldConsumed. Обычная тег-иконка тут была бы
+  // дублем и вдобавок вводила бы в заблуждение — рисуется по статичному card.tags и
+  // продолжала бы показываться даже ПОСЛЕ того как щит потрачен. В руке/каталоге/
+  // деккбилдере/детейле такой проблемы нет (там нет состояния "потрачен"), там 'shield'
+  // из TAG_ICONS рендерится как обычно.
+  .filter(t=>TAG_ICONS[t.base]&&t.base!=='shield')
   .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${TAG_ICONS[t.base]}</div>`)
   .join('');
   const armorDisp=_armorDisplay(card);
@@ -647,6 +658,10 @@ function mkEl(card,zone){
   'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
   'vampiric': '<img src="img/ico_vamp.png" style="width:60%;height:60%;">',
   'necrophage': '<img src="img/ico_erase.png" style="width:60%;height:60%;">',
+  'intercept': '<img src="img/ico_intercept.png" style="width:60%;height:60%;">',
+  'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
+  'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
+  'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
 };
 const tagIcons = (card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
