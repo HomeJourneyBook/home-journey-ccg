@@ -277,13 +277,13 @@
 
     <h2 data-gl="card_types">Card Types</h2>
     <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/type_creature.png"><img class="rules-icon" src="img/type_unique.png"></span>Common and Unique Travelers</h3>
-    <p>These are creature cards, placed on the field. When played, they enter the field <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('sleep')">Sleeping</a> and can't act until your next turn. After attacking an opponent's card or their Base, or using its active ability, a creature is considered <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('exhausted')">Exhausted</a>. Creatures killed in battle go to the <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('graveyard')">Graveyard</a> and can be revived.</p>
+    <p>These are creature cards, placed on the battleground. When played, they enter the battleground <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('sleep')">Sleeping</a> and can't act until your next turn. After attacking an opponent's card or their Base, or using its active ability, a creature is considered <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('exhausted')">Exhausted</a>. Creatures killed in battle go to the <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('graveyard')">Graveyard</a> and can be revived.</p>
     <h3><img class="rules-icon" src="img/type_spell.png">Spells</h3>
-    <p>Spells trigger instantly the moment they're played — then go to the <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Void</a>.</p>
+    <p>Spells trigger instantly the moment they're played — then go to the <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Void</a>. All spells deal magic damage.</p>
     <h3><img class="rules-icon" src="img/type_world.png">Worlds</h3>
-    <p>A World is a permanent card that sits below your field and passively affects the game while active. Only one World can be active at a time. Playing a second one replaces the first — the old one goes to the Void. A World can't be targeted by a creature's attack, a spell, or an Artifact's active ability.</p>
+    <p>A World is a permanent card that sits beneath the battleground and passively affects the game while active. Only one World can be active at a time. Playing a second one replaces the first — the old one goes to the Void. A World can't be targeted by a creature's attack, a spell, or an Artifact's active ability.</p>
     <h3><img class="rules-icon" src="img/type_artifact.png">Artifacts</h3>
-    <p>Artifacts also sit below the field, and likewise only one can be active at a time — playing a second replaces the first, sending it to the Void. Artifacts with active abilities sleep on their first turn, just like creatures. An Artifact also can't be targeted by a creature, a spell, or another Artifact's active ability.</p>
+    <p>Artifacts also sit below the battleground, and likewise only one can be active at a time — playing a second replaces the first, sending it to the Void. Artifacts with active abilities sleep on their first turn, just like creatures. An Artifact also can't be targeted by a creature, a spell, or another Artifact's active ability.</p>
 
     <h2>The Board</h2>
     <img class="rules-full-art" src="img/rules_battle.png" alt="A screenshot of the battlefield with labeled zones">
@@ -292,7 +292,7 @@
     <h3>2. Opponent's Hand Zone</h3>
     <p>The opponent's cards face down — only their count is visible.</p>
     <h3>3. Battleground</h3>
-    <p>Where both sides' creatures are placed.</p>
+    <p>Where both sides' creatures are placed. You can have at most 6 creature cards on the battleground at once.</p>
     <h3>4. Your Hand Zone</h3>
     <p>Your cards, drawn from the Deck, ready to play.</p>
     <h3>5. Your Status Bar</h3>
@@ -312,9 +312,9 @@
     <h3 data-gl="essence">Essence</h3>
     <p><img class="rules-icon" src="img/ess.png"> Essence is your resource. You start with a maximum of 1 and gain +1 every turn — so by turn 5 you have 5 Essence, up to a maximum of 10. Any unused Essence is lost at the end of the turn and refills to its maximum at the start of your next one.</p>
     <h3>Playing a Card</h3>
-    <p>Select a card in your hand and press <img class="rules-icon" src="img/btn_play.png"> to play it, spending the matching amount of Essence. Travelers and Worlds/Artifacts stay on the field, Spells trigger immediately and go to the Void.</p>
+    <p>Select a card in your hand and press <img class="rules-icon" src="img/btn_play.png"> to play it, spending the matching amount of Essence. Travelers and Worlds/Artifacts stay on the battleground, Spells trigger immediately and go to the Void.</p>
     <h3>Burning</h3>
-    <p>Once per turn you may burn a card from your hand: it goes to the Void forever, and you get +1 Essence for this turn only (your Essence maximum is unaffected). Press <img class="rules-icon" src="img/btn_burn.png"> above the chosen card to do so.</p>
+    <p>Once per turn you may burn a card from your hand: it goes to the Void forever, and you get +1 Essence for this turn. Press <img class="rules-icon" src="img/btn_burn.png"> above the chosen card to do so.</p>
     <h3>Inspecting a Card</h3>
     <p>Press <img class="rules-icon" src="img/btn_zoom.png"> if you want to see a card enlarged. For cards on the battlefield, press and hold (or long-press on a touchscreen) the card you're interested in to see its full version along with any status effects currently active on it.</p>
     <h3>Targeted Spells</h3>
@@ -322,9 +322,9 @@
     <h3>Attacking</h3>
     <p>To attack: press your creature card, then press an available target — highlighted in red — either an enemy card or the opponent's Base above. You can't attack your own creatures or your own base.</p>
     <h3>Exchanging Blows</h3>
-    <p>When a creature attacks: the target takes damage first, then "On attack" effects trigger (Fear, Burn, Rage, Vampiric, etc.) — and if the target died, "On death" effects too. If the target survived, it strikes back — unless it's Exhausted.</p>
+    <p>When a creature card attacks an enemy card, it deals damage to the target first — then, if the enemy creature isn't Feared and isn't Exhausted, it strikes back with a counter-attack. After that, if the enemy creature survived, the attacking card's negative "On attack" effects (Fear, Burn, Rage, Vampiric, etc.) are applied to it. Or, if it died, its "On death" effects trigger instead.</p>
     <h3>Sleeping and Exhausted</h3>
-    <p>A creature card that just entered the field is Sleeping and can't act until your next turn. After attacking or using an active ability, a creature becomes Exhausted: it can't act again — or counter-attack — until the opponent's turn ends.</p>
+    <p>A creature card that just entered the battleground is Sleeping and can't act until your next turn. After attacking or using an active ability, a creature becomes Exhausted: it can't act again — or counter-attack — until the opponent's turn ends.</p>
     <h3>Active Abilities</h3>
     <p>Some creature cards and Artifacts have a special action you trigger manually by pressing the card and choosing the ability button that appears. Active abilities don't cost Essence, but can only be used once per turn, instead of attacking — after which the creature card or Artifact is considered exhausted.</p>
     <h3>Victory</h3>
@@ -332,34 +332,34 @@
 
     <h2 data-gl="glossary">Glossary</h2>
 
-    <h3 data-gl="sleep">Sleeping</h3><p><img class="rules-icon" src="img/zzz.png"> A creature card or Artifact entered the field this turn and can't act. Wakes up at the start of your next turn.</p>
+    <h3 data-gl="sleep">Sleeping</h3><p><img class="rules-icon" src="img/zzz.png"> A creature card or Artifact entered the battleground this turn and can't act. Wakes up at the start of your next turn.</p>
     <h3 data-gl="exhausted">Exhausted</h3><p>A creature card or Artifact has already attacked or used an active ability this turn. Can't act again — or counter-attack — until the following turn. Shown as a darkened card.</p>
-    <h3>Aura</h3><p>A passive field effect that boosts all allies while the card with the aura is on the field. The bonus disappears immediately once the card leaves the field. Multiple aura sources stack. An aura doesn't boost itself — only allies.</p>
-    <h3>Squad</h3><p>When you have 3 or more Travelers of the same type on your field at once, they all automatically get a bonus. The bonus activates the moment the third one enters and disappears as soon as the squad drops below three. Each squad has its own bonus type.</p>
-    <h3>Max Health (maxHP)</h3><p>Auras and spells can increase a creature card's maximum health. If the creature is at full health, its current health also grows (3/3 becomes 4/4). If it's already wounded, only the maximum grows (2/3 becomes 2/4). Healing never pushes health above the maximum. You can always hover a creature card's health indicator on the field to see its current maximum.</p>
+    <h3>Aura</h3><p>A passive effect on the battleground that boosts all allies while the card with the aura is on the battleground. The bonus disappears immediately once the card leaves the battleground. Multiple aura sources stack. An aura doesn't boost itself — only allies.</p>
+    <h3>Squad</h3><p>When you have 3 or more Travelers of the same type on your battleground at once, they all automatically get a bonus. The bonus activates the moment the third one enters and disappears as soon as the squad drops below three. Each squad has its own bonus type.</p>
+    <h3>Max Health (maxHP)</h3><p>Auras and spells can increase a creature card's maximum health. If the creature is at full health, its current health also grows (3/3 becomes 4/4). If it's already wounded, only the maximum grows (2/3 becomes 2/4). Healing never pushes health above the maximum. You can always hover a creature card's health indicator on the battleground to see its current maximum.</p>
     <h3>Heal</h3><p>If a card's text says "Active: Heal X", it means that on the battlefield, instead of attacking, you can press the card and then <img class="rules-icon" src="img/btn_heal.png"> — target an ally and heal it for X health. This ability also clears negative effects such as <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('burn')">Burn</a>, <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('fear')">Fear</a> and <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('taunt_break')">Taunt Break</a>. After using this ability, the creature card that used it is considered exhausted.</p>
     <h3>Bolt</h3><p>If a card's text says "Active: Bolt X", it means that on the battlefield, instead of attacking, you can press the card and then <img class="rules-icon" src="img/btn_spell.png"> — target an enemy creature card and deal it X damage. This ability counts as magical, meaning it ignores Armor, but it cannot damage creatures with <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('ward')">Ward</a>.</p>
-    <h3>Revive</h3><p>Returns a creature from the Graveyard to the field at X health, or at full health if no number is written on the card's text. A revived creature enters the field Sleeping. Revived creatures don't trigger "On play" effects.</p>
+    <h3>Revive</h3><p>Returns a creature from the Graveyard to the battleground at X health, or at full health if no number is written on the card's text. A revived creature enters the battleground Sleeping. Revived creatures don't trigger "On play" effects.</p>
     <h3>Sacrifice</h3><p>An active action that destroys one of your own creatures in exchange for the bonus written on the card with this ability. The destroyed creature card goes to the Graveyard and can be revived.</p>
     <h3>Draw</h3><p>If a card's text mentions "Draw" for some action, performing that action immediately grants you an extra card from the deck, as long as any are left.</p>
     <h3>On Turn</h3><p>The effect triggers automatically at the start of the player's turn, before any actions.</p>
-    <h3>On Play</h3><p>The effect triggers the moment a card is played from hand onto the field.</p>
+    <h3>On Play</h3><p>The effect triggers the moment a card is played from hand onto the battleground.</p>
     <h3>On Attack</h3><p>The effect triggers every time this creature card attacks — whether an enemy creature or the base (negative effects don't affect the base).</p>
     <h3>On Death</h3><p>The effect triggers when this creature card's attack kills an enemy creature card directly.</p>
 
-    <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguard</h3><p>A creature card can act the same turn it enters the field. It skips the Sleeping state.</p>
+    <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguard</h3><p>A creature card can act the same turn it enters the battleground. It skips the Sleeping state.</p>
     <h3><img class="rules-icon" src="img/ico_provoke.png">Provoke</h3><p>All of the opponent's creature card attacks must target this creature.</p>
     <h3><img class="rules-icon" src="img/ico_pierce.png">Pierce</h3><p>The creature ignores Provoke and can attack the base or any enemy creature card directly.</p>
     <h3><img class="rules-icon" src="img/ico_fear.png">Fear</h3><p>With this ability, a creature card inflicts the "Fear" negative effect on the enemy card the moment it attacks. Creature cards under Fear skip their next turn and deal no counter-damage.</p>
-    <h3><img class="rules-icon" src="img/ico_invis.png">Invisible</h3><p>This creature card can't be targeted for attack while other allies are on the field. Once it's the last one left, it can be attacked. It also takes no counter-damage when it attacks.</p>
+    <h3><img class="rules-icon" src="img/ico_invis.png">Invisible</h3><p>This creature card can't be targeted for attack while other allies are on the battleground. Once it's the last one left, it can be attacked. It also takes no counter-damage when it attacks.</p>
     <h3><img class="rules-icon" src="img/ico_rage.png">Rage</h3><p>Every time this creature attacks, it permanently gains +1 attack. The bonus resets if the creature dies. Stacks with other bonuses from Auras, Squads, or Spells.</p>
     <h3 data-gl="burn"><img class="rules-icon" src="img/ico_burn.png">Burn</h3><p>When this creature attacks, the enemy creature gets the "Burn" negative effect. Burning creatures lose 1 health at the start of each of their turns. The effect is permanent until the creature dies. A creature that dies from Burn goes to the Void.</p>
     <h3><img class="rules-icon" src="img/ico_regen.png">Regen X</h3><p>The creature restores X health to itself at the start of each of your turns, but never above its maximum.</p>
     <h3 data-gl="armor"><img class="rules-icon" src="img/armor.png">Armor</h3><p>An extra buffer on top of health. Absorbs damage first, but only from regular attacks. Magic damage ignores Armor completely. Refills to its maximum at the start of your turn. Can stack from different Auras, Squad bonuses, or Spells.</p>
-    <h3><img class="rules-icon" src="img/solana_shield.png">Solana Shield</h3><p>A protective layer on top of health — fully absorbs the first incoming hit on this creature, of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the field. If the creature leaves the field and returns, the shield recharges.</p>
+    <h3><img class="rules-icon" src="img/solana_shield.png">Solana Shield</h3><p>A protective layer on top of health — fully absorbs the first incoming hit on this creature, of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the battleground. If the creature leaves the battleground and returns, the shield recharges.</p>
     <h3><img class="rules-icon" src="img/ico_untamed.png">Untamed</h3><p>The creature clears its own Exhausted state at the start of the opponent's turn.</p>
     <h3 data-gl="ward"><img class="rules-icon" src="img/ico_ward.png">Ward</h3><p>This creature card completely ignores magic damage.</p>
-    <h3><img class="rules-icon" src="img/ico_incarn.png">Incarnation X</h3><p>When this creature dies, it revives from the Graveyard onto the field X of your turns later, at full health and Sleeping. Triggers only once — if it dies again after returning, it goes to the Void instead.</p>
+    <h3><img class="rules-icon" src="img/ico_incarn.png">Incarnation X</h3><p>When this creature dies, it revives from the Graveyard onto the battleground X of your turns later, at full health and Sleeping. Triggers only once — if it dies again after returning, it goes to the Void instead.</p>
     <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Taunt Break</h3><p>On attack, inflicts a negative effect that removes Provoke from the target until the end of the turn.</p>
     <h3><img class="rules-icon" src="img/ico_vamp.png">Vampiric</h3><p>On its own attack, the creature heals itself for exactly the health it actually removed from the target (damage absorbed by Armor or Shield doesn't count) — but never more than its own missing health.</p>
     <h3><img class="rules-icon" src="img/ico_erase.png">Erase</h3><p>If this creature's attack kills an enemy, the fallen card is sent to the Void instead of the Graveyard, and this creature fully restores its health and clears its own Burn. Only triggers on a kill by direct attack.</p>
@@ -413,7 +413,7 @@
     <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/type_creature.png"><img class="rules-icon" src="img/type_unique.png"></span>Рядовые и Уникальные Путешественники</h3>
     <p>Это карты-существа, выставляемые на поле. При игре они выходят на поле в <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('sleep')">состоянии сна</a> и не могут действовать до следующего вашего хода. Совершив атаку на карту противника или его Базу, либо применив свое активное действие — существо будет считаться <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('exhausted')">уставшим</a>. Существа, убитые в бою, уходят на <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('graveyard')">Кладбище</a> и могут быть воскрешены.</p>
     <h3><img class="rules-icon" src="img/type_spell.png">Заклинания</h3>
-    <p>Заклинания срабатывают в момент розыгрыша мгновенно — после чего уходят в <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Пустоту</a>.</p>
+    <p>Заклинания срабатывают в момент розыгрыша мгновенно — после чего уходят в <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Пустоту</a>. Все заклинания наносят магический урон.</p>
     <h3><img class="rules-icon" src="img/type_world.png">Миры</h3>
     <p>Мир — постоянная карта, которая лежит под вашим полем и пассивно влияет на игру, пока активна. Одновременно может быть только один Мир. Если сыграть второй — первый уходит в Пустоту. Мир не может быть выбран целью атаки существа, заклинания или активной способности Артефакта. </p>
     <h3><img class="rules-icon" src="img/type_artifact.png">Артефакты</h3>
@@ -426,7 +426,7 @@
     <h3>2. Зона руки соперника</h3>
     <p>Карты соперника рубашкой вверх — видно только их количество.</p>
     <h3>3. Поле боя</h3>
-    <p>Место куда выставляются карты - существа обеих сторон.</p>
+    <p>Место куда выставляются карты - существа обеих сторон. Максимум можно выставлять 6 карт-существ за раз.</p>
     <h3>4. Зона руки игрока</h3>
     <p>Ваши карты пришедшие из Колоды для игры.</p>
     <h3>5. Статус панель игрока</h3>
@@ -448,7 +448,7 @@
     <h3>Розыгрыш карты</h3>
     <p>Выберите карту в руке и нажмите <img class="rules-icon" src="img/btn_play.png">, чтобы разыграть её, потратив соответствующее количество Эссенции.</p>
     <h3>Сжигание</h3>
-    <p>Один раз за ход вы можете сжечь карту из руки: она уходит в Пустоту навсегда, а вы получаете +1 Эссенцию только на этот ход (максимум Эссенции не меняется). Нажмите <img class="rules-icon" src="img/btn_burn.png"> над выбранной картой для этого.</p>
+    <p>Один раз за ход вы можете сжечь карту из руки: она уходит в Пустоту навсегда, а вы получаете +1 Эссенцию на этот ход. Нажмите <img class="rules-icon" src="img/btn_burn.png"> над выбранной картой для этого.</p>
     <h3>Просмотр карты</h3>
     <p>Нажмите <img class="rules-icon" src="img/btn_zoom.png"> если хотите увидеть увеличенную карту. Для карт на поле боя, зажмите курсором на интересующей вас карте (или зажмите пальцем на сенсорном экране), вы увидите ее полную версию и текущими статусами эффектов действующих на данный момент на эту карту.</p>
     <h3>Направленные заклинания</h3>
@@ -456,7 +456,7 @@
     <h3>Атака</h3>
     <p>Чтобы атаковать: нажмите на свою карту-существо, затем на доступную цель на данный момент, подсвеченную красным свечением, это может быть вражеская карта или Базу соперника сверху. Своих существ или свою базу атаковать нельзя.</p>
     <h3>Обмен ударами</h3>
-    <p>Когда существо атакует: сначала цель получает урон, затем срабатывают эффекты «On attack» (Страх, Горение, Ярость, Вампиризм и т.д.) — а если цель погибла, ещё и эффекты «On death». Если цель выжила — она нанесет ответный удар, если только она не Истощена.</p>
+    <p>Когда карта-существо атакует карту противника, оно сначала наносит цели урон, затем если существо противника не в Страхе и не Уставшее, наносит контратаку. После чего, если существо противника выжило, на него накладываются отрицательные эффекты атакующей карты (On attack) (Страх, Горение, Ярость, Вампиризм и т.д.). Либо при его смерти, срабатывают действия «При убийстве» (On death).</p>
     <h3>Сон и Истощение</h3>
     <p>Карта-существо, только что вышедшее на поле, спит и не может действовать до вашего следующего хода. Использовав атаку или активную способность, существо становится Истощённым: до конца хода соперника оно не может действовать снова, а также отвечать контратаками на удары противника.</p>
     <h3>Активные способности</h3>
@@ -547,7 +547,7 @@
     <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/type_creature.png"><img class="rules-icon" src="img/type_unique.png"></span>Viajantes Comuns e Únicos</h3>
     <p>São cartas de criatura, colocadas no campo. Ao serem jogadas, entram no campo <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('sleep')">Adormecidas</a> e não podem agir até o seu próximo turno. Depois de atacar uma carta do oponente ou sua Base, ou usar sua habilidade ativa, a criatura é considerada <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('exhausted')">Exausta</a>. Criaturas mortas em batalha vão para o <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('graveyard')">Cemitério</a> e podem ser revividas.</p>
     <h3><img class="rules-icon" src="img/type_spell.png">Feitiços</h3>
-    <p>Feitiços disparam instantaneamente no momento em que são jogados — depois vão para o <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Vazio</a>.</p>
+    <p>Feitiços disparam instantaneamente no momento em que são jogados — depois vão para o <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Vazio</a>. Todos os feitiços causam dano mágico.</p>
     <h3><img class="rules-icon" src="img/type_world.png">Mundos</h3>
     <p>Um Mundo é uma carta permanente que fica sob o seu campo e afeta o jogo passivamente enquanto ativo. Só pode haver um Mundo ativo por vez. Jogar um segundo substitui o primeiro — o antigo vai para o Vazio. Um Mundo não pode ser alvo do ataque de uma criatura, de um feitiço, ou da habilidade ativa de um Artefato.</p>
     <h3><img class="rules-icon" src="img/type_artifact.png">Artefatos</h3>
@@ -560,7 +560,7 @@
     <h3>2. Zona da Mão do Oponente</h3>
     <p>As cartas do oponente ficam viradas para baixo — só a quantidade é visível.</p>
     <h3>3. Campo de Batalha</h3>
-    <p>Onde as criaturas de ambos os lados são colocadas.</p>
+    <p>Onde as criaturas de ambos os lados são colocadas. É possível ter no máximo 6 cartas-criatura em campo ao mesmo tempo.</p>
     <h3>4. Zona da Sua Mão</h3>
     <p>Suas cartas, compradas do Baralho, prontas para jogar.</p>
     <h3>5. Sua Barra de Status</h3>
@@ -582,7 +582,7 @@
     <h3>Jogando uma Carta</h3>
     <p>Selecione uma carta na sua mão e pressione <img class="rules-icon" src="img/btn_play.png"> para jogá-la, gastando a quantidade correspondente de Essência. Viajantes e Mundos/Artefatos permanecem no campo, Feitiços disparam imediatamente e vão para o Vazio.</p>
     <h3>Queima de Carta</h3>
-    <p>Uma vez por turno você pode queimar uma carta da sua mão: ela vai para o Vazio para sempre, e você ganha +1 de Essência apenas neste turno (o máximo de Essência não muda). Pressione <img class="rules-icon" src="img/btn_burn.png"> acima da carta escolhida para fazer isso.</p>
+    <p>Uma vez por turno você pode queimar uma carta da sua mão: ela vai para o Vazio para sempre, e você ganha +1 de Essência neste turno. Pressione <img class="rules-icon" src="img/btn_burn.png"> acima da carta escolhida para fazer isso.</p>
     <h3>Inspecionando uma Carta</h3>
     <p>Pressione <img class="rules-icon" src="img/btn_zoom.png"> se quiser ver uma carta ampliada. Para cartas no campo de batalha, pressione e segure (ou toque e segure na tela sensível ao toque) a carta que te interessa para ver sua versão completa junto com quaisquer efeitos de status ativos nela no momento.</p>
     <h3>Feitiços Direcionados</h3>
@@ -590,7 +590,7 @@
     <h3>Atacando</h3>
     <p>Para atacar: pressione sua carta-criatura, depois pressione um alvo disponível — destacado em vermelho — seja uma carta inimiga ou a Base do oponente, acima. Você não pode atacar suas próprias criaturas nem sua própria base.</p>
     <h3>Troca de Golpes</h3>
-    <p>Quando uma criatura ataca: o alvo recebe dano primeiro, depois disparam os efeitos "Ao atacar" (Medo, Queimadura, Fúria, Vampírico etc.) — e se o alvo morreu, também os efeitos "Ao matar". Se o alvo sobreviveu, ele revida — a menos que esteja Exausto.</p>
+    <p>Quando uma carta-criatura ataca a carta do oponente, primeiro ela causa dano ao alvo — depois, se a criatura inimiga não estiver Amedrontada nem Exausta, ela revida com um contra-ataque. Em seguida, se a criatura inimiga sobreviveu, os efeitos negativos "Ao atacar" (On attack) da carta atacante são aplicados a ela (Medo, Queimadura, Fúria, Vampírico etc.). Ou, se ela morreu, disparam os efeitos "Ao Matar" (On death).</p>
     <h3>Adormecido e Exausto</h3>
     <p>Uma carta-criatura que acabou de entrar no campo está Adormecida e não pode agir até o seu próximo turno. Depois de atacar ou usar uma habilidade ativa, a criatura fica Exausta: não pode agir de novo — nem contra-atacar — até o fim do turno do oponente.</p>
     <h3>Habilidades Ativas</h3>
@@ -681,7 +681,7 @@
     <h3><span class="rules-icon-pair"><img class="rules-icon" src="img/type_creature.png"><img class="rules-icon" src="img/type_unique.png"></span>Du Hành Giả Thường và Độc Nhất</h3>
     <p>Đây là các lá sinh vật, được đặt trên chiến trường. Khi được chơi, chúng vào chiến trường trong trạng thái <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('sleep')">Ngủ</a> và không thể hành động cho đến lượt tiếp theo của bạn. Sau khi tấn công một lá bài của đối thủ hoặc Căn Cứ của họ, hoặc dùng năng lực chủ động, sinh vật được coi là <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('exhausted')">Kiệt Sức</a>. Sinh vật chết trong trận chiến sẽ vào <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('graveyard')">Nghĩa Địa</a> và có thể được hồi sinh.</p>
     <h3><img class="rules-icon" src="img/type_spell.png">Phép Thuật</h3>
-    <p>Phép thuật có hiệu lực ngay lập tức khi được chơi — sau đó vào <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Hư Không</a>.</p>
+    <p>Phép thuật có hiệu lực ngay lập tức khi được chơi — sau đó vào <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('void')">Hư Không</a>. Tất cả Phép Thuật đều gây sát thương phép thuật.</p>
     <h3><img class="rules-icon" src="img/type_world.png">Thế Giới</h3>
     <p>Thế Giới là lá bài vĩnh viễn nằm dưới chiến trường của bạn và ảnh hưởng thụ động đến trận đấu khi còn hoạt động. Chỉ có thể có một Thế Giới hoạt động cùng lúc. Chơi lá thứ hai sẽ thay thế lá đầu tiên — lá cũ vào Hư Không. Thế Giới không thể bị nhắm làm mục tiêu bởi đòn tấn công của sinh vật, phép thuật, hay năng lực chủ động của Vật Phẩm.</p>
     <h3><img class="rules-icon" src="img/type_artifact.png">Vật Phẩm</h3>
@@ -694,7 +694,7 @@
     <h3>2. Khu Vực Bài Đối Thủ</h3>
     <p>Bài của đối thủ úp mặt xuống — chỉ có thể thấy số lượng.</p>
     <h3>3. Sân Đấu</h3>
-    <p>Nơi sinh vật của cả hai bên được đặt.</p>
+    <p>Nơi sinh vật của cả hai bên được đặt. Tối đa có thể có 6 lá sinh vật trên chiến trường cùng lúc.</p>
     <h3>4. Khu Vực Bài Của Bạn</h3>
     <p>Bài của bạn, được rút từ Bộ Bài, sẵn sàng để chơi.</p>
     <h3>5. Thanh Trạng Thái Của Bạn</h3>
@@ -716,7 +716,7 @@
     <h3>Chơi Một Lá Bài</h3>
     <p>Chọn một lá trong tay và nhấn <img class="rules-icon" src="img/btn_play.png"> để chơi nó, tiêu tốn lượng Tinh Chất tương ứng. Du Hành Giả và Thế Giới/Vật Phẩm ở lại trên chiến trường, Phép Thuật có hiệu lực ngay lập tức rồi vào Hư Không.</p>
     <h3>Đốt Lá</h3>
-    <p>Mỗi lượt bạn có thể đốt một lá từ tay một lần: nó vào Hư Không mãi mãi, và bạn nhận +1 Tinh Chất chỉ trong lượt này (mức Tinh Chất tối đa không đổi). Nhấn <img class="rules-icon" src="img/btn_burn.png"> phía trên lá đã chọn để làm việc này.</p>
+    <p>Mỗi lượt bạn có thể đốt một lá từ tay một lần: nó vào Hư Không mãi mãi, và bạn nhận +1 Tinh Chất trong lượt này. Nhấn <img class="rules-icon" src="img/btn_burn.png"> phía trên lá đã chọn để làm việc này.</p>
     <h3>Xem Chi Tiết Lá Bài</h3>
     <p>Nhấn <img class="rules-icon" src="img/btn_zoom.png"> nếu bạn muốn xem lá bài phóng to. Với các lá trên chiến trường, nhấn giữ (hoặc chạm giữ trên màn hình cảm ứng) lá bạn quan tâm để xem phiên bản đầy đủ cùng các hiệu ứng trạng thái đang hoạt động trên nó.</p>
     <h3>Phép Thuật Có Mục Tiêu</h3>
@@ -724,7 +724,7 @@
     <h3>Tấn Công</h3>
     <p>Để tấn công: nhấn vào lá sinh vật của bạn, sau đó nhấn vào mục tiêu khả dụng — được tô sáng màu đỏ — có thể là lá bài kẻ thù hoặc Căn Cứ của đối thủ ở trên. Bạn không thể tấn công sinh vật của chính mình hoặc căn cứ của chính mình.</p>
     <h3>Trao Đổi Đòn Đánh</h3>
-    <p>Khi một sinh vật tấn công: mục tiêu nhận sát thương trước, sau đó các hiệu ứng "Khi Tấn Công" kích hoạt (Khiếp Sợ, Đốt Cháy, Cuồng Nộ, Hút Máu v.v.) — và nếu mục tiêu chết, cả hiệu ứng "Khi Hạ Gục" nữa. Nếu mục tiêu còn sống, nó sẽ phản công — trừ khi nó đang Kiệt Sức.</p>
+    <p>Khi một lá sinh vật tấn công lá bài của đối thủ, nó gây sát thương cho mục tiêu trước — sau đó, nếu sinh vật của đối thủ không bị Khiếp Sợ và không Kiệt Sức, nó sẽ phản công. Tiếp theo, nếu sinh vật của đối thủ còn sống, các hiệu ứng bất lợi "Khi Tấn Công" (On attack) của lá bài tấn công sẽ được áp dụng lên nó (Khiếp Sợ, Đốt Cháy, Cuồng Nộ, Hút Máu v.v.). Hoặc, nếu nó chết, các hiệu ứng "Khi Hạ Gục" (On death) sẽ kích hoạt thay vào đó.</p>
     <h3>Ngủ và Kiệt Sức</h3>
     <p>Một lá sinh vật vừa vào chiến trường sẽ ở trạng thái Ngủ và không thể hành động cho đến lượt tiếp theo của bạn. Sau khi tấn công hoặc dùng năng lực chủ động, sinh vật trở nên Kiệt Sức: không thể hành động lại — hay phản công — cho đến khi lượt của đối thủ kết thúc.</p>
     <h3>Kỹ Năng Chủ Động</h3>
