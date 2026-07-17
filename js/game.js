@@ -589,7 +589,12 @@ function canAttackBase(){
   // Provoke rework (2026-07-17, автор): pierce больше не обходит Provoke на пути к базе —
   // см. getTargetableCards() выше за общее обоснование. Провокация теперь блокирует базу
   // абсолютно для всех, независимо от pierce.
-  const provoke=opp.field.find(c=>c.tags.includes('provoke'));
+  // Баг-фикс (2026-07-17, автор нашёл живьём): не хватало `&&!c.provokeBroken` — после
+  // EXPOSE/UNMASK (или taunt_break) провокация формально всё ещё "есть" (тег с карты не
+  // снимается), просто временно подавлена флагом `provokeBroken`. Без этой проверки база
+  // оставалась недоступной ДАЖЕ ПОСЛЕ успешного снятия провокации — ровно тот баг, который
+  // и был смыслом самого спелла.
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken);
   if(provoke) return false;
   return true;
 }
@@ -606,7 +611,8 @@ function tryAttackBase(){
   // getTargetableCards()/canAttackBase() above. Pierce's overflow-to-base trample instead
   // lives in doAttack() below, since that's now the ONLY path a pierce attacker has left
   // to reach a provoke creature (forced target selection, same as any other attacker).
-  const provoke=opp.field.find(c=>c.tags.includes('provoke'));
+  // Same provokeBroken fix as canAttackBase() above — see its comment.
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken);
   if(provoke){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
   playSfx('base_atack');
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
@@ -1437,8 +1443,14 @@ function endTurn(){
   // mapping): такое существо снимает exhausted уже ЗДЕСЬ, в момент когда его
   // собственный ход заканчивается и начинается ход соперника — намеренный override
   // общего правила для конкретных редких карт, не баг.
+  // provokeBroken — БЫЛО здесь (снималось у выходящего игрока), убрано 2026-07-17 по
+  // прямому запросу автора: снятие Provoke имеет смысл ТОЛЬКО во время хода того, кто его
+  // снял (это ОН атакует мимо провокации) — держать debuff весь следующий ход владельца
+  // цели было чистым мёртвым временем, сама провок-карта на своём ходу не атакует, ей эта
+  // подавленная провокация ничем не мешает и ничем не помогает. Теперь снимается в начале
+  // хода ВЛАДЕЛЬЦА цели — см. `cur.field.forEach` чуть ниже в этой же функции.
   G[G.turn].field.forEach(c=>{
-    c.sleeping=false;c.feared=false;c.provokeBroken=false;
+    c.sleeping=false;c.feared=false;
     if(hasTag(c,'untamed')) c.exhausted=false;
   });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
@@ -1462,6 +1474,11 @@ function endTurn(){
   // getTagVal напрямую, только уже посчитанный armorMax.
   cur.field.forEach(c=>{
     c.exhausted=false;
+    // provokeBroken (taunt_break/EXPOSE/UNMASK) — снимается ЗДЕСЬ, в начале хода владельца
+    // цели (2026-07-17, см. комментарий в блоке выше про удаление отсюда старого места
+    // снятия). Никакого лога/fx — это тихий housekeeping-сброс, не игровое событие для
+    // самого владельца (провокация и так не помогала бы ему на его собственном ходу).
+    c.provokeBroken=false;
     // tempAtkBonus (ARCHIVE и т.п.) — НЕ сбрасываем здесь. Автор уточнил: баф должен
     // быть постоянным (живёт, пока существо не умрёт), а не "переживает один ход
     // соперника и гаснет к следующему своему ходу" — предыдущая версия сбрасывала
