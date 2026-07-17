@@ -132,8 +132,10 @@ function getAbilities(card){
       case 'bushido':      ab.push({timing:'passive',effect:'bushido'}); break;
       case 'on_kill_base':         ab.push({timing:'on_kill',effect:'hp_base',val}); break;
       case 'on_enemy_death_base':  ab.push({timing:'on_enemy_death',effect:'hp_base',val}); break;
+      case 'on_own_death_base':    ab.push({timing:'on_own_death',effect:'hp_base',val}); break;
       case 'on_play_creature':     ab.push({timing:'on_play_creature',effect:'hp_base',val}); break;
       case 'on_own_death':         ab.push({timing:'on_own_death',effect:'draw',val}); break;
+      case 'on_enemy_death':       ab.push({timing:'on_enemy_death',effect:'draw',val}); break;
       case 'shard':                ab.push({timing:'active',effect:'shard',val}); break;
       case 'sacrifice':            ab.push({timing:'active',effect:'sacrifice'}); break;
       case 'invisible':            ab.push({timing:'passive',effect:'invisible'}); break;
