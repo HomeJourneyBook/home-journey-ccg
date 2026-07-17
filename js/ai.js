@@ -68,6 +68,10 @@ const AI_WEIGHTS = {
   buffLethalBonus: 2.0,            // грубая (без учёта provoke/bushido) оценка "может добить в лицо"
   reviveEmptyGraveyardScore: -0.5,
   reviveEffWeight: 0.5,
+  loseEmptyHandScore: -0.5,      // (2026-07-17) зеркало reviveEmptyGraveyardScore — цели нет, карта впустую
+  loseHandSizeWeight: 0.25,      // за каждую карту в руке соперника сверх минимума — крупнее рука, ценнее сброс
+  aoeCountEmptyBoardScore: -0.5, // (2026-07-17) Board Purge на пустом поле соперника — то же самое, что revive
+  aoeCountPerTargetWeight: 0.6,  // за каждое вражеское существо на поле — карта одновременно бьёт СИЛЬНЕЕ (dmg=count) и ШИРЕ (тел больше), отсюда вес выше, чем у loseHandSizeWeight
   raceHpBehindThreshold: -4,     // моё HP - вражеское <= это ⇒ 'behind'
   raceHpAheadThreshold: 4,
   racePowerBehindThreshold: -3,  // сумма effAtk моего поля - вражеского
@@ -653,6 +657,28 @@ function aiScoreCard(card, me){
       const def=DEFS[target.key];
       const revivedEff=def ? (def.hp + def.atk*w.atkVsHpRatio)/Math.max(1,def.cost) : 1;
       return card.cost*w.spellBase*0.5 + revivedEff*w.reviveEffWeight;
+    }
+
+    if(hasTag(card,'lose')){
+      // (2026-07-17, "SWARM CULL"-adjacent discard spell) Mirrors revive's empty-graveyard
+      // handling: an empty opponent hand means this card would resolve as a pure whiff
+      // (see 'lose' execution case in abilities.js — silently no-ops on empty hand), so
+      // score it same as an empty-graveyard revive rather than the flat generic baseline.
+      // Otherwise scales a little with how big the opponent's hand currently is — ripping
+      // 2 cards out of a stacked 6-card hand is worth more than doing it to a hand of 1.
+      const oppHandSize=G[G.humanFaction].hand.length;
+      if(oppHandSize===0) return w.loseEmptyHandScore;
+      return card.cost*w.spellBase + Math.min(oppHandSize,getTagVal(card,'lose')||1)*w.loseHandSizeWeight;
+    }
+
+    if(hasTag(card,'spell_aoe_count')){
+      // Board Purge (2026-07-17) — self-balancing by design (dmg = enemy creature count,
+      // see abilities.js case 'aoe_count'), so its score has to scale the same way instead
+      // of the flat generic fallback below, or the AI will happily fire it into an empty
+      // board for a guaranteed whiff, or hold it back against a packed one.
+      const enemyCount=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
+      if(enemyCount===0) return w.aoeCountEmptyBoardScore;
+      return card.cost*w.spellBase + enemyCount*w.aoeCountPerTargetWeight;
     }
 
     // Draw / essence / untap / dispel / anything else generic — flat baseline,
