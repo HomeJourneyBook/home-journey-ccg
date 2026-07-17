@@ -139,6 +139,22 @@ function onClick(card,zone){
     }
     cancelPendingSpell();return;
   }
+  if(G.phase==='spellProvokeBreakTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken){
+      doSpellProvokeBreakTarget(card);return;
+    }
+    // Клик мимо валидной Provoke-цели — как и spellUntapTarget, НЕ считается отменой:
+    // просто игнорируем и ждём валидный клик, чтобы случайный тап не по той карте не
+    // срывал применение (у этого спелла в принципе не может быть "любой другой цели",
+    // так что тут это ещё уместнее, чем у untap).
+    return;
+  }
+  if(G.phase==='spellDmgTrampleTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doSpellDmgTrampleTarget(card);return;
+    }
+    cancelPendingSpell();return;
+  }
   if(G.phase==='action'){
     if(zone==='hand'&&card.f===G.turn){
       G.previewCard=G.previewCard===card.id?null:card.id;
@@ -216,6 +232,14 @@ function doPlay(card){
   if(card.spell&&hasTag(card,'spell_bounce_target')){
     G.pendingSpell=card;G.phase='spellBounceTarget';
     lg(`${card.name}: select any creature on the field.`,'hint');render();return;
+  }
+  if(card.spell&&hasTag(card,'spell_provoke_break_target')){
+    G.pendingSpell=card;G.phase='spellProvokeBreakTarget';
+    lg(`${card.name}: select an enemy Provoke creature.`,'hint');render();return;
+  }
+  if(card.spell&&hasTag(card,'spell_dmg_trample_target')){
+    G.pendingSpell=card;G.phase='spellDmgTrampleTarget';
+    lg(`${card.name}: select an enemy creature.`,'hint');render();return;
   }
   if(card.spell)doSpell(card);
   else if(card.world)doWorld(card);
@@ -1178,6 +1202,56 @@ function doSpellDispelTarget(card){
   G.pendingSpell=null;G.phase='action';G.sel=null;
   G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
   render();
+}
+
+// EXPOSE (Tea) / UNMASK (Jeet) — точечная версия taunt_break: снимает Provoke с ОДНОЙ
+// выбранной вражеской Provoke-карты до конца этого хода, тем же способом (card.provokeBroken
+// = true), что и on_attack эффект taunt_break у существ (см. abilities.js case 'taunt_break')
+// — переиспользуем flag и его тайминг снятия целиком (game.js endTurn(), строка с
+// c.provokeBroken=false — снимается в конце хода ВЛАДЕЛЬЦА цели, ровно как у существ).
+// Разница с существом-носителем taunt_break: тут это не побочный эффект атаки, а сам смысл
+// карты — доступно без существа с этим тегом на поле, и цель не обязательно должна быть под
+// атакой в этот же момент.
+function doSpellProvokeBreakTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  playSfx('debaf');
+  card.provokeBroken=true;
+  lg(`${spell.name}: ${card.name}'s Provoke is suppressed!`,'imp');
+  queueFieldFx(card.id,'EXPOSED!','fx-fear'); // тот же fx, что у taunt_break на существах
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
+  render();
+}
+
+// BREACH (Tea) / RUPTURE (Jeet) — Overkill Strike: целевой магический урон, и если хватает
+// на убийство — остаток сверх HP+Брони перекидывается на вражескую базу. Та же trample-
+// математика, что и у pierce в doAttack() выше (dmgCard() намеренно уводит .hp в минус на
+// летальном ударе именно для того, чтобы вызывающий код мог прочитать overkill постфактум —
+// см. комментарии в dmgCard()/doAttack()). В отличие от pierce это не завязано на Provoke
+// вообще — работает по ЛЮБОЙ вражеской карте-существу, Provoke тут ни при чём.
+function doSpellDmgTrampleTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  const dmg=getTagVal(spell,'spell_dmg_trample_target')||5;
+  playSfx('card_spell_atack');
+  lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  queueFieldFx(card.id,'HIT!','fx-spell-dmg');
+  dmgCard(card,dmg,oppK,true);
+  const overflow=Math.max(0,-card.hp);
+  if(overflow>0){
+    G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
+    lg(`${spell.name}: overkill carries ${overflow} dmg into the ${oppK.toUpperCase()} base!`,'dmg');
+    flashBase('opp','dmg',overflow);
+  }
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
+  checkWin();render();
 }
 
 function doSpellUntapTarget(card){
