@@ -1193,7 +1193,13 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .header.collapsed{height:10px;padding-top:0;padding-bottom:0;}
 .header.collapsed > *:not(.header-collapse-handle){opacity:0;pointer-events:none;transition:opacity .12s ease;}
 .header > *:not(.header-collapse-handle){transition:opacity .18s ease .1s;}
-.header-collapse-handle{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);width:44px;height:11px;
+/* Хендл сдвинут под бургер-кнопку (2026-07-17, автор — backlog-пункт: "подвинуть правее
+   под бургер кнопку и сделать такой же шириной как бургер кнопка"). right:5px = паддинг
+   .header (4px) + margin бургер-кнопки (1px, см. .hamburger-btn) — совпадает с её правым
+   краем. Ширина — та же calc-формула, что у .hamburger-btn, чтобы хендл был флеш той же
+   ширины, а не просто "около". */
+.header-collapse-handle{position:absolute;right:5px;left:auto;bottom:-11px;
+  width:max(calc(5vh * 0.8), calc(2.5vw * 0.8), 30px);height:11px;
   background:#414B5A;border:1px solid #E8E0C822;border-top:none;border-radius:0 0 6px 6px;
   display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:60;padding:0;
   color:#E8E0C8;font-size:8px;line-height:1;transition:background .15s ease;}
