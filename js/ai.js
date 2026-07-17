@@ -77,6 +77,13 @@ const AI_WEIGHTS = {
   fearAllEmptyBoardScore: -0.5,     // (2026-07-17) Mass Sap на пустом поле соперника — то же самое, что revive/aoe_count
   fearAllPerTargetWeight: 0.5,      // за каждое вражеское существо, которое лишится хода
   fearAllBehindBonus: 1.5,          // доп. ценность, когда мы уже 'behind' — чистый tempo/stabilize эффект
+  burnAllEmptyBoardScore: -0.5,     // (2026-07-18) WILDFIRE на пустом поле соперника — зеркало fearAllEmptyBoardScore
+  burnAllPerTargetWeight: 0.5,      // за каждое вражеское существо — тот же вес, что у fearAllPerTargetWeight:
+                                     // Burn не отнимает ход сразу (это DOT, а не action-denial), но со временем
+                                     // либо убивает, либо форсит противника тратить ресурс на Clean — первая
+                                     // прикидка, ждёт отдельного баланс-прохода по всем спеллам (см. backlog)
+  burnAllBehindBonus: 1.0,          // чуть меньше, чем fearAllBehindBonus (1.5) — DOT не даёт немедленного
+                                     // "перевести дыхание" как снятие хода Fear'ом, эффект отложенный
   raceHpBehindThreshold: -4,     // моё HP - вражеское <= это ⇒ 'behind'
   raceHpAheadThreshold: 4,
   racePowerBehindThreshold: -3,  // сумма effAtk моего поля - вражеского
@@ -789,6 +796,17 @@ function aiScoreCard(card, me){
       if(enemies.length===0) return w.fearAllEmptyBoardScore;
       const race=aiRaceState();
       return card.cost*w.spellBase + enemies.length*w.fearAllPerTargetWeight + (race==='behind'?w.fearAllBehindBonus:0);
+    }
+
+    if(hasTag(card,'spell_burn_all')){
+      // WILDFIRE (2026-07-18) — Tea's burn-flavored counterpart to NIGHTMARE, reusing the
+      // Burn engine board-wide (see abilities.js case 'burn_all') instead of Fear. Same
+      // per-target scaling shape as spell_fear_all above, smaller 'behind' bonus (see
+      // burnAllBehindBonus comment — DOT, not immediate tempo relief).
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      if(enemies.length===0) return w.burnAllEmptyBoardScore;
+      const race=aiRaceState();
+      return card.cost*w.spellBase + enemies.length*w.burnAllPerTargetWeight + (race==='behind'?w.burnAllBehindBonus:0);
     }
 
     // Draw / essence / untap / dispel / anything else generic — flat baseline,
