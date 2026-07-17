@@ -1005,7 +1005,7 @@ function recalcArmor(faction){
         lg(`${src.name}: Armor aura → ${affected.map(a=>`${a.name}(${a.armor}/${a.armorMax})`).join(', ')}.`,'hl');
         affected.forEach(a=>{
           const aId=a.id;
-          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,'+Armor','maxhp')));
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,'+Armor','armoraura')));
         });
       }
     }
@@ -1016,6 +1016,13 @@ function recalcArmor(faction){
     if(affected.length>0){
       setTimeout(()=>playSfx('baf'), 150);
       lg(`${cur.world.name}: Armor aura → ${affected.map(a=>`${a.name}(${a.armor}/${a.armorMax})`).join(', ')}.`,'hl');
+      // 2026-07-17 (баг, автор) — тут не хватало showFloat(): существо с aura:armor уже
+      // показывало "+Armor" при входе, а Мир с world_armor — только звук и лог, без
+      // анимации над картами. Тот же паттерн, что у ветки _auraArmorLog чуть выше.
+      affected.forEach(a=>{
+        const aId=a.id;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,'+Armor','armoraura')));
+      });
     }
     cur._worldArmorLog=false;
   }
@@ -1342,6 +1349,7 @@ function endTurn(){
       c.incarnTimer=undefined;
       c.incarnUsed=true; // одноразовость — см. killCard(): вторая смерть уйдёт сразу в войд
       reviveCard(c,G.turn);
+      playSfx('rest'); // тот же звук, что у обычного revive-заклинания (см. case 'revive' в abilities.js)
       lg(`${c.name}: Incarnation complete — rises again!`,'hl');
     }
   });
