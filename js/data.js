@@ -60,6 +60,9 @@ const DEFS = {
   t_sp5:       {name:"GUST",        cost:1,hp:0,atk:0,art:"💨", img:"1_windy.png",   f:"tea",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
   t_sp6:       {name:"RECKONING",   cost:4,hp:0,atk:0,art:"⚖️", img:"1_Reckoning.png", f:"tea",tags:["spell","spell_aoe_count"], ab:"Deal dmg to ALL enemy creatures equal to how many are on the field.",spell:true},
   t_sp7:       {name:"FORGET-ME-NOT", cost:4,hp:0,atk:0,art:"🥀", img:"1_ForgetMeNot.png", f:"tea",tags:["spell","lose:2"], ab:"Opponent loses 2 random cards from hand.",spell:true},
+  t_sp8:       {name:"EXPOSE",     cost:2,hp:0,atk:0,art:"👁️", img:"1_Expose.png", f:"tea",tags:["spell","spell_provoke_break_target"], ab:"Target enemy Provoke creature: suppress its Provoke until the end of this turn.",spell:true},
+  t_sp9:       {name:"BREACH",     cost:4,hp:0,atk:0,art:"💥", img:"1_Breach.png", f:"tea",tags:["spell","spell_dmg_trample_target:5"], ab:"Deal 5 damage to target enemy creature. If it dies, overkill damage carries over to the enemy base.",spell:true},
+  t_sp10:      {name:"STILLNESS",  cost:5,hp:0,atk:0,art:"🌫️", img:"1_Stillness.png", f:"tea",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1 card.",world:true},
@@ -121,6 +124,9 @@ const DEFS = {
   j_sp5:       {name:"REVERSE",    cost:1,hp:0,atk:0,art:"🔄", img:"1_revers.png",    f:"jeet",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
   j_sp6:       {name:"SWARM CULL", cost:4,hp:0,atk:0,art:"🩸", img:"1_SwarmCull.png", f:"jeet",tags:["spell","spell_aoe_count"], ab:"Deal dmg to ALL enemy creatures equal to how many are on the field.",spell:true},
   j_sp7:       {name:"MINDROT",    cost:4,hp:0,atk:0,art:"🧠", img:"1_Mindrot.png", f:"jeet",tags:["spell","lose:2"], ab:"Opponent loses 2 random cards from hand.",spell:true},
+  j_sp8:       {name:"UNMASK",     cost:2,hp:0,atk:0,art:"🎭", img:"1_Unmask.png", f:"jeet",tags:["spell","spell_provoke_break_target"], ab:"Target enemy Provoke creature: suppress its Provoke until the end of this turn.",spell:true},
+  j_sp9:       {name:"RUPTURE",    cost:4,hp:0,atk:0,art:"🗡️", img:"1_Rupture.png", f:"jeet",tags:["spell","spell_dmg_trample_target:5"], ab:"Deal 5 damage to target enemy creature. If it dies, overkill damage carries over to the enemy base.",spell:true},
+  j_sp10:      {name:"NIGHTMARE",  cost:5,hp:0,atk:0,art:"👹", img:"1_Nightmare.png", f:"jeet",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
