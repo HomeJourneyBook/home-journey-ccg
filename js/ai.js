@@ -397,7 +397,7 @@ function aiTryUseShard(){
   // Ward блокирует Shard целиком (тоже bypassArmor=true) — не тратим активку на них.
   const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
   if(enemyField.length===0) return false;
-  const baseDmg=getTagVal(shard,'shard')||2;
+  const baseDmg=getTagVal(shard,'shard')||1;
   const withDmg=enemyField.map(c=>({c, dmg: baseDmg+(c.feared?1:0)}));
   const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
   let target;
