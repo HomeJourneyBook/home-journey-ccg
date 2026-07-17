@@ -65,6 +65,7 @@ const DEFS = {
   t_sp10:      {name:"STILLNESS",  cost:5,hp:0,atk:0,art:"🌫️", img:"1_Stillness.png", f:"tea",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
   t_sp11:      {name:"REKINDLE",   cost:2,hp:0,atk:0,art:"🕯️", img:"1_Rekindle.png", f:"tea",tags:["spell","spell_untap"], ab:"Target ally creature becomes active.",spell:true},
   t_sp12:      {name:"BULWARK",    cost:2,hp:0,atk:0,art:"🛡️", img:"1_Bulwark.png", f:"tea",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
+  t_sp13:      {name:"INSIGHT",    cost:2,hp:0,atk:0,art:"🔮", img:"1_Insight.png", f:"tea",tags:["spell","draw:2"], ab:"Draw 2 cards.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1 card.",world:true},
@@ -131,6 +132,7 @@ const DEFS = {
   j_sp10:      {name:"NIGHTMARE",  cost:5,hp:0,atk:0,art:"👹", img:"1_Nightmare.png", f:"jeet",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
   j_sp11:      {name:"FRENZY",     cost:3,hp:0,atk:0,art:"😤", img:"1_Frenzy.png", f:"jeet",tags:["spell","spell_buff_temp:2"], ab:"Target ally: +2 ATK until end of battle.",spell:true},
   j_sp12:      {name:"CARAPACE",   cost:2,hp:0,atk:0,art:"🪲", img:"1_Carapace.png", f:"jeet",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
+  j_sp13:      {name:"HEX",        cost:3,hp:0,atk:0,art:"💀", img:"1_Hex.png", f:"jeet",tags:["spell","spell_dmg_target:3"], ab:"Deal 3 damage to target enemy creature.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
