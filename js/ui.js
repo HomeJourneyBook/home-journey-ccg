@@ -1650,12 +1650,12 @@ const TAG_TOOLTIPS = {
   'provoke': { name: 'Provoke', desc: 'All enemy attacks must target this creature.' },
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
-  'untamed': { name: 'Untamed', desc: "Regains strength during the opponent's turn — clears exhausted as soon as its own turn ends, instead of waiting for its owner's next turn like everything else." },
-  'ward':    { name: 'Ward', desc: 'Immune to magic damage (AOE, Shard, targeted spell damage) — the same category of damage that ignores Armor. Normal attacks, Fear, and Burn still work on it.' },
-  'incarnation': { name: 'Incarnation', desc: 'When this creature dies, it returns from the graveyard on its own after a set number of its owner\'s turns, at full HP. One-time — if it dies again after returning, it is exiled for good instead.' },
+  'untamed': { name: 'Untamed', desc: "Clears exhausted at the start of the opponent's turn." },
+  'ward':    { name: 'Ward', desc: 'Immune to magic damage.' },
+  'incarnation': { name: 'Incarnation', desc: 'When this creature dies, it returns from the graveyard on its own after a set number of its owner\'s turns, at full HP. One-time — if it dies again after returning, it is exiled for the Void instead.' },
   'taunt_break': { name: 'Taunt Break', desc: 'On attack: suppresses Provoke on the target for the rest of this turn — it can be freely attacked past this turn, ignoring Provoke. Wears off at the end of its own owner\'s next turn.' },
-  'vampiric': { name: 'Vampiric', desc: 'On attack: heals for exactly the HP it actually removes from the target (Armor/Shield absorption doesn\'t count) — capped at its own missing HP.' },
-  'necrophage': { name: 'Erase', desc: 'On attack, if the hit is lethal: erases the fallen creature from its owner\'s graveyard for good (no Incarnation return), fully restores this creature\'s HP, and cleanses its own Burning.' },
+  'vampiric': { name: 'Vampiric', desc: 'On attack: heals for exactly the HP it actually removes from the target (Armor absorption doesn\'t count) — capped at its own missing HP.' },
+  'necrophage': { name: 'Erase', desc: 'On attack, if the hit is lethal: erases the fallen creature from its owner\'s graveyard for the Void, fully restores this creature\'s HP, and cleanses its own Burning.' },
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box';
