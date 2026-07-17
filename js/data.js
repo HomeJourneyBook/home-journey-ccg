@@ -58,6 +58,7 @@ const DEFS = {
   t_sp3:       {name:"SHEN'S CALL", cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png",    f:"tea",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
   t_sp4:       {name:"SCHEME",      cost:0,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:1"], ab:"Get 1 essence.",spell:true},
   t_sp5:       {name:"GUST",        cost:1,hp:0,atk:0,art:"💨", img:"1_windy.png",   f:"tea",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
+  t_sp6:       {name:"RECKONING",   cost:4,hp:0,atk:0,art:"⚖️", img:"1_Reckoning.png", f:"tea",tags:["spell","spell_aoe_count"], ab:"Deal dmg to ALL enemy creatures equal to how many are on the field.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","draw:1"],       ab:"On turn: Draw 1 card.",world:true},
@@ -105,7 +106,7 @@ const DEFS = {
      j_trvl37_w:    {name:"TRAVELER #37",   cost:5,hp:7,atk:2,art:"🐙", img:"37.png",   f:"jeet",tags:["provoke","armor:1","gtype:xui"],                 ab:"Squad: +1 ATK."},
 
   // ── JEET LEGENDARIES ────────────────────────────────────────────
-  j_reap:      {name:"REAPER",      cost:5,hp:8,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_any_death_base:1"],        ab:"Any creature death: restore base 1 HP.",unique:true},
+  j_reap:      {name:"REAPER",      cost:5,hp:8,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1"],        ab:"Enemy creature death: restore base 1 HP.",unique:true},
   j_ryv:       {name:"RYVLEN",      cost:4,hp:5,atk:4,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","fear","draw_attack:1"],        ab:"On attack: Draw 1 card.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:5,hp:9,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:armor:1"],          ab:"Aura: +1 Armor.",unique:true},
   j_phleg:     {name:"PHLEGMOR",    cost:6,hp:11,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2"],                     ab:"On turn: Revive top graveyard card at 1 HP.",unique:true},
@@ -117,6 +118,7 @@ const DEFS = {
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤", img:"1_Forgetting.png",f:"jeet",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
   j_sp4:       {name:"BLACK MAGIC",cost:0,hp:0,atk:0,art:"⚫", img:"1_Spell1.png",    f:"jeet",tags:["spell","ess_add:1"], ab:"Get 1 essence.",spell:true},
   j_sp5:       {name:"REVERSE",    cost:1,hp:0,atk:0,art:"🔄", img:"1_revers.png",    f:"jeet",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
+  j_sp6:       {name:"SWARM CULL", cost:4,hp:0,atk:0,art:"🩸", img:"1_SwarmCull.png", f:"jeet",tags:["spell","spell_aoe_count"], ab:"Deal dmg to ALL enemy creatures equal to how many are on the field.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: draw 1 card.",world:true},
