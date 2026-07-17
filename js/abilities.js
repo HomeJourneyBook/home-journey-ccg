@@ -68,6 +68,22 @@ function getAbilities(card){
       // прилёта карты — как и все остальные "добор вне начала хода" источники в игре: Hunger/
       // Altar/spell draw/Ryvlen on-attack, см. Приоритет в CLAUDE.md).
       case 'enter_draw': ab.push({timing:'on_enter',effect:'draw',val}); break;
+      // enter_lose:N (2026-07-17, автор — замена Invisible у рядового Net-трейта, см.
+      // "lose" ниже за детали самого эффекта) — существо при входе на поле заставляет
+      // противника сбросить N случайных карт из руки в Пустоту. Тот же on_enter timing,
+      // что и enter_heal/enter_draw — резолвится сразу, без анимации прилёта карты.
+      case 'enter_lose': ab.push({timing:'on_enter',effect:'lose',val}); break;
+      // lose:N (2026-07-17, автор) — "Потеря карты": сбрасывает N случайных карт из руки
+      // ПРОТИВНИКА владельца этой карты в Пустоту (навсегда, без возможности вернуть —
+      // тот же принцип, что и burn-сброс/сожжение). Если рука противника уже пуста —
+      // эффект молча ничего не делает (не ошибка, просто нечего терять). Сейчас
+      // подключено только для spell (instant, под будущее заклинание) — тот же паттерн,
+      // что у 'draw' ниже: card.spell → instant, резолвится в момент розыгрыша. Если
+      // позже понадобится other-carrier (world/artifact on_turn, existing creature
+      // on_attack и т.п.) — добавлять сюда по той же вилке, что у 'draw'.
+      case 'lose':
+        if(card.spell) ab.push({timing:'instant',effect:'lose',val});
+        break;
       case 'draw':
         if(card.spell)                    ab.push({timing:'instant',effect:'draw',val});
         else if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'draw',val});
@@ -269,6 +285,35 @@ function triggerAbilities(card, timing, ctx={}){
           lg(`${card.name}: draws ${a.val} card(s).`,'imp');
         }
         break;
+
+      // lose (2026-07-17, автор) — "Потеря карты": сбрасывает a.val случайных карт из руки
+      // ПРОТИВНИКА владельца card в Пустоту навсегда. Противник считается от card.f (не от
+      // curK/oppK этого triggerAbilities-вызова) — надёжнее, т.к. card.f не зависит от того,
+      // чей сейчас G.turn (on_enter обычно совпадает с ходом владельца, но лучше не полагаться
+      // на побочное совпадение). Пустая рука противника — молчаливый no-op (нечего терять),
+      // без лога-ошибки.
+      case 'lose':
+        {
+          const targetK=card.f==='tea'?'jeet':'tea';
+          const targetHand=G[targetK].hand;
+          if(targetHand.length===0){
+            lg(`${card.name}: opponent's hand is empty — nothing to lose.`,'hint');
+            break;
+          }
+          let lostNames=[];
+          for(let i=0;i<a.val;i++){
+            if(targetHand.length===0) break;
+            const idx=Math.floor(Math.random()*targetHand.length);
+            const lostCard=targetHand.splice(idx,1)[0];
+            lostCard.voided=true;
+            G[targetK].void.push(lostCard);
+            lostNames.push(lostCard.name);
+          }
+          if(lostNames.length>0){
+            playSfx('debaf');
+            lg(`${card.name}: ${targetK.toUpperCase()} loses ${lostNames.join(', ')} from hand — gone to the Void!`,'imp');
+          }
+        } break;
 
       // atk_all removed — replaced by aura:atk tag
 
