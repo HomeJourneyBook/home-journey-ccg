@@ -501,7 +501,27 @@ function aiTryUseBolt(){
       used=true;
       return;
     }
-    if(killable.length===0) return; // не тратим ход на чип-урон — только на реальный килл
+    if(killable.length===0){
+      // Чиповый Bolt без килла (2026-07-18, по просьбе автора) — раньше функция
+      // тут просто выходила, и существо шло в обычную атаку через aiAttackStep().
+      // Но если ATK этого Umbasir'а НЕ БОЛЬШЕ урона от Bolt — обычная атака не
+      // дала бы никакого преимущества в уроне (то же самое 1 dmg, или меньше),
+      // зато ловит контратаку на ровном месте — Bolt магический, ответки не
+      // бывает в принципе. В этом случае лучше потыкать Bolt'ом самую опасную
+      // вражескую карту (сортировка по effAtk, тот же принцип, что и в killable-
+      // ветке ниже), вместо бессмысленного размена жизнью. Если ATK строго
+      // БОЛЬШЕ baseDmg — оставляем как было (return ниже, ничего не делаем
+      // здесь) — там обычная атака реально сильнее и Bolt лучше поберечь.
+      if(effAtk(bolt)<=baseDmg && enemyField.length>0){
+        const pool=[...withDmg];
+        pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+        G.sel=bolt.id;
+        doUmbBolt();
+        doBoltTarget(pool[0].c);
+        used=true;
+      }
+      return; // не тратим ход на чип-урон, когда атака и так была бы сильнее
+    }
     killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
     const target=killable[0].c;
     // Provoke rework (2026-07-17): pierce no longer exempt from forced-target (see
@@ -904,6 +924,34 @@ function effAtk(c){
   return c.atk + (c.atkBonus||0) + (c.rageBonus||0) + (c.squadAtkBonus||0) + (c.tempAtkBonus||0);
 }
 
+// (2026-07-18, по просьбе автора) — "нет смысла бить его картой 1/1 существо с бронёй 1,
+// чтобы тупо получить ответку и умереть". Полностью бесполезный размен: наш физический
+// урон целиком гасится бронёй цели (Броня поглощает первой, см. dmgCard()) — 0 реального
+// урона по HP, притом цель ЖИВА и контратакует (контрудар в doAttack() бьёт независимо от
+// того, дошёл ли наш удар — см. shieldConsumed/wasFeared/wasExhausted — брони среди условий
+// пропуска контрудара НЕТ). Если этот контрудар убивает нашего атакующего — чистая потеря
+// тела за 0 прогресса. НЕ считаем реальный kill-размен (armor меньше atk) сюда — там урон
+// реально проходит, это нормальная атака.
+function aiIsWastefulArmorTrade(attacker, target){
+  const atk = effAtk(attacker);
+  const targetArmor = target.armor||0;
+  if(atk > targetArmor) return false; // хоть что-то реально прошло бы по HP — не бесполезно
+  const counterDmg = effAtk(target);
+  const ourArmor = attacker.armor||0;
+  const realCounterDmg = Math.max(0, counterDmg-ourArmor);
+  return realCounterDmg >= attacker.hp; // контрудар нас убивает — за 0 урона
+}
+
+// Единственная законная причина всё равно пойти на "бесполезный" размен выше — если на
+// поле есть эффект, реагирующий на смерть СВОЕГО существа (HUNGER-стиль on_own_death на
+// Мире, ASLEX-стиль on_own_death_base на существе) — тогда сама смерть атакующего приносит
+// реальную пользу (карта/хил базы), и трейд уже не "за просто так".
+function aiHasOwnDeathBenefit(){
+  const me = G[G.aiFaction];
+  if(me.world && (hasTag(me.world,'on_own_death')||hasTag(me.world,'on_own_death_base'))) return true;
+  return me.field.some(c => hasTag(c,'on_own_death')||hasTag(c,'on_own_death_base'));
+}
+
 function aiActWithCreature(creature){
   const humanF = G.humanFaction;
   const oppField = G[humanF].field;
@@ -969,9 +1017,17 @@ function aiActWithCreature(creature){
   }
 
   // 3) Принудительная цель (provoke/bushido) — бьём самую слабую из обязательных.
+  // (2026-07-18) — но не если ЛЮБОЙ доступный вариант из них — бесполезный размен
+  // (см. aiIsWastefulArmorTrade) — и при этом есть, чем ещё заняться (другие существа
+  // на поле) и нет причины умирать нарочно (aiHasOwnDeathBenefit). В этом случае лучше
+  // придержать существо, чем гарантированно потерять его за 0 урона.
   if(targetable.length > 0){
     targetable.sort((a,b) => effAtk(a) - effAtk(b));
-    aiAttack(creature, targetable[0]);
+    const otherCreatures = G[G.aiFaction].field.some(c => c.id!==creature.id && !c.spell&&!c.world&&!c.artifact);
+    const canAffordToSkip = otherCreatures && !aiHasOwnDeathBenefit();
+    const viable = canAffordToSkip ? targetable.filter(t => !aiIsWastefulArmorTrade(creature,t)) : targetable;
+    if(viable.length === 0) return; // все варианты — бесполезный размен, придерживаем существо
+    aiAttack(creature, viable[0]);
     return;
   }
 
