@@ -112,6 +112,14 @@ function onClick(card,zone){
     }
     cancelPendingSpell();return;
   }
+  if(G.phase==='spellArmorTarget'){
+    // Та же relaxed-таргетинг правка, что и у spellBuffTarget (2026-07-15) — sleeping/
+    // exhausted союзники валидны, только feared исключён.
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared){
+      doSpellArmorTarget(card);return;
+    }
+    cancelPendingSpell();return;
+  }
   if(G.phase==='spellDispelTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       doSpellDispelTarget(card);return;
@@ -219,6 +227,10 @@ function doPlay(card){
   }
   if(card.spell&&hasTag(card,'spell_buff_temp')){
     G.pendingSpell=card;G.phase='spellBuffTarget';
+    lg(`${card.name}: select an ally creature.`,'hint');render();return;
+  }
+  if(card.spell&&hasTag(card,'spell_armor_temp')){
+    G.pendingSpell=card;G.phase='spellArmorTarget';
     lg(`${card.name}: select an ally creature.`,'hint');render();return;
   }
   if(card.spell&&hasTag(card,'spell_dispel')){
@@ -355,7 +367,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.shieldConsumed=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.shieldConsumed=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
   // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
   // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
@@ -687,6 +699,7 @@ function killCard(card,faction,toVoid=false){
   card.squadMaxHpBonus=0;
   card.squadAtkBonus=0;
   card.squadArmorBonus=0;
+  card.spellArmorBonus=0;
   card.armor=0;
   card.armorMax=undefined;
   card.auraArmorBonus=0;
@@ -1035,7 +1048,13 @@ function recalcArmor(faction){
     // missing from the status panel because nothing was ever storing them on the card.
     a.auraArmorBonus=auraBonus;
     a.worldArmorBonus=worldArmorVal;
-    const newMax=(getTagVal(a,'armor')||0)+(a.squadArmorBonus||0)+worldArmorVal+auraBonus;
+    // spellArmorBonus (2026-07-17, "BULWARK"/"CARAPACE") — a one-time targeted spell bonus,
+    // same lifecycle as squadArmorBonus: persists on the card itself (not re-derived from
+    // live board state like aura/world/squad above), added into the total here, zeroed out
+    // in killCard()/reviveCard()/resetC() same as every other armor component — "until end
+    // of battle" in practice means "until this creature's current life ends," same
+    // semantics ARCHIVE's tempAtkBonus already uses for the ATK version of this idea.
+    const newMax=(getTagVal(a,'armor')||0)+(a.squadArmorBonus||0)+(a.spellArmorBonus||0)+worldArmorVal+auraBonus;
     if(a.armorMax===undefined){
       // First time this card has ever been through this function (just entered the field,
       // was revived/raised, etc) — no previous partial state to preserve, start at full,
@@ -1176,6 +1195,35 @@ function doSpellBuffTarget(card){
   const buffId=card.id;
   setTimeout(()=>showFloat(buffId, `+${val}`, 'atk'), 50);
   queueFieldFx(card.id,'BUFFED!','fx-spell-buff'); // плейсхолдер — позже заменится на гифку
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
+  render();
+}
+
+// BULWARK (Tea) / CARAPACE (Jeet) — +N Armor until end of battle. Same shape as ARCHIVE's ATK
+// buff, but Armor isn't a standalone field the way tempAtkBonus is — it's one of several
+// components `recalcArmor()` sums into armorMax (own tag + squad + aura + world, see Squad
+// System section above), so this spell adds its own `spellArmorBonus` component to that same
+// pool instead of introducing a parallel bookkeeping system. "Until end of battle" here means
+// "until this creature dies" — spellArmorBonus is zeroed in killCard()/reviveCard()/resetC(),
+// same lifecycle every other armor component already has (unlike tempAtkBonus, which
+// deliberately does NOT reset on death since a dead card doesn't need it reset for anything).
+function doSpellArmorTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact||card.feared){
+    lg('Select an ally.','hint');return;
+  }
+  const val=getTagVal(spell,'spell_armor_temp')||1;
+  playSfx('baf');
+  card.spellArmorBonus=(card.spellArmorBonus||0)+val;
+  recalcArmor(G.turn); // applies the new armorMax immediately — see its own comment on spellArmorBonus
+  lg(`${spell.name}: ${card.name} +${val} Armor until end of battle.`,'hl');
+  const buffId=card.id;
+  setTimeout(()=>showFloat(buffId, '+Armor', 'armoraura'), 50); // reuses the same float style as aura:armor grants
+  queueFieldFx(card.id,'ARMORED!','fx-spell-buff'); // reuses the ARCHIVE buff fx class
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
