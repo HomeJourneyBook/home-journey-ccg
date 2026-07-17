@@ -1462,6 +1462,21 @@ function toggleHamburger(){
   menu.classList.toggle('open');
 }
 
+// ── Сворачивающийся хедер (2026-07-17, автор — "после фикса бургер-кнопки хедер
+// стал слишком большой") — .collapsed схлопывает высоту почти в ноль (см. .header/
+// .header.collapsed в styles.css), тонкая вкладка-хендл (.header-collapse-handle)
+// остаётся видимой и кликабельной поверх схлопнутого хедера, чтобы развернуть обратно.
+// Если открыто гамбургер-меню — сначала закрываем его тем же путём, что и обычно
+// (toggleHamburger()), чтобы не остаться с открытым меню поверх схлопывающегося хедера.
+function toggleHeaderCollapsed(){
+  const header=document.querySelector('.header');
+  if(!header) return;
+  const hamBtn=document.getElementById('hamburgerBtn');
+  if(hamBtn && hamBtn.classList.contains('open')) toggleHamburger();
+  playSfx('yellow_buttom');
+  header.classList.toggle('collapsed');
+}
+
 function updateMulliganBtn(faction){
   const m=G.mulligan[faction];
   const sfx=faction==='tea'?'T':'J';
