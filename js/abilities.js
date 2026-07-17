@@ -236,7 +236,10 @@ function triggerAbilities(card, timing, ctx={}){
           const dmgAmt=purgeTargets.length;
           if(dmgAmt>0){
             playSfx('card_spell_atack');
-            purgeTargets.forEach(t=>dmgCard(t,dmgAmt,oppK,true));
+            purgeTargets.forEach(t=>{
+              queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
+              dmgCard(t,dmgAmt,oppK,true);
+            });
             lg(`${card.name}: ${dmgAmt} dmg to ALL enemy creatures (board count)!`,'imp');
           } else {
             lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
