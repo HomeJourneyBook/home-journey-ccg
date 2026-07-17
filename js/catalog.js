@@ -84,6 +84,10 @@ function renderCatalog(){
   'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
   'vampiric': '<img src="img/ico_vamp.png" style="width:60%;height:60%;">',
   'necrophage': '<img src="img/ico_erase.png" style="width:60%;height:60%;">',
+  'intercept': '<img src="img/ico_intercept.png" style="width:60%;height:60%;">',
+  'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
+  'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
+  'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
     };
     const tagIcons=(def.tags||[])
       .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -148,6 +152,10 @@ function openCardDetail(def){
   'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
   'vampiric': '<img src="img/ico_vamp.png" style="width:60%;height:60%;">',
   'necrophage': '<img src="img/ico_erase.png" style="width:60%;height:60%;">',
+  'intercept': '<img src="img/ico_intercept.png" style="width:60%;height:60%;">',
+  'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
+  'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
+  'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   };
   const tagIcons = (def.tags||[])
     .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
