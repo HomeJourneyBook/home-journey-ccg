@@ -352,7 +352,7 @@
 
     <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguard</h3><p>A creature card can act the same turn it enters the battleground. It skips the Sleeping state.</p>
     <h3><img class="rules-icon" src="img/ico_provoke.png">Provoke</h3><p>All of the opponent's creature card attacks must target this creature.</p>
-    <h3><img class="rules-icon" src="img/ico_pierce.png">Pierce</h3><p>The creature can no longer ignore Provoke — while it's active, this creature must attack the Provoke creature just like any other. If that attack kills the target, all remaining excess damage carries over to the enemy base.</p>
+    <h3><img class="rules-icon" src="img/ico_pierce.png">Pierce</h3><p>After attacking an enemy creature card, if it dies from the hit, any remaining excess damage carries over to the enemy base.</p>
     <h3><img class="rules-icon" src="img/ico_fear.png">Fear</h3><p>With this ability, a creature card inflicts the "Fear" negative effect on the enemy card the moment it attacks. Creature cards under Fear skip their next turn and deal no counter-damage.</p>
     <h3><img class="rules-icon" src="img/ico_invis.png">Invisible</h3><p>This creature card can't be targeted for attack while there's at least one non-Invisible ally on the battleground. If every creature on the battleground is Invisible, any of them can be attacked. It also takes no counter-damage when it attacks.</p>
     <h3><img class="rules-icon" src="img/ico_rage.png">Rage</h3><p>Every time this creature attacks, it permanently gains +1 attack. The bonus resets if the creature dies. Stacks with other bonuses from Auras, Squads, or Spells.</p>
@@ -489,7 +489,7 @@
 
     <h3><img class="rules-icon" src="img/ico_vanguard.png">Авангард (Vanguard)</h3><p>Карта-существо может действовать в тот же ход, когда вышло на поле. Оно пропускает состояние сна.</p>
     <h3><img class="rules-icon" src="img/ico_provoke.png">Провокация (Provoke)</h3><p>Все атаки карт-существ противника должны быть направлены на это существо.</p>
-    <h3><img class="rules-icon" src="img/ico_pierce.png">Пронзание (Pierce)</h3><p>Существо больше не может проигнорировать Провокацию — пока она активна, оно обязано атаковать существо с Провокацией, как и любое другое. После нанесения атаки по карте-существу противника и в случае её гибели, весь остаточный сверх-урон перекидывается на базу противника.</p>
+    <h3><img class="rules-icon" src="img/ico_pierce.png">Пронзание (Pierce)</h3><p>После нанесения атаки по карте-существу противника и в случае её гибели, весь остаточный сверх-урон перекидывается на базу противника.</p>
     <h3 data-gl="fear"><img class="rules-icon" src="img/ico_fear.png">Страх (Fear)</h3><p>Обладая этой способность, карта-существо в момент своей атаки накладывает отрицательный эффект "Страх" на карту-противника. Карты-существа находясь под действием "Страха" пропускают свой следующий ход и не наносят ответного урона.</p>
     <h3><img class="rules-icon" src="img/ico_invis.png">Невидимость (Invisible)</h3><p>Эта карта-существо не может быть выбрано целью для атаки, пока на поле боя есть хотя бы один союзник без Невидимости. Если абсолютно все существа на поле боя невидимы — атаковать можно любое из них. Также при нанесении удара, не получает ответного удара.</p>
     <h3><img class="rules-icon" src="img/ico_rage.png">Ярость (Rage)</h3><p>Каждый раз, когда это существо атакует, оно навсегда получает +1 атаки. Бонус сбрасывается, если существо умирает. Суммируется с другими бонусами от Аур или бонусов от Отрядов или Заклинаний.</p>
@@ -500,8 +500,8 @@
     <h3><img class="rules-icon" src="img/ico_untamed.png">Неукротимость (Untamed)</h3><p>Существо снимает с себя Усталость в начале хода противника.</p>
     <h3 data-gl="ward"><img class="rules-icon" src="img/ico_ward.png">Оберег (Ward)</h3><p>Эта карта-существо полностью игнорирует магический урон.</p>
     <h3><img class="rules-icon" src="img/ico_incarn.png">Инкарнация X(Incarnation)</h3><p>Когда это существо погибает, оно воскрешается с Кладбища на поле спустя X ваших ходов, с полным здоровьем и в состоянии сна. Срабатывает только один раз — если оно погибнет снова после возвращения, оно уходит в Пустоту.</p>
-    <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Слом Провокации (Taunt breake)</h3><p>При атаке, накладывает отрицательный эффект снимающий Провокацию с цели до конца хода.</p>
-    <h3><img class="rules-icon" src="img/ico_vamp.png">Вампиризм (Vampirism)</h3><p>При своей атаке существо восстанавливает себе ровно столько здоровья, сколько реально сняло с цели (урон, поглощённый Бронёй или Щитом, не считается) — но не больше своего максимума.</p>
+    <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Слом Провокации (Taunt Break)</h3><p>При атаке, накладывает отрицательный эффект снимающий Провокацию с цели до конца хода.</p>
+    <h3><img class="rules-icon" src="img/ico_vamp.png">Вампиризм (Vampiric)</h3><p>При своей атаке существо восстанавливает себе ровно столько здоровья, сколько реально сняло с цели (урон, поглощённый Бронёй или Щитом, не считается) — но не больше своего максимума.</p>
     <h3><img class="rules-icon" src="img/ico_erase.png">Стирание (Erase)</h3><p>Если атака этого существа убивает врага — погибшая карта противника вместо Кладбища отправляется в Пустоту, а само существо полностью восстанавливает здоровье и очищается от эффекта Горения. Срабатывает только при убийстве прямой атакой.</p>
 
 </div>
@@ -530,7 +530,7 @@
 
     <h2>A Carta</h2>
     <img class="rules-full-art" src="img/rules_card.png" alt="Uma carta com números de 1 a 9 apontando para cada elemento abaixo">
-    <h3>1. Custo</h3>
+    <h3>1. Custo (Cost)</h3>
     <p>Quanto de <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('essence')">Essência</a> é preciso gastar para jogar esta carta.</p>
     <h3>2. Tipo de Carta</h3>
     <p>O ícone no canto superior direito mostra <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('card_types')">o tipo desta carta</a>.</p>
@@ -544,7 +544,7 @@
     <p>Quanto de dano a criatura aguenta antes de morrer. Indicado por um coração.</p>
     <h3>7. Ataque (ATK)</h3>
     <p>Quanto de dano a criatura causa ao atacar. Indicado por uma espada.</p>
-    <h3>8. Armadura</h3>
+    <h3>8. Armadura (Armor)</h3>
     <p>Uma reserva extra além da vida — nem toda criatura tem. <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('armor')">Mais sobre Armadura</a>.</p>
     <h3>9. Texto de Habilidade</h3>
     <p>Descreve o que a carta faz — de efeitos passivos a botões ativos. Se algo escrito no texto de uma carta contradisser estas regras, o texto da carta sempre tem prioridade.</p>
@@ -606,40 +606,40 @@
 
     <h2 data-gl="glossary">Glossário</h2>
 
-    <h3 data-gl="sleep">Adormecido</h3><p><img class="rules-icon" src="img/zzz.png"> Uma carta-criatura ou Artefato entrou no campo neste turno e não pode agir. Acorda no início do seu próximo turno.</p>
-    <h3 data-gl="exhausted">Exausto</h3><p>Uma carta-criatura ou Artefato já atacou ou usou uma habilidade ativa neste turno. Não pode agir de novo — nem contra-atacar — até o turno seguinte. Aparece como uma carta escurecida.</p>
-    <h3>Aura</h3><p>Um efeito passivo de campo que fortalece todos os aliados enquanto a carta com a aura estiver no campo. O bônus desaparece imediatamente quando a carta sai do campo. Várias fontes de aura se somam. Uma aura não fortalece a si mesma — só os aliados.</p>
-    <h3>Esquadrão</h3><p>Quando você tem 3 ou mais Viajantes do mesmo tipo no seu campo ao mesmo tempo, todos ganham um bônus automaticamente. O bônus é ativado no momento em que o terceiro entra e desaparece assim que o esquadrão cai para menos de três. Cada esquadrão tem seu próprio tipo de bônus.</p>
+    <h3 data-gl="sleep">Adormecido (Sleep)</h3><p><img class="rules-icon" src="img/zzz.png"> Uma carta-criatura ou Artefato entrou no campo neste turno e não pode agir. Acorda no início do seu próximo turno.</p>
+    <h3 data-gl="exhausted">Exausto (Exhausted)</h3><p>Uma carta-criatura ou Artefato já atacou ou usou uma habilidade ativa neste turno. Não pode agir de novo — nem contra-atacar — até o turno seguinte. Aparece como uma carta escurecida.</p>
+    <h3>Aura (Aura)</h3><p>Um efeito passivo de campo que fortalece todos os aliados enquanto a carta com a aura estiver no campo. O bônus desaparece imediatamente quando a carta sai do campo. Várias fontes de aura se somam. Uma aura não fortalece a si mesma — só os aliados.</p>
+    <h3>Esquadrão (Squad)</h3><p>Quando você tem 3 ou mais Viajantes do mesmo tipo no seu campo ao mesmo tempo, todos ganham um bônus automaticamente. O bônus é ativado no momento em que o terceiro entra e desaparece assim que o esquadrão cai para menos de três. Cada esquadrão tem seu próprio tipo de bônus.</p>
     <h3>Vida Máxima (maxHP)</h3><p>Auras e feitiços podem aumentar a vida máxima de uma carta-criatura. Se a criatura estiver com a vida cheia, a vida atual também aumenta (3/3 vira 4/4). Se já estiver ferida, só o máximo aumenta (2/3 vira 2/4). A cura nunca leva a vida acima do máximo. Você sempre pode passar o cursor sobre o indicador de vida de uma carta-criatura no campo para ver seu máximo atual.</p>
-    <h3>Cura X</h3><p>Restaura X de vida perdida, mas nunca acima do máximo. Se o texto de uma carta disser "Active: Heal X", significa que no campo de batalha, em vez de atacar, você pode pressionar a carta e depois <img class="rules-icon" src="img/btn_heal.png"> — escolher um aliado como alvo e restaurar X de vida a ele. Depois de usar essa habilidade, a carta-criatura é considerada exausta.</p>
+    <h3>Cura X (Heal X)</h3><p>Restaura X de vida perdida, mas nunca acima do máximo. Se o texto de uma carta disser "Active: Heal X", significa que no campo de batalha, em vez de atacar, você pode pressionar a carta e depois <img class="rules-icon" src="img/btn_heal.png"> — escolher um aliado como alvo e restaurar X de vida a ele. Depois de usar essa habilidade, a carta-criatura é considerada exausta.</p>
     <h3>Limpar (Clean)</h3><p>Remove todos os efeitos negativos de uma carta-criatura, como <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('burn')">Queimadura</a>, <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('fear')">Medo</a> e <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('taunt_break')">Quebra de Provocação</a>.</p>
     <h3>Bolt</h3><p>Se o texto de uma carta disser "Active: Bolt X", significa que no campo de batalha, em vez de atacar, você pode pressionar a carta e depois <img class="rules-icon" src="img/btn_spell.png"> — escolher uma carta-criatura inimiga como alvo e causar X de dano a ela. Essa habilidade é considerada mágica, ou seja, ignora a Armadura, mas não consegue ferir criaturas com <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('ward')">Proteção</a>.</p>
     <h3>Devolver (Return)</h3><p>A ação de devolver uma carta-criatura do campo de batalha de volta à mão do seu dono.</p>
-    <h3>Reviver</h3><p>Traz uma criatura do Cemitério de volta ao campo com X de vida, ou com a vida cheia se nenhum número estiver escrito no texto da carta. Uma criatura revivida entra no campo Adormecida. Criaturas revividas não disparam efeitos "Ao jogar".</p>
-    <h3>Sacrifício</h3><p>Uma ação ativa que destrói uma de suas próprias criaturas em troca do bônus escrito na carta com essa habilidade. A carta-criatura destruída vai para o Cemitério e pode ser revivida.</p>
-    <h3>Compra de Carta</h3><p>Se o texto de uma carta menciona "Draw" em alguma ação, ao realizar essa ação você recebe imediatamente uma carta extra do baralho, desde que ainda haja alguma disponível.</p>
+    <h3>Reviver (Revive)</h3><p>Traz uma criatura do Cemitério de volta ao campo com X de vida, ou com a vida cheia se nenhum número estiver escrito no texto da carta. Uma criatura revivida entra no campo Adormecida. Criaturas revividas não disparam efeitos "Ao jogar".</p>
+    <h3>Sacrifício (Sacrifice)</h3><p>Uma ação ativa que destrói uma de suas próprias criaturas em troca do bônus escrito na carta com essa habilidade. A carta-criatura destruída vai para o Cemitério e pode ser revivida.</p>
+    <h3>Compra de Carta (Draw)</h3><p>Se o texto de uma carta menciona "Draw" em alguma ação, ao realizar essa ação você recebe imediatamente uma carta extra do baralho, desde que ainda haja alguma disponível.</p>
     <h3>Perda de Carta (Lose)</h3><p>Se o texto de uma carta menciona "Lose" em alguma ação, ao realizar essa ação uma carta aleatória é descartada da mão do oponente para o Vazio.</p>
-    <h3>No Turno</h3><p>O efeito dispara automaticamente no início do turno do jogador, antes de qualquer ação.</p>
-    <h3>Ao Jogar</h3><p>O efeito dispara no momento em que uma carta é jogada da mão para o campo.</p>
-    <h3>Ao Atacar</h3><p>O efeito dispara toda vez que essa carta-criatura ataca — seja uma criatura inimiga ou a base (efeitos negativos não afetam a base).</p>
-    <h3>Ao Matar</h3><p>O efeito dispara quando o ataque dessa carta-criatura mata uma carta-criatura inimiga diretamente.</p>
+    <h3>No Turno (On turn)</h3><p>O efeito dispara automaticamente no início do turno do jogador, antes de qualquer ação.</p>
+    <h3>Ao Jogar (On play)</h3><p>O efeito dispara no momento em que uma carta é jogada da mão para o campo.</p>
+    <h3>Ao Atacar (On attack)</h3><p>O efeito dispara toda vez que essa carta-criatura ataca — seja uma criatura inimiga ou a base (efeitos negativos não afetam a base).</p>
+    <h3>Ao Matar (On death)</h3><p>O efeito dispara quando o ataque dessa carta-criatura mata uma carta-criatura inimiga diretamente.</p>
 
-    <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguarda</h3><p>Uma carta-criatura pode agir no mesmo turno em que entra no campo. Ela pula o estado Adormecido.</p>
-    <h3><img class="rules-icon" src="img/ico_provoke.png">Provocação</h3><p>Todos os ataques de cartas-criatura do oponente devem ter essa criatura como alvo.</p>
-    <h3><img class="rules-icon" src="img/ico_pierce.png">Perfuração</h3><p>A criatura não pode mais ignorar a Provocação — enquanto estiver ativa, ela deve atacar a criatura com Provocação como qualquer outra. Se esse ataque matar o alvo, todo o dano excedente restante é transferido para a base inimiga.</p>
-    <h3><img class="rules-icon" src="img/ico_fear.png">Medo</h3><p>Com essa habilidade, uma carta-criatura aplica o efeito negativo "Medo" na carta inimiga no momento em que ataca. Cartas-criatura sob efeito de Medo pulam seu próximo turno e não causam dano de contra-ataque.</p>
-    <h3><img class="rules-icon" src="img/ico_invis.png">Invisível</h3><p>Essa carta-criatura não pode ser alvo de ataque enquanto houver pelo menos um aliado que não seja Invisível no campo de batalha. Se todas as criaturas no campo de batalha forem Invisíveis, qualquer uma delas pode ser atacada. Também não sofre dano de contra-ataque quando ataca.</p>
-    <h3><img class="rules-icon" src="img/ico_rage.png">Fúria</h3><p>Toda vez que essa criatura ataca, ela ganha +1 de ataque permanentemente. O bônus é zerado se a criatura morrer. Acumula com outros bônus de Auras, Esquadrões ou Feitiços.</p>
-    <h3 data-gl="burn"><img class="rules-icon" src="img/ico_burn.png">Queimadura</h3><p>Quando essa criatura ataca, a criatura inimiga recebe o efeito negativo "Queimadura". Criaturas queimando perdem 1 de vida no início de cada um de seus turnos. O efeito é permanente até a criatura morrer. Uma criatura que morre por Queimadura vai para o Vazio.</p>
-    <h3><img class="rules-icon" src="img/ico_regen.png">Regeneração X</h3><p>A criatura recupera X de vida no início de cada um dos seus turnos, mas nunca acima do máximo.</p>
-    <h3 data-gl="armor"><img class="rules-icon" src="img/armor.png">Armadura</h3><p>Uma reserva extra além da vida. Absorve dano primeiro, mas só de ataques normais. Dano mágico ignora a Armadura completamente. É restaurada ao máximo no início do seu turno. Pode acumular de diferentes Auras, bônus de Esquadrão ou Feitiços.</p>
-    <h3><img class="rules-icon" src="img/solana_shield.png">Escudo Solana</h3><p>Uma camada de proteção sobre a vida — absorve completamente o primeiro golpe recebido por essa criatura, de qualquer tipo, incluindo quaisquer efeitos colaterais que viriam com esse golpe. Ativa uma vez a cada vez que a carta entra no campo. Se a criatura sair do campo e voltar, o escudo recarrega.</p>
-    <h3><img class="rules-icon" src="img/ico_untamed.png">Indomável</h3><p>A criatura remove seu próprio estado Exausto no início do turno do oponente.</p>
-    <h3 data-gl="ward"><img class="rules-icon" src="img/ico_ward.png">Proteção</h3><p>Essa carta-criatura ignora completamente dano mágico.</p>
-    <h3><img class="rules-icon" src="img/ico_incarn.png">Encarnação X</h3><p>Quando essa criatura morre, ela revive do Cemitério de volta ao campo X turnos seus depois, com vida cheia e Adormecida. Dispara só uma vez — se morrer de novo depois de voltar, vai para o Vazio em vez disso.</p>
-    <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Quebra de Provocação</h3><p>Ao atacar, aplica um efeito negativo que remove a Provocação do alvo até o fim do turno.</p>
-    <h3><img class="rules-icon" src="img/ico_vamp.png">Vampírico</h3><p>No seu próprio ataque, a criatura se cura exatamente na quantidade de vida que realmente retirou do alvo (dano absorvido por Armadura ou Escudo não conta) — mas nunca mais do que sua própria vida faltante.</p>
-    <h3><img class="rules-icon" src="img/ico_erase.png">Apagar</h3><p>Se o ataque dessa criatura mata um inimigo, a carta derrotada vai para o Vazio em vez do Cemitério, e essa criatura restaura totalmente sua vida e remove sua própria Queimadura. Só dispara ao matar por ataque direto.</p>
+    <h3><img class="rules-icon" src="img/ico_vanguard.png">Vanguarda (Vanguard)</h3><p>Uma carta-criatura pode agir no mesmo turno em que entra no campo. Ela pula o estado Adormecido.</p>
+    <h3><img class="rules-icon" src="img/ico_provoke.png">Provocação (Provoke)</h3><p>Todos os ataques de cartas-criatura do oponente devem ter essa criatura como alvo.</p>
+    <h3><img class="rules-icon" src="img/ico_pierce.png">Perfuração (Pierce)</h3><p>Após atacar uma carta-criatura inimiga, se ela morrer com o golpe, todo o dano excedente restante é transferido para a base inimiga.</p>
+    <h3><img class="rules-icon" src="img/ico_fear.png">Medo (Fear)</h3><p>Com essa habilidade, uma carta-criatura aplica o efeito negativo "Medo" na carta inimiga no momento em que ataca. Cartas-criatura sob efeito de Medo pulam seu próximo turno e não causam dano de contra-ataque.</p>
+    <h3><img class="rules-icon" src="img/ico_invis.png">Invisível (Invisible)</h3><p>Essa carta-criatura não pode ser alvo de ataque enquanto houver pelo menos um aliado que não seja Invisível no campo de batalha. Se todas as criaturas no campo de batalha forem Invisíveis, qualquer uma delas pode ser atacada. Também não sofre dano de contra-ataque quando ataca.</p>
+    <h3><img class="rules-icon" src="img/ico_rage.png">Fúria (Rage)</h3><p>Toda vez que essa criatura ataca, ela ganha +1 de ataque permanentemente. O bônus é zerado se a criatura morrer. Acumula com outros bônus de Auras, Esquadrões ou Feitiços.</p>
+    <h3 data-gl="burn"><img class="rules-icon" src="img/ico_burn.png">Queimadura (Burn)</h3><p>Quando essa criatura ataca, a criatura inimiga recebe o efeito negativo "Queimadura". Criaturas queimando perdem 1 de vida no início de cada um de seus turnos. O efeito é permanente até a criatura morrer. Uma criatura que morre por Queimadura vai para o Vazio.</p>
+    <h3><img class="rules-icon" src="img/ico_regen.png">Regeneração X (Regen)</h3><p>A criatura recupera X de vida no início de cada um dos seus turnos, mas nunca acima do máximo.</p>
+    <h3 data-gl="armor"><img class="rules-icon" src="img/armor.png">Armadura (Armor)</h3><p>Uma reserva extra além da vida. Absorve dano primeiro, mas só de ataques normais. Dano mágico ignora a Armadura completamente. É restaurada ao máximo no início do seu turno. Pode acumular de diferentes Auras, bônus de Esquadrão ou Feitiços.</p>
+    <h3><img class="rules-icon" src="img/solana_shield.png">Escudo Solana (Solana Shield)</h3><p>Uma camada de proteção sobre a vida — absorve completamente o primeiro golpe recebido por essa criatura, de qualquer tipo, incluindo quaisquer efeitos colaterais que viriam com esse golpe. Ativa uma vez a cada vez que a carta entra no campo. Se a criatura sair do campo e voltar, o escudo recarrega.</p>
+    <h3><img class="rules-icon" src="img/ico_untamed.png">Indomável (Untamed)</h3><p>A criatura remove seu próprio estado Exausto no início do turno do oponente.</p>
+    <h3 data-gl="ward"><img class="rules-icon" src="img/ico_ward.png">Proteção (Ward)</h3><p>Essa carta-criatura ignora completamente dano mágico.</p>
+    <h3><img class="rules-icon" src="img/ico_incarn.png">Encarnação X (Incarnation)</h3><p>Quando essa criatura morre, ela revive do Cemitério de volta ao campo X turnos seus depois, com vida cheia e Adormecida. Dispara só uma vez — se morrer de novo depois de voltar, vai para o Vazio em vez disso.</p>
+    <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Quebra de Provocação (Taunt Break)</h3><p>Ao atacar, aplica um efeito negativo que remove a Provocação do alvo até o fim do turno.</p>
+    <h3><img class="rules-icon" src="img/ico_vamp.png">Vampírico (Vampiric)</h3><p>No seu próprio ataque, a criatura se cura exatamente na quantidade de vida que realmente retirou do alvo (dano absorvido por Armadura ou Escudo não conta) — mas nunca mais do que sua própria vida faltante.</p>
+    <h3><img class="rules-icon" src="img/ico_erase.png">Apagar (Erase)</h3><p>Se o ataque dessa criatura mata um inimigo, a carta derrotada vai para o Vazio em vez do Cemitério, e essa criatura restaura totalmente sua vida e remove sua própria Queimadura. Só dispara ao matar por ataque direto.</p>
 
 </div>
 
@@ -667,7 +667,7 @@
 
     <h2>Lá Bài</h2>
     <img class="rules-full-art" src="img/rules_card.png" alt="Một lá bài với các số từ 1–9 chỉ vào từng thành phần bên dưới">
-    <h3>1. Chi Phí</h3>
+    <h3>1. Chi Phí (Cost)</h3>
     <p>Cần bao nhiêu <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('essence')">Tinh Chất</a> để chơi lá bài này.</p>
     <h3>2. Loại Lá Bài</h3>
     <p>Biểu tượng ở góc trên bên phải cho biết <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('card_types')">loại của lá bài này</a>.</p>
@@ -681,7 +681,7 @@
     <p>Sinh vật chịu được bao nhiêu sát thương trước khi chết. Biểu thị bằng trái tim.</p>
     <h3>7. Tấn Công (ATK)</h3>
     <p>Sinh vật gây bao nhiêu sát thương khi tấn công. Biểu thị bằng thanh kiếm.</p>
-    <h3>8. Giáp</h3>
+    <h3>8. Giáp (Armor)</h3>
     <p>Một lớp đệm bổ sung ngoài HP — không phải sinh vật nào cũng có. <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('armor')">Xem thêm về Giáp</a>.</p>
     <h3>9. Văn Bản Năng Lực</h3>
     <p>Mô tả những gì lá bài làm — từ hiệu ứng thụ động đến nút kích hoạt chủ động. Nếu bất cứ điều gì viết trong văn bản của lá bài mâu thuẫn với luật chơi này, văn bản trên lá bài luôn được ưu tiên.</p>
@@ -743,40 +743,40 @@
 
     <h2 data-gl="glossary">Bảng Thuật Ngữ</h2>
 
-    <h3 data-gl="sleep">Ngủ</h3><p><img class="rules-icon" src="img/zzz.png"> Một lá sinh vật hoặc Vật Phẩm vừa vào chiến trường lượt này và không thể hành động. Thức dậy vào đầu lượt tiếp theo của bạn.</p>
-    <h3 data-gl="exhausted">Kiệt Sức</h3><p>Một lá sinh vật hoặc Vật Phẩm đã tấn công hoặc dùng năng lực chủ động lượt này. Không thể hành động lại — hay phản công — cho đến lượt sau. Hiển thị dưới dạng lá bài tối màu.</p>
-    <h3>Hào Quang</h3><p>Một hiệu ứng thụ động trên chiến trường giúp tăng sức mạnh cho tất cả đồng minh khi lá bài có hào quang còn trên chiến trường. Hiệu ứng mất ngay khi lá bài rời chiến trường. Nhiều nguồn hào quang cộng dồn với nhau. Hào quang không tự tăng sức mạnh cho chính nó — chỉ cho đồng minh.</p>
-    <h3>Đội Hình</h3><p>Khi bạn có 3 Du Hành Giả cùng loại trở lên trên chiến trường cùng lúc, tất cả tự động nhận phần thưởng. Phần thưởng kích hoạt ngay khi lá thứ ba xuất hiện và mất đi ngay khi đội hình giảm xuống dưới ba. Mỗi đội hình có loại phần thưởng riêng.</p>
-    <h3>HP Tối Đa</h3><p>Hào quang và phép thuật có thể tăng HP tối đa của một lá sinh vật. Nếu sinh vật đang khỏe mạnh hoàn toàn, HP hiện tại cũng tăng theo (3/3 thành 4/4). Nếu đã bị thương, chỉ HP tối đa tăng (2/3 thành 2/4). Hồi máu không bao giờ vượt quá mức tối đa. Bạn luôn có thể di chuột vào chỉ số HP của một lá sinh vật trên chiến trường để xem mức tối đa hiện tại.</p>
-    <h3>Hồi Máu X</h3><p>Khôi phục X HP đã mất, nhưng không bao giờ vượt quá mức tối đa. Nếu văn bản của lá bài ghi "Active: Heal X", nghĩa là trên chiến trường, thay vì tấn công, bạn có thể nhấn vào lá bài rồi nhấn <img class="rules-icon" src="img/btn_heal.png"> — chọn một đồng minh làm mục tiêu và khôi phục X HP cho nó. Sau khi dùng năng lực này, lá sinh vật đã dùng nó được coi là kiệt sức.</p>
+    <h3 data-gl="sleep">Ngủ (Sleep)</h3><p><img class="rules-icon" src="img/zzz.png"> Một lá sinh vật hoặc Vật Phẩm vừa vào chiến trường lượt này và không thể hành động. Thức dậy vào đầu lượt tiếp theo của bạn.</p>
+    <h3 data-gl="exhausted">Kiệt Sức (Exhausted)</h3><p>Một lá sinh vật hoặc Vật Phẩm đã tấn công hoặc dùng năng lực chủ động lượt này. Không thể hành động lại — hay phản công — cho đến lượt sau. Hiển thị dưới dạng lá bài tối màu.</p>
+    <h3>Hào Quang (Aura)</h3><p>Một hiệu ứng thụ động trên chiến trường giúp tăng sức mạnh cho tất cả đồng minh khi lá bài có hào quang còn trên chiến trường. Hiệu ứng mất ngay khi lá bài rời chiến trường. Nhiều nguồn hào quang cộng dồn với nhau. Hào quang không tự tăng sức mạnh cho chính nó — chỉ cho đồng minh.</p>
+    <h3>Đội Hình (Squad)</h3><p>Khi bạn có 3 Du Hành Giả cùng loại trở lên trên chiến trường cùng lúc, tất cả tự động nhận phần thưởng. Phần thưởng kích hoạt ngay khi lá thứ ba xuất hiện và mất đi ngay khi đội hình giảm xuống dưới ba. Mỗi đội hình có loại phần thưởng riêng.</p>
+    <h3>HP Tối Đa (maxHP)</h3><p>Hào quang và phép thuật có thể tăng HP tối đa của một lá sinh vật. Nếu sinh vật đang khỏe mạnh hoàn toàn, HP hiện tại cũng tăng theo (3/3 thành 4/4). Nếu đã bị thương, chỉ HP tối đa tăng (2/3 thành 2/4). Hồi máu không bao giờ vượt quá mức tối đa. Bạn luôn có thể di chuột vào chỉ số HP của một lá sinh vật trên chiến trường để xem mức tối đa hiện tại.</p>
+    <h3>Hồi Máu X (Heal X)</h3><p>Khôi phục X HP đã mất, nhưng không bao giờ vượt quá mức tối đa. Nếu văn bản của lá bài ghi "Active: Heal X", nghĩa là trên chiến trường, thay vì tấn công, bạn có thể nhấn vào lá bài rồi nhấn <img class="rules-icon" src="img/btn_heal.png"> — chọn một đồng minh làm mục tiêu và khôi phục X HP cho nó. Sau khi dùng năng lực này, lá sinh vật đã dùng nó được coi là kiệt sức.</p>
     <h3>Thanh Tẩy (Clean)</h3><p>Xóa bỏ mọi hiệu ứng bất lợi khỏi một lá sinh vật, chẳng hạn như <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('burn')">Đốt Cháy</a>, <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('fear')">Khiếp Sợ</a>, và <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('taunt_break')">Phá Khiêu Khích</a>.</p>
     <h3>Bolt</h3><p>Nếu văn bản của lá bài ghi "Active: Bolt X", nghĩa là trên chiến trường, thay vì tấn công, bạn có thể nhấn vào lá bài rồi nhấn <img class="rules-icon" src="img/btn_spell.png"> — chọn một lá sinh vật của kẻ thù làm mục tiêu và gây X sát thương cho nó. Năng lực này được tính là phép thuật, nghĩa là bỏ qua Giáp, nhưng không thể gây sát thương cho sinh vật có <a class="rules-gloss-link" onclick="playSfx('yellow_buttom');rulesGotoTerm('ward')">Hộ Mệnh</a>.</p>
     <h3>Trả Về (Return)</h3><p>Hành động đưa một lá sinh vật từ chiến trường trở lại tay của chủ sở hữu.</p>
-    <h3>Hồi Sinh</h3><p>Đưa một sinh vật từ Nghĩa Địa trở lại chiến trường với X HP, hoặc với HP đầy nếu không có số nào được ghi trong văn bản lá bài. Sinh vật được hồi sinh vào chiến trường trong trạng thái Ngủ. Sinh vật được hồi sinh không kích hoạt hiệu ứng "Khi Vào".</p>
-    <h3>Hiến Tế</h3><p>Một hành động chủ động phá hủy một trong những sinh vật của chính bạn để đổi lấy phần thưởng được ghi trên lá bài có năng lực này. Lá sinh vật bị phá hủy sẽ vào Nghĩa Địa và có thể được hồi sinh.</p>
-    <h3>Rút Bài</h3><p>Nếu văn bản của lá bài nhắc đến "Draw" cho một hành động nào đó, khi thực hiện hành động đó bạn sẽ ngay lập tức nhận thêm một lá bài từ bộ bài, miễn là vẫn còn lá để rút.</p>
+    <h3>Hồi Sinh (Revive)</h3><p>Đưa một sinh vật từ Nghĩa Địa trở lại chiến trường với X HP, hoặc với HP đầy nếu không có số nào được ghi trong văn bản lá bài. Sinh vật được hồi sinh vào chiến trường trong trạng thái Ngủ. Sinh vật được hồi sinh không kích hoạt hiệu ứng "Khi Vào".</p>
+    <h3>Hiến Tế (Sacrifice)</h3><p>Một hành động chủ động phá hủy một trong những sinh vật của chính bạn để đổi lấy phần thưởng được ghi trên lá bài có năng lực này. Lá sinh vật bị phá hủy sẽ vào Nghĩa Địa và có thể được hồi sinh.</p>
+    <h3>Rút Bài (Draw)</h3><p>Nếu văn bản của lá bài nhắc đến "Draw" cho một hành động nào đó, khi thực hiện hành động đó bạn sẽ ngay lập tức nhận thêm một lá bài từ bộ bài, miễn là vẫn còn lá để rút.</p>
     <h3>Mất Bài (Lose)</h3><p>Nếu văn bản của lá bài nhắc đến "Lose" cho một hành động nào đó, khi thực hiện hành động đó một lá bài ngẫu nhiên trong tay đối thủ sẽ bị loại vào Hư Không.</p>
-    <h3>Đầu Lượt</h3><p>Hiệu ứng kích hoạt tự động vào đầu lượt của người chơi, trước bất kỳ hành động nào.</p>
-    <h3>Khi Vào</h3><p>Hiệu ứng kích hoạt vào thời điểm một lá bài được chơi từ tay vào chiến trường.</p>
-    <h3>Khi Tấn Công</h3><p>Hiệu ứng kích hoạt mỗi khi lá sinh vật này tấn công — dù là sinh vật kẻ thù hay căn cứ (hiệu ứng bất lợi không tác động lên căn cứ).</p>
-    <h3>Khi Hạ Gục</h3><p>Hiệu ứng kích hoạt khi đòn tấn công của lá sinh vật này hạ gục trực tiếp một lá sinh vật kẻ thù.</p>
+    <h3>Đầu Lượt (On turn)</h3><p>Hiệu ứng kích hoạt tự động vào đầu lượt của người chơi, trước bất kỳ hành động nào.</p>
+    <h3>Khi Vào (On play)</h3><p>Hiệu ứng kích hoạt vào thời điểm một lá bài được chơi từ tay vào chiến trường.</p>
+    <h3>Khi Tấn Công (On attack)</h3><p>Hiệu ứng kích hoạt mỗi khi lá sinh vật này tấn công — dù là sinh vật kẻ thù hay căn cứ (hiệu ứng bất lợi không tác động lên căn cứ).</p>
+    <h3>Khi Hạ Gục (On death)</h3><p>Hiệu ứng kích hoạt khi đòn tấn công của lá sinh vật này hạ gục trực tiếp một lá sinh vật kẻ thù.</p>
 
-    <h3><img class="rules-icon" src="img/ico_vanguard.png">Tiên Phong</h3><p>Một lá sinh vật có thể hành động ngay trong lượt nó vào chiến trường. Nó bỏ qua trạng thái Ngủ.</p>
-    <h3><img class="rules-icon" src="img/ico_provoke.png">Khiêu Khích</h3><p>Tất cả đòn tấn công của lá sinh vật đối thủ phải nhắm vào sinh vật này.</p>
-    <h3><img class="rules-icon" src="img/ico_pierce.png">Xuyên Giáp</h3><p>Sinh vật không còn có thể bỏ qua Khiêu Khích — khi đang kích hoạt, nó buộc phải tấn công sinh vật có Khiêu Khích như bất kỳ sinh vật nào khác. Nếu đòn tấn công đó hạ gục mục tiêu, toàn bộ sát thương dư thừa còn lại sẽ chuyển sang căn cứ của đối phương.</p>
-    <h3><img class="rules-icon" src="img/ico_fear.png">Khiếp Sợ</h3><p>Với năng lực này, một lá sinh vật gây hiệu ứng bất lợi "Khiếp Sợ" lên lá bài kẻ thù ngay khi nó tấn công. Lá sinh vật đang bị Khiếp Sợ sẽ bỏ lượt tiếp theo và không gây sát thương phản công.</p>
-    <h3><img class="rules-icon" src="img/ico_invis.png">Vô Hình</h3><p>Lá sinh vật này không thể bị nhắm làm mục tiêu tấn công khi còn ít nhất một đồng minh không Vô Hình trên chiến trường. Nếu tất cả sinh vật trên chiến trường đều Vô Hình, bất kỳ lá nào trong số đó đều có thể bị tấn công. Nó cũng không nhận sát thương phản công khi tấn công.</p>
-    <h3><img class="rules-icon" src="img/ico_rage.png">Cuồng Nộ</h3><p>Mỗi khi sinh vật này tấn công, nó nhận vĩnh viễn +1 tấn công. Phần thưởng bị reset nếu sinh vật chết. Cộng dồn với các phần thưởng khác từ Hào Quang, Đội Hình, hoặc Phép Thuật.</p>
-    <h3 data-gl="burn"><img class="rules-icon" src="img/ico_burn.png">Đốt Cháy</h3><p>Khi sinh vật này tấn công, lá sinh vật kẻ thù nhận hiệu ứng bất lợi "Đốt Cháy". Sinh vật đang cháy mất 1 HP vào đầu mỗi lượt của chúng. Hiệu ứng vĩnh viễn cho đến khi sinh vật chết. Sinh vật chết vì Đốt Cháy sẽ vào Hư Không.</p>
-    <h3><img class="rules-icon" src="img/ico_regen.png">Hồi Phục X</h3><p>Sinh vật hồi X HP cho bản thân vào đầu mỗi lượt của bạn, nhưng không bao giờ vượt quá mức tối đa.</p>
-    <h3 data-gl="armor"><img class="rules-icon" src="img/armor.png">Giáp</h3><p>Một lớp đệm bổ sung ngoài HP. Hấp thụ sát thương trước tiên, nhưng chỉ từ các đòn tấn công thông thường. Sát thương phép thuật bỏ qua Giáp hoàn toàn. Được hồi đầy về mức tối đa vào đầu lượt của bạn. Có thể cộng dồn từ nhiều Hào Quang, phần thưởng Đội Hình, hoặc Phép Thuật khác nhau.</p>
-    <h3><img class="rules-icon" src="img/solana_shield.png">Khiên Solana</h3><p>Một lớp bảo vệ ngoài HP — hấp thụ hoàn toàn đòn đánh đầu tiên nhắm vào sinh vật này, thuộc loại nào cũng được, kể cả các hiệu ứng phụ đi kèm đòn đánh đó. Kích hoạt một lần mỗi khi lá bài vào chiến trường. Nếu sinh vật rời chiến trường rồi quay lại, khiên sẽ nạp lại.</p>
-    <h3><img class="rules-icon" src="img/ico_untamed.png">Bất Khuất</h3><p>Sinh vật tự xóa trạng thái Kiệt Sức của mình ngay vào đầu lượt của đối thủ.</p>
-    <h3 data-gl="ward"><img class="rules-icon" src="img/ico_ward.png">Hộ Mệnh</h3><p>Lá sinh vật này hoàn toàn miễn nhiễm với sát thương phép thuật.</p>
-    <h3><img class="rules-icon" src="img/ico_incarn.png">Chuyển Kiếp X</h3><p>Khi sinh vật này chết, nó sẽ tự hồi sinh từ Nghĩa Địa trở lại chiến trường sau X lượt của bạn, với HP đầy và trong trạng thái Ngủ. Chỉ kích hoạt một lần — nếu nó chết lần nữa sau khi quay lại, nó sẽ vào Hư Không thay vì Nghĩa Địa.</p>
-    <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Phá Khiêu Khích</h3><p>Khi tấn công, gây hiệu ứng bất lợi xóa Khiêu Khích khỏi mục tiêu cho đến hết lượt.</p>
-    <h3><img class="rules-icon" src="img/ico_vamp.png">Hút Máu</h3><p>Khi tự mình tấn công, sinh vật hồi máu cho bản thân đúng bằng lượng HP mà nó thực sự lấy đi từ mục tiêu (sát thương bị Giáp hoặc Khiên hấp thụ không được tính) — nhưng không bao giờ nhiều hơn lượng HP nó đang thiếu.</p>
-    <h3><img class="rules-icon" src="img/ico_erase.png">Xóa Sổ</h3><p>Nếu đòn tấn công của sinh vật này hạ gục kẻ thù, lá bài gục ngã sẽ vào Hư Không thay vì Nghĩa Địa, và sinh vật này hồi đầy HP đồng thời xóa Đốt Cháy của chính nó. Chỉ kích hoạt khi hạ gục bằng đòn tấn công trực tiếp.</p>
+    <h3><img class="rules-icon" src="img/ico_vanguard.png">Tiên Phong (Vanguard)</h3><p>Một lá sinh vật có thể hành động ngay trong lượt nó vào chiến trường. Nó bỏ qua trạng thái Ngủ.</p>
+    <h3><img class="rules-icon" src="img/ico_provoke.png">Khiêu Khích (Provoke)</h3><p>Tất cả đòn tấn công của lá sinh vật đối thủ phải nhắm vào sinh vật này.</p>
+    <h3><img class="rules-icon" src="img/ico_pierce.png">Xuyên Giáp (Pierce)</h3><p>Sau khi tấn công một lá bài sinh vật của đối phương, nếu nó chết vì đòn đánh đó, toàn bộ sát thương dư thừa còn lại sẽ chuyển sang căn cứ của đối phương.</p>
+    <h3><img class="rules-icon" src="img/ico_fear.png">Khiếp Sợ (Fear)</h3><p>Với năng lực này, một lá sinh vật gây hiệu ứng bất lợi "Khiếp Sợ" lên lá bài kẻ thù ngay khi nó tấn công. Lá sinh vật đang bị Khiếp Sợ sẽ bỏ lượt tiếp theo và không gây sát thương phản công.</p>
+    <h3><img class="rules-icon" src="img/ico_invis.png">Vô Hình (Invisible)</h3><p>Lá sinh vật này không thể bị nhắm làm mục tiêu tấn công khi còn ít nhất một đồng minh không Vô Hình trên chiến trường. Nếu tất cả sinh vật trên chiến trường đều Vô Hình, bất kỳ lá nào trong số đó đều có thể bị tấn công. Nó cũng không nhận sát thương phản công khi tấn công.</p>
+    <h3><img class="rules-icon" src="img/ico_rage.png">Cuồng Nộ (Rage)</h3><p>Mỗi khi sinh vật này tấn công, nó nhận vĩnh viễn +1 tấn công. Phần thưởng bị reset nếu sinh vật chết. Cộng dồn với các phần thưởng khác từ Hào Quang, Đội Hình, hoặc Phép Thuật.</p>
+    <h3 data-gl="burn"><img class="rules-icon" src="img/ico_burn.png">Đốt Cháy (Burn)</h3><p>Khi sinh vật này tấn công, lá sinh vật kẻ thù nhận hiệu ứng bất lợi "Đốt Cháy". Sinh vật đang cháy mất 1 HP vào đầu mỗi lượt của chúng. Hiệu ứng vĩnh viễn cho đến khi sinh vật chết. Sinh vật chết vì Đốt Cháy sẽ vào Hư Không.</p>
+    <h3><img class="rules-icon" src="img/ico_regen.png">Hồi Phục X (Regen)</h3><p>Sinh vật hồi X HP cho bản thân vào đầu mỗi lượt của bạn, nhưng không bao giờ vượt quá mức tối đa.</p>
+    <h3 data-gl="armor"><img class="rules-icon" src="img/armor.png">Giáp (Armor)</h3><p>Một lớp đệm bổ sung ngoài HP. Hấp thụ sát thương trước tiên, nhưng chỉ từ các đòn tấn công thông thường. Sát thương phép thuật bỏ qua Giáp hoàn toàn. Được hồi đầy về mức tối đa vào đầu lượt của bạn. Có thể cộng dồn từ nhiều Hào Quang, phần thưởng Đội Hình, hoặc Phép Thuật khác nhau.</p>
+    <h3><img class="rules-icon" src="img/solana_shield.png">Khiên Solana (Solana Shield)</h3><p>Một lớp bảo vệ ngoài HP — hấp thụ hoàn toàn đòn đánh đầu tiên nhắm vào sinh vật này, thuộc loại nào cũng được, kể cả các hiệu ứng phụ đi kèm đòn đánh đó. Kích hoạt một lần mỗi khi lá bài vào chiến trường. Nếu sinh vật rời chiến trường rồi quay lại, khiên sẽ nạp lại.</p>
+    <h3><img class="rules-icon" src="img/ico_untamed.png">Bất Khuất (Untamed)</h3><p>Sinh vật tự xóa trạng thái Kiệt Sức của mình ngay vào đầu lượt của đối thủ.</p>
+    <h3 data-gl="ward"><img class="rules-icon" src="img/ico_ward.png">Hộ Mệnh (Ward)</h3><p>Lá sinh vật này hoàn toàn miễn nhiễm với sát thương phép thuật.</p>
+    <h3><img class="rules-icon" src="img/ico_incarn.png">Chuyển Kiếp X (Incarnation)</h3><p>Khi sinh vật này chết, nó sẽ tự hồi sinh từ Nghĩa Địa trở lại chiến trường sau X lượt của bạn, với HP đầy và trong trạng thái Ngủ. Chỉ kích hoạt một lần — nếu nó chết lần nữa sau khi quay lại, nó sẽ vào Hư Không thay vì Nghĩa Địa.</p>
+    <h3 data-gl="taunt_break"><img class="rules-icon" src="img/ico_tb.png">Phá Khiêu Khích (Taunt Break)</h3><p>Khi tấn công, gây hiệu ứng bất lợi xóa Khiêu Khích khỏi mục tiêu cho đến hết lượt.</p>
+    <h3><img class="rules-icon" src="img/ico_vamp.png">Hút Máu (Vampiric)</h3><p>Khi tự mình tấn công, sinh vật hồi máu cho bản thân đúng bằng lượng HP mà nó thực sự lấy đi từ mục tiêu (sát thương bị Giáp hoặc Khiên hấp thụ không được tính) — nhưng không bao giờ nhiều hơn lượng HP nó đang thiếu.</p>
+    <h3><img class="rules-icon" src="img/ico_erase.png">Xóa Sổ (Erase)</h3><p>Nếu đòn tấn công của sinh vật này hạ gục kẻ thù, lá bài gục ngã sẽ vào Hư Không thay vì Nghĩa Địa, và sinh vật này hồi đầy HP đồng thời xóa Đốt Cháy của chính nó. Chỉ kích hoạt khi hạ gục bằng đòn tấn công trực tiếp.</p>
 
 </div>
 </div>
