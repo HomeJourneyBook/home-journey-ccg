@@ -436,7 +436,12 @@ function aiTryUseShard(){
   const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
   if(enemyField.length===0) return false;
   const baseDmg=shardBaseDmg(shard,humanF);
-  const withDmg=enemyField.map(c=>({c, dmg: baseDmg+(c.feared?1:0)}));
+  // 2026-07-17: no more per-target feared bonus on top — shardBaseDmg() already folds
+  // that into shard_fear_scale's count (see game.js comment on doShardTarget). dmg is now
+  // the SAME flat number for every candidate, so this is really just picking the most
+  // dangerous killable target — kept as a map for minimal diff against the pre-existing
+  // killable/sort logic below.
+  const withDmg=enemyField.map(c=>({c, dmg: baseDmg}));
   const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
   let target;
   if(killable.length>0){
