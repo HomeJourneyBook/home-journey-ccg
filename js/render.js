@@ -9,7 +9,13 @@
 function _isTargetedSpell(card){
   return !!card.spell && (
     hasTag(card,'spell_dmg_target') || hasTag(card,'spell_buff_temp') ||
-    hasTag(card,'spell_dispel') || hasTag(card,'spell_untap') || hasTag(card,'spell_bounce_target')
+    hasTag(card,'spell_dispel') || hasTag(card,'spell_untap') || hasTag(card,'spell_bounce_target') ||
+    // 2026-07-17: три спелла, добавленные позже, не попали в этот список при заводе —
+    // без него общий 'card_spell_atack' на клик Play проигрывался ДО выбора цели, а потом
+    // ещё раз (или другой звук) при резолве — двойной/ранний звук. BULWARK/CARAPACE и
+    // BREACH/RUPTURE и EXPOSE/UNMASK — все три сюда просто забыли вписать.
+    hasTag(card,'spell_armor_temp') || hasTag(card,'spell_dmg_trample_target') ||
+    hasTag(card,'spell_provoke_break_target')
   );
 }
 
@@ -220,7 +226,7 @@ function _cardStatusEntries(card){
   // Дебафы
   if(card.feared) entries.push({icon:'img/ico_fear.png', text:'Feared — skips its next turn and deals no counter-attack damage.'});
   if(card.burning) entries.push({icon:'img/ico_burn.png', text:'Burning — loses 1 HP at the start of each of its turns until it dies.'});
-  if(card.provokeBroken) entries.push({icon:'img/ico_tb.png', text:'Provoke suppressed — can be attacked freely, bypassing Provoke, until the end of its owner\'s next turn.'});
+  if(card.provokeBroken) entries.push({icon:'img/ico_tb.png', text:'Provoke suppressed — can be attacked freely, bypassing Provoke, until the start of its owner\'s next turn.'});
   if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely, from any source (attack, counter-attack, spell, AOE), one time only.'});
   if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
   // Бафы
@@ -229,6 +235,7 @@ function _cardStatusEntries(card){
   if(card.worldMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.worldMaxHpBonus} Max HP from the World card.`});
   if(card.auraArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.auraArmorBonus} Armor from an aura on the battlefield.`});
   if(card.worldArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.worldArmorBonus} Armor from the World card.`});
+  if(card.spellArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.spellArmorBonus} Armor from a spell (BULWARK/CARAPACE) until end of battle.`});
   if(card.tempAtkBonus) entries.push({icon:'img/attack.png', text:`+${card.tempAtkBonus} ATK till gone from battlefield (combat trick).`});
   if(card.rageBonus) entries.push({icon:'img/ico_rage.png', text:`+${card.rageBonus} ATK permanently from Rage (gained by attacking).`});
   if(card.squadAtkBonus||card.squadMaxHpBonus||card.squadArmorBonus||card.squadParam) entries.push({icon:'img/armor.png', text:_squadBonusText(card)});
