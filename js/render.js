@@ -227,6 +227,7 @@ function _cardStatusEntries(card){
   if(card.feared) entries.push({icon:'img/ico_fear.png', text:'Feared — skips its next turn and deals no counter-attack damage.'});
   if(card.burning) entries.push({icon:'img/ico_burn.png', text:'Burning — loses 1 HP at the start of each of its turns until it dies.'});
   if(card.provokeBroken) entries.push({icon:'img/ico_tb.png', text:'Provoke suppressed — can be attacked freely, bypassing Provoke, until the start of its owner\'s next turn.'});
+  if(card.interceptUsed) entries.push({icon:'img/ico_intercept.png', text:'Intercept triggered — already redirected an attack this turn.'});
   if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely, from any source (attack, counter-attack, spell, AOE), one time only.'});
   if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
   // Бафы
