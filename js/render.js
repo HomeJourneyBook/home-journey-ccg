@@ -118,6 +118,7 @@ function render(){
     healTarget:'Select ally to heal or enemy to attack.',
     spellProvokeBreakTarget:'Select an enemy Provoke creature.',
     spellDmgTrampleTarget:'Select an enemy creature.',
+    spellArmorTarget:'Select an ally creature.',
   };
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
@@ -139,7 +140,8 @@ function render(){
       G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'||
       G.phase==='spellBounceTarget'||G.phase==='healTarget'||
       G.phase==='shardTarget'||G.phase==='boltTarget'||
-      G.phase==='spellProvokeBreakTarget'||G.phase==='spellDmgTrampleTarget'
+      G.phase==='spellProvokeBreakTarget'||G.phase==='spellDmgTrampleTarget'||
+      G.phase==='spellArmorTarget'
     );
     targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
   }
@@ -387,6 +389,7 @@ function mkSmallEl(card){
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
   if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared) d.classList.add('healable','aim-heal');
+  if(G.phase==='spellArmorTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared) d.classList.add('healable','aim-heal');
   if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable','aim-heal');
   // spellProvokeBreakTarget (EXPOSE/UNMASK) — только реальные Provoke-цели подсвечиваются
   // как валидные, как и у spellUntapTarget выше (нет смысла подсвечивать то, по чему клик
