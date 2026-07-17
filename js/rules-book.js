@@ -63,8 +63,16 @@ function rulesUpdateCoverLangBtns() {
 }
 
 // ── Навигация ───────────────────────────────────────────────────────
+// Тот же порог "разворот из двух страниц", что и в CSS (.rules-page-left,
+// #rulesScreen geometry) — 601px = не телефон по ширине, НО вертикальный iPad
+// (min-width:601px и max-width:1024px и portrait) всё равно листается по одной
+// странице, как телефон, а не разворотом. Добавлено 2026-07-17.
+function rulesIsTwoPageSpread() {
+  return window.matchMedia('(min-width:601px)').matches &&
+         !window.matchMedia('(max-width:1024px) and (orientation:portrait)').matches;
+}
 function rulesStep() {
-  return window.matchMedia('(min-width:601px)').matches ? 2 : 1;
+  return rulesIsTwoPageSpread() ? 2 : 1;
 }
 
 function rulesGoForward() {
