@@ -535,8 +535,31 @@ function tryAttackBase(){
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
+  const hasPierce=att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce);
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
-  if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
+  if(provoke&&!hasPierce){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
+  if(provoke&&hasPierce){
+    // Trample rework (2026-07-17, MTG-style): pierce used to fully IGNORE Provoke and hit
+    // the base for the whole atk, no interaction with the provoke creature at all. Now it
+    // fights through the provoke creature first — same combat resolution as a normal
+    // targeted attack (counter-attack, on_attack/on_kill triggers, shield/armor apply as
+    // usual, doAttack() below handles all of it) — and only the OVERFLOW beyond its
+    // HP+armor pool splashes into the base. dmgCard() deliberately lets hp go negative on
+    // a lethal hit (see its comments) specifically so callers can read overkill off it
+    // afterward — that negative value IS the overflow. A still-shielded provoke creature
+    // (Solana Shield) absorbs the whole hit and leaves hp untouched, so overflow is
+    // correctly 0 in that case too — no separate check needed.
+    doAttack(att,provoke);
+    const overflow=Math.max(0,-provoke.hp);
+    if(overflow>0){
+      opp.hp=Math.max(0,opp.hp-overflow);
+      lg(`${att.name} tramples through ${provoke.name} — ${overflow} overflow dmg to ${oppK.toUpperCase()} base!`,'dmg');
+      flashBase('opp','dmg',overflow);
+      checkWin();
+      render();
+    }
+    return;
+  }
   playSfx('base_atack');
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
@@ -689,8 +712,12 @@ function killCard(card,faction,toVoid=false){
 
   ['tea','jeet'].forEach(f=>{
     G[f].field.forEach(ally=>{
-      const val=getTagVal(ally,'on_any_death_base');
-      if(val&&G[f].hp<G[f].maxHp){
+      const val=getTagVal(ally,'on_enemy_death_base');
+      // card.f is the faction of the creature that just died — only heal when it's
+      // the OPPONENT of f (i.e. an enemy death from ally's owner's point of view).
+      // Nerf 2026-07-17: was on_any_death_base (triggered on own deaths too, making
+      // REAPER heal the base even off losing trades) — see AI BALANCE NOTES.md.
+      if(val&&card.f!==f&&G[f].hp<G[f].maxHp){
         G[f].hp=Math.min(G[f].maxHp,G[f].hp+val);
         lg(`${ally.name}: ${f} base +${val} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
         flashBase(f, 'heal', val);
