@@ -101,6 +101,13 @@ function getAbilities(card){
       case 'spell_fear_all':
         if(card.spell) ab.push({timing:'instant',effect:'fear_all'});
         break;
+      // spell_burn_all (2026-07-18, "WILDFIRE") — Tea-аналог spell_fear_all выше, только
+      // Burn вместо Fear (см. execution-кейс 'burn_all' ниже). Продолжает тему "Tea =
+      // burn-фракция, Jeet = fear-фракция" — Jeet сохраняет NIGHTMARE (spell_fear_all),
+      // Tea получает этот спелл ВЗАМЕН STILLNESS (односторонний свап, см. CLAUDE.md).
+      case 'spell_burn_all':
+        if(card.spell) ab.push({timing:'instant',effect:'burn_all'});
+        break;
       case 'draw':
         if(card.spell)                    ab.push({timing:'instant',effect:'draw',val});
         else if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'draw',val});
@@ -261,6 +268,26 @@ function triggerAbilities(card, timing, ctx={}){
             playSfx('debaf');
             fearTargets.forEach(t=>{t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');});
             lg(`${card.name}: all enemy creatures are Feared!`,'imp');
+          } else {
+            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+          }
+        } break;
+
+      case 'burn_all':
+        // WILDFIRE (2026-07-18) — Tea-аналог fear_all выше, только Burn вместо Fear. Реюзаем
+        // ГОТОВЫЙ движок Burn (card.burning=true, тик 1 урона в начале каждого хода владельца
+        // до смерти — см. endTurn() в game.js и tag 'burn'/case 'burn' ниже), просто применяем
+        // его сразу ко ВСЕМУ вражескому полю одним спеллом вместо one-shot on_attack эффекта
+        // одного существа. Существо, уже горящее от чего-то другого, просто получает флаг
+        // повторно — не складывается, не страшно (тот же принцип, что у fear_all). Без
+        // queueFieldFx-попапа — одиночный Burn (case 'burn' ниже) тоже не показывает всплывашку,
+        // сама горящая иконка на карте (card.burning) уже достаточный визуальный фидбек.
+        {
+          const burnTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact);
+          if(burnTargets.length>0){
+            playSfx('card_fire_atack');
+            burnTargets.forEach(t=>{t.burning=true;});
+            lg(`${card.name}: all enemy creatures are on fire!`,'imp');
           } else {
             lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
           }
