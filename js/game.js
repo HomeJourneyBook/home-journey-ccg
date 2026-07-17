@@ -13,9 +13,15 @@ function getTargetableCards(oppField, att){
   const visible=allInvisible?oppField:oppField.filter(c=>!hasTag(c,'invisible'));
   // provokeBroken (taunt_break, 2026-07-13) — Provoke временно подавлен, эта карта больше
   // не форсирует атаку на себя, как будто тега нет вообще.
+  // Provoke rework (2026-07-17, автор): pierce БОЛЬШЕ не обходит форс-таргет — раньше
+  // pierce мог свободно выбрать ЛЮБУЮ вражескую карту или базу, даже при живом Provoke, что
+  // ощущалось не по-дизайну ("провокация не работает против него вообще"). Теперь Provoke
+  // абсолютен для всех без исключения — единственное, что осталось уникальным у pierce,
+  // это трампл-перелив урона в базу при убийстве провок-цели (см. doAttack() ниже). att
+  // больше не используется здесь вообще, оставлен в сигнатуре ради обратной совместимости
+  // вызовов (getTargetableCards(oppField, creature) — см. ai.js).
   const provokes=visible.filter(c=>c.tags.includes('provoke')&&!c.provokeBroken);
-  const hasPierce=att&&(att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce));
-  if(provokes.length>0&&!hasPierce) return provokes.map(c=>c.id);
+  if(provokes.length>0) return provokes.map(c=>c.id);
   return visible.map(c=>c.id);
 }
 
@@ -433,6 +439,28 @@ function doAttack(att,target){
   // уже успели его подлечить. Если он всё ещё <=0, вот тут он реально умирает.
   if(att.hp<=0) killCard(att,curK);
 
+  // Trample (2026-07-17, MTG-style pierce rework): pierce used to fully IGNORE Provoke —
+  // free pick of base or any creature, no interaction with the taunt at all. Now Provoke is
+  // absolute (see getTargetableCards()/canAttackBase()/tryAttackBase() above — pierce is
+  // forced onto the provoke creature exactly like everyone else), and this is pierce's ONE
+  // remaining perk: if the target it was forced to fight had Provoke, whatever damage went
+  // PAST its HP+armor pool splashes into the base instead of being wasted overkill.
+  // target.hp is deliberately left negative by dmgCard() on a lethal hit (see its comments)
+  // specifically so this can read the overkill back off it — killCard() above (called
+  // earlier, inside dmgCard()) doesn't touch the corpse's .hp field, so it's still there.
+  // A still-shielded Provoke target (Solana Shield) leaves target.hp untouched by the whole
+  // hit, so overflow is correctly 0 without any separate check.
+  const attHasPierce=hasTag(att,'pierce')||(att.squadParam&&att.squadParam.pierce);
+  const targetHadProvoke=hasTag(target,'provoke')&&!target.provokeBroken;
+  if(attHasPierce && targetHadProvoke){
+    const overflow=Math.max(0,-target.hp);
+    if(overflow>0){
+      G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
+      lg(`${att.name} tramples through ${target.name} — ${overflow} overflow dmg to ${oppK.toUpperCase()} base!`,'dmg');
+      flashBase('opp','dmg',overflow);
+    }
+  }
+
   att.exhausted=true;
   G.sel=null;
   G.phase='action';
@@ -522,8 +550,11 @@ function canAttackBase(){
   const opp=G[oppK];
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return false;
+  // Provoke rework (2026-07-17, автор): pierce больше не обходит Provoke на пути к базе —
+  // см. getTargetableCards() выше за общее обоснование. Провокация теперь блокирует базу
+  // абсолютно для всех, независимо от pierce.
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
-  if(provoke&&!att.tags.includes('pierce')&&!(att.squadParam&&att.squadParam.pierce)) return false;
+  if(provoke) return false;
   return true;
 }
 
@@ -535,31 +566,12 @@ function tryAttackBase(){
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
-  const hasPierce=att.tags.includes('pierce')||(att.squadParam&&att.squadParam.pierce);
+  // Provoke rework (2026-07-17): absolute for everyone now, no pierce exception — see
+  // getTargetableCards()/canAttackBase() above. Pierce's overflow-to-base trample instead
+  // lives in doAttack() below, since that's now the ONLY path a pierce attacker has left
+  // to reach a provoke creature (forced target selection, same as any other attacker).
   const provoke=opp.field.find(c=>c.tags.includes('provoke'));
-  if(provoke&&!hasPierce){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
-  if(provoke&&hasPierce){
-    // Trample rework (2026-07-17, MTG-style): pierce used to fully IGNORE Provoke and hit
-    // the base for the whole atk, no interaction with the provoke creature at all. Now it
-    // fights through the provoke creature first — same combat resolution as a normal
-    // targeted attack (counter-attack, on_attack/on_kill triggers, shield/armor apply as
-    // usual, doAttack() below handles all of it) — and only the OVERFLOW beyond its
-    // HP+armor pool splashes into the base. dmgCard() deliberately lets hp go negative on
-    // a lethal hit (see its comments) specifically so callers can read overkill off it
-    // afterward — that negative value IS the overflow. A still-shielded provoke creature
-    // (Solana Shield) absorbs the whole hit and leaves hp untouched, so overflow is
-    // correctly 0 in that case too — no separate check needed.
-    doAttack(att,provoke);
-    const overflow=Math.max(0,-provoke.hp);
-    if(overflow>0){
-      opp.hp=Math.max(0,opp.hp-overflow);
-      lg(`${att.name} tramples through ${provoke.name} — ${overflow} overflow dmg to ${oppK.toUpperCase()} base!`,'dmg');
-      flashBase('opp','dmg',overflow);
-      checkWin();
-      render();
-    }
-    return;
-  }
+  if(provoke){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
   playSfx('base_atack');
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
