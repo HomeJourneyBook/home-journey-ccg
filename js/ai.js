@@ -324,6 +324,16 @@ function aiResolvePendingSpellTarget(){
     doSpellBuffTarget(mine[0]);
     return;
   }
+  if(G.phase==='spellArmorTarget'){
+    const mine=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared);
+    if(mine.length===0){ cancelPendingSpell(); return; }
+    // Приоритет — самый живучий/опасный союзник, не обязательно готовый к действию в этот
+    // же ход (в отличие от spell_buff_temp): броня — защитный, а не темповый бонус, ценнее
+    // всего именно на существе, которое и дальше будет держать удар.
+    mine.sort((a,b)=>effAtk(b)-effAtk(a));
+    doSpellArmorTarget(mine[0]);
+    return;
+  }
   if(G.phase==='spellDispelTarget'){
     const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
     if(targets.length===0){ cancelPendingSpell(); return; }
@@ -583,6 +593,11 @@ function aiSpellHasValidTarget(card){
   if(hasTag(card,'spell_buff_temp')){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
   }
+  if(hasTag(card,'spell_armor_temp')){
+    // Та же relaxed-таргетинг правка, что и у spell_buff_temp (2026-07-15) — sleeping/
+    // exhausted валидны, только feared исключён.
+    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared);
+  }
   if(hasTag(card,'spell_untap')){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
   }
@@ -711,6 +726,17 @@ function aiScoreCard(card, me){
       const enemyCount=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
       if(enemyCount===0) return w.aoeCountEmptyBoardScore;
       return card.cost*w.spellBase + enemyCount*w.aoeCountPerTargetWeight;
+    }
+
+    if(hasTag(card,'spell_armor_temp')){
+      // BULWARK/CARAPACE (2026-07-17) — same shape as spell_buff_temp's scoring, minus the
+      // lethal-check (armor doesn't threaten the opponent's face) and using effAtk as a proxy
+      // for "worth protecting" rather than "worth buffing offensively" — a defensive bonus is
+      // most valuable on the creature that's both dangerous AND likely to keep tanking hits.
+      const mine=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared);
+      if(mine.length===0) return -1; // aiSpellHasValidTarget should already exclude this case
+      const best=mine.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
+      return card.cost*w.spellBase + effAtk(best)*w.buffTargetAtkWeight + w.permanentBuffBonus;
     }
 
     if(hasTag(card,'spell_provoke_break_target')){
