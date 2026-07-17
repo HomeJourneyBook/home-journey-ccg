@@ -463,20 +463,20 @@ function doAttack(att,target){
   // уже успели его подлечить. Если он всё ещё <=0, вот тут он реально умирает.
   if(att.hp<=0) killCard(att,curK);
 
-  // Trample (2026-07-17, MTG-style pierce rework): pierce used to fully IGNORE Provoke —
-  // free pick of base or any creature, no interaction with the taunt at all. Now Provoke is
-  // absolute (see getTargetableCards()/canAttackBase()/tryAttackBase() above — pierce is
-  // forced onto the provoke creature exactly like everyone else), and this is pierce's ONE
-  // remaining perk: if the target it was forced to fight had Provoke, whatever damage went
-  // PAST its HP+armor pool splashes into the base instead of being wasted overkill.
+  // Trample (2026-07-17, MTG-style pierce rework; widened same day per author feedback):
+  // originally only fired when pierce was forced onto a Provoke creature (its one carve-out
+  // from Provoke being otherwise absolute — see getTargetableCards()/canAttackBase() above).
+  // Author's call: it reads more consistent if pierce tramples on ANY enemy creature it
+  // attacks, not just Provoke ones — a pierce creature choosing to hit a random 1-HP blocker
+  // should still spill the rest into the base, same as it would against a taunt. So this is
+  // now gated on attHasPierce alone, no Provoke check.
   // target.hp is deliberately left negative by dmgCard() on a lethal hit (see its comments)
   // specifically so this can read the overkill back off it — killCard() above (called
   // earlier, inside dmgCard()) doesn't touch the corpse's .hp field, so it's still there.
-  // A still-shielded Provoke target (Solana Shield) leaves target.hp untouched by the whole
-  // hit, so overflow is correctly 0 without any separate check.
+  // A still-shielded target (Solana Shield) leaves target.hp untouched by the whole hit, so
+  // overflow is correctly 0 without any separate check.
   const attHasPierce=hasTag(att,'pierce')||(att.squadParam&&att.squadParam.pierce);
-  const targetHadProvoke=hasTag(target,'provoke')&&!target.provokeBroken;
-  if(attHasPierce && targetHadProvoke){
+  if(attHasPierce){
     const overflow=Math.max(0,-target.hp);
     if(overflow>0){
       G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
