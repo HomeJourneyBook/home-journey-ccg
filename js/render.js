@@ -382,6 +382,13 @@ function mkSmallEl(card){
     inv.className='tag-label';
     inv.textContent='Invis';
     d.appendChild(inv);
+    d.classList.add('invisible-visual');
+  }
+  // Stealth — полупрозрачность только пока эффект ещё активен (не сработал ни разу).
+  // card.stealthBroken выставляется в true при первой атаке (см. game.js doAttack/hitCard) —
+  // это одноразовый эффект на всю игру, дальше карта выглядит как обычно.
+  if(hasTag(card,'stealth')&&!card.stealthBroken){
+    d.classList.add('stealth-visual');
   }
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
@@ -442,14 +449,14 @@ function mkSmallEl(card){
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
-  // 'shield' исключён здесь намеренно: на поле боя (mkSmallEl) у Solana Shield уже есть
-  // свой бесповый рендер — подмена HP-бокса (см. card-small-hp-box ниже, shieldActive),
-  // который корректно реагирует на card.shieldConsumed. Обычная тег-иконка тут была бы
-  // дублем и вдобавок вводила бы в заблуждение — рисуется по статичному card.tags и
-  // продолжала бы показываться даже ПОСЛЕ того как щит потрачен. В руке/каталоге/
-  // деккбилдере/детейле такой проблемы нет (там нет состояния "потрачен"), там 'shield'
-  // из TAG_ICONS рендерится как обычно.
-  .filter(t=>TAG_ICONS[t.base]&&t.base!=='shield')
+  // 'shield' СОЗНАТЕЛЬНО дублируется тут (2026-07-18, по просьбе автора "эстетичнее") —
+  // помимо тег-иконки в общем ряду ниже рисуется ЕЩЁ и подмена HP-бокса (shieldActive,
+  // см. card-small-hp-box ниже). Тег-иконка при этом статична (по card.tags, не реагирует
+  // на card.shieldConsumed) — то есть продолжит показываться и ПОСЛЕ того как щит уже
+  // потрачен, в отличие от HP-box-подмены, которая корректно возвращается к обычному HP.
+  // Если автор попросит убрать несостыковку — см. предыдущую версию фильтра в истории
+  // коммитов (исключала 'shield' именно по этой причине).
+  .filter(t=>TAG_ICONS[t.base])
   .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${TAG_ICONS[t.base]}</div>`)
   .join('');
   const armorDisp=_armorDisplay(card);
@@ -681,7 +688,7 @@ const tagIcons = (card.tags||[])
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
-    <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
+    <div class="card-ability-box"><div class="card-ability">${formatAbilityText(card.ab)}</div></div>`;
   if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
@@ -745,7 +752,7 @@ const tagIcons = (card.tags||[])
       <div class="card-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
-    <div class="card-ability-box"><div class="card-ability">${card.ab}</div></div>`;
+    <div class="card-ability-box"><div class="card-ability">${formatAbilityText(card.ab)}</div></div>`;
   if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
