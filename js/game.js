@@ -1,7 +1,16 @@
 function getTargetableCards(oppField, att){
   const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return [bushido.id];
-  const visible=oppField.filter(c=>!hasTag(c,'invisible')||oppField.length===1);
+  // Invisible (2026-07-17, автор — второй пересмотр): раньше "последний оставшийся" читался
+  // буквально как oppField.length===1 — если на поле стояло НЕСКОЛЬКО invisible-существ разом
+  // (например 3), ни одно из них не считалось "последним", и цели не было вообще ни одной
+  // (только база). Теперь правило — "пока есть хотя бы один ВИДИМЫЙ союзник рядом, invisible
+  // недостижим; если все существа на поле invisible — они все становятся целями" (не просто
+  // одно случайное, любое на выбор атакующего). allInvisible проверяет именно это: другие
+  // invisible-соседи больше не блокируют друг друга, блокирует только присутствие НЕ-invisible
+  // карты на поле.
+  const allInvisible=oppField.length>0 && oppField.every(c=>hasTag(c,'invisible'));
+  const visible=allInvisible?oppField:oppField.filter(c=>!hasTag(c,'invisible'));
   // provokeBroken (taunt_break, 2026-07-13) — Provoke временно подавлен, эта карта больше
   // не форсирует атаку на себя, как будто тега нет вообще.
   const provokes=visible.filter(c=>c.tags.includes('provoke')&&!c.provokeBroken);
@@ -1299,6 +1308,18 @@ function endTurn(){
   });
   cur.artifacts.forEach(a=>{a.exhausted=false;});
 
+  // Снимок поля ДО тика Инкарнации — используется ниже вместо cur.field для on_turn-триггера
+  // (баг 2026-07-17, автор: Плегмор воскресал через свою же Инкарнацию и тут же поднимал
+  // существо с кладбища своей активкой raise:1/on_turn в тот же момент — хотя он только что
+  // вошёл на поле Спящим и по правилам не должен успевать подействовать в этот ход). Причина:
+  // reviveCard() пушит карту в cur.field ПРЯМО в этом же блоке (несколькими строками ниже), а
+  // общий цикл `[...cur.field].forEach(c=>triggerAbilities(c,'on_turn'))` шёл ПОСЛЕ и честно
+  // подхватывал уже добавленную свежевоскрешённую карту вместе со всеми остальными. Фикс не
+  // специфичен для raise/Плегмора — общее правило: любая on_turn-абилка (regen и т.п.) не
+  // должна срабатывать в тот же ход, когда карта воскресла через Инкарнацию, тем же принципом,
+  // что и обычный вход на поле Спящим не даёт подействовать в свой первый ход.
+  const fieldBeforeIncarnation=[...cur.field];
+
   // Инкарнация — тик по СВОЕМУ кладбищу в начале СВОЕГО хода (тот же принцип, что и
   // Броня/exhausted чуть выше — "раз в свой ход"). X = число полных ходов владельца
   // ПОСЛЕ смерти: тикнуло X раз подряд — воскресло на полном HP. Итерируем копию массива
@@ -1339,7 +1360,7 @@ function endTurn(){
   checkSquadBonuses(G.turn);
   recalcArmor(G.turn);
   
-  [...cur.field].forEach(c=>triggerAbilities(c,'on_turn'));
+  fieldBeforeIncarnation.forEach(c=>triggerAbilities(c,'on_turn'));
   cur.field.forEach(c=>{
   });
 
