@@ -210,7 +210,7 @@ let statusPanelEl=null;
 function _squadBonusText(card){
   const parts=[];
   if(card.squadAtkBonus) parts.push(`+${card.squadAtkBonus} ATK`);
-  if(card.squadMaxHpBonus) parts.push(`+${card.squadMaxHpBonus} Max HP`);
+  if(card.squadMaxHpBonus) parts.push(`+${card.squadMaxHpBonus} maxHP`);
   if(card.squadArmorBonus) parts.push(`+${card.squadArmorBonus} Armor`);
   const sp=card.squadParam;
   if(sp){
@@ -219,7 +219,7 @@ function _squadBonusText(card){
     if(sp.pierce) parts.push('Pierce');
     if(sp.regen) parts.push(`Regen ${sp.regen}`);
   }
-  return `Squad bonus active${parts.length?': '+parts.join(', '):''} — 3+ same-Gate Travelers on the field.`;
+  return `Squad bonus active${parts.length?': '+parts.join(', '):''} — 3+ same-type Travelers on the field.`;
 }
 function _cardStatusEntries(card){
   const entries=[];
@@ -228,7 +228,7 @@ function _cardStatusEntries(card){
   if(card.burning) entries.push({icon:'img/ico_burn.png', text:'Burning — loses 1 HP at the start of each of its turns until it dies.'});
   if(card.provokeBroken) entries.push({icon:'img/ico_tb.png', text:'Provoke suppressed — can be attacked freely, bypassing Provoke, until the start of its owner\'s next turn.'});
   if(card.interceptUsed) entries.push({icon:'img/ico_intercept.png', text:'Intercept triggered — already redirected an attack this turn.'});
-  if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely, from any source (attack, counter-attack, spell, AOE), one time only.'});
+  if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely from any source, one time only.'});
   if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
   // Бафы
   if(card.atkBonus) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
@@ -236,8 +236,8 @@ function _cardStatusEntries(card){
   if(card.worldMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.worldMaxHpBonus} Max HP from the World card.`});
   if(card.auraArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.auraArmorBonus} Armor from an aura on the battlefield.`});
   if(card.worldArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.worldArmorBonus} Armor from the World card.`});
-  if(card.spellArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.spellArmorBonus} Armor from a spell (BULWARK/CARAPACE) until end of battle.`});
-  if(card.tempAtkBonus) entries.push({icon:'img/attack.png', text:`+${card.tempAtkBonus} ATK till gone from battlefield (combat trick).`});
+  if(card.spellArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.spellArmorBonus} Armor from a spell until gone from battlefield.`});
+  if(card.tempAtkBonus) entries.push({icon:'img/attack.png', text:`+${card.tempAtkBonus} ATK from a spell until gone from battlefield.`});
   if(card.rageBonus) entries.push({icon:'img/ico_rage.png', text:`+${card.rageBonus} ATK permanently from Rage (gained by attacking).`});
   if(card.squadAtkBonus||card.squadMaxHpBonus||card.squadArmorBonus||card.squadParam) entries.push({icon:'img/armor.png', text:_squadBonusText(card)});
   return entries;
