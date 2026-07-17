@@ -84,6 +84,14 @@ function getAbilities(card){
       case 'lose':
         if(card.spell) ab.push({timing:'instant',effect:'lose',val});
         break;
+      // spell_aoe_count (2026-07-17, "Board Purge") — деалт-значение НЕ фиксированное
+      // число на теге (в отличие от 'aoe'/enter_aoe выше), а считается в момент розыгрыша
+      // как размер вражеского поля — поэтому здесь нет val вообще, реальный расчёт живёт в
+      // execution-кейсе 'aoe_count' ниже (там же, где есть доступ к G[oppK].field). Только
+      // spell — не имеет смысла на существе/мире/артефакте (та же вилка, что у 'lose' выше).
+      case 'spell_aoe_count':
+        if(card.spell) ab.push({timing:'instant',effect:'aoe_count'});
+        break;
       case 'draw':
         if(card.spell)                    ab.push({timing:'instant',effect:'draw',val});
         else if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'draw',val});
@@ -114,7 +122,7 @@ function getAbilities(card){
         break;
       case 'bushido':      ab.push({timing:'passive',effect:'bushido'}); break;
       case 'on_kill_base':         ab.push({timing:'on_kill',effect:'hp_base',val}); break;
-      case 'on_any_death_base':    ab.push({timing:'on_any_death',effect:'hp_base',val}); break;
+      case 'on_enemy_death_base':  ab.push({timing:'on_enemy_death',effect:'hp_base',val}); break;
       case 'on_play_creature':     ab.push({timing:'on_play_creature',effect:'hp_base',val}); break;
       case 'on_own_death':         ab.push({timing:'on_own_death',effect:'draw',val}); break;
       case 'shard':                ab.push({timing:'active',effect:'shard',val}); break;
@@ -205,6 +213,26 @@ function triggerAbilities(card, timing, ctx={}){
         [...G[oppK].field].forEach(t=>dmgCard(t,a.val,oppK));
         lg(`${card.name}: ${a.val} dmg to all enemies!`,'imp');
         break;
+
+      case 'aoe_count':
+        // Board Purge (2026-07-17) — урон ВСЕМ вражеским существам = их количеству на поле,
+        // посчитанному ДО удара (снимок [...] тем же приёмом, что у case 'aoe' выше — все
+        // существа берут урон "одновременно", смерти по ходу цикла не уменьшают dmgAmt на
+        // лету). Магический урон (bypassArmor=true, как spell_dmg_target/Shard) — Броня не
+        // спасает, только Ward. Самобалансирующаяся карта: против 1 существа почти
+        // бесполезна (1 dmg), против забитого поля (макс. 6, см. лимит поля в doPlay()) —
+        // полноценный вайп.
+        {
+          const purgeTargets=[...G[oppK].field];
+          const dmgAmt=purgeTargets.length;
+          if(dmgAmt>0){
+            playSfx('card_spell_atack');
+            purgeTargets.forEach(t=>dmgCard(t,dmgAmt,oppK,true));
+            lg(`${card.name}: ${dmgAmt} dmg to ALL enemy creatures (board count)!`,'imp');
+          } else {
+            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+          }
+        } break;
 
       case 'burn':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
@@ -341,7 +369,7 @@ function triggerAbilities(card, timing, ctx={}){
           flashBase(curK, 'heal', a.val);
         }
         break;
-      // on_any_death handled directly in killCard()
+      // on_enemy_death handled directly in killCard()
 
       case 'hp_add':
         if(a.target==='all'){
