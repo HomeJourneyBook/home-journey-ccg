@@ -367,7 +367,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.shieldConsumed=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.shieldConsumed=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
   // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
   // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
@@ -432,6 +432,19 @@ function playAttackSfx(att){
 function doAttack(att,target){
   const curK=G.turn;
   const oppK=curK==='tea'?'jeet':'tea';
+  // Intercept (2026-07-17, Xuiqtr) — третий защитный слой, ниже Bushido/Provoke. Подмена
+  // цели происходит ЗДЕСЬ, на входе в резолв — сам выбор в UI игрок делает как обычно
+  // (см. getTargetableCards(), которая про Intercept вообще не знает и не должна:
+  // атакующий свободно выбирает цель, перехват — это то, что происходит ПОСЛЕ выбора).
+  // Если атакующий и так выбрал именно перехватчика — не расходуем перехват (условие
+  // автора: "если атакующий сам выбрал это существо целью — перехват не расходуется").
+  const interceptor=getInterceptor(G[oppK].field);
+  if(interceptor && interceptor.id!==target.id){
+    interceptor.interceptUsed=true;
+    lg(`${interceptor.name} intercepts the attack meant for ${target.name}!`,'imp');
+    queueFieldFx(interceptor.id,'INTERCEPTED!','fx-fear'); // переиспользуем готовый fx-класс, тот же "красный всплеск"
+    target=interceptor;
+  }
   const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
 
   // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
@@ -578,6 +591,26 @@ function onBaseClick(faction){
   }
 }
 
+// Intercept (2026-07-17, Xuiqtr rework — тег заменил provoke на всех 8 картах Кситра,
+// см. data.js) — третий, самый младший слой защиты, ПОСЛЕ Bushido и Provoke: если на поле
+// нет ни одного, но есть Кситр, ещё не перехватывавший в этот ход, атака автоматически
+// перенаправляется на него, кем бы её ни выбрал атакующий (сам выбор цели в UI не
+// меняется — подмена происходит только на резолве, см. doAttack()/tryAttackBase()).
+// Sleeping/exhausted/feared НЕ исключают — как и Provoke/Bushido, перехват — это про то,
+// что происходит, когда карту АТАКУЮТ, а не про её собственную готовность действовать
+// (спящее/уставшее существо и так нормально защищается/контратакует при обычной атаке).
+// Порядок между несколькими Кситрами — первый вышедший на поле первым и перехватывает:
+// field.push() в doCreature() всегда добавляет новые карты в конец массива, так что
+// filter()+[0] по живому полю уже даёт нужный порядок без отдельной сортировки.
+function getInterceptor(oppField){
+  const bushido = oppField.some(c=>c.tags&&c.tags.includes('bushido'));
+  if(bushido) return null;
+  const provoke = oppField.some(c=>c.tags&&c.tags.includes('provoke')&&!c.provokeBroken);
+  if(provoke) return null;
+  const candidates = oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'intercept')&&!c.interceptUsed);
+  return candidates.length>0 ? candidates[0] : null;
+}
+
 function canAttackBase(){
   if(!G.sel) return false;
   const att=findC(G.sel);
@@ -614,6 +647,21 @@ function tryAttackBase(){
   // Same provokeBroken fix as canAttackBase() above — see its comment.
   const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken);
   if(provoke){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
+  // Intercept (2026-07-17, Xuiqtr) — третий слой, ниже Bushido/Provoke (оба уже проверены
+  // и не сработали выше, раз мы досюда дошли). Игрок кликнул по базе — но если есть
+  // непотраченный перехватчик, удар вместо базы улетает в него, полноценным разменом
+  // через doAttack() (не прямой урон в HP базы). getInterceptor() тут технически
+  // передублирует bushido/provoke проверки выше — cheap, безопасно, и держит всю логику
+  // "кто может перехватить" в одном месте (см. getInterceptor()).
+  const interceptor=getInterceptor(opp.field);
+  if(interceptor){
+    interceptor.interceptUsed=true; // doAttack() below won't set this itself — its own
+    // redirect branch only fires when target!==interceptor, but here target already IS
+    // the interceptor (we're calling it directly instead of going through a redirect).
+    lg(`${interceptor.name} intercepts the attack aimed at the base!`,'imp');
+    doAttack(att,interceptor);
+    return;
+  }
   playSfx('base_atack');
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
@@ -706,6 +754,7 @@ function killCard(card,faction,toVoid=false){
   card.squadAtkBonus=0;
   card.squadArmorBonus=0;
   card.spellArmorBonus=0;
+  card.interceptUsed=false;
   card.armor=0;
   card.armorMax=undefined;
   card.auraArmorBonus=0;
@@ -1530,6 +1579,11 @@ function endTurn(){
     // снятия). Никакого лога/fx — это тихий housekeeping-сброс, не игровое событие для
     // самого владельца (провокация и так не помогала бы ему на его собственном ходу).
     c.provokeBroken=false;
+    // interceptUsed (Intercept, Xuiqtr, 2026-07-17) — тот же принцип: "сработал один раз
+    // за ход" имеет смысл именно на ходу АТАКУЮЩЕГО (это его атаки перехватывает), так что
+    // сбрасывается здесь же, в начале хода владельца перехватчика — готов перехватывать
+    // снова с первой же вражеской атаки в их следующий ход.
+    c.interceptUsed=false;
     // tempAtkBonus (ARCHIVE и т.п.) — НЕ сбрасываем здесь. Автор уточнил: баф должен
     // быть постоянным (живёт, пока существо не умрёт), а не "переживает один ход
     // соперника и гаснет к следующему своему ходу" — предыдущая версия сбрасывала
