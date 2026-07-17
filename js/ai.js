@@ -492,8 +492,12 @@ function aiTryUseBolt(){
     if(killable.length===0) return; // не тратим ход на чип-урон — только на реальный килл
     killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
     const target=killable[0].c;
+    // Provoke rework (2026-07-17): pierce no longer exempt from forced-target (see
+    // canAttackBase()/getTargetableCards() in game.js) — the `!hasTag(bolt,'pierce')`
+    // exception here was leftover from before that rework and never updated, same bug
+    // class as the provokeBroken miss just below (found + fixed together, 2026-07-17).
     const forced = oppField.some(c=>hasTag(c,'bushido')) ||
-      (oppField.some(c=>c.tags.includes('provoke')) && !hasTag(bolt,'pierce') && !(bolt.squadParam&&bolt.squadParam.pierce));
+      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken);
     const normalWouldKillSameTarget = !forced && effAtk(bolt)>=target.hp;
     if(!normalWouldKillSameTarget){
       G.sel=bolt.id;
@@ -866,7 +870,9 @@ function aiCanHitBase(creature, oppField){
   // getTargetableCards()/canAttackBase() in game.js for the full reasoning. Pierce's only
   // remaining perk is the trample overflow inside doAttack() when it's forced onto a
   // provoke creature and kills it with excess damage.
-  const provoke = oppField.find(c => c.tags && c.tags.includes('provoke'));
+  // Same provokeBroken bug-fix as canAttackBase()/tryAttackBase() (game.js) — a suppressed
+  // Provoke was still blocking the base here too, since this check never looked at the flag.
+  const provoke = oppField.find(c => c.tags && c.tags.includes('provoke') && !c.provokeBroken);
   if(provoke) return false;
   return true;
 }
