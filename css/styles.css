@@ -374,6 +374,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @media(min-width:601px){
   #rulesScreen{--rpage-h:80vh; --rpage-w:calc(80vh * 3 / 4); --rborder:calc(var(--rpage-h) * 7 / 60);}
 }
+/*── Вертикальный iPad (и планшеты того же класса) — книга правил ведёт себя как на
+    телефоне: одна страница за раз, а не разворот из двух. Тот же порог "планшет-портрет",
+    что уже используется по всему проекту (601px = не телефон по ширине, 1024px = ширина
+    iPad Pro 12.9" в портрете, самый широкий реальный планшет в этой ориентации) — просто
+    откатывает geometry обратно на телефонную (80vw) формулу поверх блока выше. Автор
+    попросил 2026-07-17: разворот из двух узких страниц в портретной ориентации читался
+    хуже, чем одна широкая. ──*/
+@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
+  #rulesScreen{--rpage-w:80vw; --rpage-h:calc(80vw * 4 / 3); --rborder:42px;}
+}
 #rulesScreen.active{display:flex;align-items:center;justify-content:center;padding:0;background:#829797 url('../img/rules_bg.png') repeat center;}
 .rules-book-wrap{position:relative;display:inline-flex;}
 .rules-book{position:relative;display:flex;flex-direction:row;}
@@ -453,6 +463,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .rules-page-left{display:block;transform:scaleX(-1);} /* зеркалим фон/рамку страницы */
   .rules-page-left .rules-page-inner{transform:scaleX(-1);} /* и обратно зеркалим контент, чтобы текст читался нормально */
 }
+@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
+  .rules-page-left{display:none;} /* вертикальный iPad — одна страница, как на телефоне (см. geometry override выше) */
+}
 .rules-page-inner{
   width:100%; height:100%; box-sizing:border-box; overflow:hidden;
   padding:3% 5%; font-family:'MEK',monospace; color:#5d2f35;
@@ -497,6 +510,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.018 * 0.8); --ricon-h:calc(var(--rpage-h) * 0.018 * 1.44);} /* текст -20% (как раньше), иконки — было ×1.2, теперь ещё +20% (×1.44 итого) */
   .rules-page-inner.eng-lang, .rules-page-inner.por-lang{font-size:calc(var(--rpage-h) * 0.028); --ricon-h:calc(var(--rpage-h) * 0.028);} /* без изменений — буст только для телефона */
   .rules-page-inner.vn-lang{--ricon-h:calc(var(--rpage-h) * 0.028);} /* без изменений — буст иконок только для телефона, как у остальных языков */
+}
+/*── Вертикальный iPad — страница у нас уже телефонного размера (см. geometry override
+    выше), так что шрифты тоже возвращаем на телефонные формулы, а не десктопные (те
+    рассчитаны на щедрый 80vh). ДОЛЖНО идти именно здесь, ПОСЛЕ блока выше — при равной
+    специфичности класса побеждает то, что позже в файле (см. комментарий над этим блоком). ──*/
+@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
+  .rules-page-inner.rus-lang{font-size:calc(var(--rpage-h) * 0.0216); --ricon-h:calc(var(--rpage-h) * 0.0216 * 1.44);}
+  .rules-page-inner.eng-lang, .rules-page-inner.por-lang{font-size:calc(var(--rpage-h) * 0.028 * 1.2); --ricon-h:calc(var(--rpage-h) * 0.028 * 1.32);}
+  .rules-page-inner.vn-lang{--ricon-h:calc(var(--rpage-h) * 0.028 * 1.2);}
 }
 /* Измерительный клон — идентичная структура/шрифты, но невидим и вне потока */
 .rules-page-measure{position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none;}
@@ -973,7 +995,25 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
 .log-panel-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_log.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex;justify-content:center;align-items:center; padding:0 6px; position:relative;}
-.log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#0c1013;font-family:'MEK',monospace;text-align:center;}
+.log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#0c1013;font-family:'MEK',monospace;text-align:center;
+  /* 2026-07-17 (баг, автор — крестик наезжает на заголовок на вертикальном iPad): .log-panel-close
+     позиционируется absolute и выпадает из flex-потока, поэтому центрированный текст заголовка
+     ничего не "знает" про него и может залезть под кнопку на широком шрифте/узкой панели.
+     max-width резервирует место под кнопку с обеих сторон (панель зеркально симметрична,
+     кнопка только справа, но текст всё равно центрирован — проще подрезать с обеих сторон
+     одинаково, чем городить asymmetric margin), плюс safety-net на переполнение — теперь
+     заголовок физически не может залезть под кнопку, независимо от того, насколько большим
+     окажется шрифт на каком-то экране. */
+  max-width:calc(100% - 2 * max(calc(5vh * 0.798), calc(2.5vw * 0.798)) - 12px);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/*── Вертикальный iPad — панель лога фиксированной ширины (320px), а формула шрифта заголовка
+    брала max() от vh И vw без верхней границы: на высоком узком экране vh-компонент
+    разрастается без привязки к этим 320px и раньше вылезал за пределы (safety-net выше уже не
+    даст залезть НА кнопку, но лучше не доводить до эллипсиса — оставляем заголовок читаемым
+    целиком, просто размер скромнее). Тот же порог "планшет-портрет", что и везде в проекте. ──*/
+@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
+  .log-panel-title{font-size:calc(2.5vw * 0.665);}
+}
 .log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:max(calc(5vh * 0.798), calc(2.5vw * 0.798));height:max(calc(5vh * 0.798), calc(2.5vw * 0.798));cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
@@ -983,8 +1023,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .log::-webkit-scrollbar-thumb{background:#1a7a2e;border-radius:0;}
 .log::-webkit-scrollbar-thumb:hover{background:#5BDF7A;}
 .log{position:relative; background:#03150a; border:none; padding:7px; height:85px; overflow-y:auto; font-size:12px; line-height:1.9; color:#33ff66;}
-.log::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient( to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.32) 3px, rgba(0,0,0,0.32) 6px ); pointer-events:none; z-index:1;}
-.log::before{content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.5) 100%); pointer-events:none; z-index:2;}
+.log::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient( to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.16) 3px, rgba(0,0,0,0.16) 6px ); pointer-events:none; z-index:1;} /* линии сканирования ослаблены вдвое (было 0.32) — автор 2026-07-17, читаемость лога */
+.log::before{content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.25) 100%); pointer-events:none; z-index:2;} /* виньетка ослаблена вдвое (было 0.5) */
 .log .le{color:#1a7a2e;}
 .log .le.imp{color:#33ff66;}
 .log .le.dmg{color:#ff4466;}
@@ -1057,6 +1097,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .modal-crt-screen{position:relative; background:#03150a; width:100%; height:100%; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; padding:14px; animation:crtFlicker 6s ease-in-out infinite;}
 .modal-crt-screen::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient( to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.32) 3px, rgba(0,0,0,0.32) 6px ); pointer-events:none; z-index:1;}
 .modal-crt-screen::before{content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.5) 100%); pointer-events:none; z-index:2;}
+/*── .crt-weak — та же CRT-разметка, но линии сканирования/виньетка вдвое слабее.
+    Только для мулиган-окна (автор 2026-07-17, читаемость рук в мулигане) — остальные
+    5 модалок на .modal-crt-screen (deckPicker/vsAiPicker/confirm/win/pass) не трогаем,
+    им отдельного запроса не было. Порядок в файле — ПОСЛЕ базовых правил выше, чтобы
+    переопределить их (тот же принцип "позже в файле побеждает", что и у языковых
+    шрифтов Rules Book). ──*/
+.modal-crt-screen.crt-weak::after{background:repeating-linear-gradient( to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.16) 3px, rgba(0,0,0,0.16) 6px );}
+.modal-crt-screen.crt-weak::before{background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.25) 100%);}
 .modal-crt-screen h2,.modal-crt-screen p{position:relative;z-index:3;color:#4bbf72;}
 .modal-crt-screen p{color:#2f7a4a;}
 #mulliganCards{position:relative;z-index:3;}
@@ -1134,7 +1182,24 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* ═══════════════════════════════════════════════════════════════════════
    HEADER — шапка игрового экрана
    ═══════════════════════════════════════════════════════════════════════ */
-.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#414B5A4D;position:relative;height:max(5vh, 2.5vw, 40px);}
+.header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border:none;background:#414B5A4D;position:relative;height:max(5vh, 2.5vw, 40px);transition:height .25s ease, padding .25s ease;}
+/*── Сворачивающийся хедер (2026-07-17, автор — "после фикса бургер-кнопки хедер стал
+    слишком большой"). .collapsed схлопывает высоту/паддинг в почти ноль (не display:none —
+    остаётся в потоке, соседние зоны просто плавно сдвигаются вверх/вниз через transition
+    выше), содержимое хедера тонет через opacity, чтобы не "схлопывалось"/не переносилось
+    некрасиво в оставшиеся пиксели по ходу анимации. Хендл (.header-collapse-handle)
+    ПОЗИЦИОНИРУЕТСЯ АБСОЛЮТНО и в collapsed-режим не входит — остаётся кликабельным и
+    видимым как тонкая вкладка-стрелка, даже когда сам хедер схлопнут. ──*/
+.header.collapsed{height:10px;padding-top:0;padding-bottom:0;}
+.header.collapsed > *:not(.header-collapse-handle){opacity:0;pointer-events:none;transition:opacity .12s ease;}
+.header > *:not(.header-collapse-handle){transition:opacity .18s ease .1s;}
+.header-collapse-handle{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);width:44px;height:11px;
+  background:#414B5A;border:1px solid #E8E0C822;border-top:none;border-radius:0 0 6px 6px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:60;padding:0;
+  color:#E8E0C8;font-size:8px;line-height:1;transition:background .15s ease;}
+.header-collapse-handle:hover{background:#54607a;}
+.header-collapse-handle::after{content:'▲';display:block;transition:transform .25s ease;}
+.header.collapsed .header-collapse-handle::after{transform:rotate(180deg);}
 .title{font-family:'MEK',monospace;font-size:max(calc(5vh * 0.38), calc(2.5vw * 0.38));color:#E8E0C8;letter-spacing:2px;padding-left:6px; display:flex; align-items:center;}
 .title-glitch-wrap{position:relative;display:inline-block;}
 .title-glitch-wrap::before, .title-glitch-wrap::after{content:attr(data-text); position:absolute; left:0;top:0; opacity:0; pointer-events:none; white-space:nowrap;}
@@ -1497,6 +1562,19 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
 .player-hand-zone.tea{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .player-hand-zone.jeet{background:url('../img/bg_handP_bar_jeet.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
+/*── Горизонтальный телефон (2026-07-17, автор — "карты руки наезжают на статусбар в
+    горизонтальном режиме"): --card-h (25vh, :root) и .player-hand-zone (27vh) — оба чисто
+    vh-based, без общего запаса на паддинг/рамку. На высоком портретном экране разницы в 2vh
+    с запасом хватает, но на низком landscape-вьюпорте (у телефона в альбомной ориентации vh
+    маленький в абсолютных px) 2vh — это считаные пиксели, а после вычета padding/бордера
+    карта (min-height:var(--card-h) у .hand) физически не помещается в зону и вылезает вниз —
+    #playerStats идёт следующим по разметке сразу под .player-hand-zone, поэтому "наезд"
+    именно на статусбар, а не куда-то ещё. Порог max-height:500px отсекает именно телефоны
+    (реальные телефоны в landscape — примерно 360-430px высоты), айпад в landscape заметно
+    выше (768px+) и это правило его не касается. ──*/
+@media(max-height:500px) and (orientation:landscape){
+  :root{ --card-h: 20vh; }
+}
 @media(min-width:601px){
   .player-hand-zone{padding:6px calc(var(--card-action-btn-w) + 8px);}
   .opp-hand-zone{padding:0 15px 4px;}
@@ -1931,7 +2009,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   70%{opacity:.4;}
   100%{opacity:0; transform:translateY(-55%) rotate(12deg);}
 }
-.cap-no-ess{display:flex; align-items:center; justify-content:center; gap:6px; font-family:'MEK',monospace; font-size:clamp(12px,3vw,17px); color:#E8E0C8; background:transparent; border:transparent; padding:6px 10px; white-space:nowrap; pointer-events:none; text-shadow:0 0 8px #8A7D62;}
+.cap-no-ess{display:flex; align-items:center; justify-content:center; gap:6px; font-family:'MEK',monospace; font-size:clamp(12px,3vw,17px); color:#E8E0C8; background:rgba(8,8,16,0.85); border:1px solid rgba(232,224,200,0.35); border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.5); padding:6px 10px; white-space:nowrap; pointer-events:none; text-shadow:0 0 8px #8A7D62;}
 .cap-no-ess.cap-field-full{white-space:normal; text-align:center; line-height:1.15;}
 .cap-no-ess-icon{width:1.1em; height:1.1em; object-fit:contain; vertical-align:middle; filter:drop-shadow(0 0 3px #8A7D62);}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75));}
