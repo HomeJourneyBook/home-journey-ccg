@@ -145,17 +145,20 @@ const DEFS = {
 };
 
 // ── Ability-text formatting helper ──────────────────────────────────────
-// Заменяет литеральный префикс "On play:" в тексте способности карты (card.ab)
-// на иконку ico_on_play.png + двоеточие — компактнее и нагляднее на маленькой
-// карте, чем слова целиком. Все 5 карт с этим префиксом имеют его СТРОГО в
-// начале строки (см. data.js), поэтому ^-якорь безопасен и не тронет "on play"
-// внутри текста где-то ещё (такого пока нет).
+// Заменяет литеральные префиксы "On play:"/"On turn:"/"On attack:" в тексте
+// способности карты (card.ab) на иконку + двоеточие — компактнее и нагляднее
+// на маленькой карте, чем слова целиком. У всех карт с этими префиксами они
+// СТРОГО в начале строки (см. data.js), поэтому ^-якорь безопасен и не тронет
+// эти слова где-то в середине текста (такого пока нет).
 // ВАЖНО: применять эту функцию только там, где card.ab вставляется как HTML
 // (innerHTML) — например .card-ability в render.js/catalog.js/deckbuilder.js.
 // НЕ применять в plain-text контекстах (например title="" у .pcard в
 // render.js) — там HTML-теги не рендерятся браузером, картинка не появится,
-// останется как есть буквенный текст "On play:".
+// останется как есть буквенный текст.
 function formatAbilityText(ab){
   if(!ab) return '';
-  return ab.replace(/^On play:/, '<img src="img/ico_on_play.png" class="ab-icon-on-play" alt="On play">:');
+  return ab
+    .replace(/^On play:/, '<img src="img/ico_on_play.png" class="ab-icon-trigger" alt="On play">:')
+    .replace(/^On turn:/, '<img src="img/ico_on_turn.png" class="ab-icon-trigger" alt="On turn">:')
+    .replace(/^On attack:/, '<img src="img/ico_on_attack.png" class="ab-icon-trigger" alt="On attack">:');
 }
