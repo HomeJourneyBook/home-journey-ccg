@@ -92,6 +92,15 @@ function getAbilities(card){
       case 'spell_aoe_count':
         if(card.spell) ab.push({timing:'instant',effect:'aoe_count'});
         break;
+      // spell_fear_all (2026-07-17, "Mass Sap") — реюзаем ГОТОВЫЙ движок Fear (см. tag
+      // 'fear' выше и case 'fear'/dmgCard() в execution-части ниже — атаковать/юзать
+      // активку/контратаковать под Fear уже нельзя, это всё уже проверяется по всей
+      // кодовой базе через card.feared, см. canAttackBase()/click-хендлер в game.js,
+      // кнопку активки в render.js). Просто применяем его сразу ко ВСЕМУ вражескому полю
+      // одним спеллом, вместо one-shot on_attack эффекта одного существа.
+      case 'spell_fear_all':
+        if(card.spell) ab.push({timing:'instant',effect:'fear_all'});
+        break;
       case 'draw':
         if(card.spell)                    ab.push({timing:'instant',effect:'draw',val});
         else if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'draw',val});
@@ -229,6 +238,24 @@ function triggerAbilities(card, timing, ctx={}){
             playSfx('card_spell_atack');
             purgeTargets.forEach(t=>dmgCard(t,dmgAmt,oppK,true));
             lg(`${card.name}: ${dmgAmt} dmg to ALL enemy creatures (board count)!`,'imp');
+          } else {
+            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+          }
+        } break;
+
+      case 'fear_all':
+        // Mass Sap (2026-07-17) — тот же 'feared' флаг и та же логика снятия, что у обычного
+        // Fear (game.js endTurn(): снимается в конце хода ВЛАДЕЛЬЦА, т.е. переживает ровно
+        // один их ход, как и положено — и это же самое поле уже блокирует атаку/активку/
+        // контратаку по всей кодовой базе, см. canAttackBase()/click-хендлер в game.js,
+        // кнопку активки в render.js). Существо, уже Feared от чего-то другого, просто
+        // получает флаг повторно — не складывается, не страшно.
+        {
+          const fearTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact);
+          if(fearTargets.length>0){
+            playSfx('debaf');
+            fearTargets.forEach(t=>{t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');});
+            lg(`${card.name}: all enemy creatures are Feared!`,'imp');
           } else {
             lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
           }
