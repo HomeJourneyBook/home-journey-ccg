@@ -1326,6 +1326,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small.exhausted{filter:brightness(.55) saturate(.8);}
 .card-small.sleeping{filter:brightness(.55) saturate(.8);}
 .card-small.feared{opacity:.5;border-style:solid;box-shadow:0 0 8px #66666688;}
+.card-small.invisible-visual{opacity:.55;}
+.card-small.stealth-visual{opacity:.55;}
 .card-small-feared{position:absolute;top:calc(var(--card-small-h) * -0.085);left:20%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small-burning{position:absolute;top:calc(var(--card-small-h) * -0.085);left:80%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small-tauntbroken{position:absolute;top:calc(var(--card-small-h) * -0.085);left:50%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
@@ -1414,12 +1416,13 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   background-image:url('../img/armor_bg.png');background-size:100% 100%;background-repeat:no-repeat;
   transform:translate(-50%,-50%) rotate(90deg);z-index:-1;}
 .card-incarn-badge .card-incarn-icon{font-size:calc(var(--card-h)*0.1*2);}
-.card-ability-box{width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
-.card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:0.7;word-spacing:-1px;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
+.card-ability-box{width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:calc(var(--card-h) * 0.012) calc(var(--card-h) * 0.028);display:flex;align-items:center;justify-content:center;}
+.card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:0.7;word-spacing:-1.5px;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
+.ab-icon-on-play{height:1.15em;width:auto;vertical-align:-0.2em;margin-right:1px;}
 .card-world-art{width:100%;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;}
 .card.world-card{padding:4px;justify-content:space-between;background-size:cover;background-position:center;background-repeat:no-repeat;}
 .card.world-card .card-name-box{height:var(--card-world-name-h);width:95%;background-image:url('../img/card_name_world_bg.png');}
-.card.world-card .card-ability-box{height:var(--card-world-text-h);background:url('../img/card_text_world_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
+.card.world-card .card-ability-box{height:var(--card-world-text-h);background:url('../img/card_text_world_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:calc(var(--card-h) * 0.012) calc(var(--card-h) * 0.028);display:flex;align-items:center;justify-content:center;}
 .card.world-card.tea-card, .card.world-card.jeet-card{background-image:none !important;}
 .card-stats-icon{width:var(--card-stats-h);height:var(--card-stats-h);object-fit:cover;flex-shrink:0;}
 .card-tag-icons{position:absolute;right:calc(var(--card-w)*0.038);top:calc(var(--card-h)*0.135);display:flex;flex-direction:column;gap:calc(var(--card-h)*0.012);z-index:3;}
@@ -1816,8 +1819,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-zzz span:nth-child(2){font-size:calc(var(--card-small-h, 80px) * 0.13);animation-delay:0.4s;}
 .card-zzz span:nth-child(3){font-size:calc(var(--card-small-h, 80px) * 0.17);animation-delay:0.8s;}
 @keyframes pcardReadyPulse{
-  0%,100%{box-shadow: 0 0 6px #B44FD4AA, 0 0 14px #B44FD4CC;}
-  50%{box-shadow: 0 0 14px #B44FD4FF, 0 0 28px #B44FD4DD;}
+  0%,100%{box-shadow: 0 0 6px #FFFFFFAA, 0 0 14px #FFFFFFCC;}
+  50%{box-shadow: 0 0 14px #FFFFFFFF, 0 0 28px #FFFFFFDD;}
 }
 @keyframes pcardTargetingBlink{
   0%,100%{color:#fff; opacity:1;}
