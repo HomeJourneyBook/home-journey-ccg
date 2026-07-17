@@ -1643,7 +1643,7 @@ const IS_TOUCH_DEVICE = ('ontouchstart' in window) || (navigator.maxTouchPoints 
 
 const TAG_TOOLTIPS = {
   'fear':    { name: 'Fear',    desc: 'On attack: target skips its next turn and deals no counter-damage.' },
-  'pierce':  { name: 'Pierce',  desc: 'No longer bypasses Provoke — must attack it just like anything else. If the hit kills the target, any leftover damage beyond its HP carries over to the enemy base.' },
+  'pierce':  { name: 'Pierce',  desc: 'After attacking an enemy creature card, if it dies from the hit, any remaining excess damage carries over to the enemy base.' },
   'regen':   { name: 'Regen',   desc: 'Restores X HP to itself at the start of each of your turns.' },
   'burn':    { name: 'Burn',    desc: 'On attack: target loses 1 HP at the start of each of its turns until death.' },
   'rage':    { name: 'Rage',    desc: 'Gains +1 ATK permanently each time it attacks.' },
