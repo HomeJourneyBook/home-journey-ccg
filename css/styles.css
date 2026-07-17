@@ -1756,6 +1756,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .float-number.atk{color:#55aaff; left:76%; top:81%; transform:translate(-50%,-50%);}
 .float-number.maxhp{color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%);}
 .float-number.armoraura{color:var(--color-cream); left:28%; top:81%; transform:translate(-50%,-50%);}
+.float-number.armorloss{color:#e05555;
+  left:calc(var(--card-small-w)*0.048 + var(--card-small-h)*0.13);
+  top:calc(2px + var(--card-small-art-h) - (var(--card-small-h)*0.065));
+  transform:translate(-50%,-50%);}
 .float-number-base{left:50%; top:-4px; transform:translateX(-50%); font-size:16px;}
 .float-number-base.fnb-dmg{color:#e05555;}
 .float-number-base.fnb-heal{color:#44ff88;}
