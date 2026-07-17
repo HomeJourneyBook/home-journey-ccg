@@ -10,7 +10,15 @@ function getTargetableCards(oppField, att){
   // invisible-соседи больше не блокируют друг друга, блокирует только присутствие НЕ-invisible
   // карты на поле.
   const allInvisible=oppField.length>0 && oppField.every(c=>hasTag(c,'invisible'));
-  const visible=allInvisible?oppField:oppField.filter(c=>!hasTag(c,'invisible'));
+  const visibleInvis=allInvisible?oppField:oppField.filter(c=>!hasTag(c,'invisible'));
+  // Stealth (2026-07-17, TEANTIST) — anti-invisible пара #2: недостижимо, пока не
+  // атаковало ни разу (card.stealthBroken). В отличие от invisible — никакого "все
+  // stealth разом → все становятся целями" правила не нужно: тег живёт всего на одной
+  // Unique-карте (максимум 1 копия в игре), реальный шанс словить "на поле вообще нет
+  // валидной цели" из-за одного stealth-существа ничтожен, а если это всё же случится —
+  // functions ниже просто вернут пустой массив, и атакующий сможет только бить базу
+  // (canAttackBase() про stealth ничего не знает и не должен — см. его комментарии).
+  const visible=visibleInvis.filter(c=>!(hasTag(c,'stealth')&&!c.stealthBroken));
   // provokeBroken (taunt_break, 2026-07-13) — Provoke временно подавлен, эта карта больше
   // не форсирует атаку на себя, как будто тега нет вообще.
   // Provoke rework (2026-07-17, автор): pierce БОЛЬШЕ не обходит форс-таргет — раньше
@@ -367,7 +375,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.shieldConsumed=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
   // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
   // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
@@ -461,6 +469,13 @@ function doAttack(att,target){
   // же ударом). Дальше, на СЛЕДУЮЩИХ атаках по уже feared цели, контратака как и раньше не идёт.
   const wasFearedBefore = target.feared;
   const wasExhaustedBefore = target.exhausted;
+  // Stealth (2026-07-17, TEANTIST) — anti-invisible пара #2: пока не атаковал ни разу,
+  // недостижим вообще (см. getTargetableCards()); в момент первой атаки становится
+  // достижимым НАВСЕГДА (см. att.stealthBroken=true ниже), а именно ЭТА первая атака ещё и
+  // не получает контрудар — цена за раскрытие. Снимок ДО того, как ниже выставится
+  // att.stealthBroken=true — та же защита от "эффект отменяет сам себя в тот же тик", что
+  // уже применяется к wasFearedBefore/wasExhaustedBefore выше.
+  const stealthFirstStrike = hasTag(att,'stealth') && !att.stealthBroken;
   // 2026-07-16, второй пересмотр боевой последовательности: контрудар возвращён ДАЖЕ если
   // цель гибнет от этого же удара (см. п.5 в шапке файла выше) — поэтому её боевую силу
   // нужно снять СЕЙЧАС, до dmgCard()/killCard(): killCard() обнуляет squadAtkBonus и
@@ -478,8 +493,22 @@ function doAttack(att,target){
 
   // Контрудар — deferDeath=true: HP атакующего может уйти в минус, но killCard() для него
   // пока НЕ вызывается — vampiric/Erase ниже ещё могут его спасти (см. шапку файла выше).
-  if(!hasTag(att,'invisible') && !wasFearedBefore && !wasExhaustedBefore)
+  if(!hasTag(att,'invisible') && !wasFearedBefore && !wasExhaustedBefore && !stealthFirstStrike)
   dmgCard(att, targetCounterAtk, curK, false, true);
+
+  // Thorns / "Огненный Щит" (2026-07-17, FAERON) — анти-invisible пара: вместо того чтобы
+  // быть недостижимой (Seeker/invisible), эта карта наказывает того, кто до неё дотянулся.
+  // Резолвится вне зависимости от того, выжила ли цель (та же логика "regardless of
+  // outcome", что и контрудар выше — deferDeath=true, финальная смерть att разрешится один
+  // раз чуть ниже). Пропускается, если этот конкретный удар был полностью поглощён Solana
+  // Shield (target._shieldBlockedThisHit) — тот же принцип, что уже действует для
+  // fear/burn/taunt_break: полностью заблокированный удар не тащит с собой ни один из
+  // своих побочных эффектов, не только 0 урона.
+  if(hasTag(target,'thorns') && !target._shieldBlockedThisHit){
+    const thornsVal=getTagVal(target,'thorns')||1;
+    dmgCard(att,thornsVal,curK,true,true); // bypassArmor=true ("огонь" игнорирует броню), deferDeath=true
+    lg(`${target.name}'s Fire Shield burns ${att.name} for ${thornsVal}!`,'dmg');
+  }
 
   triggerAbilities(att,'on_attack',{target,realDmgDealt});
   if(target.hp<=0) triggerAbilities(att,'on_kill',{target});
@@ -511,6 +540,9 @@ function doAttack(att,target){
   }
 
   att.exhausted=true;
+  // Stealth — раскрывается после ЛЮБОЙ первой атаки, вне зависимости от исхода (даже если
+  // att сам погиб от контрудара выше — не важно, тег одноразовый и это его единственная работа).
+  if(hasTag(att,'stealth')) att.stealthBroken=true;
   G.sel=null;
   G.phase='action';
   checkWin();
@@ -667,6 +699,10 @@ function tryAttackBase(){
   opp.hp=Math.max(0,opp.hp-atk);
   triggerAbilities(att,'on_attack',{target:null});
   att.exhausted=true;G.sel=null;G.phase='action';
+  // Stealth (2026-07-17) — атака по базе тоже считается "первой атакой", раскрывает
+  // так же, как атака по существу (см. doAttack() выше) — просто тут нечего снимать
+  // (контрудара у базы и так не бывает), только фиксируем сам факт.
+  if(hasTag(att,'stealth')) att.stealthBroken=true;
   flashBase('opp', 'dmg', atk);
   checkWin();render();
   activateCard(att.id); 
@@ -755,6 +791,7 @@ function killCard(card,faction,toVoid=false){
   card.squadArmorBonus=0;
   card.spellArmorBonus=0;
   card.interceptUsed=false;
+  card.stealthBroken=false;
   card.armor=0;
   card.armorMax=undefined;
   card.auraArmorBonus=0;
@@ -1224,17 +1261,22 @@ function doSacrifice_target(card){
 }
 
 
-// Общий расчёт базового урона Shard-семейства (2026-07-17, для THE BOOK — "Пинг + горение").
-// SHARD (Jeet) — просто статичный getTagVal. THE BOOK (Tea) добавляет тег shard_burn_scale —
-// динамическая надбавка = сколько ВРАЖЕСКИХ существ сейчас горит (Tea применяет burn через
-// пару своих Драгэн/Орбитон карт и FAERON — этот артефакт вознаграждает за то, что игрок уже
-// вложился в под-тему горения). Считается заново каждый раз (не кэшируется на карте) — общее
-// число горящих меняется каждый ход, значение должно быть актуальным на момент клика.
+// Общий расчёт базового урона Shard-семейства. THE BOOK (Tea) — shard_burn_scale, считает
+// горящих врагов. SHARD (Jeet) — shard_fear_scale (2026-07-17, тот же принцип зеркально:
+// Jeet исторически прикладывает Fear через своих Дреган/Ксуйктр/Орбитон карт, так же как
+// Tea прикладывает Burn — обе надбавки вознаграждают за то, что игрок уже вложился в
+// профильный debuff своей фракции). Оба тега взаимоисключающие на практике (по одному
+// артефакту на карту), но код не мешает случайно повесить оба сразу — просто сложатся.
 function shardBaseDmg(artifact, oppK){
-  const base=getTagVal(artifact,'shard')||1;
-  if(!artifact||!hasTag(artifact,'shard_burn_scale')) return base;
-  const burningCount=G[oppK].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.burning).length;
-  return base+burningCount;
+  let dmg=getTagVal(artifact,'shard')||1;
+  if(!artifact) return dmg;
+  if(hasTag(artifact,'shard_burn_scale')){
+    dmg+=G[oppK].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.burning).length;
+  }
+  if(hasTag(artifact,'shard_fear_scale')){
+    dmg+=G[oppK].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.feared).length;
+  }
+  return dmg;
 }
 
 function doShard(artifact){
@@ -1453,10 +1495,13 @@ function doShardTarget(card){
   }
   playSfx('card_spell_atack');
   const artifact=G[G.turn].artifacts.find(a=>hasTag(a,'shard'));
-  const baseDmg=shardBaseDmg(artifact,oppK);
-  const dmg=card.feared?baseDmg+1:baseDmg;
-  const fearNote=card.feared?' (feared +1)':'';
-  lg(`${artifact.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
+  // 2026-07-17: the old "+1 dmg if THIS target is feared" bonus is gone — folded into
+  // shard_fear_scale's count-based scaling instead (which already counts this very target
+  // if it's feared), so keeping both would have double-counted. Keeps SHARD and THE BOOK
+  // symmetric: base value, scaled purely by their own family's live board count, no extra
+  // per-target-condition bonus on top.
+  const dmg=shardBaseDmg(artifact,oppK);
+  lg(`${artifact.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   // THE BOOK gets its own fx label (thematically "burned by the page") — same fx-shard
   // visual system as SHARD itself, per author request ("сделать всё как у Шард").
   const fxLabel=hasTag(artifact,'shard_burn_scale')?'SCORCH!':'SHARD!';
