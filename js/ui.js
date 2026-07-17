@@ -1648,6 +1648,7 @@ const TAG_TOOLTIPS = {
   'burn':    { name: 'Burn',    desc: 'On attack: target loses 1 HP at the start of each of its turns until death.' },
   'rage':    { name: 'Rage',    desc: 'Gains +1 ATK permanently each time it attacks.' },
   'provoke': { name: 'Provoke', desc: 'All enemy attacks must target this creature.' },
+  'intercept': { name: 'Intercept', desc: 'If nothing forces all attacks onto itself (Bushido/Provoke), one enemy attack per turn is automatically redirected onto this creature, no matter who the attacker chose. Doesn\'t consume the intercept if the attacker already picked this creature. Once per turn — with multiple Intercept creatures, whichever entered the field earliest triggers first.' },
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
   'untamed': { name: 'Untamed', desc: "Clears exhausted at the start of the opponent's turn." },
