@@ -765,6 +765,27 @@ function killCard(card,faction,toVoid=false){
     }
   }
 
+  // VALLEY-style on_enemy_death (2026-07-17, anti-HUNGER) — то же самое, что блок выше,
+  // но с точностью до наоборот: свой Мир смотрит на смерти ВРАЖЕСКИХ существ, а не своих.
+  // Проверяем ОБА Мира на поле (как REAPER-петля ниже проверяет обе стороны на
+  // on_enemy_death_base) — сейчас этим тегом владеет только VALLEY (Tea), но сама
+  // проверка не завязана на фракцию, сработает для любой стороны, если тег появится там.
+  // Автор специально просил без пассивного "тяни каждый ход" — только реактивно, от чужой
+  // смерти, чтобы не было чувства "карты сами прилетают бесплатно" — и чтобы это было
+  // прямым противовесом ALTAR (жертва себе за ресурс) — теперь чужие потери тоже кормят
+  // руку соперника. Тот же creature-only guard, что у HUNGER-блока выше.
+  if(!card.spell&&!card.world&&!card.artifact){
+    ['tea','jeet'].forEach(f=>{
+      if(f===card.f) return; // это НЕ "своя" смерть с точки зрения f — тут как раз и нужно
+      const world=G[f].world;
+      if(world&&hasTag(world,'on_enemy_death')){
+        const val=getTagVal(world,'on_enemy_death')||1;
+        for(let i=0;i<val;i++) if(G[f].deck.length>0) G[f].hand.push(G[f].deck.shift());
+        lg(`${world.name}: ${card.name} (enemy) died — draw ${val} card(s).`,'hl');
+      }
+    });
+  }
+
   ['tea','jeet'].forEach(f=>{
     G[f].field.forEach(ally=>{
       const val=getTagVal(ally,'on_enemy_death_base');
@@ -776,6 +797,19 @@ function killCard(card,faction,toVoid=false){
         G[f].hp=Math.min(G[f].maxHp,G[f].hp+val);
         lg(`${ally.name}: ${f} base +${val} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
         flashBase(f, 'heal', val);
+      }
+      // FAERON-style on_own_death_base (2026-07-17, replaces FAERON's old
+      // on_play_creature:1 — author call, "anti-REAPER": REAPER profits off the ENEMY's
+      // losses, this profits off YOUR OWN losses instead — same death-triggered base-heal
+      // shape, opposite trigger side. Exact mirror of the block above, condition flipped
+      // (card.f===f instead of !==). Note the dying card itself is already spliced out of
+      // G[faction].field at the top of killCard(), so a creature carrying this tag can
+      // never trigger off its own death — same natural exclusion REAPER already has.
+      const ownVal=getTagVal(ally,'on_own_death_base');
+      if(ownVal&&card.f===f&&G[f].hp<G[f].maxHp){
+        G[f].hp=Math.min(G[f].maxHp,G[f].hp+ownVal);
+        lg(`${ally.name}: ${f} base +${ownVal} HP → ${G[f].hp}/${G[f].maxHp}.`,'hl');
+        flashBase(f, 'heal', ownVal);
       }
     });
   });
@@ -1141,13 +1175,27 @@ function doSacrifice_target(card){
 }
 
 
+// Общий расчёт базового урона Shard-семейства (2026-07-17, для THE BOOK — "Пинг + горение").
+// SHARD (Jeet) — просто статичный getTagVal. THE BOOK (Tea) добавляет тег shard_burn_scale —
+// динамическая надбавка = сколько ВРАЖЕСКИХ существ сейчас горит (Tea применяет burn через
+// пару своих Драгэн/Орбитон карт и FAERON — этот артефакт вознаграждает за то, что игрок уже
+// вложился в под-тему горения). Считается заново каждый раз (не кэшируется на карте) — общее
+// число горящих меняется каждый ход, значение должно быть актуальным на момент клика.
+function shardBaseDmg(artifact, oppK){
+  const base=getTagVal(artifact,'shard')||1;
+  if(!artifact||!hasTag(artifact,'shard_burn_scale')) return base;
+  const burningCount=G[oppK].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.burning).length;
+  return base+burningCount;
+}
+
 function doShard(artifact){
   if(G.phase==='shardTarget'){
     G.phase='action';G.sel=null;render();return;
   }
   G.phase='shardTarget';
   G.sel=artifact.id;
-  lg(`${artifact.name}: select an enemy creature to deal ${getTagVal(artifact,'shard')||1} damage.`,'hint');
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  lg(`${artifact.name}: select an enemy creature to deal ${shardBaseDmg(artifact,oppK)} damage.`,'hint');
   render();
 }
 
@@ -1356,11 +1404,14 @@ function doShardTarget(card){
   }
   playSfx('card_spell_atack');
   const artifact=G[G.turn].artifacts.find(a=>hasTag(a,'shard'));
-  const baseDmg=getTagVal(artifact,'shard')||1;
+  const baseDmg=shardBaseDmg(artifact,oppK);
   const dmg=card.feared?baseDmg+1:baseDmg;
   const fearNote=card.feared?' (feared +1)':'';
   lg(`${artifact.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
-  queueFieldFx(card.id,'SHARD!','fx-shard'); // плейсхолдер — позже заменится на гифку
+  // THE BOOK gets its own fx label (thematically "burned by the page") — same fx-shard
+  // visual system as SHARD itself, per author request ("сделать всё как у Шард").
+  const fxLabel=hasTag(artifact,'shard_burn_scale')?'SCORCH!':'SHARD!';
+  queueFieldFx(card.id,fxLabel,'fx-shard'); // плейсхолдер — позже заменится на гифку
   dmgCard(card,dmg,oppK,true);
   if(artifact) artifact.exhausted=true;
   G.phase='action';G.sel=null;
