@@ -119,18 +119,24 @@ function render(){
   };
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
-  // Target-prompt overlay — для точечных заклинаний (OBLIVION/dispel/dmg/buff) И теперь
-  // для активки лечения (healTarget), по просьбе автора — тот же паттерн подтверждения,
-  // что у остальных таргетируемых действий. НЕ для selectTarget/shardTarget/sacrificeTarget —
-  // те целятся с поля, у них уже своя подсветка targetable/healable прямо на картах.
-  // Клик по оверлею вызывает cancelPendingSpell() — для healTarget G.pendingSpell пуст,
-  // так что рефанда не происходит, просто чистый сброс фазы (G.phase='action', G.sel=null).
+  // Target-prompt overlay — для точечных заклинаний (OBLIVION/dispel/dmg/buff), активки
+  // лечения (healTarget) и, с 2026-07-17, для Shard/Bolt (shardTarget/boltTarget) — раньше
+  // эти два были сознательно исключены (см. историю правки — целятся с поля, у них уже
+  // есть своя подсветка targetable/aim-target прямо на картах), но подсветка и оверлей не
+  // взаимоисключающие: spellDmgTarget уже получает ОБА слоя одновременно (см. чуть выше,
+  // строка с 'targetable','aim-target'), так что добавление оверлея сюда — просто
+  // выравнивание UX, не конфликт с существующей подсветкой мишени.
+  // НЕ для selectTarget/sacrificeTarget — те по-прежнему только с подсветкой на картах.
+  // Клик по оверлею вызывает cancelPendingSpell() — для shardTarget/boltTarget/healTarget
+  // G.pendingSpell пуст, так что рефанда не происходит, просто чистый сброс фазы
+  // (G.phase='action', G.sel=null).
   const targetPromptOverlay=document.getElementById('targetPromptOverlay');
   if(targetPromptOverlay){
     const showTargetPrompt=(
       G.phase==='spellDmgTarget'||G.phase==='spellBuffTarget'||
       G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'||
-      G.phase==='spellBounceTarget'||G.phase==='healTarget'
+      G.phase==='spellBounceTarget'||G.phase==='healTarget'||
+      G.phase==='shardTarget'||G.phase==='boltTarget'
     );
     targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
   }
@@ -692,7 +698,7 @@ const tagIcons = (card.tags||[])
   const armorDisp=_armorDisplay(card);
   d.innerHTML=`
     <div class="card-cost">${card.cost}</div>
-    ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" title="Incarnation: returns in ${card.incarnTimer} turn(s)"><img src="./img/ico_incarn.png" class="card-incarn-icon" style="width:70%;height:auto;">${card.incarnTimer}</div>`:''}
+    ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" title="${card.incarnTimer>0?`Incarnation: returns in ${card.incarnTimer} turn(s)`:`Battleground is full — waiting to revive as soon as a slot opens`}"><img src="./img/ico_incarn.png" class="card-incarn-icon" style="width:70%;height:auto;">${card.incarnTimer}</div>`:''}
     ${armorDisp?`<div class="card-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${card.burning?'<div class="burning-icon"></div>':''}
