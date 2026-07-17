@@ -1052,7 +1052,7 @@ function doShard(artifact){
   }
   G.phase='shardTarget';
   G.sel=artifact.id;
-  lg(`${artifact.name}: select an enemy creature to deal ${getTagVal(artifact,'shard')||2} damage.`,'hint');
+  lg(`${artifact.name}: select an enemy creature to deal ${getTagVal(artifact,'shard')||1} damage.`,'hint');
   render();
 }
 
@@ -1182,7 +1182,7 @@ function doShardTarget(card){
   }
   playSfx('card_spell_atack');
   const artifact=G[G.turn].artifacts.find(a=>hasTag(a,'shard'));
-  const baseDmg=getTagVal(artifact,'shard')||2;
+  const baseDmg=getTagVal(artifact,'shard')||1;
   const dmg=card.feared?baseDmg+1:baseDmg;
   const fearNote=card.feared?' (feared +1)':'';
   lg(`${artifact.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
