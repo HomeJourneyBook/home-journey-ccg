@@ -697,9 +697,23 @@ function aiScoreCard(card, me){
 
 // ── ФАЗА 2: атаки ───────────────────────────────────────────────
 function getAiCreatureQueue(){
-  return G[G.aiFaction].field.filter(c =>
+  const queue = G[G.aiFaction].field.filter(c =>
     !c.sleeping && !c.exhausted && !c.feared && !c.spell && !c.world && !c.artifact
   );
+  // Shield-pop ordering (2026-07-17): dmgCard() lets an unconsumed Solana Shield (`shield`
+  // tag) absorb the FIRST hit against its owner COMPLETELY, regardless of how much dmg
+  // that hit carries — so spending a strong attacker on a still-shielded target wastes
+  // its damage on what a 1-ATK creature could've popped just as well. If the opponent has
+  // such a target right now, send our weakest attacker first (queue ascending by effAtk)
+  // so it eats the shield, leaving stronger attackers to act afterward once it's gone.
+  // Known boundary: this is a blunt whole-queue sort, not a per-target plan — it reorders
+  // even when not every attacker is actually going to target that creature. Harmless
+  // (no-op) when no unconsumed shield exists, and cheap since it only fires 0-2 times a
+  // game (one card currently carries `shield`, see AI_WEIGHTS.tagBonus.shield in ai.js).
+  const humanF = G.humanFaction;
+  const shieldTarget = G[humanF].field.find(c => hasTag(c,'shield') && !c.shieldConsumed);
+  if(shieldTarget) queue.sort((a,b) => effAtk(a) - effAtk(b));
+  return queue;
 }
 
 function aiAttackStep(queue, idx){
@@ -760,7 +774,13 @@ function aiActWithCreature(creature){
   // dmgCard()/bypassArmor в game.js), поэтому реальный урон-до-смерти — hp + armor,
   // не просто hp. Раньше это не учитывалось: ИИ мог решить, что удар добивает цель,
   // хотя часть урона на самом деле уходила в Броню.
-  const killable = targetable.filter(t => atk >= t.hp + (t.armor||0));
+  // 2026-07-17: то же самое было верно для Solana Shield (`shield` тег) — оно поглощает
+  // ПЕРВЫЙ удар ЦЕЛИКОМ (game.js dmgCard()), независимо от atk, но killable вообще не
+  // проверял shieldConsumed — ИИ мог "убить" щит-цель ударом, который на деле снимался в 0.
+  // Теперь такая цель не считается killable, пока щит ещё цел (см. также getAiCreatureQueue()
+  // — порядок атакующих теперь сам подставляет слабое существо под щит первым).
+  const stillShielded = t => hasTag(t,'shield') && !t.shieldConsumed;
+  const killable = targetable.filter(t => !stillShielded(t) && atk >= t.hp + (t.armor||0));
   // Не считаем "нужным" килл на цели, которая и так умрёт от собственного burn'а
   // в начале хода ЕЁ владельца (endTurn(), тикает раньше её controller-а), если
   // вместо этого можно бить прямо по базе — тратить атаку на гарантированно
