@@ -758,6 +758,15 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath){
     const absorbed=Math.min(card.armor,dmg);
     card.armor-=absorbed;
     dmg-=absorbed;
+    if(absorbed>0){
+      // -X Armor float (2026-07-18, по просьбе автора) — зеркало showFloat(...,'dmg') у HP
+      // ниже, но у своей позиции (armorloss, привязана к card-small-armor-box в CSS) и без
+      // отдельного lg() — лог у брони уже есть чуть ниже (полный/частичный абсорб).
+      // Срабатывает в ОБОИХ случаях (полный и частичный абсорб) — armor реально
+      // уменьшился в обоих, просто при частичном следом ещё прилетит HP-урон.
+      const cardId=card.id;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,`-${absorbed}`,'armorloss')));
+    }
     if(dmg<=0){
       requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
       lg(`${card.name}'s armor absorbs ${absorbed} dmg (${card.armor} armor left).`,'dmg');
