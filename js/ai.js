@@ -735,8 +735,12 @@ function aiAttackStep(queue, idx){
 function aiCanHitBase(creature, oppField){
   const bushido = oppField.find(c => c.tags && c.tags.includes('bushido'));
   if(bushido) return false;
+  // Provoke rework (2026-07-17): absolute for everyone now, no pierce exception — see
+  // getTargetableCards()/canAttackBase() in game.js for the full reasoning. Pierce's only
+  // remaining perk is the trample overflow inside doAttack() when it's forced onto a
+  // provoke creature and kills it with excess damage.
   const provoke = oppField.find(c => c.tags && c.tags.includes('provoke'));
-  if(provoke && !creature.tags.includes('pierce') && !(creature.squadParam && creature.squadParam.pierce)) return false;
+  if(provoke) return false;
   return true;
 }
 
@@ -764,10 +768,11 @@ function aiActWithCreature(creature){
   const atk = effAtk(creature);
   const targetableIds = getTargetableCards(oppField, creature);
   const targetable = oppField.filter(c => targetableIds.includes(c.id));
+  // Provoke rework (2026-07-17): pierce no longer exempt — forced is now just
+  // "is there a bushido or provoke creature over there", full stop.
   const forced =
     oppField.some(c => hasTag(c,'bushido')) ||
-    (oppField.some(c => c.tags.includes('provoke')) &&
-      !hasTag(creature,'pierce') && !(creature.squadParam && creature.squadParam.pierce));
+    oppField.some(c => c.tags.includes('provoke') && !c.provokeBroken);
 
   // 1) Если можем убить кого-то без потери существа зря — убиваем самую опасную цель.
   // Броня поглощает физический урон ПЕРВОЙ (обычная атака её не игнорирует — см.
