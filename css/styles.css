@@ -1331,18 +1331,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    (фон+рамка+эмодзи), симметрично card-cost в правом верхнем углу, как временная замена
    до готового арта (тот же принцип, что и placeholder-кнопки, см. CLAUDE.md). ── */
 .card-incarn-badge{position:absolute;top:calc(var(--card-h) * 0.0125);right:calc(var(--card-w) * 0.038);
-  width:calc(var(--card-h)*0.12);height:calc(var(--card-h)*0.12*2.18);
+  width:calc(var(--card-h)*0.12*2);height:calc(var(--card-h)*0.12*2.18*2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.09);font-weight:bold;line-height:1;
+  font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.09*2);font-weight:bold;line-height:1;
   overflow:hidden;border-radius:4px;color:#e0c8ff;z-index:4;}
 /* armor_bg.png — горизонтальный 2:1 ассет, тот же что у Брони, но здесь бокс вертикальный —
    повёрнут на 90° через псевдоэлемент-подложку (ширина/высота свопнуты ДО поворота, чтобы
    после rotate(90deg) итоговый повёрнутый прямоугольник точно перекрыл сам бокс). */
 .card-incarn-badge::before{content:'';position:absolute;top:50%;left:50%;
-  width:calc(var(--card-h)*0.12*2.18);height:calc(var(--card-h)*0.12);
+  width:calc(var(--card-h)*0.12*2.18*2);height:calc(var(--card-h)*0.12*2);
   background-image:url('../img/armor_bg.png');background-size:100% 100%;background-repeat:no-repeat;
   transform:translate(-50%,-50%) rotate(90deg);z-index:-1;}
-.card-incarn-badge .card-incarn-icon{font-size:calc(var(--card-h)*0.1);}
+.card-incarn-badge .card-incarn-icon{font-size:calc(var(--card-h)*0.1*2);}
 .card-ability-box{width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:1.5px;display:flex;align-items:center;justify-content:center;}
 .card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:0.7;word-spacing:-1px;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
 .card-world-art{width:100%;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;}
@@ -1666,6 +1666,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .float-number.heal{color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%);}
 .float-number.atk{color:#55aaff; left:76%; top:81%; transform:translate(-50%,-50%);}
 .float-number.maxhp{color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%);}
+.float-number.armoraura{color:var(--color-cream); left:28%; top:81%; transform:translate(-50%,-50%);}
 .float-number-base{left:50%; top:-4px; transform:translateX(-50%); font-size:16px;}
 .float-number-base.fnb-dmg{color:#e05555;}
 .float-number-base.fnb-heal{color:#44ff88;}
