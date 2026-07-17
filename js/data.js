@@ -41,7 +41,7 @@ const DEFS = {
 
   // Xuiqtr Tea
     t_trvl187_w:    {name:"TRAVELER #187",  cost:5,hp:8,atk:3,art:"🐙", img:"187.png",  f:"tea",tags:["intercept","armor:1","untamed","gtype:xui"],                   ab:"Squad: +1 ATK."},
-    t_trvl704_w:    {name:"TRAVELER #704",  cost:4,hp:5,atk:3,art:"🐙", img:"704.png",  f:"tea",tags:["intercept","fear","shield","gtype:xui"],             ab:"Solana Shield. Squad: +1 ATK."},
+    t_trvl704_w:    {name:"TRAVELER #704",  cost:4,hp:5,atk:3,art:"🐙", img:"704.png",  f:"tea",tags:["intercept","fear","shield","gtype:xui"],             ab:"Squad: +1 ATK."},
      t_trvl26_w:    {name:"TRAVELER #26",   cost:3,hp:4,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["intercept","taunt_break","gtype:xui"],            ab:"Squad: +1 ATK."},
      t_trvl39_w:    {name:"TRAVELER #39",   cost:3,hp:4,atk:2,art:"🐙", img:"39.png",   f:"tea",tags:["intercept","armor:1","gtype:xui"],                   ab:"Squad: +1 ATK."},
 
