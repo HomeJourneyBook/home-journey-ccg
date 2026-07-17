@@ -1659,6 +1659,7 @@ const TAG_TOOLTIPS = {
   'necrophage': { name: 'Erase', desc: 'On attack, if the hit is lethal: erases the fallen creature from its owner\'s graveyard for the Void, fully restores this creature\'s HP, and cleanses its own Burning.' },
   'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes X damage back, regardless of whether this creature survives the hit.' },
   'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage. One-time — does nothing once broken.' },
+  'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the battleground. If the creature leaves the battleground and returns, the shield recharges.' },
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box';
