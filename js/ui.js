@@ -197,7 +197,23 @@ function playSfx(name, volume){
 
 document.addEventListener('DOMContentLoaded', _refreshSfxBtn);
 
+// Держит живые ссылки на ВСЕ new Image(), созданные preloadAssets() — см. подробный
+// комментарий внутри функции. Без этого декодированные битмапы могут быть вытеснены из
+// памяти браузером (особенно на мобильных) после накопления DOM-churn за партию.
+let _preloadedImageRefs=[];
 function preloadAssets(){
+  // 2026-07-17 (баг, автор — "ассеты пропадают и подгружаются на ходу после пары партий"):
+  // ниже создаётся ~300 объектов new Image() ради побочного эффекта (браузер кладёт файл в
+  // кэш), но раньше НИ ОДНА ссылка на сами объекты Image нигде не сохранялась — переменная
+  // `img` жила только внутри тела forEach/setTimeout-колбэка и после его завершения была
+  // доступна сборщику мусора. На десктопе это обычно незаметно (щедрый HTTP/memory-кэш), но
+  // на мобильных браузерах (особенно iOS Safari) декодированные битмапы агрессивно
+  // вытесняются из памяти при нехватке ресурсов — а после пары партий (много DOM-churn:
+  // карты создаются/удаляются на поле, в руке, в кладбище) памяти как раз начинает не
+  // хватать. Без живой JS-ссылки на Image браузеру нечего "удерживать" — картинка
+  // вытесняется и при следующем реальном использовании подгружается и перекодируется
+  // заново, видимо как замена не сразу. Фикс — простое: держим ссылку на КАЖДЫЙ Image в
+  // module-level массиве на весь срок жизни страницы, сборщик мусора их больше не трогает.
   // Все UI-картинки, которые нужны ДО и ВО ВРЕМЯ игры.
   // Загружаем через new Image() — браузер положит в кэш, повторный запрос будет мгновенным.
   // Порядок важен: сначала лендинг (видны сразу), потом игровые, потом вторичные.
@@ -376,7 +392,7 @@ function preloadAssets(){
     'img/button_grav_1.png', 'img/button_grav_2.png',
     'img/button_grav_1_jeet.png', 'img/button_grav_2_jeet.png',
   ];
-  criticalImages.forEach(src => { const img = new Image(); img.src = src; });
+  criticalImages.forEach(src => { const img = new Image(); img.src = src; _preloadedImageRefs.push(img); });
 
   // Предзагружаем SFX-буферы через Web Audio API — нулевая задержка при первом звуке
   _initSfxBuffers();
@@ -385,7 +401,7 @@ function preloadAssets(){
   setTimeout(() => {
     if(typeof DEFS === 'undefined') return;
     Object.values(DEFS).forEach(def => {
-      if(def.img){ const img = new Image(); img.src = `img/cards/${def.img}`; }
+      if(def.img){ const img = new Image(); img.src = `img/cards/${def.img}`; _preloadedImageRefs.push(img); }
     });
   }, 1500);
 }
