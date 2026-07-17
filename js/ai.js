@@ -72,6 +72,11 @@ const AI_WEIGHTS = {
   loseHandSizeWeight: 0.25,      // за каждую карту в руке соперника сверх минимума — крупнее рука, ценнее сброс
   aoeCountEmptyBoardScore: -0.5, // (2026-07-17) Board Purge на пустом поле соперника — то же самое, что revive
   aoeCountPerTargetWeight: 0.6,  // за каждое вражеское существо на поле — карта одновременно бьёт СИЛЬНЕЕ (dmg=count) и ШИРЕ (тел больше), отсюда вес выше, чем у loseHandSizeWeight
+  provokeBreakStuckAtkWeight: 0.35, // (2026-07-17) EXPOSE/UNMASK — за суммарный effAtk своих существ, которых сейчас форсит вражеский Provoke
+  trampleOverflowWeight: 0.3,       // (2026-07-17) BREACH/RUPTURE — доп. вес за гарантированный перелив в базу сверх обычного removal-килла
+  fearAllEmptyBoardScore: -0.5,     // (2026-07-17) Mass Sap на пустом поле соперника — то же самое, что revive/aoe_count
+  fearAllPerTargetWeight: 0.5,      // за каждое вражеское существо, которое лишится хода
+  fearAllBehindBonus: 1.5,          // доп. ценность, когда мы уже 'behind' — чистый tempo/stabilize эффект
   raceHpBehindThreshold: -4,     // моё HP - вражеское <= это ⇒ 'behind'
   raceHpAheadThreshold: 4,
   racePowerBehindThreshold: -3,  // сумма effAtk моего поля - вражеского
@@ -357,6 +362,25 @@ function aiResolvePendingSpellTarget(){
     doSpellBounceTarget(ownTargets[0]);
     return;
   }
+  if(G.phase==='spellProvokeBreakTarget'){
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken);
+    if(targets.length===0){ cancelPendingSpell(); return; }
+    // Только одна Provoke-цель обычно и бывает разом (см. aiSpellHasValidTarget) — если
+    // вдруг больше одной, берём самую опасную (effAtk), как и везде выше.
+    targets.sort((a,b)=>effAtk(b)-effAtk(a));
+    doSpellProvokeBreakTarget(targets[0]);
+    return;
+  }
+  if(G.phase==='spellDmgTrampleTarget'){
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+    if(targets.length===0){ cancelPendingSpell(); return; }
+    const dmg=getTagVal(G.pendingSpell,'spell_dmg_trample_target')||5;
+    const killable=targets.filter(c=>dmg>=(c.hp+(c.armor||0)));
+    const pool=killable.length>0?killable:targets;
+    pool.sort((a,b)=>effAtk(b)-effAtk(a)); // strongest killable, or just strongest chip target
+    doSpellDmgTrampleTarget(pool[0]);
+    return;
+  }
 }
 
 // ── АКТИВКА: AOE (Umbasir) ───────────────────────────────────────
@@ -568,6 +592,14 @@ function aiSpellHasValidTarget(card){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact) ||
            G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
   }
+  if(hasTag(card,'spell_provoke_break_target')){
+    // Только реальные непогашенные Provoke-цели — как и click-хендлер в game.js, тут нет
+    // смысла "промахиваться" мимо любой другой карты.
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken);
+  }
+  if(hasTag(card,'spell_dmg_trample_target')){
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+  }
   if(hasTag(card,'revive')){
     // 2026-07-16: воскрешённая карта всегда идёт на СВОЁ поле кастующего (см. reviveCard()
     // в game.js) — лимит 6 существ поэтому проверяем только у AI, независимо от того, чьё
@@ -679,6 +711,49 @@ function aiScoreCard(card, me){
       const enemyCount=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
       if(enemyCount===0) return w.aoeCountEmptyBoardScore;
       return card.cost*w.spellBase + enemyCount*w.aoeCountPerTargetWeight;
+    }
+
+    if(hasTag(card,'spell_provoke_break_target')){
+      // EXPOSE/UNMASK (2026-07-17) — aiSpellHasValidTarget() already guarantees a live
+      // Provoke target exists, so no empty-check needed here (unlike lose/aoe_count, which
+      // can legally resolve into a no-op the AI itself chooses to walk into). Value comes
+      // entirely from how much of OUR OWN board is currently forced onto that Provoke
+      // creature instead of reaching the enemy base/better targets — the more/stronger our
+      // stuck attackers, the more this is worth clearing right now instead of later.
+      const stuck=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
+      if(stuck.length===0) return card.cost*w.spellBase*0.5; // nothing of ours to unstick THIS turn — still fine setup for next turn, just worth less
+      const totalStuckAtk=stuck.reduce((sum,c)=>sum+effAtk(c),0);
+      return card.cost*w.spellBase + totalStuckAtk*w.provokeBreakStuckAtkWeight;
+    }
+
+    if(hasTag(card,'spell_dmg_trample_target')){
+      // BREACH/RUPTURE (2026-07-17) — same shape as spell_dmg_target's scoring above, plus
+      // the overflow makes even an already-lethal kill worth a little extra (the excess
+      // isn't wasted like a plain spell_dmg_target overkill would be).
+      const dmg=getTagVal(card,'spell_dmg_trample_target')||5;
+      const targets=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+      if(targets.length===0) return -1; // aiSpellHasValidTarget should already exclude this case
+      const killable=targets.filter(t=>dmg>=(t.hp+(t.armor||0)));
+      if(killable.length>0){
+        const best=killable.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
+        const overflow=Math.max(0,dmg-(best.hp+(best.armor||0)));
+        return card.cost*w.spellBase + w.removalKillBonus + effAtk(best)*w.removalKillTargetAtkWeight + overflow*w.trampleOverflowWeight;
+      }
+      const race=aiRaceState();
+      return card.cost*w.spellBase*w.removalChipMult + (race==='behind'?w.removalChipBehindBonus:0);
+    }
+
+    if(hasTag(card,'spell_fear_all')){
+      // STILLNESS/NIGHTMARE (2026-07-17, "Mass Sap") — reuses the Fear engine board-wide
+      // (see abilities.js case 'fear_all'), so like aoe_count its value scales with the
+      // enemy board rather than a flat baseline: denying 1 creature's turn is a minor
+      // tempo play, denying 4-5 is close to a one-sided board wipe for a turn. Extra bump
+      // when we're 'behind' — this is a pure defensive/stabilizing tempo card, worth more
+      // exactly when we need a turn to breathe.
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      if(enemies.length===0) return w.fearAllEmptyBoardScore;
+      const race=aiRaceState();
+      return card.cost*w.spellBase + enemies.length*w.fearAllPerTargetWeight + (race==='behind'?w.fearAllBehindBonus:0);
     }
 
     // Draw / essence / untap / dispel / anything else generic — flat baseline,
