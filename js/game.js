@@ -600,10 +600,8 @@ function doBoltTarget(card){
     lg('Select an enemy creature.','hint');return;
   }
   playSfx('card_spell_atack');
-  const baseDmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
-  const dmg=card.feared?baseDmg+1:baseDmg;
-  const fearNote=card.feared?' (feared +1)':'';
-  lg(`${bolt.name}: ${card.name} takes ${dmg} damage${fearNote}!`,'dmg');
+  const dmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
+  lg(`${bolt.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   queueFieldFx(card.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта
   dmgCard(card,dmg,oppK,true);
   bolt.exhausted=true;
@@ -737,8 +735,8 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath){
   // Shard, точечный урон спеллом) — той же категории, что Броня НЕ блокирует (см.
   // комментарий ниже про bypassArmor). Обычная атака/контратака Ward не блокирует —
   // так же, как Броня не блокирует магию, здесь наоборот: Ward не блокирует физику.
-  // Сознательно НЕ трогает burn/fear (те применяются отдельными путями, не через
-  // dmgCard) — если нужно расширить Ward на них, это отдельная правка.
+  // Fear/Burn применяются отдельными путями (не через dmgCard) — Ward блокирует их
+  // отдельно, в abilities.js (case 'fear'/'burn'/'fear_all'/'burn_all'), 2026-07-18.
   if(bypassArmor && hasTag(card,'ward')){
     requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
     lg(`${card.name}'s Ward blocks the magic damage entirely.`,'dmg');
