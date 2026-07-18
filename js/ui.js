@@ -1652,7 +1652,7 @@ const TAG_TOOLTIPS = {
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
   'untamed': { name: 'Untamed', desc: "Clears exhausted at the start of the opponent's turn." },
-  'ward':    { name: 'Ward', desc: 'Immune to magic damage.' },
+  'ward':    { name: 'Ward', desc: 'Immune to magic damage, Fear and Burn.' },
   'incarnation': { name: 'Incarnation', desc: 'When this creature dies, it returns from the graveyard on its own after a set number of its owner\'s turns, at full HP. One-time — if it dies again after returning, it is exiled for the Void instead.' },
   'taunt_break': { name: 'Taunt Break', desc: 'On attack: suppresses Provoke on the target — it can be freely attacked past this turn, ignoring Provoke. Wears off at the start of its own owner\'s next turn.' },
   'vampiric': { name: 'Vampiric', desc: 'On attack: heals for exactly the HP it actually removes from the target (Armor absorption doesn\'t count) — capped at its own missing HP.' },
