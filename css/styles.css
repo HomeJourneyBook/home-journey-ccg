@@ -1328,8 +1328,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small.exhausted{filter:brightness(.55) saturate(.8);}
 .card-small.sleeping{filter:brightness(.55) saturate(.8);}
 .card-small.feared{opacity:.5;border-style:solid;box-shadow:0 0 8px #66666688;}
-.card-small.invisible-visual{opacity:.55;}
-.card-small.stealth-visual{opacity:.55;}
+.card-small.invisible-visual{border-color:var(--color-cream);box-shadow:0 0 5px var(--color-cream), inset 0 0 3px var(--color-cream);}
+.card-small.stealth-visual{border-color:var(--color-cream);box-shadow:0 0 5px var(--color-cream), inset 0 0 3px var(--color-cream);}
 .card-small-feared{position:absolute;top:calc(var(--card-small-h) * -0.085);left:20%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small-burning{position:absolute;top:calc(var(--card-small-h) * -0.085);left:80%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small-tauntbroken{position:absolute;top:calc(var(--card-small-h) * -0.085);left:50%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
@@ -1756,7 +1756,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .float-number.atk{color:#55aaff; left:76%; top:81%; transform:translate(-50%,-50%);}
 .float-number.maxhp{color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%);}
 .float-number.armoraura{color:var(--color-cream); left:28%; top:81%; transform:translate(-50%,-50%);}
-.float-number.armorloss{color:#e05555;
+.float-number.armorloss{color:var(--color-cream);
   left:calc(var(--card-small-w)*0.048 + var(--card-small-h)*0.13);
   top:calc(2px + var(--card-small-art-h) - (var(--card-small-h)*0.065));
   transform:translate(-50%,-50%);}
