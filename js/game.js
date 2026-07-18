@@ -1,3 +1,19 @@
+// Видимость для ТОЧЕЧНЫХ СПЕЛЛОВ/Bolt (2026-07-18, по прямому запросу автора) — это
+// НЕ то же самое, что getTargetableCards() выше (та функция — про ВЫНУЖДЕННЫЙ таргетинг
+// в бою, где должна быть хоть какая-то цель, отсюда исключение "все invisible → все
+// цели"). Точечный спелл — ДОБРОВОЛЬНОЕ действие кастующего: если противник спрятал
+// существо (invisible) или оно ещё не раскрылось (stealth && !stealthBroken), маг
+// просто не может в него ткнуть пальцем, и это нормально — спелл в этом случае вообще
+// не имеет валидной цели среди таких карт, никакого fallback-исключения не нужно.
+// Применяется ТОЛЬКО к вражеским целям — по своим существам (Bounce на союзника, где
+// сторона цели не ограничена card.f!==G.turn) видимость не проверяется вообще: игрок
+// всегда точно знает, где стоит его собственная invisible/stealth карта.
+function isSpellTargetable(card){
+  if(hasTag(card,'invisible')) return false;
+  if(hasTag(card,'stealth') && !card.stealthBroken) return false;
+  return true;
+}
+
 function getTargetableCards(oppField, att){
   const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return [bushido.id];
@@ -91,13 +107,13 @@ function onClick(card,zone){
     return;
   }
   if(G.phase==='shardTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
       doShardTarget(card);return;
     }
     G.phase='action';G.sel=null;render();return; // cancel
   }
   if(G.phase==='boltTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
       doBoltTarget(card);return;
     }
     G.phase='action';G.sel=null;render();return; // cancel
@@ -109,7 +125,7 @@ function onClick(card,zone){
     G.phase='action';G.sel=null;render();return; // cancel on any other click
   }
   if(G.phase==='spellDmgTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
       doSpellDmgTarget(card);return;
     }
     cancelPendingSpell();return; // cancel — refunds cost, returns card to hand
@@ -129,7 +145,7 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellDispelTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
       doSpellDispelTarget(card);return;
     }
     cancelPendingSpell();return;
@@ -150,13 +166,15 @@ function onClick(card,zone){
   if(G.phase==='spellBounceTarget'){
     // В отличие от остальных targeted-спеллов — цель ЛЮБАЯ сторона (своя или вражеская),
     // поэтому нет проверки card.f===/!==G.turn, только что это существо на поле.
-    if(zone==='field'&&!card.spell&&!card.world&&!card.artifact){
+    // Видимость (invisible/нераскрытый stealth) проверяется ТОЛЬКО для вражеской цели —
+    // свою карту игрок всегда видит, ограничения нет (2026-07-18).
+    if(zone==='field'&&!card.spell&&!card.world&&!card.artifact&&(card.f===G.turn||isSpellTargetable(card))){
       doSpellBounceTarget(card);return;
     }
     cancelPendingSpell();return;
   }
   if(G.phase==='spellProvokeBreakTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&isSpellTargetable(card)){
       doSpellProvokeBreakTarget(card);return;
     }
     // Клик мимо валидной Provoke-цели — как и spellUntapTarget, НЕ считается отменой:
@@ -166,7 +184,7 @@ function onClick(card,zone){
     return;
   }
   if(G.phase==='spellDmgTrampleTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
       doSpellDmgTrampleTarget(card);return;
     }
     cancelPendingSpell();return;
