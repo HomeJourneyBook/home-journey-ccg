@@ -3,7 +3,7 @@
 // no longer match reality — e.g. a card renamed/removed/rebalanced. Read by
 // dbExportDeck()/_applyImportedDeck() (deck JSON) and downloadBattleLog()
 // (ui.js), so old exports can be flagged instead of silently misapplied.
-const GAME_VERSION = "1.02";
+const GAME_VERSION = "1.03";
   
 const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
