@@ -263,7 +263,7 @@ function triggerAbilities(card, timing, ctx={}){
         // кнопку активки в render.js). Существо, уже Feared от чего-то другого, просто
         // получает флаг повторно — не складывается, не страшно.
         {
-          const fearTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact);
+          const fearTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward'));
           if(fearTargets.length>0){
             playSfx('debaf');
             fearTargets.forEach(t=>{t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');});
@@ -283,7 +283,7 @@ function triggerAbilities(card, timing, ctx={}){
         // queueFieldFx-попапа — одиночный Burn (case 'burn' ниже) тоже не показывает всплывашку,
         // сама горящая иконка на карте (card.burning) уже достаточный визуальный фидбек.
         {
-          const burnTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact);
+          const burnTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward'));
           if(burnTargets.length>0){
             playSfx('card_fire_atack');
             burnTargets.forEach(t=>{t.burning=true;});
@@ -295,17 +295,25 @@ function triggerAbilities(card, timing, ctx={}){
 
       case 'burn':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
-          ctx.target.burning=true;
-          playSfx('card_fire_atack');
-          lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
+          if(hasTag(ctx.target,'ward')){
+            lg(`${ctx.target.name}'s Ward blocks the burn entirely.`,'dmg');
+          } else {
+            ctx.target.burning=true;
+            playSfx('card_fire_atack');
+            lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
+          }
         } break;
 
       case 'fear':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
-          ctx.target.feared=true;
-          playSfx('debaf');
-          lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
-          queueFieldFx(ctx.target.id,'FEARED!','fx-fear');
+          if(hasTag(ctx.target,'ward')){
+            lg(`${ctx.target.name}'s Ward blocks the fear entirely.`,'dmg');
+          } else {
+            ctx.target.feared=true;
+            playSfx('debaf');
+            lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
+            queueFieldFx(ctx.target.id,'FEARED!','fx-fear');
+          }
         } break;
 
       case 'taunt_break':
