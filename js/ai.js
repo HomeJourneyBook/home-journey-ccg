@@ -45,6 +45,23 @@ const AI_WEIGHTS = {
                       // блокирует физическую атаку целиком, вес соответствующий
     draw:0.6,         // "On turn: draw 1 card" (напр. TEANTIST) — стабильное преимущество в картах КАЖДЫЙ
                       // ход, в отличие от draw_attack (нужно ещё и успешно атаковать) — вес того же порядка
+    // Третий проход аудита (2026-07-18, в рамках общей ревизии ИИ по запросу автора) —
+    // ещё 3 тега, найденные при полном сравнении списка тегов в data.js против tagBonus:
+    intercept:0.35,  // Xuiqtr — архетипная сигнатура (как provoke/pierce у Dreegan/Mechird), но
+                      // ОДНОРАЗОВАЯ на существо (getInterceptor(), interceptUsed) — весит чуть
+                      // меньше безусловного provoke(0.4), но выше "истощаемого" taunt_break(0.3)
+    stealth:0.3,      // TEANTIST — недостижим ТОЛЬКО до первой собственной атаки (в отличие от
+                      // invisible, который отменяется числом соседей, а не действием самой карты) —
+                      // разовая защита, вес ниже invisible(0.6)
+    thorns:0.3,       // FAERON — урон в ответ атакующему при получении удара; ситуативный контр-дэмag,
+                      // тот же уровень, что и taunt_break/stealth
+    // Четвёртый проход того же аудита — ETB-триггеры (on_enter, срабатывают ОДИН раз при
+    // розыгрыше, не оценивались вообще при выборе карты из руки, хотя цикл ниже уже
+    // применяет tagBonus к ЛЮБОМУ тегу карты автоматически — просто не было записи):
+    enter_draw:0.5,   // добор 1 карты при входе — разовая версия постоянного draw(0.6), чуть ниже
+    enter_heal:0.3,   // хил всем союзникам при входе — разовая версия постоянного heal(0.4), ниже
+    enter_lose:0.5,   // соперник сбрасывает карту при входе — разовая версия discard-эффекта,
+                      // тот же порядок ценности, что и enter_draw (обе меняют размер руки на 1)
   },
   permanentBuffBonus: 1.0, // spell_buff_temp (ARCHIVE) теперь живёт до смерти существа, а не до конца хода —
                            // старая оценка (только "текущий урон + грубый лефал-чек") недооценивала его, т.к.
@@ -73,6 +90,7 @@ const AI_WEIGHTS = {
   aoeCountEmptyBoardScore: -0.5, // (2026-07-17) Board Purge на пустом поле соперника — то же самое, что revive
   aoeCountPerTargetWeight: 0.6,  // за каждое вражеское существо на поле — карта одновременно бьёт СИЛЬНЕЕ (dmg=count) и ШИРЕ (тел больше), отсюда вес выше, чем у loseHandSizeWeight
   provokeBreakStuckAtkWeight: 0.35, // (2026-07-17) EXPOSE/UNMASK — за суммарный effAtk своих существ, которых сейчас форсит вражеский Provoke
+  provokeBreakNoStuckScore: -0.5,   // (2026-07-18) ничего из нашего поля СЕЙЧАС не форсится этим Provoke — по прямому запросу автора: не разыгрывать taunt_break "просто так" в качестве неопределённой заготовки, только когда реально нужно обойти танк прямо сейчас
   trampleOverflowWeight: 0.3,       // (2026-07-17) BREACH/RUPTURE — доп. вес за гарантированный перелив в базу сверх обычного removal-килла
   fearAllEmptyBoardScore: -0.5,     // (2026-07-17) Mass Sap на пустом поле соперника — то же самое, что revive/aoe_count
   fearAllPerTargetWeight: 0.5,      // за каждое вражеское существо, которое лишится хода
@@ -126,7 +144,38 @@ function aiGtypeCount(faction, gtype){
 // Если ПРЕФИКС разошёлся с GAME_VERSION — это сигнал (в консоли и в игровом
 // логе), что ИИ мог не узнать о недавних правках игры; ревизия сама по себе
 // предупреждение не вызывает.
-const AI_VERSION = "1.02.1";
+const AI_VERSION = "1.03.1";
+// v1.3.1 (аудит по запросу автора, 2026-07-18, вместе с bump'ом GAME_VERSION до 1.03) —
+// полная сверка ai.js против всех правок этой большой сессии (рефактор классик-колоды,
+// новые теги/карты, Bolt-фикс, Ward-фикс). Что исправлено:
+//   1. Bounce (spell_bounce_target) выбирал цель по effAtk по убыванию — на живой партии
+//      это привело к тому, что ИИ сдул дешёвого высокого-ATK Кситра вместо дорогого
+//      низкого-ATK TEANTIST (draw-engine), хотя именно TEANTIST болезненнее пересыграть.
+//      Bounce — чистый темп-урон "плати за карту заново", приоритет теперь по card.cost
+//      (effAtk — только tie-break при равном cost), см. aiResolvePendingSpellTarget().
+//   2. Видимость (invisible/нераскрытый stealth) вообще не проверялась ни у одного
+//      точечного спелла/активки (Bolt/Shard/spell_dmg_target/spell_bounce_target/
+//      spell_provoke_break_target/spell_dmg_trample_target/spell_dispel) — ИИ (и человек,
+//      см. game.js onClick()) мог выбрать целью карту, которую физически не видно на
+//      поле. Добавлена isSpellTargetable() (game.js) и применена везде, где спелл выбирает
+//      цель на вражеской половине поля; для Bounce по СВОЕЙ карте видимость не проверяется
+//      (игрок всегда знает, где его собственная invisible/stealth карта).
+//   3. taunt_break (EXPOSE/UNMASK) без реально застрявших атакующих (никто из своего поля
+//      сейчас не форсится этим Provoke) всё равно получал положительную оценку "неплохая
+//      заготовка на будущее" (cost*0.5) — по прямому запросу автора теперь явный минус
+//      (provokeBreakNoStuckScore), карта не разыгрывается "просто так".
+//   4. spell_fear_all/spell_burn_all считали ВСЕХ вражеских существ целями, включая уже
+//      feared/burning (оба булевы и не стакаются — burning вдобавок персистентный, тикает
+//      каждый ход, пока не снимут) — ИИ мог переиграть второй экземпляр спелла на поле,
+//      которое сам же час назад зафирил/зажёг, без всякой новой пользы. Теперь считаются
+//      только НОВЫЕ цели (не ward, ещё не под этим статусом).
+//   5. tagBonus не оценивал intercept (архетипная сигнатура Xuiqtr — тот же уровень, что
+//      provoke/pierce у других архетипов, но почему-то отсутствовал), stealth/thorns
+//      (легендарки TEANTIST/FAERON), и все три ETB-триггера enter_draw/enter_heal/
+//      enter_lose (одноразовый эффект при входе на поле, раньше 0 влияния на выбор карты
+//      из руки). Добавлены веса всем шести. enter_lose также добавлен в
+//      aiWorthBouncingOwn() — та же категория ретриггера при пересыгрыше, что у
+//      enter_aoe/enter_heal/enter_draw.
 // v1.0.2 (аудит по запросу автора, эта сессия) — движок успел уйти вперёд ai.js на
 // несколько сессий без сверки (Броня, Ward, Неукротимость, Инкарнация, Bolt, перманентный
 // ARCHIVE, ALTAR-рефилл картой), см. полный разбор в чате/CLAUDE.md. Что исправлено:
@@ -315,7 +364,7 @@ function aiPlayCardsStep(iter){
 function aiResolvePendingSpellTarget(){
   const humanF=G.humanFaction;
   if(G.phase==='spellDmgTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
     if(targets.length===0){ cancelPendingSpell(); return; }
     const dmg=getTagVal(G.pendingSpell,'spell_dmg_target')||3;
     const killable=targets.filter(c=>dmg>=(c.hp+(c.feared?0:0)));
@@ -342,7 +391,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellDispelTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c));
     if(targets.length===0){ cancelPendingSpell(); return; }
     targets.sort((a,b)=>effAtk(b)-effAtk(a));
     doSpellDispelTarget(targets[0]);
@@ -356,14 +405,17 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellBounceTarget'){
-    // Приоритет — бounce сильнейшего существа человека (чистый темп-профит: он платит за
-    // карту заново). Если у человека нечего бaунсить — фолбэк на СВОЮ карту, но только
-    // если это реально того стоит (aiWorthBouncingOwn — см. определение выше): просто
-    // "чтобы спелл не пропал" больше не считается поводом бaунсить своё же существо, это
-    // чистый минус темпа без всякой компенсации.
-    const enemyTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+    // Приоритет — бounce САМОЙ ДОРОГОЙ (по cost) карты человека, а не самой атакующей.
+    // 2026-07-18 (по прямому запросу автора, поймано на живой партии — ИИ сдул дешёвого
+    // Кситра вместо дорогого Тентиста): Bounce — это чистый темп-урон "плати за карту
+    // заново", ценность которого прямо пропорциональна TCG-стоимости карты (сколько
+    // эссенции придётся отдать повторно), а НЕ её боевой силе — низкий-ATK/высокий-cost
+    // "движковый" юнит типа TEANTIST (draw-engine) намного болезненнее пересыграть, чем
+    // дешёвого атакующего с большим ATK. effAtk остаётся tie-break при равном cost.
+    // Видимость (invisible/нераскрытый stealth) проверяется ТОЛЬКО для вражеской стороны.
+    const enemyTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c));
     if(enemyTargets.length>0){
-      enemyTargets.sort((a,b)=>effAtk(b)-effAtk(a));
+      enemyTargets.sort((a,b)=>(b.cost-a.cost)||(effAtk(b)-effAtk(a)));
       doSpellBounceTarget(enemyTargets[0]);
       return;
     }
@@ -380,7 +432,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellProvokeBreakTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken);
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c));
     if(targets.length===0){ cancelPendingSpell(); return; }
     // Только одна Provoke-цель обычно и бывает разом (см. aiSpellHasValidTarget) — если
     // вдруг больше одной, берём самую опасную (effAtk), как и везде выше.
@@ -389,7 +441,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellDmgTrampleTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
     if(targets.length===0){ cancelPendingSpell(); return; }
     const dmg=getTagVal(G.pendingSpell,'spell_dmg_trample_target')||5;
     const killable=targets.filter(c=>dmg>=(c.hp+(c.armor||0)));
@@ -440,7 +492,8 @@ function aiTryUseShard(){
   if(!shard) return false;
   const humanF=G.humanFaction;
   // Ward блокирует Shard целиком (тоже bypassArmor=true) — не тратим активку на них.
-  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+  // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
+  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
   if(enemyField.length===0) return false;
   const baseDmg=shardBaseDmg(shard,humanF);
   // 2026-07-17: no more per-target feared bonus on top — shardBaseDmg() already folds
@@ -477,7 +530,8 @@ function aiTryUseBolt(){
   const humanF=G.humanFaction;
   const oppField=G[humanF].field;
   // Ward блокирует Bolt целиком (тоже bypassArmor=true) — исключаем warded цели.
-  const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+  // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
+  const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
   if(enemyField.length===0) return false;
   const boltCreatures=me.field.filter(c=>hasTag(c,'bolt')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.spell&&!c.world&&!c.artifact);
   let used=false;
@@ -614,6 +668,7 @@ function aiTryUseSacrifice(){
 // игнорирует sleeping — редетаплой = дополнительная атака тем же ходом).
 function aiWorthBouncingOwn(c){
   return hasTag(c,'enter_aoe') || hasTag(c,'enter_heal') || hasTag(c,'enter_draw') ||
+         hasTag(c,'enter_lose') ||
          (hasTag(c,'vanguard') && c.exhausted);
 }
 
@@ -621,10 +676,10 @@ function aiSpellHasValidTarget(card){
   if(!card.spell) return true;
   const humanF=G.humanFaction;
   if(hasTag(card,'spell_dmg_target')){
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
   }
   if(hasTag(card,'spell_dispel')){
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact);
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c));
   }
   if(hasTag(card,'spell_buff_temp')){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
@@ -639,17 +694,19 @@ function aiSpellHasValidTarget(card){
   }
   if(hasTag(card,'spell_bounce_target')){
     // Цель любая сторона — но СВОЮ карту бaунсить валидно только если это реально того
-    // стоит (aiWorthBouncingOwn), а не просто "чтобы не потратить спелл впустую".
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact) ||
+    // стоит (aiWorthBouncingOwn), а не просто "чтобы не потратить спелл впустую". Видимость
+    // (invisible/нераскрытый stealth) проверяется ТОЛЬКО для вражеской стороны — свою карту
+    // ИИ всегда "видит" (2026-07-18).
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c)) ||
            G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
   }
   if(hasTag(card,'spell_provoke_break_target')){
     // Только реальные непогашенные Provoke-цели — как и click-хендлер в game.js, тут нет
     // смысла "промахиваться" мимо любой другой карты.
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken);
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c));
   }
   if(hasTag(card,'spell_dmg_trample_target')){
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
   }
   if(hasTag(card,'revive')){
     // 2026-07-16: воскрешённая карта всегда идёт на СВОЁ поле кастующего (см. reviveCard()
@@ -783,7 +840,7 @@ function aiScoreCard(card, me){
       // creature instead of reaching the enemy base/better targets — the more/stronger our
       // stuck attackers, the more this is worth clearing right now instead of later.
       const stuck=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
-      if(stuck.length===0) return card.cost*w.spellBase*0.5; // nothing of ours to unstick THIS turn — still fine setup for next turn, just worth less
+      if(stuck.length===0) return w.provokeBreakNoStuckScore; // ничего сейчас не форсится этим Provoke — нет причины трогать его именно сейчас
       const totalStuckAtk=stuck.reduce((sum,c)=>sum+effAtk(c),0);
       return card.cost*w.spellBase + totalStuckAtk*w.provokeBreakStuckAtkWeight;
     }
@@ -812,7 +869,12 @@ function aiScoreCard(card, me){
       // tempo play, denying 4-5 is close to a one-sided board wipe for a turn. Extra bump
       // when we're 'behind' — this is a pure defensive/stabilizing tempo card, worth more
       // exactly when we need a turn to breathe.
-      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      // 2026-07-18 (по прямому запросу автора): считаем только НОВЫХ целей — исключаем
+      // ward (иммунны, эффект их вообще не заденет) И уже-feared (recast поверх уже
+      // испуганной цели ничего не добавляет, card.feared — булев флаг, не стакается).
+      // Без этого фильтра ИИ повторно кастовал mass-fear на поле, которое он же сам
+      // только что зафировал, оценивая это так же высоко, как первый каст.
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.feared);
       if(enemies.length===0) return w.fearAllEmptyBoardScore;
       const race=aiRaceState();
       return card.cost*w.spellBase + enemies.length*w.fearAllPerTargetWeight + (race==='behind'?w.fearAllBehindBonus:0);
@@ -823,7 +885,10 @@ function aiScoreCard(card, me){
       // Burn engine board-wide (see abilities.js case 'burn_all') instead of Fear. Same
       // per-target scaling shape as spell_fear_all above, smaller 'behind' bonus (see
       // burnAllBehindBonus comment — DOT, not immediate tempo relief).
-      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      // 2026-07-18: тот же фильтр "только новые цели", что и у fear_all выше — burning
+      // ТОЖЕ булев и персистентный (тикает каждый ход владельца, не снимается само по
+      // себе, см. game.js) — recast на уже горящую цель абсолютно ничего не добавляет.
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.burning);
       if(enemies.length===0) return w.burnAllEmptyBoardScore;
       const race=aiRaceState();
       return card.cost*w.spellBase + enemies.length*w.burnAllPerTargetWeight + (race==='behind'?w.burnAllBehindBonus:0);
