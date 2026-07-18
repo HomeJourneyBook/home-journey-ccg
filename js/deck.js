@@ -1,7 +1,10 @@
 // Deck presets:
-//  classic — 1st-edition starter, all archetypes + all legendaries, "по сути все
-//            карты реализованные в игре" (currently ~45/46 — still flexible while
-//            we playtest, see CLAUDE.md "Deck size configs")
+//  classic — 1st-edition starter, all 6 archetypes (27 creatures/faction, включая
+//            новых Путешественников 2026-07-18) + all 5 legendaries + per-spell copy
+//            counts (см. SPELL_COPIES ниже, тема "Чай=Burn / Джит=Fear") + 2 worlds +
+//            2 artifacts = 62 карты/фракция. Раньше было "по копии 3х на все 13
+//            спеллов сразу" (73 карты) — см. CLAUDE.md "Рефактор классик-колоды под
+//            тему Врат" за полную историю решений.
 //  rush    — no fixed list: the human player assembles it themselves in the
 //            deckbuilder (js/deckbuilder.js) by picking quantities out of the
 //            SAME pool `classic` uses (see getRushPool() below), minimum RUSH_MIN
@@ -9,14 +12,49 @@
 //            sample of that same pool — see buildAiRushDeck().
 const RUSH_MIN = 28;
 
+// Копии каждого спелла в Classic — раньше было плоских 3 копии на все 13 спеллов сразу
+// (39/фракция), теперь подобрано по значимости для темы Врат (2026-07-18, по прямому
+// запросу автора): 3 — дешёвые "чистая польза" (ess/draw/bounce) + сигнатурный
+// mass-payoff темы (burn_all/fear_all); 2 — сильные, но не сигнатурные; 1 — узкие/
+// ситуативные/дорогой топ-энд. Ключ — по каждой карте отдельно (Tea/Jeet спеллы НЕ
+// идут в одном порядке между фракциями, см. комментарий у SPELL_COPIES ниже), не по
+// индексу в массиве.
+const SPELL_COPIES = {
+  // Tea
+  t_sp1:2,  // ARCHIVE (+2 ATK temp)
+  t_sp2:2,  // JOURNEY (bolt 3)
+  t_sp3:2,  // SHEN'S CALL (revive full)
+  t_sp4:3,  // SCHEME (ess_add)
+  t_sp5:3,  // GUST (bounce any)
+  t_sp6:2,  // RECKONING (aoe count)
+  t_sp7:1,  // FORGET-ME-NOT (discard 2)
+  t_sp8:1,  // EXPOSE (anti-provoke tech)
+  t_sp9:1,  // BREACH (bolt 5 + trample, дорогой топ-энд)
+  t_sp10:3, // WILDFIRE (burn_all — сигнатурный payoff темы)
+  t_sp11:2, // REKINDLE (untap)
+  t_sp12:1, // BULWARK (+1 armor temp)
+  t_sp13:3, // INSIGHT (draw 2)
+  // Jeet
+  j_sp1:3,  // JEET WAVE (draw 2)
+  j_sp2:2,  // OBLIVION (untap)
+  j_sp3:2,  // FORGETTING (revive full)
+  j_sp4:3,  // BLACK MAGIC (ess_add)
+  j_sp5:3,  // REVERSE (bounce any)
+  j_sp6:2,  // SWARM CULL (aoe count)
+  j_sp7:1,  // MINDROT (discard 2)
+  j_sp8:1,  // UNMASK (anti-provoke tech)
+  j_sp9:1,  // RUPTURE (bolt 5 + trample, дорогой топ-энд)
+  j_sp10:3, // NIGHTMARE (fear_all — сигнатурный payoff темы)
+  j_sp11:2, // FRENZY (+2 ATK temp)
+  j_sp12:1, // CARAPACE (+1 armor temp)
+  j_sp13:2, // HEX (bolt 3)
+};
+
 const DECK_CONFIGS = {
-  // groupSize:5 (было 4) — с 2026-07-13 два архетипа (Tea Szarg, Jeet Dreegan) обзавелись
-  // 5-м рядовым (t_trvl734_w/j_trvl775_w, см. ниже). Остальные 10 групп-массивов (5
-  // архетипов × 2 фракции) по-прежнему ровно по 4 ключа — `.slice(0,5)` на 4-элементном
-  // массиве просто вернёт все 4, безопасный no-op, ничего не сломает нигде, где 5-й карты
-  // ещё нет. Когда остальные архетипы тоже получат 5-х — они уже подхватятся автоматически,
-  // ничего в этом объекте трогать не придётся.
-  classic: { groupCount:6, groupSize:5, legCount:5, spellCopies:3 },
+  // groupSize:5 — все 6 архетипов у обеих фракций теперь ровно по 4-5 карт (27
+  // существ/фракция после добавления #248/#387/#607/#720, см. CLAUDE.md), `.slice(0,5)`
+  // безопасно берёт всё, что есть, ничего не обрежет.
+  classic: { groupCount:6, groupSize:5, legCount:5 },
 };
 
 function shuffleArr(d){
@@ -40,14 +78,14 @@ function _composeDeckList(f, cfg){
   const drg    = t ? ['t_trvl1_w','t_trvl31_w','t_trvl892_w','t_trvl14_w']
                    : ['j_trvl36_w','j_trvl41_w','j_trvl1015_w','j_trvl859_w','j_trvl775_w'];
 
-  const umb    = t ? ['t_trvl583_w','t_trvl2_w','t_trvl52_w','t_trvl6_w']
-                   : ['j_trvl550_w','j_trvl53_w','j_trvl54_w','j_trvl20_w'];
+  const umb    = t ? ['t_trvl583_w','t_trvl2_w','t_trvl52_w','t_trvl6_w','t_trvl387_w']
+                   : ['j_trvl550_w','j_trvl53_w','j_trvl54_w','j_trvl20_w','j_trvl248_w'];
 
-  const mch    = t ? ['t_trvl38_w','t_trvl18_w','t_trvl35_w','t_trvl11_w']
-                   : ['j_trvl22_w','j_trvl724_w','j_trvl921_w','j_trvl804_w'];
+  const mch    = t ? ['t_trvl38_w','t_trvl18_w','t_trvl35_w','t_trvl11_w','t_trvl921_w']
+                   : ['j_trvl22_w','j_trvl724_w','j_trvl804_w','j_trvl607_w'];
 
   const xui    = t ? ['t_trvl187_w','t_trvl704_w','t_trvl26_w','t_trvl39_w']
-                   : ['j_trvl579_w','j_trvl972_w','j_trvl50_w','j_trvl37_w'];
+                   : ['j_trvl579_w','j_trvl972_w','j_trvl50_w','j_trvl37_w','j_trvl720_w'];
 
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
@@ -65,7 +103,7 @@ function _composeDeckList(f, cfg){
   });
 
   legs.slice(0, cfg.legCount).forEach(k => d.push(k));
-  spells.forEach(k => { for(let i=0;i<cfg.spellCopies;i++) d.push(k); });
+  spells.forEach(k => { const copies = SPELL_COPIES[k] || 1; for(let i=0;i<copies;i++) d.push(k); });
   worlds.forEach(k => d.push(k));
   arts.forEach(k => d.push(k));
 
@@ -88,7 +126,7 @@ function buildDeck(f, configKey) {
 // makes the 2nd player — see grantUnseenBonus() in ui.js). Returned as unique
 // {key,max} entries: max is
 // almost always 1 (one physical copy in the "collection"), except spells,
-// which appear `spellCopies` times in Classic and so can be picked up to
+// which appear `SPELL_COPIES[key]` times in Classic and so can be picked up to
 // that many times here.
 function getRushPool(f){
   const list = _composeDeckList(f, DECK_CONFIGS.classic);
