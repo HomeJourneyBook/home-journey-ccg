@@ -484,7 +484,7 @@ function aiTryUseBolt(){
   boltCreatures.forEach(bolt=>{
     if(bolt.exhausted) return; // could've acted already earlier in this same pass
     const baseDmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
-    const withDmg=enemyField.map(c=>({c, dmg: baseDmg+(c.feared?1:0)}));
+    const withDmg=enemyField.map(c=>({c, dmg: baseDmg}));
     const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
     // 0-ATK bolt bodies (e.g. TRAVELER #52/#6/#54 — pure Umbasir utility, atk:0):
     // a normal attack from these does NOTHING (0 dmg, and a full counter-attack
