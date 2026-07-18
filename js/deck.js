@@ -20,41 +20,57 @@ const RUSH_MIN = 28;
 // идут в одном порядке между фракциями, см. комментарий у SPELL_COPIES ниже), не по
 // индексу в массиве.
 const SPELL_COPIES = {
-  // Tea
-  t_sp1:2,  // ARCHIVE (+2 ATK temp)
-  t_sp2:2,  // JOURNEY (bolt 3)
-  t_sp3:2,  // SHEN'S CALL (revive full)
-  t_sp4:3,  // SCHEME (ess_add)
-  t_sp5:3,  // GUST (bounce any)
-  t_sp6:2,  // RECKONING (aoe count)
+  // Tea (13 итого) — восстановлено 2026-07-18: реальный итог без этих 3 был 37, а не 40,
+  // так что свободных слотов ровно 3 — возвращаем BREACH/SHEN'S CALL/2-ю копию SCHEME.
+  t_sp1:1,  // ARCHIVE (+2 ATK temp — Tea's combat-trick бонус)
+  t_sp2:1,  // JOURNEY (bolt 3)
+  t_sp3:1,  // SHEN'S CALL (revive full)
+  t_sp4:2,  // SCHEME (ess_add)
+  t_sp5:1,  // GUST (bounce any)
+  t_sp6:1,  // RECKONING (aoe count)
   t_sp7:1,  // FORGET-ME-NOT (discard 2)
-  t_sp8:1,  // EXPOSE (anti-provoke tech)
-  t_sp9:1,  // BREACH (bolt 5 + trample, дорогой топ-энд)
-  t_sp10:3, // WILDFIRE (burn_all — сигнатурный payoff темы)
-  t_sp11:2, // REKINDLE (untap)
-  t_sp12:1, // BULWARK (+1 armor temp)
-  t_sp13:3, // INSIGHT (draw 2)
-  // Jeet
-  j_sp1:3,  // JEET WAVE (draw 2)
-  j_sp2:2,  // OBLIVION (untap)
-  j_sp3:2,  // FORGETTING (revive full)
-  j_sp4:3,  // BLACK MAGIC (ess_add)
-  j_sp5:3,  // REVERSE (bounce any)
-  j_sp6:2,  // SWARM CULL (aoe count)
+  t_sp8:0,  // EXPOSE (anti-provoke tech — исключён полностью)
+  t_sp9:1,  // BREACH (bolt 5 + trample)
+  t_sp10:2, // WILDFIRE (burn_all — сигнатурный payoff темы)
+  t_sp11:0, // REKINDLE (untap — исключён)
+  t_sp12:0, // BULWARK (+1 armor temp — чужой бонус для Tea, исключён)
+  t_sp13:2, // INSIGHT (draw 2)
+  // Jeet (13 итого)
+  j_sp1:2,  // JEET WAVE (draw 2)
+  j_sp2:0,  // OBLIVION (untap — исключён)
+  j_sp3:1,  // FORGETTING (revive full)
+  j_sp4:2,  // BLACK MAGIC (ess_add)
+  j_sp5:1,  // REVERSE (bounce any)
+  j_sp6:1,  // SWARM CULL (aoe count)
   j_sp7:1,  // MINDROT (discard 2)
-  j_sp8:1,  // UNMASK (anti-provoke tech)
-  j_sp9:1,  // RUPTURE (bolt 5 + trample, дорогой топ-энд)
-  j_sp10:3, // NIGHTMARE (fear_all — сигнатурный payoff темы)
-  j_sp11:2, // FRENZY (+2 ATK temp)
-  j_sp12:1, // CARAPACE (+1 armor temp)
-  j_sp13:2, // HEX (bolt 3)
+  j_sp8:0,  // UNMASK (anti-provoke tech — исключён полностью)
+  j_sp9:1,  // RUPTURE (bolt 5 + trample)
+  j_sp10:2, // NIGHTMARE (fear_all — сигнатурный payoff темы)
+  j_sp11:0, // FRENZY (+2 ATK temp — чужой бонус для Jeet, исключён)
+  j_sp12:1, // CARAPACE (+1 armor temp — Jeet's combat-trick бонус)
+  j_sp13:1, // HEX (bolt 3)
 };
 
 const DECK_CONFIGS = {
-  // groupSize:5 — все 6 архетипов у обеих фракций теперь ровно по 4-5 карт (27
-  // существ/фракция после добавления #248/#387/#607/#720, см. CLAUDE.md), `.slice(0,5)`
-  // безопасно берёт всё, что есть, ничего не обрежет.
-  classic: { groupCount:6, groupSize:5, legCount:5 },
+  // 2026-07-18: было плоское groupSize:5 на все 6 архетипов сразу. Теперь у каждого
+  // архетипа свой целевой размер НА ФРАКЦИЮ (тема Врат: Джит гуще берёт Umbasir/Mechird/
+  // Xuiqtr, Чай — Szarg/Dreegan/Orbiton, ровно наоборот) — см. archetypeSizes и полный
+  // разбор в CLAUDE.md "Рефактор классик-колоды под тему Врат". Итог: по 18 рядовых
+  // существ на фракцию (полный симметричный расклад 4+4+4+2+2+2 против 2+2+2+4+4+4).
+  classic: { legCount:5,
+    archetypeSizes: {
+      // Финал (2026-07-18): 18 существ/фракцию, кривая по costу 1-5 идентична у обеих
+      // фракций (3/3/4/5/3) — см. полный разбор в CLAUDE.md "Рефактор классик-колоды под
+      // тему Врат". Архетипные квоты сохраняют тему: Tea гуще Szarg/Orb/Drg (по 3-3-4,
+      // раньше было 4/4/4 — сократили под кривую), Jeet гуще Umb/Mch/Xui (4/4/3).
+      szarg: { tea:4, jeet:2 },
+      orb:   { tea:4, jeet:2 },
+      drg:   { tea:4, jeet:2 },
+      umb:   { tea:2, jeet:4 },
+      mch:   { tea:2, jeet:4 },
+      xui:   { tea:2, jeet:4 },
+    },
+  },
 };
 
 function shuffleArr(d){
@@ -69,23 +85,23 @@ function shuffleArr(d){
 function _composeDeckList(f, cfg){
   const t = f==='tea';
 
-  const szarg  = t ? ['t_trvl25_w','t_trvl33_w','t_trvl34_w','t_trvl434_w','t_trvl734_w']
-                   : ['j_trvl12_w','j_trvl49_w','j_trvl57_w','j_trvl551_w'];
+  const szarg  = t ? ['t_trvl57_w','t_trvl33_w','t_trvl694_w','t_trvl25_w','t_trvl34_w']
+                   : ['j_trvl971_w','j_trvl12_w','j_trvl49_w','j_trvl434_w','j_trvl551_w'];
 
   const orb    = t ? ['t_trvl10_w','t_trvl398_w','t_trvl433_w','t_trvl1034_w']
-                   : ['j_trvl170_w','j_trvl429_w','j_trvl454_w','j_trvl523_w'];
+                   : ['j_trvl523_w','j_trvl170_w','j_trvl429_w','j_trvl454_w'];
 
-  const drg    = t ? ['t_trvl1_w','t_trvl31_w','t_trvl892_w','t_trvl14_w']
-                   : ['j_trvl36_w','j_trvl41_w','j_trvl1015_w','j_trvl859_w','j_trvl775_w'];
+  const drg    = t ? ['t_trvl1_w','t_trvl31_w','t_trvl605_w','t_trvl388_w','t_trvl14_w']
+                   : ['j_trvl859_w','j_trvl775_w','j_trvl41_w','j_trvl1015_w','j_trvl36_w'];
 
-  const umb    = t ? ['t_trvl583_w','t_trvl2_w','t_trvl52_w','t_trvl6_w','t_trvl387_w']
-                   : ['j_trvl550_w','j_trvl53_w','j_trvl54_w','j_trvl20_w','j_trvl248_w'];
+  const umb    = t ? ['t_trvl387_w','t_trvl137_w','t_trvl52_w','t_trvl2_w','t_trvl583_w','t_trvl6_w']
+                   : ['j_trvl550_w','j_trvl53_w','j_trvl20_w','j_trvl248_w','j_trvl54_w'];
 
-  const mch    = t ? ['t_trvl38_w','t_trvl18_w','t_trvl35_w','t_trvl11_w','t_trvl921_w']
-                   : ['j_trvl22_w','j_trvl724_w','j_trvl804_w','j_trvl607_w'];
+  const mch    = t ? ['t_trvl921_w','t_trvl128_w','t_trvl18_w','t_trvl38_w','t_trvl35_w','t_trvl11_w']
+                   : ['j_trvl22_w','j_trvl724_w','j_trvl663_w','j_trvl320_w','j_trvl804_w'];
 
-  const xui    = t ? ['t_trvl187_w','t_trvl704_w','t_trvl26_w','t_trvl39_w']
-                   : ['j_trvl579_w','j_trvl972_w','j_trvl50_w','j_trvl37_w','j_trvl720_w'];
+  const xui    = t ? ['t_trvl972_w','t_trvl402_w','t_trvl26_w','t_trvl39_w']
+                   : ['j_trvl704_w','j_trvl579_w','j_trvl37_w','j_trvl951_w','j_trvl50_w','j_trvl720_w'];
 
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
@@ -97,13 +113,14 @@ function _composeDeckList(f, cfg){
   const arts   = t ? ['t_a1','t_a2'] : ['j_a1','j_a2'];
 
   let d = [];
-  const allGroups = [szarg,orb,drg,umb,mch,xui];
-  allGroups.slice(0, cfg.groupCount).forEach(group => {
-    group.slice(0, cfg.groupSize).forEach(k => d.push(k));
+  const namedGroups = { szarg, orb, drg, umb, mch, xui };
+  Object.entries(namedGroups).forEach(([name, group]) => {
+    const size = cfg.archetypeSizes ? cfg.archetypeSizes[name][f] : group.length;
+    group.slice(0, size).forEach(k => d.push(k));
   });
 
   legs.slice(0, cfg.legCount).forEach(k => d.push(k));
-  spells.forEach(k => { const copies = SPELL_COPIES[k] || 1; for(let i=0;i<copies;i++) d.push(k); });
+  spells.forEach(k => { const copies = SPELL_COPIES[k] !== undefined ? SPELL_COPIES[k] : 1; for(let i=0;i<copies;i++) d.push(k); });
   worlds.forEach(k => d.push(k));
   arts.forEach(k => d.push(k));
 
