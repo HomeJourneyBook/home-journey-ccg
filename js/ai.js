@@ -345,18 +345,26 @@ function aiPlayCardsStep(iter){
     return;
   }
   try{
-    doPlay(card);
-    // doPlay() may have paused in a targeting phase for the new targeted spells
-    // (Archive/Journey/Oblivion) — AI never clicks anything, so resolve it here
-    // immediately or the AI turn would hang forever waiting for a target.
-    aiResolvePendingSpellTarget();
+    // doPlay() теперь принимает afterResolve-колбэк (2026-07-19, см. game.js) — для
+    // обычных карт (существа/миры/артефакты/instant-спеллы, и вообще всё вне VS AI) он
+    // срабатывает СРАЗУ же, синхронно, так что поведение цикла не меняется. Но если это
+    // спелл, который сейчас играет ИИ в VS AI режиме (needsReveal в doPlay()) — doPlay()
+    // уходит в асинхронную анимацию раскрытия (playSpellRevealAnimation(), render.js) и
+    // возвращается немедленно, НЕ дожидаясь резолва; колбэк сработает только после того,
+    // как анимация долетит+подождёт+растворится. aiResolvePendingSpellTarget() для этого
+    // случая теперь вызывается ВНУТРИ doPlay()/_resolvePlayedCard() (game.js), а не здесь
+    // отдельной строкой, как раньше — иначе она сработала бы преждевременно, до того как
+    // G.pendingSpell вообще успел бы выставиться.
+    doPlay(card, ()=>{
+      setTimeout(() => aiPlayCardsStep(iter + 1), AI_STEP_DELAY);
+    });
   }catch(e){
     console.error(`AI doPlay() threw while playing ${card.name} — recovering:`, e);
     // If something died mid-play leaving a spell target phase open, don't let
     // it block the rest of the turn forever.
     if(G.pendingSpell&&typeof cancelPendingSpell==='function') cancelPendingSpell();
+    setTimeout(() => aiPlayCardsStep(iter + 1), AI_STEP_DELAY);
   }
-  setTimeout(() => aiPlayCardsStep(iter + 1), AI_STEP_DELAY);
 }
 
 // Резолвит таргетинг спелла, который AI только что сыграл (doPlay поставил
@@ -364,7 +372,7 @@ function aiPlayCardsStep(iter){
 function aiResolvePendingSpellTarget(){
   const humanF=G.humanFaction;
   if(G.phase==='spellDmgTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
     if(targets.length===0){ cancelPendingSpell(); return; }
     const dmg=getTagVal(G.pendingSpell,'spell_dmg_target')||3;
     const killable=targets.filter(c=>dmg>=(c.hp+(c.feared?0:0)));
@@ -391,7 +399,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellDispelTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
     if(targets.length===0){ cancelPendingSpell(); return; }
     targets.sort((a,b)=>effAtk(b)-effAtk(a));
     doSpellDispelTarget(targets[0]);
@@ -413,7 +421,7 @@ function aiResolvePendingSpellTarget(){
     // "движковый" юнит типа TEANTIST (draw-engine) намного болезненнее пересыграть, чем
     // дешёвого атакующего с большим ATK. effAtk остаётся tie-break при равном cost.
     // Видимость (invisible/нераскрытый stealth) проверяется ТОЛЬКО для вражеской стороны.
-    const enemyTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c));
+    const enemyTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
     if(enemyTargets.length>0){
       enemyTargets.sort((a,b)=>(b.cost-a.cost)||(effAtk(b)-effAtk(a)));
       doSpellBounceTarget(enemyTargets[0]);
@@ -432,7 +440,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellProvokeBreakTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c,G[humanF].field));
     if(targets.length===0){ cancelPendingSpell(); return; }
     // Только одна Provoke-цель обычно и бывает разом (см. aiSpellHasValidTarget) — если
     // вдруг больше одной, берём самую опасную (effAtk), как и везде выше.
@@ -441,7 +449,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellDmgTrampleTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
     if(targets.length===0){ cancelPendingSpell(); return; }
     const dmg=getTagVal(G.pendingSpell,'spell_dmg_trample_target')||5;
     const killable=targets.filter(c=>dmg>=(c.hp+(c.armor||0)));
@@ -493,7 +501,7 @@ function aiTryUseShard(){
   const humanF=G.humanFaction;
   // Ward блокирует Shard целиком (тоже bypassArmor=true) — не тратим активку на них.
   // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
-  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
+  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
   const baseDmg=shardBaseDmg(shard,humanF);
   // 2026-07-17: no more per-target feared bonus on top — shardBaseDmg() already folds
@@ -531,7 +539,7 @@ function aiTryUseBolt(){
   const oppField=G[humanF].field;
   // Ward блокирует Bolt целиком (тоже bypassArmor=true) — исключаем warded цели.
   // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
-  const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
+  const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
   const boltCreatures=me.field.filter(c=>hasTag(c,'bolt')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.spell&&!c.world&&!c.artifact);
   let used=false;
@@ -676,10 +684,10 @@ function aiSpellHasValidTarget(card){
   if(!card.spell) return true;
   const humanF=G.humanFaction;
   if(hasTag(card,'spell_dmg_target')){
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_dispel')){
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_buff_temp')){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
@@ -697,16 +705,16 @@ function aiSpellHasValidTarget(card){
     // стоит (aiWorthBouncingOwn), а не просто "чтобы не потратить спелл впустую". Видимость
     // (invisible/нераскрытый stealth) проверяется ТОЛЬКО для вражеской стороны — свою карту
     // ИИ всегда "видит" (2026-07-18).
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c)) ||
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field)) ||
            G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
   }
   if(hasTag(card,'spell_provoke_break_target')){
     // Только реальные непогашенные Provoke-цели — как и click-хендлер в game.js, тут нет
     // смысла "промахиваться" мимо любой другой карты.
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_dmg_trample_target')){
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'revive')){
     // 2026-07-16: воскрешённая карта всегда идёт на СВОЁ поле кастующего (см. reviveCard()
