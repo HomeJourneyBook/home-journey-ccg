@@ -1657,7 +1657,7 @@ const TAG_TOOLTIPS = {
   'taunt_break': { name: 'Taunt Break', desc: 'On attack: suppresses Provoke on the target — it can be freely attacked past this turn, ignoring Provoke. Wears off at the start of its own owner\'s next turn.' },
   'vampiric': { name: 'Vampiric', desc: 'On attack: heals for exactly the HP it actually removes from the target (Armor absorption doesn\'t count) — capped at its own missing HP.' },
   'necrophage': { name: 'Erase', desc: 'On attack, if the hit is lethal: erases the fallen creature from its owner\'s graveyard for the Void, fully restores this creature\'s HP, and cleanses its own Burning.' },
-  'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes X damage back, regardless of whether this creature survives the hit.' },
+  'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes X damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-burning target (see atk_vs_burning).' },
   'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage. One-time — does nothing once broken.' },
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the battleground. If the creature leaves the battleground and returns, the shield recharges.' },
 };
