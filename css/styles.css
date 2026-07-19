@@ -1328,8 +1328,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small.exhausted{filter:brightness(.55) saturate(.8);}
 .card-small.sleeping{filter:brightness(.55) saturate(.8);}
 .card-small.feared{opacity:.5;border-style:solid;box-shadow:0 0 8px #66666688;}
-.card-small.invisible-visual{border-color:var(--color-cream);box-shadow:0 0 5px var(--color-cream), inset 0 0 3px var(--color-cream);}
-.card-small.stealth-visual{border-color:var(--color-cream);box-shadow:0 0 5px var(--color-cream), inset 0 0 3px var(--color-cream);}
+.card-small.invisible-visual{border-color:#000000cc;box-shadow:0 0 8px 2px rgba(0,0,0,.85), inset 0 0 10px rgba(0,0,0,.7);}
+.card-small.stealth-visual{border-color:#000000cc;box-shadow:0 0 8px 2px rgba(0,0,0,.85), inset 0 0 10px rgba(0,0,0,.7);}
 .card-small-feared{position:absolute;top:calc(var(--card-small-h) * -0.085);left:20%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small-burning{position:absolute;top:calc(var(--card-small-h) * -0.085);left:80%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small-tauntbroken{position:absolute;top:calc(var(--card-small-h) * -0.085);left:50%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
@@ -1798,6 +1798,20 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    поверх интерфейса + тень; transform/left/top/opacity анимируются инлайново
    из _flyCardFromDeck (render.js). ──────────────────────────────────────────*/
 .card-fly-clone{z-index:5500; pointer-events:none; box-shadow:0 6px 18px #000000aa;}
+/*── Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора, VS AI режим ТОЛЬКО —
+   см. playSpellRevealAnimation() в render.js) — клон реальной карты вылетает из центра
+   скрытой руки ИИ (oppHandZone) к центру поля, зависает лицом кверху ~0.6с, затем
+   растворяется. revealVanish — зеркало @keyframes burnCard выше по файлу, но в
+   ХОЛОДНЫХ синих тонах (а не оранжевых) — чтобы "раскрытие спелла" визуально не
+   путалось со сжиганием карты в руке, хотя техника дисолва та же самая. ──────────*/
+.spell-reveal-clone{z-index:6500; pointer-events:none; box-shadow:0 6px 20px #000000cc;}
+@keyframes revealVanish{
+  0%{opacity:1; transform:scale(1); filter:brightness(1) saturate(1); box-shadow:none;}
+  20%{opacity:1; transform:scale(1.03); filter:brightness(1.7) saturate(1.8) hue-rotate(180deg); box-shadow:0 0 6px #6bc8ff, 0 0 16px #0080ff;}
+  55%{opacity:0.9; transform:scale(0.96); filter:brightness(0.75) saturate(1.3) hue-rotate(180deg); box-shadow:0 0 10px #0066ff;}
+  100%{opacity:0; transform:scale(0.82) rotate(3deg); filter:brightness(0) grayscale(1); box-shadow:none;}
+}
+.spell-reveal-clone.vanishing{animation:revealVanish 0.45s ease forwards;}
 .screen-edge-flash{position:fixed; inset:0; z-index:9999; pointer-events:none;}
 .screen-edge-flash.flash-red{animation: screenFlashRed 0.5s ease-out forwards;}
 .screen-edge-flash.flash-green{animation: screenFlashGreen 0.5s ease-out forwards;}
