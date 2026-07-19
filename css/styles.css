@@ -1448,7 +1448,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   55%{opacity:0.9; transform:scale(0.96); filter:brightness(0.7) sepia(0.9); box-shadow:0 0 10px #ff5c00;}
   100%{opacity:0; transform:scale(0.82) rotate(-3deg); filter:brightness(0) grayscale(1); box-shadow:none;}
 }
-.hand .card.burning-out{animation:burnCard 0.45s ease forwards; pointer-events:none;}
+.hand .card.burning-out{animation:burnCard 0.45s ease forwards; pointer-events:none; z-index:1500!important;}
 /*── Исчезновение НЕ-таргетируемого спелла из руки (2026-07-19, по прямому запросу автора) —
    зеркало @keyframes burnCard выше, но в ХОЛОДНЫХ синих тонах (та же техника, что и
    revealVanish ниже по файлу — там она для клона карты ИИ в центре поля, тут — для
@@ -1463,7 +1463,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   55%{opacity:0.9; transform:scale(0.96); filter:brightness(0.7) saturate(1.4) hue-rotate(180deg); box-shadow:0 0 10px #0066ff;}
   100%{opacity:0; transform:scale(0.82) rotate(-3deg); filter:brightness(0) grayscale(1); box-shadow:none;}
 }
-.hand .card.spell-cast-out{animation:spellCastOut 0.45s ease forwards; pointer-events:none;}
+.hand .card.spell-cast-out{animation:spellCastOut 0.45s ease forwards; pointer-events:none; z-index:1500!important;}
 .hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:goldPulse 1.8s ease-in-out infinite;}
 .hand .card.previewed{position:relative;border-color:#E8E0C8 !important;}
 @media(hover:hover){
