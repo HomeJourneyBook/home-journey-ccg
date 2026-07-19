@@ -27,13 +27,16 @@ const SPELL_COPIES = {
   // Tea (13 итого) — восстановлено 2026-07-18: реальный итог без этих 3 был 37, а не 40,
   // так что свободных слотов ровно 3 — возвращаем BREACH/SHEN'S CALL/2-ю копию SCHEME.
   t_sp1:1,  // ARCHIVE (+2 ATK temp — Tea's combat-trick бонус)
-  t_sp2:1,  // JOURNEY (bolt 3)
+  t_sp2:2,  // JOURNEY (bolt 3) — +1 (2026-07-19, взамен ess_add, см. t_sp4 ниже)
   t_sp3:1,  // SHEN'S CALL (revive full)
-  t_sp4:2,  // SCHEME (ess_add)
+  t_sp4:0,  // SCHEME (ess_add) — исключён (2026-07-19, по прямому запросу автора: слишком
+            // слабый/условный эффект — эссенция сгорает в конце хода, если её некуда
+            // потратить, см. AI BALANCE NOTES/ai.js aiScoreCard() 'ess_add' ветку)
   t_sp5:1,  // GUST (bounce any)
   t_sp6:1,  // RECKONING (aoe count)
   t_sp7:1,  // FORGET-ME-NOT (discard 2)
-  t_sp8:0,  // EXPOSE (anti-provoke tech — исключён полностью)
+  t_sp8:1,  // EXPOSE (anti-provoke tech) — +1 (2026-07-19, взамен ess_add, был полностью
+            // исключён — 0 копий)
   t_sp9:1,  // BREACH (bolt 5 + trample)
   t_sp10:2, // WILDFIRE (burn_all — сигнатурный payoff темы)
   t_sp11:0, // REKINDLE (untap — исключён)
@@ -44,16 +47,17 @@ const SPELL_COPIES = {
   j_sp1:2,  // JEET WAVE (draw 2)
   j_sp2:0,  // OBLIVION (untap — исключён)
   j_sp3:1,  // FORGETTING (revive full)
-  j_sp4:2,  // BLACK MAGIC (ess_add)
+  j_sp4:0,  // BLACK MAGIC (ess_add) — исключён (2026-07-19), см. t_sp4 выше
   j_sp5:1,  // REVERSE (bounce any)
   j_sp6:1,  // SWARM CULL (aoe count)
   j_sp7:1,  // MINDROT (discard 2)
-  j_sp8:0,  // UNMASK (anti-provoke tech — исключён полностью)
+  j_sp8:1,  // UNMASK (anti-provoke tech) — +1 (2026-07-19, взамен ess_add), был полностью
+            // исключён — 0 копий
   j_sp9:1,  // RUPTURE (bolt 5 + trample)
   j_sp10:2, // NIGHTMARE (fear_all — сигнатурный payoff темы)
   j_sp11:0, // FRENZY (+2 ATK temp — чужой бонус для Jeet, исключён)
   j_sp12:1, // CARAPACE (+1 armor temp — Jeet's combat-trick бонус)
-  j_sp13:1, // HEX (bolt 3)
+  j_sp13:2, // HEX (bolt 3) — +1 (2026-07-19, взамен ess_add, см. j_sp4 выше)
   j_sp14:2, // OMEN (draw 1) — новый (2026-07-19, ребаланс кривой под ход 1)
 };
 
