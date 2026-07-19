@@ -1812,16 +1812,25 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-fly-clone{z-index:5500; pointer-events:none; box-shadow:0 6px 18px #000000aa;}
 /*── Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора, VS AI режим ТОЛЬКО —
    см. playSpellRevealAnimation() в render.js) — клон реальной карты вылетает из центра
-   скрытой руки ИИ (oppHandZone) к центру поля, зависает лицом кверху ~0.6с, затем
+   скрытой руки ИИ (oppHandZone) к центру поля, зависает лицом кверху ~0.4с, затем
    растворяется. revealVanish — зеркало @keyframes burnCard выше по файлу, но в
    ХОЛОДНЫХ синих тонах (а не оранжевых) — чтобы "раскрытие спелла" визуально не
-   путалось со сжиганием карты в руке, хотя техника дисолва та же самая. ──────────*/
+   путалось со сжиганием карты в руке, хотя техника дисолва та же самая.
+   ВАЖНО (баг-фикс 2026-07-19, автор нашёл живьём — "смещена ниже и правее"): CSS-
+   анимация ПОЛНОСТЬЮ подменяет свойство transform значением из текущего кадра, а не
+   складывается с инлайновым transform, который выставляет playSpellRevealAnimation()
+   (там `translate(-50%,-50%) scale(1)` — это и есть центрирование клона на точке
+   left/top). Если в кадрах ниже писать только `scale(...)` без `translate(-50%,-50%)`,
+   в момент старта анимации центрирующий сдвиг обнуляется, и клон визуально прыгает на
+   половину своей ширины/высоты вниз-вправо (left/top остаются точкой ЦЕНТРА, но без
+   translate элемент считает точкой привязки свой ЛЕВЫЙ ВЕРХНИЙ угол). Поэтому каждый
+   кадр здесь явно повторяет `translate(-50%,-50%)` перед scale/rotate. ──────────*/
 .spell-reveal-clone{z-index:6500; pointer-events:none; box-shadow:0 6px 20px #000000cc;}
 @keyframes revealVanish{
-  0%{opacity:1; transform:scale(1); filter:brightness(1) saturate(1); box-shadow:none;}
-  20%{opacity:1; transform:scale(1.03); filter:brightness(1.7) saturate(1.8) hue-rotate(180deg); box-shadow:0 0 6px #6bc8ff, 0 0 16px #0080ff;}
-  55%{opacity:0.9; transform:scale(0.96); filter:brightness(0.75) saturate(1.3) hue-rotate(180deg); box-shadow:0 0 10px #0066ff;}
-  100%{opacity:0; transform:scale(0.82) rotate(3deg); filter:brightness(0) grayscale(1); box-shadow:none;}
+  0%{opacity:1; transform:translate(-50%,-50%) scale(1); filter:brightness(1) saturate(1); box-shadow:none;}
+  20%{opacity:1; transform:translate(-50%,-50%) scale(1.03); filter:brightness(1.7) saturate(1.8) hue-rotate(180deg); box-shadow:0 0 6px #6bc8ff, 0 0 16px #0080ff;}
+  55%{opacity:0.9; transform:translate(-50%,-50%) scale(0.96); filter:brightness(0.75) saturate(1.3) hue-rotate(180deg); box-shadow:0 0 10px #0066ff;}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(0.82) rotate(3deg); filter:brightness(0) grayscale(1); box-shadow:none;}
 }
 .spell-reveal-clone.vanishing{animation:revealVanish 0.45s ease forwards;}
 .screen-edge-flash{position:fixed; inset:0; z-index:9999; pointer-events:none;}
