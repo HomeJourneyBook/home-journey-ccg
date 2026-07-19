@@ -1,10 +1,14 @@
 // Deck presets:
-//  classic — 1st-edition starter, all 6 archetypes (27 creatures/faction, включая
-//            новых Путешественников 2026-07-18) + all 5 legendaries + per-spell copy
-//            counts (см. SPELL_COPIES ниже, тема "Чай=Burn / Джит=Fear") + 2 worlds +
-//            2 artifacts = 62 карты/фракция. Раньше было "по копии 3х на все 13
+//  classic — 1st-edition starter, all 6 archetypes (22 существ/фракцию после
+//            ребаланса кривой 2026-07-19, было 18 — см. archetypeSizes ниже) + all 5
+//            legendaries + per-spell copy counts (см. SPELL_COPIES ниже, тема
+//            "Чай=Burn / Джит=Fear", + GLIMPSE/OMEN 2026-07-19) + 2 worlds + 2
+//            artifacts = 46 карт/фракция. Раньше было "по копии 3х на все 13
 //            спеллов сразу" (73 карты) — см. CLAUDE.md "Рефактор классик-колоды под
-//            тему Врат" за полную историю решений.
+//            тему Врат" за полную историю решений. (Этот комментарий и число уже
+//            один раз разошлись с кодом после ребаланса 2026-07-18 — держи в уме,
+//            что при следующей правке archetypeSizes/SPELL_COPIES его тоже надо
+//            поправить, само по себе не сверяется.)
 //  rush    — no fixed list: the human player assembles it themselves in the
 //            deckbuilder (js/deckbuilder.js) by picking quantities out of the
 //            SAME pool `classic` uses (see getRushPool() below), minimum RUSH_MIN
@@ -35,6 +39,7 @@ const SPELL_COPIES = {
   t_sp11:0, // REKINDLE (untap — исключён)
   t_sp12:0, // BULWARK (+1 armor temp — чужой бонус для Tea, исключён)
   t_sp13:2, // INSIGHT (draw 2)
+  t_sp14:2, // GLIMPSE (draw 1) — новый (2026-07-19, ребаланс кривой под ход 1)
   // Jeet (13 итого)
   j_sp1:2,  // JEET WAVE (draw 2)
   j_sp2:0,  // OBLIVION (untap — исключён)
@@ -49,6 +54,7 @@ const SPELL_COPIES = {
   j_sp11:0, // FRENZY (+2 ATK temp — чужой бонус для Jeet, исключён)
   j_sp12:1, // CARAPACE (+1 armor temp — Jeet's combat-trick бонус)
   j_sp13:1, // HEX (bolt 3)
+  j_sp14:2, // OMEN (draw 1) — новый (2026-07-19, ребаланс кривой под ход 1)
 };
 
 const DECK_CONFIGS = {
@@ -63,10 +69,19 @@ const DECK_CONFIGS = {
       // фракций (3/3/4/5/3) — см. полный разбор в CLAUDE.md "Рефактор классик-колоды под
       // тему Врат". Архетипные квоты сохраняют тему: Tea гуще Szarg/Orb/Drg (по 3-3-4,
       // раньше было 4/4/4 — сократили под кривую), Jeet гуще Umb/Mch/Xui (4/4/3).
-      szarg: { tea:4, jeet:2 },
-      orb:   { tea:4, jeet:2 },
+      //
+      // +8 существ (2026-07-19, ребаланс кривой под ход 1 — см. AI BALANCE NOTES) —
+      // szarg/orb/umb подняты на +2/+1/+1 НА ФРАКЦИЮ, все добавленные — cost 1.
+      // Абсолютный разрыв между фракциями в каждом архетипе сохранён (тема Врат не
+      // размыта, обе стороны выросли на одинаковое число карт в своих архетипах):
+      // Szarg тея 4→6, джит 2→4 (джиту не хватало только #740 — #49 уже был в пуле,
+      // просто раньше срезался); Orbiton тея 4→5 (новый #503), джит 2→3 (свободный
+      // #429 уже был в пуле); Umbasir тея 2→3 и джит 4→5 (свободные #52/#54 уже были
+      // в пуле) — ни Umbasir, ни Orbiton-джит не потребовали ни одной новой карты.
+      szarg: { tea:6, jeet:4 },
+      orb:   { tea:5, jeet:3 },
       drg:   { tea:4, jeet:2 },
-      umb:   { tea:2, jeet:4 },
+      umb:   { tea:3, jeet:5 },
       mch:   { tea:2, jeet:4 },
       xui:   { tea:2, jeet:4 },
     },
@@ -85,10 +100,15 @@ function shuffleArr(d){
 function _composeDeckList(f, cfg){
   const t = f==='tea';
 
-  const szarg  = t ? ['t_trvl57_w','t_trvl33_w','t_trvl694_w','t_trvl25_w','t_trvl34_w']
-                   : ['j_trvl971_w','j_trvl12_w','j_trvl49_w','j_trvl434_w','j_trvl551_w'];
+  // +2 Tea (#870/#890) / +1 Jeet (#740) (2026-07-19, ребаланс кривой под ход 1) —
+  // вставлены ПЕРЕД оставшимися дорогими картами пула (#34/#434/#551), которые по-
+  // прежнему намеренно не входят в Classic — см. archetypeSizes ниже.
+  const szarg  = t ? ['t_trvl57_w','t_trvl33_w','t_trvl694_w','t_trvl25_w','t_trvl870_w','t_trvl890_w','t_trvl34_w']
+                   : ['j_trvl971_w','j_trvl12_w','j_trvl49_w','j_trvl740_w','j_trvl434_w','j_trvl551_w'];
 
-  const orb    = t ? ['t_trvl10_w','t_trvl398_w','t_trvl433_w','t_trvl1034_w']
+  // +1 Tea (#503) (2026-07-19, ребаланс кривой под ход 1). Jeet-пул не трогали —
+  // #429 (cost 1) уже был в пуле, просто раньше срезался archetypeSizes (см. ниже).
+  const orb    = t ? ['t_trvl10_w','t_trvl398_w','t_trvl433_w','t_trvl1034_w','t_trvl503_w']
                    : ['j_trvl523_w','j_trvl170_w','j_trvl429_w','j_trvl454_w'];
 
   const drg    = t ? ['t_trvl1_w','t_trvl31_w','t_trvl605_w','t_trvl388_w','t_trvl14_w']
@@ -106,8 +126,9 @@ function _composeDeckList(f, cfg){
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
 
-  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13']
-                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13'];
+  // +GLIMPSE/OMEN (2026-07-19, ребаланс кривой под ход 1) — см. SPELL_COPIES выше.
+  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14']
+                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14'];
 
   const worlds = t ? ['t_w1','t_w2'] : ['j_w1','j_w2'];
   const arts   = t ? ['t_a1','t_a2'] : ['j_a1','j_a2'];
