@@ -1449,6 +1449,21 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   100%{opacity:0; transform:scale(0.82) rotate(-3deg); filter:brightness(0) grayscale(1); box-shadow:none;}
 }
 .hand .card.burning-out{animation:burnCard 0.45s ease forwards; pointer-events:none;}
+/*── Исчезновение НЕ-таргетируемого спелла из руки (2026-07-19, по прямому запросу автора) —
+   зеркало @keyframes burnCard выше, но в ХОЛОДНЫХ синих тонах (та же техника, что и
+   revealVanish ниже по файлу — там она для клона карты ИИ в центре поля, тут — для
+   настоящей карты прямо в руке игрока, никакого fixed-position/translate трюка не нужно,
+   карта уже стоит на своём месте во flex-раскладке руки). Применяется ТОЛЬКО к спеллам,
+   которые резолвятся МГНОВЕННО (эссенция, добор/сброс карт, AOE и т.п.) — таргетируемые
+   спеллы (Bolt/Dmg/Buff/Dispel/...) и так уже покидают руку в момент выбора цели, тут
+   доп. анимация не нужна (см. doPlay() в game.js, isPlainInstantSpell). ────────────*/
+@keyframes spellCastOut{
+  0%{opacity:1; transform:scale(1); filter:brightness(1) saturate(1); box-shadow:none;}
+  20%{opacity:1; transform:scale(1.03); filter:brightness(1.8) saturate(2) hue-rotate(180deg); box-shadow:0 0 6px #6bc8ff, 0 0 16px #0080ff;}
+  55%{opacity:0.9; transform:scale(0.96); filter:brightness(0.7) saturate(1.4) hue-rotate(180deg); box-shadow:0 0 10px #0066ff;}
+  100%{opacity:0; transform:scale(0.82) rotate(-3deg); filter:brightness(0) grayscale(1); box-shadow:none;}
+}
+.hand .card.spell-cast-out{animation:spellCastOut 0.45s ease forwards; pointer-events:none;}
 .hand .card.previewed{transform:translateY(calc(var(--card-h) * -0.34));z-index:2000!important;animation:goldPulse 1.8s ease-in-out infinite;}
 .hand .card.previewed{position:relative;border-color:#E8E0C8 !important;}
 @media(hover:hover){
