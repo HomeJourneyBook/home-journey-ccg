@@ -1632,13 +1632,19 @@ function spawnNebula() {
   });
 }
 
-// ── Tag tooltips (desktop only — mouse events не срабатывают на touch) ──────
-// Жёсткая блокировка на тач-устройствах: некоторые мобильные браузеры после тапа
-// всё же шлют синтетическое mousemove/mouseover, из-за чего подсказка периодически
-// всплывала на телефоне и мешала визуалу (фидбек автора). IS_TOUCH_DEVICE считается
-// один раз при загрузке и используется как ранний выход из обработчика ниже —
-// на устройствах с реальной мышью (ontouchstart отсутствует и нет touch-точек)
-// подсказки работают как раньше, без изменений.
+// ── Tag tooltips (real cursor only — mouse/trackpad, not finger/pen) ────────
+// 2026-07-19 (по прямому запросу автора, второй пересмотр): раньше блокировка была
+// СТАТИЧНОЙ по возможностям устройства (ontouchstart/maxTouchPoints) — но у айпада
+// touch-экран есть железно ВСЕГДА, даже когда реально водят курсором (трекпад/мышь
+// через Magic Keyboard), так что старая проверка ошибочно блокировала тултипы и там
+// тоже. Теперь используем Pointer Events (`pointerType`) — они говорят, КАКИМ именно
+// устройством был вызван КОНКРЕТНЫЙ event ('mouse' у трекпада/мыши, в т.ч. на iPadOS;
+// 'touch' у пальца; 'pen' у стилуса), а не что устройство В ПРИНЦИПЕ умеет. Гейтинг
+// теперь идёт по e.pointerType на каждом событии, а не по единожды посчитанному
+// IS_TOUCH_DEVICE — заодно это чинит и старую причину появления IS_TOUCH_DEVICE
+// (некоторые тач-браузеры шлют синтетический mousemove после тапа): pointermove от
+// пальца несёт pointerType:'touch', а не 'mouse', так что этот случай отсекается сам
+// собой, без отдельной эвристики.
 const IS_TOUCH_DEVICE = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 const TAG_TOOLTIPS = {
@@ -1753,8 +1759,13 @@ if(IS_TOUCH_DEVICE){
   document.addEventListener('touchstart', _hideTooltipNow, {passive:true});
 }
 
-document.addEventListener('mousemove', (e) => {
-  if(IS_TOUCH_DEVICE) return; // жёсткий блок — на телефоне подсказки не показываем вообще
+// pointermove вместо mousemove (2026-07-19) — см. комментарий у IS_TOUCH_DEVICE выше:
+// e.pointerType говорит, каким устройством вызвано именно ЭТО событие ('mouse' —
+// трекпад/мышь, включая iPadOS с Magic Keyboard/мышью; 'touch' — палец; 'pen' —
+// стилус), так что тултипы теперь корректно появляются на айпаде с курсором и
+// по-прежнему не появляются от пальца — без отдельной проверки типа устройства.
+document.addEventListener('pointermove', (e) => {
+  if(e.pointerType!=='mouse'){ _hideTooltipNow(); return; } // палец/стилус — тултипы не показываем
   const tip = _getTooltip();
   if(!tip) return;
 
@@ -1784,6 +1795,33 @@ document.addEventListener('mousemove', (e) => {
   if(tip.classList.contains('tt-visible')){
     _positionTooltip(tip, e.clientX, e.clientY);
   }
+});
+
+// ── Приподнимание карт в руке при наведении курсором на iPad ─────────────────────
+// 2026-07-19 (по прямому запросу автора): @media(hover:hover) в styles.css уже даёт
+// этот эффект на десктопной мыши, но на реальном iPad с курсором (трекпад/мышь через
+// Magic Keyboard) он не срабатывал. Вероятная причина — карты в руке кликаются через
+// делегирование на #game (onclick="handleGameClick", см. index.html), а не через
+// прямой onclick/слушатель на каждой .card, а WebKit на iPadOS в некоторых версиях не
+// активирует нативный CSS :hover для элементов без собственного обработчика клика,
+// даже когда двигают настоящим курсором (унаследованная особенность из iOS Safari,
+// где :hover исторически требовал onclick на самом элементе). Дублируем тот же эффект
+// через Pointer Events (bubbling pointerover/pointerout, тот же паттерн, что уже
+// используется чуть ниже для hover-звука кнопок) — гарантированно срабатывает
+// независимо от особенностей WebKit, и, как и с тултипами, строго только для
+// pointerType==='mouse' (трекпад/мышь), не для пальца — на телефоне карты в руке
+// по-прежнему поднимаются только от :hover (то есть фактически никогда, что и нужно).
+document.addEventListener('pointerover', (e)=>{
+  if(e.pointerType!=='mouse') return;
+  const card=e.target.closest('.hand .card');
+  if(!card || card.contains(e.relatedTarget)) return;
+  card.classList.add('cursor-hover');
+});
+document.addEventListener('pointerout', (e)=>{
+  if(e.pointerType!=='mouse') return;
+  const card=e.target.closest('.hand .card');
+  if(!card || card.contains(e.relatedTarget)) return;
+  card.classList.remove('cursor-hover');
 });
 
 // ── Hover-звук card_navigation_cursor на кнопках лендинга ─────────────────────────
