@@ -54,7 +54,12 @@ const DEFS = {
   t_tean:      {name:"TEANTIST",   cost:5,hp:9,atk:2,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","stealth"],            ab:"On turn: Draw 1 card.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:5,hp:8,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1"],      ab:"When your creature dies: Heal base 1 HP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:5,hp:7,atk:4,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1"],       ab:"Aura: +1 ATK.",unique:true},
-  t_faeron:    {name:"FAERON",     cost:4,hp:7,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed"], ab:"\“Yet another one burned.\”",unique:true},
+  // FAERON — Fire Shield — тег состоит из ДВУХ парных частей, оба нужны на карте разом
+  // (уточнено автором 2026-07-19): 'thorns:N' (защитная часть — урон атакующему при
+  // получении удара, см. doAttack() в game.js) + 'atk_vs_burning:N' (наступательная часть —
+  // сама карта наносит +N атаки, если ЕЁ цель уже горит). Если в будущем захочешь дать
+  // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
+  t_faeron:    {name:"FAERON",     cost:4,hp:7,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1"], ab:"\“Yet another one burned.\”",unique:true},
   t_nab:       {name:"NABUNAGI",   cost:6,hp:11,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1","ward"], ab:"\"Bushido\": ALL attacks must target him.",unique:true},
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
