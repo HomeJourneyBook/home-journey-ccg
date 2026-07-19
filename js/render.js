@@ -335,15 +335,16 @@ function showFieldCardPreview(card, originEl, scale=FIELD_PREVIEW_SCALE){
 // этот эффект один раз показывает НАСТОЯЩЕЕ лицо только что сыгранной карты-спелла,
 // вылетающей из ЦЕНТРА прямоугольника скрытой руки (не из конкретного слота — автор
 // подтвердил, что rHiddenHand() не хранит id по рубашкам, только их количество, и что
-// для наглядности достаточно центра всей зоны) к центру поля, задерживается там ~0.6с
-// лицом кверху, затем растворяется синим дисолвом (revealVanish, styles.css — та же
-// техника, что и burnCard, но в холодных тонах, чтобы не путать с сжиганием карты).
+// для наглядности достаточно центра всей зоны) к центру поля, задерживается там ~0.4с
+// лицом кверху (тайминг уменьшен с 0.6с по просьбе автора, 2026-07-19, второй заход),
+// затем растворяется синим дисолвом (revealVanish, styles.css — та же техника, что и
+// burnCard, но в холодных тонах, чтобы не путать с сжиганием карты).
 // onDone вызывается ПОСЛЕ того как клон убран из DOM — вызывающий код (doPlay()) должен
 // отложить РЕАЛЬНОЕ резолвление эффекта карты до этого колбэка, чтобы игрок физически
 // успел прочитать, что это была за карта, прежде чем она подействует. Если по каким-то
 // причинам зона руки не найдена в DOM — сразу зовём onDone(), не блокируя ход ИИ.
 const SPELL_REVEAL_FLY_MS = 250;   // вылет/увеличение до размера поля
-const SPELL_REVEAL_HOLD_MS = 600;  // "зависание" лицом кверху (тайминг по просьбе автора)
+const SPELL_REVEAL_HOLD_MS = 400;  // "зависание" лицом кверху (было 600, автор попросил короче)
 const SPELL_REVEAL_VANISH_MS = 450; // длительность revealVanish (см. styles.css)
 function playSpellRevealAnimation(card, onDone){
   const origin=document.getElementById('oppHandZone');
@@ -373,14 +374,36 @@ function playSpellRevealAnimation(card, onDone){
   const scaleX0=miniRect?(miniRect.width/targetRect.width):0.3;
   const scaleY0=miniRect?(miniRect.height/targetRect.height):0.3;
 
+  // Целевая точка — РЕАЛЬНАЯ граница между полями (2026-07-19, багфикс: раньше был
+  // хардкод left:50%/top:46% от всего viewport, "на глаз" скопированный из
+  // showFieldCardPreview() — но та функция зумит карту ИГРОКА и её якорь никогда не
+  // сверялся с фактической геометрией поля. Проверил живьём: середина между
+  // oppFieldZone.bottom и playerFieldZone.top даёт настоящий "шов" полей, а 46% от
+  // высоты экрана оказывается заметно НИЖЕ него — отсюда и жалоба "ниже и левее места
+  // где карта оказывается"). Считаем от .field-zone контейнеров, а не от viewport —
+  // тогда одинаково верно на любом экране/ориентации, без подгонки процентов руками.
+  const oppFieldEl=document.getElementById('oppFieldZone');
+  const playerFieldEl=document.getElementById('playerFieldZone');
+  let targetCx, targetCy;
+  if(oppFieldEl && playerFieldEl){
+    const oppR=oppFieldEl.getBoundingClientRect();
+    const playerR=playerFieldEl.getBoundingClientRect();
+    targetCx=(oppR.left+oppR.right)/2;
+    targetCy=(oppR.bottom+playerR.top)/2; // ровно шов между двумя полями
+  } else {
+    // Фолбэк, если разметка почему-то не найдена — центр экрана лучше, чем ничего.
+    targetCx=window.innerWidth/2;
+    targetCy=window.innerHeight/2;
+  }
+
   el.style.left=cx0+'px';
   el.style.top=cy0+'px';
   el.style.transform=`translate(-50%,-50%) scale(${scaleX0},${scaleY0})`;
   el.style.transition='none';
   void el.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
   el.style.transition=`left ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1), top ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1), transform ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1)`;
-  el.style.left='50%';
-  el.style.top='46%'; // тот же вертикальный якорь, что и у showFieldCardPreview() выше
+  el.style.left=targetCx+'px';
+  el.style.top=targetCy+'px';
   el.style.transform='translate(-50%,-50%) scale(1)';
 
   setTimeout(()=>{
