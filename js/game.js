@@ -689,8 +689,12 @@ function doVardan(){
   const dmgAmt=getTagVal(vard,'aoe')||2;
   lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
   [...G[oppK].field].forEach(c=>dmgCard(c,dmgAmt,oppK,true));
+  const vardId=vard.id;
   vard.exhausted=true;G.sel=null;G.phase='action';
   checkWin();render();
+  // Тот же баг-фикс, что и у doBoltTarget() — doUmbAsir() (её "AOE-близнец") уже вызывает
+  // activateCard(), а Vardan почему-то нет. Для консистентности всех активок — добавлено.
+  activateCard(vardId);
 }
 
 // Umbasir v2 — точечный магический урон вместо AOE (см. CLAUDE.md, новая уникальность
@@ -718,9 +722,16 @@ function doBoltTarget(card){
   lg(`${bolt.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   queueFieldFx(card.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта
   dmgCard(card,dmg,oppK,true);
+  const boltId=bolt.id;
   bolt.exhausted=true;
   G.phase='action';G.sel=null;
   checkWin();render();
+  // Баг-фикс (2026-07-19, автор нашёл живьём): doAttack()/doUmbAsir() уже дают кастующей
+  // карте "пульс поднятия" через activateCard() (см. @keyframes cardActivate, styles.css) —
+  // ровно тот визуал, который сигналит "эта карта только что подействовала". У Bolt его не
+  // было вообще — карта просто гасла в exhausted без какого-либо явного сигнала, что именно
+  // ОНА была источником эффекта. Добавлено для консистентности со всеми остальными активками.
+  activateCard(boltId);
 }
 
 function onBaseClick(faction){
