@@ -1091,7 +1091,20 @@ function applyAuras(faction){
   const auraSources=[...cur.field.filter(c=>!c.spell&&!c.world&&!c.artifact)];
   if(cur.world&&hasTag(cur.world,'aura:atk')) auraSources.push(cur.world);
   cur.field.forEach(a=>{
-    if(!hasTag(a,'aura:atk')) a.atkBonus=0;
+    // Баг-фикс (2026-07-19, автор нашёл живьём — TUBORG рос на +1 ATK КАЖДЫЙ ход после
+    // того, как для Tea завели Мир с собственной aura:atk): раньше сброс atkBonus в 0
+    // пропускался ИМЕННО для карт, у которых САМИХ есть тег aura:atk (`if(!hasTag(a,
+    // 'aura:atk')) a.atkBonus=0`) — по-видимому, попытка "не сбрасывать источнику ауры
+    // что-то своё", но atkBonus вообще НИЧЕЙ, кроме этой самой ауры-от-соседей, не
+    // хранит (см. resetC()/reviveCard()/killCard() — везде обнуляется одним и тем же
+    // полем, никакая другая система его не трогает). Источник своей же ауры и так не
+    // получает бонус САМ ОТ СЕБЯ (см. `a.id!==src.id` в цикле ниже) — но он вполне может
+    // получать бонус от ДРУГОГО источника ауры (Мир/другая карта с aura:atk), и этот
+    // чужой бонус как раз обязан пересчитываться с нуля каждый вызов, а не копиться
+    // поверх старого. Ровно тот же класс бага и то же исправление, что раньше уже
+    // делали для aura:maxhp (см. auraMaxHpBonus чуть ниже — там сброс всегда
+    // безусловный, без каких-либо исключений по тегам самой карты).
+    a.atkBonus=0;
     const hasMaxHpSrc=auraSources.some(s=>s.id!==a.id&&hasTag(s,'aura:maxhp'));
     if(!hasMaxHpSrc&&a.baseMaxHp){
       a.maxHp=a.baseMaxHp;
