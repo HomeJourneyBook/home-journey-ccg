@@ -187,8 +187,8 @@ function getTypeDotLabel(card){
 // showFieldCardPreview(...) ниже по коду (два места: mkSmallEl для поля и zoomHandCardFly
 // для руки), а также константы FIELD_PREVIEW_SCALE/HAND_ZOOM_SCALE прямо под этим комментарием —
 // меняй любую из них независимо, вторую не затронет.
-const FIELD_PREVIEW_SCALE = 1.6; // во сколько раз увеличивается карта поля при долгом нажатии
-const HAND_ZOOM_SCALE     = 1.6; // во сколько раз увеличивается карта руки по кнопке Zoom
+const FIELD_PREVIEW_SCALE = 2.8; // во сколько раз увеличивается карта поля при долгом нажатии (было 1.6, +75% по просьбе автора 2026-07-19)
+const HAND_ZOOM_SCALE     = 1.6; // во сколько раз увеличивается карта руки по кнопке Zoom (отдельная фича, не трогали)
 
 let fieldPreviewEl=null;
 let statusPanelEl=null;
@@ -261,6 +261,21 @@ function _buildStatusPanel(entries){
   return panel;
 }
 
+// Ограничение масштаба под размер экрана (2026-07-19, автор нашёл живьём на мобильном
+// вьюпорте, 390px шириной: после того как FIELD_PREVIEW_SCALE подняли на 75% (1.6→2.8),
+// увеличенная карта поля стала ШИРЕ самого экрана телефона и вылезала за оба края).
+// Используется и в showFieldCardPreview(), и в playSpellRevealAnimation() — оба места
+// зумят карту до одного и того же целевого масштаба и оба должны одинаково защищаться от
+// переполнения. 92vw/85vh — тот же принцип отступа, что и у .card-detail-scaled в
+// styles.css (68vw/52vh для СВОЕГО другого контекста показа карты), просто здесь это
+// transform:scale() поверх фиксированного .card, а не CSS-переменные, так что считаем
+// вручную по фактическому натуральному размеру (targetRect) элемента.
+function _clampPreviewScale(desiredScale, targetRect){
+  const maxByWidth=(window.innerWidth*0.92)/targetRect.width;
+  const maxByHeight=(window.innerHeight*0.85)/targetRect.height;
+  return Math.min(desiredScale, maxByWidth, maxByHeight);
+}
+
 function showFieldCardPreview(card, originEl, scale=FIELD_PREVIEW_SCALE){
   closeFieldCardPreview();
   const originRect=originEl.getBoundingClientRect();
@@ -303,7 +318,8 @@ function showFieldCardPreview(card, originEl, scale=FIELD_PREVIEW_SCALE){
   el.style.transition='left .25s cubic-bezier(.22,.9,.32,1), top .25s cubic-bezier(.22,.9,.32,1), transform .25s cubic-bezier(.22,.9,.32,1)';
   el.style.left='50%';
   el.style.top='46%';
-  el.style.transform=`translate(-50%,-50%) scale(${scale})`;
+  const finalScale=_clampPreviewScale(scale, targetRect);
+  el.style.transform=`translate(-50%,-50%) scale(${finalScale})`;
 
   fieldPreviewEl=el;
 
@@ -404,7 +420,19 @@ function playSpellRevealAnimation(card, onDone){
   el.style.transition=`left ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1), top ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1), transform ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1)`;
   el.style.left=targetCx+'px';
   el.style.top=targetCy+'px';
-  el.style.transform='translate(-50%,-50%) scale(1)';
+  // Размер (2026-07-19, по прямому запросу автора): карта в центре при раскрытии спелла
+  // теперь того же размера, что и увеличенная карта поля при долгом нажатии — FIELD_PREVIEW_SCALE
+  // (см. константу выше, недавно увеличена на 75%), но так же ограничена _clampPreviewScale()
+  // (см. эту функцию выше в файле — багфикс от того же дня: на мобильном вьюпорте 2.8×
+  // делает карту шире экрана). Итоговый scale пишем ЕЩЁ И в CSS custom property
+  // --reveal-scale на самом элементе — @keyframes revealVanish (styles.css) читают её через
+  // calc(var(--reveal-scale) * X), а не хардкодят число, именно чтобы растворение не
+  // "дёргалось" в размере, если clamp у конкретного игрока сработал (экран уже, чем 92vw
+  // требует для полного FIELD_PREVIEW_SCALE) — тот же принцип, что и с translate(-50%,-50%)
+  // в этих же кадрах (см. соседний комментарий в styles.css).
+  const revealScale=_clampPreviewScale(FIELD_PREVIEW_SCALE, targetRect);
+  el.style.setProperty('--reveal-scale', revealScale);
+  el.style.transform=`translate(-50%,-50%) scale(${revealScale})`;
 
   setTimeout(()=>{
     if(!el.parentElement){ onDone(); return; } // сцена сменилась, пока летели — не виснем
