@@ -14,12 +14,18 @@ const DEFS = {
   t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:3,atk:3,art:"🦈", img:"34.png",   f:"tea",tags:["regen","gtype:szg"],           ab:"Squad: +1 maxHP."},
   t_trvl694_w:  {name:"TRAVELER #694",  cost:3,hp:2,atk:3,art:"🦈", img:"694.png",  f:"tea",tags:["vanguard","gtype:szg"],            ab:"Squad: +1 maxHP."},
   t_trvl57_w:  {name:"TRAVELER #57",  cost:2,hp:1,atk:2,art:"🦈", img:"57.png",  f:"tea",tags:["burn","gtype:szg"],           ab:"Squad: +1 maxHP."},
+  // +2 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #33 выше (тот же
+  // 1/2 болван, gtype:szg, идентичная Squad-абилка), см. AI BALANCE NOTES.
+  t_trvl870_w: {name:"TRAVELER #870", cost:1,hp:1,atk:2,art:"🦈", img:"870.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad: +1 maxHP."},
+  t_trvl890_w: {name:"TRAVELER #890", cost:1,hp:1,atk:2,art:"🦈", img:"890.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad: +1 maxHP."},
 
   // Orbiton Tea
   t_trvl10_w:   {name:"TRAVELER #10",   cost:2,hp:3,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:2","burn","gtype:orb"],             ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
   t_trvl398_w:  {name:"TRAVELER #398",  cost:3,hp:6,atk:1,art:"👁️", img:"398.png",  f:"tea",tags:["heal:2","vanguard","untamed","armor:1","gtype:orb"],         ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
   t_trvl433_w:  {name:"TRAVELER #433",  cost:1,hp:1,atk:1,art:"👁️", img:"433.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
   t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
+  // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #433/#1034 выше.
+  t_trvl503_w:  {name:"TRAVELER #503",  cost:1,hp:1,atk:1,art:"👁️", img:"503.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
 
   // Dreegan Tea
   t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:7,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","enter_heal:2","gtype:drg"],                   ab:"On play: Heal 2 all allies. Squad: +1 Armor."},
@@ -76,6 +82,9 @@ const DEFS = {
   t_sp11:      {name:"REKINDLE",   cost:2,hp:0,atk:0,art:"🕯️", img:"1_Rekindle.png", f:"tea",tags:["spell","spell_untap"], ab:"Target ally creature becomes active.",spell:true},
   t_sp12:      {name:"BULWARK",    cost:2,hp:0,atk:0,art:"🛡️", img:"1_Bulwark.png", f:"tea",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
   t_sp13:      {name:"INSIGHT",    cost:2,hp:0,atk:0,art:"🔮", img:"1_Insight.png", f:"tea",tags:["spell","draw:2"], ab:"Draw 2 cards.",spell:true},
+  // Новый спелл (2026-07-19, ребаланс кривой под ход 1) — дешёвый draw:1, вполовину
+  // цены/эффекта INSIGHT выше (та же пропорция cost:draw).
+  t_sp14:      {name:"GLIMPSE",    cost:1,hp:0,atk:0,art:"✨", img:"1_Glimpse.png", f:"tea",tags:["spell","draw:1"], ab:"Draw 1 card.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1"],       ab:"When an enemy creature dies: Draw 1 card.",world:true},
@@ -90,6 +99,8 @@ const DEFS = {
   j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad: +1 maxHP."},
   j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:2,atk:3,art:"🦈", img:"551.png", f:"jeet",tags:["incarnation:4","gtype:szg"],      ab:"Squad: +1 maxHP."},
   j_trvl971_w: {name:"TRAVELER #971", cost:1,hp:1,atk:2,art:"🦈", img:"971.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad: +1 maxHP."},
+  // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону #12/#49/#971 выше.
+  j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad: +1 maxHP."},
   j_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:3,atk:4,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad: +1 maxHP."},
 
   // Orbiton Jeet
@@ -148,6 +159,9 @@ const DEFS = {
   j_sp11:      {name:"FRENZY",     cost:3,hp:0,atk:0,art:"😤", img:"1_Frenzy.png", f:"jeet",tags:["spell","spell_buff_temp:2"], ab:"Target ally: +2 ATK until end of battle.",spell:true},
   j_sp12:      {name:"CARAPACE",   cost:2,hp:0,atk:0,art:"🪲", img:"1_Carapace.png", f:"jeet",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
   j_sp13:      {name:"HEX",        cost:3,hp:0,atk:0,art:"💀", img:"1_Hex.png", f:"jeet",tags:["spell","spell_dmg_target:3"], ab:"Bolt 3.",spell:true},
+  // Новый спелл (2026-07-19, ребаланс кривой под ход 1) — дешёвый draw:1, вполовину
+  // цены/эффекта JEET WAVE выше (та же пропорция cost:draw).
+  j_sp14:      {name:"OMEN",       cost:1,hp:0,atk:0,art:"🌑", img:"1_Omen.png", f:"jeet",tags:["spell","draw:1"], ab:"Draw 1 card.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: Draw 1 card.",world:true},
