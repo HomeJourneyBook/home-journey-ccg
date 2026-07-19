@@ -189,6 +189,12 @@ function getTypeDotLabel(card){
 // меняй любую из них независимо, вторую не затронет.
 const FIELD_PREVIEW_SCALE = 2.08; // во сколько раз увеличивается карта поля при долгом нажатии (было 1.6; +75% пробовали 2026-07-19, автор откатил — многовато; пересчитано на +30%)
 const HAND_ZOOM_SCALE     = 1.6; // во сколько раз увеличивается карта руки по кнопке Zoom (отдельная фича, не трогали)
+// Масштаб анимации раскрытия спелла ИИ в центре поля (playSpellRevealAnimation ниже) —
+// раньше буквально равнялся FIELD_PREVIEW_SCALE (см. комментарий внутри функции, "того же
+// размера, что и увеличенная карта поля"), но по запросу автора (2026-07-19) уменьшен на 15%
+// и теперь СВОЯ отдельная константа — правка FIELD_PREVIEW_SCALE (зум поля по долгому нажатию)
+// больше не задевает эту анимацию, и наоборот.
+const SPELL_REVEAL_SCALE = FIELD_PREVIEW_SCALE * 0.85; // 2.08 → 1.768
 
 let fieldPreviewEl=null;
 let statusPanelEl=null;
@@ -422,18 +428,20 @@ function playSpellRevealAnimation(card, onDone){
   el.style.transition=`left ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1), top ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1), transform ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1)`;
   el.style.left=targetCx+'px';
   el.style.top=targetCy+'px';
-  // Размер (2026-07-19, по прямому запросу автора): карта в центре при раскрытии спелла
-  // теперь того же размера, что и увеличенная карта поля при долгом нажатии — FIELD_PREVIEW_SCALE
-  // (см. константу выше — сначала пробовали +75%, потом откатили на +30%, сейчас 2.08), но
-  // так же ограничена _clampPreviewScale() (см. эту функцию выше в файле — багфикс от того
-  // же дня: на мобильном вьюпорте увеличенный масштаб мог сделать карту шире экрана).
+  // Размер (2026-07-19, по прямому запросу автора): карта в центре при раскрытии спелла —
+  // своя SPELL_REVEAL_SCALE (см. константу выше — раньше жёстко равнялась FIELD_PREVIEW_SCALE,
+  // "того же размера, что увеличенная карта поля при долгом нажатии", но по отдельному
+  // запросу автора уменьшена ещё на 15% и отвязана от неё), но так же ограничена
+  // _clampPreviewScale() (см. эту функцию выше в файле — багфикс от того же дня: на мобильном
+  // вьюпорте увеличенный масштаб мог сделать карту шире экрана).
   // Итоговый scale пишем ЕЩЁ И в CSS custom property --reveal-scale на самом элементе —
   // @keyframes revealVanish (styles.css) читают её через calc(var(--reveal-scale) * X), а
   // не хардкодят число, именно чтобы растворение не "дёргалось" в размере, если clamp у
-  // конкретного игрока сработал (экран уже, чем 92vw требует для полного FIELD_PREVIEW_SCALE)
+  // конкретного игрока сработал (экран уже, чем требуется для полного SPELL_REVEAL_SCALE)
   // — тот же принцип, что и с translate(-50%,-50%) в этих же кадрах (см. соседний
-  // комментарий в styles.css).
-  const revealScale=_clampPreviewScale(FIELD_PREVIEW_SCALE, targetRect);
+  // комментарий в styles.css). Благодаря этому же механизму revealVanish автоматически
+  // подхватывает новый уменьшенный масштаб — её отдельно трогать не пришлось.
+  const revealScale=_clampPreviewScale(SPELL_REVEAL_SCALE, targetRect);
   el.style.setProperty('--reveal-scale', revealScale);
   el.style.transform=`translate(-50%,-50%) scale(${revealScale})`;
 
