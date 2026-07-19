@@ -1,16 +1,35 @@
-// Видимость для ТОЧЕЧНЫХ СПЕЛЛОВ/Bolt (2026-07-18, по прямому запросу автора) — это
-// НЕ то же самое, что getTargetableCards() выше (та функция — про ВЫНУЖДЕННЫЙ таргетинг
-// в бою, где должна быть хоть какая-то цель, отсюда исключение "все invisible → все
-// цели"). Точечный спелл — ДОБРОВОЛЬНОЕ действие кастующего: если противник спрятал
-// существо (invisible) или оно ещё не раскрылось (stealth && !stealthBroken), маг
-// просто не может в него ткнуть пальцем, и это нормально — спелл в этом случае вообще
-// не имеет валидной цели среди таких карт, никакого fallback-исключения не нужно.
+// Видимость для ТОЧЕЧНЫХ СПЕЛЛОВ/Bolt (2026-07-19, по прямому запросу автора — пересмотр
+// решения от 2026-07-18). Раньше спелл вообще не имел fallback-исключения: invisible/
+// нераскрытый stealth были недостижимы БЕЗ исключений, в отличие от обычной атаки, где
+// getTargetableCards() открывает invisible-существ как валидные цели, если ВСЕ существа
+// противника invisible (иначе на поле не было бы ни одной цели, кроме базы). Теперь
+// спелл ведёт себя ТОЧНО ТАК ЖЕ, как атака: если можно закликать существо в бою (оно
+// попадает в getTargetableCards()), то и точечный спелл должен суметь выбрать его целью —
+// и, что важно для рендера, для него должна появляться подсветка/мишень (см. render.js,
+// mkEl() — раньше подсветка спелл-таргетинга вообще не фильтровала invisible/stealth,
+// то есть баг был в обе стороны: и клик блокировался без fallback, и мишень могла
+// подсветиться на карте, по которой клик всё равно не сработает).
+// Второй параметр (oppField) опционален для обратной совместимости старых вызовов
+// без контекста поля — тогда используется старое строгое поведение (без fallback).
 // Применяется ТОЛЬКО к вражеским целям — по своим существам (Bounce на союзника, где
 // сторона цели не ограничена card.f!==G.turn) видимость не проверяется вообще: игрок
 // всегда точно знает, где стоит его собственная invisible/stealth карта.
-function isSpellTargetable(card){
-  if(hasTag(card,'invisible')) return false;
+// КОНВЕНЦИЯ КЛИКА (уточнено автором 2026-07-19, второй пересмотр): если карта не
+// isSpellTargetable() — клик по ней НЕ отменяет спелл (никакого cancelPendingSpell()/
+// рефанда), просто ИГНОРИРУЕТСЯ, точно как невалидный клик по невидимой цели при обычной
+// атаке (getTargetableCards()). Мишень/подсветка и кликабельность — одно и то же: не видно
+// как targetable → нельзя и нажать, без побочных эффектов и без сообщений об отмене. См.
+// каждую ветку G.phase==='...Target' в onClick() ниже — там именно этот паттерн.
+function isSpellTargetable(card, oppField){
   if(hasTag(card,'stealth') && !card.stealthBroken) return false;
+  if(hasTag(card,'invisible')){
+    if(!oppField) return false;
+    // Тот же fallback, что и в getTargetableCards(): invisible недостижим, ПОКА на поле
+    // есть хоть один видимый (не-invisible) союзник; если видимых вообще не осталось —
+    // invisible-существа сами становятся валидными целями.
+    const allInvisible = oppField.length>0 && oppField.every(c=>hasTag(c,'invisible'));
+    return allInvisible;
+  }
   return true;
 }
 
@@ -107,16 +126,29 @@ function onClick(card,zone){
     return;
   }
   if(G.phase==='shardTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
-      doShardTarget(card);return;
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      if(isSpellTargetable(card,G[opp].field)){
+        doShardTarget(card);return;
+      }
+      // Видимость (2026-07-19, автор — пересмотр): invisible/нераскрытый stealth ведёт
+      // себя ТОЧНО как при обычной атаке — если карта не подсвечена как targetable, клик
+      // по ней просто ИГНОРИРУЕТСЯ, никакой отмены активки. Раньше это молча съедало
+      // клик и отменяло Shard (cancel ниже) — вводило игрока в заблуждение, будто он
+      // сделал что-то неправильное, хотя цель просто была невидимой (то же самое, что
+      // "не видно как мишень → нельзя нажать", без побочного эффекта отмены).
+      return;
     }
-    G.phase='action';G.sel=null;render();return; // cancel
+    G.phase='action';G.sel=null;render();return; // cancel — клик мимо поля/не по существу
   }
   if(G.phase==='boltTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
-      doBoltTarget(card);return;
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      if(isSpellTargetable(card,G[opp].field)){
+        doBoltTarget(card);return;
+      }
+      // См. комментарий у shardTarget выше — тот же принцип для Bolt.
+      return;
     }
-    G.phase='action';G.sel=null;render();return; // cancel
+    G.phase='action';G.sel=null;render();return; // cancel — клик мимо поля/не по существу
   }
   if(G.phase==='sacrificeTarget'){
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
@@ -125,8 +157,13 @@ function onClick(card,zone){
     G.phase='action';G.sel=null;render();return; // cancel on any other click
   }
   if(G.phase==='spellDmgTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
-      doSpellDmgTarget(card);return;
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      if(isSpellTargetable(card,G[opp].field)){
+        doSpellDmgTarget(card);return;
+      }
+      // См. комментарий у shardTarget выше — тот же принцип: невидимая цель просто не
+      // кликабельна, без отмены и рефанда спелла.
+      return;
     }
     cancelPendingSpell();return; // cancel — refunds cost, returns card to hand
   }
@@ -145,8 +182,12 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellDispelTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
-      doSpellDispelTarget(card);return;
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      if(isSpellTargetable(card,G[opp].field)){
+        doSpellDispelTarget(card);return;
+      }
+      // См. комментарий у shardTarget выше.
+      return;
     }
     cancelPendingSpell();return;
   }
@@ -168,13 +209,18 @@ function onClick(card,zone){
     // поэтому нет проверки card.f===/!==G.turn, только что это существо на поле.
     // Видимость (invisible/нераскрытый stealth) проверяется ТОЛЬКО для вражеской цели —
     // свою карту игрок всегда видит, ограничения нет (2026-07-18).
-    if(zone==='field'&&!card.spell&&!card.world&&!card.artifact&&(card.f===G.turn||isSpellTargetable(card))){
-      doSpellBounceTarget(card);return;
+    if(zone==='field'&&!card.spell&&!card.world&&!card.artifact){
+      if(card.f===G.turn||isSpellTargetable(card,G[opp].field)){
+        doSpellBounceTarget(card);return;
+      }
+      // Видимость (2026-07-19) — тот же принцип, что и у shardTarget/spellDmgTarget выше:
+      // невидимая вражеская цель просто не кликабельна, без отмены спелла.
+      return;
     }
     cancelPendingSpell();return;
   }
   if(G.phase==='spellProvokeBreakTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&isSpellTargetable(card)){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&isSpellTargetable(card,G[opp].field)){
       doSpellProvokeBreakTarget(card);return;
     }
     // Клик мимо валидной Provoke-цели — как и spellUntapTarget, НЕ считается отменой:
@@ -184,8 +230,12 @@ function onClick(card,zone){
     return;
   }
   if(G.phase==='spellDmgTrampleTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card)){
-      doSpellDmgTrampleTarget(card);return;
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      if(isSpellTargetable(card,G[opp].field)){
+        doSpellDmgTrampleTarget(card);return;
+      }
+      // См. комментарий у shardTarget выше.
+      return;
     }
     cancelPendingSpell();return;
   }
@@ -230,9 +280,9 @@ function onClick(card,zone){
   }
 }
 
-function doPlay(card){
+function doPlay(card, afterResolve){
   const cur=G[G.turn];
-  if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');return;}
+  if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');if(typeof afterResolve==='function')afterResolve();return;}
   // Лимит поля (2026-07-16): максимум 6 существ одновременно на своей стороне поля.
   // Миры/Артефакты/обычные Заклинания сюда не попадают (не трогают cur.field вообще —
   // см. doWorld/doArtifact/doSpell), поэтому проверяем только "чистые" карты-существа,
@@ -240,56 +290,91 @@ function doPlay(card){
   // воскрешённая карта ТОЖЕ садится на cur.field (см. reviveCard()), так что тот же лимит
   // распространяется и на них — иначе рес выдал бы 7-ю карту в обход правила.
   const wouldAddToField = (!card.spell&&!card.world&&!card.artifact) || (card.spell&&hasTag(card,'revive'));
-  if(wouldAddToField&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');return;}
+  if(wouldAddToField&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');if(typeof afterResolve==='function')afterResolve();return;}
   cur.ess-=card.cost;
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
+
+  // Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора — брейншторм с прошлой
+  // сессии доведён до кода): человек в VS AI режиме никогда не видит руку ИИ (см.
+  // rHiddenHand() в render.js) — единственный сигнал о том, что там был спелл, раньше был
+  // текст в логе ПОСЛЕ уже случившегося эффекта. Теперь, если это карта-заклинание,
+  // сыгранная ИИ, мы сперва показываем её настоящее лицо (playSpellRevealAnimation(),
+  // render.js — вылет из центра oppHandZone, зависание ~0.6с, синий дисолв) и ТОЛЬКО
+  // ПОСЛЕ этого резолвим сам эффект — см. _resolvePlayedCard() ниже. Три уточнения от
+  // автора: (1) хотсит не участвует — там рука никогда не была по-настоящему скрыта от
+  // игрока за столом, откладываем эту тему на будущее для СВОИХ спеллов отдельно; (2)
+  // AI vs AI спектатор тоже не участвует (G.spectatorMode) — там некому показывать; (3)
+  // конкретный слот рубашки не важен, вылет всегда из центра всей зоны руки.
+  // afterResolve — новый опциональный колбэк (используется AI-степ-циклом, ai.js —
+  // aiPlayCardsStep ждёт его перед тем как перейти к следующей карте, чтобы анимация не
+  // перекрывалась со следующим действием); человеческий Play-клик (render.js) вызывает
+  // doPlay(card) без второго аргумента — undefined безопасно игнорируется всюду ниже.
+  const needsReveal = card.spell && G.mode==='vsai' && !G.spectatorMode && card.f===G.aiFaction;
+  if(needsReveal){
+    render(); // сразу отражаем -1 рубашку в руке ИИ и списанную эссенцию, ДО анимации
+    playSpellRevealAnimation(card, ()=>{
+      _resolvePlayedCard(card);
+      if(typeof afterResolve==='function') afterResolve();
+    });
+    return;
+  }
+  _resolvePlayedCard(card);
+  if(typeof afterResolve==='function') afterResolve();
+}
+
+// Вынесено из doPlay() (2026-07-19) — сама логика "что происходит при розыгрыше карты"
+// (таргетируемые спеллы ставят фазу выбора цели и ждут клика/aiResolvePendingSpellTarget();
+// всё остальное резолвится сразу). Раньше это была нижняя половина тела doPlay() — теперь
+// отдельная функция, чтобы doPlay() мог вызвать её либо сразу, либо из колбэка
+// playSpellRevealAnimation() (см. needsReveal выше), не дублируя код дважды.
+function _resolvePlayedCard(card){
   // Targeted spells pause for a target click instead of resolving instantly —
   // same pattern as shardTarget/sacrificeTarget/healTarget below. The spell
   // card is held in G.pendingSpell until a valid target is clicked (or the
   // player cancels by clicking anything else, same as those other phases).
   if(card.spell&&hasTag(card,'spell_dmg_target')){
     G.pendingSpell=card;G.phase='spellDmgTarget';
-    lg(`${card.name}: select an enemy creature.`,'hint');render();return;
-  }
-  if(card.spell&&hasTag(card,'spell_buff_temp')){
+    lg(`${card.name}: select an enemy creature.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_buff_temp')){
     G.pendingSpell=card;G.phase='spellBuffTarget';
-    lg(`${card.name}: select an ally creature.`,'hint');render();return;
-  }
-  if(card.spell&&hasTag(card,'spell_armor_temp')){
+    lg(`${card.name}: select an ally creature.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_armor_temp')){
     G.pendingSpell=card;G.phase='spellArmorTarget';
-    lg(`${card.name}: select an ally creature.`,'hint');render();return;
-  }
-  if(card.spell&&hasTag(card,'spell_dispel')){
+    lg(`${card.name}: select an ally creature.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_dispel')){
     G.pendingSpell=card;G.phase='spellDispelTarget';
-    lg(`${card.name}: select an enemy creature to dispel.`,'hint');render();return;
-  }
-  if(card.spell&&hasTag(card,'spell_untap')){
+    lg(`${card.name}: select an enemy creature to dispel.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_untap')){
     G.pendingSpell=card;G.phase='spellUntapTarget';
-    lg(`${card.name}: select an ally creature to activate.`,'hint');render();return;
-  }
-  if(card.spell&&hasTag(card,'spell_bounce_target')){
+    lg(`${card.name}: select an ally creature to activate.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_bounce_target')){
     G.pendingSpell=card;G.phase='spellBounceTarget';
-    lg(`${card.name}: select any creature on the field.`,'hint');render();return;
-  }
-  if(card.spell&&hasTag(card,'spell_provoke_break_target')){
+    lg(`${card.name}: select any creature on the field.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_provoke_break_target')){
     G.pendingSpell=card;G.phase='spellProvokeBreakTarget';
-    lg(`${card.name}: select an enemy Provoke creature.`,'hint');render();return;
-  }
-  if(card.spell&&hasTag(card,'spell_dmg_trample_target')){
+    lg(`${card.name}: select an enemy Provoke creature.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_dmg_trample_target')){
     G.pendingSpell=card;G.phase='spellDmgTrampleTarget';
-    lg(`${card.name}: select an enemy creature.`,'hint');render();return;
+    lg(`${card.name}: select an enemy creature.`,'hint');
+  } else {
+    if(card.spell)doSpell(card);
+    else if(card.world)doWorld(card);
+    else if(card.artifact)doArtifact(card);
+    else doCreature(card);
+    // Fires for ANY card played (creature/world/artifact/spell), not just creatures —
+    // centralized here so effects like Faeron's "Each On play: Heal base 1HP" trigger
+    // regardless of what type of card was just played. Previously this only lived
+    // inside doCreature(), so playing a World/Artifact/Spell never notified field
+    // creatures with this tag (bug: Faeron didn't heal base when a World was played).
+    G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
   }
-  if(card.spell)doSpell(card);
-  else if(card.world)doWorld(card);
-  else if(card.artifact)doArtifact(card);
-  else doCreature(card);
-  // Fires for ANY card played (creature/world/artifact/spell), not just creatures —
-  // centralized here so effects like Faeron's "Each On play: Heal base 1HP" trigger
-  // regardless of what type of card was just played. Previously this only lived
-  // inside doCreature(), so playing a World/Artifact/Spell never notified field
-  // creatures with this tag (bug: Faeron didn't heal base when a World was played).
-  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
   render();
+  // Раньше aiResolvePendingSpellTarget() вызывался СНАРУЖИ, сразу после doPlay(), в
+  // aiPlayCardsStep() (ai.js). Теперь, когда doPlay() может уйти в асинхронный колбэк
+  // (needsReveal выше), эта проверка централизована здесь — работает одинаково что для
+  // мгновенного пути, что и для отложенного, и вызывающему коду (ai.js) больше не нужно
+  // помнить об этом отдельно.
+  if(G.pendingSpell && isAiTurn()) aiResolvePendingSpellTarget();
 }
 
 function doCreature(card){
@@ -471,7 +556,14 @@ function doAttack(att,target){
     queueFieldFx(interceptor.id,'INTERCEPTED!','fx-fear'); // переиспользуем готовый fx-класс, тот же "красный всплеск"
     target=interceptor;
   }
-  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
+  // atk_vs_burning:N (2026-07-19, FAERON — доп. часть Fire Shield по прямому запросу
+  // автора): если ЦЕЛЬ УЖЕ горит (target.burning) в момент этого удара — атакующий наносит
+  // на N больше урона ЭТИМ ударом. Проверяем состояние цели ДО dmgCard() ниже (снимок
+  // урона считается один раз — атакующий не поджигает и тут же не получает бонус тем же
+  // ударом, тот же принцип "эффект не отменяет/не усиливает сам себя в этот же тик", что и
+  // у wasFearedBefore/wasExhaustedBefore/stealthFirstStrike в этой же функции).
+  const burnBonus = (hasTag(att,'atk_vs_burning') && target.burning) ? (getTagVal(att,'atk_vs_burning')||0) : 0;
+  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0)+burnBonus;
 
   // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
   // один из этих эффектов (цель выживает после урона), звук самой атаки не играем.
@@ -516,6 +608,10 @@ function doAttack(att,target){
 
   // Thorns / "Огненный Щит" (2026-07-17, FAERON) — анти-invisible пара: вместо того чтобы
   // быть недостижимой (Seeker/invisible), эта карта наказывает того, кто до неё дотянулся.
+  // КОНВЕНЦИЯ (уточнено автором 2026-07-19): Fire Shield — это ВСЕГДА пара тегов на карте —
+  // thorns:N (эта защитная часть) идёт вместе с atk_vs_burning:N (наступательная часть, см.
+  // burnBonus чуть выше в этой же функции) — если даёшь Fire Shield новой карте, вешай ОБА
+  // тега сразу, не только thorns.
   // Резолвится вне зависимости от того, выжила ли цель (та же логика "regardless of
   // outcome", что и контрудар выше — deferDeath=true, финальная смерть att разрешится один
   // раз чуть ниже). Пропускается, если этот конкретный удар был полностью поглощён Solana
