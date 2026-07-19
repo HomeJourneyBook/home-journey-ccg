@@ -1328,8 +1328,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small.exhausted{filter:brightness(.55) saturate(.8);}
 .card-small.sleeping{filter:brightness(.55) saturate(.8);}
 .card-small.feared{opacity:.5;border-style:solid;box-shadow:0 0 8px #66666688;}
-.card-small.invisible-visual{border-color:#000000cc;box-shadow:0 0 8px 2px rgba(0,0,0,.85), inset 0 0 10px rgba(0,0,0,.7);}
-.card-small.stealth-visual{border-color:#000000cc;box-shadow:0 0 8px 2px rgba(0,0,0,.85), inset 0 0 10px rgba(0,0,0,.7);}
+/* invisible-visual/stealth-visual (2026-07-19, по прямому запросу автора) — box-shadow
+   индикатор убран целиком (сперва была яркая cream-рамка, потом тёмный shadow box) —
+   пока нет отдельного визуального решения для этих статусов, классы ниже намеренно
+   пустые. Классы .invisible-visual/.stealth-visual по-прежнему навешиваются в
+   mkSmallEl() (render.js) — 'Invis'-текстовая плашка и любой будущий индикатор
+   продолжат работать, просто сейчас здесь нечего рисовать. */
+.card-small.invisible-visual{}
+.card-small.stealth-visual{}
 .card-small-feared{position:absolute;top:calc(var(--card-small-h) * -0.085);left:20%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small-burning{position:absolute;top:calc(var(--card-small-h) * -0.085);left:80%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
 .card-small-tauntbroken{position:absolute;top:calc(var(--card-small-h) * -0.085);left:50%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:4;}
@@ -1448,6 +1454,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 @media(hover:hover){
   .hand .card:not(.previewed):hover{transform:translateY(-10px) !important;z-index:100 !important;}
 }
+/* .cursor-hover (2026-07-19) — тот же лифт, что и :hover выше, но навешивается из JS
+   через Pointer Events (см. ui.js) вместо native :hover — нужно на iPad с курсором
+   (трекпад/мышь), где WebKit не всегда активирует :hover на делегированных кликах
+   (см. комментарий у слушателя pointerover/pointerout в ui.js за подробностями). На
+   обычном десктопе оба правила просто дублируют друг друга, конфликта нет. */
+.hand .card.cursor-hover:not(.previewed){transform:translateY(-10px) !important;z-index:100 !important;}
 .field-ability-popup{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px;z-index:2001;width:70px;pointer-events:all;}
 .card-actions-popup{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;align-items:center;padding:4px;z-index:2001;width:110px;pointer-events:all;}
 .card-actions-popup-left{position:absolute;right:calc(100% + 6px);top:0;display:flex;flex-direction:column;gap:3px;align-items:center;z-index:2001;pointer-events:all;}
