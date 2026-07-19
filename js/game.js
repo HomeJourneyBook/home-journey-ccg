@@ -549,7 +549,7 @@ function doAttack(att,target){
   // атакующий свободно выбирает цель, перехват — это то, что происходит ПОСЛЕ выбора).
   // Если атакующий и так выбрал именно перехватчика — не расходуем перехват (условие
   // автора: "если атакующий сам выбрал это существо целью — перехват не расходуется").
-  const interceptor=getInterceptor(G[oppK].field);
+  const interceptor=getInterceptor(G[oppK].field, target);
   if(interceptor && interceptor.id!==target.id){
     interceptor.interceptUsed=true;
     lg(`${interceptor.name} intercepts the attack meant for ${target.name}!`,'imp');
@@ -746,11 +746,21 @@ function onBaseClick(faction){
 // Порядок между несколькими Кситрами — первый вышедший на поле первым и перехватывает:
 // field.push() в doCreature() всегда добавляет новые карты в конец массива, так что
 // filter()+[0] по живому полю уже даёт нужный порядок без отдельной сортировки.
-function getInterceptor(oppField){
+function getInterceptor(oppField, target){
   const bushido = oppField.some(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return null;
   const provoke = oppField.some(c=>c.tags&&c.tags.includes('provoke')&&!c.provokeBroken);
   if(provoke) return null;
+  // Баг-фикс (2026-07-19, автор нашёл живьём): если атакующий и так уже выбрал целью
+  // ДРУГОЕ существо с Intercept ("Xuiqtr") — перехват вообще не должен срабатывать.
+  // Раньше проверялось только "не перехватываем сами себя" (interceptor.id!==target.id
+  // в doAttack()), но это не покрывало случай ДВУХ разных Intercept-существ на поле:
+  // при атаке на второго вышедшего Xuiqtr'a первый (раньше вышедший) всё равно
+  // подменял собой цель — то есть между собой Intercept-существа воровали удары друг у
+  // друга, хотя Intercept задуман как защита "обычных" существ, а не как способ
+  // одному Xuiqtr'у переманивать удар с другого. Если target уже сам Intercept —
+  // перехвата нет вообще, атака идёт как выбрана.
+  if(target && hasTag(target,'intercept')) return null;
   const candidates = oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'intercept')&&!c.interceptUsed);
   return candidates.length>0 ? candidates[0] : null;
 }
@@ -1816,12 +1826,19 @@ function endTurn(){
   applyAuras(G.turn);
   checkSquadBonuses(G.turn);
   recalcArmor(G.turn);
-  
-  fieldBeforeIncarnation.forEach(c=>triggerAbilities(c,'on_turn'));
-  cur.field.forEach(c=>{
-  });
 
-    [...G[G.turn].field].forEach(card=>{
+  // Burn-тик (2026-07-19, автор нашёл живьём — Плегмор-баг): ДОЛЖЕН резолвиться (включая
+  // летальную смерть) ДО цикла on_turn-триггеров существ чуть ниже, а не после. Раньше
+  // порядок был обратный: сперва on_turn (Плегмор успевал сработать своим raise:1 —
+  // поднять существо с кладбища), и только СЛЕДОМ шёл этот burn-тик, который его и убивал.
+  // Итог: карта, уже получившая летальный урон в НАЧАЛЕ этого самого хода, всё равно
+  // успевала подействовать своей активкой в тот же ход — концептуально то же самое
+  // нарушение, что чинил комментарий про "fieldBeforeIncarnation" чуть выше (Спящая карта
+  // не должна успевать подействовать в свой первый ход) — только тут наоборот, "мёртвая"
+  // карта не должна успевать подействовать в ход своей же смерти. Теперь burn убивает
+  // ПЕРВЫМ, а fieldBeforeIncarnation ниже дополнительно фильтруется по актуальному
+  // cur.field — сгоревшая карта уже вырезана из него killCard() и не попадёт в on_turn.
+  [...G[G.turn].field].forEach(card=>{
     if(card.burning&&!card.spell&&!card.world&&!card.artifact){
       // Burn deliberately bypasses armor (author call, 2026-07-10) — it always
       // hits HP directly, unlike every other damage source which goes through
@@ -1851,6 +1868,15 @@ function endTurn(){
         killCard(card,f,true); // true = burned to death → void
       }
     }
+  });
+
+  // Фильтр по актуальному cur.field (2026-07-19, см. комментарий у burn-тика выше) —
+  // если карта сгорела до смерти ЭТИМ же burn-тиком (только что, прямо над этой строкой),
+  // killCard() уже вырезал её из G[G.turn].field, так что она отсеется здесь и не
+  // получит on_turn-триггер (Плегмор и любая другая on_turn-абилка). Карты, которые
+  // просто не были burning, само собой остаются в cur.field и проходят фильтр как обычно.
+  fieldBeforeIncarnation.forEach(c=>{
+    if(cur.field.includes(c)) triggerAbilities(c,'on_turn');
   });
   checkWin();
 
