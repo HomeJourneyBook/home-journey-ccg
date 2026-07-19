@@ -280,6 +280,13 @@ function onClick(card,zone){
   }
 }
 
+// Список тегов, определяющих ТАРГЕТИРУЕМЫЙ спелл (2026-07-19) — вынесен сюда как общий
+// список, чтобы doPlay() мог одной строкой проверить "это простой instant-спелл или нет",
+// не дублируя весь if/else список из _resolvePlayedCard() ниже. Если добавляешь новый тип
+// таргетируемого спелла — впиши его тег и сюда тоже, иначе он ошибочно попадёт под
+// spell-cast-out-анимацию (см. isPlainInstantSpell в doPlay()).
+const TARGETED_SPELL_TAGS = ['spell_dmg_target','spell_buff_temp','spell_armor_temp','spell_dispel','spell_untap','spell_bounce_target','spell_provoke_break_target','spell_dmg_trample_target'];
+
 function doPlay(card, afterResolve){
   const cur=G[G.turn];
   if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');if(typeof afterResolve==='function')afterResolve();return;}
@@ -292,7 +299,6 @@ function doPlay(card, afterResolve){
   const wouldAddToField = (!card.spell&&!card.world&&!card.artifact) || (card.spell&&hasTag(card,'revive'));
   if(wouldAddToField&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');if(typeof afterResolve==='function')afterResolve();return;}
   cur.ess-=card.cost;
-  cur.hand=cur.hand.filter(c=>c.id!==card.id);
 
   // Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора — брейншторм с прошлой
   // сессии доведён до кода): человек в VS AI режиме никогда не видит руку ИИ (см.
@@ -311,6 +317,7 @@ function doPlay(card, afterResolve){
   // doPlay(card) без второго аргумента — undefined безопасно игнорируется всюду ниже.
   const needsReveal = card.spell && G.mode==='vsai' && !G.spectatorMode && card.f===G.aiFaction;
   if(needsReveal){
+    cur.hand=cur.hand.filter(c=>c.id!==card.id); // рука ИИ скрыта (рубашки) — убираем сразу, как раньше
     render(); // сразу отражаем -1 рубашку в руке ИИ и списанную эссенцию, ДО анимации
     playSpellRevealAnimation(card, ()=>{
       _resolvePlayedCard(card);
@@ -318,6 +325,42 @@ function doPlay(card, afterResolve){
     });
     return;
   }
+
+  // Исчезновение НЕ-таргетируемого спелла из руки (2026-07-19, по прямому запросу автора):
+  // "простой" instant-спелл (эссенция, добор/сброс карт, AOE и т.п. — всё, что резолвится
+  // МГНОВЕННО через doSpell(), без фазы выбора цели) раньше просто исчезал из руки в тот
+  // же кадр, без какой-либо анимации — карта "телепортировалась в никуда". Теперь вместо
+  // немедленного удаления из cur.hand сначала вешаем .spell-cast-out на реальный DOM-
+  // элемент карты (тот же приём burnCard/revealVanish, но синий и БЕЗ fixed-position/
+  // translate-трюка — карта уже стоит на месте во flex-раскладке руки), ждём длительность
+  // анимации (450мс, синхронно с CSS — см. .hand .card.spell-cast-out в styles.css) и
+  // ТОЛЬКО ПОСЛЕ этого реально убираем карту из руки и резолвим эффект.
+  // Таргетируемые спеллы (TARGETED_SPELL_TAGS) сюда НЕ попадают — они и так уже покидают
+  // руку в момент клика Play, целятся отдельной фазой, доп. анимация им не нужна (сама
+  // карта к тому моменту, когда реально резолвится, давно не в руке визуально).
+  // Работает одинаково для человека И для ИИ в хотсите/спектаторе — там рука ИИ рисуется
+  // настоящими DOM-элементами (не рубашками), так что querySelector ниже находит карту
+  // и для них тоже; в VS AI (скрытая рука ИИ) селектор просто ничего не найдёт — см.
+  // needsReveal-ветку выше, она уже обработала этот случай отдельно и сюда не доходит.
+  const isPlainInstantSpell = card.spell && !TARGETED_SPELL_TAGS.some(t=>hasTag(card,t));
+  if(isPlainInstantSpell){
+    const cardEl=document.querySelector(`.hand .card[data-id="${card.id}"]`);
+    if(cardEl){
+      if(G.previewCard===card.id) G.previewCard=null;
+      cardEl.classList.remove('previewed');
+      cardEl.classList.add('spell-cast-out');
+      setTimeout(()=>{
+        cur.hand=cur.hand.filter(c=>c.id!==card.id);
+        _resolvePlayedCard(card);
+        if(typeof afterResolve==='function') afterResolve();
+      }, 450);
+      return;
+    }
+    // cardEl не найден — подстраховка (не должно происходить в норме для реально видимой
+    // руки), падаем в обычный мгновенный путь ниже, чтобы ход точно не завис.
+  }
+
+  cur.hand=cur.hand.filter(c=>c.id!==card.id);
   _resolvePlayedCard(card);
   if(typeof afterResolve==='function') afterResolve();
 }
@@ -1879,6 +1922,14 @@ function endTurn(){
       requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(burnId,'-1','dmg')));
       lg(`${card.name} burns for 1 HP → ${card.hp}/${card.maxHp}.`,'dmg');
       if(lethal){
+        // Звук (2026-07-19, автор нашёл живьём — смерть от поджога была ПОЛНОСТЬЮ
+        // беззвучной). card_burn — это другой, несвязанный звук (сжигание карты ИЗ РУКИ
+        // за эссенцию, doBurnCard() — см. render.js), а не про статус-эффект горения.
+        // card_fire_atack уже играет один раз в МОМЕНТ поджога (case 'burn'/'burn_all',
+        // abilities.js) — переиспользуем тот же звук и здесь, в момент смерти от него,
+        // не на каждый обычный тик (иначе повторялся бы каждый ход владельца, пока
+        // существо просто горит, не умирая — навязчиво).
+        playSfx('card_fire_atack');
         const f=G[G.turn].field.includes(card)?G.turn:oppK;
         // Сгоревшая карта уходит в войд, а не на кладбище — общий diff-механизм в rZone()
         // не всегда успевал поймать её между этим циклом и render() в конце хода,
