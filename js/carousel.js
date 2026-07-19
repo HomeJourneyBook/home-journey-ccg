@@ -134,7 +134,7 @@
         opacity = OPACITY_FAR;
       }
 
-      if (!card.classList.contains('previewed') && !card.classList.contains('burning-out')) {
+      if (!card.classList.contains('previewed') && !card.classList.contains('burning-out') && !card.classList.contains('spell-cast-out')) {
         card.style.transform = `scale(${scale.toFixed(3)})`;
         card.style.opacity   = opacity.toFixed(3);
       }
