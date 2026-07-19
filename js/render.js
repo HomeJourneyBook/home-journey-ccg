@@ -329,6 +329,73 @@ function showFieldCardPreview(card, originEl, scale=FIELD_PREVIEW_SCALE){
   }
 }
 
+// Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора — только VS AI режим,
+// НЕ хотсит и НЕ AI vs AI спектатор, см. needsReveal-условие в doPlay(), game.js):
+// человек до этого момента видел только рубашку в oppHandZone (см. rHiddenHand() выше) —
+// этот эффект один раз показывает НАСТОЯЩЕЕ лицо только что сыгранной карты-спелла,
+// вылетающей из ЦЕНТРА прямоугольника скрытой руки (не из конкретного слота — автор
+// подтвердил, что rHiddenHand() не хранит id по рубашкам, только их количество, и что
+// для наглядности достаточно центра всей зоны) к центру поля, задерживается там ~0.6с
+// лицом кверху, затем растворяется синим дисолвом (revealVanish, styles.css — та же
+// техника, что и burnCard, но в холодных тонах, чтобы не путать с сжиганием карты).
+// onDone вызывается ПОСЛЕ того как клон убран из DOM — вызывающий код (doPlay()) должен
+// отложить РЕАЛЬНОЕ резолвление эффекта карты до этого колбэка, чтобы игрок физически
+// успел прочитать, что это была за карта, прежде чем она подействует. Если по каким-то
+// причинам зона руки не найдена в DOM — сразу зовём onDone(), не блокируя ход ИИ.
+const SPELL_REVEAL_FLY_MS = 250;   // вылет/увеличение до размера поля
+const SPELL_REVEAL_HOLD_MS = 600;  // "зависание" лицом кверху (тайминг по просьбе автора)
+const SPELL_REVEAL_VANISH_MS = 450; // длительность revealVanish (см. styles.css)
+function playSpellRevealAnimation(card, onDone){
+  const origin=document.getElementById('oppHandZone');
+  if(!origin){ onDone(); return; }
+  const originRect=origin.getBoundingClientRect();
+  const cx0=originRect.left+originRect.width/2;
+  const cy0=originRect.top+originRect.height/2;
+
+  // "Чистая" копия — сбрасываем игровые статусы, как и в showFieldCardPreview(), карта
+  // ещё не сыграна с точки зрения этих флагов (эффект резолвится только в колбэке).
+  const cleanCard=Object.assign({}, card, {exhausted:false, sleeping:false, feared:false, burning:false});
+  const el=mkEl(cleanCard,'preview'); // preview zone — без кнопок Play/Burn/Zoom
+  el.classList.remove('selected','previewed','affordable','entering');
+  el.classList.add('spell-reveal-clone');
+  el.style.position='fixed';
+  el.style.margin='0';
+  el.style.pointerEvents='none';
+  document.body.appendChild(el);
+
+  const targetRect=el.getBoundingClientRect(); // натуральный размер .card из CSS
+
+  // Масштаб старта — как размер рубашки в руке (card-mini), если хоть одна ещё осталась
+  // на экране; иначе примерный фолбэк-масштаб, просто чтобы был виден "вылет", а не
+  // мгновенное появление в полный размер.
+  const miniEl=origin.querySelector('.card-mini');
+  const miniRect=miniEl?miniEl.getBoundingClientRect():null;
+  const scaleX0=miniRect?(miniRect.width/targetRect.width):0.3;
+  const scaleY0=miniRect?(miniRect.height/targetRect.height):0.3;
+
+  el.style.left=cx0+'px';
+  el.style.top=cy0+'px';
+  el.style.transform=`translate(-50%,-50%) scale(${scaleX0},${scaleY0})`;
+  el.style.transition='none';
+  void el.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+  el.style.transition=`left ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1), top ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1), transform ${SPELL_REVEAL_FLY_MS}ms cubic-bezier(.22,.9,.32,1)`;
+  el.style.left='50%';
+  el.style.top='46%'; // тот же вертикальный якорь, что и у showFieldCardPreview() выше
+  el.style.transform='translate(-50%,-50%) scale(1)';
+
+  setTimeout(()=>{
+    if(!el.parentElement){ onDone(); return; } // сцена сменилась, пока летели — не виснем
+    setTimeout(()=>{
+      if(!el.parentElement){ onDone(); return; }
+      el.classList.add('vanishing');
+      setTimeout(()=>{
+        el.remove();
+        onDone();
+      }, SPELL_REVEAL_VANISH_MS);
+    }, SPELL_REVEAL_HOLD_MS);
+  }, SPELL_REVEAL_FLY_MS);
+}
+
 function closeFieldCardPreview(){
   if(statusPanelEl){
     const panel=statusPanelEl;
@@ -399,18 +466,25 @@ function mkSmallEl(card){
     const targetableS=getTargetableCards(oppField,attS);
     if(targetableS.includes(card.id))d.classList.add('targetable'); // обычная атака — без мишени, только красная подсветка (см. aim-target ниже)
   }
-  if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
-  if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
-  if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
-  if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
+  // Видимость (invisible/нераскрытый stealth, 2026-07-19) — раньше эти четыре подсветки
+  // вообще не фильтровали по isSpellTargetable(), то есть на invisible/скрытой stealth-
+  // карте мишень всё равно рисовалась, хотя клик по ней потом молча блокировался
+  // click-хендлером в game.js (isSpellTargetable там уже проверялся). Теперь оба места
+  // используют ОДНУ и ту же функцию с ОДНИМ и тем же контекстом поля (G[card.f].field —
+  // card.f тут всегда вражеская сторона, т.к. card.f!==G.turn), включая fallback
+  // "все враги invisible → все становятся видимой целью", как и у обычной атаки.
+  if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared) d.classList.add('healable','aim-heal');
   if(G.phase==='spellArmorTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared) d.classList.add('healable','aim-heal');
   if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable','aim-heal');
   // spellProvokeBreakTarget (EXPOSE/UNMASK) — только реальные Provoke-цели подсвечиваются
   // как валидные, как и у spellUntapTarget выше (нет смысла подсвечивать то, по чему клик
   // всё равно молча проигнорируется — см. click-хендлер в game.js).
-  if(G.phase==='spellProvokeBreakTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken) d.classList.add('targetable','aim-target');
-  if(G.phase==='spellDmgTrampleTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellProvokeBreakTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellDmgTrampleTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared||card.provokeBroken))d.classList.add('healable','aim-heal');
   if(G.phase==='healTarget'&&card.f!==G.turn){
     const oppField2=G[card.f].field;
@@ -422,7 +496,7 @@ function mkSmallEl(card){
   if(G.phase==='vardanAttack'&&card.f===G.turn)d.classList.add('targetable');
   // spellBounceTarget (ПОРЫВ/REVERSE) — цель ЛЮБАЯ сторона (своя или вражеская), поэтому
   // без проверки card.f===/!==G.turn, в отличие от всех остальных targeted-спеллов выше.
-  if(G.phase==='spellBounceTarget'&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellBounceTarget'&&!card.spell&&!card.world&&!card.artifact&&(card.f===G.turn||isSpellTargetable(card,G[card.f].field))) d.classList.add('targetable','aim-target');
   // Solana Shield (2026-07-13) — визуальная подмена ТОЛЬКО на поле боя (mkSmallEl), не
   // в руке/каталоге/деккбилдере (там просто текст "Solana Shield" в ab, по просьбе автора).
   const shieldActive=hasTag(card,'shield')&&!card.shieldConsumed;
