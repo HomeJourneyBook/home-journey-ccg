@@ -597,6 +597,7 @@ const tagIcons=(card.tags||[])
   .join('');
   const armorDisp=_armorDisplay(card);
   d.innerHTML=`
+    <div class="card-dim-overlay"></div>
     <div class="card-small-cost">${card.cost}</div>
     ${armorDisp?`<div class="card-small-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-small-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
@@ -821,6 +822,7 @@ const tagIcons = (card.tags||[])
     d.style.cssText += ';background-image:url(\'img/cards/'+card.img+'\')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;';
   }
   d.innerHTML=`
+    <div class="card-dim-overlay"></div>
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
@@ -874,6 +876,7 @@ const tagIcons = (card.tags||[])
   // ── Обычная разметка (существа/заклинания/артефакты): арт, статы, способность ──
   const armorDisp=_armorDisplay(card);
   d.innerHTML=`
+    <div class="card-dim-overlay"></div>
     <div class="card-cost">${card.cost}</div>
     ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" title="${card.incarnTimer>0?`Incarnation: returns in ${card.incarnTimer} turn(s)`:`Battleground is full — waiting to revive as soon as a slot opens`}"><img src="./img/ico_incarn.png" class="card-incarn-icon" style="width:70%;height:auto;">${card.incarnTimer}</div>`:''}
     ${armorDisp?`<div class="card-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
