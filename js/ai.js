@@ -275,46 +275,43 @@ function aiTryBurnCard(){
 
   if(me.hand.length < 4) return; // держим минимум вариантов, не сжигаем из тонкой руки
 
-  // Триггер 1: разблокировка хода.
+  // unlockables — карты, которые прямо сейчас НЕаффордабельны, но станут доступны
+  // ровно от +1 эссенции сжигания (doBurnCard() всегда даёт ровно +1, "только этот
+  // ход"). Считаем один раз и используем как общий гейт для ОБОИХ триггеров ниже —
+  // 2026-07-19, по прямому запросу автора: раньше Триггер 2 ("чистка мусора") жёг
+  // худшую по скору карту вообще без этой проверки, ради эссенции, которую в итоге
+  // часто было некуда потратить (она испаряется в конце этого же хода — см.
+  // doBurnCard()) — то есть чистое уничтожение карты без всякой выгоды. Живой лог
+  // (battle_log_1784464950593.json, ход 1) поймал это на RUPTURE: сильный removal-
+  // спелл, просто ВРЕМЕННО без цели на пустом стартовом поле (aiScoreCard честно
+  // даёт -1 за "нет цели прямо сейчас" — это не значит "карта плохая навсегда"),
+  // сожжён ради 1→3 эссенции, хотя в руке не осталось ничего дешевле 4.
   const fieldFullForUnlock = me.field.length >= 6;
-  const affordableNow = me.hand.some(c => c.cost <= me.ess && aiSpellHasValidTarget(c) && !(fieldFullForUnlock && !c.spell && !c.world && !c.artifact));
-  if(!affordableNow){
-    const unlockables = me.hand.filter(c => c.cost === me.ess+1 && aiSpellHasValidTarget(c) && !(fieldFullForUnlock && !c.spell && !c.world && !c.artifact));
-    if(unlockables.length > 0){
-      const unlockIds = new Set(unlockables.map(c=>c.id));
-      // Жжём худшую карту среди НЕ-открываемых (открываемые — то, ради чего
-      // жжём, их не трогаем). Если вся не-легендарная рука состоит из
-      // открываемых (unlikely), жжём худшую из них, кроме единственной
-      // оставшейся — сжечь последнюю значило бы сжечь сам смысл действия.
-      let cand=null, candScore=Infinity;
-      me.hand.forEach(c=>{
-        if(c.unique) return;
-        if(unlockIds.has(c.id)) return;
-        const s = aiScoreCard(c, me);
-        if(s < candScore){ candScore = s; cand = c; }
-      });
-      if(!cand && unlockables.length > 1){
-        unlockables.forEach(c=>{
-          if(c.unique) return;
-          const s = aiScoreCard(c, me);
-          if(s < candScore){ candScore = s; cand = c; }
-        });
-      }
-      if(cand){ doBurnCard(cand); return; }
-    }
-  }
+  const unlockables = me.hand.filter(c => c.cost === me.ess+1 && aiSpellHasValidTarget(c) && !(fieldFullForUnlock && !c.spell && !c.world && !c.artifact));
+  if(unlockables.length === 0) return; // сжигать нечего разблокировать — не жжём вообще
 
-  // Триггер 2: чистка мусора (как было).
-  let worst=null, worstScore=Infinity;
+  // Жжём худшую карту среди НЕ-открываемых (открываемые — то, ради чего жжём, их не
+  // трогаем). Если вся не-легендарная рука состоит из открываемых (unlikely), жжём
+  // худшую из них, кроме единственной оставшейся — сжечь последнюю значило бы сжечь
+  // сам смысл действия. Порог worstScore<1.5 (старый гейт Триггера 2) сознательно
+  // убран — раз розыгрыш реально разблокируется, оно того стоит, даже если худшая
+  // карта в руке не совсем мусор (та же логика, что раньше уже была у Триггера 1).
+  const unlockIds = new Set(unlockables.map(c=>c.id));
+  let cand=null, candScore=Infinity;
   me.hand.forEach(c=>{
-    if(c.unique) return; // never burn a legendary, no matter how the formula scores it
+    if(c.unique) return;
+    if(unlockIds.has(c.id)) return;
     const s = aiScoreCard(c, me);
-    if(s < worstScore){ worstScore = s; worst = c; }
+    if(s < candScore){ candScore = s; cand = c; }
   });
-  if(!worst) return;
-  // Порог ~1.5 — примерно "существо ниже среднего КПД" по шкале aiScoreCard;
-  // не жжём карту, если даже худшая в руке выглядит неплохо.
-  if(worstScore < 1.5) doBurnCard(worst);
+  if(!cand && unlockables.length > 1){
+    unlockables.forEach(c=>{
+      if(c.unique) return;
+      const s = aiScoreCard(c, me);
+      if(s < candScore){ candScore = s; cand = c; }
+    });
+  }
+  if(cand){ doBurnCard(cand); return; }
 }
 
 // ── ФАЗА 1: розыгрыш карт из руки ────────────────────────────────
@@ -902,7 +899,22 @@ function aiScoreCard(card, me){
       return card.cost*w.spellBase + enemies.length*w.burnAllPerTargetWeight + (race==='behind'?w.burnAllBehindBonus:0);
     }
 
-    // Draw / essence / untap / dispel / anything else generic — flat baseline,
+    if(hasTag(card,'ess_add')){
+      const gain=getTagVal(card,'ess_add')||1;
+      const fieldFullNow=me.field.length>=6;
+      // "Открывает ли эта прибавка что-то ещё в руке ПРЯМО СЕЙЧАС" — то же самое, что и
+      // unlockables в aiTryBurnCard() чуть ниже, только диапазон [ess+1..ess+gain] вместо
+      // ровно ess+1 (essence-спеллы бывают не только +1, см. getTagVal). Ничего не
+      // открывает — не разыгрываем вообще, даже бесплатно: карта в руке подождёт хода,
+      // где прибавка реально на что-то потратится (или сама станет "мёртвой рукой" и
+      // сгорит через aiTryBurnCard()'s Триггер 0).
+      const unlocked = me.hand.some(c => c!==card && c.cost>me.ess && c.cost<=me.ess+gain &&
+        aiSpellHasValidTarget(c) && !(fieldFullNow && !c.spell && !c.world && !c.artifact));
+      if(!unlocked) return -1;
+      return card.cost*w.spellBase + 0.5;
+    }
+
+    // Draw / untap / dispel / anything else generic — flat baseline,
     // these don't have a meaningfully variable "how good was that" per-play.
     return card.cost * w.spellBase + 0.5;
   }
