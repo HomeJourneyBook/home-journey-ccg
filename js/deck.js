@@ -1,4 +1,4 @@
-// Deck presets:
+ё// Deck presets:
 //  classic — 1st-edition starter, all 6 archetypes (22 существ/фракцию после
 //            ребаланса кривой 2026-07-19, было 18 — см. archetypeSizes ниже) + all 5
 //            legendaries + per-spell copy counts (см. SPELL_COPIES ниже, тема
