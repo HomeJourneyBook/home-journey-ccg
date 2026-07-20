@@ -536,6 +536,7 @@ Returns the value after the tag name. Examples:
 |`untamed`      |"Неукротимость" — this creature's `exhausted` clears already when ITS OWN turn ends (i.e. already usable/counter-attacking during the opponent's turn), instead of waiting for its owner's next turn like every other creature. Deliberate override of the normal exhausted-clears-on-owner's-turn rule (`endTurn()`) — Mood trait justification: Anime pink (see Lore/Trait mapping). Added 2026-07-10, live on FAERON/TUBORG (`untamed`). Renders as `ico_untamed.png` (author-supplied) via the same `TAG_ICONS`/`TAG_TOOLTIPS` pattern as fear/burn/etc — no longer spelled out in `ab` text on those two cards, same convention as every other tag icon.|
 |`shield`       |Solana Shield (World-trait) — absorbs the FIRST hit of ANY kind (physical or magic, including counter-attack) entirely, checked at the very top of `dmgCard()` (game.js), before both Armor and Ward — unlike those two (each blocks only their own damage category), Shield blocks either. Fully one-time for the card's CURRENT stint on the field — `card.shieldConsumed` flips true and never refills on its own, but DOES reset (recharges) via `resetC()`/`reviveCard()` if the creature leaves the field and is later replayed/revived, matching its "activates on entry" flavor. Sets a same-tick transient flag `card._shieldBlockedThisHit` that `fear`/`burn`/`taunt_break` (on_attack cases, abilities.js) also check — a fully-absorbed hit carries NONE of its side-effects either, not just no HP loss (deliberately stricter than Armor, which lets fear/burn through even on a fully-absorbed hit). Does NOT intercept the burn DoT tick (that bypasses `dmgCard()` entirely by design, same exemption Armor already has). Render: field-only (`mkSmallEl()`) swaps the HP number for `img/solana_shield.png` in `.card-small-hp-box` while active (hand/catalog/deckbuilder show no icon swap — just the `ab` text mentions "Solana Shield"); status panel (`_cardStatusEntries()`) gets an explanatory row while active. Added 2026-07-13, live on TRAVELER #704 (test) and reserved for the Solana World-trait — NOT to be confused with the already-assigned Mood:Солана trait (→`ward`, a different, permanent magic-immunity mechanic; no overlap).|
 |`ward`         |Magic-damage counterpart to Armor — full immunity to exactly the damage category that's flagged `bypassArmor=true` in `dmgCard()` (game.js): active AOE (`doUmbAsir()`/`doVardan()`), Shard (`doShardTarget()`), targeted-spell damage (`doSpellDmgTarget()`). Checked BEFORE the Armor/HP damage branch — `if(bypassArmor && hasTag(card,'ward'))` short-circuits and returns, still shakes the card for feedback. Mirror-image of Armor's scope: Armor blocks `bypassArmor=false` (regular attacks + counter-attacks + `enter_aoe`), Ward blocks `bypassArmor=true` — together they cover every `dmgCard()` call, deliberately non-overlapping. **2026-07-18 (по прямому запросу автора): теперь ТАКЖЕ блокирует Fear и Burn** — оба применяются отдельными путями (не через `dmgCard()`), так что проверка на `ward` продублирована в `abilities.js` во всех 4 местах, где выставляется `card.feared`/`card.burning` (`case 'fear'`/`'burn'` — точечные, и `fear_all`/`burn_all` — массовые, там `ward`-существа просто исключаются из фильтра целей). No stacking/value — pure boolean tag, no `:N`. Renders as `ico_ward.png` via `TAG_ICONS`/`TAG_TOOLTIPS`. Live on the Солана (Solana) Mood trait, 0.66 (see Essence pricing shop) — not to be confused with the separate Solana World-trait (→`shield`, a different, one-time-any-damage mechanic; no overlap). **Снят с TEANTIST 2026-07-18** (по прямому запросу автора — карта осталась с `draw:1`/`stealth`, без Ward).|
+|`rage`         |**Переработан 2026-07-20 (по прямому запросу автора) — переехал из On Attack сюда, больше НЕ триггер атаки.** Раньше: `on_attack`-эффект, каждая СОБСТВЕННАЯ атака навсегда добавляла +1 ATK в хранимое поле `card.rageBonus`, без потолка — росло бесконечно, пока карта жива и атакует. Теперь: живая (не хранимая) проверка ран через `rageAtkBonus(card)` (`abilities.js`) — существо, потерявшее `≥ floor(maxHp/2)` (половина maxHP, округление ВНИЗ при нечётном) своего maxHP, получает ФИКСИРОВАННЫЙ `+2 ATK`, пока остаётся в этом состоянии; вылечили выше порога — бонус пропадает сам при следующем пересчёте, без единого места ручного сброса (в отличие от старого `rageBonus`, который приходилось обнулять в `killCard()`/`resetC()`/`reviveCard()`/`raise` — 4+ места). Считается ровно там же, где `atkBonus`/`squadAtkBonus`/`tempAtkBonus` — в бою (`doAttack()`/`tryAttackBase()` в game.js), в оценке ИИ (`effAtk()` в ai.js) и во всех местах рендера ATK (render.js/state.js). Живёт на TRAVELER #38 (Mechird Tea, cost3 hp3 — floor(3/2)=1, срабатывает уже при первой полученной ране) и TRAVELER #402 (Xuiqtr Tea, cost5 hp7 — floor(7/2)=3). Реализует давно отложенную бэклог-идею `enrage:atk:N` (см. "Идеи из Hearthstone" ниже по файлу) — теперь фактически сделано, фиксированным `N=2`, а не параметризованным.|
 
 **On Enter:**
 
@@ -564,7 +565,6 @@ Returns the value after the tag name. Examples:
 |---------------|-----------------------------------------|
 |`fear`         |Target skips next turn, no counter-attack|
 |`burn`         |Target takes 1 dmg each turn start       |
-|`rage`         |Self gets +1 ATK permanently             |
 |`draw_attack:N`|Draw N cards                             |
 |`taunt_break`  |If target has Provoke, suppresses it (target.provokeBroken=true) — can be freely attacked past this turn, ignoring Provoke, as if the tag weren't there. No-op (silent, no log/sfx/icon) if target has no Provoke. Clears at the same point `feared` clears in `endTurn()` (end of the TARGET OWNER's own next turn) — net effect: broken through the rest of the attacker's turn + the target owner's following turn, back to normal by the attacker's next turn. Added 2026-07-13, live on TRAVELER #26/#550 (test) and reserved for the Схема (Skhema) World-trait.|
 |`vampiric`     |On its OWN attack (not counter-attacks — same scope as fear/burn/taunt_break): heals for the ACTUAL HP removed from the target (`ctx.realDmgDealt` in `doAttack()`, game.js — a before/after HP snapshot around `dmgCard()`, NOT nominal ATK), capped at its own missing HP. Armor/Solana Shield absorption doesn't count as "drained" — if the hit was fully absorbed, `realDmgDealt=0`, no heal. Fires whether or not the target survives (lifesteal doesn't require a kill, unlike necrophage below). Added 2026-07-13, live on TRAVELER #775 (Jeet Dreegan) and reserved for the Незабываемый World-trait, 0.66.|
@@ -2959,6 +2959,57 @@ enter_draw(Tea)/enter_lose(Jeet) по 1. Остаются два мелких п
 
 -----
 
+### Итог правок 2026-07-20 (продолжение) — анализ 11 боевых логов, Rage-рework, 2 фикса ИИ
+
+**Анализ логов (11 файлов за сессию, `battle_log_*.json` — экспорт из игры).** Методология:
+текстовый поиск по логу (по устойчивым фразам вроде `"ALL enemy creatures"`/`"suppressed"`) +
+чтение контекста вокруг совпадений, сверка с `data.js` по тегам/gtype карт из снапшотов. Не
+автономный анализ — направленный поиск конкретных категорий проблем, названных автором
+("зачем ИИ так сделал") плюс пара таких же паттернов, найденных тем же поиском в остальных
+логах той же сессии.
+
+- **Макро-наблюдение (не фикс, просто сигнал):** Tea выиграл 8 из 9 первых партий, включая
+  ОБА раза, когда ИИ играл именно за Tea (человек — Jeet). Выборка маленькая, категорических
+  выводов не делаем, но стоит присматриваться, если баланс Tea/Jeet будет всплывать ещё раз.
+- **Найдено и подтверждено (2 паттерна, из 2+ независимых логов каждый):**
+  1. AOE-спелл (`spell_aoe_count` — SWARM CULL/RECKONING) кастуется на борд из 1 карты, хотя
+     эта единственная карта и так гарантированно умирает в тот же ход от одной уже доступной
+     атаки — чистый оверкилл, спелл впустую.
+  2. `spell_provoke_break_target` (EXPOSE/UNMASK) кастуется, снимает Provoke с танка, но
+     существо, ради которого его сняли, вместо атаки использует Bolt (тоже расходует
+     "действие" существа за ход — см. `bolt.exhausted=true` в `doBoltTarget()`, game.js) по
+     СОВСЕМ другой, менее ценной цели — снятие provoke не реализуется вообще, чистая трата.
+- **Fix 1 — AOE overkill (`aiScoreCard()`, `spell_aoe_count` ветка, ai.js):** при `enemyCount===1`
+  дополнительно проверяем, убьёт ли эту единственную цель уже доступный атакующий (`effAtk`
+  один ≥ `hp+armor` цели) БЕЗ спелла — если да, оценка падает до той же величины, что у пустого
+  борда (`aoeCountEmptyBoardScore`), а не просто масштабируется вниз, как раньше (раньше даже
+  1 цель давала небольшой ПОЛОЖИТЕЛЬНЫЙ счёт — этого хватало, чтобы ИИ всё равно кастовал).
+- **Fix 2 — Bolt vs лицо (`aiTryUseBolt()`, ai.js):** в ветке "чиповый Bolt без килла" добавлена
+  проверка `canHitBaseInstead = !forced && aiCanHitBase(bolt, oppField)` — если существо прямо
+  сейчас свободно от Provoke/Bushido и может ударить по лицу (то есть taunt_break/естественное
+  отсутствие танка уже открыло путь), чип-Bolt по вражескому существу больше НЕ используется —
+  существо отдаётся обычному шагу атаки и бьёт по лицу вместо чипа по случайной карте. Заодно
+  переменная `forced` поднята выше по функции (была объявлена только внутри ветки `killable>0`,
+  теперь нужна обеим). Это и есть корневой фикс для найденного паттерна #2 выше — конкретно
+  устраняет ситуацию "taunt_break сработал, а следующим действием того же существа стал
+  бесполезный чип-Bolt вместо реализации только что открытого пути к лицу".
+- Второй прогон по свежим 2 логам (в т.ч. `battle_log_1784560689813.json`, где EXPOSE от ИИ
+  (Tea) СРАЗУ привёл к реальной атаке-киллу) новых паттернов не выявил — похоже на точечный,
+  не системный класс багов, обоими фиксами выше закрыт.
+- **Rage — полный rework (по прямому запросу автора):** был `on_attack`-триггер, копивший
+  `card.rageBonus` НАВСЕГДА и без потолка при каждой собственной атаке (реальный пример из
+  логов: TRAVELER #402 докрутил себя с 4 до 6 ATK за 3 атаки за одну партию). Теперь —
+  живая проверка ран без хранимого поля: `rageAtkBonus(card)` в `abilities.js`, `+2 ATK`
+  фиксированно при `wounds ≥ floor(maxHp/2)` (половина maxHP, округление ВНИЗ при нечётном —
+  по прямому запросу автора), пересчитывается на лету везде, где раньше читался `rageBonus`
+  (`doAttack()`/`tryAttackBase()` в game.js, `effAtk()` в ai.js, все ATK-рендеры в render.js/
+  state.js) — подробности и список живых носителей тега см. "All Tags" → Passive → `rage`
+  выше по файлу. Заодно реализует давно отложенную бэклог-идею `enrage:atk:N` (см. "Идеи из
+  Hearthstone" ниже по файлу) — помечено там же.
+- `GAME_VERSION`/`AI_VERSION` НЕ поднимали — не было явного запроса.
+
+-----
+
 ### Version 2.0 — большие блоки, не возвращаться пока
 
 - [ ] Тренировочная игра (демо) — заскриптованная обучающая партия с комментариями и
@@ -3137,7 +3188,7 @@ backlash:N — активка наносит урон врагу, но и N ур
 
 deathrattle:effect:val (Deathrattle) — генерализация того, что у нас уже есть кусками (on_own_death на мире, on_any_death_base, on_kill_base — все точечные, завязаны на конкретные карты). Deathrattle — универсальная инфраструктура "когда УМИРАЕТ ИМЕННО ЭТА карта — сделай X (урон/добор/бафф союзнику)", на самой карте, не на постороннем триггере.
 
-enrage:atk:N (Enrage) — существо получает бонус, ПОКА оно повреждено (не на полном HP), теряет бонус при лечении до полного. Риск/награда от собственного текущего HP.
+enrage:atk:N (Enrage) — существо получает бонус, ПОКА оно повреждено (не на полном HP), теряет бонус при лечении до полного. Риск/награда от собственного текущего HP. **РЕАЛИЗОВАНО 2026-07-20** — именно так теперь работает наш существующий тег `rage` (см. "All Tags" → Passive выше): фиксированный `+2 ATK` при ранах `≥ floor(maxHp/2)`, живая проверка, а не хранимый бонус. Не параметризовано под произвольный `N` (всегда `+2`) — если понадобится варьировать по карте, `rageAtkBonus()` в `abilities.js` легко расширить до чтения `getTagVal(card,'rage')` вместо хардкода `2`.
 
 overload:N (Overload) — карта сильнее, но следующий ход essMax владельца на N меньше. Тот же принцип риск/награда, что и backlash:N из Astral Masters, но платится темпом (эссенцией), а не HP — вторая "валюта расплаты" рядом с первой.
 
