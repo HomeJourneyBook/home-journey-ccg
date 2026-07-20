@@ -107,7 +107,7 @@ const DEFS = {
   // существует у автора — img намеренно НЕ указан, карта рендерится через emoji
   // art (⚡) как фолбэк (см. render.js: card.img?<img>:card.art), до тех пор пока
   // автор не подвезёт готовый арт и не добавит img самостоятельно.
-  t_sp15:      {name:"SPARK",      cost:2,hp:0,atk:0,art:"⚡", f:"tea",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
+  t_sp15:      {name:"SPARK",      cost:2,hp:0,atk:0,art:"⚡", img:"1_Spark.png", f:"tea",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1"],       ab:"When an enemy creature dies: Draw 1.",world:true},
@@ -189,7 +189,7 @@ const DEFS = {
   // Новый спелл (2026-07-20, по прямому запросу автора) — Jeet-аналог t_sp15
   // "SPARK" выше: Bolt 2 за cost 2. img намеренно не указан — см. комментарий у
   // t_sp15.
-  j_sp15:      {name:"MALICE",     cost:2,hp:0,atk:0,art:"⚔️", f:"jeet",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
+  j_sp15:      {name:"MALICE",     cost:2,hp:0,atk:0,art:"⚔️", img:"1_Malice.png", f:"jeet",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: Draw 1.",world:true},
