@@ -24,10 +24,12 @@ const RUSH_MIN = 28;
 // идут в одном порядке между фракциями, см. комментарий у SPELL_COPIES ниже), не по
 // индексу в массиве.
 const SPELL_COPIES = {
-  // Tea (13 итого) — восстановлено 2026-07-18: реальный итог без этих 3 был 37, а не 40,
-  // так что свободных слотов ровно 3 — возвращаем BREACH/SHEN'S CALL/2-ю копию SCHEME.
+  // Tea (15 итого, было 14 до SPARK — см. t_sp15 ниже, 2026-07-20) — восстановлено
+  // 2026-07-18: реальный итог без этих 3 был 37, а не 40, так что свободных слотов
+  // ровно 3 — возвращаем BREACH/SHEN'S CALL/2-ю копию SCHEME.
   t_sp1:1,  // ARCHIVE (+2 ATK temp — Tea's combat-trick бонус)
-  t_sp2:2,  // JOURNEY (bolt 3) — +1 (2026-07-19, взамен ess_add, см. t_sp4 ниже)
+  t_sp2:1,  // JOURNEY (bolt 3) — -1 (2026-07-20, по прямому запросу автора: одна копия
+            // "уступила место" новому t_sp15 SPARK (bolt 2) ниже, был 2)
   t_sp3:1,  // SHEN'S CALL (revive full)
   t_sp4:0,  // SCHEME (ess_add) — исключён (2026-07-19, по прямому запросу автора: слишком
             // слабый/условный эффект — эссенция сгорает в конце хода, если её некуда
@@ -43,7 +45,8 @@ const SPELL_COPIES = {
   t_sp12:0, // BULWARK (+1 armor temp — чужой бонус для Tea, исключён)
   t_sp13:2, // INSIGHT (draw 2)
   t_sp14:2, // GLIMPSE (draw 1) — новый (2026-07-19, ребаланс кривой под ход 1)
-  // Jeet (13 итого)
+  t_sp15:1, // SPARK (bolt 2) — новый (2026-07-20, по прямому запросу автора)
+  // Jeet (14 итого)
   j_sp1:2,  // JEET WAVE (draw 2)
   j_sp2:0,  // OBLIVION (untap — исключён)
   j_sp3:1,  // FORGETTING (revive full)
@@ -57,8 +60,10 @@ const SPELL_COPIES = {
   j_sp10:2, // NIGHTMARE (fear_all — сигнатурный payoff темы)
   j_sp11:0, // FRENZY (+2 ATK temp — чужой бонус для Jeet, исключён)
   j_sp12:1, // CARAPACE (+1 armor temp — Jeet's combat-trick бонус)
-  j_sp13:2, // HEX (bolt 3) — +1 (2026-07-19, взамен ess_add, см. j_sp4 выше)
+  j_sp13:1, // HEX (bolt 3) — -1 (2026-07-20, по прямому запросу автора: одна копия
+            // "уступила место" новому j_sp15 MALICE (bolt 2) ниже, был 2)
   j_sp14:2, // OMEN (draw 1) — новый (2026-07-19, ребаланс кривой под ход 1)
+  j_sp15:1, // MALICE (bolt 2) — новый (2026-07-20, по прямому запросу автора)
 };
 
 const DECK_CONFIGS = {
@@ -131,8 +136,8 @@ function _composeDeckList(f, cfg){
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
 
   // +GLIMPSE/OMEN (2026-07-19, ребаланс кривой под ход 1) — см. SPELL_COPIES выше.
-  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14']
-                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14'];
+  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15']
+                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15'];
 
   const worlds = t ? ['t_w1','t_w2'] : ['j_w1','j_w2'];
   const arts   = t ? ['t_a1','t_a2'] : ['j_a1','j_a2'];
