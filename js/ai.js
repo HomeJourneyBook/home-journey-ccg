@@ -545,6 +545,14 @@ function aiTryUseBolt(){
     const baseDmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
     const withDmg=enemyField.map(c=>({c, dmg: baseDmg}));
     const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
+    // Provoke rework (2026-07-17): pierce no longer exempt from forced-target (see
+    // canAttackBase()/getTargetableCards() in game.js) — the `!hasTag(bolt,'pierce')`
+    // exception here was leftover from before that rework and never updated, same bug
+    // class as the provokeBroken miss just below (found + fixed together, 2026-07-17).
+    // Поднято ВЫШЕ (2026-07-20) — раньше объявлялось только внутри killable.length>0 ветки,
+    // а теперь нужно ОБЕИМ веткам (chip-без-килла тоже проверяет forced, см. ниже).
+    const forced = oppField.some(c=>hasTag(c,'bushido')) ||
+      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken);
     // 0-ATK bolt bodies (e.g. TRAVELER #52/#6/#54 — pure Umbasir utility, atk:0):
     // a normal attack from these does NOTHING (0 dmg, and a full counter-attack
     // eaten for free if Provoke/Bushido forces a creature fight) — Bolt's chip
@@ -571,7 +579,20 @@ function aiTryUseBolt(){
       // ветке ниже), вместо бессмысленного размена жизнью. Если ATK строго
       // БОЛЬШЕ baseDmg — оставляем как было (return ниже, ничего не делаем
       // здесь) — там обычная атака реально сильнее и Bolt лучше поберечь.
-      if(effAtk(bolt)<=baseDmg && enemyField.length>0){
+      //
+      // 2026-07-20 (по прямому запросу автора, найдено в логах — существо чип-болтало
+      // вражескую карту сразу ПОСЛЕ того, как этим же ходом taunt_break-спелл освободил
+      // ему прямой путь к лицу, впустую тратя и спелл, и это же действие): если существо
+      // прямо сейчас МОЖЕТ ударить по лицу (!forced && aiCanHitBase — тот же провок/бушидо
+      // чек, что и в aiActWithCreature) — лицо строго не хуже чипа по существу (оба дают
+      // тот же 1 dmg "прогресса", но лицо ведёт прямо к победе, а чип по толстой карте вроде
+      // TEANTIST — почти ничего не решает), поэтому в этом случае Bolt НЕ используем и
+      // отдаём существо в обычный шаг атаки — конкретно чтобы taunt_break/EXPOSE-UNMASK не
+      // пропадали впустую. Использовать Bolt вместо лица оправдано, только если баланс дамага
+      // строго в пользу болта (baseDmg>effAtk(bolt) — самого этого блока ветвление уже гарантирует
+      // baseDmg>=effAtk, а не строго больше здесь).
+      const canHitBaseInstead = !forced && aiCanHitBase(bolt, oppField);
+      if(effAtk(bolt)<=baseDmg && enemyField.length>0 && !canHitBaseInstead){
         const pool=[...withDmg];
         pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
         G.sel=bolt.id;
@@ -579,16 +600,10 @@ function aiTryUseBolt(){
         doBoltTarget(pool[0].c);
         used=true;
       }
-      return; // не тратим ход на чип-урон, когда атака и так была бы сильнее
+      return; // не тратим ход на чип-урон, когда атака и так была бы сильнее (или доступно лицо)
     }
     killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
     const target=killable[0].c;
-    // Provoke rework (2026-07-17): pierce no longer exempt from forced-target (see
-    // canAttackBase()/getTargetableCards() in game.js) — the `!hasTag(bolt,'pierce')`
-    // exception here was leftover from before that rework and never updated, same bug
-    // class as the provokeBroken miss just below (found + fixed together, 2026-07-17).
-    const forced = oppField.some(c=>hasTag(c,'bushido')) ||
-      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken);
     const normalWouldKillSameTarget = !forced && effAtk(bolt)>=target.hp;
     if(!normalWouldKillSameTarget){
       G.sel=bolt.id;
@@ -821,8 +836,24 @@ function aiScoreCard(card, me){
       // see abilities.js case 'aoe_count'), so its score has to scale the same way instead
       // of the flat generic fallback below, or the AI will happily fire it into an empty
       // board for a guaranteed whiff, or hold it back against a packed one.
-      const enemyCount=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      const enemyCount=enemies.length;
       if(enemyCount===0) return w.aoeCountEmptyBoardScore;
+      // 2026-07-20 (по прямому запросу автора, найдено в логах — SWARM CULL кастовался
+      // на единственную вражескую карту, которую и так добивала следующая же атака):
+      // при enemyCount===1 спелл фактически бьёт как обычный point-removal, только по
+      // формуле "1 dmg" — если эта единственная цель и так умрёт в этот же ход от ОДНОЙ
+      // нашей доступной атаки (без спелла вообще), каст — чистый оверкилл, ничем не лучше
+      // пустого борда (та же цена карты+эссенции за 0 дополнительной пользы). Достаточно
+      // одного атакующего, чей effAtk один уже покрывает hp+armor цели — squad/сложение
+      // нескольких атакующих не проверяем: если нужно 2+ атакующих сразу, спелл всё ещё
+      // экономит нам ходы/атаки, это не оверкилл.
+      if(enemyCount===1){
+        const lone=enemies[0];
+        const myAttackers=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
+        const alreadyLethal=myAttackers.some(a=>effAtk(a)>=lone.hp+(lone.armor||0));
+        if(alreadyLethal) return w.aoeCountEmptyBoardScore;
+      }
       return card.cost*w.spellBase + enemyCount*w.aoeCountPerTargetWeight;
     }
 
@@ -1006,7 +1037,7 @@ function aiCanHitBase(creature, oppField){
 }
 
 function effAtk(c){
-  return c.atk + (c.atkBonus||0) + (c.rageBonus||0) + (c.squadAtkBonus||0) + (c.tempAtkBonus||0);
+  return c.atk + (c.atkBonus||0) + rageAtkBonus(c) + (c.squadAtkBonus||0) + (c.tempAtkBonus||0);
 }
 
 // (2026-07-18, по просьбе автора) — "нет смысла бить его картой 1/1 существо с бронёй 1,
