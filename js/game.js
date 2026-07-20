@@ -521,7 +521,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.atkBonus=0;card.rageBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.atkBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
   // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
   // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
@@ -559,12 +559,12 @@ function playAttackSfx(att){
 //    ДАЖЕ на смертельный для цели удар (одновременное разрешение урона, как в MTG/
 //    Hearthstone — иначе высокий ATK убивал вообще без риска для атакующего).
 //    targetCounterAtk снимается ДО dmgCard()/killCard() цели — иначе killCard() успевает
-//    обнулить squadAtkBonus/rageBonus мёртвой карты, и контрудар был бы слабее, чем цель
-//    реально имела в момент удара. КЛЮЧЕВОЕ ОТЛИЧИЕ от версии 16 июля: смерть САМОГО
+//    обнулить squadAtkBonus мёртвой карты (и/или dmgCard() выше меняет target.hp, от которого
+//    теперь живьём зависит Rage — см. rageAtkBonus() в abilities.js), и контрудар был бы слабее,
+//    чем цель реально имела в момент удара. КЛЮЧЕВОЕ ОТЛИЧИЕ от версии 16 июля: смерть САМОГО
 //    атакующего от этого контрудара откладывается (dmgCard(att,...,deferDeath=true)) —
 //    его HP может уйти в минус, но killCard() для него пока не вызывается.
-// 4. Резолвим on_attack-эффекты этого удара (fear/burn/taunt_break/vampiric/rage/draw) —
-//    ПОСЛЕ контрудара (не до, как было раньше). Vampiric лечит атакующего на realDmgDealt
+// 4. Резолвим on_attack-эффекты этого удара (fear/burn/taunt_break/vampiric/draw) — ПОСЛЕ контрудара (не до, как было раньше). Vampiric лечит атакующего на realDmgDealt
 //    уже с учётом полученной сдачи — то есть может вытащить его из минуса, если лечения
 //    хватает перекрыть входящий контрудар.
 // 5. Если удар был смертельным для цели (ctx.target.hp<=0) — резолвим on_kill
@@ -606,7 +606,7 @@ function doAttack(att,target){
   // ударом, тот же принцип "эффект не отменяет/не усиливает сам себя в этот же тик", что и
   // у wasFearedBefore/wasExhaustedBefore/stealthFirstStrike в этой же функции).
   const burnBonus = (hasTag(att,'atk_vs_burning') && target.burning) ? (getTagVal(att,'atk_vs_burning')||0) : 0;
-  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0)+burnBonus;
+  const atk=att.atk+(att.atkBonus||0)+rageAtkBonus(att)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0)+burnBonus;
 
   // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
   // один из этих эффектов (цель выживает после урона), звук самой атаки не играем.
@@ -631,12 +631,15 @@ function doAttack(att,target){
   const stealthFirstStrike = hasTag(att,'stealth') && !att.stealthBroken;
   // 2026-07-16, второй пересмотр боевой последовательности: контрудар возвращён ДАЖЕ если
   // цель гибнет от этого же удара (см. п.5 в шапке файла выше) — поэтому её боевую силу
-  // нужно снять СЕЙЧАС, до dmgCard()/killCard(): killCard() обнуляет squadAtkBonus и
-  // rageBonus у мёртвой карты, и если считать контрудар ПОСЛЕ смерти, он окажется слабее,
-  // чем цель реально имела в момент удара — то же самое одновременное разрешение урона,
-  // что в MTG/Hearthstone (обе стороны бьют "как есть на момент боя", а не по очереди).
+  // нужно снять СЕЙЧАС, до dmgCard()/killCard(): rageAtkBonus() читает target.hp/target.maxHp
+  // ЖИВЬЁМ (2026-07-20 — Rage больше не хранимое поле rageBonus, см. abilities.js), а dmgCard()
+  // ниже вот-вот изменит target.hp — если считать контрудар ПОСЛЕ урона, Rage-бонус мог бы
+  // неверно исчезнуть/появиться относительно состояния цели РОВНО в момент удара (то же самое
+  // одновременное разрешение урона, что в MTG/Hearthstone — обе стороны бьют "как есть на
+  // момент боя", а не по очереди, squadAtkBonus та же логика — killCard() обнуляет её у мёртвой
+  // карты).
   const targetCounterAtk = target.atk + (target.atkBonus||0) + (target.tempAtkBonus||0) +
-                            (target.rageBonus||0) + (target.squadAtkBonus||0);
+                            rageAtkBonus(target) + (target.squadAtkBonus||0);
 
   const hpBefore=target.hp;
   dmgCard(target,atk,oppK);
@@ -845,7 +848,7 @@ function tryAttackBase(){
   if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.','hint');return;}
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
-  const atk=att.atk+(att.atkBonus||0)+(att.rageBonus||0)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
+  const atk=att.atk+(att.atkBonus||0)+rageAtkBonus(att)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   // Provoke rework (2026-07-17): absolute for everyone now, no pierce exception — see
@@ -970,7 +973,6 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath){
 
 function killCard(card,faction,toVoid=false){
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
-  card.rageBonus=0;
   card.squadMaxHpBonus=0;
   card.squadAtkBonus=0;
   card.squadArmorBonus=0;
