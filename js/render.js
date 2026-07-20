@@ -205,7 +205,8 @@ let statusPanelEl=null;
 // нужно читать ИЗ ОРИГИНАЛЬНОГО card, а не из cleanCard/DOM. Экрана дебафов у нас
 // пока два (Fear, Burn) + Sleeping до кучи; бафов четыре: аура (ATK и/или maxHP —
 // см. atkBonus/worldMaxHpBonus), боевой трюк (tempAtkBonus — spell_buff_temp),
-// накопленная Rage (rageBonus) и бонус отряда (squadAtkBonus/squadMaxHpBonus/
+// накопленная Rage (2026-07-20: больше не хранимое rageBonus, а живая проверка ран — см.
+// rageAtkBonus() в abilities.js) и бонус отряда (squadAtkBonus/squadMaxHpBonus/
 // squadParam). Формулировки текста взяты из экрана Rules (index.html), кроме
 // бонуса отряда — под него нет отдельного предложения в правилах, текст свой,
 // собран из фактических полей карты.
@@ -244,7 +245,7 @@ function _cardStatusEntries(card){
   if(card.worldArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.worldArmorBonus} Armor from the World card.`});
   if(card.spellArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.spellArmorBonus} Armor from a spell until gone from battlefield.`});
   if(card.tempAtkBonus) entries.push({icon:'img/attack.png', text:`+${card.tempAtkBonus} ATK from a spell until gone from battlefield.`});
-  if(card.rageBonus) entries.push({icon:'img/ico_rage.png', text:`+${card.rageBonus} ATK permanently from Rage (gained by attacking).`});
+  if(rageAtkBonus(card)) entries.push({icon:'img/ico_rage.png', text:`+${rageAtkBonus(card)} ATK from Rage — wounded to half HP or below (floor(maxHP/2)). Heals off once above the threshold.`});
   if(card.squadAtkBonus||card.squadMaxHpBonus||card.squadArmorBonus||card.squadParam) entries.push({icon:'img/armor.png', text:_squadBonusText(card)});
   return entries;
 }
@@ -611,7 +612,7 @@ const tagIcons=(card.tags||[])
 ${!isSW?`<div class="card-small-stats">
   <div class="card-small-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}">${shieldActive?'<img src="img/solana_shield.png" class="card-small-shield-icon" alt="Shield">':`<span class="card-small-hp">${card.hp}</span>`}</div>
 <img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
-  <div class="card-small-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
+  <div class="card-small-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
 </div>`
 :`<div class="card-small-stats" style="justify-content:center;"><img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div></div>`}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
@@ -888,7 +889,7 @@ const tagIcons = (card.tags||[])
     ${!isSW?`<div class="card-stats">
       <div class="card-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.maxHp}</span></div>
 <img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
-      <div class="card-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+(card.rageBonus||0)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
+      <div class="card-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
     <div class="card-ability-box"><div class="card-ability">${formatAbilityText(card.ab)}</div></div>`;
