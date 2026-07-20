@@ -149,7 +149,7 @@ const DEFS = {
   j_reap:      {name:"REAPER",      cost:7,hp:12,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1","enter_aoe:1"],        ab:"On play: 1 dmg to all enemies. Enemy creature death: restore base 1 HP.",unique:true},
   j_ryv:       {name:"RYVLEN",      cost:6,hp:9,atk:4,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play: Draw 1 card. On attack: Draw 1 card.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:7,hp:11,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:atk:1","provoke"],          ab:"Aura: +1 ATK.",unique:true},
-  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"\"Necromancy\" On turn: Revive top graveyard card at 1 HP.",unique:true},
+  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"On turn: \"Necromancy\" Revive top graveyard card at 1 HP.",unique:true},
   j_vard:      {name:"SEEKER",      cost:6,hp:10,atk:4,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce","fear","enter_lose:1"],    ab:"On play: Opponent loses 1 card. \"Seek, and ye shall find.\"",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
