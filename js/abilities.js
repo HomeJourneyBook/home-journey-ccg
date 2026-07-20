@@ -10,6 +10,21 @@ function getTagVal(card, tagName){
 }
 function hasTag(card, tagName){ return getTagVal(card,tagName)!==null; }
 
+// Rage (переработано 2026-07-20, по прямому запросу автора) — раньше это был on_attack-триггер,
+// накапливавший card.rageBonus НАВСЕГДА и БЕЗ ПОТОЛКА при каждой собственной атаке (см. историю
+// в CLAUDE.md) — не имело потолка и не было привязано к текущему состоянию карты, только к
+// количеству атак за игру. Теперь это ЖИВАЯ проверка ран прямо здесь, каждый раз, когда считается
+// ATK (так же, как atkBonus/squadAtkBonus/tempAtkBonus) — никакого хранимого поля, никакого
+// ручного сброса: существо, потерявшее ПОЛОВИНУ maxHp или больше (округление ВНИЗ при нечётном
+// maxHp — floor(maxHp/2), по прямому запросу автора), получает +2 ATK, пока остаётся в этом
+// состоянии; вылечили выше порога — бонус исчезает сам собой в следующий же пересчёт.
+function rageAtkBonus(card){
+  if(!card||!hasTag(card,'rage')) return 0;
+  if(card.hp==null||card.maxHp==null) return 0;
+  const wounds=card.maxHp-card.hp;
+  return wounds>=Math.floor(card.maxHp/2) ? 2 : 0;
+}
+
 function getAbilities(card){
   const ab=[];
   for(const tag of (card.tags||[])){
@@ -149,7 +164,9 @@ function getAbilities(card){
       case 'ward':                 ab.push({timing:'passive',effect:'ward'}); break;
       case 'world_maxhp':          ab.push({timing:'on_turn',effect:'world_maxhp',val}); break;
       case 'raise':              ab.push({timing:'on_turn',effect:'raise',val}); break;
-      case 'rage':         ab.push({timing:'on_attack',effect:'rage',val}); break;
+      // 'rage' сознательно НЕ регистрируется здесь с 2026-07-20 — больше не on_attack-триггер,
+      // это живой тег, читается напрямую через rageAtkBonus(card) везде, где считается ATK
+      // (так же, как pierce/vanguard читаются напрямую через hasTag(), без записи в getAbilities).
       case 'draw_attack': ab.push({timing:'on_attack',effect:'draw',val}); break;
       case 'aura':
         {const [,type,n]=tag.split(':');
@@ -556,15 +573,6 @@ function triggerAbilities(card, timing, ctx={}){
         flashEssenceGain(curK);
         lg(`${card.name}: +${a.val} Essence → ${cur.ess}/${cur.essMax}.`,'imp'); break;
 
-      case 'rage':
-        // Permanently increase ATK each time this card attacks
-        card.rageBonus=(card.rageBonus||0)+a.val;
-        playSfx('baf');
-        const rageId=card.id;
-requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} ATK`,'atk')));
-        lg(`${card.name}: Rage! +${a.val} ATK → total ${card.atk+(card.atkBonus||0)+(card.rageBonus||0)} ATK.`,'imp');
-        break;
-
       case 'raise':
         {
         // 2026-07-16: лимит поля 6 существ — этот триггер автоматический (on_turn), у него
@@ -578,7 +586,7 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rageId,`+${a.val} 
           G[curK].grave=G[curK].grave.filter(x=>x.id!==r.id);
           // Reset state but keep base stats, set hp to raise value (NOT full)
           r.sleeping=true;r.exhausted=false;r.feared=false;r.burning=false;
-          r.atkBonus=0;r.rageBonus=0;r.tempAtkBonus=0;r.maxHpBonus=0;r.baseMaxHp=null;r.auraMaxHpBonus=0;
+          r.atkBonus=0;r.tempAtkBonus=0;r.maxHpBonus=0;r.baseMaxHp=null;r.auraMaxHpBonus=0;
           r.squadParam=null;r.squadAtkBonus=0;r.squadMaxHpBonus=0;r.squadArmorBonus=0;r.armorMax=undefined;r.auraArmorBonus=0;r.worldArmorBonus=0;
           // Инкарнация — та же причина, что и в reviveCard() (game.js): если раскопанная
           // карта была на середине своего собственного incarnTimer-отсчёта, этот отсчёт
