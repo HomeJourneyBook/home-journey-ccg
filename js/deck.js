@@ -35,11 +35,12 @@ const SPELL_COPIES = {
             // слабый/условный эффект — эссенция сгорает в конце хода, если её некуда
             // потратить, см. AI BALANCE NOTES/ai.js aiScoreCard() 'ess_add' ветку)
   t_sp5:1,  // GUST (bounce any)
-  t_sp6:1,  // RECKONING (aoe count)
+  t_sp6:2,  // RECKONING (aoe count) — +1 (2026-07-20, взамен вырезанных 6 существ —
+            // см. archetypeSizes выше — подняли плотность interaction/removal обратно)
   t_sp7:1,  // FORGET-ME-NOT (discard 2)
   t_sp8:1,  // EXPOSE (anti-provoke tech) — +1 (2026-07-19, взамен ess_add, был полностью
             // исключён — 0 копий)
-  t_sp9:1,  // BREACH (bolt 5 + trample)
+  t_sp9:2,  // BREACH (bolt 5 + trample) — +1 (2026-07-20), см. комментарий у t_sp6 выше
   t_sp10:2, // WILDFIRE (burn_all — сигнатурный payoff темы)
   t_sp11:0, // REKINDLE (untap — исключён)
   t_sp12:1, // BULWARK (+1 armor temp — Tea's OWN defensive combat-trick, было исключено
@@ -56,11 +57,12 @@ const SPELL_COPIES = {
   j_sp3:1,  // FORGETTING (revive full)
   j_sp4:0,  // BLACK MAGIC (ess_add) — исключён (2026-07-19), см. t_sp4 выше
   j_sp5:1,  // REVERSE (bounce any)
-  j_sp6:1,  // SWARM CULL (aoe count)
+  j_sp6:2,  // SWARM CULL (aoe count) — +1 (2026-07-20, взамен вырезанных 6 существ —
+            // см. archetypeSizes выше — подняли плотность interaction/removal обратно)
   j_sp7:1,  // MINDROT (discard 2)
   j_sp8:1,  // UNMASK (anti-provoke tech) — +1 (2026-07-19, взамен ess_add), был полностью
             // исключён — 0 копий
-  j_sp9:1,  // RUPTURE (bolt 5 + trample)
+  j_sp9:2,  // RUPTURE (bolt 5 + trample) — +1 (2026-07-20), см. комментарий у j_sp6 выше
   j_sp10:2, // NIGHTMARE (fear_all — сигнатурный payoff темы)
   j_sp11:1, // FRENZY (+2 ATK temp — Jeet's OWN offensive combat-trick, было исключено
             // 2026-07-18 как "чужой бонус"; включено обратно 2026-07-20 по прямому запросу
@@ -95,11 +97,22 @@ const DECK_CONFIGS = {
       // просто раньше срезался); Orbiton тея 4→5 (новый #503), джит 2→3 (свободный
       // #429 уже был в пуле); Umbasir тея 2→3 и джит 4→5 (свободные #52/#54 уже были
       // в пуле) — ни Umbasir, ни Orbiton-джит не потребовали ни одной новой карты.
-      szarg: { tea:6, jeet:4 },
-      orb:   { tea:5, jeet:3 },
+      //
+      // -6 существ/фракцию (2026-07-20, по прямому запросу автора — колода 46 карт была
+      // почти вся синглтон, крупнее жанровой нормы (Hearthstone 30/LoR 40), решили
+      // подрезать ближе к ~40-42). Резали ТОЛЬКО полностью безтеговые "вейниллы"-дубликаты
+      // (identical stat-stick тела внутри одного архетипа/costа, см. конкретные ключи в
+      // szarg/orb/mch/umb ниже) — НИ ОДНА карта с fear/burn не тронута (Tea burn остался
+      // 6, Jeet fear остался 8, оба числа проверены до и после правки), и НИ ОДИН архетип
+      // не срезан ниже 1 представителя. Tea Mechird/Xuiqtr намеренно НЕ трогали ниже уже
+      // урезанного минимума — там сидят наши Rage-карты (#38/#402), их состав и так только
+      // что чинили. Кривая проверена после — форма осталась гладкой (см. CLAUDE.md запись
+      // за сегодня), не просто "минус случайные карты".
+      szarg: { tea:3, jeet:2 },
+      orb:   { tea:3, jeet:1 },
       drg:   { tea:4, jeet:2 },
-      umb:   { tea:3, jeet:5 },
-      mch:   { tea:2, jeet:4 },
+      umb:   { tea:3, jeet:4 },
+      mch:   { tea:1, jeet:3 },
       xui:   { tea:2, jeet:4 },
     },
   },
@@ -117,15 +130,21 @@ function shuffleArr(d){
 function _composeDeckList(f, cfg){
   const t = f==='tea';
 
-  // +2 Tea (#870/#890) / +1 Jeet (#740) (2026-07-19, ребаланс кривой под ход 1) —
-  // вставлены ПЕРЕД оставшимися дорогими картами пула (#34/#434/#551), которые по-
-  // прежнему намеренно не входят в Classic — см. archetypeSizes ниже.
-  const szarg  = t ? ['t_trvl57_w','t_trvl33_w','t_trvl694_w','t_trvl25_w','t_trvl870_w','t_trvl890_w','t_trvl34_w']
-                   : ['j_trvl971_w','j_trvl12_w','j_trvl49_w','j_trvl740_w','j_trvl434_w','j_trvl551_w'];
+  // 2026-07-20 (по прямому запросу автора, размер колоды 46→~42): szarg-квота срезана —
+  // Tea теряет 2 из 3 полностью безтеговых "ванильных" клонов (#33/#890, оставлен #870 —
+  // сохраняет разнообразие имён без потери механики) и untamed-вариант #25 (тег untamed
+  // и так представлен на других картах — Faeron/Tuborg). #57 (burn!) и #694 (уникальный
+  // статлайн) остаются нетронуты — Tea burn-count не изменился. Jeet теряет 2 из 4
+  // безтеговых клонов (#740/#971 срезаны, #12/#49 остаются).
+  const szarg  = t ? ['t_trvl57_w','t_trvl694_w','t_trvl870_w','t_trvl33_w','t_trvl25_w','t_trvl890_w','t_trvl34_w']
+                   : ['j_trvl12_w','j_trvl49_w','j_trvl971_w','j_trvl740_w','j_trvl434_w','j_trvl551_w'];
 
-  // +1 Tea (#503) (2026-07-19, ребаланс кривой под ход 1). Jeet-пул не трогали —
-  // #429 (cost 1) уже был в пуле, просто раньше срезался archetypeSizes (см. ниже).
-  const orb    = t ? ['t_trvl10_w','t_trvl398_w','t_trvl433_w','t_trvl1034_w','t_trvl503_w']
+  // 2026-07-20 (тот же трим): Tea теряет 2 из 3 безтеговых heal:2-клонов (#433/#503 срезаны,
+  // #1034 остаётся) — #10 (heal+BURN!) и #398 (доп.теги) нетронуты, burn-count не менялся.
+  // Jeet теряет ОБА безтеговых клона (#170/#429) — остаётся только #523 (heal+FEAR!), это
+  // единственный Orbiton у Jeet теперь, но именно он несёт fear-тег, так что Jeet fear-count
+  // тоже не изменился.
+  const orb    = t ? ['t_trvl10_w','t_trvl398_w','t_trvl1034_w','t_trvl433_w','t_trvl503_w']
                    : ['j_trvl523_w','j_trvl170_w','j_trvl429_w','j_trvl454_w'];
 
   // 2026-07-20 (по прямому запросу автора, найдено при анализе кривой колоды): массивы
@@ -138,11 +157,19 @@ function _composeDeckList(f, cfg){
   const drg    = t ? ['t_trvl1_w','t_trvl14_w','t_trvl605_w','t_trvl388_w','t_trvl31_w']
                    : ['j_trvl775_w','j_trvl36_w','j_trvl41_w','j_trvl1015_w','j_trvl859_w'];
 
+  // 2026-07-20 (тот же трим, размер колоды 46→~42): Tea Umbasir теряет #387 — не
+  // безтеговый, но наименее "сигнатурный" (bolt без доп.синергии, cost4 — уже был лишним
+  // при кривой) — #137/#52/#2 остаются, bolt по-прежнему представлен на всех трёх.
   const umb    = t ? ['t_trvl137_w','t_trvl52_w','t_trvl2_w','t_trvl387_w','t_trvl583_w','t_trvl6_w']
-                   : ['j_trvl550_w','j_trvl53_w','j_trvl20_w','j_trvl248_w','j_trvl54_w'];
+                   : ['j_trvl550_w','j_trvl20_w','j_trvl248_w','j_trvl54_w','j_trvl53_w'];
 
-  const mch    = t ? ['t_trvl18_w','t_trvl38_w','t_trvl128_w','t_trvl35_w','t_trvl11_w','t_trvl921_w']
-                   : ['j_trvl22_w','j_trvl724_w','j_trvl663_w','j_trvl320_w','j_trvl804_w'];
+  // 2026-07-20 (тот же трим): Tea Mechird урезан до ОДНОЙ карты — #38 (несёт И pierce, И
+  // наш Rage, обе сигнатуры архетипа сохранены на единственной оставшейся карте), #18
+  // (чистый pierce без доп.тегов) срезан как избыточный дубль. Jeet Mechird теряет #724
+  // (чистый pierce без доп.тегов, cost2) — #22/#663/#320 остаются, pierce по-прежнему
+  // представлен на всех трёх.
+  const mch    = t ? ['t_trvl38_w','t_trvl18_w','t_trvl128_w','t_trvl35_w','t_trvl11_w','t_trvl921_w']
+                   : ['j_trvl22_w','j_trvl663_w','j_trvl320_w','j_trvl724_w','j_trvl804_w'];
 
   const xui    = t ? ['t_trvl972_w','t_trvl402_w','t_trvl26_w','t_trvl39_w']
                    : ['j_trvl50_w','j_trvl704_w','j_trvl579_w','j_trvl951_w','j_trvl37_w','j_trvl720_w'];
