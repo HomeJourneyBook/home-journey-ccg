@@ -148,8 +148,8 @@ const DEFS = {
   // Ребаланс 2026-07-19 — см. подробный комментарий у TEA LEGENDARIES выше, тот же принцип.
   j_reap:      {name:"REAPER",      cost:7,hp:12,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1","enter_aoe:1"],        ab:"On play: 1 dmg to all enemies. Enemy creature death: restore base 1 HP.",unique:true},
   j_ryv:       {name:"RYVLEN",      cost:6,hp:9,atk:4,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play: Draw 1 card. On attack: Draw 1 card.",unique:true},
-  j_mal:       {name:"ABYSSWALKER", cost:7,hp:11,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:atk:1","taunt_break"],          ab:"Aura: +1 ATK.",unique:true},
-  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"On turn: Revive top graveyard card at 1 HP.",unique:true},
+  j_mal:       {name:"ABYSSWALKER", cost:7,hp:11,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:atk:1","provoke"],          ab:"Aura: +1 ATK.",unique:true},
+  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"\"Necromancy\" On turn: Revive top graveyard card at 1 HP.",unique:true},
   j_vard:      {name:"SEEKER",      cost:6,hp:10,atk:4,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce","fear","enter_lose:1"],    ab:"On play: Opponent loses 1 card. \"Seek, and ye shall find.\"",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
@@ -174,7 +174,7 @@ const DEFS = {
   j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: Draw 1 card.",world:true},
   j_w2:        {name:"NORRIA", cost:6,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: +1 Armor.",world:true},
   j_a1:        {name:"SHARD",  cost:6,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active: Bolt 1 (+1 for each currently Feared enemy creature).",artifact:true},
-  j_a2:        {name:"ALTAR",  cost:5,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true},
+  j_a2:        {name:"ALTAR",  cost:6,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
   unseen:      {name:"UNSEEN", cost:0,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return All creatures.",spell:true,fullArt:true,neutral:true},
