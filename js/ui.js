@@ -1652,7 +1652,7 @@ const TAG_TOOLTIPS = {
   'pierce':  { name: 'Pierce',  desc: 'After attacking an enemy creature card, if it dies from the hit, any remaining excess damage carries over to the enemy base.' },
   'regen':   { name: 'Regen',   desc: 'Restores X HP to itself at the start of each of your turns.' },
   'burn':    { name: 'Burn',    desc: 'On attack: target loses 1 HP at the start of each of its turns until death.' },
-  'rage':    { name: 'Rage',    desc: 'Gains +1 ATK permanently each time it attacks.' },
+  'rage':    { name: 'Rage',    desc: '+2 ATK while wounded to half its max HP or below (floor(maxHP/2)) — turns off if healed back above the threshold.' },
   'provoke': { name: 'Provoke', desc: 'All enemy attacks must target this creature.' },
   'intercept': { name: 'Intercept', desc: 'If nothing forces all attacks onto itself (Bushido/Provoke), one enemy attack per turn is automatically redirected onto this creature, no matter who the attacker chose. Doesn\'t consume the intercept if the attacker already picked this creature. Once per turn — with multiple Intercept creatures, whichever entered the field earliest triggers first.' },
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
