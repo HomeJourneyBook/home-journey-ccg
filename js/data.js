@@ -9,52 +9,63 @@ const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
 
   // Szarg Tea
-  t_trvl25_w:   {name:"TRAVELER #25",   cost:2,hp:2,atk:2,art:"🦈", img:"25.png",   f:"tea",tags:["untamed","gtype:szg"],                  ab:"Squad: +1 maxHP."},
-  t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad: +1 maxHP."},
-  t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:3,atk:3,art:"🦈", img:"34.png",   f:"tea",tags:["regen","gtype:szg"],           ab:"Squad: +1 maxHP."},
-  t_trvl694_w:  {name:"TRAVELER #694",  cost:3,hp:2,atk:3,art:"🦈", img:"694.png",  f:"tea",tags:["vanguard","gtype:szg"],            ab:"Squad: +1 maxHP."},
-  t_trvl57_w:  {name:"TRAVELER #57",  cost:2,hp:1,atk:2,art:"🦈", img:"57.png",  f:"tea",tags:["burn","gtype:szg"],           ab:"Squad: +1 maxHP."},
+  t_trvl25_w:   {name:"TRAVELER #25",   cost:2,hp:2,atk:2,art:"🦈", img:"25.png",   f:"tea",tags:["untamed","gtype:szg"],                  ab:"Squad +1 maxHP."},
+  t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
+  t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:3,atk:3,art:"🦈", img:"34.png",   f:"tea",tags:["regen","gtype:szg"],           ab:"Squad +1 maxHP."},
+  t_trvl694_w:  {name:"TRAVELER #694",  cost:3,hp:2,atk:3,art:"🦈", img:"694.png",  f:"tea",tags:["vanguard","gtype:szg"],            ab:"Squad +1 maxHP."},
+  t_trvl57_w:  {name:"TRAVELER #57",  cost:2,hp:1,atk:2,art:"🦈", img:"57.png",  f:"tea",tags:["burn","gtype:szg"],           ab:"Squad +1 maxHP."},
   // +2 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #33 выше (тот же
   // 1/2 болван, gtype:szg, идентичная Squad-абилка), см. AI BALANCE NOTES.
-  t_trvl870_w: {name:"TRAVELER #870", cost:1,hp:1,atk:2,art:"🦈", img:"870.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad: +1 maxHP."},
-  t_trvl890_w: {name:"TRAVELER #890", cost:1,hp:1,atk:2,art:"🦈", img:"890.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad: +1 maxHP."},
+  t_trvl870_w: {name:"TRAVELER #870", cost:1,hp:1,atk:2,art:"🦈", img:"870.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
+  t_trvl890_w: {name:"TRAVELER #890", cost:1,hp:1,atk:2,art:"🦈", img:"890.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
 
   // Orbiton Tea
-  t_trvl10_w:   {name:"TRAVELER #10",   cost:2,hp:3,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:2","burn","gtype:orb"],             ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
-  t_trvl398_w:  {name:"TRAVELER #398",  cost:3,hp:6,atk:1,art:"👁️", img:"398.png",  f:"tea",tags:["heal:2","vanguard","untamed","armor:1","gtype:orb"],         ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
-  t_trvl433_w:  {name:"TRAVELER #433",  cost:1,hp:1,atk:1,art:"👁️", img:"433.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
-  t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
+  // Ребаланс HP (2026-07-20, по прямому запросу автора) — Orbiton/Umbasir были
+  // заметно жирнее Szarg на том же cost'е; срезано до кривой hp≈cost, как у
+  // Szarg (см. Szarg Tea/Jeet выше) — ATK/теги (heal/bolt) не тронуты.
+  t_trvl10_w:   {name:"TRAVELER #10",   cost:2,hp:2,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:2","burn","gtype:orb"],             ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  t_trvl398_w:  {name:"TRAVELER #398",  cost:3,hp:3,atk:1,art:"👁️", img:"398.png",  f:"tea",tags:["heal:2","vanguard","untamed","armor:1","gtype:orb"],         ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  t_trvl433_w:  {name:"TRAVELER #433",  cost:1,hp:1,atk:1,art:"👁️", img:"433.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #433/#1034 выше.
-  t_trvl503_w:  {name:"TRAVELER #503",  cost:1,hp:1,atk:1,art:"👁️", img:"503.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
+  t_trvl503_w:  {name:"TRAVELER #503",  cost:1,hp:1,atk:1,art:"👁️", img:"503.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
 
   // Dreegan Tea
-  t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:7,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","enter_heal:2","gtype:drg"],                   ab:"On play: Heal 2 all allies. Squad: +1 Armor."},
-  t_trvl31_w:   {name:"TRAVELER #31",   cost:6,hp:13,atk:1,art:"🌳", img:"31.png",   f:"tea",tags:["provoke","armor:1","burn","gtype:drg"],             ab:"Squad: +1 Armor."},
-  t_trvl605_w:  {name:"TRAVELER #605",  cost:4,hp:8,atk:1,art:"🌳", img:"605.png",  f:"tea",tags:["provoke","shield","gtype:drg"],            ab:"Squad: +1 Armor."},
-  t_trvl388_w:  {name:"TRAVELER #388",  cost:4,hp:10,atk:1,art:"🌳", img:"388.png",  f:"tea",tags:["provoke","untamed","enter_draw:1","gtype:drg"],            ab:"On play: Draw 1. Squad: +1 Armor."},
-  t_trvl14_w:   {name:"TRAVELER #14",   cost:3,hp:6,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","armor:1","gtype:drg"],                   ab:"Squad: +1 Armor."},
+  t_trvl1_w:    {name:"TRAVELER #1",    cost:3,hp:7,atk:1,art:"🌳", img:"1.png",    f:"tea",tags:["provoke","enter_heal:2","gtype:drg"],                   ab:"On play Heal 2 all allies. Squad +1 Armor."},
+  t_trvl31_w:   {name:"TRAVELER #31",   cost:6,hp:13,atk:1,art:"🌳", img:"31.png",   f:"tea",tags:["provoke","armor:1","burn","gtype:drg"],             ab:"Squad +1 Armor."},
+  t_trvl605_w:  {name:"TRAVELER #605",  cost:4,hp:8,atk:1,art:"🌳", img:"605.png",  f:"tea",tags:["provoke","shield","gtype:drg"],            ab:"Squad +1 Armor."},
+  t_trvl388_w:  {name:"TRAVELER #388",  cost:4,hp:10,atk:1,art:"🌳", img:"388.png",  f:"tea",tags:["provoke","untamed","enter_draw:1","gtype:drg"],            ab:"On play Draw 1. Squad +1 Armor."},
+  t_trvl14_w:   {name:"TRAVELER #14",   cost:3,hp:6,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","armor:1","gtype:drg"],                   ab:"Squad +1 Armor."},
 
-  // Umbasir Tea
-    t_trvl583_w:    {name:"TRAVELER #583",  cost:3,hp:4,atk:1,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","enter_heal:2","gtype:umb"],              ab:"On play: Heal 2 all allies. Active: Bolt 1. Squad: Bolt 2."},
-      t_trvl2_w:    {name:"TRAVELER #2",    cost:2,hp:2,atk:1,art:"🌀", img:"2.png",    f:"tea",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active: Bolt 1. Squad: Bolt 2."},
-     t_trvl52_w:    {name:"TRAVELER #52",   cost:1,hp:1,atk:1,art:"🌀", img:"52.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active: Bolt 1. Squad: Bolt 2."},
-      t_trvl6_w:    {name:"TRAVELER #6",    cost:3,hp:3,atk:1,art:"🌀", img:"6.png",    f:"tea",tags:["bolt:1","enter_draw:1","gtype:umb"],                     ab:"On play: Draw 1. Active: Bolt 1. Squad: Bolt 2."},
-      t_trvl387_w:  {name:"TRAVELER #387",  cost:4,hp:5,atk:1,art:"🌀", img:"387.png",  f:"tea",tags:["bolt:1","burn","necrophage","gtype:umb"],                     ab:"Active: Bolt 1. Squad: Bolt 2."},
-      t_trvl137_w:  {name:"TRAVELER #137",  cost:4,hp:4,atk:1,art:"🌀", img:"137.png",  f:"tea",tags:["bolt:1","shield","gtype:umb"],                     ab:"Active: Bolt 1. Squad: Bolt 2."},
+  // Umbasir Tea (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
+    t_trvl583_w:    {name:"TRAVELER #583",  cost:3,hp:3,atk:1,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","enter_heal:2","gtype:umb"],              ab:"On play Heal 2 all allies. Active Bolt 1. Squad Bolt 2."},
+      t_trvl2_w:    {name:"TRAVELER #2",    cost:2,hp:2,atk:1,art:"🌀", img:"2.png",    f:"tea",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
+     t_trvl52_w:    {name:"TRAVELER #52",   cost:1,hp:1,atk:1,art:"🌀", img:"52.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
+      t_trvl6_w:    {name:"TRAVELER #6",    cost:3,hp:3,atk:1,art:"🌀", img:"6.png",    f:"tea",tags:["bolt:1","enter_draw:1","gtype:umb"],                     ab:"On play Draw 1. Active Bolt 1. Squad Bolt 2."},
+      t_trvl387_w:  {name:"TRAVELER #387",  cost:4,hp:4,atk:1,art:"🌀", img:"387.png",  f:"tea",tags:["bolt:1","burn","necrophage","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
+      t_trvl137_w:  {name:"TRAVELER #137",  cost:4,hp:4,atk:1,art:"🌀", img:"137.png",  f:"tea",tags:["bolt:1","shield","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
 
   // Mechird Tea
-  t_trvl38_w:   {name:"TRAVELER #38",   cost:3,hp:3,atk:2,art:"🤖", img:"38.png",   f:"tea",tags:["pierce","rage","gtype:mch"],              ab:"Squad: +1 ATK."},
-  t_trvl18_w:   {name:"TRAVELER #18",   cost:2,hp:2,atk:1,art:"🤖", img:"18.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad: +1 ATK."},
-  t_trvl35_w:   {name:"TRAVELER #35",   cost:4,hp:4,atk:3,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","armor:1","gtype:mch"],                    ab:"Squad: +1 ATK."},
-  t_trvl11_w:   {name:"TRAVELER #11",   cost:4,hp:5,atk:3,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","armor:1","enter_heal:2","gtype:mch"],                    ab:"On play: Heal 2 all allies. Squad: +1 ATK."},
-  t_trvl921_w:  {name:"TRAVELER #921",  cost:5,hp:5,atk:4,art:"🤖", img:"921.png",  f:"tea",tags:["pierce","armor:1","burn","gtype:mch"],           ab:"Squad: +1 ATK."},
-  t_trvl128_w:  {name:"TRAVELER #128",  cost:4,hp:4,atk:4,art:"🤖", img:"128.png",  f:"tea",tags:["pierce","draw_attack:1","incarnation:4","gtype:mch"],           ab:"On attack: Draw 1. Squad: +1 ATK."},
+  // Ребаланс (2026-07-20, по прямому запросу автора) — ATK срезан (было завышено
+  // относительно Szarg на том же cost'е), HP приведён к кривой hp≈cost, как у
+  // Szarg (см. комментарий у Orbiton Tea выше) — та же логика, другая ось.
+  t_trvl38_w:   {name:"TRAVELER #38",   cost:3,hp:3,atk:1,art:"🤖", img:"38.png",   f:"tea",tags:["pierce","rage","gtype:mch"],              ab:"Squad +1 ATK."},
+  t_trvl18_w:   {name:"TRAVELER #18",   cost:2,hp:2,atk:1,art:"🤖", img:"18.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad +1 ATK."},
+  t_trvl35_w:   {name:"TRAVELER #35",   cost:4,hp:4,atk:2,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","armor:1","gtype:mch"],                    ab:"Squad +1 ATK."},
+  t_trvl11_w:   {name:"TRAVELER #11",   cost:4,hp:4,atk:2,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","armor:1","enter_heal:2","gtype:mch"],                    ab:"On play Heal 2 all allies. Squad +1 ATK."},
+  t_trvl921_w:  {name:"TRAVELER #921",  cost:5,hp:5,atk:3,art:"🤖", img:"921.png",  f:"tea",tags:["pierce","armor:1","burn","gtype:mch"],           ab:"Squad +1 ATK."},
+  t_trvl128_w:  {name:"TRAVELER #128",  cost:4,hp:4,atk:3,art:"🤖", img:"128.png",  f:"tea",tags:["pierce","draw_attack:1","incarnation:4","gtype:mch"],           ab:"On attack Draw 1. Squad +1 ATK."},
 
   // Xuiqtr Tea
-    t_trvl402_w:    {name:"TRAVELER #402",  cost:5,hp:8,atk:3,art:"🐙", img:"402.png",  f:"tea",tags:["intercept","regen","rage","gtype:xui"],                   ab:"Squad: +1 ATK."},
-     t_trvl26_w:    {name:"TRAVELER #26",   cost:3,hp:4,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["intercept","taunt_break","gtype:xui"],            ab:"Squad: +1 ATK."},
-     t_trvl39_w:    {name:"TRAVELER #39",   cost:3,hp:4,atk:2,art:"🐙", img:"39.png",   f:"tea",tags:["intercept","armor:1","gtype:xui"],                   ab:"Squad: +1 ATK."},
-     t_trvl972_w:    {name:"TRAVELER #972",  cost:3,hp:4,atk:2,art:"🐙", img:"972.png",  f:"tea",tags:["intercept","burn","gtype:xui"],          ab:"Squad: +1 ATK."},
+  // Ребаланс (2026-07-20, по прямому запросу автора) — на cost 1-3 HP поднят до
+  // уровня Dreegan на том же cost'е (см. Dreegan Tea/Jeet выше, ATK не тронут —
+  // Xuiqtr остаётся заметно ударнее Dreegan там же); с cost 4+ упор смещён на
+  // рост ATK вместо продолжения HP-кривой Dreegan (та у cost 4-6 уходит в
+  // 8-13 HP) — HP растёт медленно (+1 за cost), ATK быстро (+1 за cost).
+    t_trvl402_w:    {name:"TRAVELER #402",  cost:5,hp:7,atk:4,art:"🐙", img:"402.png",  f:"tea",tags:["intercept","regen","rage","gtype:xui"],                   ab:"Squad +1 ATK."},
+     t_trvl26_w:    {name:"TRAVELER #26",   cost:3,hp:6,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["intercept","taunt_break","gtype:xui"],            ab:"Squad +1 ATK."},
+     t_trvl39_w:    {name:"TRAVELER #39",   cost:3,hp:6,atk:2,art:"🐙", img:"39.png",   f:"tea",tags:["intercept","armor:1","gtype:xui"],                   ab:"Squad +1 ATK."},
+     t_trvl972_w:    {name:"TRAVELER #972",  cost:3,hp:6,atk:2,art:"🐙", img:"972.png",  f:"tea",tags:["intercept","burn","gtype:xui"],          ab:"Squad +1 ATK."},
 
   // ── TEA LEGENDARIES ─────────────────────────────────────────────
   // Ребаланс 2026-07-19 (по прямому запросу автора) — стоимость легендарок поднята с
@@ -62,7 +73,7 @@ const DEFS = {
   // от реальной кривой рядовых карт (см. AI BALANCE NOTES/чат) с небольшой премией за
   // уникальность; ATK почти не тронут (максимум +1), основной вес добавки — в HP и по
   // ОДНОМУ новому тегу на карту, чтобы не раздувать чистые цифры без текстуры.
-  t_tean:      {name:"TEANTIST",   cost:6,hp:10,atk:3,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","stealth","enter_heal:2"],            ab:"On play: Heal 2 all allies. On turn: Draw 1.",unique:true},
+  t_tean:      {name:"TEANTIST",   cost:6,hp:10,atk:3,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","stealth","enter_heal:2"],            ab:"On play Heal 2 all allies. On turn Draw 1.",unique:true},
   t_aslex:     {name:"ASLEX",      cost:7,hp:12,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1","shield"],      ab:"When your creature dies: Heal base 1 HP.",unique:true},
   t_tuborg:    {name:"TUBORG",     cost:7,hp:11,atk:3,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1","ward"],       ab:"Aura: +1 ATK.",unique:true},
   // FAERON — Fire Shield — тег состоит из ДВУХ парных частей, оба нужны на карте разом
@@ -70,7 +81,7 @@ const DEFS = {
   // получении удара, см. doAttack() в game.js) + 'atk_vs_burning:N' (наступательная часть —
   // сама карта наносит +N атаки, если ЕЁ цель уже горит). Если в будущем захочешь дать
   // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
-  t_faeron:    {name:"FAERON",     cost:6,hp:10,atk:3,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1","enter_aoe:1"], ab:"On play: AOE 1. \“Yet another one burned.\”",unique:true},
+  t_faeron:    {name:"FAERON",     cost:6,hp:10,atk:3,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1","enter_aoe:1"], ab:"On play AOE 1. \“Yet another one burned.\”",unique:true},
   t_nab:       {name:"NABUNAGI",   cost:8,hp:14,atk:3,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1","ward"], ab:"\"Bushido\": All attacks must target him.",unique:true},
 
 
@@ -91,66 +102,72 @@ const DEFS = {
   // Новый спелл (2026-07-19, ребаланс кривой под ход 1) — дешёвый draw:1, вполовину
   // цены/эффекта INSIGHT выше (та же пропорция cost:draw).
   t_sp14:      {name:"GLIMPSE",    cost:1,hp:0,atk:0,art:"✨", img:"1_Glimpse.png", f:"tea",tags:["spell","draw:1"], ab:"Draw 1.",spell:true},
+  // Новый спелл (2026-07-20, по прямому запросу автора) — Bolt 2 за cost 2, для
+  // каждой фракции по одному (см. J_SP15 "MALICE" ниже у Jeet). Арт-файл ещё не
+  // существует у автора — img намеренно НЕ указан, карта рендерится через emoji
+  // art (⚡) как фолбэк (см. render.js: card.img?<img>:card.art), до тех пор пока
+  // автор не подвезёт готовый арт и не добавит img самостоятельно.
+  t_sp15:      {name:"SPARK",      cost:2,hp:0,atk:0,art:"⚡", f:"tea",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1"],       ab:"When an enemy creature dies: Draw 1.",world:true},
   t_w2:        {name:"DOMUS",      cost:6,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_armor:1"],ab:"Aura: +1 Armor.",world:true},
-  t_a1:        {name:"THE BOOK",   cost:6,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:1","shard_burn_scale"],   ab:"Active: Bolt 1 (+1 for each currently burning enemy creature).",artifact:true},
-  t_a2:        {name:"FOUNTAIN", cost:5,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn: Heal 1 all allies.",artifact:true},
+  t_a1:        {name:"THE BOOK",   cost:6,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:1","shard_burn_scale"],   ab:"Active Bolt 1 (+1 for each currently burning enemy creature).",artifact:true},
+  t_a2:        {name:"FOUNTAIN", cost:5,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn Heal 1 all allies.",artifact:true},
 
   // ── JEET CREATURES ──────────────────────────────────────────────
 
   // Szarg Jeet
-  j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad: +1 maxHP."},
-  j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad: +1 maxHP."},
-  j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:2,atk:3,art:"🦈", img:"551.png", f:"jeet",tags:["incarnation:4","gtype:szg"],      ab:"Squad: +1 maxHP."},
-  j_trvl971_w: {name:"TRAVELER #971", cost:1,hp:1,atk:2,art:"🦈", img:"971.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad: +1 maxHP."},
+  j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."},
+  j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."},
+  j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:2,atk:3,art:"🦈", img:"551.png", f:"jeet",tags:["incarnation:4","gtype:szg"],      ab:"Squad +1 maxHP."},
+  j_trvl971_w: {name:"TRAVELER #971", cost:1,hp:1,atk:2,art:"🦈", img:"971.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону #12/#49/#971 выше.
-  j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad: +1 maxHP."},
-  j_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:3,atk:4,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad: +1 maxHP."},
+  j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
+  j_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:3,atk:4,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."},
 
-  // Orbiton Jeet
-  j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
-  j_trvl429_w: {name:"TRAVELER #429", cost:1,hp:1,atk:1,art:"👁️", img:"429.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
-  j_trvl454_w: {name:"TRAVELER #454", cost:3,hp:5,atk:1,art:"👁️", img:"454.png", f:"jeet",tags:["heal:2","regen","armor:1","gtype:orb"],           ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
-  j_trvl523_w: {name:"TRAVELER #523", cost:2,hp:3,atk:1,art:"👁️", img:"523.png", f:"jeet",tags:["heal:2","fear","gtype:orb"],            ab:"Active: Heal 2 and Clean. Squad: Heal 4."},
+  // Orbiton Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
+  j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  j_trvl429_w: {name:"TRAVELER #429", cost:1,hp:1,atk:1,art:"👁️", img:"429.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  j_trvl454_w: {name:"TRAVELER #454", cost:3,hp:3,atk:1,art:"👁️", img:"454.png", f:"jeet",tags:["heal:2","regen","armor:1","gtype:orb"],           ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  j_trvl523_w: {name:"TRAVELER #523", cost:2,hp:2,atk:1,art:"👁️", img:"523.png", f:"jeet",tags:["heal:2","fear","gtype:orb"],            ab:"Active Heal 2 and Clean. Squad Heal 4."},
 
   // Dreegan Jeet
-  j_trvl36_w:   {name:"TRAVELER #36",   cost:3,hp:7,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","untamed","gtype:drg"],               ab:"Squad: +1 Armor."},
-  j_trvl41_w:   {name:"TRAVELER #41",   cost:2,hp:2,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad: +1 Armor."},
-  j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:10,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","vanguard","gtype:drg"],        ab:"Squad: +1 Armor."},
-  j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:9,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad: +1 Armor."},
-  j_trvl775_w:  {name:"TRAVELER #775",  cost:3,hp:6,atk:1,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad: +1 Armor."},
+  j_trvl36_w:   {name:"TRAVELER #36",   cost:3,hp:7,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","untamed","gtype:drg"],               ab:"Squad +1 Armor."},
+  j_trvl41_w:   {name:"TRAVELER #41",   cost:2,hp:2,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad +1 Armor."},
+  j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:10,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","vanguard","gtype:drg"],        ab:"Squad +1 Armor."},
+  j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:9,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad +1 Armor."},
+  j_trvl775_w:  {name:"TRAVELER #775",  cost:3,hp:6,atk:1,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad +1 Armor."},
 
-  // Umbasir Jeet
-    j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:5,atk:1,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active: Bolt 1. Squad: Bolt 2."},
-     j_trvl53_w:    {name:"TRAVELER #53",   cost:2,hp:2,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play: Lose 1. Active: Bolt 1. Squad: Bolt 2."},
-     j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:1,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active: Bolt 1. Squad: Bolt 2."},
-     j_trvl20_w:    {name:"TRAVELER #20",   cost:3,hp:4,atk:1,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active: Bolt 1. Squad: Bolt 2."},
-     j_trvl248_w:   {name:"TRAVELER #248",  cost:5,hp:6,atk:1,art:"🌀", img:"248.png",  f:"jeet",tags:["bolt:1","shield","ward","gtype:umb"],        ab:"Active: Bolt 1. Squad: Bolt 2."},
+  // Umbasir Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
+    j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:1,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active Bolt 1. Squad Bolt 2."},
+     j_trvl53_w:    {name:"TRAVELER #53",   cost:2,hp:2,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play Lose 1. Active Bolt 1. Squad Bolt 2."},
+     j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:1,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."},
+     j_trvl20_w:    {name:"TRAVELER #20",   cost:3,hp:3,atk:1,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
+     j_trvl248_w:   {name:"TRAVELER #248",  cost:5,hp:5,atk:1,art:"🌀", img:"248.png",  f:"jeet",tags:["bolt:1","shield","ward","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
 
-  // Mechird Jeet
-  j_trvl22_w:   {name:"TRAVELER #22",   cost:3,hp:4,atk:2,art:"🤖", img:"22.png",   f:"jeet",tags:["pierce","untamed","gtype:mch"],                 ab:"Squad: +1 ATK."},
-  j_trvl724_w:  {name:"TRAVELER #724",  cost:2,hp:2,atk:1,art:"🤖", img:"724.png",  f:"jeet",tags:["pierce","gtype:mch"],                 ab:"Squad: +1 ATK."},
-  j_trvl804_w:  {name:"TRAVELER #804",  cost:4,hp:5,atk:3,art:"🤖", img:"804.png",  f:"jeet",tags:["pierce","armor:1","regen","gtype:mch"],          ab:"Squad: +1 ATK."},
-  j_trvl663_w:  {name:"TRAVELER #663",  cost:4,hp:5,atk:3,art:"🤖", img:"663.png",  f:"jeet",tags:["pierce","fear","enter_heal:2","gtype:mch"],          ab:"On play: Heal 2 all allies. Squad: +1 ATK."},
-  j_trvl320_w:  {name:"TRAVELER #320",  cost:5,hp:6,atk:4,art:"🤖", img:"320.png",  f:"jeet",tags:["pierce","necrophage","untamed","gtype:mch"],          ab:"Squad: +1 ATK."},
+  // Mechird Jeet (ребаланс 2026-07-20 — см. комментарий у Mechird Tea выше)
+  j_trvl22_w:   {name:"TRAVELER #22",   cost:3,hp:3,atk:1,art:"🤖", img:"22.png",   f:"jeet",tags:["pierce","untamed","gtype:mch"],                 ab:"Squad +1 ATK."},
+  j_trvl724_w:  {name:"TRAVELER #724",  cost:2,hp:2,atk:1,art:"🤖", img:"724.png",  f:"jeet",tags:["pierce","gtype:mch"],                 ab:"Squad +1 ATK."},
+  j_trvl804_w:  {name:"TRAVELER #804",  cost:4,hp:4,atk:2,art:"🤖", img:"804.png",  f:"jeet",tags:["pierce","armor:1","regen","gtype:mch"],          ab:"Squad +1 ATK."},
+  j_trvl663_w:  {name:"TRAVELER #663",  cost:4,hp:4,atk:2,art:"🤖", img:"663.png",  f:"jeet",tags:["pierce","fear","enter_heal:2","gtype:mch"],          ab:"On play Heal 2 all allies. Squad +1 ATK."},
+  j_trvl320_w:  {name:"TRAVELER #320",  cost:5,hp:5,atk:3,art:"🤖", img:"320.png",  f:"jeet",tags:["pierce","necrophage","untamed","gtype:mch"],          ab:"Squad +1 ATK."},
 
-  // Xuiqtr Jeet
-    j_trvl579_w:    {name:"TRAVELER #579",  cost:3,hp:4,atk:2,art:"🐙", img:"579.png",  f:"jeet",tags:["intercept","fear","gtype:xui"],          ab:"Squad: +1 ATK."},
-     j_trvl50_w:    {name:"TRAVELER #50",   cost:2,hp:2,atk:1,art:"🐙", img:"50.png",   f:"jeet",tags:["intercept","gtype:xui"],                 ab:"Squad: +1 ATK."},
-     j_trvl37_w:    {name:"TRAVELER #37",   cost:6,hp:9,atk:3,art:"🐙", img:"37.png",   f:"jeet",tags:["intercept","armor:1","gtype:xui"],                 ab:"Squad: +1 ATK."},
-     j_trvl720_w:   {name:"TRAVELER #720",  cost:4,hp:5,atk:3,art:"🐙", img:"720.png",  f:"jeet",tags:["intercept","draw_attack:1","gtype:xui"],                 ab:"On attack: Draw 1. Squad: +1 ATK."},
-     j_trvl951_w:   {name:"TRAVELER #951",  cost:4,hp:6,atk:2,art:"🐙", img:"951.png",  f:"jeet",tags:["intercept","regen","gtype:xui"],                 ab:"Squad: +1 ATK."},
-     j_trvl704_w:    {name:"TRAVELER #704",  cost:4,hp:5,atk:3,art:"🐙", img:"704.png",  f:"jeet",tags:["intercept","fear","shield","gtype:xui"],             ab:"Squad: +1 ATK."},
+  // Xuiqtr Jeet (ребаланс 2026-07-20 — см. комментарий у Xuiqtr Tea выше)
+    j_trvl579_w:    {name:"TRAVELER #579",  cost:3,hp:6,atk:2,art:"🐙", img:"579.png",  f:"jeet",tags:["intercept","fear","gtype:xui"],          ab:"Squad +1 ATK."},
+     j_trvl50_w:    {name:"TRAVELER #50",   cost:2,hp:2,atk:1,art:"🐙", img:"50.png",   f:"jeet",tags:["intercept","gtype:xui"],                 ab:"Squad +1 ATK."},
+     j_trvl37_w:    {name:"TRAVELER #37",   cost:6,hp:8,atk:5,art:"🐙", img:"37.png",   f:"jeet",tags:["intercept","armor:1","gtype:xui"],                 ab:"Squad +1 ATK."},
+     j_trvl720_w:   {name:"TRAVELER #720",  cost:4,hp:6,atk:3,art:"🐙", img:"720.png",  f:"jeet",tags:["intercept","draw_attack:1","gtype:xui"],                 ab:"On attack Draw 1. Squad +1 ATK."},
+     j_trvl951_w:   {name:"TRAVELER #951",  cost:4,hp:6,atk:3,art:"🐙", img:"951.png",  f:"jeet",tags:["intercept","regen","gtype:xui"],                 ab:"Squad +1 ATK."},
+     j_trvl704_w:    {name:"TRAVELER #704",  cost:4,hp:6,atk:3,art:"🐙", img:"704.png",  f:"jeet",tags:["intercept","fear","shield","gtype:xui"],             ab:"Squad +1 ATK."},
 
   // ── JEET LEGENDARIES ────────────────────────────────────────────
   // Ребаланс 2026-07-19 — см. подробный комментарий у TEA LEGENDARIES выше, тот же принцип.
-  j_reap:      {name:"REAPER",      cost:7,hp:12,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1","enter_aoe:1"],        ab:"On play: AOE 1. Enemy creature death: restore base 1 HP.",unique:true},
-  j_ryv:       {name:"RYVLEN",      cost:6,hp:8,atk:4,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play: Draw 1. On attack: Draw 1.",unique:true},
+  j_reap:      {name:"REAPER",      cost:7,hp:12,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1","enter_aoe:1"],        ab:"On play AOE 1. Enemy creature death: restore base 1 HP.",unique:true},
+  j_ryv:       {name:"RYVLEN",      cost:6,hp:8,atk:4,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play Draw 1. On attack Draw 1.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:7,hp:11,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:atk:1","provoke"],          ab:"Aura: +1 ATK.",unique:true},
-  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"On turn: \"Necromancy\" Revive top graveyard card at 1 HP.",unique:true},
-  j_vard:      {name:"SEEKER",      cost:6,hp:10,atk:3,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce","fear","enter_lose:1"],    ab:"On play: Lose 1. \"Seek, and ye shall find.\"",unique:true},
+  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"On turn \"Necromancy\" Revive top graveyard card at 1 HP.",unique:true},
+  j_vard:      {name:"SEEKER",      cost:6,hp:10,atk:3,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce","fear","enter_lose:1"],    ab:"On play Lose 1. \"Seek, and ye shall find.\"",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2.",spell:true},
@@ -169,11 +186,15 @@ const DEFS = {
   // Новый спелл (2026-07-19, ребаланс кривой под ход 1) — дешёвый draw:1, вполовину
   // цены/эффекта JEET WAVE выше (та же пропорция cost:draw).
   j_sp14:      {name:"OMEN",       cost:1,hp:0,atk:0,art:"🌑", img:"1_Omen.png", f:"jeet",tags:["spell","draw:1"], ab:"Draw 1.",spell:true},
+  // Новый спелл (2026-07-20, по прямому запросу автора) — Jeet-аналог t_sp15
+  // "SPARK" выше: Bolt 2 за cost 2. img намеренно не указан — см. комментарий у
+  // t_sp15.
+  j_sp15:      {name:"MALICE",     cost:2,hp:0,atk:0,art:"⚔️", f:"jeet",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: Draw 1.",world:true},
   j_w2:        {name:"NORRIA", cost:6,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: +1 Armor.",world:true},
-  j_a1:        {name:"SHARD",  cost:6,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active: Bolt 1 (+1 for each currently Feared enemy creature).",artifact:true},
+  j_a1:        {name:"SHARD",  cost:6,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active Bolt 1 (+1 for each currently Feared enemy creature).",artifact:true},
   j_a2:        {name:"ALTAR",  cost:6,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
@@ -181,17 +202,25 @@ const DEFS = {
 };
 
 // ── Ability-text formatting helper ──────────────────────────────────────
-// Заменяет литеральные префиксы "On play:"/"On turn:"/"On attack:"/"Active:"/
-// "Squad:" в тексте способности карты (card.ab) на иконку + двоеточие —
-// компактнее и нагляднее на маленькой карте, чем слова целиком.
+// Заменяет литеральные префиксы "On play"/"On turn"/"On attack"/"Active"/
+// "Squad" в тексте способности карты (card.ab) на иконку — компактнее и
+// нагляднее на маленькой карте, чем слово целиком. Двоеточие после этих слов
+// убрано из самих текстов карт (2026-07-20, по прямому запросу автора) — иконка
+// теперь сама по себе маркер, доп. пунктуация не нужна, поэтому паттерны ниже
+// матчат слово БЕЗ хвостового ":" и не дописывают его обратно.
 // On play/On turn/On attack встречаются РОВНО один раз и СТРОГО в самом начале
 // строки (см. data.js) — ^-якорь без /g достаточен.
 // Active/Squad встречаются ЧАЩЕ ОДНОГО РАЗА в одной строке (например у карт с
-// префиксом "On play: ...") и не обязательно в начале — но, проверено по всему
+// префиксом "On play ...") и не обязательно в начале — но, проверено по всему
 // data.js (2026-07-18), ВСЕГДА либо в самом начале строки, либо сразу после
 // ". " (т.е. начинают новое "предложение" внутри ab) — поэтому паттерн
 // (^|\. ) с /g покрывает все случаи, находя каждое вхождение и сохраняя
 // префикс (пустую строку или ". ") перед иконкой через $1.
+// ВАЖНО: регекс требует после слова ПРОБЕЛ или конец строки (\b(?=\s|$)) —
+// это защищает от случайного совпадения с "Active"/"Squad" как частью другого
+// слова, но, что важнее здесь, работает именно на "слово без двоеточия" не
+// зацепляя более никакой соседний текст, раз двоеточия в самих текстах карт
+// больше нет.
 // ВАЖНО: применять эту функцию только там, где card.ab вставляется как HTML
 // (innerHTML) — например .card-ability в render.js/catalog.js/deckbuilder.js.
 // НЕ применять в plain-text контекстах (например title="" у .pcard в
@@ -200,9 +229,9 @@ const DEFS = {
 function formatAbilityText(ab){
   if(!ab) return '';
   return ab
-    .replace(/^On play:/, '<img src="img/ico_on_play.png" class="ab-icon-trigger" alt="On play">:')
-    .replace(/^On turn:/, '<img src="img/ico_on_turn.png" class="ab-icon-trigger" alt="On turn">:')
-    .replace(/^On attack:/, '<img src="img/ico_on_attack.png" class="ab-icon-trigger" alt="On attack">:')
-    .replace(/(^|\. )Active:/g, '$1<img src="img/ico_active.png" class="ab-icon-trigger" alt="Active">:')
-    .replace(/(^|\. )Squad:/g, '$1<img src="img/ico_squad.png" class="ab-icon-trigger" alt="Squad">:');
+    .replace(/^On play\b:?/, '<img src="img/ico_on_play.png" class="ab-icon-trigger" alt="On play">')
+    .replace(/^On turn\b:?/, '<img src="img/ico_on_turn.png" class="ab-icon-trigger" alt="On turn">')
+    .replace(/^On attack\b:?/, '<img src="img/ico_on_attack.png" class="ab-icon-trigger" alt="On attack">')
+    .replace(/(^|\. )Active\b:?/g, '$1<img src="img/ico_active.png" class="ab-icon-trigger" alt="Active">')
+    .replace(/(^|\. )Squad\b:?/g, '$1<img src="img/ico_squad.png" class="ab-icon-trigger" alt="Squad">');
 }
