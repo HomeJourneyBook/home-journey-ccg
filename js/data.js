@@ -26,6 +26,7 @@ const DEFS = {
   t_trvl10_w:   {name:"TRAVELER #10",   cost:3,hp:3,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:2","burn","gtype:orb"],             ab:"Active Heal 2 and Clean. Squad Heal 4."},
   t_trvl398_w:  {name:"TRAVELER #398",  cost:4,hp:4,atk:1,art:"👁️", img:"398.png",  f:"tea",tags:["heal:2","vanguard","untamed","gtype:orb"],         ab:"Active Heal 2 and Clean. Squad Heal 4."},
   t_trvl433_w:  {name:"TRAVELER #433",  cost:1,hp:1,atk:1,art:"👁️", img:"433.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  t_trvl218_w:  {name:"TRAVELER #218",  cost:2,hp:2,atk:1,art:"👁️", img:"218.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
   t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #433/#1034 выше.
   t_trvl503_w:  {name:"TRAVELER #503",  cost:1,hp:1,atk:1,art:"👁️", img:"503.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
@@ -73,16 +74,16 @@ const DEFS = {
   // от реальной кривой рядовых карт (см. AI BALANCE NOTES/чат) с небольшой премией за
   // уникальность; ATK почти не тронут (максимум +1), основной вес добавки — в HP и по
   // ОДНОМУ новому тегу на карту, чтобы не раздувать чистые цифры без текстуры.
-  t_tean:      {name:"TEANTIST",   cost:6,hp:10,atk:3,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","stealth","enter_heal:2"],            ab:"On play Heal 2 all allies. On turn Draw 1.",unique:true},
-  t_aslex:     {name:"ASLEX",      cost:7,hp:12,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1","shield"],      ab:"When your creature dies: Heal base 1 HP.",unique:true},
-  t_tuborg:    {name:"TUBORG",     cost:7,hp:11,atk:3,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1","ward"],       ab:"Aura: +1 ATK.",unique:true},
+  t_tean:      {name:"TEANTIST",   cost:5,hp:10,atk:4,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","stealth","enter_heal:2"],            ab:"On play Heal 2 all allies. On turn Draw 1.",unique:true},
+  t_aslex:     {name:"ASLEX",      cost:6,hp:12,atk:4,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1","shield"],      ab:"When your creature dies: Heal base 1 HP.",unique:true},
+  t_tuborg:    {name:"TUBORG",     cost:7,hp:14,atk:5,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1","ward"],       ab:"Aura: +1 ATK.",unique:true},
   // FAERON — Fire Shield — тег состоит из ДВУХ парных частей, оба нужны на карте разом
   // (уточнено автором 2026-07-19): 'thorns:N' (защитная часть — урон атакующему при
   // получении удара, см. doAttack() в game.js) + 'atk_vs_burning:N' (наступательная часть —
   // сама карта наносит +N атаки, если ЕЁ цель уже горит). Если в будущем захочешь дать
   // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
-  t_faeron:    {name:"FAERON",     cost:6,hp:10,atk:3,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1","enter_aoe:1"], ab:"On play AOE 1. \“Yet another one burned.\”",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:8,hp:14,atk:3,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1","ward"], ab:"\"Bushido\": All attacks must target him.",unique:true},
+  t_faeron:    {name:"FAERON",     cost:4,hp:8,atk:3,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1","enter_aoe:1"], ab:"On play AOE 1. \“Yet another one burned.\”",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:8,hp:16,atk:5,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1","ward"], ab:"\"Bushido\": All attacks must target him.",unique:true},
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
@@ -103,9 +104,9 @@ const DEFS = {
   t_sp15:      {name:"SPARK",      cost:2,hp:0,atk:0,art:"⚡", img:"1_Spark.png", f:"tea",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
-  t_w1:        {name:"VALLEY",     cost:6,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1"],       ab:"When an enemy creature dies: Draw 1.",world:true},
+  t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1"],       ab:"When an enemy creature dies: Draw 1.",world:true},
   t_w2:        {name:"DOMUS",      cost:6,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_armor:1"],ab:"Aura: +1 Armor.",world:true},
-  t_a1:        {name:"THE BOOK",   cost:6,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:1","shard_burn_scale"],   ab:"Active Bolt 1 (+1 for each currently burning enemy creature).",artifact:true},
+  t_a1:        {name:"THE BOOK",   cost:5,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:1","shard_burn_scale"],   ab:"Active Bolt 1 (+1 for each currently burning enemy creature).",artifact:true},
   t_a2:        {name:"FOUNTAIN", cost:5,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn Heal 1 all allies.",artifact:true},
 
   // ── JEET CREATURES ──────────────────────────────────────────────
@@ -136,6 +137,7 @@ const DEFS = {
     j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:1,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl53_w:    {name:"TRAVELER #53",   cost:3,hp:3,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play Lose 1. Active Bolt 1. Squad Bolt 2."},
      j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:1,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."},
+     j_trvl934_w:   {name:"TRAVELER #934",  cost:2,hp:2,atk:1,art:"🌀", img:"934.png",  f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl20_w:    {name:"TRAVELER #20",   cost:4,hp:4,atk:1,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl248_w:   {name:"TRAVELER #248",  cost:5,hp:5,atk:2,art:"🌀", img:"248.png",  f:"jeet",tags:["bolt:1","shield","ward","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
 
@@ -156,11 +158,11 @@ const DEFS = {
 
   // ── JEET LEGENDARIES ────────────────────────────────────────────
   // Ребаланс 2026-07-19 — см. подробный комментарий у TEA LEGENDARIES выше, тот же принцип.
-  j_reap:      {name:"REAPER",      cost:7,hp:12,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1","enter_aoe:1"],        ab:"On play AOE 1. Enemy creature death: restore base 1 HP.",unique:true},
-  j_ryv:       {name:"RYVLEN",      cost:6,hp:8,atk:4,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play Draw 1. On attack Draw 1.",unique:true},
-  j_mal:       {name:"ABYSSWALKER", cost:7,hp:11,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:atk:1","provoke"],          ab:"Aura: +1 ATK.",unique:true},
-  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true},
-  j_vard:      {name:"SEEKER",      cost:6,hp:10,atk:3,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce","fear","enter_lose:1"],    ab:"On play Lose 1. \"Seek, and ye shall find.\"",unique:true},
+  j_reap:      {name:"REAPER",      cost:7,hp:14,atk:5,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1","enter_aoe:1"],        ab:"On play AOE 1. Enemy creature death: restore base 1 HP.",unique:true},
+  j_ryv:       {name:"RYVLEN",      cost:5,hp:10,atk:4,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play Draw 1. On attack Draw 1.",unique:true},
+  j_mal:       {name:"ABYSSWALKER", cost:6,hp:12,atk:4,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:atk:1","provoke"],          ab:"Aura: +1 ATK.",unique:true},
+  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:16,atk:5,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true},
+  j_vard:      {name:"SEEKER",      cost:4,hp:8,atk:3,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce","fear","enter_lose:1"],    ab:"On play Lose 1. \"Seek, and ye shall find.\"",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2.",spell:true},
@@ -180,10 +182,10 @@ const DEFS = {
   j_sp15:      {name:"MALICE",     cost:2,hp:0,atk:0,art:"⚔️", img:"1_Malice.png", f:"jeet",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
-  j_w1:        {name:"HUNGER", cost:6,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: Draw 1.",world:true},
+  j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: Draw 1.",world:true},
   j_w2:        {name:"NORRIA", cost:6,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: +1 Armor.",world:true},
-  j_a1:        {name:"SHARD",  cost:6,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active Bolt 1 (+1 for each currently Feared enemy creature).",artifact:true},
-  j_a2:        {name:"ALTAR",  cost:6,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true},
+  j_a1:        {name:"SHARD",  cost:5,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active Bolt 1 (+1 for each currently Feared enemy creature).",artifact:true},
+  j_a2:        {name:"ALTAR",  cost:5,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
   unseen:      {name:"UNSEEN", cost:0,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return All creatures.",spell:true,fullArt:true,neutral:true},
