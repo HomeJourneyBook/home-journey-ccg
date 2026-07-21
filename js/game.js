@@ -1963,7 +1963,27 @@ function endTurn(){
   const skipDraw=(G.turn===G.secondFaction&&G.turnNum===1);
   if(!skipDraw){
     const n=1+cur.extraDraw;
-    for(let i=0;i<n;i++)if(cur.deck.length>0)cur.hand.push(cur.deck.shift());
+    for(let i=0;i<n;i++){
+      if(cur.deck.length>0){
+        cur.hand.push(cur.deck.shift());
+      } else {
+        // Fatigue (2026-07-21, автор — живой баг: партии, где колода кончалась рано,
+        // просто зависали на много ходов "зомби-состояния" без карт и без штрафа, см.
+        // разбор в CLAUDE.md). Каждая ПРОПУЩЕННАЯ попытка добора (колода пуста) считается —
+        // на 3-ю подряд/суммарную такую попытку игрок проигрывает немедленно. Счётчик
+        // НЕ сбрасывается (колода только убывает, никогда не пополняется в этой игре).
+        cur.emptyDrawCount=(cur.emptyDrawCount||0)+1;
+        lg(`${G.turn.toUpperCase()}'s deck is empty — no card to draw! (${cur.emptyDrawCount}/3)`,'dmg');
+        if(cur.emptyDrawCount>=3 && !G.gameOver){
+          G.gameOver=true;
+          const winner=G.turn==='tea'?'jeet':'tea';
+          lg(`${G.turn.toUpperCase()} has no cards left after 3 failed draws — ${winner.toUpperCase()} wins by fatigue!`,'imp');
+          render();
+          showWin(winner);
+          return; // не продолжаем обычную концовку хода (AI-ход/pass-screen и т.п.)
+        }
+      }
+    }
   }
 
   if(G.turn===G.firstFaction)G.turnNum++;
