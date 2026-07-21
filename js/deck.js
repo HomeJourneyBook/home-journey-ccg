@@ -39,7 +39,9 @@ const SPELL_COPIES = {
   t_sp8:1,  // EXPOSE (anti-provoke tech) — +1 (2026-07-19, взамен ess_add, был полностью
             // исключён — 0 копий)
   t_sp9:2,  // BREACH (bolt 5 + trample) — +1 (2026-07-20), см. комментарий у t_sp6 выше
-  t_sp10:2, // WILDFIRE (burn_all — сигнатурный payoff темы)
+  t_sp10:1, // WILDFIRE (burn_all — сигнатурный payoff темы) — -1 (2026-07-21, по прямому
+            // запросу автора: слот отдан GLIMPSE, ниже — на решение проблемы "эссенция
+            // простаивает в позднем ходу, добора не хватает", см. живые логи за сегодня)
   t_sp11:0, // REKINDLE (untap — исключён)
   t_sp12:1, // BULWARK (+1 armor temp — Tea's OWN defensive combat-trick, было исключено
             // 2026-07-18 как "чужой бонус"; включено обратно 2026-07-20 по прямому запросу
@@ -47,7 +49,8 @@ const SPELL_COPIES = {
             // было вообще, чистая асимметрия инструментария, не осознанный дизайн. -1 GLIMPSE
             // (t_sp14, ниже) освобождает слот, итог 46 без изменений.
   t_sp13:2, // INSIGHT (draw 2)
-  t_sp14:1, // GLIMPSE (draw 1) — -1 (2026-07-20), см. комментарий у t_sp12 выше
+  t_sp14:2, // GLIMPSE (draw 1) — +1 (2026-07-21, взамен -1 WILDFIRE выше — см. комментарий
+            // там же), было -1 на 2026-07-20
   t_sp15:1, // SPARK (bolt 2) — новый (2026-07-20, по прямому запросу автора)
   // Jeet (14 итого)
   j_sp1:2,  // JEET WAVE (draw 2)
@@ -61,7 +64,8 @@ const SPELL_COPIES = {
   j_sp8:1,  // UNMASK (anti-provoke tech) — +1 (2026-07-19, взамен ess_add), был полностью
             // исключён — 0 копий
   j_sp9:2,  // RUPTURE (bolt 5 + trample) — +1 (2026-07-20), см. комментарий у j_sp6 выше
-  j_sp10:2, // NIGHTMARE (fear_all — сигнатурный payoff темы)
+  j_sp10:1, // NIGHTMARE (fear_all — сигнатурный payoff темы) — -1 (2026-07-21), см.
+            // комментарий у t_sp10 (WILDFIRE) выше — то же самое решение, зеркально
   j_sp11:1, // FRENZY (+2 ATK temp — Jeet's OWN offensive combat-trick, было исключено
             // 2026-07-18 как "чужой бонус"; включено обратно 2026-07-20 по прямому запросу
             // автора — Tea уже имеет свой комбат-трюк (ARCHIVE, t_sp1), у Jeet своего не
@@ -70,7 +74,7 @@ const SPELL_COPIES = {
   j_sp12:1, // CARAPACE (+1 armor temp — Jeet's combat-trick бонус)
   j_sp13:1, // HEX (bolt 3) — -1 (2026-07-20, по прямому запросу автора: одна копия
             // "уступила место" новому j_sp15 MALICE (bolt 2) ниже, был 2)
-  j_sp14:1, // OMEN (draw 1) — -1 (2026-07-20), см. комментарий у j_sp11 выше
+  j_sp14:2, // OMEN (draw 1) — +1 (2026-07-21, взамен -1 NIGHTMARE выше), было -1 на 2026-07-20
   j_sp15:1, // MALICE (bolt 2) — новый (2026-07-20, по прямому запросу автора)
 };
 
@@ -159,7 +163,7 @@ function _composeDeckList(f, cfg){
                    : ['j_trvl36_w','j_trvl775_w','j_trvl41_w','j_trvl1015_w','j_trvl859_w'];
 
   // Umbasir: новая TRAVELER #934 (cost2) закрывает ту же дыру, что #218 у Orbiton.
-  const umb    = t ? ['t_trvl52_w','t_trvl137_w','t_trvl2_w','t_trvl6_w','t_trvl583_w','t_trvl387_w']
+  const umb    = t ? ['t_trvl52_w','t_trvl6_w','t_trvl137_w','t_trvl2_w','t_trvl583_w','t_trvl387_w']
                    : ['j_trvl54_w','j_trvl934_w','j_trvl550_w','j_trvl20_w','j_trvl53_w','j_trvl248_w'];
 
   const mch    = t ? ['t_trvl38_w','t_trvl18_w','t_trvl35_w','t_trvl11_w','t_trvl921_w','t_trvl128_w']
