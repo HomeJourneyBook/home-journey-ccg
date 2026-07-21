@@ -3,7 +3,7 @@
 // no longer match reality — e.g. a card renamed/removed/rebalanced. Read by
 // dbExportDeck()/_applyImportedDeck() (deck JSON) and downloadBattleLog()
 // (ui.js), so old exports can be flagged instead of silently misapplied.
-const GAME_VERSION = "1.03";
+const GAME_VERSION = "1.04";
   
 const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
@@ -87,7 +87,13 @@ const DEFS = {
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
-  t_sp1:       {name:"ARCHIVE",     cost:3,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:2"],     ab:"Target ally: +2 ATK until end of battle.",spell:true},
+  // ARCHIVE/FRENZY нерф (2026-07-21 вечер, по прямому запросу автора, на данных
+  // sim-прогона 1000 партий: FRENZY 63.7% winrate-when-played — топ-3 спелл Jeet;
+  // перманентный до смерти существа +2 ATK за 3 оказался слишком дешёвым свингом):
+  // +2 ATK → +1 ATK, цена 3 → 2. Оба зеркала правятся вместе — эффект и цена
+  // остаются симметричными. aiScoreCard() читает величину через getTagVal — правок ИИ
+  // не требуется.
+  t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:1"],     ab:"Target ally: +1 ATK until end of battle.",spell:true},
   t_sp2:       {name:"JOURNEY",     cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:3"],     ab:"Bolt 3.",spell:true},
   t_sp3:       {name:"SHEN'S CALL", cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png",    f:"tea",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
   t_sp4:       {name:"SCHEME",      cost:0,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:1"], ab:"Get 1 essence.",spell:true},
@@ -159,7 +165,13 @@ const DEFS = {
   // ── JEET LEGENDARIES ────────────────────────────────────────────
   // Ребаланс 2026-07-19 — см. подробный комментарий у TEA LEGENDARIES выше, тот же принцип.
   j_reap:      {name:"REAPER",      cost:7,hp:11,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1","enter_aoe:1"],        ab:"On play AOE 1. Enemy creature death: restore base 1 HP.",unique:true},
-  j_ryv:       {name:"RYVLEN",      cost:5,hp:9,atk:3,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play Draw 1. On attack Draw 1.",unique:true},
+  // RYVLEN нерф cost 5→6 (2026-07-21 вечер, по прямому запросу автора, на данных
+  // sim-прогона 1000 партий: 69.9% winrate-when-played — максимум по всей игре с большим
+  // отрывом; invisible + двойной draw-движок на cost 5 выходил на поле слишком рано).
+  // Статы/теги не тронуты — карта та же, просто на ход позже; по кривой уников (4-8)
+  // встаёт в слот 6 рядом с ABYSSWALKER-ой Tea-парой (ASLEX cost 6). HP при этом НЕ
+  // поднят до "кривой" cost6 (10) сознательно — это нерф, а не переезд.
+  j_ryv:       {name:"RYVLEN",      cost:6,hp:9,atk:3,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play Draw 1. On attack Draw 1.",unique:true},
   j_mal:       {name:"ABYSSWALKER", cost:6,hp:10,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:atk:1","provoke"],          ab:"Aura: +1 ATK.",unique:true},
   j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:3,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true},
   j_vard:      {name:"SEEKER",      cost:4,hp:8,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce","fear","enter_lose:1"],    ab:"On play Lose 1. \"Seek, and ye shall find.\"",unique:true},
@@ -175,7 +187,7 @@ const DEFS = {
   j_sp8:       {name:"UNMASK",     cost:1,hp:0,atk:0,art:"🎭", img:"1_Unmask.png", f:"jeet",tags:["spell","spell_provoke_break_target"], ab:"Taunt Breake to enemy Provoke creature.",spell:true},
   j_sp9:       {name:"RUPTURE",    cost:5,hp:0,atk:0,art:"🗡️", img:"1_Rupture.png", f:"jeet",tags:["spell","spell_dmg_trample_target:5"], ab:"Bolt 5. If creature dies, overkill damage carries over to the enemy base.",spell:true},
   j_sp10:      {name:"NIGHTMARE",  cost:5,hp:0,atk:0,art:"👹", img:"1_Nightmare.png", f:"jeet",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
-  j_sp11:      {name:"FRENZY",     cost:3,hp:0,atk:0,art:"😤", img:"1_Frenzy.png", f:"jeet",tags:["spell","spell_buff_temp:2"], ab:"Target ally: +2 ATK until end of battle.",spell:true},
+  j_sp11:      {name:"FRENZY",     cost:2,hp:0,atk:0,art:"😤", img:"1_Frenzy.png", f:"jeet",tags:["spell","spell_buff_temp:1"], ab:"Target ally: +1 ATK until end of battle.",spell:true}, // нерф 2026-07-21 — см. ARCHIVE (t_sp1) выше, зеркально
   j_sp12:      {name:"CARAPACE",   cost:2,hp:0,atk:0,art:"🪲", img:"1_Carapace.png", f:"jeet",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
   j_sp13:      {name:"HEX",        cost:3,hp:0,atk:0,art:"💀", img:"1_Hex.png", f:"jeet",tags:["spell","spell_dmg_target:3"], ab:"Bolt 3.",spell:true},
   j_sp14:      {name:"OMEN",       cost:1,hp:0,atk:0,art:"🌑", img:"1_Omen.png", f:"jeet",tags:["spell","draw:1"], ab:"Draw 1.",spell:true},
@@ -188,7 +200,11 @@ const DEFS = {
   j_a2:        {name:"ALTAR",  cost:5,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true},
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
-  unseen:      {name:"UNSEEN", cost:0,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return All creatures.",spell:true,fullArt:true,neutral:true},
+  // UNSEEN — 2026-07-21: больше НЕ выдаётся вторым игроком (см. grantUnseenBonus() в ui.js —
+  // теперь там фракционные SCHEME/BLACK MAGIC). Цена поднята 0→6: полный масс-баунс обеих
+  // сторон — эффект уровня дорогого нейтрального спелла, а не бесплатной стартовой карты.
+  // В деках его пока нет вообще (не входит ни в один список deck.js) — живёт в каталоге.
+  unseen:      {name:"UNSEEN", cost:6,hp:0,atk:0,art:"👁️", img:"113_Unseen.png", f:"jeet",tags:["spell","bounce"], ab:"Return All creatures.",spell:true,fullArt:true,neutral:true},
 };
 
 // ── Ability-text formatting helper ──────────────────────────────────────
