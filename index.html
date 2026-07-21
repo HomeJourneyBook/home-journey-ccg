@@ -132,8 +132,14 @@
                   onclick="playSfx('yellow_buttom');openDeckPicker('hotseat')" title="Hot Seat"></button>
           <button class="art-btn-square art-btn-mode art-btn-vsai"
                   onclick="playSfx('yellow_buttom');openDeckPicker('vsai')" title="VS AI"></button>
+          <!-- Временно (2026-07-21, по прямому запросу автора) — сюда, вместо Online
+               (которого ещё нет), повешен спектаторский AI vs AI (startAiVsAiSpectator(),
+               ui.js — функция не трогалась с 2026-07-13, просто не было входной точки, см.
+               комментарий ниже в этом файле). Когда появится реальный Online-режим —
+               вернуть эту кнопку под него, а AI vs AI переехать куда-то ещё (или остаться
+               debug-пунктом в другом месте). -->
           <button class="art-btn-square art-btn-mode art-btn-online"
-                  disabled title="Online"></button>
+                  onclick="playSfx('yellow_buttom');startAiVsAiSpectator()" title="AI vs AI (temp)"></button>
         </div>
 
         <!-- Слой 2: ворота — спрайт 7 кадров горизонтально (закрыто → открыто). -->
