@@ -23,7 +23,17 @@ function _isTargetedSpell(card){
 // draw → 'new_card' через анимацию прилёта карты в руку, bounce → 'wind_card') —
 // общий 'card_spell_atack' на клик "Play" их перебивает/заглушает, поэтому для них его не играем.
 function _spellHasOwnSfx(card){
-  return !!card.spell && (hasTag(card,'revive') || hasTag(card,'draw') || hasTag(card,'bounce') || hasTag(card,'spell_bounce_target'));
+  return !!card.spell && (hasTag(card,'revive') || hasTag(card,'draw') || hasTag(card,'bounce') || hasTag(card,'spell_bounce_target') ||
+    // 2026-07-21 (баг, автор): board-wide AOE-спеллы (spell_burn_all/WILDFIRE, spell_fear_all/
+    // NIGHTMARE, spell_aoe_count/RECKONING-SWARM CULL) резолвятся МГНОВЕННО (не через
+    // TARGETED_SPELL_TAGS — у них нет фазы выбора цели, бьют по всему вражескому полю сразу),
+    // поэтому _isTargetedSpell() их не ловит и общий 'card_spell_atack' на клик "Play" играл
+    // ПЕРЕД настоящим звуком эффекта (case 'burn_all'→card_fire_atack, 'fear_all'→debaf,
+    // 'aoe_count'→card_spell_atack — см. abilities.js triggerAbilities()) — двойной звук,
+    // а у aoe_count оба звука вообще совпадали, что звучало как один и тот же щелчок дважды
+    // подряд. Тот же принцип, что и revive/draw/bounce выше: у эффекта уже есть свой звук
+    // на резолве, ранний общий проигрывать не нужно.
+    hasTag(card,'spell_burn_all') || hasTag(card,'spell_fear_all') || hasTag(card,'spell_aoe_count'));
 }
 
 // ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
@@ -540,8 +550,8 @@ function mkSmallEl(card){
   if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
-  if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared) d.classList.add('healable','aim-heal');
-  if(G.phase==='spellArmorTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared) d.classList.add('healable','aim-heal');
+  if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
+  if(G.phase==='spellArmorTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
   if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable','aim-heal');
   // spellProvokeBreakTarget (EXPOSE/UNMASK) — только реальные Provoke-цели подсвечиваются
   // как валидные, как и у spellUntapTarget выше (нет смысла подсвечивать то, по чему клик
