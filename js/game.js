@@ -168,15 +168,18 @@ function onClick(card,zone){
     cancelPendingSpell();return; // cancel — refunds cost, returns card to hand
   }
   if(G.phase==='spellBuffTarget'){
-    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared){
+    // 2026-07-21 (автор): feared больше НЕ исключён — ничто не должно мешать бафнуть
+    // союзника, будь он уставший/спящий/скрытный/в инвизе/горит/в страхе. Единственное
+    // требование — своя карта-существо (не спелл/мир/артефакт).
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
       doSpellBuffTarget(card);return;
     }
     cancelPendingSpell();return;
   }
   if(G.phase==='spellArmorTarget'){
-    // Та же relaxed-таргетинг правка, что и у spellBuffTarget (2026-07-15) — sleeping/
-    // exhausted союзники валидны, только feared исключён.
-    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.feared){
+    // Та же relaxed-таргетинг правка, что и у spellBuffTarget выше (2026-07-15, расширено
+    // 2026-07-21 — feared тоже больше не исключён).
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
       doSpellArmorTarget(card);return;
     }
     cancelPendingSpell();return;
@@ -1526,7 +1529,7 @@ function doSpellDmgTarget(card){
 function doSpellBuffTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
-  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact||card.feared){
+  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
     lg('Select an ally.','hint');return;
   }
   const val=getTagVal(spell,'spell_buff_temp')||2;
@@ -1558,7 +1561,7 @@ function doSpellBuffTarget(card){
 function doSpellArmorTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
-  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact||card.feared){
+  if(!card||card.f!==G.turn||card.spell||card.world||card.artifact){
     lg('Select an ally.','hint');return;
   }
   const val=getTagVal(spell,'spell_armor_temp')||1;
