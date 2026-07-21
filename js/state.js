@@ -8,7 +8,7 @@ function newPlayer(f, deckConfig, customList){
   return{hp:30,maxHp:30,ess:1,essMax:1,
     hand:d.splice(0,5).map(k=>mkCard(k)),
     field:[],deck:d.map(k=>mkCard(k)),grave:[],void:[],
-    world:null,artifacts:[],extraDraw:0,burned:false};
+    world:null,artifacts:[],extraDraw:0,burned:false,emptyDrawCount:0};
 }
 
 // opts (необязательно) — конфиг режима игры:
