@@ -163,7 +163,7 @@ function _composeDeckList(f, cfg){
                    : ['j_trvl54_w','j_trvl934_w','j_trvl550_w','j_trvl20_w','j_trvl53_w','j_trvl248_w'];
 
   const mch    = t ? ['t_trvl38_w','t_trvl18_w','t_trvl35_w','t_trvl11_w','t_trvl921_w','t_trvl128_w']
-                   : ['j_trvl22_w','j_trvl663_w','j_trvl724_w','j_trvl804_w','j_trvl320_w'];
+                   : ['j_trvl22_w','j_trvl320_w','j_trvl724_w','j_trvl804_w','j_trvl663_w'];
 
   const xui    = t ? ['t_trvl972_w','t_trvl402_w','t_trvl26_w','t_trvl39_w']
                    : ['j_trvl50_w','j_trvl579_w','j_trvl720_w','j_trvl37_w','j_trvl951_w','j_trvl704_w'];
