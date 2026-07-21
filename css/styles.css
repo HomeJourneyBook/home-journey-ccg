@@ -285,7 +285,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .art-btn-square.sfx-off:hover{background-image:url('../img/btn_sfx_off2.png');filter:brightness(1);}
 /*── Кнопки старта игры ──────────────────────────────────────────*/
 .art-btn-hotseat,.art-btn-vsai,.art-btn-online{background-color:transparent;}
-.art-btn-online{cursor:not-allowed;}
+.art-btn-online{cursor:pointer;} /* 2026-07-21: временно кликабельна (AI vs AI), см. index.html */
 .art-btn-vsai{cursor:pointer;}
 .art-btn-hotseat:hover,.art-btn-vsai:hover,.art-btn-online:hover{filter:none;}
 .art-btn-hotseat:hover{background-image:url('../img/btn_hotseatH.png');}
