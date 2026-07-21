@@ -1088,20 +1088,22 @@ function confirmOrderRoll(){
 // which is the single choke point for every mode/deck-config combo, so this
 // only needs to be called from there).
 function grantUnseenBonus(){
+  // 2026-07-21 (аудит баланса, по прямому запросу автора): бонус второго игрока —
+  // больше НЕ UNSEEN (0-cost масс-баунс был самой свинговой картой игры и наказывал
+  // именно построение поля — P1, зная про гарантированный баунс, рационально не должен
+  // был развивать доску). Теперь это фракционный 0-cost спелл "+1 эссенция на этот ход"
+  // (SCHEME у Tea / BLACK MAGIC у Jeet) — прямой аналог Монетки из Hearthstone: маленькая
+  // темповая компенсация за ход соперника. Обе карты уже существовали в DEFS (t_sp4/j_sp4)
+  // и были вырезаны из дек (SPELL_COPIES=0) как "слишком слабые В ДЕКЕ" — в роли разовой
+  // компенсации это ровно их вес. mkCard() отдаёт карту сразу с правильной фракцией
+  // (t_/j_ ключи) — старый override card.f, нужный нейтральному UNSEEN, больше не требуется.
+  // Сам UNSEEN остался в DEFS (каталог) с поднятой ценой — как кандидат в будущий
+  // нейтральный пул, не как гарантированная стартовая карта.
   const second=G.secondFaction;
   if(!second||!G[second]) return;
-  const card=mkCard('unseen');
-  // DEFS.unseen has f:"jeet" hardcoded (data.js) — leftover from back when
-  // Unseen only ever went to Jeet. card.f drives "is this my card"/playability
-  // everywhere (click handling, .affordable highlight, hand rendering), so if
-  // the dice-roll makes TEA the 2nd player, the card must actually belong to
-  // tea — otherwise it sits in Tea's hand but reads as Jeet's and can't be
-  // clicked/played at all. Override after mkCard() rather than touching DEFS
-  // (DEFS.unseen.f still matters as the "neutral-ish default" for anything
-  // that reads it before a real owner is assigned, e.g. catalog display).
-  card.f=second;
+  const card=mkCard(second==='tea'?'t_sp4':'j_sp4');
   G[second].hand.push(card);
-  lg(`${second==='tea'?'TAVERN':'JEET'} receives UNSEEN — the 2nd-player bonus card.`,'imp');
+  lg(`${second==='tea'?'TAVERN':'JEET'} receives ${card.name} — the 2nd-player bonus card.`,'imp');
 }
 
 function startMulliganFor(faction){
