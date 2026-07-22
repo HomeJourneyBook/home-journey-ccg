@@ -55,7 +55,7 @@ const DEFS = {
   t_trvl35_w:   {name:"TRAVELER #35",   cost:2,hp:2,atk:1,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad +1 ATK."},
   t_trvl11_w:   {name:"TRAVELER #11",   cost:3,hp:3,atk:2,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","enter_heal:2","gtype:mch"],                    ab:"On play Heal 2 all allies. Squad +1 ATK."},
   t_trvl921_w:  {name:"TRAVELER #921",  cost:3,hp:3,atk:2,art:"🤖", img:"921.png",  f:"tea",tags:["pierce","burn","gtype:mch"],           ab:"Squad +1 ATK."},
-  t_trvl128_w:  {name:"TRAVELER #128",  cost:5,hp:5,atk:4,art:"🤖", img:"128.png",  f:"tea",tags:["pierce","draw_attack:1","incarnation:4","gtype:mch"],           ab:"On attack Draw 1. Squad +1 ATK."},
+  t_trvl128_w:  {name:"TRAVELER #128",  cost:6,hp:5,atk:4,art:"🤖", img:"128.png",  f:"tea",tags:["pierce","draw_attack:1","incarnation:4","gtype:mch"],           ab:"On attack Draw 1. Squad +1 ATK."}, // откат статов 2026-07-22 (по прямому запросу автора) — hp6/atk5 тестировалось в sim и стало СИЛЬНЕЕ (68.2% против 56.6%), возвращено на hp5/atk4, cost остаётся 6
 
   // Xuiqtr Tea
   // Ребаланс (2026-07-20, по прямому запросу автора) — на cost 1-3 HP поднят до
@@ -110,10 +110,10 @@ const DEFS = {
   t_sp15:      {name:"SPARK",      cost:2,hp:0,atk:0,art:"⚡", img:"1_Spark.png", f:"tea",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
-  t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1"],       ab:"When an enemy creature dies: Draw 1.",world:true},
+  t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1"],       ab:"When an enemy creature dies: Draw 1.",world:true}, // откат 2026-07-22 (по прямому запросу автора) — версия-копия HUNGER (on_own_death) тестировалась в sim и стала СИЛЬНЕЕ (62.5% против 56.9%), возвращено на оригинальный on_enemy_death
   t_w2:        {name:"DOMUS",      cost:6,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_armor:1"],ab:"Aura: +1 Armor.",world:true},
   t_a1:        {name:"THE BOOK",   cost:5,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:1","shard_burn_scale"],   ab:"Active Bolt 1 (+1 for each currently burning enemy creature).",artifact:true},
-  t_a2:        {name:"FOUNTAIN", cost:5,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn Heal 1 all allies.",artifact:true},
+  t_a2:        {name:"FOUNTAIN", cost:4,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn Heal 1 all allies.",artifact:true}, // cost 5→4 (2026-07-22, по прямому запросу автора — sim-данные 1000 партий)
 
   // ── JEET CREATURES ──────────────────────────────────────────────
 
@@ -124,7 +124,7 @@ const DEFS = {
   j_trvl971_w: {name:"TRAVELER #971", cost:1,hp:1,atk:2,art:"🦈", img:"971.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону #12/#49/#971 выше.
   j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
-  j_trvl434_w:  {name:"TRAVELER #434",  cost:5,hp:5,atk:5,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."},
+  j_trvl434_w:  {name:"TRAVELER #434",  cost:6,hp:6,atk:6,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // cost 5→6, hp5→6/atk5→6 (2026-07-22, по прямому запросу автора — зеркало переезда #128 у Tea, чинит симметрию кривой 5:1/6:1 обеих фракций)
 
   // Orbiton Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
   j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad Heal 4."},
@@ -197,7 +197,7 @@ const DEFS = {
   j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1"], ab:"When your creature dies: Draw 1.",world:true},
   j_w2:        {name:"NORRIA", cost:6,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: +1 Armor.",world:true},
   j_a1:        {name:"SHARD",  cost:5,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active Bolt 1 (+1 for each currently Feared enemy creature).",artifact:true},
-  j_a2:        {name:"ALTAR",  cost:5,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true},
+  j_a2:        {name:"ALTAR",  cost:4,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true}, // cost 5→4 (2026-07-22, по прямому запросу автора — была слабейшей в sim, 42.5%)
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
   // UNSEEN — 2026-07-21: больше НЕ выдаётся вторым игроком (см. grantUnseenBonus() в ui.js —
