@@ -1,12 +1,13 @@
 // Deck presets:
-//  classic — 1st-edition starter "3 Врат против 3 Врат" (с 2026-07-21 вечера): каждая
-//            фракция играет ТОЛЬКО своими тремя фаворитными архетипами (Tea =
-//            Szarg/Orbiton/Dreegan, Jeet = Umbasir/Mechird/Xuiqtr) — 16 рядовых/фракцию
-//            (см. archetypeSizes) + all 5 legendaries (cost 4-8) + 12 спеллов (см.
-//            SPELL_COPIES) + 1 world + 1 artifact = ровно 35 карт/фракция.
-//            (Этот комментарий и число уже один раз разошлись с кодом после ребаланса
-//            2026-07-18 — держи в уме, что при следующей правке archetypeSizes/
-//            SPELL_COPIES его тоже надо поправить, само по себе не сверяется.)
+//  classic — печатная 1st-edition колода (с 2026-07-22): все 6 Врат снова в игре на
+//            каждой фракции, но с сохранённой асимметрией фаворитов (родные Врата мин.5,
+//            остальные мин.3 — см. archetypeSizes) — 25 рядовых/фракцию, подобраны так,
+//            что ОБЕ фракции дают идентичную кривую маны 1:5/2:5/3:9/4:4/5:2, при этом все
+//            тематические теги сохранены (Tea burn: #57/#10/#921/#972, Jeet fear:
+//            #434/#523/#859/#550/#579). + all 5 legendaries (cost 4-8) + 16 спеллов (см.
+//            SPELL_COPIES) + 2 worlds + 2 artifacts = ровно 50 карт/фракция (100/игру).
+//            (Держи в уме, что при следующей правке archetypeSizes/SPELL_COPIES/worlds/
+//            arts этот комментарий и число тоже надо поправить, само по себе не сверяется.)
 //  rush    — no fixed list: the human player assembles it themselves in the
 //            deckbuilder (js/deckbuilder.js) by picking quantities out of the
 //            SAME pool `classic` uses (see getRushPool() below), minimum RUSH_MIN
@@ -34,61 +35,44 @@ const RUSH_MIN = 28;
 //   наоборот сохранён — единственный взлом Dreegan-стены Tea, критичный теперь матчап-тех.
 //   SWARM CULL сохранён — Tea стала wide-фракцией (5 однодропов + сквады), Jeet без
 //   масс-ответа в этом матчапе нельзя.
+// 2026-07-22 (по прямому запросу автора, печатная classic-колода, 16 спеллов/фракцию):
+// draw:1 / draw:2 / bounce_target — по 2 копии каждой (обе фракции); anti-provoke
+// (EXPOSE/UNMASK) и ess_add (SCHEME/BLACK MAGIC) — исключены полностью (эссенция уже
+// выдаётся 2-му игроку отдельным Unseen-бонусом, ess_add дублирует эту роль); все
+// остальные 10 пар — по 1 копии. См. полный разбор ролей в CLAUDE.md/сессионной записи.
 const SPELL_COPIES = {
-  // Tea (15 итого, было 14 до SPARK — см. t_sp15 ниже, 2026-07-20) — восстановлено
-  // 2026-07-18: реальный итог без этих 3 был 37, а не 40, так что свободных слотов
-  // ровно 3 — возвращаем BREACH/SHEN'S CALL/2-ю копию SCHEME.
-  t_sp1:1,  // ARCHIVE (+2 ATK temp — Tea's combat-trick бонус) — +1 (2026-07-21, взамен
-            // вырезанных VALLEY+FOUNTAIN, см. worlds/arts выше в этом файле)
-  t_sp2:2,  // JOURNEY (bolt 3) — +1 (2026-07-21), тот же слот-обмен, см. комментарий выше
+  // Tea
+  t_sp1:1,  // ARCHIVE (combat-trick +1 ATK)
+  t_sp2:1,  // JOURNEY (bolt 3)
   t_sp3:1,  // SHEN'S CALL (revive full)
-  t_sp4:0,  // SCHEME (ess_add) — исключён (2026-07-19, по прямому запросу автора: слишком
-            // слабый/условный эффект — эссенция сгорает в конце хода, если её некуда
-            // потратить, см. AI BALANCE NOTES/ai.js aiScoreCard() 'ess_add' ветку)
-  t_sp5:0,  // GUST (bounce any)
-  t_sp6:1,  // RECKONING (aoe count) — +1 (2026-07-20, взамен вырезанных 6 существ —
-            // см. archetypeSizes выше — подняли плотность interaction/removal обратно)
-  t_sp7:0,  // FORGET-ME-NOT (discard 2)
-  t_sp8:0,  // EXPOSE (anti-provoke tech) — +1 (2026-07-19, взамен ess_add, был полностью
-            // исключён — 0 копий)
-  t_sp9:1,  // BREACH (bolt 5 + trample) — +1 (2026-07-20), см. комментарий у t_sp6 выше
-  t_sp10:1, // WILDFIRE (burn_all — сигнатурный payoff темы) — -1 (2026-07-21, по прямому
-            // запросу автора: слот отдан GLIMPSE, ниже — на решение проблемы "эссенция
-            // простаивает в позднем ходу, добора не хватает", см. живые логи за сегодня)
-  t_sp11:0, // REKINDLE (untap — исключён)
-  t_sp12:1, // BULWARK (+1 armor temp — Tea's OWN defensive combat-trick, было исключено
-            // 2026-07-18 как "чужой бонус"; включено обратно 2026-07-20 по прямому запросу
-            // автора — Jeet уже имеет свой комбат-трюк (CARAPACE, j_sp12), у Tea своего не
-            // было вообще, чистая асимметрия инструментария, не осознанный дизайн. -1 GLIMPSE
-            // (t_sp14, ниже) освобождает слот, итог 46 без изменений.
+  t_sp4:0,  // SCHEME (ess_add) — исключён
+  t_sp5:2,  // GUST (bounce any)
+  t_sp6:1,  // RECKONING (aoe count)
+  t_sp7:1,  // FORGET-ME-NOT (discard 2)
+  t_sp8:0,  // EXPOSE (anti-provoke tech) — исключён
+  t_sp9:1,  // BREACH (bolt 5 + trample)
+  t_sp10:1, // WILDFIRE (burn_all — сигнатурный payoff темы)
+  t_sp11:1, // REKINDLE (untap)
+  t_sp12:1, // BULWARK (combat-trick +1 Armor)
   t_sp13:2, // INSIGHT (draw 2)
-  t_sp14:1, // GLIMPSE (draw 1) — +1 (2026-07-21, взамен -1 WILDFIRE выше — см. комментарий
-            // там же), было -1 на 2026-07-20
-  t_sp15:1, // SPARK (bolt 2) — новый (2026-07-20, по прямому запросу автора)
-  // Jeet (14 итого)
+  t_sp14:2, // GLIMPSE (draw 1)
+  t_sp15:1, // SPARK (bolt 2)
+  // Jeet
   j_sp1:2,  // JEET WAVE (draw 2)
-  j_sp2:0,  // OBLIVION (untap — исключён)
+  j_sp2:1,  // OBLIVION (untap)
   j_sp3:1,  // FORGETTING (revive full)
-  j_sp4:0,  // BLACK MAGIC (ess_add) — исключён (2026-07-19), см. t_sp4 выше
-  j_sp5:0,  // REVERSE (bounce any)
-  j_sp6:1,  // SWARM CULL (aoe count) — +1 (2026-07-20, взамен вырезанных 6 существ —
-            // см. archetypeSizes выше — подняли плотность interaction/removal обратно)
-  j_sp7:0,  // MINDROT (discard 2)
-  j_sp8:1,  // UNMASK (anti-provoke tech) — +1 (2026-07-19, взамен ess_add), был полностью
-            // исключён — 0 копий
-  j_sp9:1,  // RUPTURE (bolt 5 + trample) — +1 (2026-07-20), см. комментарий у j_sp6 выше
-  j_sp10:1, // NIGHTMARE (fear_all — сигнатурный payoff темы) — -1 (2026-07-21), см.
-            // комментарий у t_sp10 (WILDFIRE) выше — то же самое решение, зеркально
-  j_sp11:1, // FRENZY (+2 ATK temp — Jeet's OWN offensive combat-trick, было исключено
-            // 2026-07-18 как "чужой бонус"; включено обратно 2026-07-20 по прямому запросу
-            // автора — Tea уже имеет свой комбат-трюк (ARCHIVE, t_sp1), у Jeet своего не
-            // было вообще, чистая асимметрия инструментария, не осознанный дизайн. +1
-            // (2026-07-21, взамен вырезанных HUNGER+ALTAR, см. worlds/arts выше в этом файле —
-            // тот же слот-обмен, что у t_sp1 ARCHIVE, зеркально)
-  j_sp12:1, // CARAPACE (+1 armor temp — Jeet's combat-trick бонус)
-  j_sp13:2, // HEX (bolt 3) — +1 (2026-07-21), тот же слот-обмен, см. комментарий у j_sp11 выше
-  j_sp14:1, // OMEN (draw 1) — +1 (2026-07-21, взамен -1 NIGHTMARE выше), было -1 на 2026-07-20
-  j_sp15:0, // MALICE (bolt 2) — новый (2026-07-20, по прямому запросу автора)
+  j_sp4:0,  // BLACK MAGIC (ess_add) — исключён
+  j_sp5:2,  // REVERSE (bounce any)
+  j_sp6:1,  // SWARM CULL (aoe count)
+  j_sp7:1,  // MINDROT (discard 2)
+  j_sp8:0,  // UNMASK (anti-provoke tech) — исключён
+  j_sp9:1,  // RUPTURE (bolt 5 + trample)
+  j_sp10:1, // NIGHTMARE (fear_all — сигнатурный payoff темы)
+  j_sp11:1, // FRENZY (combat-trick +1 ATK)
+  j_sp12:1, // CARAPACE (combat-trick +1 Armor)
+  j_sp13:1, // HEX (bolt 3)
+  j_sp14:2, // OMEN (draw 1)
+  j_sp15:1, // MALICE (bolt 2)
 };
 
 const DECK_CONFIGS = {
@@ -148,12 +132,19 @@ const DECK_CONFIGS = {
       // в 35-карточной деке это уже больше половины колоды, "нужная карта не пришла"
       // случается ощутимо реже, чем при 40. Соотношение тел 21/35 = 60% — жанровая норма
       // (HS midrange ~60%), было 19/40 = 47.5%.
-      szarg: { tea:6, jeet:0 },
-      orb:   { tea:5, jeet:0 },
-      drg:   { tea:5, jeet:0 },
-      umb:   { tea:0, jeet:6 },
-      mch:   { tea:0, jeet:5 },
-      xui:   { tea:0, jeet:5 },
+      // 2026-07-22 (по прямому запросу автора, печатная classic-колода): назад к ВСЕМ 6
+      // Вратам на фракцию (не только 3 избранным) — но с сохранённой асимметрией фаворитов
+      // (мин.5 у родных Врат, мин.3 у остальных). Подобрано программно (brute-force) под
+      // ОДНУ общую кривую маны 5/5/9/4/2 (=25/фракцию), одинаковую для Tea и Jeet — с
+      // ограничением сохранить все burn-карты Tea (57/10/921/972) и fear-карты Jeet
+      // (434/523/859/550/579) внутри выборки. См. полный список конкретных карт в
+      // _composeDeckList() ниже.
+      szarg: { tea:5, jeet:3 },
+      orb:   { tea:5, jeet:3 },
+      drg:   { tea:5, jeet:4 },
+      umb:   { tea:3, jeet:5 },
+      mch:   { tea:4, jeet:5 },
+      xui:   { tea:3, jeet:5 },
     },
   },
 };
@@ -190,34 +181,60 @@ function _composeDeckList(f, cfg){
   // тема!, #694 vanguard, #34 regen). #890 (третий ванильный однодроп) → резерв по данным
   // sim-прогона 1000 партий (2026-07-21, baseline_v104: winrate-when-played 39.9% —
   // худшее тело Tea; Tea в целом 42.8% — мидгейм-тело вместо третьей ваниллы).
-  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl25_w','t_trvl57_w','t_trvl694_w','t_trvl34_w','t_trvl890_w']
-                   : ['j_trvl12_w','j_trvl49_w','j_trvl971_w','j_trvl740_w','j_trvl551_w','j_trvl434_w'];
+  // 2026-07-22 (симметричная кривая 5/5/9/4/2, см. archetypeSizes выше): Tea 5 держит все
+  // 3 однодропа + оба burn/regen трёхдропа (57 burn — тема!, 34 regen); #694 (vanguard) →
+  // резерв (дублирующий тег, уже есть на Faeron/Tuborg). Jeet 3 — #12/#49 (два из четырёх
+  // идентичных однодропов) + #434 (fear — тема! + incarnation топ-энд).
+  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl25_w','t_trvl34_w','t_trvl57_w','t_trvl694_w','t_trvl890_w']
+                   : ['j_trvl12_w','j_trvl49_w','j_trvl434_w','j_trvl971_w','j_trvl740_w','j_trvl551_w'];
 
   // Tea Orbiton 5: два однодропа + #218 (cost2) + #10 (burn, тема) + #398 (vanguard+untamed).
   // #1034 (третий идентичный однодроп) — резерв.
-  const orb    = t ? ['t_trvl433_w','t_trvl503_w','t_trvl218_w','t_trvl10_w','t_trvl398_w','t_trvl1034_w']
-                   : ['j_trvl523_w','j_trvl170_w','j_trvl429_w','j_trvl454_w'];
+  // 2026-07-22 (симметричная кривая): Tea 5 держит #433/#1034 (однодропы) + #218 (cost2) +
+  // #10 (burn — тема!) + #398 (vanguard+untamed топ-энд); #503 (третий идентичный
+  // однодроп) → резерв. Jeet 3 — #170/#429 (однодропы) + #523 (fear — тема!).
+  const orb    = t ? ['t_trvl433_w','t_trvl1034_w','t_trvl218_w','t_trvl10_w','t_trvl398_w','t_trvl503_w']
+                   : ['j_trvl170_w','j_trvl429_w','j_trvl523_w','j_trvl454_w'];
 
   // Tea Dreegan 5: вся стена целиком — #14 (cost2) + #1 (enter_heal) + #31 (burn, тема) +
   // #605 (shield) + #388 (enter_draw).
+  // Tea Dreegan 5 — родной архетип, полный пул без изменений (стена: #14 cost2 + #1
+  // enter_heal + #31 burn-тема + #605 shield + #388 enter_draw).
+  // 2026-07-22 (симметричная кривая): Jeet Dreegan 4 (нелюбимый, был quota:0) — #41 (cost2)
+  // + #36 (cost3) + #775 (cost3) + #859 (fear — тема! + provoke + vanguard, cost5 топ-энд);
+  // #1015 (cost4) → резерв.
   const drg    = t ? ['t_trvl14_w','t_trvl1_w','t_trvl31_w','t_trvl605_w','t_trvl388_w']
-                   : ['j_trvl36_w','j_trvl775_w','j_trvl41_w','j_trvl1015_w','j_trvl859_w'];
+                   : ['j_trvl41_w','j_trvl36_w','j_trvl775_w','j_trvl859_w','j_trvl1015_w'];
 
   // Jeet Umbasir 6: #54 (единственный однодроп Jeet!) + #934 (cost2) + #53 (enter_lose) +
   // #550 (fear+taunt_break — оба про тему и про взлом Tea-стены) + #20 (vanguard) + #248
   // (shield+ward топ-энд).
-  const umb    = t ? ['t_trvl52_w','t_trvl6_w','t_trvl137_w','t_trvl2_w','t_trvl583_w','t_trvl387_w']
+  // 2026-07-22 (симметричная кривая): Tea Umbasir 3 (нелюбимый, был quota:0) — #52 (cost1,
+  // единственный однодроп пула) + #583 (cost4, enter_heal) + #387 (cost5, топ-энд); #2/#6/
+  // #137 (три cost3-варианта) → резерв. Jeet Umbasir 5 — родной архетип, #54 (единственный
+  // однодроп!) + #934 (cost2) + #53 (cost3) + #550 (fear+taunt_break — тема!) + #20
+  // (vanguard); #248 (shield+ward топ-энд) → резерв.
+  const umb    = t ? ['t_trvl52_w','t_trvl583_w','t_trvl387_w','t_trvl2_w','t_trvl6_w','t_trvl137_w']
                    : ['j_trvl54_w','j_trvl934_w','j_trvl53_w','j_trvl550_w','j_trvl20_w','j_trvl248_w'];
 
   // Jeet Mechird 5: полный pierce-пакет — #724 (cost2) + #22 + #804 (regen) + #663
   // (fear, тема) + #320 (necrophage).
-  const mch    = t ? ['t_trvl38_w','t_trvl18_w','t_trvl35_w','t_trvl11_w','t_trvl921_w','t_trvl128_w']
+  // 2026-07-22 (симметричная кривая): Tea Mechird 4 (нелюбимый, был quota:0) — #18/#35
+  // (оба cost2 pierce-ванилла) + #921 (burn — тема!) + #128 (cost5, incarnation топ-энд);
+  // #38 (rage) / #11 (enter_heal) → резерв.
+  // Jeet Mechird 5 — родной архетип, полный пул без изменений (весь pierce-пакет: #724
+  // cost2 + #22 + #804 regen + #663 fear-тема! + #320 necrophage).
+  const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w','t_trvl128_w','t_trvl38_w','t_trvl11_w']
                    : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w','j_trvl320_w'];
 
   // Jeet Xuiqtr 5: темповый низ — #50/#37 (cost2) + #579 (fear, тема) + #720 (draw_attack) +
   // #951 (regen). #704 (cost5 3/8 fear+shield) — резерв: топ-энд Jeet и так плотный
   // (#248/уники), кривую вниз держим сознательно.
-  const xui    = t ? ['t_trvl972_w','t_trvl402_w','t_trvl26_w','t_trvl39_w']
+  // 2026-07-22 (симметричная кривая): Tea Xuiqtr 3 (нелюбимый, был quota:0) — #39 (cost2) +
+  // #972 (burn — тема!) + #402 (cost4, intercept/regen/rage); #26 (taunt_break) → резерв.
+  // Jeet Xuiqtr 5 — родной архетип, полный набор без изменений (темповый низ: #50/#37
+  // cost2 + #579 fear-тема! + #720 draw_attack + #951 regen); #704 (топ-энд) → резерв.
+  const xui    = t ? ['t_trvl39_w','t_trvl972_w','t_trvl402_w','t_trvl26_w']
                    : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl720_w','j_trvl951_w','j_trvl704_w'];
 
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
@@ -227,15 +244,14 @@ function _composeDeckList(f, cfg){
   const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15']
                    : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15'];
 
-  // 2026-07-21 (по прямому запросу автора — живой баг: HUNGER в паре с JEET WAVE/OMEN
-  // разгонял руку Jeet до 10 карт и досуха выбивал 40-карточную колоду уже к 15-му ходу,
-  // см. разбор в CLAUDE.md за сегодня). VALLEY/HUNGER (оба — доп. добор) вырезаны из
-  // classic — оставлен только чисто аурный Мир на фракцию (DOMUS/NORRIA, +1 Armor).
-  const worlds = t ? ['t_w2'] : ['j_w2'];
-  // Аналогично — FOUNTAIN/ALTAR (не про болт-урон, ALTAR вдобавок тоже доп. добор) вырезаны,
-  // остался только Артефакт активного урона со scale-синергией под тему фракции (THE BOOK
-  // scale от burn, SHARD scale от fear).
-  const arts   = t ? ['t_a1'] : ['j_a1'];
+  // 2026-07-22 (по прямому запросу автора, печатная classic-колода) — оба Мира и оба
+  // Артефакта на фракцию снова в игре (VALLEY/HUNGER возвращены, несмотря на прежний баг
+  // с разгоном руки через JEET WAVE/OMEN — при 16 спеллах/16 существах на фракцию в
+  // 50-карточной колоде та же связка уже не выбивает колоду насухо так быстро, как било
+  // на старой 40-карточной; если повторится на игровых логах — придётся точечно резать
+  // draw-плотность, а не сам Мир).
+  const worlds = t ? ['t_w2','t_w1'] : ['j_w2','j_w1'];
+  const arts   = t ? ['t_a1','t_a2'] : ['j_a1','j_a2'];
 
   let d = [];
   const namedGroups = { szarg, orb, drg, umb, mch, xui };
