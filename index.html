@@ -138,8 +138,11 @@
                комментарий ниже в этом файле). Когда появится реальный Online-режим —
                вернуть эту кнопку под него, а AI vs AI переехать куда-то ещё (или остаться
                debug-пунктом в другом месте). -->
+          <!-- Клик отключён (2026-07-22, по запросу автора) — до релиза 1.05 эта кнопка
+               не должна быть нажимаемой. startAiVsAiSpectator() (ui.js) не тронута,
+               просто нет обработчика. Слот ждёт настоящий Online — см. комментарий выше. -->
           <button class="art-btn-square art-btn-mode art-btn-online"
-                  onclick="playSfx('yellow_buttom');startAiVsAiSpectator()" title="AI vs AI (temp)"></button>
+                  disabled title="Online (soon)"></button>
         </div>
 
         <!-- Слой 2: ворота — спрайт 7 кадров горизонтально (закрыто → открыто). -->
