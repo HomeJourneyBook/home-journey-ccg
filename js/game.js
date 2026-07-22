@@ -1034,10 +1034,16 @@ function killCard(card,faction,toVoid=false){
   applyAuras(faction);
   if(!card.spell&&!card.world&&!card.artifact){
     const world=G[faction].world;
-    if(world&&hasTag(world,'on_own_death')){
+    // 2026-07-22 (по прямому запросу автора, sim показал 62.7% winrate у HUNGER) — не
+    // больше 1 срабатывания за ход (ключ turn+turnNum уникален на каждый ПОЛУ-ход, не
+    // только на полный раунд — turnNum бампается лишь при завершении хода 1-го игрока,
+    // см. endTurn()). Раньше AOE-выбивание 3-4 существ за один ход давало 3-4 карты разом.
+    const turnKey=G.turn+'-'+G.turnNum;
+    if(world&&hasTag(world,'on_own_death')&&world.lastDeathDrawTurnKey!==turnKey){
       const val=getTagVal(world,'on_own_death')||1;
       for(let i=0;i<val;i++) if(G[faction].deck.length>0) G[faction].hand.push(G[faction].deck.shift());
       lg(`${world.name}: ${card.name} died — draw ${val} card(s).`,'hl');
+      world.lastDeathDrawTurnKey=turnKey;
     }
   }
 
@@ -1051,13 +1057,17 @@ function killCard(card,faction,toVoid=false){
   // прямым противовесом ALTAR (жертва себе за ресурс) — теперь чужие потери тоже кормят
   // руку соперника. Тот же creature-only guard, что у HUNGER-блока выше.
   if(!card.spell&&!card.world&&!card.artifact){
+    const turnKey=G.turn+'-'+G.turnNum;
     ['tea','jeet'].forEach(f=>{
       if(f===card.f) return; // это НЕ "своя" смерть с точки зрения f — тут как раз и нужно
       const world=G[f].world;
-      if(world&&hasTag(world,'on_enemy_death')){
+      // 2026-07-22 (по прямому запросу автора, sim показал 60.6% winrate у VALLEY) — тот
+      // же cap "1 раз за ход", что и у HUNGER-блока выше, тот же turnKey-паттерн.
+      if(world&&hasTag(world,'on_enemy_death')&&world.lastDeathDrawTurnKey!==turnKey){
         const val=getTagVal(world,'on_enemy_death')||1;
         for(let i=0;i<val;i++) if(G[f].deck.length>0) G[f].hand.push(G[f].deck.shift());
         lg(`${world.name}: ${card.name} (enemy) died — draw ${val} card(s).`,'hl');
+        world.lastDeathDrawTurnKey=turnKey;
       }
     });
   }
