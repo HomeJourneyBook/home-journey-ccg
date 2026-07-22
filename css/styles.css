@@ -285,7 +285,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .art-btn-square.sfx-off:hover{background-image:url('../img/btn_sfx_off2.png');filter:brightness(1);}
 /*── Кнопки старта игры ──────────────────────────────────────────*/
 .art-btn-hotseat,.art-btn-vsai,.art-btn-online{background-color:transparent;}
-.art-btn-online{cursor:pointer;} /* 2026-07-21: временно кликабельна (AI vs AI), см. index.html */
+.art-btn-online{cursor:default;opacity:0.55;} /* 2026-07-22: клик отключён до релиза 1.05, см. index.html */
 .art-btn-vsai{cursor:pointer;}
 .art-btn-hotseat:hover,.art-btn-vsai:hover,.art-btn-online:hover{filter:none;}
 .art-btn-hotseat:hover{background-image:url('../img/btn_hotseatH.png');}
@@ -1505,20 +1505,20 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   .statbar-edge-right{display:block;}
 }
 /* Jeet-only: правый плейсхолдер расширен до 2:1 (у Tea остаётся 1:1, высота та же). */
-.stats-bar.jeet .statbar-edge-right{width:calc(max(4vh, 2vw) * 2 / 3 * 2); background-color:#fff; background-image:url('../img/trubi1_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
+.stats-bar.jeet .statbar-edge-right{width:calc(max(4vh, 2vw) * 2 / 3 * 2); background-color:transparent; background-image:url('../img/trubi1_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 .stats-bar.tea .statbar-edge-right{top:0; right:0; transform:none; width:calc(var(--card-action-btn-w) + 2px); background-image:url('../img/trubi1.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 /* Tea-only: левый плейсхолдер, симметричный правому выше — до этого у Tea вообще не было
    левого edge-элемента (см. render.js, edgeLeft раньше рендерился только для jeet). */
 .stats-bar.tea .statbar-edge-left{top:0; left:0; transform:none; width:calc(var(--card-action-btn-w) + 2px); background-color:#000; background-image:url('../img/left_tea.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 /* Jeet-only: ещё один квадратный плейсхолдер левее расширенного правого края. Белый фон —
    временный, пока не пришёл реальный арт (statbar_edge_right2_jeet.png). */
-.statbar-edge-right-2{display:none; position:absolute; right:calc(6px + (max(4vh, 2vw) * 2 / 3 * 2) + 6px); top:50%; transform:translateY(-50%); width:calc(max(4vh, 2vw) * 0.5); height:calc(max(4vh, 2vw) * 0.5); background-color:#fff; background-image:url('../img/statbar_edge_right2_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
+.statbar-edge-right-2{display:none; position:absolute; right:calc(6px + (max(4vh, 2vw) * 2 / 3 * 2) + 6px); top:50%; transform:translateY(-50%); width:calc(max(4vh, 2vw) * 0.5); height:calc(max(4vh, 2vw) * 0.5); background-color:transparent; background-image:url('../img/statbar_edge_right2_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 @media(min-width:601px){
   .statbar-edge-right-2{display:block;}
 }
 /* Jeet-only: квадратный плейсхолдер у левого края — зеркало правого. Белый фон — временный,
    пока не пришёл реальный арт (statbar_edge_left_jeet.png). */
-.statbar-edge-left{display:none; position:absolute; left:6px;top:50%; transform:translateY(-50%); width:calc(max(4vh, 2vw) * 0.5); height:calc(max(4vh, 2vw) * 0.5); background-color:#fff; background-image:url('../img/statbar_edge_left_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
+.statbar-edge-left{display:none; position:absolute; left:6px;top:50%; transform:translateY(-50%); width:calc(max(4vh, 2vw) * 0.5); height:calc(max(4vh, 2vw) * 0.5); background-color:transparent; background-image:url('../img/statbar_edge_left_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 @media(min-width:601px){
   .statbar-edge-left{display:block;}
 }
@@ -1562,7 +1562,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    половина высоты .stat-hp-box (та же формула × 0.5). */
 .hp-placeholder{display:none; width:max(calc(4vh * 0.25), calc(2vw * 0.25)); height:max(calc(4vh * 0.25), calc(2vw * 0.25)); background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
 .stats-bar.tea .hp-placeholder{background-image:url('../img/boltik.png');}
-.stats-bar.jeet .hp-placeholder{background-color:#fff; background-image:url('../img/boltik_jeet.png');}
+.stats-bar.jeet .hp-placeholder{background-color:transparent; background-image:url('../img/boltik_jeet.png');}
 @media(min-width:601px){
   .hp-placeholder{display:block;}
 }
@@ -1572,7 +1572,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    Разведены по фракциям — Tea пока остаётся чёрным (свой файл на будущее), Jeet — белый. */
 .statbar-extra{display:none; width:calc(max(4vh, 2vw) * 0.5 * 4); height:calc(max(4vh, 2vw) * 0.5); background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
 .stats-bar.tea .statbar-extra{background-image:url('../img/drill.png');}
-.stats-bar.jeet .statbar-extra{background-color:#fff; background-image:url('../img/statbar_extra_jeet.png');}
+.stats-bar.jeet .statbar-extra{background-color:transparent; background-image:url('../img/statbar_extra_jeet.png');}
 @media(min-width:601px){
   .statbar-extra{display:block;}
 }
@@ -1659,8 +1659,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .bottom-bar-extra.align-top{align-self:flex-start;}
 #teaBottomBar .bottom-bar-extra.align-bottom{background-image:url('../img/zabor1.png');}
 #teaBottomBar .bottom-bar-extra.align-top{background-image:url('../img/zabor2.png');}
-#jeetBottomBar .bottom-bar-extra.align-bottom{background-color:#fff; background-image:url('../img/zabor1_jeet.png');}
-#jeetBottomBar .bottom-bar-extra.align-top{background-color:#fff; background-image:url('../img/zabor2_jeet.png');}
+#jeetBottomBar .bottom-bar-extra.align-bottom{background-color:transparent; background-image:url('../img/zabor1_jeet.png');}
+#jeetBottomBar .bottom-bar-extra.align-top{background-color:transparent; background-image:url('../img/zabor2_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra{display:block;}
 }
@@ -1677,7 +1677,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   Tea — свой файл (был чёрным без арта, теперь путь под будущий), Jeet — белый фон.*/
 .bottom-bar-extra-2{display:none; width:10.5vh; height:3.5vh; margin-left:10px; background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
 #teaBottomBar .bottom-bar-extra-2{background-image:url('../img/screen1.gif');}
-#jeetBottomBar .bottom-bar-extra-2{background-color:#fff; background-image:url('../img/bottom_extra2_jeet.png');}
+#jeetBottomBar .bottom-bar-extra-2{background-color:transparent; background-image:url('../img/bottom_extra2_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-2{display:block;}
 }
@@ -1689,7 +1689,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    2:1, высота = треть высоты бара (7vh/3). Только лаптоп/десктоп. Разведено по фракциям. */
 .bottom-bar-extra-3{display:none; align-self:flex-end; width:calc(7vh / 3 * 2); height:calc(7vh / 3); background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
 #teaBottomBar .bottom-bar-extra-3{background-image:url('../img/boltics.png');}
-#jeetBottomBar .bottom-bar-extra-3{background-color:#fff; background-image:url('../img/bottom_extra3_jeet.png');}
+#jeetBottomBar .bottom-bar-extra-3{background-color:transparent; background-image:url('../img/bottom_extra3_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-3{display:block;}
 }
@@ -1700,7 +1700,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   разведено по фракциям.*/
 .bottom-bar-extra-4{display:none; position:absolute; left:calc(50% + (6vh * 4 / 2) + 8px); top:50%; transform:translateY(-50%); width:calc(7vh / 3); height:calc(7vh / 3); background-color:#000; background-size:cover; background-position:center; flex-shrink:0;}
 #teaBottomBar .bottom-bar-extra-4{background-image:url('../img/dat4ik_small.gif');}
-#jeetBottomBar .bottom-bar-extra-4{background-color:#fff; background-image:url('../img/bottom_extra4_jeet.png');}
+#jeetBottomBar .bottom-bar-extra-4{background-color:transparent; background-image:url('../img/bottom_extra4_jeet.png');}
 @media(min-width:601px){
   .bottom-bar-extra-4{display:block;}
 }
@@ -1731,7 +1731,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    dat4ik.gif, Jeet получил свой путь (белый фон, пока файла нет) ──────────────*/
 .bottom-bar-sensor{display:none; width:7vh; height:7vh; background-size:cover; background-position:center; flex-shrink:0;}
 #teaBottomBar .bottom-bar-sensor{background-image:url('../img/dat4ik.gif');}
-#jeetBottomBar .bottom-bar-sensor{background-color:#fff; background-image:url('../img/dat4ik_jeet.gif');}
+#jeetBottomBar .bottom-bar-sensor{background-color:transparent; background-image:url('../img/dat4ik_jeet.gif');}
 @media(min-width:601px){
   .bottom-bar-sensor{display:block;}
 }
