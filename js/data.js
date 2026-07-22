@@ -74,16 +74,16 @@ const DEFS = {
   // от реальной кривой рядовых карт (см. AI BALANCE NOTES/чат) с небольшой премией за
   // уникальность; ATK почти не тронут (максимум +1), основной вес добавки — в HP и по
   // ОДНОМУ новому тегу на карту, чтобы не раздувать чистые цифры без текстуры.
-  t_tean:      {name:"TEANTIST",   cost:5,hp:9,atk:3,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw:1","stealth","enter_heal:2"],            ab:"On play Heal 2 all allies. On turn Draw 1.",unique:true},
+  t_tean:      {name:"TEANTIST",   cost:6,hp:9,atk:3,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","draw_attack:1","enter_heal:2"],            ab:"On play Heal 2 all allies. On attack Draw 1.",unique:true}, // ward убран (2026-07-22, по прямому запросу автора — draw_attack всё равно оставался горячим под защитой, теперь карта полностью открыта для спелов/AOE)
   t_aslex:     {name:"ASLEX",      cost:6,hp:10,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1","shield"],      ab:"When your creature dies: Heal base 1 HP.",unique:true},
-  t_tuborg:    {name:"TUBORG",     cost:7,hp:11,atk:3,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1","ward"],       ab:"Aura: +1 ATK.",unique:true},
+  t_tuborg:    {name:"TUBORG",     cost:7,hp:11,atk:3,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1"],       ab:"Aura: +1 ATK.",unique:true}, // ward убран (2026-07-22, по прямому запросу автора — untamed+armor+ward+aura стакал слишком много защиты разом)
   // FAERON — Fire Shield — тег состоит из ДВУХ парных частей, оба нужны на карте разом
   // (уточнено автором 2026-07-19): 'thorns:N' (защитная часть — урон атакующему при
   // получении удара, см. doAttack() в game.js) + 'atk_vs_burning:N' (наступательная часть —
   // сама карта наносит +N атаки, если ЕЁ цель уже горит). Если в будущем захочешь дать
   // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
   t_faeron:    {name:"FAERON",     cost:4,hp:8,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1","enter_aoe:1"], ab:"On play AOE 1. \“Yet another one burned.\”",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:8,hp:13,atk:3,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1","ward"], ab:"\"Bushido\": All attacks must target him.",unique:true},
+  t_nab:       {name:"NABUNAGI",   cost:8,hp:13,atk:3,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1"], ab:"\"Bushido\": All attacks must target him.",unique:true}, // ward убран (2026-07-22, по прямому запросу автора — bushido+armor+ward стакал тройную защиту, теперь спелл/AOE-урон снова его достаёт)
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
@@ -171,10 +171,10 @@ const DEFS = {
   // Статы/теги не тронуты — карта та же, просто на ход позже; по кривой уников (4-8)
   // встаёт в слот 6 рядом с ABYSSWALKER-ой Tea-парой (ASLEX cost 6). HP при этом НЕ
   // поднят до "кривой" cost6 (10) сознательно — это нерф, а не переезд.
-  j_ryv:       {name:"RYVLEN",      cost:6,hp:9,atk:3,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","invisible","draw_attack:1","enter_draw:1"],        ab:"On play Draw 1. On attack Draw 1.",unique:true},
-  j_mal:       {name:"ABYSSWALKER", cost:6,hp:10,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","armor:1","aura:atk:1","provoke"],          ab:"Aura: +1 ATK.",unique:true},
+  j_ryv:       {name:"RYVLEN",      cost:6,hp:9,atk:3,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","draw_attack:1"],        ab:"On attack Draw 1.",unique:true}, // invisible убран (2026-07-22, по прямому запросу автора — early-винрейт вырос до 84.4% даже после снятия enter_draw, реальный движок силы был именно в неснимаемости)
+  j_mal:       {name:"ABYSSWALKER", cost:6,hp:10,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","aura:atk:1","armor:1"],          ab:"Aura: +1 ATK.",unique:true}, // provoke убран, armor:1 возвращён (2026-07-22, по прямому запросу автора — early/late split был перевёрнутый (48%/60.5%), provoke-магнит явно был не тем рычагом)
   j_phleg:     {name:"PHLEGMOR",    cost:8,hp:13,atk:3,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:2","regen:2"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true},
-  j_vard:      {name:"SEEKER",      cost:4,hp:8,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","pierce","fear","enter_lose:1"],    ab:"On play Lose 1. \"Seek, and ye shall find.\"",unique:true},
+  j_vard:      {name:"SEEKER",      cost:5,hp:8,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear","enter_lose:1"],    ab:"On play Lose 1. \"Seek, and ye shall find.\"",unique:true}, // pierce убран (2026-07-22, по прямому запросу автора — cost5 не хватило само по себе, invisible+pierce+fear был явным перебором ключевых слов)
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2.",spell:true},
