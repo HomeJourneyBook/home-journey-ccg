@@ -1424,8 +1424,20 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   background-image:url('../img/armor_bg.png');background-size:100% 100%;background-repeat:no-repeat;
   transform:translate(-50%,-50%) rotate(90deg);z-index:-1;}
 .card-incarn-badge .card-incarn-icon{font-size:calc(var(--card-h)*0.1*2);}
-.card-ability-box{width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:calc(var(--card-h) * 0.012) calc(var(--card-h) * 0.028);display:flex;align-items:center;justify-content:center;}
+.card-ability-box{position:relative;width:100%;height:var(--card-text-h);background:url('../img/card_text_bg.png') center/100% 100% no-repeat;overflow:hidden;flex-shrink:0;padding:calc(var(--card-h) * 0.012) calc(var(--card-h) * 0.028);display:flex;align-items:center;justify-content:center;}
 .card-ability{font-size:calc(var(--card-h) * 0.064);color:#E8E0C8;text-align:center;line-height:0.7;word-spacing:-1.5px;width:100%;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}
+/* card-gate-box — 2026-07-23, по прямому запросу автора: ярлык Врат (архетипа) поверх
+   рядовых Traveler-карт. Центрирован по ширине card-ability-box, своим нижним краем
+   перекрывает верхнюю границу card-ability-box (translateY(-70%) — 70% высоты бокса торчит
+   НАД card-ability-box, 30% перекрывает её верхнюю кромку — эффект "таблички", а не просто
+   плавающего лейбла с зазором). Высота — чуть больше самого текста (line-height 1 +
+   небольшой padding), ratio строго 4:1 (ширина = 4×высота). Шрифт — половина от .card-name
+   (var(--card-h)*0.08 → *0.04 здесь).*/
+.card-gate-box{position:absolute;top:0;left:50%;transform:translate(-50%,-70%);
+  height:calc(var(--card-h) * 0.052);width:calc(var(--card-h) * 0.052 * 4);
+  background:url('../img/bg_armor.png') center/100% 100% no-repeat;
+  display:flex;align-items:center;justify-content:center;z-index:2;}
+.card-gate-label{font-family:'MEK',monospace;font-size:calc(var(--card-h) * 0.04);color:var(--color-cream);text-align:center;line-height:1;white-space:nowrap;}
 .ab-icon-trigger{height:1.15em;width:auto;vertical-align:-0.2em;margin-right:1px;}
 .card-world-art{width:100%;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px;}
 .card.world-card{padding:4px;justify-content:space-between;background-size:cover;background-position:center;background-repeat:no-repeat;}
