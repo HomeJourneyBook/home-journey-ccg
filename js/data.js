@@ -11,13 +11,13 @@ const DEFS = {
   // Szarg Tea
   j_trvl25_w:   {name:"TRAVELER #25",   cost:3,hp:3,atk:4,art:"🦈", img:"25.png",   f:"jeet",tags:["untamed","gtype:szg"],                  ab:"Squad +1 maxHP."}, // перенесён Tea→Jeet (2026-07-24, по прямому запросу автора)
   t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
-  j_trvl7_w:    {name:"TRAVELER #7",    cost:2,hp:1,atk:1,art:"🦈", img:"7.png",   f:"jeet",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."}, // перенесён Tea→Jeet (2026-07-24, по прямому запросу автора) — JEET Szarg не имел ни одной cost2-карты
+  j_trvl7_w:    {name:"TRAVELER #7",    cost:2,hp:2,atk:3,art:"🦈", img:"7.png",   f:"jeet",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."}, // hp/atk 1/1→2/3 (2026-07-24, по прямому запросу автора) — таблица Szarg в CLAUDE.md имела нестыковку на cost2 (см. историю), исправлено на 2/3; перенесён Tea→Jeet (2026-07-24)
   t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:3,atk:4,art:"🦈", img:"34.png",   f:"tea",tags:["regen","gtype:szg"],           ab:"Squad +1 maxHP."},
   t_trvl694_w:  {name:"TRAVELER #694",  cost:3,hp:3,atk:4,art:"🦈", img:"694.png",  f:"tea",tags:["vanguard","gtype:szg"],            ab:"Squad +1 maxHP."},
   t_trvl1068_w: {name:"TRAVELER #1068", cost:4,hp:4,atk:4,art:"🦈", img:"1068.png",  f:"tea",tags:["regen","vanguard","gtype:szg"],            ab:"Squad +1 maxHP."}, // ATK 5→4 (2026-07-24, по прямому запросу автора)
   t_trvl56_w: {name:"TRAVELER #56", cost:4,hp:4,atk:5,art:"🦈", img:"56.png",  f:"tea",tags:["taunt_break","gtype:szg"],            ab:"Squad +1 maxHP."}, // ATK 4→5 (2026-07-24, по прямому запросу автора)
-  t_trvl55_w: {name:"TRAVELER #55", cost:2,hp:1,atk:1,art:"🦈", img:"55.png",  f:"tea",tags:["gtype:szg"],            ab:"Squad +1 maxHP."}, // новая карта (2026-07-24, по прямому запросу автора) — cost2 Szarg, ваниль, статы по образцу пира #7 (cost2, 0 доп.тегов = hp1/atk1)
-  t_trvl28_w: {name:"TRAVELER #28", cost:2,hp:1,atk:1,art:"🦈", img:"28.png",  f:"tea",tags:["gtype:szg"],            ab:"Squad +1 maxHP."}, // новая карта (2026-07-24, по прямому запросу автора) — cost2 Szarg, ваниль, статы по образцу пира #7
+  t_trvl55_w: {name:"TRAVELER #55", cost:2,hp:2,atk:3,art:"🦈", img:"55.png",  f:"tea",tags:["gtype:szg"],            ab:"Squad +1 maxHP."}, // hp/atk 1/1→2/3 (2026-07-24, по прямому запросу автора) — исправлено вслед за #7
+  t_trvl28_w: {name:"TRAVELER #28", cost:2,hp:2,atk:3,art:"🦈", img:"28.png",  f:"tea",tags:["gtype:szg"],            ab:"Squad +1 maxHP."}, // hp/atk 1/1→2/3 (2026-07-24, по прямому запросу автора) — исправлено вслед за #7
   t_trvl57_w:  {name:"TRAVELER #57",  cost:3,hp:3,atk:4,art:"🦈", img:"57.png",  f:"tea",tags:["burn","gtype:szg"],           ab:"Squad +1 maxHP."},
   // +2 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #33 выше (тот же
   // 1/2 болван, gtype:szg, идентичная Squad-абилка), см. AI BALANCE NOTES.
@@ -54,6 +54,7 @@ const DEFS = {
   t_trvl45_w:    {name:"TRAVELER #45",   cost:2,hp:2,atk:1,art:"🌀", img:"45.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost2 Umbasir, ваниль, статы по образцу пира #934 (cost2, 0 доп.тегов = hp2/atk1)
   t_trvl372_w:    {name:"TRAVELER #372",   cost:4,hp:4,atk:1,art:"🌀", img:"372.png",   f:"tea",tags:["bolt:1","untamed","incarnation:4","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Umbasir, 2 доп.тега (untamed+incarnation:4), статы по образцу пира #20 (cost4, 2 доп.тега = hp4/atk1)
       t_trvl6_w:    {name:"TRAVELER #6",    cost:3,hp:3,atk:1,art:"🌀", img:"6.png",    f:"tea",tags:["bolt:1","enter_draw:1","gtype:umb"],                     ab:"On play Draw 1. Active Bolt 1. Squad Bolt 2."},
+  t_trvl730_w:    {name:"TRAVELER #730",    cost:3,hp:3,atk:1,art:"🌀", img:"730.png",    f:"tea",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost3 Umbasir, 1 доп.тег (untamed), статы по образцу пиров #2/#53/#6/#137
       t_trvl387_w:  {name:"TRAVELER #387",  cost:5,hp:5,atk:2,art:"🌀", img:"387.png",  f:"tea",tags:["bolt:1","burn","necrophage","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
       t_trvl137_w:  {name:"TRAVELER #137",  cost:3,hp:3,atk:1,art:"🌀", img:"137.png",  f:"tea",tags:["bolt:1","shield","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
 
@@ -146,7 +147,7 @@ const DEFS = {
 
   // Szarg Jeet
   j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."},
-  j_trvl49_w:  {name:"TRAVELER #49",  cost:2,hp:1,atk:1,art:"🦈", img:"49.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."}, // cost1→2 (2026-07-24, по прямому запросу автора), статы по образцу пира #7 (cost2, 0 доп.тегов = hp1/atk1); второй cost2-Szarg у JEET (после #7)
+  j_trvl49_w:  {name:"TRAVELER #49",  cost:2,hp:2,atk:3,art:"🦈", img:"49.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."}, // hp/atk 1/1→2/3 (2026-07-24, по прямому запросу автора) — исправлено вслед за #7; cost1→2 (2026-07-24)
   j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:3,atk:4,art:"🦈", img:"551.png", f:"jeet",tags:["incarnation:4","gtype:szg"],      ab:"Squad +1 maxHP."},
   j_trvl1008_w: {name:"TRAVELER #1008", cost:3,hp:3,atk:4,art:"🦈", img:"1008.png", f:"jeet",tags:["fear","gtype:szg"],      ab:"Squad +1 maxHP."}, // новая карта (2026-07-23, по прямому запросу автора) — cost3 Szarg, 1 доп.тег (fear), статы по образцу пира #551/#25/#34/#694/#57 (cost3 Szarg, 1 доп.тег = hp3/atk4); заменяет #434 в classic-деке (см. deck.js) — #434 возвращён в резерв
   j_trvl734_w: {name:"TRAVELER #734", cost:4,hp:4,atk:5,art:"🦈", img:"734.png", f:"jeet",tags:["necrophage","gtype:szg"],      ab:"Squad +1 maxHP."}, // ATK 4→5 (2026-07-24, по прямому запросу автора)
@@ -181,7 +182,8 @@ const DEFS = {
     j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:1,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl53_w:    {name:"TRAVELER #53",   cost:3,hp:3,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play Lose 1. Active Bolt 1. Squad Bolt 2."},
      j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:1,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."},
-  j_trvl4_w:    {name:"TRAVELER #4",   cost:1,hp:1,atk:1,art:"🌀", img:"4.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost1 Umbasir, ваниль, статы по образцу пиров #52/#54
+  j_trvl348_w:    {name:"TRAVELER #348",   cost:1,hp:1,atk:1,art:"🌀", img:"348.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost1 Umbasir, ваниль, статы по образцу пиров #52/#54
+  j_trvl4_w:    {name:"TRAVELER #4",   cost:3,hp:3,atk:1,art:"🌀", img:"4.png",   f:"jeet",tags:["bolt:1","untamed","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."}, // cost1→3 + untamed добавлен (2026-07-24, по прямому запросу автора), статы по образцу пиров #2/#53 (cost3 Umbasir, 1 доп.тег = hp3/atk1)
      j_trvl934_w:   {name:"TRAVELER #934",  cost:2,hp:2,atk:1,art:"🌀", img:"934.png",  f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl20_w:    {name:"TRAVELER #20",   cost:4,hp:4,atk:1,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl248_w:   {name:"TRAVELER #248",  cost:5,hp:5,atk:2,art:"🌀", img:"248.png",  f:"jeet",tags:["bolt:1","shield","ward","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
