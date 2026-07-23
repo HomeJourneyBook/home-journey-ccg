@@ -365,13 +365,15 @@ function triggerAbilities(card, timing, ctx={}){
         // летально при любом HP) каждому вражескому существу через dmgCard(...,bypassArmor=
         // true) — ТОТ ЖЕ путь, что у Bolt/AOE-эффектов выше, поэтому Solana Shield и Ward
         // работают против этого точно так же, как против любого другого магического удара.
+        // Игрок не должен видеть голое "-999" — показываем "DESTROYED" (дополнительный
+        // 2026-07-24 заход, по прямому запросу автора).
         {
           const wipeTargets=[...G[oppK].field];
           if(wipeTargets.length>0){
             playSfx('card_spell_atack');
             wipeTargets.forEach(t=>{
-              queueFieldFx(t.id,'HIT!','fx-spell-dmg');
-              dmgCard(t,999,oppK,true);
+              queueFieldFx(t.id,'DESTROYED','fx-spell-dmg');
+              dmgCard(t,999,oppK,true,false,'DESTROYED');
             });
             lg(`${card.name}: destroys ALL enemy creatures!`,'imp');
           } else {
