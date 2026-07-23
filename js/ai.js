@@ -465,6 +465,22 @@ function aiResolvePendingSpellTarget(){
     doSpellDestroyTarget(target.id);
     return;
   }
+  if(G.phase==='spellBurnTarget'){
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.burning&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    const pool=targets.length>0?targets:G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
+    if(pool.length===0){ cancelPendingSpell(); return; }
+    pool.sort((a,b)=>effAtk(b)-effAtk(a));
+    doSpellBurnTarget(pool[0]);
+    return;
+  }
+  if(G.phase==='spellFearTarget'){
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    const pool=targets.length>0?targets:G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
+    if(pool.length===0){ cancelPendingSpell(); return; }
+    pool.sort((a,b)=>effAtk(b)-effAtk(a));
+    doSpellFearTarget(pool[0]);
+    return;
+  }
 }
 
 // ── АКТИВКА: AOE (Umbasir) ───────────────────────────────────────
@@ -741,6 +757,9 @@ function aiSpellHasValidTarget(card){
   if(hasTag(card,'spell_destroy_target')){
     // SUNDER/BLIGHT (2026-07-24) — валидно, если у противника есть Мир или Артефакт.
     return !!G[humanF].world || G[humanF].artifacts.length>0;
+  }
+  if(hasTag(card,'spell_burn_target')||hasTag(card,'spell_fear_target')){
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'revive')){
     // 2026-07-16: воскрешённая карта всегда идёт на СВОЁ поле кастующего (см. reviveCard()
