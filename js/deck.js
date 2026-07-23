@@ -60,6 +60,10 @@ const SPELL_COPIES = {
   t_sp14:2, // GLIMPSE (draw 1 + heal base 2)
   t_sp15:1, // SPARK (bolt 2)
   t_sp16:1, // SANCTUARY (heal all 2 + heal base 2) — new 2026-07-23
+  t_sp17:1, // JAB (bolt 1) — new 2026-07-24
+  t_sp18:1, // SCATTERSHOT (3 random spread) — new 2026-07-24
+  t_sp19:1, // MULTITUDE (scaling draw) — new 2026-07-24
+  t_sp20:1, // EXECUTE (bolt3 + draw on kill) — new 2026-07-24
   // Jeet
   j_sp1:2,  // JEET WAVE (draw 2)
   j_sp2:1,  // OBLIVION (untap)
@@ -77,6 +81,10 @@ const SPELL_COPIES = {
   j_sp14:2, // OMEN (draw 1 + heal base 2)
   j_sp15:1, // MALICE (bolt 2)
   j_sp16:1, // VIGIL (heal all 2 + heal base 2) — new 2026-07-23
+  j_sp17:1, // STING (bolt 1) — new 2026-07-24
+  j_sp18:1, // SHRAPNEL (3 random spread) — new 2026-07-24
+  j_sp19:1, // LEGION (scaling draw) — new 2026-07-24
+  j_sp20:1, // CULL (bolt3 + draw on kill) — new 2026-07-24
 };
 
 const DECK_CONFIGS = {
@@ -138,8 +146,8 @@ function _composeDeckList(f, cfg){
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
 
   // +GLIMPSE/OMEN (2026-07-19, ребаланс кривой под ход 1) — см. SPELL_COPIES выше.
-  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16']
-                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16'];
+  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16','t_sp17','t_sp18','t_sp19','t_sp20']
+                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16','j_sp17','j_sp18','j_sp19','j_sp20'];
 
   // 2026-07-22 (по прямому запросу автора, печатная classic-колода) — оба Мира и оба
   // Артефакта на фракцию снова в игре (VALLEY/HUNGER возвращены, несмотря на прежний баг
@@ -175,18 +183,24 @@ function buildDeck(f, configKey) {
   return shuffleArr(d);
 }
 
-// Rush deckbuilder pool — same composition as Classic, unshuffled, WITHOUT the
-// Unseen bonus card (that's granted automatically to whoever the dice-roll
-// makes the 2nd player — see grantUnseenBonus() in ui.js). Returned as unique
-// {key,max} entries: max is
-// almost always 1 (one physical copy in the "collection"), except spells,
-// which appear `SPELL_COPIES[key]` times in Classic and so can be picked up to
-// that many times here.
+// Rush deckbuilder pool — 2026-07-24 (fix, по прямому запросу автора): раньше это было
+// `_composeDeckList(f, DECK_CONFIGS.classic)` — буквально то же самое, что уходит в Classic.
+// Это молча сломалось, когда classic-массивы архетипов стали "что видишь — то и в деке"
+// (без slice, см. рефактор выше): раньше пул архетипа был ШИРЕ, чем срез в деку, и Rush
+// через тот же _composeDeckList() случайно видел лишние карты сверху среза. Теперь массив
+// = ровно то, что в Classic, и Rush через ту же функцию видел ТОЛЬКО те же карты, что и
+// Classic — а весь ростер, что добавлялся в data.js весь день (десятки новых Traveler'ов),
+// стал невидим для деккбилдера, хотя это ровно тот пул, ради которого его и наполняли.
+// Правильная семантика: Classic — фиксированный кураторский пресет (всегда одна и та же
+// дека), Rush — свободный выбор из ВСЕЙ коллекции. Теперь читает прямо из DEFS по фракции,
+// не через _composeDeckList/classic вообще.
+// 2026-07-24 (по прямому запросу автора): в Rush все спеллы доступны фиксированно по 3
+// копии на фракцию, независимо от SPELL_COPIES (та таблица квот — только для Classic,
+// Rush её больше не читает вообще для спеллов).
 function getRushPool(f){
-  const list = _composeDeckList(f, DECK_CONFIGS.classic);
-  const counts = {};
-  list.forEach(k => { counts[k] = (counts[k]||0) + 1; });
-  return Object.keys(counts).map(key => ({ key, max: counts[key] }));
+  return Object.entries(DEFS)
+    .filter(([key,d]) => d.f===f)
+    .map(([key,d]) => ({ key, max: d.spell ? 3 : 1 }));
 }
 
 // AI's automatic Rush deck (vsAI mode only — the AI never goes through the
