@@ -310,27 +310,44 @@ function triggerAbilities(card, timing, ctx={}){
         } break;
 
       case 'random_spread':
-        // SCATTERSHOT/SHRAPNEL (2026-07-24, по прямому запросу автора) — a.val очков урона
-        // раскидываются случайно по вражескому полю: 3 разные цели → по 1 каждой; 2 цели →
-        // одной 2, другой 1 (случайно кому именно); 1 цель → всё val ей одной. Магический
-        // урон (bypassArmor=true), как и остальные spell-damage эффекты выше — Броня не
-        // спасает, Ward/Solana Shield работают как обычно.
+        // SCATTERSHOT/SHRAPNEL (2026-07-24, по прямому запросу автора; переписано
+        // 2026-07-24 — баг, автор поймал живьём): было два реальных бага в первой версии.
+        // (1) пул целей не фильтровал Ward/невидимых — точка урона могла впустую улететь
+        // в Ward (сгорает целиком, эффект 0) или в нераскрытый stealth (спелл не должен
+        // "видеть" то, чего не видит игрок) — теперь фильтруется через isSpellTargetable(),
+        // тот же критерий, что у всех остальных таргетируемых спеллов.
+        // (2) распределение считалось ЗАРАНЕЕ одним куском на цель (например 2 урона
+        // одной, 1 другой) — если у цели с "2" было всего 1 HP, второй урон уходил в
+        // оверкилл впустую, хотя мог достаться ещё живой второй цели. Теперь урон
+        // раздаётся ПО ОДНОЙ точке случайной ЖИВОЙ цели за раз, мёртвые выбывают из пула
+        // сразу — оверкилл-расход исключён в принципе, пока есть куда его деть.
         {
-          const pool=[...G[oppK].field];
+          const pool=[...G[oppK].field].filter(t=>!hasTag(t,'ward')&&isSpellTargetable(t,G[oppK].field));
           if(pool.length===0){
-            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+            lg(`${card.name}: no valid enemy creatures on the field — fizzles.`,'hint');
           } else {
             playSfx('card_spell_atack');
-            const shuffled=[...pool].sort(()=>Math.random()-0.5);
-            const hits=Math.min(a.val,shuffled.length); // число РАЗНЫХ задетых целей
-            const dist=new Array(hits).fill(0);
-            for(let i=0;i<a.val;i++) dist[i%hits]++; // остаток урона всегда уходит первой цели по шаффлу — она уже случайна
-            for(let i=0;i<hits;i++){
-              const t=shuffled[i];
-              queueFieldFx(t.id,'HIT!','fx-spell-dmg');
-              dmgCard(t,dist[i],oppK,true);
+            // Локальный учёт оставшегося HP (без реального dmgCard) — чтобы знать, кто уже
+            // "умер бы" от предыдущих точек урона в ЭТОМ ЖЕ розыгрыше, и убрать его из пула
+            // ДО следующей точки, не трогая реальный card.hp раньше времени.
+            let alive=pool.map(t=>({t, hpLeft:t.hp}));
+            const hitCounts=new Map();
+            for(let i=0;i<a.val && alive.length>0;i++){
+              const idx=Math.floor(Math.random()*alive.length);
+              const entry=alive[idx];
+              hitCounts.set(entry.t.id,(hitCounts.get(entry.t.id)||0)+1);
+              entry.hpLeft-=1;
+              if(entry.hpLeft<=0) alive.splice(idx,1);
             }
-            lg(`${card.name}: ${a.val} damage randomly split across ${hits} enemy creature(s).`,'imp');
+            let hitTargets=0;
+            hitCounts.forEach((dmgAmt,tid)=>{
+              const t=pool.find(p=>p.id===tid);
+              if(!t) return;
+              hitTargets++;
+              queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+              dmgCard(t,dmgAmt,oppK,true);
+            });
+            lg(`${card.name}: ${a.val} damage randomly split across ${hitTargets} enemy creature(s).`,'imp');
           }
         } break;
 
