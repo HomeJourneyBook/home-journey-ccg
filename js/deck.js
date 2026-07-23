@@ -64,6 +64,8 @@ const SPELL_COPIES = {
   t_sp18:1, // SCATTERSHOT (3 random spread) — new 2026-07-24
   t_sp19:1, // MULTITUDE (scaling draw) — new 2026-07-24
   t_sp20:1, // EXECUTE (bolt3 + draw on kill) — new 2026-07-24
+  t_sp21:1, // SUNDER (destroy world/artifact) — new 2026-07-24
+  t_sp22:1, // CATACLYSM (destroy all enemies) — new 2026-07-24
   // Jeet
   j_sp1:2,  // JEET WAVE (draw 2)
   j_sp2:1,  // OBLIVION (untap)
@@ -85,6 +87,8 @@ const SPELL_COPIES = {
   j_sp18:1, // SHRAPNEL (3 random spread) — new 2026-07-24
   j_sp19:1, // LEGION (scaling draw) — new 2026-07-24
   j_sp20:1, // CULL (bolt3 + draw on kill) — new 2026-07-24
+  j_sp21:1, // BLIGHT (destroy world/artifact) — new 2026-07-24
+  j_sp22:1, // EXTINCTION (destroy all enemies) — new 2026-07-24
 };
 
 const DECK_CONFIGS = {
@@ -146,8 +150,8 @@ function _composeDeckList(f, cfg){
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
 
   // +GLIMPSE/OMEN (2026-07-19, ребаланс кривой под ход 1) — см. SPELL_COPIES выше.
-  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16','t_sp17','t_sp18','t_sp19','t_sp20']
-                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16','j_sp17','j_sp18','j_sp19','j_sp20'];
+  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16','t_sp17','t_sp18','t_sp19','t_sp20','t_sp21','t_sp22']
+                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16','j_sp17','j_sp18','j_sp19','j_sp20','j_sp21','j_sp22'];
 
   // 2026-07-22 (по прямому запросу автора, печатная classic-колода) — оба Мира и оба
   // Артефакта на фракцию снова в игре (VALLEY/HUNGER возвращены, несмотря на прежний баг
