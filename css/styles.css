@@ -755,7 +755,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     сброс appearance/border/background — иначе на кнопках (<button>)
     остаётся нативный белый фон + 1px рамка от браузера, который
     просвечивает сквозь прозрачные углы трапециевидных PNG. ──────────*/
-.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#0c1013; cursor:pointer; padding:0; margin:0; flex-shrink:0; white-space:nowrap; overflow:hidden; word-spacing:-0.3em; background-repeat:no-repeat; background-position:center; background-size:100% 100%; border:none; background-color:transparent; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
+.cat-box{height:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; font-family:'MEK',monospace; color:#0c1013; cursor:pointer; padding:0; margin:0; flex-shrink:0; white-space:nowrap; overflow:hidden; word-spacing:-0.3em; background-repeat:no-repeat; background-position:center; background-size:100% 100%; border:none; background-color:transparent; -webkit-appearance:none; -moz-appearance:none; appearance:none; image-rendering:pixelated;}
 .cat-box.filter-btn{font-size:1.3vh;}
 .cat-back{font-size:0.8vh; color:#E8E0C8;}
 .cat-title{font-size:3vh;}
