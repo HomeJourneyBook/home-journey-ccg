@@ -208,8 +208,11 @@ function buildDeck(f, configKey) {
 // копии на фракцию, независимо от SPELL_COPIES (та таблица квот — только для Classic,
 // Rush её больше не читает вообще для спеллов).
 function getRushPool(f){
+  // 2026-07-24 (баг, автор): забыл исключить neutral:true (UNSEEN) — та карта f:"jeet"
+  // тегом, но по смыслу нейтральная/отложенная (см. историю в data.js), в деккбилдере
+  // не должна светиться ни у одной фракции, пока по ней не будет отдельного решения.
   return Object.entries(DEFS)
-    .filter(([key,d]) => d.f===f)
+    .filter(([key,d]) => d.f===f && !d.neutral)
     .map(([key,d]) => ({ key, max: d.spell ? 3 : 1 }));
 }
 
