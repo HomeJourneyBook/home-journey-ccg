@@ -108,7 +108,7 @@ function renderCatalog(){
     <div class="card-cost">${def.cost}</div>
     <div class="card-type-dot" data-type="${getTypeDotLabel(def)}" style="background-image:url('${getTypeDotImg(def)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${def.name}</div></div>
-    <div class="card-ability-box"><div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>`;
+    <div class="card-ability-box">${gateLabelHtml(def)}<div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>`;
   grid.appendChild(div);
   return;
 }
@@ -125,7 +125,7 @@ function renderCatalog(){
         <div class="card-atk-box" data-base="${def.atk}" data-bonus="0"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
       </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
-      <div class="card-ability-box"><div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>
+      <div class="card-ability-box">${gateLabelHtml(def)}<div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>
     `;
     grid.appendChild(div);
   });
@@ -189,7 +189,7 @@ function openCardDetail(def){
         <div class="card-cost">${def.cost}</div>
         <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
         <div class="card-name-box"><div class="card-name">${def.name}</div></div>
-        <div class="card-ability-box"><div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>
+        <div class="card-ability-box">${gateLabelHtml(def)}<div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>
       </div>
     `;
     overlay.style.display='flex';
@@ -213,7 +213,7 @@ function openCardDetail(def){
              <div class="card-atk-box" data-base="${def.atk}" data-bonus="0"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${def.atk}</span></div>
            </div>`
         : `<div class="card-stats" style="justify-content:center;"><img src="img/${def.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
-      <div class="card-ability-box"><div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>
+      <div class="card-ability-box">${gateLabelHtml(def)}<div class="card-ability">${formatAbilityText(def.ab)||''}</div></div>
     </div>
   `;
 
