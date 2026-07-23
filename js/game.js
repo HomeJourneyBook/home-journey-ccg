@@ -962,7 +962,7 @@ function tryAttackBase(){
   activateCard(att.id); 
 }
 
-function dmgCard(card,dmg,faction,bypassArmor,deferDeath){
+function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel){
   // Сбрасываем ПЕРЕД любым ранним return (включая dmg<=0 ниже) — иначе устаревший true с
   // прошлого удара мог бы утечь в проверку fear/burn/taunt_break этого хода (см. ниже).
   card._shieldBlockedThisHit=false;
@@ -1037,7 +1037,11 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath){
   }
   const cardId=card.id;
   const dmgAmt=dmg;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,`-${dmgAmt}`,'dmg')));
+  // forceLabel (2026-07-24, по прямому запросу автора) — VERDICT/DAMNATION/CATACLYSM/
+  // EXTINCTION хотят показывать "DESTROYED" вместо голого "-999" (число — это техническая
+  // деталь реализации "безусловное убийство", не то, что должен видеть игрок). Любой
+  // другой вызов dmgCard() без этого параметра ведёт себя как раньше — обычное число.
+  requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,forceLabel||`-${dmgAmt}`,'dmg')));
   lg(`${card.name} takes ${dmg} → ${card.hp}/${card.maxHp} HP.`,'dmg');
   // deferDeath=true (используется контрударом в doAttack()) — HP уходит в минус, но
   // killCard() здесь не вызывается: вызывающий код сам решает, когда резолвить смерть,
@@ -1598,12 +1602,17 @@ function doSpellDmgTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
   const dmg=getTagVal(spell,'spell_dmg_target')||3;
+  // VERDICT/DAMNATION (2026-07-24, по прямому запросу автора) — используют этот же путь
+  // с dmg=999 как условность "безусловное убийство". Игрок не должен видеть голое число —
+  // ни в логе, ни во всплывающей надписи над картой, ни в плавающем "-999".
+  const isInstaKill=dmg>=999;
   playSfx('card_spell_atack');
-  lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  if(isInstaKill) lg(`${spell.name} destroys ${card.name}!`,'dmg');
+  else lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   const oppK=G.turn==='tea'?'jeet':'tea';
-  queueFieldFx(card.id,'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
+  queueFieldFx(card.id,isInstaKill?'DESTROYED':'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
   const hpBefore=card.hp;
-  dmgCard(card,dmg,oppK,true);
+  dmgCard(card,dmg,oppK,true,false,isInstaKill?'DESTROYED':null);
   // draw_on_kill (2026-07-24, "EXECUTE"/"CULL", по прямому запросу автора) — если этот
   // конкретный удар добил цель (была жива ДО удара, после — 0 или меньше), тянем 1 карту.
   // Не трогает обычные JOURNEY/HEX/SPARK/MALICE/Bolt1 — у них просто нет этого тега.
@@ -2168,7 +2177,12 @@ function endTurn(){
           G.gameOver=true;
           const winner=G.turn==='tea'?'jeet':'tea';
           lg(`${G.turn.toUpperCase()} has no cards left after 3 failed draws — ${winner.toUpperCase()} wins by fatigue!`,'imp');
-          render();
+          // 2026-07-24 (баг, автор): render() тут раньше стоял ДО showWin(), и если render()
+          // по любой причине кидал исключение (например что-то в руке/поле не рендерится
+          // корректно в этот самый момент), showWin() просто никогда не вызывался — игра
+          // молча "замирала", в логе оставалась только строка о проигрыше, без самой
+          // модалки победы. try/catch гарантирует, что showWin() сработает в любом случае.
+          try{ render(); } catch(e){ console.error('render() failed during fatigue win:', e); }
           showWin(winner);
           return; // не продолжаем обычную концовку хода (AI-ход/pass-screen и т.п.)
         }
@@ -2194,6 +2208,8 @@ function endTurn(){
 // ── WIN / MULLIGAN / UTILS ─────────────────────────────────
 function checkWin(){
   if(G.gameOver) return;
+  // 2026-07-24 (защита в глубину, автор) — тот же принцип, что и у fatigue-пути выше:
+  // showWin() должен показаться, даже если что-то ДО него (в теории) кинет исключение.
   if(G.tea.hp<=0){G.gameOver=true;showWin('jeet');}
   if(G.jeet.hp<=0){G.gameOver=true;showWin('tea');}
 }
