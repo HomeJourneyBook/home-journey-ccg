@@ -777,8 +777,20 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    снизу. Фикс: height:25% (кнопки на 75% меньше) + align-items:flex-end (прижаты к низу
    строки, весь лишний зазор уходит наверх, снизу — впритык). Работает одинаково что при
    2vh, что при 4vh строке — height в % от родителя, не фиксированное значение. */
-#gateFilters{align-items:flex-end;}
-#gateFilters .cat-box{height:75%;}
+#gateFilters{align-items:flex-end;container-type:inline-size;container-name:catGateRow;}
+#gateFilters .cat-box{height:90%;}
+/* Тот же оверлап-приём, что у #typeFilters выше (container query + отрицательный
+   margin-left + z-index на .active) — 2026-07-24, по прямому запросу автора: кнопки
+   Врат сближаются и выбранная показывается поверх соседних, адаптивно под ширину экрана. */
+@container catGateRow (max-width: 760px){
+  #gateFilters{gap:0;}
+  #gateFilters .filter-btn:not(:first-child){margin-left:-2.6vh;}
+  #gateFilters .filter-btn{position:relative; z-index:1;}
+  #gateFilters .filter-btn.active{z-index:2;}
+}
+@container catGateRow (max-width: 600px){
+  #gateFilters .filter-btn:not(:first-child){margin-left:-1.4vh;}
+}
 .cat-back{aspect-ratio:2/1; cursor:pointer; background-image:url('../img/cat_back_1.png');}
 .cat-back:hover{background-image:url('../img/cat_back_H.png');}
 .cat-back:active{background-image:url('../img/cat_back_2.png');}
