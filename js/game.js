@@ -175,6 +175,24 @@ function onClick(card,zone){
     // через свой собственный onclick.
     cancelPendingSpell();return;
   }
+  if(G.phase==='spellBurnTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      if(isSpellTargetable(card,G[opp].field)){
+        doSpellBurnTarget(card);return;
+      }
+      return;
+    }
+    cancelPendingSpell();return;
+  }
+  if(G.phase==='spellFearTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      if(isSpellTargetable(card,G[opp].field)){
+        doSpellFearTarget(card);return;
+      }
+      return;
+    }
+    cancelPendingSpell();return;
+  }
   if(G.phase==='spellBuffTarget'){
     // 2026-07-21 (автор): feared больше НЕ исключён — ничто не должно мешать бафнуть
     // союзника, будь он уставший/спящий/скрытный/в инвизе/горит/в страхе. Единственное
@@ -296,7 +314,7 @@ function onClick(card,zone){
 // не дублируя весь if/else список из _resolvePlayedCard() ниже. Если добавляешь новый тип
 // таргетируемого спелла — впиши его тег и сюда тоже, иначе он ошибочно попадёт под
 // spell-cast-out-анимацию (см. isPlainInstantSpell в doPlay()).
-const TARGETED_SPELL_TAGS = ['spell_dmg_target','spell_buff_temp','spell_armor_temp','spell_dispel','spell_untap','spell_bounce_target','spell_provoke_break_target','spell_dmg_trample_target','spell_destroy_target'];
+const TARGETED_SPELL_TAGS = ['spell_dmg_target','spell_buff_temp','spell_armor_temp','spell_dispel','spell_untap','spell_bounce_target','spell_provoke_break_target','spell_dmg_trample_target','spell_destroy_target','spell_burn_target','spell_fear_target'];
 
 function doPlay(card, afterResolve){
   const cur=G[G.turn];
@@ -424,6 +442,12 @@ function _resolvePlayedCard(card){
   } else if(card.spell&&hasTag(card,'spell_destroy_target')){
     G.pendingSpell=card;G.phase='spellDestroyTarget';
     lg(`${card.name}: select the enemy World or Artifact to destroy.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_burn_target')){
+    G.pendingSpell=card;G.phase='spellBurnTarget';
+    lg(`${card.name}: select an enemy creature to set on fire.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_fear_target')){
+    G.pendingSpell=card;G.phase='spellFearTarget';
+    lg(`${card.name}: select an enemy creature to Fear.`,'hint');
   } else {
     if(card.spell)doSpell(card);
     else if(card.world)doWorld(card);
@@ -1579,6 +1603,50 @@ function doSpellDmgTarget(card){
   // Баг-фикс: таргетируемые спеллы обрывались в doPlay() ДО строки, где триггерится
   // on_play_creature (FAERON и т.п.) — она никогда не срабатывала для JOURNEY/ARCHIVE/
   // dispel/untap. Теперь триггерим здесь же, в момент реального разрешения спелла.
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
+  checkWin();render();
+}
+
+function doSpellBurnTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  // Только звук поджога/блока — БЕЗ общего 'card_spell_atack' (по прямому запросу
+  // автора, 2026-07-24) — тот же принцип, что уже применён к SUNDER/BLIGHT.
+  if(hasTag(card,'shield') && !card.shieldConsumed){
+    card.shieldConsumed=true;
+    lg(`${card.name}'s Solana Shield blocks the fire entirely and shatters.`,'dmg');
+  } else if(hasTag(card,'ward')){
+    lg(`${card.name}'s Ward blocks the burn entirely.`,'dmg');
+  } else {
+    card.burning=true;
+    playSfx('card_fire_atack');
+    lg(`${spell.name}: ${card.name} is on fire!`,'imp');
+  }
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
+  checkWin();render();
+}
+
+function doSpellFearTarget(card){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  // Только звук страха/блока — БЕЗ общего 'card_spell_atack', тот же принцип.
+  if(hasTag(card,'shield') && !card.shieldConsumed){
+    card.shieldConsumed=true;
+    lg(`${card.name}'s Solana Shield blocks the fear entirely and shatters.`,'dmg');
+  } else if(hasTag(card,'ward')){
+    lg(`${card.name}'s Ward blocks the fear entirely.`,'dmg');
+  } else {
+    card.feared=true;
+    playSfx('debaf');
+    lg(`${spell.name}: ${card.name} is Feared!`,'imp');
+    queueFieldFx(card.id,'FEARED!','fx-fear');
+  }
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
   G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
   checkWin();render();
 }
