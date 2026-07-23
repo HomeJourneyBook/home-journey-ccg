@@ -609,7 +609,19 @@ function doAttack(att,target){
   // ударом, тот же принцип "эффект не отменяет/не усиливает сам себя в этот же тик", что и
   // у wasFearedBefore/wasExhaustedBefore/stealthFirstStrike в этой же функции).
   const burnBonus = (hasTag(att,'atk_vs_burning') && target.burning) ? (getTagVal(att,'atk_vs_burning')||0) : 0;
-  const atk=att.atk+(att.atkBonus||0)+rageAtkBonus(att)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0)+burnBonus;
+  // atk_vs_feared:N (2026-07-23, RYVLEN rework, по прямому запросу автора) — тот же
+  // принцип, что и atk_vs_burning выше, только по target.feared вместо target.burning.
+  const fearBonus = (hasTag(att,'atk_vs_feared') && target.feared) ? (getTagVal(att,'atk_vs_feared')||0) : 0;
+  // world_atk_vs_burning:N / world_atk_vs_feared:N (2026-07-23, VALLEY/HUNGER ауры, по
+  // прямому запросу автора) — командные версии двух тегов выше: если у атакующего есть
+  // активный Мир с таким тегом, бонус применяется КАЖДОМУ своему существу, не только
+  // конкретной карте (в отличие от atk_vs_burning/atk_vs_feared, которые сидят на самой
+  // карте). Проверяется цель ДО этого удара — тот же принцип "эффект не усиливает сам
+  // себя в этот же тик", что и у burnBonus/fearBonus.
+  const curWorld=G[curK].world;
+  const worldBurnBonus=(curWorld && hasTag(curWorld,'world_atk_vs_burning') && target.burning) ? (getTagVal(curWorld,'world_atk_vs_burning')||0) : 0;
+  const worldFearBonus=(curWorld && hasTag(curWorld,'world_atk_vs_feared') && target.feared) ? (getTagVal(curWorld,'world_atk_vs_feared')||0) : 0;
+  const atk=att.atk+(att.atkBonus||0)+rageAtkBonus(att)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0)+burnBonus+fearBonus+worldBurnBonus+worldFearBonus;
 
   // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
   // один из этих эффектов (цель выживает после урона), звук самой атаки не играем.
