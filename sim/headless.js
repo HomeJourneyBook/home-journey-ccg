@@ -133,13 +133,15 @@ function runGame(opts = {}){
 
   // Муллиган пропускаем (политика "keep any hand" — простейшая; при желании
   // сюда легко добавить эвристику "нет тел cost≤3 → перемуллиганить").
-  // Бонус второго игрока выдаём вручную — в браузере это делает
-  // grantUnseenBonus() из ui.js в конце муллигана, который мы обходим.
+  // Бонус второго игрока выдаём вручную — в браузере это делает grantUnseenBonus()
+  // из ui.js в конце муллигана, который мы обходим. 2026-07-23: синхронизировано с
+  // ui.js — второй игрок получает реальную 6-ю карту из своей колоды, а не
+  // фракционный 0-cost спелл "+1 эссенция" (см. историю решения в ui.js).
   vm.runInContext(`
     G.phase = 'action';
     (function(){
       const second = G.secondFaction;
-      G[second].hand.push(mkCard(second === 'tea' ? 't_sp4' : 'j_sp4'));
+      if(G[second].deck.length) G[second].hand.push(G[second].deck.shift());
     })();
   `, sandbox);
 
