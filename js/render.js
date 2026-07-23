@@ -42,6 +42,13 @@ function _spellHasOwnSfx(card){
     // подряд. Тот же принцип, что и revive/draw/bounce выше: у эффекта уже есть свой звук
     // на резолве, ранний общий проигрывать не нужно.
     hasTag(card,'spell_burn_all') || hasTag(card,'spell_fear_all') || hasTag(card,'spell_aoe_count') ||
+    // 2026-07-24 (баг, автор, доп. заход): та же история у трёх ещё карт.
+    // MULTITUDE/LEGION (spell_draw_scale) вообще не играют собственного звука на резолве —
+    // так что тут просто убираем общий звук целиком, тишина и есть "свой звук" по факту.
+    // CATACLYSM/EXTINCTION (spell_destroy_all_enemies) — та же ситуация, что у aoe_count
+    // (см. блок выше): 'card_spell_atack' на резолве совпадал с общим звуком на Play.
+    // FORGET-ME-NOT/MINDROT (lose) — эффект 'lose' в abilities.js уже играет свой 'debaf'.
+    hasTag(card,'spell_draw_scale') || hasTag(card,'spell_destroy_all_enemies') || hasTag(card,'lose') ||
     // 2026-07-24 (баг, автор): та же история с двумя новыми instant-эффектами — оба играют
     // СВОЙ звук на резолве (random_spread → 'card_spell_atack' в момент удара по целям,
     // heal_all/heal_base → 'heal'), общий звук на Play был лишним/дублирующим для первого
@@ -264,6 +271,7 @@ function _cardStatusEntries(card){
   if(card.interceptUsed) entries.push({icon:'img/ico_intercept.png', text:'Intercept triggered — already redirected an attack this turn.'});
   if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely from any source, one time only.'});
   if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
+  if(hasTag(card,'stealth')&&!card.stealthBroken) entries.push({icon:'img/ico_stealth.png', text:'This creature is invisible/stealthy — it cannot be targeted by attacks or spells.'});
   // Бафы
   if(card.atkBonus) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
   if(card.auraMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battlefield.`});
