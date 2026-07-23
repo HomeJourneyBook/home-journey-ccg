@@ -360,9 +360,20 @@ function doPlay(card, afterResolve){
       if(G.previewCard===card.id) G.previewCard=null;
       cardEl.classList.remove('previewed');
       cardEl.classList.add('spell-cast-out');
+      // 2026-07-24 (баг, автор): реальный эффект спелла резолвится тут с задержкой 450мс
+      // (чисто под анимацию вылета карты) — G.turn читается ЗАНОВО в момент резолва
+      // (см. triggerAbilities()), а не сохраняется здесь. Если игрок успевал нажать
+      // End Turn ДО того, как этот таймаут срабатывал, ход уже флипался на соперника,
+      // и эффект спелла резолвился под ЧУЖИМ G.turn (curK/oppK внутри triggerAbilities
+      // получались перепутанными местами) — конкретно этим объясняются странные
+      // зависания/десинхронизации хода, пойманные автором на SCATTERSHOT/BLIGHT/VIGIL.
+      // Счётчик (не boolean — на случай нескольких карт подряд) даёт endTurn() знать,
+      // что нужно подождать, прежде чем реально переключать G.turn.
+      G._pendingInstantSpellResolve=(G._pendingInstantSpellResolve||0)+1;
       setTimeout(()=>{
         cur.hand=cur.hand.filter(c=>c.id!==card.id);
         _resolvePlayedCard(card);
+        G._pendingInstantSpellResolve--;
         if(typeof afterResolve==='function') afterResolve();
       }, 450);
       return;
@@ -1854,6 +1865,15 @@ function closeGraveModal(){
 function endTurn(){
   if(G.gameOver) return;
   if(isAiTurn()&&!G._aiIsEnding) return; // человек не может завершить ход ИИ
+  // 2026-07-24 (баг, автор) — см. подробный комментарий у G._pendingInstantSpellResolve
+  // в doPlay(): если игрок кликает End Turn ДО того, как 450мс-анимация вылета
+  // только что сыгранного instant-спелла долистала до реального резолва эффекта,
+  // просто ждём (поллинг раз в 100мс), вместо того чтобы флипать G.turn прямо сейчас —
+  // иначе эффект спелла резолвится уже под ЧУЖИМ ходом.
+  if(G._pendingInstantSpellResolve>0){
+    setTimeout(endTurn,100);
+    return;
+  }
   playSfx('yellow_buttom');
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
