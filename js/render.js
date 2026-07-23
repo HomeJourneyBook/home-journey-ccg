@@ -15,7 +15,15 @@ function _isTargetedSpell(card){
     // ещё раз (или другой звук) при резолве — двойной/ранний звук. BULWARK/CARAPACE и
     // BREACH/RUPTURE и EXPOSE/UNMASK — все три сюда просто забыли вписать.
     hasTag(card,'spell_armor_temp') || hasTag(card,'spell_dmg_trample_target') ||
-    hasTag(card,'spell_provoke_break_target')
+    hasTag(card,'spell_provoke_break_target') ||
+    // 2026-07-24 (баг, автор): SUNDER/BLIGHT забыли вписать при заводе — общий
+    // 'card_spell_atack' на клик Play проигрывался ДО выбора цели, а затем ещё раз при
+    // реальном уничтожении (doSpellDestroyTarget) — та же двойная/ранняя история, что и
+    // у остальных таргетируемых спеллов в этом списке.
+    hasTag(card,'spell_destroy_target') ||
+    // CINDER/DREAD (2026-07-24) — та же история сразу при заводе: только звук поджога/
+    // страха на резолве, никакого общего звука на Play.
+    hasTag(card,'spell_burn_target') || hasTag(card,'spell_fear_target')
   );
 }
 
@@ -140,6 +148,9 @@ function render(){
     spellProvokeBreakTarget:'Select an enemy Provoke creature.',
     spellDmgTrampleTarget:'Select an enemy creature.',
     spellArmorTarget:'Select an ally creature.',
+    spellDestroyTarget:'Select an enemy World or Artifact to destroy.',
+    spellBurnTarget:'Select an enemy creature to set on fire.',
+    spellFearTarget:'Select an enemy creature to Fear.',
   };
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
@@ -162,7 +173,8 @@ function render(){
       G.phase==='spellBounceTarget'||G.phase==='healTarget'||
       G.phase==='shardTarget'||G.phase==='boltTarget'||
       G.phase==='spellProvokeBreakTarget'||G.phase==='spellDmgTrampleTarget'||
-      G.phase==='spellArmorTarget'
+      G.phase==='spellArmorTarget'||G.phase==='spellDestroyTarget'||
+      G.phase==='spellBurnTarget'||G.phase==='spellFearTarget'
     );
     targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
   }
@@ -554,6 +566,8 @@ function mkSmallEl(card){
   if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  // CINDER/DREAD (2026-07-24) — тот же паттерн подсветки, что у spellDmgTarget.
+  if((G.phase==='spellBurnTarget'||G.phase==='spellFearTarget')&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
   if(G.phase==='spellArmorTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
