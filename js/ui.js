@@ -1088,22 +1088,19 @@ function confirmOrderRoll(){
 // which is the single choke point for every mode/deck-config combo, so this
 // only needs to be called from there).
 function grantUnseenBonus(){
-  // 2026-07-21 (аудит баланса, по прямому запросу автора): бонус второго игрока —
-  // больше НЕ UNSEEN (0-cost масс-баунс был самой свинговой картой игры и наказывал
-  // именно построение поля — P1, зная про гарантированный баунс, рационально не должен
-  // был развивать доску). Теперь это фракционный 0-cost спелл "+1 эссенция на этот ход"
-  // (SCHEME у Tea / BLACK MAGIC у Jeet) — прямой аналог Монетки из Hearthstone: маленькая
-  // темповая компенсация за ход соперника. Обе карты уже существовали в DEFS (t_sp4/j_sp4)
-  // и были вырезаны из дек (SPELL_COPIES=0) как "слишком слабые В ДЕКЕ" — в роли разовой
-  // компенсации это ровно их вес. mkCard() отдаёт карту сразу с правильной фракцией
-  // (t_/j_ ключи) — старый override card.f, нужный нейтральному UNSEEN, больше не требуется.
-  // Сам UNSEEN остался в DEFS (каталог) с поднятой ценой — как кандидат в будущий
-  // нейтральный пул, не как гарантированная стартовая карта.
+  // 2026-07-23 (аудит баланса, по прямому запросу автора): второй игрок теперь получает
+  // РЕАЛЬНУЮ 6-ю карту из своей колоды вместо фракционного 0-cost спелла "+1 эссенция"
+  // (SCHEME/BLACK MAGIC, t_sp4/j_sp4 — были аналогом Монетки из Hearthstone до этого).
+  // По симулятору (2000 партий на вариант) реальная карта компенсирует first-player
+  // advantage заметно лучше, чем разовая эссенция: 62.4% → 56-58% против 59-62% у любых
+  // вариантов с эссенцией/бесплатными спеллами. t_sp4/j_sp4 остаются в DEFS на случай,
+  // если понадобятся для чего-то другого, просто больше не выдаются здесь.
   const second=G.secondFaction;
   if(!second||!G[second]) return;
-  const card=mkCard(second==='tea'?'t_sp4':'j_sp4');
+  if(!G[second].deck.length) return; // экстремально маленькая/пустая колода — нет карты для выдачи
+  const card=G[second].deck.shift();
   G[second].hand.push(card);
-  lg(`${second==='tea'?'TAVERN':'JEET'} receives ${card.name} — the 2nd-player bonus card.`,'imp');
+  lg(`${second==='tea'?'TAVERN':'JEET'} draws an extra card — the 2nd-player bonus.`,'imp');
 }
 
 function startMulliganFor(faction){
