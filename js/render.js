@@ -1230,6 +1230,14 @@ function _mkPcardHtml(card, isPlayer){
       }
     }
   }
+  // spell_destroy_target (2026-07-24, по прямому запросу автора) — независимо от isPlayer
+  // (тот флаг означает "своя сторона для активации Shard/Altar", не связан с тем, кто сейчас
+  // ходит): цель — Мир/Артефакт ПРОТИВНИКА текущего хода (card.f!==G.turn), НЕ своя карта.
+  // Та же красная подсветка-таргет, что у существ (aim-target, см. styles.css).
+  if(card.f!==G.turn&&G.phase==='spellDestroyTarget'){
+    targetingCls+=' pcard-targeting aim-target';
+    onclick=`onclick="event.stopPropagation();doSpellDestroyTarget('${card.id}')"`;
+  }
   const safeAb=(card.ab||'').replace(/"/g,"'");
   return `<div class="pcard pcard-inline ${cls}${sleepCls}${readyCls}${targetingCls}" data-pid="${card.id}" title="${safeAb}" ${onclick}><span class="pcard-text" style="${textExhaustedStyle}">${card.art||''} ${card.name}</span></div>`;
 }
