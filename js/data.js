@@ -248,3 +248,17 @@ function formatAbilityText(ab){
     .replace(/(^|\. )Active\b:?/g, '$1<img src="img/ico_active.png" class="ab-icon-trigger" alt="Active">')
     .replace(/(^|\. )Squad\b:?/g, '$1<img src="img/ico_squad.png" class="ab-icon-trigger" alt="Squad">');
 }
+
+// GATE_NAMES / gateLabelHtml() — 2026-07-23, по прямому запросу автора: рендер названия
+// Врат (архетипа) прямым текстом на рядовых Traveler-картах. Общая функция — переиспользуется
+// в render.js (обычные карты, НЕ мини-карты на поле — те рисуются через mkSmallEl и это
+// специально не трогаем) и в catalog.js/deckbuilder.js (свои независимые card-шаблоны).
+// Возвращает '' для любой карты без gtype-тега (уники/спеллы/миры/артефакты — без ярлыка).
+const GATE_NAMES = { szg:'SZARG', orb:'ORBITON', drg:'DREEGAN', umb:'UMBASIR', mch:'MERCHIRD', xui:'XUIQTR' };
+function gateLabelHtml(def){
+  const t=(def.tags||[]).find(t=>t.startsWith('gtype:'));
+  if(!t) return '';
+  const name=GATE_NAMES[t.split(':')[1]];
+  if(!name) return '';
+  return `<div class="card-gate-box"><div class="card-gate-label">${name}</div></div>`;
+}
