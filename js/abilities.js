@@ -107,6 +107,19 @@ function getAbilities(card){
       case 'spell_aoe_count':
         if(card.spell) ab.push({timing:'instant',effect:'aoe_count'});
         break;
+      // spell_random_spread:N (2026-07-24, "SCATTERSHOT"/"SHRAPNEL", по прямому запросу
+      // автора) — N очков урона раскидываются СЛУЧАЙНО по вражескому полю: 3 разные цели
+      // по 1, если целей 2 — 2/1 случайно кому, если цель одна — все N ей. Инстант, без
+      // выбора игроком (в отличие от spell_dmg_target) — сам расчёт и рандом живут в
+      // execution-кейсе 'random_spread' ниже, здесь только держим val.
+      case 'spell_random_spread':
+        if(card.spell) ab.push({timing:'instant',effect:'random_spread',val});
+        break;
+      // spell_draw_scale (2026-07-24, "MULTITUDE"/"LEGION", по прямому запросу автора) —
+      // добор = число своих существ на поле (может быть 0, честный скейл без минимума).
+      case 'spell_draw_scale':
+        if(card.spell) ab.push({timing:'instant',effect:'draw_scale'});
+        break;
       // spell_fear_all (2026-07-17, "Mass Sap") — реюзаем ГОТОВЫЙ движок Fear (см. tag
       // 'fear' выше и case 'fear'/dmgCard() в execution-части ниже — атаковать/юзать
       // активку/контратаковать под Fear уже нельзя, это всё уже проверяется по всей
@@ -280,6 +293,41 @@ function triggerAbilities(card, timing, ctx={}){
           } else {
             lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
           }
+        } break;
+
+      case 'random_spread':
+        // SCATTERSHOT/SHRAPNEL (2026-07-24, по прямому запросу автора) — a.val очков урона
+        // раскидываются случайно по вражескому полю: 3 разные цели → по 1 каждой; 2 цели →
+        // одной 2, другой 1 (случайно кому именно); 1 цель → всё val ей одной. Магический
+        // урон (bypassArmor=true), как и остальные spell-damage эффекты выше — Броня не
+        // спасает, Ward/Solana Shield работают как обычно.
+        {
+          const pool=[...G[oppK].field];
+          if(pool.length===0){
+            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+          } else {
+            playSfx('card_spell_atack');
+            const shuffled=[...pool].sort(()=>Math.random()-0.5);
+            const hits=Math.min(a.val,shuffled.length); // число РАЗНЫХ задетых целей
+            const dist=new Array(hits).fill(0);
+            for(let i=0;i<a.val;i++) dist[i%hits]++; // остаток урона всегда уходит первой цели по шаффлу — она уже случайна
+            for(let i=0;i<hits;i++){
+              const t=shuffled[i];
+              queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+              dmgCard(t,dist[i],oppK,true);
+            }
+            lg(`${card.name}: ${a.val} damage randomly split across ${hits} enemy creature(s).`,'imp');
+          }
+        } break;
+
+      case 'draw_scale':
+        // MULTITUDE/LEGION (2026-07-24, по прямому запросу автора) — добор = число своих
+        // существ на поле в момент розыгрыша, БЕЗ минимума (пустое поле = 0 карт, честный
+        // скейл, награда именно за широкий борд, не гарантированный кантрип).
+        {
+          const n=cur.field.length;
+          for(let i=0;i<n;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
+          lg(`${card.name}: draws ${n} card(s) — 1 per creature on your battleground.`,'imp');
         } break;
 
       case 'fear_all':
