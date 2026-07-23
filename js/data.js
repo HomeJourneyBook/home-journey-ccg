@@ -115,7 +115,7 @@ const DEFS = {
   // остаются симметричными. aiScoreCard() читает величину через getTagVal — правок ИИ
   // не требуется.
   t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:1"],     ab:"Target ally: +1 ATK until end of battle.",spell:true},
-  t_sp2:       {name:"JOURNEY",     cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:3"],     ab:"Bolt 3.",spell:true},
+  t_sp2:       {name:"VERDICT",     cost:6,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:999"],     ab:"Destroy target enemy creature.",spell:true}, // JOURNEY → VERDICT (2026-07-24, по прямому запросу автора) — было Bolt3/cost3, теперь Bolt999/cost6 (по сути безусловное убийство), реюз готового spell_dmg_target/doSpellDmgTarget — Ward/Solana Shield работают как обычно, как и у Cataclysm
   t_sp3:       {name:"SHEN'S CALL", cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png",    f:"tea",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
   t_sp4:       {name:"SCHEME",      cost:2,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:4"], ab:"Get 4 essence.",spell:true}, // cost 0→2, ess_add 1→4 (2026-07-23, по прямому запросу автора)
   t_sp5:       {name:"GUST",        cost:2,hp:0,atk:0,art:"💨", img:"1_windy.png",   f:"tea",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
@@ -230,7 +230,7 @@ const DEFS = {
   j_sp10:      {name:"NIGHTMARE",  cost:5,hp:0,atk:0,art:"👹", img:"1_Nightmare.png", f:"jeet",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
   j_sp11:      {name:"FRENZY",     cost:2,hp:0,atk:0,art:"😤", img:"1_Frenzy.png", f:"jeet",tags:["spell","spell_buff_temp:1"], ab:"Target ally: +1 ATK until end of battle.",spell:true}, // нерф 2026-07-21 — см. ARCHIVE (t_sp1) выше, зеркально
   j_sp12:      {name:"CARAPACE",   cost:2,hp:0,atk:0,art:"🪲", img:"1_Carapace.png", f:"jeet",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
-  j_sp13:      {name:"HEX",        cost:3,hp:0,atk:0,art:"💀", img:"1_Hex.png", f:"jeet",tags:["spell","spell_dmg_target:3"], ab:"Bolt 3.",spell:true},
+  j_sp13:      {name:"DAMNATION",        cost:6,hp:0,atk:0,art:"💀", img:"1_Hex.png", f:"jeet",tags:["spell","spell_dmg_target:999"], ab:"Destroy target enemy creature.",spell:true}, // HEX → DAMNATION (2026-07-24, по прямому запросу автора) — было Bolt3/cost3, теперь Bolt999/cost6
   j_sp14:      {name:"OMEN",       cost:1,hp:0,atk:0,art:"🌑", img:"1_Omen.png", f:"jeet",tags:["spell","draw:1","spell_heal_base:2"], ab:"Draw 1. Heal base 2.",spell:true}, // + spell_heal_base:2 (2026-07-23, по прямому запросу автора)
   j_sp15:      {name:"MALICE",     cost:2,hp:0,atk:0,art:"⚔️", img:"1_Malice.png", f:"jeet",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
   j_sp16:      {name:"VIGIL",      cost:2,hp:0,atk:0,art:"🕯️", img:"1_Vigil.png", f:"jeet",tags:["spell","spell_heal_all:2","spell_heal_base:2"], ab:"Heal all allies 2. Heal base 2.",spell:true}, // новый спелл (2026-07-23, по прямому запросу автора)
