@@ -778,7 +778,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    строки, весь лишний зазор уходит наверх, снизу — впритык). Работает одинаково что при
    2vh, что при 4vh строке — height в % от родителя, не фиксированное значение. */
 #gateFilters{align-items:flex-end;}
-#gateFilters .cat-box{height:50%;}
+#gateFilters .cat-box{height:75%;}
 .cat-back{aspect-ratio:2/1; cursor:pointer; background-image:url('../img/cat_back_1.png');}
 .cat-back:hover{background-image:url('../img/cat_back_H.png');}
 .cat-back:active{background-image:url('../img/cat_back_2.png');}
