@@ -839,7 +839,7 @@ const tagIcons = (card.tags||[])
     <div class="card-cost">${card.cost}</div>
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     <div class="card-name-box"><div class="card-name">${card.name}</div></div>
-    <div class="card-ability-box"><div class="card-ability">${formatAbilityText(card.ab)}</div></div>`;
+    <div class="card-ability-box">${gateLabelHtml(card)}<div class="card-ability">${formatAbilityText(card.ab)}</div></div>`;
   if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
@@ -904,7 +904,7 @@ const tagIcons = (card.tags||[])
       <div class="card-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
-    <div class="card-ability-box"><div class="card-ability">${formatAbilityText(card.ab)}</div></div>`;
+    <div class="card-ability-box">${gateLabelHtml(card)}<div class="card-ability">${formatAbilityText(card.ab)}</div></div>`;
   if(card.id===G.previewCard&&zone==='hand'){
     d.classList.add('previewed');
     d.style.zIndex='';
