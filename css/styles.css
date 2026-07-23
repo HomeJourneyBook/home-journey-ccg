@@ -770,6 +770,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cat-w3{aspect-ratio:3/1; background-image:url('../img/cat_3_1_1.png');}
 .cat-w4{aspect-ratio:4/1; background-image:url('../img/cat_4_1_1.png');}
 .cat-w5{aspect-ratio:5/1;}
+/* #gateFilters — 2026-07-24, по прямому запросу автора: кнопки-фильтры Врат сидят в
+   decor-строке (cat-row-decor), которая на широких экранах становится 4vh (см. media query
+   ниже) — при height:100% (унаследовано от .cat-box) кнопки раздувались на всю эту высоту
+   и по умолчанию центрировались (align-items:center), оставляя видимый зазор и сверху, и
+   снизу. Фикс: height:25% (кнопки на 75% меньше) + align-items:flex-end (прижаты к низу
+   строки, весь лишний зазор уходит наверх, снизу — впритык). Работает одинаково что при
+   2vh, что при 4vh строке — height в % от родителя, не фиксированное значение. */
+#gateFilters{align-items:flex-end;}
+#gateFilters .cat-box{height:25%;}
 .cat-back{aspect-ratio:2/1; cursor:pointer; background-image:url('../img/cat_back_1.png');}
 .cat-back:hover{background-image:url('../img/cat_back_H.png');}
 .cat-back:active{background-image:url('../img/cat_back_2.png');}
