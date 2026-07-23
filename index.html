@@ -1071,17 +1071,18 @@
       <button class="cat-box filter-btn cat-w4" data-type="artifact" onclick="playSfx('yellow_buttom');setFilter('type','artifact',this)">Artifacts</button>
     </div>
 
-    <!-- Строка 6b — Врата (архетипы рядовых): 6 кнопок, каждая фильтрует рядовых Travelers
-         по конкретному gtype. Собственный фильтр-ключ (gate), не связан с type — можно
-         сочетать с любым выбором в строке типов выше. Повторный клик по уже активной
-         кнопке снимает фильтр (toggle, см. setGateFilter в catalog.js) — своей "All"
-         кнопки в этом ряду намеренно нет (ровно 6 кнопок, по запросу автора, 2026-07-23).
-         Фон — тот же cat-w2/w3/w4 (cat_N_1_1.png), что у остальных ярлыков каталога, НЕ
-         bg_armor.png (откат 2026-07-23, по прямому запросу автора). Ratio по длине имени:
-         Szarg/Xuiqtr 3:1 (нет отдельного 3.5 в системе — ближайший реальный ассет),
-         Orbiton/Dreegan/Umbasir/Merchird 4:1 (нет отдельного 4.5 — самый широкий реальный
-         ассет в системе, cat_5_1_*.png не существует). -->
-    <div class="cat-row cat-row-3 cat-line-6" id="gateFilters">
+    <!-- Строка 7 — Врата (архетипы рядовых): 6 кнопок, каждая фильтрует рядовых Travelers по
+         конкретному gtype. Собственный фильтр-ключ (gate), не связан с type — можно сочетать
+         с любым выбором в строке типов выше. Повторный клик по уже активной кнопке снимает
+         фильтр (toggle, см. setGateFilter в catalog.js) — своей "All" кнопки в этом ряду
+         намеренно нет (ровно 6 кнопок, по запросу автора, 2026-07-23). Фон — тот же
+         cat-w2/w3/w4 (cat_N_1_1.png), что у остальных ярлыков каталога. Ratio по длине
+         имени: Szarg/Xuiqtr 3:1, Orbiton/Dreegan/Umbasir/Merchird 4:1 (нет отдельного 4.5 —
+         самый широкий реальный ассет в системе). ИСПРАВЛЕНО (2026-07-23, по прямому запросу
+         автора): раньше это была отдельная новая строка со своим cat-line-6 (дублировало
+         текстуру строки типов подряд) — теперь кнопки просто вставлены в уже существовавшую
+         декор-строку 7 (cat-line-7), никакой новой строки не создаётся. -->
+    <div class="cat-row cat-row-decor cat-line-7" id="gateFilters">
       <button class="cat-box filter-btn cat-w3" data-gate="szg" onclick="playSfx('yellow_buttom');setGateFilter('szg',this)">Szarg</button>
       <button class="cat-box filter-btn cat-w4" data-gate="orb" onclick="playSfx('yellow_buttom');setGateFilter('orb',this)">Orbiton</button>
       <button class="cat-box filter-btn cat-w4" data-gate="drg" onclick="playSfx('yellow_buttom');setGateFilter('drg',this)">Dreegan</button>
@@ -1089,9 +1090,6 @@
       <button class="cat-box filter-btn cat-w4" data-gate="mch" onclick="playSfx('yellow_buttom');setGateFilter('mch',this)">Merchird</button>
       <button class="cat-box filter-btn cat-w3" data-gate="xui" onclick="playSfx('yellow_buttom');setGateFilter('xui',this)">Xuiqtr</button>
     </div>
-
-    <!-- Строка 7 — декор. -->
-    <div class="cat-row cat-row-decor cat-line-7"></div>
 
     <!-- Строка 8 — 2vh: Sort: (3:1) + 4 кнопки сортировки, A-Z/HP 2:1, Cost/ATK 3:1
          (обе подписи toggle-пары — A-Z/Z-A, Cost ↑/↓ и т.д. — одинаковой длины,
