@@ -48,8 +48,11 @@ const DEFS = {
 
   // Umbasir Tea (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
     t_trvl583_w:    {name:"TRAVELER #583",  cost:4,hp:4,atk:1,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","enter_heal:2","gtype:umb"],              ab:"On play Heal 2 all allies. Active Bolt 1. Squad Bolt 2."},
-      t_trvl2_w:    {name:"TRAVELER #2",    cost:3,hp:3,atk:1,art:"🌀", img:"2.png",    f:"tea",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
+      j_trvl2_w:    {name:"TRAVELER #2",    cost:3,hp:3,atk:1,art:"🌀", img:"2.png",    f:"jeet",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // перенесён Tea→Jeet (2026-07-24, по прямому запросу автора), cost не менялся
      t_trvl52_w:    {name:"TRAVELER #52",   cost:1,hp:1,atk:1,art:"🌀", img:"52.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
+  t_trvl21_w:    {name:"TRAVELER #21",   cost:1,hp:1,atk:1,art:"🌀", img:"21.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost1 Umbasir, ваниль, статы по образцу пиров #52/#54 (cost1, 0 доп.тегов = hp1/atk1)
+  t_trvl45_w:    {name:"TRAVELER #45",   cost:2,hp:2,atk:1,art:"🌀", img:"45.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost2 Umbasir, ваниль, статы по образцу пира #934 (cost2, 0 доп.тегов = hp2/atk1)
+  t_trvl372_w:    {name:"TRAVELER #372",   cost:4,hp:4,atk:1,art:"🌀", img:"372.png",   f:"tea",tags:["bolt:1","untamed","incarnation:4","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Umbasir, 2 доп.тега (untamed+incarnation:4), статы по образцу пира #20 (cost4, 2 доп.тега = hp4/atk1)
       t_trvl6_w:    {name:"TRAVELER #6",    cost:3,hp:3,atk:1,art:"🌀", img:"6.png",    f:"tea",tags:["bolt:1","enter_draw:1","gtype:umb"],                     ab:"On play Draw 1. Active Bolt 1. Squad Bolt 2."},
       t_trvl387_w:  {name:"TRAVELER #387",  cost:5,hp:5,atk:2,art:"🌀", img:"387.png",  f:"tea",tags:["bolt:1","burn","necrophage","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
       t_trvl137_w:  {name:"TRAVELER #137",  cost:3,hp:3,atk:1,art:"🌀", img:"137.png",  f:"tea",tags:["bolt:1","shield","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
@@ -168,6 +171,7 @@ const DEFS = {
     j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:1,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl53_w:    {name:"TRAVELER #53",   cost:3,hp:3,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play Lose 1. Active Bolt 1. Squad Bolt 2."},
      j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:1,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."},
+  j_trvl4_w:    {name:"TRAVELER #4",   cost:1,hp:1,atk:1,art:"🌀", img:"4.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost1 Umbasir, ваниль, статы по образцу пиров #52/#54
      j_trvl934_w:   {name:"TRAVELER #934",  cost:2,hp:2,atk:1,art:"🌀", img:"934.png",  f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl20_w:    {name:"TRAVELER #20",   cost:4,hp:4,atk:1,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl248_w:   {name:"TRAVELER #248",  cost:5,hp:5,atk:2,art:"🌀", img:"248.png",  f:"jeet",tags:["bolt:1","shield","ward","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
