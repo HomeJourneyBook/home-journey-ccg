@@ -455,6 +455,16 @@ function aiResolvePendingSpellTarget(){
     doSpellDmgTrampleTarget(pool[0]);
     return;
   }
+  if(G.phase==='spellDestroyTarget'){
+    // SUNDER/BLIGHT (2026-07-24) — предпочитаем снести Мир (обычно даёт постоянную ауру
+    // на весь борд — см. aura:atk/aura:armor/world_atk_vs_*), Артефакт как запасной вариант.
+    const humanWorld=G[humanF].world;
+    const humanArt=G[humanF].artifacts[0];
+    const target=humanWorld||humanArt;
+    if(!target){ cancelPendingSpell(); return; }
+    doSpellDestroyTarget(target.id);
+    return;
+  }
 }
 
 // ── АКТИВКА: AOE (Umbasir) ───────────────────────────────────────
@@ -727,6 +737,10 @@ function aiSpellHasValidTarget(card){
   }
   if(hasTag(card,'spell_dmg_trample_target')){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+  }
+  if(hasTag(card,'spell_destroy_target')){
+    // SUNDER/BLIGHT (2026-07-24) — валидно, если у противника есть Мир или Артефакт.
+    return !!G[humanF].world || G[humanF].artifacts.length>0;
   }
   if(hasTag(card,'revive')){
     // 2026-07-16: воскрешённая карта всегда идёт на СВОЁ поле кастующего (см. reviveCard()
