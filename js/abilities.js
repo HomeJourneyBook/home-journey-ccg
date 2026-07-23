@@ -120,6 +120,20 @@ function getAbilities(card){
       case 'spell_draw_scale':
         if(card.spell) ab.push({timing:'instant',effect:'draw_scale'});
         break;
+      // spell_destroy_target (2026-07-24, "SUNDER"/"BLIGHT", по прямому запросу автора) —
+      // таргетируемый (не instant!) — реальный выбор цели/execution живёт в game.js
+      // (TARGETED_SPELL_TAGS, doSpellDestroyTarget()), тут просто регистрация тега не
+      // нужна вообще — обработка идёт напрямую по hasTag() в _resolvePlayedCard(), как и
+      // у остальных TARGETED_SPELL_TAGS. Оставлено без ab.push() намеренно — см. game.js.
+      // spell_destroy_all_enemies (2026-07-24, "CATACLYSM"/"EXTINCTION", по прямому запросу
+      // автора) — уничтожает ВСЕХ вражеских существ. Реализовано как урон 999 через
+      // dmgCard(...,bypassArmor=true) — та же логика, что у остальных spell-урон эффектов
+      // выше, поэтому Solana Shield (абсорб первого удара) и Ward (иммунитет к магии)
+      // работают тут ТАК ЖЕ, как против любого другого болта/AOE — ничего специально не
+      // обходит эти защиты, никакого нового кода для них не потребовалось.
+      case 'spell_destroy_all_enemies':
+        if(card.spell) ab.push({timing:'instant',effect:'destroy_all_enemies'});
+        break;
       // spell_fear_all (2026-07-17, "Mass Sap") — реюзаем ГОТОВЫЙ движок Fear (см. tag
       // 'fear' выше и case 'fear'/dmgCard() в execution-части ниже — атаковать/юзать
       // активку/контратаковать под Fear уже нельзя, это всё уже проверяется по всей
@@ -328,6 +342,25 @@ function triggerAbilities(card, timing, ctx={}){
           const n=cur.field.length;
           for(let i=0;i<n;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
           lg(`${card.name}: draws ${n} card(s) — 1 per creature on your battleground.`,'imp');
+        } break;
+
+      case 'destroy_all_enemies':
+        // CATACLYSM/EXTINCTION (2026-07-24, по прямому запросу автора) — 999 урона (заведомо
+        // летально при любом HP) каждому вражескому существу через dmgCard(...,bypassArmor=
+        // true) — ТОТ ЖЕ путь, что у Bolt/AOE-эффектов выше, поэтому Solana Shield и Ward
+        // работают против этого точно так же, как против любого другого магического удара.
+        {
+          const wipeTargets=[...G[oppK].field];
+          if(wipeTargets.length>0){
+            playSfx('card_spell_atack');
+            wipeTargets.forEach(t=>{
+              queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+              dmgCard(t,999,oppK,true);
+            });
+            lg(`${card.name}: destroys ALL enemy creatures!`,'imp');
+          } else {
+            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+          }
         } break;
 
       case 'fear_all':
