@@ -96,7 +96,7 @@ const DEFS = {
   t_sp1:       {name:"ARCHIVE",     cost:2,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:1"],     ab:"Target ally: +1 ATK until end of battle.",spell:true},
   t_sp2:       {name:"JOURNEY",     cost:3,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:3"],     ab:"Bolt 3.",spell:true},
   t_sp3:       {name:"SHEN'S CALL", cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png",    f:"tea",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
-  t_sp4:       {name:"SCHEME",      cost:0,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:1"], ab:"Get 1 essence.",spell:true},
+  t_sp4:       {name:"SCHEME",      cost:2,hp:0,atk:0,art:"🗺️", img:"1_Sheme.png",   f:"tea",tags:["spell","ess_add:4"], ab:"Get 4 essence.",spell:true}, // cost 0→2, ess_add 1→4 (2026-07-23, по прямому запросу автора)
   t_sp5:       {name:"GUST",        cost:2,hp:0,atk:0,art:"💨", img:"1_windy.png",   f:"tea",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
   t_sp6:       {name:"RECKONING",   cost:4,hp:0,atk:0,art:"⚖️", img:"1_Reckoning.png", f:"tea",tags:["spell","spell_aoe_count"], ab:"AOE equal to how many creatures are on the battleground.",spell:true},
   t_sp7:       {name:"FORGET-ME-NOT", cost:4,hp:0,atk:0,art:"🥀", img:"1_ForgetMeNot.png", f:"tea",tags:["spell","lose:2"], ab:"Lose 2.",spell:true},
@@ -106,8 +106,9 @@ const DEFS = {
   t_sp11:      {name:"REKINDLE",   cost:2,hp:0,atk:0,art:"🕯️", img:"1_Rekindle.png", f:"tea",tags:["spell","spell_untap"], ab:"Target ally creature becomes active.",spell:true},
   t_sp12:      {name:"BULWARK",    cost:2,hp:0,atk:0,art:"🛡️", img:"1_Bulwark.png", f:"tea",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
   t_sp13:      {name:"INSIGHT",    cost:2,hp:0,atk:0,art:"🔮", img:"1_Insight.png", f:"tea",tags:["spell","draw:2"], ab:"Draw 2.",spell:true},
-  t_sp14:      {name:"GLIMPSE",    cost:1,hp:0,atk:0,art:"✨", img:"1_Glimpse.png", f:"tea",tags:["spell","draw:1"], ab:"Draw 1.",spell:true},
+  t_sp14:      {name:"GLIMPSE",    cost:1,hp:0,atk:0,art:"✨", img:"1_Glimpse.png", f:"tea",tags:["spell","draw:1","spell_heal_base:2"], ab:"Draw 1. Heal base 2.",spell:true}, // + spell_heal_base:2 (2026-07-23, по прямому запросу автора)
   t_sp15:      {name:"SPARK",      cost:2,hp:0,atk:0,art:"⚡", img:"1_Spark.png", f:"tea",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
+  t_sp16:      {name:"SANCTUARY",  cost:2,hp:0,atk:0,art:"🕊️", img:"1_Sanctuary.png", f:"tea",tags:["spell","spell_heal_all:2","spell_heal_base:2"], ab:"Heal all allies 2. Heal base 2.",spell:true}, // новый спелл (2026-07-23, по прямому запросу автора)
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
   t_w1:        {name:"IGNEON",     cost:4,hp:0,atk:0,art:"", img:"1_Igneon.png", f:"tea",tags:["world","world_atk_vs_burning:1"],       ab:"Aura: +1 ATK to Burning creatures.",world:true}, // текст сокращён (2026-07-23, по прямому запросу автора); VALLEY → IGNEON (2026-07-23, по прямому запросу автора, переименование + новый арт); on_enemy_death:1 (добор карты) снят 2026-07-23 — карта стакала движок добора карт И командную ауру одновременно, осталась только аура
@@ -174,7 +175,7 @@ const DEFS = {
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2.",spell:true},
   j_sp2:       {name:"OBLIVION",   cost:2,hp:0,atk:0,art:"🌀", img:"1_Oblivion.png",  f:"jeet",tags:["spell","spell_untap"],     ab:"Target ally creature becomes active.",spell:true},
   j_sp3:       {name:"FORGETTING", cost:3,hp:0,atk:0,art:"🖤", img:"1_Forgetting.png",f:"jeet",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
-  j_sp4:       {name:"BLACK MAGIC",cost:0,hp:0,atk:0,art:"⚫", img:"1_Spell1.png",    f:"jeet",tags:["spell","ess_add:1"], ab:"Get 1 essence.",spell:true},
+  j_sp4:       {name:"BLACK MAGIC",cost:2,hp:0,atk:0,art:"⚫", img:"1_Spell1.png",    f:"jeet",tags:["spell","ess_add:4"], ab:"Get 4 essence.",spell:true}, // cost 0→2, ess_add 1→4 (2026-07-23, по прямому запросу автора)
   j_sp5:       {name:"REVERSE",    cost:2,hp:0,atk:0,art:"🔄", img:"1_revers.png",    f:"jeet",tags:["spell","spell_bounce_target"], ab:"Return 1 target creature.",spell:true},
   j_sp6:       {name:"SWARM CULL", cost:4,hp:0,atk:0,art:"🩸", img:"1_SwarmCull.png", f:"jeet",tags:["spell","spell_aoe_count"], ab:"AOE equal to how many creatures are on the battleground.",spell:true},
   j_sp7:       {name:"MINDROT",    cost:4,hp:0,atk:0,art:"🧠", img:"1_Mindrot.png", f:"jeet",tags:["spell","lose:2"], ab:"Lose 2.",spell:true},
@@ -184,8 +185,9 @@ const DEFS = {
   j_sp11:      {name:"FRENZY",     cost:2,hp:0,atk:0,art:"😤", img:"1_Frenzy.png", f:"jeet",tags:["spell","spell_buff_temp:1"], ab:"Target ally: +1 ATK until end of battle.",spell:true}, // нерф 2026-07-21 — см. ARCHIVE (t_sp1) выше, зеркально
   j_sp12:      {name:"CARAPACE",   cost:2,hp:0,atk:0,art:"🪲", img:"1_Carapace.png", f:"jeet",tags:["spell","spell_armor_temp:1"], ab:"Target ally: +1 Armor until end of battle.",spell:true},
   j_sp13:      {name:"HEX",        cost:3,hp:0,atk:0,art:"💀", img:"1_Hex.png", f:"jeet",tags:["spell","spell_dmg_target:3"], ab:"Bolt 3.",spell:true},
-  j_sp14:      {name:"OMEN",       cost:1,hp:0,atk:0,art:"🌑", img:"1_Omen.png", f:"jeet",tags:["spell","draw:1"], ab:"Draw 1.",spell:true},
+  j_sp14:      {name:"OMEN",       cost:1,hp:0,atk:0,art:"🌑", img:"1_Omen.png", f:"jeet",tags:["spell","draw:1","spell_heal_base:2"], ab:"Draw 1. Heal base 2.",spell:true}, // + spell_heal_base:2 (2026-07-23, по прямому запросу автора)
   j_sp15:      {name:"MALICE",     cost:2,hp:0,atk:0,art:"⚔️", img:"1_Malice.png", f:"jeet",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
+  j_sp16:      {name:"VIGIL",      cost:2,hp:0,atk:0,art:"🕯️", img:"1_Vigil.png", f:"jeet",tags:["spell","spell_heal_all:2","spell_heal_base:2"], ab:"Heal all allies 2. Heal base 2.",spell:true}, // новый спелл (2026-07-23, по прямому запросу автора)
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
   j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","world_atk_vs_feared:1"], ab:"Aura: +1 ATK to Feared creatures.",world:true}, // текст сокращён (2026-07-23, по прямому запросу автора); on_own_death:1 снят 2026-07-23 — движок+аура вместе держали карту стабильно в топе
