@@ -232,8 +232,8 @@ function _composeDeckList(f, cfg){
   // #38 (rage) / #11 (enter_heal) → резерв.
   // Jeet Mechird 5 — родной архетип, полный пул без изменений (весь pierce-пакет: #724
   // cost2 + #22 + #804 regen + #663 fear-тема! + #320 necrophage).
-  const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w','t_trvl128_w','t_trvl38_w','t_trvl11_w']
-                   : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w','j_trvl320_w'];
+  const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w','t_trvl38_w','t_trvl11_w']
+                   : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w','j_trvl320_w','j_trvl128_w'];
 
   // Jeet Xuiqtr 5: темповый низ — #50/#37 (cost2) + #579 (fear, тема) + #720 (draw_attack) +
   // #951 (regen). #704 (cost5 3/8 fear+shield) — резерв: топ-энд Jeet и так плотный
