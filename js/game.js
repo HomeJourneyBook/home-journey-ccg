@@ -389,9 +389,23 @@ function doPlay(card, afterResolve){
       // что нужно подождать, прежде чем реально переключать G.turn.
       G._pendingInstantSpellResolve=(G._pendingInstantSpellResolve||0)+1;
       setTimeout(()=>{
-        cur.hand=cur.hand.filter(c=>c.id!==card.id);
-        _resolvePlayedCard(card);
-        G._pendingInstantSpellResolve--;
+        // 2026-07-24 (КРИТИЧНЫЙ баг, автор поймал живьём ПОСЛЕ вчерашнего фикса) —
+        // try/finally: без него, если _resolvePlayedCard() кидает исключение ВНУТРИ
+        // (например баг в одном из execution-кейсов конкретного спелла), счётчик
+        // G._pendingInstantSpellResolve НИКОГДА не декрементится — а endTurn() из
+        // вчерашнего фикса ждёт именно этот счётчик, значит виснет НАВСЕГДА (поллинг
+        // раз в 100мс до бесконечности). Это ХУЖЕ, чем исходный баг — раньше хотя бы
+        // ход в итоге переходил (просто криво). Теперь декремент гарантирован в любом
+        // случае, даже если сам эффект спелла упал с ошибкой (та ошибка уйдёт в консоль,
+        // но игра не замрёт).
+        try{
+          cur.hand=cur.hand.filter(c=>c.id!==card.id);
+          _resolvePlayedCard(card);
+        } catch(e){
+          console.error('Spell resolution failed:', card.name, e);
+        } finally {
+          G._pendingInstantSpellResolve--;
+        }
         if(typeof afterResolve==='function') afterResolve();
       }, 450);
       return;
@@ -1939,9 +1953,19 @@ function endTurn(){
   // просто ждём (поллинг раз в 100мс), вместо того чтобы флипать G.turn прямо сейчас —
   // иначе эффект спелла резолвится уже под ЧУЖИМ ходом.
   if(G._pendingInstantSpellResolve>0){
-    setTimeout(endTurn,100);
-    return;
+    // Защита в глубину (2026-07-24) — сверх try/finally в doPlay(): если счётчик всё же
+    // застрял (мало ли по какой ещё причине), не ждём вечно. 50 попыток по 100мс = 5
+    // секунд — с запасом больше любой реальной анимации/резолва. После лимита форсим ход
+    // всё равно и сбрасываем счётчик, чтобы игра не осталась мёртвой намертво.
+    G._endTurnWaitCount=(G._endTurnWaitCount||0)+1;
+    if(G._endTurnWaitCount<50){
+      setTimeout(endTurn,100);
+      return;
+    }
+    console.warn('endTurn(): _pendingInstantSpellResolve stuck at', G._pendingInstantSpellResolve, '— forcing turn through anyway.');
+    G._pendingInstantSpellResolve=0;
   }
+  G._endTurnWaitCount=0;
   playSfx('yellow_buttom');
   G.sel=null;G.phase='action';G.previewCard=null;
   const next=G.turn==='tea'?'jeet':'tea';
