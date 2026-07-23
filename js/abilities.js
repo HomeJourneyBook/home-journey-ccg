@@ -145,6 +145,16 @@ function getAbilities(card){
         if(card.world||card.artifact) ab.push({timing:'on_turn',effect:'ess_add',val});
         else                          ab.push({timing:'instant',effect:'ess_add',val});
         break;
+      // spell_heal_base:N (2026-07-23, по прямому запросу автора) — мгновенный, разовый
+      // хил базы для спеллов (GLIMPSE/OMEN и новый SANCTUARY/VIGIL). Переиспользует ГОТОВЫЙ
+      // execution-путь 'hp_base' (см. кейс ниже) — тот уже работает от curK универсально,
+      // вне зависимости от timing, просто добавляем 'instant' в список таймингов.
+      case 'spell_heal_base': ab.push({timing:'instant',effect:'hp_base',val}); break;
+      // spell_heal_all:N (2026-07-23, по прямому запросу автора) — мгновенный хил всех
+      // своих существ для спеллов (новый SANCTUARY/VIGIL). Переиспользует ГОТОВЫЙ
+      // execution-путь 'hp_add'/target:'all' (см. enter_heal выше — тот же путь, просто
+      // instant вместо on_enter).
+      case 'spell_heal_all': ab.push({timing:'instant',effect:'hp_add',val,target:'all'}); break;
       // maxhp_add removed - use aura:maxhp for passive, active ability removed
       case 'hp_add':
         if(card.world)         ab.push({timing:'on_enter',effect:'hp_add',val,target:'all'});
