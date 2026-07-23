@@ -157,9 +157,10 @@ const DEFS = {
   // Dreegan Jeet
   j_trvl36_w:   {name:"TRAVELER #36",   cost:3,hp:6,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","untamed","gtype:drg"],               ab:"Squad +1 Armor."},
   j_trvl41_w:   {name:"TRAVELER #41",   cost:2,hp:4,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad +1 Armor."},
-  j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:8,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","vanguard","gtype:drg"],        ab:"Squad +1 Armor."},
+  t_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:8,atk:1,art:"🌳", img:"1015.png", f:"tea",tags:["provoke","regen","vanguard","gtype:drg"],        ab:"Squad +1 Armor."}, // перенесён Jeet→Tea (2026-07-24, по прямому запросу автора)
   j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:8,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad +1 Armor."}, // cost 5→4, hp10→8/atk2→1 (2026-07-23, по прямому запросу автора) — пересчитан под cost4 по образцу пира #388 (TEA, тот же cost4, тоже 2 доп.тега сверх provoke)
   j_trvl775_w:  {name:"TRAVELER #775",  cost:3,hp:6,atk:1,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad +1 Armor."},
+  j_trvl163_w:  {name:"TRAVELER #163",  cost:4,hp:8,atk:1,art:"🌳", img:"163.png",  f:"jeet",tags:["provoke","enter_lose:1","untamed","gtype:drg"],ab:"On play Lose 1. Squad +1 Armor."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Dreegan, 2 доп.тега сверх сигнатурного provoke (enter_lose:1+untamed), статы по образцу пиров #388/#859 (cost4, 2 доп.тега = hp8/atk1); provoke добавлен как сигнатурный тег архетипа (есть у 100% Dreegan-карт), не был явно назван в запросе, но не должен теряться
   j_trvl23_w:   {name:"TRAVELER #23",   cost:3,hp:6,atk:1,art:"🌳", img:"23.png",  f:"jeet",tags:["provoke","vanguard","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #1/#31/#605/#36/#775 (cost3 Dreegan, 1 доп.тег)
   j_trvl27_w:   {name:"TRAVELER #27",   cost:2,hp:4,atk:1,art:"🌳", img:"27.png",  f:"jeet",tags:["provoke","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #14/#41/#58 (cost2 Dreegan, 0 доп.тегов)
 
