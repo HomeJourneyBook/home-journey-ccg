@@ -77,7 +77,8 @@ const DEFS = {
   // Xuiqtr остаётся заметно ударнее Dreegan там же); с cost 4+ упор смещён на
   // рост ATK вместо продолжения HP-кривой Dreegan (та у cost 4-6 уходит в
   // 8-13 HP) — HP растёт медленно (+1 за cost), ATK быстро (+1 за cost).
-    t_trvl402_w:    {name:"TRAVELER #402",  cost:4,hp:6,atk:2,art:"🐙", img:"402.png",  f:"tea",tags:["intercept","regen","rage","gtype:xui"],                   ab:"Squad +1 ATK."},
+    t_trvl402_w:    {name:"TRAVELER #402",  cost:5,hp:8,atk:3,art:"🐙", img:"402.png",  f:"tea",tags:["intercept","regen","rage","gtype:xui"],                   ab:"Squad +1 ATK."}, // cost 4→5 (2026-07-24, по прямому запросу автора), статы по образцу пира #704 (cost5, 2 доп.тега = hp8/atk3)
+  t_trvl847_w:    {name:"TRAVELER #847",  cost:4,hp:6,atk:2,art:"🐙", img:"847.png",  f:"tea",tags:["intercept","ward","gtype:xui"],                   ab:"Squad +1 ATK."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Xuiqtr, 1 доп.тег (ward); прямого 1-тегового пира на cost4 нет, статы взяты по уровню 2-теговых cost4 пиров (#806, было #402 до переноса) — hp6/atk2, не проверено симуляцией
      t_trvl26_w:    {name:"TRAVELER #26",   cost:3,hp:5,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["intercept","taunt_break","gtype:xui"],            ab:"Squad +1 ATK."},
      t_trvl39_w:    {name:"TRAVELER #39",   cost:2,hp:3,atk:1,art:"🐙", img:"39.png",   f:"tea",tags:["intercept","gtype:xui"],                   ab:"Squad +1 ATK."},
      t_trvl972_w:    {name:"TRAVELER #972",  cost:3,hp:5,atk:2,art:"🐙", img:"972.png",  f:"tea",tags:["intercept","burn","gtype:xui"],          ab:"Squad +1 ATK."},
@@ -189,8 +190,9 @@ const DEFS = {
      j_trvl50_w:    {name:"TRAVELER #50",   cost:2,hp:3,atk:1,art:"🐙", img:"50.png",   f:"jeet",tags:["intercept","gtype:xui"],                 ab:"Squad +1 ATK."},
      j_trvl37_w:    {name:"TRAVELER #37",   cost:2,hp:3,atk:1,art:"🐙", img:"37.png",   f:"jeet",tags:["intercept","gtype:xui"],                 ab:"Squad +1 ATK."},
      j_trvl720_w:   {name:"TRAVELER #720",  cost:3,hp:5,atk:2,art:"🐙", img:"720.png",  f:"jeet",tags:["intercept","atk_vs_feared:1","gtype:xui"],                 ab:"Squad +1 ATK."}, // ИСПРАВЛЕНО (2026-07-23): draw_attack:1 → atk_vs_burning:1 был ошибкой — Jeet это fear-фракция, не burn-фракция (Tea жжёт, Jeet страшит), карта рухнула до 45.3% winrate потому что бонус по горящим целям почти никогда не триггерился на JEET-стороне. Заменено на atk_vs_feared:1 (та же механика, что у RYVLEN) — тематически верно для фракции
-     j_trvl951_w:   {name:"TRAVELER #951",  cost:3,hp:5,atk:2,art:"🐙", img:"951.png",  f:"jeet",tags:["intercept","regen","gtype:xui"],                 ab:"Squad +1 ATK."},
+     t_trvl951_w:   {name:"TRAVELER #951",  cost:3,hp:5,atk:2,art:"🐙", img:"951.png",  f:"tea",tags:["intercept","regen","gtype:xui"],                 ab:"Squad +1 ATK."}, // перенесён Jeet→Tea (2026-07-24, по прямому запросу автора), cost не менялся
      j_trvl704_w:    {name:"TRAVELER #704",  cost:5,hp:8,atk:3,art:"🐙", img:"704.png",  f:"jeet",tags:["intercept","fear","shield","gtype:xui"],             ab:"Squad +1 ATK."},
+  j_trvl806_w:    {name:"TRAVELER #806",  cost:4,hp:6,atk:2,art:"🐙", img:"806.png",  f:"jeet",tags:["intercept","vanguard","regen","gtype:xui"],             ab:"Squad +1 ATK."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Xuiqtr, 2 доп.тега (vanguard+regen), статы по образцу пира #402 (было cost4, 2 доп.тега = hp6/atk2, до переноса на cost5)
   j_trvl3_w:    {name:"TRAVELER #3",    cost:3,hp:5,atk:2,art:"🐙", img:"3.png",  f:"jeet",tags:["intercept","rage","gtype:xui"],             ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #579/#951/#720/#26/#972 (cost3 Xuiqtr, 1 доп.тег)
   j_trvl0_w:    {name:"TRAVELER #0",    cost:2,hp:3,atk:1,art:"🐙", img:"0.png",  f:"jeet",tags:["intercept","gtype:xui"],             ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #50/#37/#39 (cost2 Xuiqtr, 0 доп.тегов)
 
