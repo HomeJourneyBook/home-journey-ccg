@@ -6,7 +6,24 @@ function getCardType(def){
   return 'creature';
 }
 
-const catalogFilters={faction:'all',type:'all',sort:'name',dir:1};
+const catalogFilters={faction:'all',type:'all',gate:'all',sort:'name',dir:1};
+
+// setGateFilter — 2026-07-23, по прямому запросу автора: отдельная функция вместо
+// обычного setFilter(), потому что в строке Врат нет своей кнопки "All" (ровно 6 кнопок,
+// по архетипу на кнопку) — сброс к 'all' идёт через повторный клик по уже активной кнопке
+// (toggle), а не через отдельную кнопку в этом ряду.
+function setGateFilter(val,btn){
+  const group=btn.parentElement;
+  if(catalogFilters.gate===val){
+    catalogFilters.gate='all';
+    btn.classList.remove('active');
+  } else {
+    catalogFilters.gate=val;
+    group.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  renderCatalog();
+}
 
 function setSort(val,btn){
   if(catalogFilters.sort===val){
@@ -52,6 +69,7 @@ function renderCatalog(){
     }
     const type=getCardType(def);
     if(catalogFilters.type!=='all'&&type!==catalogFilters.type) return false;
+    if(catalogFilters.gate!=='all'&&!(def.tags||[]).includes('gtype:'+catalogFilters.gate)) return false;
     if(search&&!def.name.toLowerCase().includes(search)&&!def.ab.toLowerCase().includes(search)) return false;
     return true;
   });
