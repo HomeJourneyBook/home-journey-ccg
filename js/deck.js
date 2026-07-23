@@ -144,9 +144,13 @@ function _composeDeckList(f, cfg){
   const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w','t_trvl38_w']
                    : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w'];
 
-  // RESERVE: Tea #26, Jeet #720/#704.
+  // RESERVE: Tea #26, Jeet #704. (#951 перенесён к TEA ранее сегодня — ключ j_trvl951_w
+  // ПЕРЕСТАЛ существовать в DEFS, но тут в массиве остался стухший — mkCard() на
+  // несуществующий ключ возвращает null, и этот null тихо просачивался в колоду JEET,
+  // а потом в руку при обычном доборе — ТА САМАЯ причина зависания хода, пойманная
+  // автором через консоль 2026-07-24. Заменено на #720 из резерва.)
   const xui    = t ? ['t_trvl39_w','t_trvl972_w','t_trvl402_w','t_trvl26_w']
-                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl951_w'];
+                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl720_w'];
 
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
