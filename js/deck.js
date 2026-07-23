@@ -47,7 +47,7 @@ const SPELL_COPIES = {
   t_sp1:1,  // ARCHIVE (combat-trick +1 ATK)
   t_sp2:1,  // JOURNEY (bolt 3)
   t_sp3:1,  // SHEN'S CALL (revive full)
-  t_sp4:0,  // SCHEME (ess_add) — исключён
+  t_sp4:0,  // SCHEME (cost2, ess_add:4 — rebalanced 2026-07-23) — всё ещё исключён из classic, решение включать ли не принято
   t_sp5:2,  // GUST (bounce any)
   t_sp6:1,  // RECKONING (aoe count)
   t_sp7:1,  // FORGET-ME-NOT (discard 2)
@@ -57,13 +57,14 @@ const SPELL_COPIES = {
   t_sp11:1, // REKINDLE (untap)
   t_sp12:1, // BULWARK (combat-trick +1 Armor)
   t_sp13:2, // INSIGHT (draw 2)
-  t_sp14:2, // GLIMPSE (draw 1)
+  t_sp14:2, // GLIMPSE (draw 1 + heal base 2)
   t_sp15:1, // SPARK (bolt 2)
+  t_sp16:1, // SANCTUARY (heal all 2 + heal base 2) — new 2026-07-23
   // Jeet
   j_sp1:2,  // JEET WAVE (draw 2)
   j_sp2:1,  // OBLIVION (untap)
   j_sp3:1,  // FORGETTING (revive full)
-  j_sp4:0,  // BLACK MAGIC (ess_add) — исключён
+  j_sp4:0,  // BLACK MAGIC (cost2, ess_add:4 — rebalanced 2026-07-23) — всё ещё исключён из classic, решение включать ли не принято
   j_sp5:2,  // REVERSE (bounce any)
   j_sp6:1,  // SWARM CULL (aoe count)
   j_sp7:1,  // MINDROT (discard 2)
@@ -73,8 +74,9 @@ const SPELL_COPIES = {
   j_sp11:1, // FRENZY (combat-trick +1 ATK)
   j_sp12:1, // CARAPACE (combat-trick +1 Armor)
   j_sp13:1, // HEX (bolt 3)
-  j_sp14:2, // OMEN (draw 1)
+  j_sp14:2, // OMEN (draw 1 + heal base 2)
   j_sp15:1, // MALICE (bolt 2)
+  j_sp16:1, // VIGIL (heal all 2 + heal base 2) — new 2026-07-23
 };
 
 const DECK_CONFIGS = {
@@ -134,8 +136,8 @@ function _composeDeckList(f, cfg){
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
 
   // +GLIMPSE/OMEN (2026-07-19, ребаланс кривой под ход 1) — см. SPELL_COPIES выше.
-  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15']
-                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15'];
+  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16']
+                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16'];
 
   // 2026-07-22 (по прямому запросу автора, печатная classic-колода) — оба Мира и оба
   // Артефакта на фракцию снова в игре (VALLEY/HUNGER возвращены, несмотря на прежний баг
