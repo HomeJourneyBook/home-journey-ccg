@@ -37,6 +37,7 @@ const DEFS = {
   t_trvl605_w:  {name:"TRAVELER #605",  cost:3,hp:6,atk:1,art:"🌳", img:"605.png",  f:"tea",tags:["provoke","shield","gtype:drg"],            ab:"Squad +1 Armor."},
   t_trvl388_w:  {name:"TRAVELER #388",  cost:4,hp:8,atk:1,art:"🌳", img:"388.png",  f:"tea",tags:["provoke","untamed","enter_draw:1","gtype:drg"],            ab:"On play Draw 1. Squad +1 Armor."},
   t_trvl14_w:   {name:"TRAVELER #14",   cost:2,hp:4,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad +1 Armor."},
+  t_trvl58_w:   {name:"TRAVELER #58",   cost:2,hp:4,atk:1,art:"🌳", img:"58.png",   f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad +1 Armor."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #14/#41 (cost2 Dreegan, 0 доп.тегов)
 
   // Umbasir Tea (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
     t_trvl583_w:    {name:"TRAVELER #583",  cost:4,hp:4,atk:1,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","enter_heal:2","gtype:umb"],              ab:"On play Heal 2 all allies. Active Bolt 1. Squad Bolt 2."},
@@ -55,6 +56,9 @@ const DEFS = {
   t_trvl35_w:   {name:"TRAVELER #35",   cost:2,hp:2,atk:1,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad +1 ATK."},
   t_trvl11_w:   {name:"TRAVELER #11",   cost:3,hp:3,atk:2,art:"🤖", img:"11.png",   f:"tea",tags:["pierce","enter_heal:2","gtype:mch"],                    ab:"On play Heal 2 all allies. Squad +1 ATK."},
   t_trvl921_w:  {name:"TRAVELER #921",  cost:3,hp:3,atk:2,art:"🤖", img:"921.png",  f:"tea",tags:["pierce","burn","gtype:mch"],           ab:"Squad +1 ATK."},
+  t_trvl17_w:   {name:"TRAVELER #17",   cost:3,hp:3,atk:2,art:"🤖", img:"17.png",   f:"tea",tags:["pierce","incarnation:4","gtype:mch"],           ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #38/#22/#804 (cost3 Mechird, 1 доп.тег)
+  t_trvl832_w:  {name:"TRAVELER #832",  cost:3,hp:3,atk:2,art:"🤖", img:"832.png",  f:"tea",tags:["pierce","ward","gtype:mch"],           ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #38/#22/#804 (cost3 Mechird, 1 доп.тег)
+  t_trvl30_w:   {name:"TRAVELER #30",   cost:2,hp:2,atk:1,art:"🤖", img:"30.png",   f:"tea",tags:["pierce","gtype:mch"],           ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #18/#35/#724 (cost2 Mechird, 0 доп.тегов)
   j_trvl128_w:  {name:"TRAVELER #128",  cost:6,hp:5,atk:4,art:"🤖", img:"128.png",  f:"jeet",tags:["pierce","atk_vs_feared:1","incarnation:4","gtype:mch"],           ab:"Squad +1 ATK."}, // перенесён Tea→Jeet + atk_vs_burning→atk_vs_feared (Haunt) (2026-07-23, по прямому запросу автора) — Jeet fear-фракция, Kindle не подходил тематически (карта рухнула до 45.3% на Tea); откат статов 2026-07-22 — hp6/atk5 тестировалось в sim и стало СИЛЬНЕЕ (68.2% против 56.6%), возвращено на hp5/atk4
 
   // Xuiqtr Tea
@@ -67,6 +71,8 @@ const DEFS = {
      t_trvl26_w:    {name:"TRAVELER #26",   cost:3,hp:5,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["intercept","taunt_break","gtype:xui"],            ab:"Squad +1 ATK."},
      t_trvl39_w:    {name:"TRAVELER #39",   cost:2,hp:3,atk:1,art:"🐙", img:"39.png",   f:"tea",tags:["intercept","gtype:xui"],                   ab:"Squad +1 ATK."},
      t_trvl972_w:    {name:"TRAVELER #972",  cost:3,hp:5,atk:2,art:"🐙", img:"972.png",  f:"tea",tags:["intercept","burn","gtype:xui"],          ab:"Squad +1 ATK."},
+  t_trvl42_w:   {name:"TRAVELER #42",   cost:2,hp:3,atk:1,art:"🐙", img:"42.png",   f:"tea",tags:["intercept","gtype:xui"],          ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #39/#50/#37 (cost2 Xuiqtr, 0 доп.тегов)
+  t_trvl32_w:   {name:"TRAVELER #32",   cost:2,hp:3,atk:1,art:"🐙", img:"32.png",   f:"tea",tags:["intercept","gtype:xui"],          ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #39/#50/#37 (cost2 Xuiqtr, 0 доп.тегов)
 
   // ── TEA LEGENDARIES ─────────────────────────────────────────────
   // Ребаланс 2026-07-19 (по прямому запросу автора) — стоимость легендарок поднята с
@@ -139,6 +145,8 @@ const DEFS = {
   j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:8,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","vanguard","gtype:drg"],        ab:"Squad +1 Armor."},
   j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:8,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad +1 Armor."}, // cost 5→4, hp10→8/atk2→1 (2026-07-23, по прямому запросу автора) — пересчитан под cost4 по образцу пира #388 (TEA, тот же cost4, тоже 2 доп.тега сверх provoke)
   j_trvl775_w:  {name:"TRAVELER #775",  cost:3,hp:6,atk:1,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad +1 Armor."},
+  j_trvl23_w:   {name:"TRAVELER #23",   cost:3,hp:6,atk:1,art:"🌳", img:"23.png",  f:"jeet",tags:["provoke","vanguard","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #1/#31/#605/#36/#775 (cost3 Dreegan, 1 доп.тег)
+  j_trvl27_w:   {name:"TRAVELER #27",   cost:2,hp:4,atk:1,art:"🌳", img:"27.png",  f:"jeet",tags:["provoke","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #14/#41/#58 (cost2 Dreegan, 0 доп.тегов)
 
   // Umbasir Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
     j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:1,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","taunt_break","gtype:umb"],           ab:"Active Bolt 1. Squad Bolt 2."},
@@ -154,6 +162,7 @@ const DEFS = {
   j_trvl804_w:  {name:"TRAVELER #804",  cost:3,hp:3,atk:2,art:"🤖", img:"804.png",  f:"jeet",tags:["pierce","regen","gtype:mch"],          ab:"Squad +1 ATK."},
   j_trvl663_w:  {name:"TRAVELER #663",  cost:4,hp:4,atk:3,art:"🤖", img:"663.png",  f:"jeet",tags:["pierce","fear","enter_heal:2","gtype:mch"],          ab:"On play Heal 2 all allies. Squad +1 ATK."},
   j_trvl320_w:  {name:"TRAVELER #320",  cost:4,hp:4,atk:3,art:"🤖", img:"320.png",  f:"jeet",tags:["pierce","necrophage","untamed","gtype:mch"],          ab:"Squad +1 ATK."},
+  j_trvl901_w:  {name:"TRAVELER #901",  cost:3,hp:3,atk:2,art:"🤖", img:"901.png",  f:"jeet",tags:["pierce","ward","gtype:mch"],          ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #22/#804/#38 (cost3 Mechird, 1 доп.тег)
 
   // Xuiqtr Jeet (ребаланс 2026-07-20 — см. комментарий у Xuiqtr Tea выше)
     j_trvl579_w:    {name:"TRAVELER #579",  cost:3,hp:5,atk:2,art:"🐙", img:"579.png",  f:"jeet",tags:["intercept","fear","gtype:xui"],          ab:"Squad +1 ATK."},
@@ -162,6 +171,8 @@ const DEFS = {
      j_trvl720_w:   {name:"TRAVELER #720",  cost:3,hp:5,atk:2,art:"🐙", img:"720.png",  f:"jeet",tags:["intercept","atk_vs_feared:1","gtype:xui"],                 ab:"Squad +1 ATK."}, // ИСПРАВЛЕНО (2026-07-23): draw_attack:1 → atk_vs_burning:1 был ошибкой — Jeet это fear-фракция, не burn-фракция (Tea жжёт, Jeet страшит), карта рухнула до 45.3% winrate потому что бонус по горящим целям почти никогда не триггерился на JEET-стороне. Заменено на atk_vs_feared:1 (та же механика, что у RYVLEN) — тематически верно для фракции
      j_trvl951_w:   {name:"TRAVELER #951",  cost:3,hp:5,atk:2,art:"🐙", img:"951.png",  f:"jeet",tags:["intercept","regen","gtype:xui"],                 ab:"Squad +1 ATK."},
      j_trvl704_w:    {name:"TRAVELER #704",  cost:5,hp:8,atk:3,art:"🐙", img:"704.png",  f:"jeet",tags:["intercept","fear","shield","gtype:xui"],             ab:"Squad +1 ATK."},
+  j_trvl3_w:    {name:"TRAVELER #3",    cost:3,hp:5,atk:2,art:"🐙", img:"3.png",  f:"jeet",tags:["intercept","rage","gtype:xui"],             ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #579/#951/#720/#26/#972 (cost3 Xuiqtr, 1 доп.тег)
+  j_trvl0_w:    {name:"TRAVELER #0",    cost:2,hp:3,atk:1,art:"🐙", img:"0.png",  f:"jeet",tags:["intercept","gtype:xui"],             ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #50/#37/#39 (cost2 Xuiqtr, 0 доп.тегов)
 
   // ── JEET LEGENDARIES ────────────────────────────────────────────
   // Ребаланс 2026-07-19 — см. подробный комментарий у TEA LEGENDARIES выше, тот же принцип.
