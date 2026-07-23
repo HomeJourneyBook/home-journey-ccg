@@ -593,6 +593,7 @@ function mkSmallEl(card){
   'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
+  'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -817,6 +818,7 @@ function mkEl(card,zone){
   'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
+  'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
 };
 const tagIcons = (card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
