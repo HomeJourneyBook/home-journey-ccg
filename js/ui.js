@@ -1665,6 +1665,7 @@ const TAG_TOOLTIPS = {
   'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes X damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-burning target (see atk_vs_burning).' },
   'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage. One-time — does nothing once broken.' },
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the battleground. If the creature leaves the battleground and returns, the shield recharges.' },
+  'atk_vs_feared': { name: 'Haunt', desc: 'Deals +X bonus damage when attacking a Feared creature.' },
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box';
@@ -1683,6 +1684,9 @@ function _tooltipDataFor(el){
     // без параметра в тексте тултипа не нуждаются в подстановке значения.
     if(el.dataset.tag==='incarnation' && el.dataset.tagval){
       return { name: `Incarnation ${el.dataset.tagval}`, desc: base.desc };
+    }
+    if(el.dataset.tag==='atk_vs_feared' && el.dataset.tagval){
+      return { name: base.name, desc: base.desc.replace('+X', `+${el.dataset.tagval}`) };
     }
     return base;
   }
