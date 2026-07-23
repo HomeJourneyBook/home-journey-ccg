@@ -83,78 +83,7 @@ const DECK_CONFIGS = {
   // Xuiqtr, Чай — Szarg/Dreegan/Orbiton, ровно наоборот) — см. archetypeSizes и полный
   // разбор в CLAUDE.md "Рефактор классик-колоды под тему Врат". Итог: по 18 рядовых
   // существ на фракцию (полный симметричный расклад 4+4+4+2+2+2 против 2+2+2+4+4+4).
-  classic: { legCount:5,
-    archetypeSizes: {
-      // Финал (2026-07-18): 18 существ/фракцию, кривая по costу 1-5 идентична у обеих
-      // фракций (3/3/4/5/3) — см. полный разбор в CLAUDE.md "Рефактор классик-колоды под
-      // тему Врат". Архетипные квоты сохраняют тему: Tea гуще Szarg/Orb/Drg (по 3-3-4,
-      // раньше было 4/4/4 — сократили под кривую), Jeet гуще Umb/Mch/Xui (4/4/3).
-      //
-      // +8 существ (2026-07-19, ребаланс кривой под ход 1 — см. AI BALANCE NOTES) —
-      // szarg/orb/umb подняты на +2/+1/+1 НА ФРАКЦИЮ, все добавленные — cost 1.
-      // Абсолютный разрыв между фракциями в каждом архетипе сохранён (тема Врат не
-      // размыта, обе стороны выросли на одинаковое число карт в своих архетипах):
-      // Szarg тея 4→6, джит 2→4 (джиту не хватало только #740 — #49 уже был в пуле,
-      // просто раньше срезался); Orbiton тея 4→5 (новый #503), джит 2→3 (свободный
-      // #429 уже был в пуле); Umbasir тея 2→3 и джит 4→5 (свободные #52/#54 уже были
-      // в пуле) — ни Umbasir, ни Orbiton-джит не потребовали ни одной новой карты.
-      //
-      // -6 существ/фракцию (2026-07-20, по прямому запросу автора — колода 46 карт была
-      // почти вся синглтон, крупнее жанровой нормы (Hearthstone 30/LoR 40), решили
-      // подрезать ближе к ~40-42). Резали ТОЛЬКО полностью безтеговые "вейниллы"-дубликаты
-      // (identical stat-stick тела внутри одного архетипа/costа, см. конкретные ключи в
-      // szarg/orb/mch/umb ниже) — НИ ОДНА карта с fear/burn не тронута (Tea burn остался
-      // 6, Jeet fear остался 8, оба числа проверены до и после правки), и НИ ОДИН архетип
-      // не срезан ниже 1 представителя. Tea Mechird/Xuiqtr намеренно НЕ трогали ниже уже
-      // урезанного минимума — там сидят наши Rage-карты (#38/#402), их состав и так только
-      // что чинили. Кривая проверена после — форма осталась гладкой (см. CLAUDE.md запись
-      // за сегодня), не просто "минус случайные карты".
-      // 2026-07-21 (полный ребаланс: cost/hp/atk теперь выводится из числа НФТ-тегов на
-      // карте — см. CLAUDE.md за сегодня; плюс уники/миры/артефакты разъехались по всей
-      // кривой 4-8, а не были свалены в 6-8). Колода пересчитана под РОВНО 40 карт/фракцию
-      // (fix-часть — 5 уников+17 спеллов+2 мира+2 артефакта — теперь занимает 26 карт, значит
-      // рядовых должно быть 14, не 16 как раньше). Пропорция фаворит:остальные сохранена
-      // 9:5 (была 10:6) — тема Врат не размыта. Добавлены 2 новые карты под cost2 (у Сзарга/
-      // Умбасира/Орбитона его не было вообще — все их безтеговые карты уходили на cost1):
-      // TRAVELER #218 (Orbiton/Tea) и TRAVELER #934 (Umbasir/Jeet).
-      // 2026-07-21 (вечер, по прямому запросу автора — "стартеры 3 Врат против 3 Врат",
-      // см. аудит HJ_CCG_Balance_Audit): каждая фракция играет ТОЛЬКО своими тремя
-      // фаворитными Вратами, вторые три архетипа отданы сопернику целиком. Это разом:
-      // (1) оживляет Squad-систему — при 5-6 картах архетипа в деке "3 на поле" становится
-      //     реальной целью (при старых квотах 8 из 12 фракционных архетипов физически не
-      //     могли собрать тройку — мёртвый текст "Squad ..." на картах);
-      // (2) чинит раннюю кривую (все однодропы Szarg/Orbiton теперь в одной деке);
-      // (3) делает фракции несимметричными на уровне существ: Tea = стена Dreegan-провоков
-      //     + хил Orbiton + Szarg-свинг; Jeet = pierce-агрессия Mechird + intercept-размены
-      //     Xuiqtr + Umbasir-болты. Естественная камень-ножницы: pierce (после trample-
-      //     редизайна) упирается в Provoke, которого у Jeet теперь нет — а у Tea его стена;
-      // (4) оставшиеся 3+3 архетипа = готовый Starter Set 2 без единой новой механики.
-      // Дека ужата 40→35 (16 рядовых + 5 уников + 12 спеллов + 1 мир + 1 артефакт):
-      // при экономике HS-типа (кап 10) и медианной партии ~14 ходов игрок видит ~20 карт —
-      // в 35-карточной деке это уже больше половины колоды, "нужная карта не пришла"
-      // случается ощутимо реже, чем при 40. Соотношение тел 21/35 = 60% — жанровая норма
-      // (HS midrange ~60%), было 19/40 = 47.5%.
-      // 2026-07-22 (по прямому запросу автора, печатная classic-колода): назад к ВСЕМ 6
-      // Вратам на фракцию (не только 3 избранным) — но с сохранённой асимметрией фаворитов
-      // (мин.5 у родных Врат, мин.3 у остальных). Подобрано программно (brute-force) под
-      // ОДНУ общую кривую маны, одинаковую для Tea и Jeet — с ограничением сохранить все
-      // burn-карты Tea (57/10/921/972/387) и fear-карты Jeet (523/859/550/579) внутри
-      // выборки. См. полный список конкретных карт в _composeDeckList() ниже.
-      // 2026-07-22 (позже в тот же день) — TRAVELER #128 (Tea Mechird) и #434 (Jeet Szarg),
-      // единственные cost6-карты выборки, полностью убраны из classic (не просто урезан
-      // cost) — обе стабильно горячие в sim даже после нескольких заходов правок (59.5% у
-      // #128 на 5000-игровой выборке). Обе остаются в резерве в data.js. Итог: 24
-      // рядовых/фракцию (было 25), кривая по-прежнему симметрична у обеих фракций —
-      // 1:5/2:5/3:9/4:4/5:1, cost6 теперь пуст с обеих сторон. Полная колода — 49
-      // карт/фракцию (24 существа + 5 уников + 16 спеллов + 2 мира + 2 артефакта).
-      szarg: { tea:5, jeet:2 },
-      orb:   { tea:5, jeet:3 },
-      drg:   { tea:5, jeet:4 },
-      umb:   { tea:3, jeet:5 },
-      mch:   { tea:3, jeet:5 },
-      xui:   { tea:3, jeet:5 },
-    },
-  },
+  classic: {},
 };
 
 function shuffleArr(d){
@@ -193,16 +122,19 @@ function _composeDeckList(f, cfg){
   // 3 однодропа + оба burn/regen трёхдропа (57 burn — тема!, 34 regen); #694 (vanguard) →
   // резерв (дублирующий тег, уже есть на Faeron/Tuborg). Jeet 3 — #12/#49 (два из четырёх
   // идентичных однодропов) + #434 (fear — тема! + incarnation топ-энд).
-  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl25_w','t_trvl34_w','t_trvl57_w','t_trvl694_w','t_trvl890_w']
-                   : ['j_trvl12_w','j_trvl49_w','j_trvl434_w','j_trvl971_w','j_trvl740_w','j_trvl551_w'];
+  // RESERVE (not in deck, still live in data.js/catalog): Tea #694/#890, Jeet
+  // #434/#971/#740/#551.
+  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl25_w','t_trvl34_w','t_trvl57_w']
+                   : ['j_trvl12_w','j_trvl49_w'];
 
   // Tea Orbiton 5: два однодропа + #218 (cost2) + #10 (burn, тема) + #398 (vanguard+untamed).
   // #1034 (третий идентичный однодроп) — резерв.
   // 2026-07-22 (симметричная кривая): Tea 5 держит #433/#1034 (однодропы) + #218 (cost2) +
   // #10 (burn — тема!) + #398 (vanguard+untamed топ-энд); #503 (третий идентичный
   // однодроп) → резерв. Jeet 3 — #170/#429 (однодропы) + #523 (fear — тема!).
-  const orb    = t ? ['t_trvl433_w','t_trvl1034_w','t_trvl218_w','t_trvl10_w','t_trvl398_w','t_trvl503_w']
-                   : ['j_trvl170_w','j_trvl429_w','j_trvl523_w','j_trvl454_w'];
+  // RESERVE: Tea #503, Jeet #454.
+  const orb    = t ? ['t_trvl433_w','t_trvl1034_w','t_trvl218_w','t_trvl10_w','t_trvl398_w']
+                   : ['j_trvl170_w','j_trvl429_w','j_trvl523_w'];
 
   // Tea Dreegan 5: вся стена целиком — #14 (cost2) + #1 (enter_heal) + #31 (burn, тема) +
   // #605 (shield) + #388 (enter_draw).
@@ -211,8 +143,9 @@ function _composeDeckList(f, cfg){
   // 2026-07-22 (симметричная кривая): Jeet Dreegan 4 (нелюбимый, был quota:0) — #41 (cost2)
   // + #36 (cost3) + #775 (cost3) + #859 (fear — тема! + provoke + vanguard, cost5 топ-энд);
   // #1015 (cost4) → резерв.
+  // RESERVE: Jeet #1015.
   const drg    = t ? ['t_trvl14_w','t_trvl1_w','t_trvl31_w','t_trvl605_w','t_trvl388_w']
-                   : ['j_trvl41_w','j_trvl36_w','j_trvl775_w','j_trvl859_w','j_trvl1015_w'];
+                   : ['j_trvl41_w','j_trvl36_w','j_trvl775_w','j_trvl859_w'];
 
   // Jeet Umbasir 6: #54 (единственный однодроп Jeet!) + #934 (cost2) + #53 (enter_lose) +
   // #550 (fear+taunt_break — оба про тему и про взлом Tea-стены) + #20 (vanguard) + #248
@@ -222,8 +155,9 @@ function _composeDeckList(f, cfg){
   // #137 (три cost3-варианта) → резерв. Jeet Umbasir 5 — родной архетип, #54 (единственный
   // однодроп!) + #934 (cost2) + #53 (cost3) + #550 (fear+taunt_break — тема!) + #20
   // (vanguard); #248 (shield+ward топ-энд) → резерв.
-  const umb    = t ? ['t_trvl52_w','t_trvl583_w','t_trvl387_w','t_trvl2_w','t_trvl6_w','t_trvl137_w']
-                   : ['j_trvl54_w','j_trvl934_w','j_trvl53_w','j_trvl550_w','j_trvl20_w','j_trvl248_w'];
+  // RESERVE: Tea #2/#6/#137, Jeet #248.
+  const umb    = t ? ['t_trvl52_w','t_trvl583_w','t_trvl387_w']
+                   : ['j_trvl54_w','j_trvl934_w','j_trvl53_w','j_trvl550_w','j_trvl20_w'];
 
   // Jeet Mechird 5: полный pierce-пакет — #724 (cost2) + #22 + #804 (regen) + #663
   // (fear, тема) + #320 (necrophage).
@@ -232,8 +166,10 @@ function _composeDeckList(f, cfg){
   // #38 (rage) / #11 (enter_heal) → резерв.
   // Jeet Mechird 5 — родной архетип, полный пул без изменений (весь pierce-пакет: #724
   // cost2 + #22 + #804 regen + #663 fear-тема! + #320 necrophage).
-  const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w','t_trvl38_w','t_trvl11_w']
-                   : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w','j_trvl320_w','j_trvl128_w'];
+  // RESERVE: Tea #38/#11, Jeet #128 (moved Tea→Jeet 2026-07-23, stays in reserve — was
+  // never meant to be in the live classic deck to begin with, see history above).
+  const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w']
+                   : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w','j_trvl320_w'];
 
   // Jeet Xuiqtr 5: темповый низ — #50/#37 (cost2) + #579 (fear, тема) + #720 (draw_attack) +
   // #951 (regen). #704 (cost5 3/8 fear+shield) — резерв: топ-энд Jeet и так плотный
@@ -242,8 +178,9 @@ function _composeDeckList(f, cfg){
   // #972 (burn — тема!) + #402 (cost4, intercept/regen/rage); #26 (taunt_break) → резерв.
   // Jeet Xuiqtr 5 — родной архетип, полный набор без изменений (темповый низ: #50/#37
   // cost2 + #579 fear-тема! + #720 draw_attack + #951 regen); #704 (топ-энд) → резерв.
-  const xui    = t ? ['t_trvl39_w','t_trvl972_w','t_trvl402_w','t_trvl26_w']
-                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl720_w','j_trvl951_w','j_trvl704_w'];
+  // RESERVE: Tea #26, Jeet #704.
+  const xui    = t ? ['t_trvl39_w','t_trvl972_w','t_trvl402_w']
+                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl720_w','j_trvl951_w'];
 
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
@@ -264,11 +201,10 @@ function _composeDeckList(f, cfg){
   let d = [];
   const namedGroups = { szarg, orb, drg, umb, mch, xui };
   Object.entries(namedGroups).forEach(([name, group]) => {
-    const size = cfg.archetypeSizes ? cfg.archetypeSizes[name][f] : group.length;
-    group.slice(0, size).forEach(k => d.push(k));
+    group.forEach(k => d.push(k));
   });
 
-  legs.slice(0, cfg.legCount).forEach(k => d.push(k));
+  legs.forEach(k => d.push(k));
   spells.forEach(k => { const copies = SPELL_COPIES[k] !== undefined ? SPELL_COPIES[k] : 1; for(let i=0;i<copies;i++) d.push(k); });
   worlds.forEach(k => d.push(k));
   arts.forEach(k => d.push(k));
