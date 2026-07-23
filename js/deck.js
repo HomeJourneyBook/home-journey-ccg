@@ -98,89 +98,37 @@ function shuffleArr(d){
 function _composeDeckList(f, cfg){
   const t = f==='tea';
 
-  // 2026-07-20 (по прямому запросу автора, размер колоды 46→~42): szarg-квота срезана —
-  // Tea теряет 2 из 3 полностью безтеговых "ванильных" клонов (#33/#890, оставлен #870 —
-  // сохраняет разнообразие имён без потери механики) и untamed-вариант #25 (тег untamed
-  // и так представлен на других картах — Faeron/Tuborg). #57 (burn!) и #694 (уникальный
-  // статлайн) остаются нетронуты — Tea burn-count не изменился. Jeet теряет 2 из 4
-  // безтеговых клонов (#740/#971 срезаны, #12/#49 остаются).
-  // 2026-07-21 (полный ребаланс кривой, см. archetypeSizes выше): массивы переписаны так,
-  // чтобы первые N элементов (N = archetypeSizes) были ИМЕННО тем набором, который посчитан
-  // под целевую кривую 5/7/9/8/7/2/1/1 (cost1-8). Хвост каждого массива (после явно
-  // отрезанных size) оставлен как "резерв" на случай будущего расширения квоты — не удалён,
-  // просто не попадает в срез.
-  // 2026-07-21 (вечер, стартеры "3 Врат против 3 Врат" — см. archetypeSizes выше):
-  // массивы переупорядочены так, чтобы первые N (N = archetypeSizes) были ИМЕННО целевым
-  // набором фокус-стартера с осмысленной кривой. Хвост после среза — резерв на расширение
-  // квот / Starter Set 2 (для "чужой" фракции архетипа квота 0 — весь массив в резерве,
-  // карты живы в DEFS и каталоге, из Classic/Rush-пула они просто не попадают в срез).
-  // Tea Szarg 6: два однодропа (#33/#870) + четыре трёхдропа (#25 untamed, #57 burn —
-  // тема!, #694 vanguard, #34 regen). #890 (третий ванильный однодроп) → резерв по данным
-  // sim-прогона 1000 партий (2026-07-21, baseline_v104: winrate-when-played 39.9% —
-  // худшее тело Tea; Tea в целом 42.8% — мидгейм-тело вместо третьей ваниллы).
-  // 2026-07-22 (симметричная кривая 5/5/9/4/2, см. archetypeSizes выше): Tea 5 держит все
-  // 3 однодропа + оба burn/regen трёхдропа (57 burn — тема!, 34 regen); #694 (vanguard) →
-  // резерв (дублирующий тег, уже есть на Faeron/Tuborg). Jeet 3 — #12/#49 (два из четырёх
-  // идентичных однодропов) + #434 (fear — тема! + incarnation топ-энд).
-  // RESERVE (not in deck, still live in data.js/catalog): Tea #694/#890, Jeet
-  // #434/#971/#740/#551.
-  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl25_w','t_trvl34_w','t_trvl57_w']
-                   : ['j_trvl12_w','j_trvl49_w'];
+  // 2026-07-23 (симметрия 4/4/4/4/4/4, по прямому запросу автора): каждый архетип теперь
+  // РОВНО 4 карты на фракцию (было 5/5/5/3/3/3 у Tea против 2/3/4/5/5/5 у Jeet — асимметрия
+  // архетипов, не только тем). Burn(Tea)/Fear(Jeet) — ровно 1 карта на архетип с каждой
+  // стороны (6 burn = 6 fear суммарно). Кривая по cost выровнена НАСКОЛЬКО возможно без
+  // смены тегов — где джитовская fear-карта сидела на другом costе, чем тийская burn-карта
+  // в том же архетипе, статы/cost самой карты пересчитаны под пира (см. j_trvl434_w и
+  // j_trvl859_w в data.js, оба репрайснуты 2026-07-23 — теги НЕ трогали, только cost/hp/atk).
+  // RESERVE (not in deck, still live in data.js/catalog): Tea #890/#694, Jeet #971/#740.
+  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl57_w','t_trvl34_w']
+                   : ['j_trvl12_w','j_trvl49_w','j_trvl434_w','j_trvl551_w'];
 
-  // Tea Orbiton 5: два однодропа + #218 (cost2) + #10 (burn, тема) + #398 (vanguard+untamed).
-  // #1034 (третий идентичный однодроп) — резерв.
-  // 2026-07-22 (симметричная кривая): Tea 5 держит #433/#1034 (однодропы) + #218 (cost2) +
-  // #10 (burn — тема!) + #398 (vanguard+untamed топ-энд); #503 (третий идентичный
-  // однодроп) → резерв. Jeet 3 — #170/#429 (однодропы) + #523 (fear — тема!).
-  // RESERVE: Tea #503, Jeet #454.
-  const orb    = t ? ['t_trvl433_w','t_trvl1034_w','t_trvl218_w','t_trvl10_w','t_trvl398_w']
-                   : ['j_trvl170_w','j_trvl429_w','j_trvl523_w'];
+  // RESERVE: Tea #1034/#503, Jeet — весь пул уже используется (только 4 карты всего).
+  const orb    = t ? ['t_trvl433_w','t_trvl218_w','t_trvl10_w','t_trvl398_w']
+                   : ['j_trvl170_w','j_trvl429_w','j_trvl523_w','j_trvl454_w'];
 
-  // Tea Dreegan 5: вся стена целиком — #14 (cost2) + #1 (enter_heal) + #31 (burn, тема) +
-  // #605 (shield) + #388 (enter_draw).
-  // Tea Dreegan 5 — родной архетип, полный пул без изменений (стена: #14 cost2 + #1
-  // enter_heal + #31 burn-тема + #605 shield + #388 enter_draw).
-  // 2026-07-22 (симметричная кривая): Jeet Dreegan 4 (нелюбимый, был quota:0) — #41 (cost2)
-  // + #36 (cost3) + #775 (cost3) + #859 (fear — тема! + provoke + vanguard, cost5 топ-энд);
-  // #1015 (cost4) → резерв.
-  // RESERVE: Jeet #1015.
-  const drg    = t ? ['t_trvl14_w','t_trvl1_w','t_trvl31_w','t_trvl605_w','t_trvl388_w']
+  // RESERVE: Tea #605, Jeet #1015.
+  const drg    = t ? ['t_trvl14_w','t_trvl1_w','t_trvl31_w','t_trvl388_w']
                    : ['j_trvl41_w','j_trvl36_w','j_trvl775_w','j_trvl859_w'];
 
-  // Jeet Umbasir 6: #54 (единственный однодроп Jeet!) + #934 (cost2) + #53 (enter_lose) +
-  // #550 (fear+taunt_break — оба про тему и про взлом Tea-стены) + #20 (vanguard) + #248
-  // (shield+ward топ-энд).
-  // 2026-07-22 (симметричная кривая): Tea Umbasir 3 (нелюбимый, был quota:0) — #52 (cost1,
-  // единственный однодроп пула) + #583 (cost4, enter_heal) + #387 (cost5, топ-энд); #2/#6/
-  // #137 (три cost3-варианта) → резерв. Jeet Umbasir 5 — родной архетип, #54 (единственный
-  // однодроп!) + #934 (cost2) + #53 (cost3) + #550 (fear+taunt_break — тема!) + #20
-  // (vanguard); #248 (shield+ward топ-энд) → резерв.
-  // RESERVE: Tea #2/#6/#137, Jeet #248.
-  const umb    = t ? ['t_trvl52_w','t_trvl583_w','t_trvl387_w']
-                   : ['j_trvl54_w','j_trvl934_w','j_trvl53_w','j_trvl550_w','j_trvl20_w'];
+  // RESERVE: Tea #2/#137, Jeet #20/#248.
+  const umb    = t ? ['t_trvl52_w','t_trvl6_w','t_trvl583_w','t_trvl387_w']
+                   : ['j_trvl54_w','j_trvl934_w','j_trvl53_w','j_trvl550_w'];
 
-  // Jeet Mechird 5: полный pierce-пакет — #724 (cost2) + #22 + #804 (regen) + #663
-  // (fear, тема) + #320 (necrophage).
-  // 2026-07-22 (симметричная кривая): Tea Mechird 4 (нелюбимый, был quota:0) — #18/#35
-  // (оба cost2 pierce-ванилла) + #921 (burn — тема!) + #128 (cost5, incarnation топ-энд);
-  // #38 (rage) / #11 (enter_heal) → резерв.
-  // Jeet Mechird 5 — родной архетип, полный пул без изменений (весь pierce-пакет: #724
-  // cost2 + #22 + #804 regen + #663 fear-тема! + #320 necrophage).
-  // RESERVE: Tea #38/#11, Jeet #128 (moved Tea→Jeet 2026-07-23, stays in reserve — was
-  // never meant to be in the live classic deck to begin with, see history above).
-  const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w']
-                   : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w','j_trvl320_w'];
+  // RESERVE: Tea #11, Jeet #320/#128 (128 остаётся в резерве Jeet — не был задуман для
+  // живой classic-колоды, см. историю).
+  const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w','t_trvl38_w']
+                   : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w'];
 
-  // Jeet Xuiqtr 5: темповый низ — #50/#37 (cost2) + #579 (fear, тема) + #720 (draw_attack) +
-  // #951 (regen). #704 (cost5 3/8 fear+shield) — резерв: топ-энд Jeet и так плотный
-  // (#248/уники), кривую вниз держим сознательно.
-  // 2026-07-22 (симметричная кривая): Tea Xuiqtr 3 (нелюбимый, был quota:0) — #39 (cost2) +
-  // #972 (burn — тема!) + #402 (cost4, intercept/regen/rage); #26 (taunt_break) → резерв.
-  // Jeet Xuiqtr 5 — родной архетип, полный набор без изменений (темповый низ: #50/#37
-  // cost2 + #579 fear-тема! + #720 draw_attack + #951 regen); #704 (топ-энд) → резерв.
-  // RESERVE: Tea #26, Jeet #704.
-  const xui    = t ? ['t_trvl39_w','t_trvl972_w','t_trvl402_w']
-                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl720_w','j_trvl951_w'];
+  // RESERVE: Tea #26, Jeet #720/#704.
+  const xui    = t ? ['t_trvl39_w','t_trvl972_w','t_trvl402_w','t_trvl26_w']
+                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl951_w'];
 
   const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
                    : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
