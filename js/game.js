@@ -1493,7 +1493,12 @@ function doSacrifice_target(card){
 // профильный debuff своей фракции). Оба тега взаимоисключающие на практике (по одному
 // артефакту на карту), но код не мешает случайно повесить оба сразу — просто сложатся.
 function shardBaseDmg(artifact, oppK){
-  let dmg=getTagVal(artifact,'shard')||1;
+  // 2026-07-23 (по прямому запросу автора, fix): раньше тут был фолбэк `||1`, который
+  // тихо превращал shard:0 обратно в 1 (0 — falsy в JS). getTagVal() возвращает null
+  // только если тега вообще нет — тогда и подставляем 1 по умолчанию; если тег есть со
+  // значением 0, используем именно 0.
+  const tagVal=getTagVal(artifact,'shard');
+  let dmg=(tagVal===null)?1:tagVal;
   if(!artifact) return dmg;
   if(hasTag(artifact,'shard_burn_scale')){
     dmg+=G[oppK].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.burning).length;
@@ -1537,7 +1542,15 @@ function doSpellDmgTarget(card){
   lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   const oppK=G.turn==='tea'?'jeet':'tea';
   queueFieldFx(card.id,'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
+  const hpBefore=card.hp;
   dmgCard(card,dmg,oppK,true);
+  // draw_on_kill (2026-07-24, "EXECUTE"/"CULL", по прямому запросу автора) — если этот
+  // конкретный удар добил цель (была жива ДО удара, после — 0 или меньше), тянем 1 карту.
+  // Не трогает обычные JOURNEY/HEX/SPARK/MALICE/Bolt1 — у них просто нет этого тега.
+  if(hasTag(spell,'draw_on_kill') && hpBefore>0 && card.hp<=0){
+    const cur=G[G.turn];
+    if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); lg(`${spell.name}: kill confirmed — draws 1 card.`,'imp'); }
+  }
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
