@@ -81,6 +81,7 @@ const DB_TAG_ICONS = {
   'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
+  'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
 };
 
 // Категории для кнопок-фильтров над правой (пул) областью — переиспользует ту же
