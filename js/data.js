@@ -75,15 +75,15 @@ const DEFS = {
   // уникальность; ATK почти не тронут (максимум +1), основной вес добавки — в HP и по
   // ОДНОМУ новому тегу на карту, чтобы не раздувать чистые цифры без текстуры.
   t_tean:      {name:"TEANTIST",   cost:6,hp:9,atk:3,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","stealth","heal:4"],            ab:"Active Heal 4 and Clean. (Doesn't break stealth — only attacking does.)",unique:true}, // 2026-07-23 (баланс, по прямому запросу автора): draw_attack:1 снят (65.6% winrate-when-played на 2000 партий) — заменён на heal:4, уже готовая движковая механика (см. Traveler-орбы), даёт стабильно ~50.1% winrate вместо карточного движка
-  t_aslex:     {name:"ASLEX",      cost:6,hp:10,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1","shield"],      ab:"When your creature dies: Heal base 1 HP.",unique:true},
-  t_tuborg:    {name:"TUBORG",     cost:7,hp:8,atk:3,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed","armor:1"],       ab:"Aura: +1 ATK.",unique:true}, // ward убран (2026-07-22); HP 11→8 (2026-07-23, баланс, по прямому запросу автора) — было 61.8% winrate-when-played, статы были эффективнее (1.57 hp+atk/cost) чем у cost-5 тревелеров при более сильной абилке (team-wide аура)
+  t_aslex:     {name:"ASLEX",      cost:6,hp:7,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1","shield"],      ab:"When your creature dies: Heal base 1 HP.",unique:true}, // HP 10→7 (2026-07-23, баланс, по прямому запросу автора) — было 59.7-63.2% winrate-when-played, статы не трогали ни разу, эффективность была 2.17 hp+atk/cost (выше цели ~1.6)
+  t_tuborg:    {name:"TUBORG",     cost:7,hp:8,atk:3,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:atk:1","untamed"],       ab:"Aura: +1 ATK.",unique:true}, // ward убран (2026-07-22); HP 11→8 (2026-07-23); armor:1 снят (2026-07-23, баланс, по прямому запросу автора) — оставалась 58.3-64% winrate-when-played даже после среза HP
   // FAERON — Fire Shield — тег состоит из ДВУХ парных частей, оба нужны на карте разом
   // (уточнено автором 2026-07-19): 'thorns:N' (защитная часть — урон атакующему при
   // получении удара, см. doAttack() в game.js) + 'atk_vs_burning:N' (наступательная часть —
   // сама карта наносит +N атаки, если ЕЁ цель уже горит). Если в будущем захочешь дать
   // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
-  t_faeron:    {name:"FAERON",     cost:5,hp:8,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1","enter_aoe:1"], ab:"On play AOE 1. \“Yet another one burned.\”",unique:true},
-  t_nab:       {name:"NABUNAGI",   cost:8,hp:10,atk:3,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1"], ab:"\"Bushido\": All attacks must target him.",unique:true}, // ward убран (2026-07-22); HP 13→10 (2026-07-23, баланс, по прямому запросу автора) — было 61.7% winrate-when-played
+  t_faeron:    {name:"FAERON",     cost:5,hp:8,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1"], ab:"\“Yet another one burned.\”",unique:true}, // enter_aoe:1 (On play AOE 1) снят (2026-07-23, баланс, по прямому запросу автора) — карту вообще не трогали раньше, была 58-61.1% winrate-when-played; Fire Shield (thorns:2+atk_vs_burning:1) не тронут
+  t_nab:       {name:"NABUNAGI",   cost:8,hp:8,atk:3,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1"], ab:"\"Bushido\": All attacks must target him.",unique:true}, // ward убран (2026-07-22); HP 13→10 (2026-07-23) не хватило (59.4-66% winrate-when-played) — второй срез HP 10→8, ниже формульной цели (~10 при cost:8), потому что сила карты в bushido+armor (форс-таргет танк), а не только в статах, аналогично истории с PHLEGMOR
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
@@ -110,9 +110,9 @@ const DEFS = {
   t_sp15:      {name:"SPARK",      cost:2,hp:0,atk:0,art:"⚡", img:"1_Spark.png", f:"tea",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── TEA WORLDS & ARTIFACTS ──────────────────────────────────────
-  t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","on_enemy_death:1","world_atk_vs_burning:1"],       ab:"When an enemy creature dies: Draw 1. Aura: your creatures deal +1 damage attacking Burning creatures.",world:true},
+  t_w1:        {name:"VALLEY",     cost:4,hp:0,atk:0,art:"", img:"1_Valley.png", f:"tea",tags:["world","world_atk_vs_burning:1"],       ab:"Aura: your creatures deal +1 damage attacking Burning creatures.",world:true}, // on_enemy_death:1 (добор карты) снят 2026-07-23, по прямому запросу автора — карта стакала движок добора карт И командную ауру одновременно, осталась только аура
   t_w2:        {name:"DOMUS",      cost:6,hp:0,atk:0,art:"", img:"1_Domus.png",  f:"tea",tags:["world","world_armor:1"],ab:"Aura: +1 Armor.",world:true},
-  t_a1:        {name:"THE BOOK",   cost:5,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:1","shard_burn_scale"],   ab:"Active Bolt 1 (+1 for each currently burning enemy creature).",artifact:true},
+  t_a1:        {name:"THE BOOK",   cost:5,hp:0,atk:0,art:"", img:"1_Book.png",   f:"tea",tags:["artifact","shard:0","shard_burn_scale"],   ab:"Active Bolt 0 (+1 for each currently burning enemy creature).",artifact:true}, // база shard 1→0 (2026-07-23, по прямому запросу автора) — урон теперь целиком от бонуса за горящих врагов, без гарантированного минимума
   t_a2:        {name:"FOUNTAIN", cost:4,hp:0,atk:0,art:"", img:"1_Fontan.png", f:"tea",tags:["artifact","heal:1"],   ab:"On turn Heal 1 all allies.",artifact:true}, // cost 5→4 (2026-07-22, по прямому запросу автора — sim-данные 1000 партий)
 
   // ── JEET CREATURES ──────────────────────────────────────────────
@@ -164,10 +164,10 @@ const DEFS = {
 
   // ── JEET LEGENDARIES ────────────────────────────────────────────
   // Ребаланс 2026-07-19 — см. подробный комментарий у TEA LEGENDARIES выше, тот же принцип.
-  j_reap:      {name:"REAPER",      cost:6,hp:7,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1","enter_aoe:1"],        ab:"On play AOE 1. Enemy creature death: restore base 1 HP.",unique:true}, // cost 7→6, HP 11→7 (2026-07-23, баланс, по прямому запросу автора) — swap стоимости с ABYSSWALKER + статы пересчитаны под целевую эффективность ~1.6 hp+atk/cost; было 62.1% winrate-when-played
-  j_ryv:       {name:"RYVLEN",      cost:6,hp:9,atk:3,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","enter_lose:1","atk_vs_feared:1"],        ab:"On play Lose 1. +1 damage against Feared creatures.",unique:true}, // 2026-07-23 (баланс, по прямому запросу автора): draw_attack:1 снят (было 64.4-69% winrate-when-played) — заменён на atk_vs_feared:1 (новый тег, движок см. game.js/doAttack), сейчас ~57-59%
-  j_mal:       {name:"ABYSSWALKER", cost:7,hp:8,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","aura:atk:1","armor:1"],          ab:"Aura: +1 ATK.",unique:true}, // cost 6→7, HP 10→8 (2026-07-23, баланс, по прямому запросу автора) — swap стоимости с REAPER + статы пересчитаны под целевую эффективность ~1.6 hp+atk/cost; было 60.4-63.7% winrate-when-played
-  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:10,atk:3,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1","incarnation:3"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true}, // HP 13→10 + regen:2 снят целиком (2026-07-23, баланс, по прямому запросу автора) — HP-срез один не сработал (61.7%→63.0%, стало хуже — сила была не в статах, а в движке реюза кладбища), после снятия regen ~56.2%
+  j_reap:      {name:"REAPER",      cost:6,hp:7,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_enemy_death_base:1"],        ab:"Enemy creature death: restore base 1 HP.",unique:true}, // cost 7→6, HP 11→7 (2026-07-23); enter_aoe:1 снят (2026-07-23, баланс, по прямому запросу автора) — была 57.8% winrate-when-played в последнем прогоне
+  j_ryv:       {name:"RYVLEN",      cost:6,hp:8,atk:3,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","enter_lose:1","atk_vs_feared:1"],        ab:"On play Lose 1. +1 damage against Feared creatures.",unique:true}, // 2026-07-23: draw_attack:1 снят, заменён на atk_vs_feared:1; HP 9→8 (2026-07-23, баланс, по прямому запросу автора) — оставалась 57-61.3% winrate-when-played
+  j_mal:       {name:"ABYSSWALKER", cost:7,hp:8,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","aura:atk:1"],          ab:"Aura: +1 ATK.",unique:true}, // cost 6→7, HP 10→8 (2026-07-23); armor:1 снят (2026-07-23, баланс, по прямому запросу автора) — оставалась 59.1-62% winrate-when-played
+  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:10,atk:3,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true}, // HP 13→10 + regen:2 снят (2026-07-23); incarnation:3 снят целиком (2026-07-23, баланс, по прямому запросу автора) — Плегмор сам себя больше не воскрешает после смерти, оставалась 56.2-59.7% winrate-when-played
   j_vard:      {name:"SEEKER",      cost:5,hp:8,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear"],    ab:"\"Seek, and ye shall find.\"",unique:true}, 
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
@@ -188,9 +188,9 @@ const DEFS = {
   j_sp15:      {name:"MALICE",     cost:2,hp:0,atk:0,art:"⚔️", img:"1_Malice.png", f:"jeet",tags:["spell","spell_dmg_target:2"], ab:"Bolt 2.",spell:true},
 
   // ── JEET WORLDS & ARTIFACTS ─────────────────────────────────────
-  j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","on_own_death:1","world_atk_vs_feared:1"], ab:"When your creature dies: Draw 1. Aura: your creatures deal +1 damage attacking Feared creatures.",world:true},
+  j_w1:        {name:"HUNGER", cost:4,hp:0,atk:0,art:"", img:"1_Hunger.png", f:"jeet",tags:["world","world_atk_vs_feared:1"], ab:"Aura: your creatures deal +1 damage attacking Feared creatures.",world:true}, // on_own_death:1 (добор карты) снят 2026-07-23, по прямому запросу автора — та же причина, что у VALLEY: движок+аура вместе держали карту стабильно в топе трёх прогонов подряд (58-64% winrate)
   j_w2:        {name:"NORRIA", cost:6,hp:0,atk:0,art:"", img:"1_Norria.png", f:"jeet",tags:["world","world_armor:1"],     ab:"Aura: +1 Armor.",world:true},
-  j_a1:        {name:"SHARD",  cost:5,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:1","shard_fear_scale"],     ab:"Active Bolt 1 (+1 for each currently Feared enemy creature).",artifact:true},
+  j_a1:        {name:"SHARD",  cost:5,hp:0,atk:0,art:"", img:"1_Shard.png",  f:"jeet",tags:["artifact","shard:0","shard_fear_scale"],     ab:"Active Bolt 0 (+1 for each currently Feared enemy creature).",artifact:true}, // база shard 1→0 (2026-07-23, по прямому запросу автора) — урон теперь целиком от бонуса за существ в Страхе, без гарантированного минимума
   j_a2:        {name:"ALTAR",  cost:4,hp:0,atk:0,art:"", img:"1_Altar.png",  f:"jeet",tags:["artifact","sacrifice"],   ab:"Sacrifice: Get 1 essence and Draw 1.",artifact:true}, // cost 5→4 (2026-07-22, по прямому запросу автора — была слабейшей в sim, 42.5%)
 
   // ── NEUTRAL ─────────────────────────────────────────────────────
