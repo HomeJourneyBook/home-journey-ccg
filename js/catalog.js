@@ -12,6 +12,10 @@ const catalogFilters={faction:'all',type:'all',gate:'all',sort:'name',dir:1};
 // обычного setFilter(), потому что в строке Врат нет своей кнопки "All" (ровно 6 кнопок,
 // по архетипу на кнопку) — сброс к 'all' идёт через повторный клик по уже активной кнопке
 // (toggle), а не через отдельную кнопку в этом ряду.
+// 2026-07-24 (по прямому запросу автора): выбор Врат теперь автоматически переключает
+// строку типов на "Travelers" (у Врат вообще нет смысла без type=creature — уники/спеллы/
+// миры/артефакты не имеют gtype). Обратная связь — см. setFilter() ниже: выбор ЛЮБОГО
+// другого типа сбрасывает Врата обратно на 'all'.
 function setGateFilter(val,btn){
   const group=btn.parentElement;
   if(catalogFilters.gate===val){
@@ -21,6 +25,14 @@ function setGateFilter(val,btn){
     catalogFilters.gate=val;
     group.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
+    // Форсируем type='creature' и синхронизируем визуально строку типов.
+    catalogFilters.type='creature';
+    const typeGroup=document.getElementById('typeFilters');
+    if(typeGroup){
+      typeGroup.querySelectorAll('.filter-btn').forEach(b=>{
+        b.classList.toggle('active', b.dataset.type==='creature');
+      });
+    }
   }
   renderCatalog();
 }
@@ -52,6 +64,14 @@ function setFilter(key,val,btn){
   const group=btn.parentElement;
   group.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  // 2026-07-24 (по прямому запросу автора): выбор любого типа, кроме Travelers, сбрасывает
+  // фильтр по Вратам — тот имеет смысл только для рядовых существ (см. setGateFilter выше,
+  // обратная сторона той же связки).
+  if(key==='type'&&val!=='creature'&&catalogFilters.gate!=='all'){
+    catalogFilters.gate='all';
+    const gateGroup=document.getElementById('gateFilters');
+    if(gateGroup) gateGroup.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  }
   renderCatalog();
 }
 
