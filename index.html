@@ -1071,6 +1071,22 @@
       <button class="cat-box filter-btn cat-w4" data-type="artifact" onclick="playSfx('yellow_buttom');setFilter('type','artifact',this)">Artifacts</button>
     </div>
 
+    <!-- Строка 6b — Врата (архетипы рядовых): 6 кнопок, каждая фильтрует рядовых Travelers
+         по конкретному gtype. Собственный фильтр-ключ (gate), не связан с type — можно
+         сочетать с любым выбором в строке типов выше. Повторный клик по уже активной
+         кнопке снимает фильтр (toggle, см. setGateFilter в catalog.js) — своей "All"
+         кнопки в этом ряду намеренно нет (ровно 6 кнопок, по запросу автора, 2026-07-23).
+         Ratio подобран по длине имени: Szarg 3:1, Xuiqtr 3.5:1, Orbiton/Dreegan/Umbasir
+         4:1, Merchird 4.5:1. Фон — bg_armor.png, тот же, что у card-gate-box на картах. -->
+    <div class="cat-row cat-row-3 cat-line-6" id="gateFilters">
+      <button class="cat-box filter-btn gate-filter-btn gate-w3" data-gate="szg" onclick="playSfx('yellow_buttom');setGateFilter('szg',this)">Szarg</button>
+      <button class="cat-box filter-btn gate-filter-btn gate-w4" data-gate="orb" onclick="playSfx('yellow_buttom');setGateFilter('orb',this)">Orbiton</button>
+      <button class="cat-box filter-btn gate-filter-btn gate-w4" data-gate="drg" onclick="playSfx('yellow_buttom');setGateFilter('drg',this)">Dreegan</button>
+      <button class="cat-box filter-btn gate-filter-btn gate-w4" data-gate="umb" onclick="playSfx('yellow_buttom');setGateFilter('umb',this)">Umbasir</button>
+      <button class="cat-box filter-btn gate-filter-btn gate-w45" data-gate="mch" onclick="playSfx('yellow_buttom');setGateFilter('mch',this)">Merchird</button>
+      <button class="cat-box filter-btn gate-filter-btn gate-w35" data-gate="xui" onclick="playSfx('yellow_buttom');setGateFilter('xui',this)">Xuiqtr</button>
+    </div>
+
     <!-- Строка 7 — декор. -->
     <div class="cat-row cat-row-decor cat-line-7"></div>
 
