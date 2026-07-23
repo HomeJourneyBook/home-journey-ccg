@@ -1173,6 +1173,40 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .modal-pop-out{animation: modalPopOut 0.25s ease-in forwards;}
 .modal-pop-in-fast{animation: modalPopIn 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;}
 .modal-pop-out-fast{animation: modalPopOut 0.125s ease-in forwards;}
+/* Frame-grow / CRT power-on (2026-07-24, по прямому запросу автора) — расширяет
+   .modal-pop-in новым слоем поверх обычного scale+opacity выше (оба применяются
+   одновременно, разные свойства, не конфликтуют):
+   1) .modal — border-image-width стартует ОГРОМНЫМ (angles почти сходятся в центре —
+      9-slice углы всегда рендерятся фиксированным пикселем независимо от box-размера,
+      так что при большом border-image-width середина/бока попросту не успевают
+      отрендериться — ровно "квадратная рамка без тайлов и контента" на мгновение),
+      затем анимируется вниз к нормальному var(--modal-border-w) — визуально углы
+      "разъезжаются" по диагонали, открывая место под боковые тайлы. Лёгкий overshoot
+      (55%) для того же bounce-ощущения, что и у modalPopIn.
+   2) .modal-crt-screen — clip-path сжат в тонкую горизонтальную полосу по центру,
+      раскрывается до полного экрана С ЗАДЕРЖКОЙ (после того как рамка почти домоталась) —
+      классический "включение ЭЛТ-экрана". Работает только у модалок с этим классом
+      (5 штук — см. комментарий у .modal-crt-screen ниже), у остальных просто нет
+      этого слоя, ничего не ломается.
+   3) .modal-footer — тоже с задержкой, ровно когда бока дотягиваются до размера —
+      кнопки не должны быть видны раньше, чем для них физически есть место в кадре. */
+@keyframes modalFrameGrow{
+  0%{ border-image-width: calc(var(--modal-border-w) * 5); }
+  55%{ border-image-width: calc(var(--modal-border-w) * 0.85); }
+  100%{ border-image-width: var(--modal-border-w); }
+}
+@keyframes modalCrtPowerOn{
+  0%{ clip-path: inset(49% 0 49% 0); }
+  100%{ clip-path: inset(0 0 0 0); }
+}
+@keyframes modalFadeInDelayed{
+  from{ opacity:0; }
+  to{ opacity:1; }
+}
+.modal-stack.modal-pop-in > .modal{ animation: modalFrameGrow 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.modal-stack.modal-pop-in .modal-crt-screen{ animation: crtFlicker 6s ease-in-out infinite, modalCrtPowerOn 0.35s ease-out 0.3s backwards; }
+.modal-stack.modal-pop-in .modal-body{ animation: modalFadeInDelayed 0.25s ease-out 0.32s backwards; }
+.modal-stack.modal-pop-in .modal-footer{ animation: modalFadeInDelayed 0.22s ease-out 0.26s backwards; }
 .modal-icon-btn.btn-clear.placeholder::after{content:'🗑';}
 @keyframes crtFlicker{
   0%,100%{opacity:1; filter:brightness(1);}
