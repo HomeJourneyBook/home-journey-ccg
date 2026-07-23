@@ -167,6 +167,14 @@ function onClick(card,zone){
     }
     cancelPendingSpell();return; // cancel — refunds cost, returns card to hand
   }
+  if(G.phase==='spellDestroyTarget'){
+    // Клик по существу (не по вражескому Миру/Артефакту, у тех свой onclick — см.
+    // _mkPcardHtml в render.js) — это клик мимо, отменяем спелл с рефандом, как и у
+    // остальных таргетируемых спеллов (spellDmgTarget и т.п.). Сам выбор цели происходит
+    // не здесь: pcard вражеского Мира/Артефакта вызывает doSpellDestroyTarget() напрямую
+    // через свой собственный onclick.
+    cancelPendingSpell();return;
+  }
   if(G.phase==='spellBuffTarget'){
     // 2026-07-21 (автор): feared больше НЕ исключён — ничто не должно мешать бафнуть
     // союзника, будь он уставший/спящий/скрытный/в инвизе/горит/в страхе. Единственное
@@ -288,7 +296,7 @@ function onClick(card,zone){
 // не дублируя весь if/else список из _resolvePlayedCard() ниже. Если добавляешь новый тип
 // таргетируемого спелла — впиши его тег и сюда тоже, иначе он ошибочно попадёт под
 // spell-cast-out-анимацию (см. isPlainInstantSpell в doPlay()).
-const TARGETED_SPELL_TAGS = ['spell_dmg_target','spell_buff_temp','spell_armor_temp','spell_dispel','spell_untap','spell_bounce_target','spell_provoke_break_target','spell_dmg_trample_target'];
+const TARGETED_SPELL_TAGS = ['spell_dmg_target','spell_buff_temp','spell_armor_temp','spell_dispel','spell_untap','spell_bounce_target','spell_provoke_break_target','spell_dmg_trample_target','spell_destroy_target'];
 
 function doPlay(card, afterResolve){
   const cur=G[G.turn];
@@ -402,6 +410,9 @@ function _resolvePlayedCard(card){
   } else if(card.spell&&hasTag(card,'spell_dmg_trample_target')){
     G.pendingSpell=card;G.phase='spellDmgTrampleTarget';
     lg(`${card.name}: select an enemy creature.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_destroy_target')){
+    G.pendingSpell=card;G.phase='spellDestroyTarget';
+    lg(`${card.name}: select the enemy World or Artifact to destroy.`,'hint');
   } else {
     if(card.spell)doSpell(card);
     else if(card.world)doWorld(card);
@@ -1557,6 +1568,38 @@ function doSpellDmgTarget(card){
   // Баг-фикс: таргетируемые спеллы обрывались в doPlay() ДО строки, где триггерится
   // on_play_creature (FAERON и т.п.) — она никогда не срабатывала для JOURNEY/ARCHIVE/
   // dispel/untap. Теперь триггерим здесь же, в момент реального разрешения спелла.
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
+  checkWin();render();
+}
+
+function doSpellDestroyTarget(cardId){
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  const opp=G[oppK];
+  let target=null, isWorld=false;
+  if(opp.world && String(opp.world.id)===String(cardId)){ target=opp.world; isWorld=true; }
+  else {
+    const idx=opp.artifacts.findIndex(a=>String(a.id)===String(cardId));
+    if(idx>=0) target=opp.artifacts[idx];
+  }
+  if(!target) return; // safety — onclick только вызывается для валидных id (см. render.js)
+  playSfx('card_spell_atack');
+  target.voided=true;
+  opp.void.push(target);
+  if(isWorld){ opp.world=null; } else { opp.artifacts=opp.artifacts.filter(a=>a.id!==target.id); }
+  lg(`${spell.name} destroys ${target.name}!`,'imp');
+  // Пересчёт ауры/брони, если у уничтоженной карты были такие теги — тот же паттерн, что
+  // при обычной замене Мира/Артефакта в doWorld()/doArtifact() выше.
+  if(hasTag(target,'aura:atk')||hasTag(target,'aura:maxhp')||hasTag(target,'aura:armor')||
+     hasTag(target,'world_atk_vs_burning')||hasTag(target,'world_atk_vs_feared')||
+     hasTag(target,'world_maxhp')||hasTag(target,'world_armor')){
+    applyAuras(oppK);
+    recalcArmor(oppK);
+  }
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
   G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
   checkWin();render();
 }
