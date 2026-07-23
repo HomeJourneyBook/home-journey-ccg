@@ -33,7 +33,12 @@ function _spellHasOwnSfx(card){
     // а у aoe_count оба звука вообще совпадали, что звучало как один и тот же щелчок дважды
     // подряд. Тот же принцип, что и revive/draw/bounce выше: у эффекта уже есть свой звук
     // на резолве, ранний общий проигрывать не нужно.
-    hasTag(card,'spell_burn_all') || hasTag(card,'spell_fear_all') || hasTag(card,'spell_aoe_count'));
+    hasTag(card,'spell_burn_all') || hasTag(card,'spell_fear_all') || hasTag(card,'spell_aoe_count') ||
+    // 2026-07-24 (баг, автор): та же история с двумя новыми instant-эффектами — оба играют
+    // СВОЙ звук на резолве (random_spread → 'card_spell_atack' в момент удара по целям,
+    // heal_all/heal_base → 'heal'), общий звук на Play был лишним/дублирующим для первого
+    // (тот же звук дважды подряд) и просто неуместным для второго (должен быть только 'heal').
+    hasTag(card,'spell_random_spread') || hasTag(card,'spell_heal_all'));
 }
 
 // ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
