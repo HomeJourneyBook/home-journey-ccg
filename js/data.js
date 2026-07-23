@@ -11,6 +11,7 @@ const DEFS = {
   // Szarg Tea
   t_trvl25_w:   {name:"TRAVELER #25",   cost:3,hp:3,atk:4,art:"🦈", img:"25.png",   f:"tea",tags:["untamed","gtype:szg"],                  ab:"Squad +1 maxHP."},
   t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
+  t_trvl7_w:    {name:"TRAVELER #7",    cost:2,hp:1,atk:1,art:"🦈", img:"7.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."}, // новая карта (2026-07-23, по прямому запросу автора) — cost2 Szarg, статы по формуле-таблице (нет живых пиров на cost2 Szarg ни у одной фракции, использована базовая формула 1/1)
   t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:3,atk:4,art:"🦈", img:"34.png",   f:"tea",tags:["regen","gtype:szg"],           ab:"Squad +1 maxHP."},
   t_trvl694_w:  {name:"TRAVELER #694",  cost:3,hp:3,atk:4,art:"🦈", img:"694.png",  f:"tea",tags:["vanguard","gtype:szg"],            ab:"Squad +1 maxHP."},
   t_trvl57_w:  {name:"TRAVELER #57",  cost:3,hp:3,atk:4,art:"🦈", img:"57.png",  f:"tea",tags:["burn","gtype:szg"],           ab:"Squad +1 maxHP."},
@@ -26,6 +27,8 @@ const DEFS = {
   t_trvl10_w:   {name:"TRAVELER #10",   cost:3,hp:3,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:2","burn","gtype:orb"],             ab:"Active Heal 2 and Clean. Squad Heal 4."},
   t_trvl398_w:  {name:"TRAVELER #398",  cost:4,hp:4,atk:1,art:"👁️", img:"398.png",  f:"tea",tags:["heal:2","vanguard","untamed","gtype:orb"],         ab:"Active Heal 2 and Clean. Squad Heal 4."},
   t_trvl433_w:  {name:"TRAVELER #433",  cost:1,hp:1,atk:1,art:"👁️", img:"433.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  t_trvl868_w:  {name:"TRAVELER #868",  cost:2,hp:2,atk:1,art:"👁️", img:"868.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."}, // новая карта (2026-07-23, по прямому запросу автора) — cost2 Orbiton, статы по образцу пира #218 (cost2, 0 доп.тегов = hp2/atk1); TEA — баланс общего ростера/заполнение cost2-дырки
+  t_trvl692_w:  {name:"TRAVELER #692",  cost:3,hp:3,atk:1,art:"👁️", img:"692.png",  f:"tea",tags:["heal:2","burn","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."}, // новая карта (2026-07-23, по прямому запросу автора) — cost3 Orbiton, 1 доп.тег (burn), статы по образцу пира #10 (cost3, 1 доп.тег = hp3/atk1); TEA — burn-тема, явное указание автора
   t_trvl218_w:  {name:"TRAVELER #218",  cost:2,hp:2,atk:1,art:"👁️", img:"218.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
   t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad Heal 4."},
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #433/#1034 выше.
@@ -128,6 +131,7 @@ const DEFS = {
   j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."},
   j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."},
   j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:3,atk:4,art:"🦈", img:"551.png", f:"jeet",tags:["incarnation:4","gtype:szg"],      ab:"Squad +1 maxHP."},
+  j_trvl1008_w: {name:"TRAVELER #1008", cost:3,hp:3,atk:4,art:"🦈", img:"1008.png", f:"jeet",tags:["fear","gtype:szg"],      ab:"Squad +1 maxHP."}, // новая карта (2026-07-23, по прямому запросу автора) — cost3 Szarg, 1 доп.тег (fear), статы по образцу пира #551/#25/#34/#694/#57 (cost3 Szarg, 1 доп.тег = hp3/atk4); заменяет #434 в classic-деке (см. deck.js) — #434 возвращён в резерв
   j_trvl971_w: {name:"TRAVELER #971", cost:1,hp:1,atk:2,art:"🦈", img:"971.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону #12/#49/#971 выше.
   j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
@@ -138,6 +142,9 @@ const DEFS = {
   j_trvl429_w: {name:"TRAVELER #429", cost:1,hp:1,atk:1,art:"👁️", img:"429.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad Heal 4."},
   j_trvl454_w: {name:"TRAVELER #454", cost:3,hp:3,atk:1,art:"👁️", img:"454.png", f:"jeet",tags:["heal:2","regen","gtype:orb"],           ab:"Active Heal 2 and Clean. Squad Heal 4."},
   j_trvl523_w: {name:"TRAVELER #523", cost:3,hp:3,atk:1,art:"👁️", img:"523.png", f:"jeet",tags:["heal:2","fear","gtype:orb"],            ab:"Active Heal 2 and Clean. Squad Heal 4."},
+  j_trvl420_w: {name:"TRAVELER #420", cost:3,hp:3,atk:1,art:"👁️", img:"420.png", f:"jeet",tags:["heal:2","enter_heal:2","gtype:orb"],            ab:"On play Heal 2 all allies. Active Heal 2 and Clean. Squad Heal 4."}, // новая карта (2026-07-23, по прямому запросу автора) — cost3 Orbiton, 1 доп.тег (enter_heal:2), статы по образцу пира #10 (cost3, 1 доп.тег = hp3/atk1); JEET — самый тонкий архетип фракции (4 карты против 6 у Tea), баланс
+  j_trvl568_w: {name:"TRAVELER #568", cost:3,hp:3,atk:1,art:"👁️", img:"568.png", f:"jeet",tags:["heal:2","vanguard","gtype:orb"],            ab:"Active Heal 2 and Clean. Squad Heal 4."}, // новая карта (2026-07-23, по прямому запросу автора) — cost3 Orbiton, 1 доп.тег (vanguard), статы по образцу пира #10; JEET — баланс
+  j_trvl867_w: {name:"TRAVELER #867", cost:5,hp:5,atk:1,art:"👁️", img:"867.png", f:"jeet",tags:["heal:2","ward","shield","gtype:orb"],            ab:"Active Heal 2 and Clean. Squad Heal 4."}, // новая карта (2026-07-23, по прямому запросу автора) — cost5 Orbiton, 2 доп.тега (ward+shield/Solana Shield), статы по образцу пира #398 (cost4, 2 доп.тега = HP растёт линейно с cost, ATK всегда 1 у Orbiton); JEET — топ-энд, баланс
 
   // Dreegan Jeet
   j_trvl36_w:   {name:"TRAVELER #36",   cost:3,hp:6,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","untamed","gtype:drg"],               ab:"Squad +1 Armor."},
