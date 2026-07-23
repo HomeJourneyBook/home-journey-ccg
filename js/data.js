@@ -76,14 +76,14 @@ const DEFS = {
   // ОДНОМУ новому тегу на карту, чтобы не раздувать чистые цифры без текстуры.
   t_tean:      {name:"TEANTIST",   cost:6,hp:9,atk:3,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","stealth","heal:4"],            ab:"Active Heal 4 and Clean. “Healed in silence.”",unique:true}, // 2026-07-23 (баланс, по прямому запросу автора): draw_attack:1 снят (65.6% winrate-when-played на 2000 партий) — заменён на heal:4, уже готовая движковая механика (см. Traveler-орбы), даёт стабильно ~50.1% winrate вместо карточного движка
   t_aslex:     {name:"ASLEX",      cost:6,hp:7,atk:3,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1"],      ab:"“Elegy”: When your creature dies, Heal base 1 HP.",unique:true}, // HP 10→7 (2026-07-23); shield снят (2026-07-23); названа "Elegy", уровнена с REAPER (2026-07-23, по прямому запросу автора) — оставалась 56.5-63.2% winrate-when-played
-  t_tuborg:    {name:"TUBORG",     cost:7,hp:8,atk:3,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:armor:1","untamed"],       ab:"Aura: +1 Armor. “None pass unbruised.”",unique:true}, // aura:atk:1 → aura:armor:1 (2026-07-23, баланс, по прямому запросу автора) — командный ATK-бафф оставался стабильно 58-64% winrate-when-played несмотря на срез HP и снятие armor у самой карты; замена на защитную ауру вместо агрессивной
+  t_tuborg:    {name:"TUBORG",     cost:7,hp:7,atk:3,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:armor:1","untamed"],       ab:"Aura: +1 Armor. “None pass unbruised.”",unique:true}, // HP 8→7 (2026-07-23, по прямому запросу автора) — тест против ABYSSWALKER'а armor:2 версии; aura:atk:1 → aura:armor:1 (2026-07-23)
   // FAERON — Fire Shield — тег состоит из ДВУХ парных частей, оба нужны на карте разом
   // (уточнено автором 2026-07-19): 'thorns:N' (защитная часть — урон атакующему при
   // получении удара, см. doAttack() в game.js) + 'atk_vs_burning:N' (наступательная часть —
   // сама карта наносит +N атаки, если ЕЁ цель уже горит). Если в будущем захочешь дать
   // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
   t_faeron:    {name:"FAERON",     cost:5,hp:8,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1"], ab:"\“Yet another one burned.\”",unique:true}, // enter_aoe:1 (On play AOE 1) снят (2026-07-23, баланс, по прямому запросу автора) — карту вообще не трогали раньше, была 58-61.1% winrate-when-played; Fire Shield (thorns:2+atk_vs_burning:1) не тронут
-  t_nab:       {name:"NABUNAGI",   cost:8,hp:8,atk:3,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1"], ab:"\"Bushido\": All attacks must target him.",unique:true}, // ward убран (2026-07-22); HP 13→10 (2026-07-23) не хватило (59.4-66% winrate-when-played) — второй срез HP 10→8, ниже формульной цели (~10 при cost:8), потому что сила карты в bushido+armor (форс-таргет танк), а не только в статах, аналогично истории с PHLEGMOR
+  t_nab:       {name:"NABUNAGI",   cost:8,hp:8,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1"], ab:"\"Bushido\": All attacks must target him.",unique:true}, // ATK 3→2 (2026-07-23, по прямому запросу автора) — HP-срезы (13→10→8) не помогли достаточно (59.4-66.1% winrate-when-played), пробуем срезать ATK вместо HP
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
@@ -124,7 +124,7 @@ const DEFS = {
   j_trvl971_w: {name:"TRAVELER #971", cost:1,hp:1,atk:2,art:"🦈", img:"971.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону #12/#49/#971 выше.
   j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
-  j_trvl434_w:  {name:"TRAVELER #434",  cost:6,hp:6,atk:6,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // cost 5→6, hp5→6/atk5→6 (2026-07-22, по прямому запросу автора — зеркало переезда #128 у Tea, чинит симметрию кривой 5:1/6:1 обеих фракций)
+  j_trvl434_w:  {name:"TRAVELER #434",  cost:5,hp:5,atk:5,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // cost 3→5, hp3→5/atk4→5 (2026-07-23, по прямому запросу автора) — 2 тега (fear+incarnation:4) не могут стоить как cost3 однотеговый пир #551; возвращено на документированные статы cost5-версии этой же карты (до раздутия к cost6 ради симметрии с #128, см. историю выше)
 
   // Orbiton Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
   j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad Heal 4."},
@@ -136,7 +136,7 @@ const DEFS = {
   j_trvl36_w:   {name:"TRAVELER #36",   cost:3,hp:6,atk:1,art:"🌳", img:"36.png",   f:"jeet",tags:["provoke","untamed","gtype:drg"],               ab:"Squad +1 Armor."},
   j_trvl41_w:   {name:"TRAVELER #41",   cost:2,hp:4,atk:1,art:"🌳", img:"41.png",   f:"jeet",tags:["provoke","gtype:drg"],               ab:"Squad +1 Armor."},
   j_trvl1015_w: {name:"TRAVELER #1015", cost:4,hp:8,atk:1,art:"🌳", img:"1015.png", f:"jeet",tags:["provoke","regen","vanguard","gtype:drg"],        ab:"Squad +1 Armor."},
-  j_trvl859_w:  {name:"TRAVELER #859",  cost:5,hp:10,atk:2,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad +1 Armor."},
+  j_trvl859_w:  {name:"TRAVELER #859",  cost:4,hp:8,atk:1,art:"🌳", img:"859.png",  f:"jeet",tags:["provoke","fear","vanguard","gtype:drg"],ab:"Squad +1 Armor."}, // cost 5→4, hp10→8/atk2→1 (2026-07-23, по прямому запросу автора) — пересчитан под cost4 по образцу пира #388 (TEA, тот же cost4, тоже 2 доп.тега сверх provoke)
   j_trvl775_w:  {name:"TRAVELER #775",  cost:3,hp:6,atk:1,art:"🌳", img:"775.png",  f:"jeet",tags:["provoke","vampiric","gtype:drg"],ab:"Squad +1 Armor."},
 
   // Umbasir Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
@@ -166,8 +166,8 @@ const DEFS = {
   // Ребаланс 2026-07-19 — см. подробный комментарий у TEA LEGENDARIES выше, тот же принцип.
   j_reap:      {name:"REAPER",      cost:6,hp:7,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_own_death_base:1"],        ab:"“Harvest”: When your creature dies, Heal base 1 HP.",unique:true}, // on_enemy_death_base:1 → on_own_death_base:1 (2026-07-23, по прямому запросу автора) — уровнен с ASLEX (оба теперь хилят базу за смерть СВОИХ существ), названа "Harvest"; cost 7→6, HP 11→7 (2026-07-23); enter_aoe:1 снят (2026-07-23)
   j_ryv:       {name:"RYVLEN",      cost:6,hp:8,atk:3,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","enter_lose:1","atk_vs_feared:1"],        ab:"On play Lose 1. “Candles in Space”",unique:true}, // текст сокращён — не дублирует Haunt-тег (2026-07-23, по прямому запросу автора); draw_attack:1 снят, заменён на atk_vs_feared:1; HP 9→8 (2026-07-23) — оставалась 57-61.3% winrate-when-played
-  j_mal:       {name:"ABYSSWALKER", cost:7,hp:8,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","aura:armor:1"],          ab:"Aura: +1 Armor. “The dark strikes first.”",unique:true}, // cost 6→7, HP 10→8 (2026-07-23); aura:atk:1 → aura:armor:1 (2026-07-23, баланс, по прямому запросу автора) — тот же переход, что у TUBORG
-  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:10,atk:3,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true}, // HP 13→10 + regen:2 снят (2026-07-23); incarnation:3 снят целиком (2026-07-23, баланс, по прямому запросу автора) — Плегмор сам себя больше не воскрешает после смерти, оставалась 56.2-59.7% winrate-when-played
+  j_mal:       {name:"ABYSSWALKER", cost:7,hp:7,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","aura:armor:1","armor:2"],          ab:"Aura: +1 Armor. “The dark strikes first.”",unique:true}, // armor:1→armor:2 (2026-07-23, по прямому запросу автора) — предыдущая попытка (HP 8→7 + armor:1) не сблизила с TUBORG (62.0% vs 51.2%), пробуем armor:2 вместо дальнейшего среза HP
+  j_phleg:     {name:"PHLEGMOR",    cost:8,hp:10,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true}, // ATK 3→2 (2026-07-23, по прямому запросу автора) — HP 13→10 + regen/incarnation сняты, оставалась 56.2-59.7% winrate-when-played, пробуем срезать ATK
   j_vard:      {name:"SEEKER",      cost:5,hp:8,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear"],    ab:"\"Seek, and ye shall find.\"",unique:true}, 
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
