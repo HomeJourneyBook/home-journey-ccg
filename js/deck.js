@@ -107,9 +107,11 @@ function _composeDeckList(f, cfg){
   // смены тегов — где джитовская fear-карта сидела на другом costе, чем тийская burn-карта
   // в том же архетипе, статы/cost самой карты пересчитаны под пира (см. j_trvl434_w и
   // j_trvl859_w в data.js, оба репрайснуты 2026-07-23 — теги НЕ трогали, только cost/hp/atk).
-  // RESERVE (not in deck, still live in data.js/catalog): Tea #890/#694, Jeet #971/#740.
+  // RESERVE (not in deck, still live in data.js/catalog): Tea #890/#694/#7, Jeet
+  // #971/#740/#434 (2026-07-23: #1008 заменил #434 в живой деке — тот же cost3/fear
+  // слот, но 1 тег вместо 2, см. историю #434 в data.js).
   const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl57_w','t_trvl34_w']
-                   : ['j_trvl12_w','j_trvl49_w','j_trvl434_w','j_trvl551_w'];
+                   : ['j_trvl12_w','j_trvl49_w','j_trvl1008_w','j_trvl551_w'];
 
   // RESERVE: Tea #1034/#503, Jeet — весь пул уже используется (только 4 карты всего).
   const orb    = t ? ['t_trvl433_w','t_trvl218_w','t_trvl10_w','t_trvl398_w']
