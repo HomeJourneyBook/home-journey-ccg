@@ -770,6 +770,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cat-w3{aspect-ratio:3/1; background-image:url('../img/cat_3_1_1.png');}
 .cat-w4{aspect-ratio:4/1; background-image:url('../img/cat_4_1_1.png');}
 .cat-w5{aspect-ratio:5/1;}
+/* gate-filter-btn — 2026-07-23, по прямому запросу автора: 6 кнопок фильтра по Вратам в
+   каталоге. Фон — bg_armor.png, тот же ассет, что у card-gate-box (ярлык Врат на самих
+   картах, см. styles.css выше) — визуальная связка "это кнопка того же типа лейбла".
+   Нет отдельных hover/active PNG-вариантов (в отличие от cat-w2/w3/w4 с cat_N_1_H/2.png) —
+   активное/hover-состояние через filter/brightness вместо смены картинки. */
+.gate-filter-btn{background-image:url('../img/bg_armor.png') !important;color:var(--color-cream);}
+.gate-filter-btn:hover{filter:brightness(1.2);}
+.gate-filter-btn.active{filter:brightness(1.45) saturate(1.3);}
+.gate-w3{aspect-ratio:3/1;}    /* Szarg (5 букв) */
+.gate-w35{aspect-ratio:3.5/1;} /* Xuiqtr (6 букв) */
+.gate-w4{aspect-ratio:4/1;}    /* Orbiton/Dreegan/Umbasir (7 букв) */
+.gate-w45{aspect-ratio:4.5/1;} /* Merchird (8 букв) */
 .cat-back{aspect-ratio:2/1; cursor:pointer; background-image:url('../img/cat_back_1.png');}
 .cat-back:hover{background-image:url('../img/cat_back_H.png');}
 .cat-back:active{background-image:url('../img/cat_back_2.png');}
