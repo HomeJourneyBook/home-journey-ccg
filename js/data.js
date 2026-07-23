@@ -9,11 +9,15 @@ const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
 
   // Szarg Tea
-  t_trvl25_w:   {name:"TRAVELER #25",   cost:3,hp:3,atk:4,art:"🦈", img:"25.png",   f:"tea",tags:["untamed","gtype:szg"],                  ab:"Squad +1 maxHP."},
+  j_trvl25_w:   {name:"TRAVELER #25",   cost:3,hp:3,atk:4,art:"🦈", img:"25.png",   f:"jeet",tags:["untamed","gtype:szg"],                  ab:"Squad +1 maxHP."}, // перенесён Tea→Jeet (2026-07-24, по прямому запросу автора)
   t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
-  t_trvl7_w:    {name:"TRAVELER #7",    cost:2,hp:1,atk:1,art:"🦈", img:"7.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."}, // новая карта (2026-07-23, по прямому запросу автора) — cost2 Szarg, статы по формуле-таблице (нет живых пиров на cost2 Szarg ни у одной фракции, использована базовая формула 1/1)
+  j_trvl7_w:    {name:"TRAVELER #7",    cost:2,hp:1,atk:1,art:"🦈", img:"7.png",   f:"jeet",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."}, // перенесён Tea→Jeet (2026-07-24, по прямому запросу автора) — JEET Szarg не имел ни одной cost2-карты
   t_trvl34_w:   {name:"TRAVELER #34",   cost:3,hp:3,atk:4,art:"🦈", img:"34.png",   f:"tea",tags:["regen","gtype:szg"],           ab:"Squad +1 maxHP."},
   t_trvl694_w:  {name:"TRAVELER #694",  cost:3,hp:3,atk:4,art:"🦈", img:"694.png",  f:"tea",tags:["vanguard","gtype:szg"],            ab:"Squad +1 maxHP."},
+  t_trvl1068_w: {name:"TRAVELER #1068", cost:4,hp:4,atk:5,art:"🦈", img:"1068.png",  f:"tea",tags:["regen","vanguard","gtype:szg"],            ab:"Squad +1 maxHP."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Szarg, 2 доп.тега (regen+vanguard). Первая cost4-карта в архетипе Szarg на любой стороне — прямого пира нет, статы экстраполированы от cost3/1-тег пира (hp3/atk4): +1 HP за шаг стоимости, +1 ATK за второй тег → hp4/atk5. Не проверено симуляцией, может потребовать коррекции
+  t_trvl56_w: {name:"TRAVELER #56", cost:4,hp:4,atk:4,art:"🦈", img:"56.png",  f:"tea",tags:["taunt_break","gtype:szg"],            ab:"Squad +1 maxHP."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Szarg, 1 доп.тег (taunt_break); тот же принцип экстраполяции, что и #1068, но с 1 тегом вместо 2 → hp4/atk4. Не проверено симуляцией
+  t_trvl55_w: {name:"TRAVELER #55", cost:2,hp:1,atk:1,art:"🦈", img:"55.png",  f:"tea",tags:["gtype:szg"],            ab:"Squad +1 maxHP."}, // новая карта (2026-07-24, по прямому запросу автора) — cost2 Szarg, ваниль, статы по образцу пира #7 (cost2, 0 доп.тегов = hp1/atk1)
+  t_trvl28_w: {name:"TRAVELER #28", cost:2,hp:1,atk:1,art:"🦈", img:"28.png",  f:"tea",tags:["gtype:szg"],            ab:"Squad +1 maxHP."}, // новая карта (2026-07-24, по прямому запросу автора) — cost2 Szarg, ваниль, статы по образцу пира #7
   t_trvl57_w:  {name:"TRAVELER #57",  cost:3,hp:3,atk:4,art:"🦈", img:"57.png",  f:"tea",tags:["burn","gtype:szg"],           ab:"Squad +1 maxHP."},
   // +2 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #33 выше (тот же
   // 1/2 болван, gtype:szg, идентичная Squad-абилка), см. AI BALANCE NOTES.
@@ -129,13 +133,14 @@ const DEFS = {
 
   // Szarg Jeet
   j_trvl12_w:  {name:"TRAVELER #12",  cost:1,hp:1,atk:2,art:"🦈", img:"12.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."},
-  j_trvl49_w:  {name:"TRAVELER #49",  cost:1,hp:1,atk:2,art:"🦈", img:"49.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."},
+  j_trvl49_w:  {name:"TRAVELER #49",  cost:2,hp:1,atk:1,art:"🦈", img:"49.png",  f:"jeet",tags:["gtype:szg"],                 ab:"Squad +1 maxHP."}, // cost1→2 (2026-07-24, по прямому запросу автора), статы по образцу пира #7 (cost2, 0 доп.тегов = hp1/atk1); второй cost2-Szarg у JEET (после #7)
   j_trvl551_w: {name:"TRAVELER #551", cost:3,hp:3,atk:4,art:"🦈", img:"551.png", f:"jeet",tags:["incarnation:4","gtype:szg"],      ab:"Squad +1 maxHP."},
   j_trvl1008_w: {name:"TRAVELER #1008", cost:3,hp:3,atk:4,art:"🦈", img:"1008.png", f:"jeet",tags:["fear","gtype:szg"],      ab:"Squad +1 maxHP."}, // новая карта (2026-07-23, по прямому запросу автора) — cost3 Szarg, 1 доп.тег (fear), статы по образцу пира #551/#25/#34/#694/#57 (cost3 Szarg, 1 доп.тег = hp3/atk4); заменяет #434 в classic-деке (см. deck.js) — #434 возвращён в резерв
+  j_trvl734_w: {name:"TRAVELER #734", cost:4,hp:4,atk:4,art:"🦈", img:"734.png", f:"jeet",tags:["necrophage","gtype:szg"],      ab:"Squad +1 maxHP."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Szarg, 1 доп.тег (necrophage, он же "Erase" в UI — см. ico_erase.png), статы по образцу #56 (cost4, 1 доп.тег = hp4/atk4)
   j_trvl971_w: {name:"TRAVELER #971", cost:1,hp:1,atk:2,art:"🦈", img:"971.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону #12/#49/#971 выше.
   j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
-  j_trvl434_w:  {name:"TRAVELER #434",  cost:5,hp:5,atk:5,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // cost 3→5, hp3→5/atk4→5 (2026-07-23, по прямому запросу автора) — 2 тега (fear+incarnation:4) не могут стоить как cost3 однотеговый пир #551; возвращено на документированные статы cost5-версии этой же карты (до раздутия к cost6 ради симметрии с #128, см. историю выше)
+  j_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:4,atk:5,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // cost 5→4 (2026-07-24, по прямому запросу автора), статы по образцу пира #1068 (cost4, 2 доп.тега = hp4/atk5)
 
   // Orbiton Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
   j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad Heal 4."},
