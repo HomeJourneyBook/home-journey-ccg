@@ -158,6 +158,8 @@ function render(){
     spellDestroyTarget:'Select an enemy World or Artifact to destroy.',
     spellBurnTarget:'Select an enemy creature to set on fire.',
     spellFearTarget:'Select an enemy creature to Fear.',
+    spellBounceAllyTarget:'Select an ally creature.',
+    spellExecuteHalfTarget:'Select an enemy creature at half HP or less.',
   };
   const hintEl2=document.getElementById('hint'+sfx+'2');
   if(hintEl2)hintEl2.textContent=hints[G.phase]||'';
@@ -181,7 +183,8 @@ function render(){
       G.phase==='shardTarget'||G.phase==='boltTarget'||
       G.phase==='spellProvokeBreakTarget'||G.phase==='spellDmgTrampleTarget'||
       G.phase==='spellArmorTarget'||G.phase==='spellDestroyTarget'||
-      G.phase==='spellBurnTarget'||G.phase==='spellFearTarget'
+      G.phase==='spellBurnTarget'||G.phase==='spellFearTarget'||
+      G.phase==='spellBounceAllyTarget'||G.phase==='spellExecuteHalfTarget'
     );
     targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
   }
@@ -598,6 +601,12 @@ function mkSmallEl(card){
   // spellBounceTarget (ПОРЫВ/REVERSE) — цель ЛЮБАЯ сторона (своя или вражеская), поэтому
   // без проверки card.f===/!==G.turn, в отличие от всех остальных targeted-спеллов выше.
   if(G.phase==='spellBounceTarget'&&!card.spell&&!card.world&&!card.artifact&&(card.f===G.turn||isSpellTargetable(card,G[card.f].field))) d.classList.add('targetable','aim-target');
+  // GUST/REVERSE redesign (2026-07-24) — тот же bounce, только своя сторона.
+  if(G.phase==='spellBounceAllyTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
+  // JUDGMENT/DEATHBLOW (2026-07-24) — та же формула ≤50% maxHP, что в onClick()/
+  // aiSpellHasValidTarget (три независимых места, продублировано намеренно — та же
+  // ситуация, что у остальных targeted-спеллов в игре).
+  if(G.phase==='spellExecuteHalfTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp*2<=card.maxHp&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   // Solana Shield (2026-07-13) — визуальная подмена ТОЛЬКО на поле боя (mkSmallEl), не
   // в руке/каталоге/деккбилдере (там просто текст "Solana Shield" в ab, по просьбе автора).
   const shieldActive=hasTag(card,'shield')&&!card.shieldConsumed;
