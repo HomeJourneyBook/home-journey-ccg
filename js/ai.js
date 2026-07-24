@@ -1032,21 +1032,35 @@ function aiScoreCard(card, me){
       // ТОЖЕ булев и персистентный (тикает каждый ход владельца, не снимается само по
       // себе, см. game.js) — recast на уже горящую цель абсолютно ничего не добавляет.
       // RENEWAL/AMNESIA (2026-07-24) — сбрасывает всю ОСТАВШУЮСЯ руку (эта карта уже не в
+      // ней к моменту резолва — исключаем её из подсчёта), добирает фиксированные val карт.
+      // Ценность зависит целиком от текущего размера руки: на пустой/почти пустой руке это
+      // чистый прирост карт (хороший кантрип), на полной руке — намеренный net-минус (платим
+      // за "перемешать" некачественную руку, не за прибавку).
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.burning);
+      if(enemies.length===0) return w.burnAllEmptyBoardScore;
+      const race=aiRaceState();
+      return card.cost*w.spellBase + enemies.length*w.burnAllPerTargetWeight + (race==='behind'?w.burnAllBehindBonus:0);
+    }
+
+    // RENEWAL/AMNESIA (2026-07-24) — сбрасывает всю ОСТАВШУЮСЯ руку (эта карта уже не в
     // ней к моменту резолва — исключаем её из подсчёта), добирает фиксированные val карт.
     // Ценность зависит целиком от текущего размера руки: на пустой/почти пустой руке это
     // чистый прирост карт (хороший кантрип), на полной руке — намеренный net-минус (платим
     // за "перемешать" некачественную руку, не за прибавку).
+    // ИСПРАВЛЕНО (2026-07-24, автор поймал живьём: ИИ казал спелл даже при 5 картах в руке;
+    // затем поймано второй раз в тестах — ветка оказалась НЕДОСТИЖИМА вообще, случайно
+    // вложена внутрь блока spell_burn_all при первой вставке, всегда падала в общий
+    // flat-фоллбек) — раньше тут был ещё и обычный card.cost*w.spellBase базовый бонус
+    // поверх netCards. Для любого другого спелла эта база разумна (он же не единственный
+    // источник ценности карты), но у ЭТОЙ карты вся ценность и есть netCards — 3.0 базы
+    // (cost3*spellBase1.0) перебивала штраф в -1..-2 и держала итоговый score
+    // положительным даже на набитой руке. Убрана — теперь пустая рука даёт чёткий плюс,
+    // полная — чёткий минус, ничего не тянет счёт в сторону "всё равно казать" искусственно.
     if(hasTag(card,'spell_refresh_hand')){
       const val=getTagVal(card,'spell_refresh_hand')||3;
       const otherInHand=Math.max(0, me.hand.length-1);
       const netCards=val-otherInHand;
-      return card.cost*w.spellBase + netCards*w.refreshHandNetCardWeight;
-    }
-
-    const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.burning);
-      if(enemies.length===0) return w.burnAllEmptyBoardScore;
-      const race=aiRaceState();
-      return card.cost*w.spellBase + enemies.length*w.burnAllPerTargetWeight + (race==='behind'?w.burnAllBehindBonus:0);
+      return netCards*w.refreshHandNetCardWeight;
     }
 
     // SCATTERSHOT/SHRAPNEL (2026-07-24) — рандомный урон по вражескому полю, тот же
