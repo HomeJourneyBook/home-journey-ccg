@@ -134,6 +134,12 @@ const AI_WEIGHTS = {
                                      // burnAllBehindBonus, но меньше (это ОДНА цель, не всё поле)
   drawOnKillBonus: 0.4,               // EXECUTE/CULL — модификатор поверх обычной spell_dmg_target-оценки:
                                      // добор карты, если этот килл реально произошёл (killable.length>0)
+  // 2026-07-24 (RENEWAL/AMNESIA, добавлены в ростер по прямому запросу автора — не в Classic,
+  // но видны в Rush через getRushPool()):
+  refreshHandNetCardWeight: 0.5,      // за net-изменение размера руки (val минус карты, которые
+                                     // реально теряются) — та же логика веса, что у draw:N по
+                                     // сути карт, просто может быть ОТРИЦАТЕЛЬНЫМ (при полной
+                                     // руке это чистый минус, не кантрип)
   raceHpBehindThreshold: -4,     // моё HP - вражеское <= это ⇒ 'behind'
   raceHpAheadThreshold: 4,
   racePowerBehindThreshold: -3,  // сумма effAtk моего поля - вражеского
@@ -1023,7 +1029,19 @@ function aiScoreCard(card, me){
       // 2026-07-18: тот же фильтр "только новые цели", что и у fear_all выше — burning
       // ТОЖЕ булев и персистентный (тикает каждый ход владельца, не снимается само по
       // себе, см. game.js) — recast на уже горящую цель абсолютно ничего не добавляет.
-      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.burning);
+      // RENEWAL/AMNESIA (2026-07-24) — сбрасывает всю ОСТАВШУЮСЯ руку (эта карта уже не в
+    // ней к моменту резолва — исключаем её из подсчёта), добирает фиксированные val карт.
+    // Ценность зависит целиком от текущего размера руки: на пустой/почти пустой руке это
+    // чистый прирост карт (хороший кантрип), на полной руке — намеренный net-минус (платим
+    // за "перемешать" некачественную руку, не за прибавку).
+    if(hasTag(card,'spell_refresh_hand')){
+      const val=getTagVal(card,'spell_refresh_hand')||3;
+      const otherInHand=Math.max(0, me.hand.length-1);
+      const netCards=val-otherInHand;
+      return card.cost*w.spellBase + netCards*w.refreshHandNetCardWeight;
+    }
+
+    const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.burning);
       if(enemies.length===0) return w.burnAllEmptyBoardScore;
       const race=aiRaceState();
       return card.cost*w.spellBase + enemies.length*w.burnAllPerTargetWeight + (race==='behind'?w.burnAllBehindBonus:0);
