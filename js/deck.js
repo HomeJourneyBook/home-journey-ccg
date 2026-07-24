@@ -58,7 +58,7 @@ const RUSH_MIN = 28;
 const SPELL_COPIES = {
   // Tea
   t_sp1:0,  // ARCHIVE (combat-trick +1 ATK) — исключён
-  t_sp2:0,  // VERDICT (bolt 999) — исключён
+  t_sp2:1,  // VERDICT (bolt 999 — guaranteed kill) — добавлен 2026-07-24, больше атаки в арсенал
   t_sp3:0,  // SHEN'S CALL (revive full) — исключён (по прямому запросу автора: без воскрешения)
   t_sp4:2,  // SCHEME (ess_add:4) — эссенция ×2
   t_sp5:1,  // GUST (bounce any)
@@ -68,17 +68,17 @@ const SPELL_COPIES = {
   t_sp9:1,  // BREACH (bolt 5 + trample)
   t_sp10:1, // WILDFIRE (burn_all) — АОЕ-поджог, добавлен по прямому запросу автора
   t_sp11:0, // REKINDLE (untap) — исключён
-  t_sp12:0, // BULWARK (combat-trick +1 Armor) — исключён
+  t_sp12:1, // BULWARK (combat-trick +1 Armor) — защитный бафф, добавлен 2026-07-24
   t_sp13:2, // INSIGHT (draw 2) — добор ×2
   t_sp14:1, // GLIMPSE (draw 1 + heal base 2)
-  t_sp15:0, // SPARK (bolt 2) — исключён
+  t_sp15:1, // SPARK (bolt 2) — добавлен 2026-07-24, больше атаки в арсенал
   t_sp16:2, // SANCTUARY (heal all 2 + heal base 2) — хил ×2
   t_sp17:1, // JAB (bolt 1)
   t_sp18:1, // SCATTERSHOT (3 random spread)
   t_sp19:0, // MULTITUDE (scaling draw) — исключён
   t_sp20:1, // EXECUTE (bolt3 + draw on kill)
   t_sp21:0, // SUNDER (destroy world/artifact) — исключён
-  t_sp22:0, // CATACLYSM (destroy all enemies) — исключён
+  t_sp22:1, // CATACLYSM (destroy all enemies) — добавлен 2026-07-24, больше атаки в арсенал
   t_sp23:1, // CINDER (single-target burn) — точечный поджог, добавлен по прямому запросу автора
   // Jeet
   j_sp1:2,  // JEET WAVE (draw 2) — добор ×2
@@ -92,17 +92,17 @@ const SPELL_COPIES = {
   j_sp9:1,  // RUPTURE (bolt 5 + trample)
   j_sp10:1, // NIGHTMARE (fear_all) — АОЕ-фир, добавлен по прямому запросу автора
   j_sp11:0, // FRENZY (combat-trick +1 ATK) — исключён
-  j_sp12:0, // CARAPACE (combat-trick +1 Armor) — исключён
-  j_sp13:0, // DAMNATION (bolt 999) — исключён
+  j_sp12:1, // CARAPACE (combat-trick +1 Armor) — защитный бафф, добавлен 2026-07-24
+  j_sp13:1, // DAMNATION (bolt 999 — guaranteed kill) — добавлен 2026-07-24, больше атаки в арсенал
   j_sp14:1, // OMEN (draw 1 + heal base 2)
-  j_sp15:0, // MALICE (bolt 2) — исключён
+  j_sp15:1, // MALICE (bolt 2) — добавлен 2026-07-24, больше атаки в арсенал
   j_sp16:2, // VIGIL (heal all 2 + heal base 2) — хил ×2
   j_sp17:1, // STING (bolt 1)
   j_sp18:1, // SHRAPNEL (3 random spread)
   j_sp19:0, // LEGION (scaling draw) — исключён
   j_sp20:1, // CULL (bolt3 + draw on kill)
   j_sp21:0, // BLIGHT (destroy world/artifact) — исключён
-  j_sp22:0, // EXTINCTION (destroy all enemies) — исключён
+  j_sp22:1, // EXTINCTION (destroy all enemies) — добавлен 2026-07-24, больше атаки в арсенал
   j_sp23:1, // DREAD (single-target fear) — точечный фир, добавлен по прямому запросу автора
 };
 
@@ -151,8 +151,12 @@ function _composeDeckList(f, cfg){
   const umb    = [];
   const mch    = [];
 
-  const xui    = t ? ['t_trvl39_w','t_trvl42_w','t_trvl972_w','t_trvl847_w']
-                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl806_w'];
+  // 2026-07-24 (по прямому запросу автора, второй заход — "слишком много существ"):
+  // Xuiqtr убран из Classic целиком (было 4 карты) — освободившиеся 4 слота ушли в спеллы
+  // (см. SPELL_COPIES ниже: +SPARK/MALICE, +BULWARK/CARAPACE — защитный бафф, +VERDICT/
+  // DAMNATION, +CATACLYSM/EXTINCTION), чтобы в руке было больше атакующего арсенала
+  // относительно тел на столе.
+  const xui    = [];
 
   // Уники — только 3 на фракцию (было все 5): Tea меняет TEANTIST→FAERON (burn-тема,
   // подхватывает atk_vs_burning), ASLEX не участвует; Jeet меняет RYVLEN→SEEKER
