@@ -106,12 +106,32 @@ function makeSandbox(){
   // Инструментация РОЗЫГРЫШЕЙ (для winrate-when-played): оборачиваем doPlay
   // поверх загруженного кода — function-декларации в vm-контексте мутабельны,
   // внутренние вызовы game.js подхватят обёртку через глобальный биндинг.
+  // 2026-07-24 (по прямому запросу автора — "можно выявлять паттерны через симуляцию,
+  // а не только когда я словлю баг глазами") — раньше тут писались только {f, key, turn}.
+  // Теперь на каждый розыгрыш пишется снимок контекста ДО резолва эффекта карты: размер
+  // руки (handSize — на момент вызова doPlay(); карта, скорее всего, ещё физически в
+  // G[f].hand на этом шаге, так что это "рука ДО и ВКЛЮЧАЯ разыгрываемую карту" — на
+  // практике не важно для сравнения бакетов, интересна относительная разница между
+  // партиями, не абсолютное число), essence, свой/чужой борд и HP. Этого достаточно,
+  // чтобы потом ЛЮБУЮ карту (не только заранее заподозренную) проверить на "не играется
+  // ли она систематически в плохих условиях" — см. analyzePlayContext() ниже и блок
+  // "Play-context patterns" в CLI-выводе.
   vm.runInContext(`
     (function(){
       const orig = doPlay;
       globalThis.__plays = [];
       doPlay = function(card){
-        if(card && card.key) __plays.push({ f: card.f, key: card.key, turn: G.turnNum });
+        if(card && card.key){
+          const oppK = card.f==='tea'?'jeet':'tea';
+          __plays.push({
+            f: card.f, key: card.key, turn: G.turnNum,
+            handSize: G[card.f].hand.length,
+            ess: G[card.f].ess,
+            myBoard: G[card.f].field.filter(c=>!c.spell&&!c.world&&!c.artifact).length,
+            oppBoard: G[oppK].field.filter(c=>!c.spell&&!c.world&&!c.artifact).length,
+            myHp: G[card.f].hp, oppHp: G[oppK].hp,
+          });
+        }
         return orig.apply(this, arguments);
       };
     })();
@@ -128,8 +148,10 @@ function runGame(opts = {}){
   const { sandbox, queue } = makeSandbox();
   const firstFaction = opts.firstFaction || (Math.random() < 0.5 ? 'tea' : 'jeet');
 
+  const deckConfig = opts.deckConfig || 'classic';
+  const rushDecksJson = opts.rushDecks ? JSON.stringify(opts.rushDecks) : 'null';
   vm.runInContext(`initState({ mode:'vsai', humanFaction:'tea', spectator:true,
-    deckConfig:'classic', firstFaction:'${firstFaction}' });`, sandbox);
+    deckConfig:'${deckConfig}', rushDecks:${rushDecksJson}, firstFaction:'${firstFaction}' });`, sandbox);
 
   // Муллиган пропускаем (политика "keep any hand" — простейшая; при желании
   // сюда легко добавить эвристику "нет тел cost≤3 → перемуллиганить").
@@ -258,6 +280,15 @@ function aggregate(results){
   // per-card: { key: { played: N партий, wins: N побед владельца } }
   const cardStats = {};
 
+  // playContext (2026-07-24) — то же самое, что cardStats выше, но БЕЗ дедупликации
+  // внутри партии (каждый физический розыгрыш — своя запись) и с разбивкой по бакету
+  // размера руки в момент розыгрыша. handBucket: 'small' (0-2 карты), 'mid' (3-4),
+  // 'big' (5+). Сравнение winrate между бакетами ОДНОЙ И ТОЙ ЖЕ карты — и есть искомый
+  // "паттерн": если карта хорошо выигрывает при маленькой руке и плохо при большой (или
+  // наоборот) — это видно из чисел напрямую, не нужно заранее знать, что именно искать.
+  const playContext = {};
+  const bucketOf = h => h<=2 ? 'small' : (h<=4 ? 'mid' : 'big');
+
   for(const r of ok){
     wins[r.winner]++;
     turnsArr.push(r.turns);
@@ -272,6 +303,13 @@ function aggregate(results){
         cardStats[key].played++;
         if(r.winner === f) cardStats[key].wins++;
       }
+    }
+    for(const p of r.plays){
+      if(p.handSize===undefined) continue; // старые results без снимка контекста (обратная совместимость)
+      const bucket=bucketOf(p.handSize);
+      playContext[p.key] = playContext[p.key] || { small:{played:0,wins:0}, mid:{played:0,wins:0}, big:{played:0,wins:0} };
+      playContext[p.key][bucket].played++;
+      if(r.winner===p.f) playContext[p.key][bucket].wins++;
     }
   }
 
@@ -292,6 +330,7 @@ function aggregate(results){
     fatigueRate: ok.length ? +(fatigueCount/ok.length*100).toFixed(1) : 0,
     gtypeBaseDmg: gtypeDmg,
     cardStats,
+    playContext,
   };
 }
 
@@ -328,6 +367,31 @@ if(require.main === module){
   rows.slice(0,8).forEach(r => console.log(`    ${r.wr}%  ${r.name}  (${r.played} games)`));
   console.log(`  — BOTTOM (кандидаты на бафф/замену, если стабильно <45):`);
   rows.slice(-8).forEach(r => console.log(`    ${r.wr}%  ${r.name}  (${r.played} games)`));
+
+  // Play-context patterns (2026-07-24) — генерическая находилка "карта X играется
+  // ощутимо ХУЖЕ в одном контексте, чем в другом", без заранее заданной гипотезы.
+  // Порог сэмплов ниже, чем у per-card winrate выше (тут делим ещё на 3 бакета, значит
+  // сырых данных на карту нужно кратно больше, чтобы бакеты сами по себе были осмысленными).
+  const MIN_BUCKET = 15;
+  const ctxRows = Object.entries(agg.playContext || {})
+    .map(([key, buckets]) => {
+      const withRate = Object.entries(buckets)
+        .filter(([,b]) => b.played >= MIN_BUCKET)
+        .map(([bucket,b]) => ({ bucket, played:b.played, wr:+(b.wins/b.played*100).toFixed(1) }));
+      if(withRate.length < 2) return null;
+      const best = withRate.reduce((a,b)=>b.wr>a.wr?b:a);
+      const worst = withRate.reduce((a,b)=>b.wr<a.wr?b:a);
+      return { key, name:nameOf(key), gap: +(best.wr-worst.wr).toFixed(1), best, worst, buckets: withRate };
+    })
+    .filter(r => r && r.gap >= 15) // 15+ п.п. разницы между бакетами — не шум на таких выборках
+    .sort((a,b) => b.gap - a.gap);
+  if(ctxRows.length){
+    console.log(`\nPlay-context patterns (бакеты по размеру руки в момент розыгрыша — small:0-2, mid:3-4, big:5+; показаны карты с разрывом ≥15пп между лучшим и худшим бакетом, ≥${MIN_BUCKET} игр на бакет):`);
+    ctxRows.forEach(r => {
+      const bucketsStr = r.buckets.map(b=>`${b.bucket}=${b.wr}%(${b.played})`).join('  ');
+      console.log(`  ${r.name}: разрыв ${r.gap}пп — лучше при ${r.best.bucket} (${r.best.wr}%), хуже при ${r.worst.bucket} (${r.worst.wr}%)  [${bucketsStr}]`);
+    });
+  }
 
   if(jsonOut){ fs.writeFileSync(jsonOut, JSON.stringify(agg, null, 2)); console.error(`\nFull metrics → ${jsonOut}`); }
 }
