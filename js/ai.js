@@ -646,8 +646,10 @@ function aiTryUseBolt(){
     // class as the provokeBroken miss just below (found + fixed together, 2026-07-17).
     // Поднято ВЫШЕ (2026-07-20) — раньше объявлялось только внутри killable.length>0 ветки,
     // а теперь нужно ОБЕИМ веткам (chip-без-килла тоже проверяет forced, см. ниже).
+    // "Открытая карта" (2026-07-24, по прямому запросу автора) — Provoke форсит только
+    // пока не exhausted, тот же принцип везде в этом файле/game.js.
     const forced = oppField.some(c=>hasTag(c,'bushido')) ||
-      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken);
+      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted);
     // 0-ATK bolt bodies (e.g. TRAVELER #52/#6/#54 — pure Umbasir utility, atk:0):
     // a normal attack from these does NOTHING (0 dmg, and a full counter-attack
     // eaten for free if Provoke/Bushido forces a creature fight) — Bolt's chip
@@ -1198,7 +1200,9 @@ function aiCanHitBase(creature, oppField){
   // provoke creature and kills it with excess damage.
   // Same provokeBroken bug-fix as canAttackBase()/tryAttackBase() (game.js) — a suppressed
   // Provoke was still blocking the base here too, since this check never looked at the flag.
-  const provoke = oppField.find(c => c.tags && c.tags.includes('provoke') && !c.provokeBroken);
+  // "Открытая карта" (2026-07-24, по прямому запросу автора) — Provoke блокирует базу
+  // только пока сама карта не exhausted, тот же принцип, что в game.js.
+  const provoke = oppField.find(c => c.tags && c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted);
   if(provoke) return false;
   return true;
 }
@@ -1275,9 +1279,10 @@ function aiActWithCreature(creature){
   const targetable = oppField.filter(c => targetableIds.includes(c.id));
   // Provoke rework (2026-07-17): pierce no longer exempt — forced is now just
   // "is there a bushido or provoke creature over there", full stop.
+  // "Открытая карта" (2026-07-24, по прямому запросу автора) — и тут тоже !c.exhausted.
   const forced =
     oppField.some(c => hasTag(c,'bushido')) ||
-    oppField.some(c => c.tags.includes('provoke') && !c.provokeBroken);
+    oppField.some(c => c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted);
 
   // 1) Если можем убить кого-то без потери существа зря — убиваем самую опасную цель.
   // Броня поглощает физический урон ПЕРВОЙ (обычная атака её не игнорирует — см.
