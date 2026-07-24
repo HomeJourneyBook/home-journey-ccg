@@ -12,10 +12,16 @@
 //            arts этот комментарий и число тоже надо поправить, само по себе не сверяется.)
 //  rush    — no fixed list: the human player assembles it themselves in the
 //            deckbuilder (js/deckbuilder.js) by picking quantities out of the
-//            SAME pool `classic` uses (see getRushPool() below), minimum RUSH_MIN
-//            cards. The AI's own Rush deck (vsAI mode) is a random RUSH_MIN-card
-//            sample of that same pool — see buildAiRushDeck().
-const RUSH_MIN = 28;
+//            SAME pool `classic` uses (see getRushPool() below). Deck size is now
+//            EXACT, not just a floor (2026-07-24, по прямому запросу автора: "минимум
+//            и максимум чтоб было 35 карт") — RUSH_MIN and RUSH_MAX are both 35;
+//            dbSetQty() in deckbuilder.js caps additions at the total, and the
+//            Next/Start button only enables at exactly 35. The AI's own deck in vsAI
+//            Rush games is no longer a random sample of the pool (see buildAiRushDeck()
+//            below, now unused by deckbuilder.js but left intact) — it plays the same
+//            curated Classic deck as Classic mode (buildDeck(ai,'classic')).
+const RUSH_MIN = 35;
+const RUSH_MAX = 35;
 
 // Копии каждого спелла в Classic — раньше было плоских 3 копии на все 13 спеллов сразу
 // (39/фракция), теперь подобрано по значимости для темы Врат (2026-07-18, по прямому
