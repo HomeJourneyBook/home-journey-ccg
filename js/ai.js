@@ -62,6 +62,11 @@ const AI_WEIGHTS = {
     enter_heal:0.3,   // хил всем союзникам при входе — разовая версия постоянного heal(0.4), ниже
     enter_lose:0.5,   // соперник сбрасывает карту при входе — разовая версия discard-эффекта,
                       // тот же порядок ценности, что и enter_draw (обе меняют размер руки на 1)
+    // Пятый проход (2026-07-24, в рамках полного аудита по запросу автора) — ещё 2 тега,
+    // тоже стоявшие на 0 (FAERON/RYVLEN/TRAVELER #128/#720, введены 2026-07-19..23):
+    atk_vs_burning:0.3, // условный бонус урона (только по горящей цели) — ниже безусловного
+                      // bolt(0.4)/burn(0.4), сопоставим с taunt_break/thorns/stealth
+    atk_vs_feared:0.3,  // то же самое, но по испуганной цели (RYVLEN/Haunt-семейство)
   },
   permanentBuffBonus: 1.0, // spell_buff_temp (ARCHIVE) теперь живёт до смерти существа, а не до конца хода —
                            // старая оценка (только "текущий урон + грубый лефал-чек") недооценивала его, т.к.
@@ -102,6 +107,33 @@ const AI_WEIGHTS = {
                                      // прикидка, ждёт отдельного баланс-прохода по всем спеллам (см. backlog)
   burnAllBehindBonus: 1.0,          // чуть меньше, чем fearAllBehindBonus (1.5) — DOT не даёт немедленного
                                      // "перевести дыхание" как снятие хода Fear'ом, эффект отложенный
+  // Шестой проход аудита (2026-07-24, полная сверка ai.js против всех спеллов, добавленных
+  // этой сессией) — 6 механик были вообще не оценены (падали в общий flat-фоллбек ниже
+  // 'card.cost*w.spellBase+0.5', одинаково с "draw 1"), см. комментарии у каждой веток ниже:
+  randomSpreadEmptyBoardScore: -0.5,  // SCATTERSHOT/SHRAPNEL на пустом поле — whiff, зеркало aoeCountEmptyBoardScore
+  randomSpreadPerTargetWeight: 0.4,   // ниже aoeCountPerTargetWeight(0.6) — урон рандомный, не гарантированно
+                                     // ложится туда, где нужнее (может уйти в Ward/невидимость впустую)
+  drawScaleEmptyBoardScore: -0.5,     // MULTITUDE/LEGION с пустым СВОИМ полем — добор=0, чистый whiff
+  drawScalePerCreatureWeight: 0.5,    // за каждое своё существо на поле — тот же порядок, что draw(0.6) тега,
+                                     // чуть ниже, т.к. тут это негарантированный скейл, а не постоянный тег
+  destroyTargetWorldBonus: 1.5,       // SUNDER/BLIGHT против Мира — постоянная аура на всё поле, самый ценный снос
+  destroyTargetArtifactBonus: 0.8,    // против Артефакта — разовая активка, ценно, но меньше, чем аура
+  destroyAllEnemiesEmptyBoardScore: -0.5, // CATACLYSM/EXTINCTION на пустом поле — whiff, дороже всех остальных
+                                     // empty-board случаев (cost 6), поэтому тот же -0.5, а не сильнее штраф —
+                                     // отрицательный score уже гарантирует "не играть", величина штрафа не важна
+  destroyAllEnemiesPerTargetWeight: 1.0, // за каждое вражеское существо — САМЫЙ высокий per-target вес в игре:
+                                     // гарантированный килл (не просто урон), причём КАЖДОГО существа разом,
+                                     // ничего похожего по масштабу эффекта в игре больше нет
+  singleDebuffAlreadyAffectedScore: -0.3, // CINDER/DREAD — единственная валидная (по aiSpellHasValidTarget)
+                                     // цель уже под этим же статусом (recast ничего не добавляет, burning/feared
+                                     // не стакаются) — небольшой минус, а не -0.5 как у настоящего whiff'а
+                                     // (карта не физзлит полностью, просто бесполезна прямо сейчас)
+  singleDebuffAtkWeight: 0.25,        // за effAtk лучшей ДОСТУПНОЙ (ещё не под статусом) цели — та же логика,
+                                     // что buffTargetAtkWeight, но для denial, не баффа
+  singleDebuffBehindBonus: 0.8,       // доп. ценность, когда мы 'behind' — тот же принцип, что fearAllBehindBonus/
+                                     // burnAllBehindBonus, но меньше (это ОДНА цель, не всё поле)
+  drawOnKillBonus: 0.4,               // EXECUTE/CULL — модификатор поверх обычной spell_dmg_target-оценки:
+                                     // добор карты, если этот килл реально произошёл (killable.length>0)
   raceHpBehindThreshold: -4,     // моё HP - вражеское <= это ⇒ 'behind'
   raceHpAheadThreshold: 4,
   racePowerBehindThreshold: -3,  // сумма effAtk моего поля - вражеского
@@ -144,7 +176,38 @@ function aiGtypeCount(faction, gtype){
 // Если ПРЕФИКС разошёлся с GAME_VERSION — это сигнал (в консоли и в игровом
 // логе), что ИИ мог не узнать о недавних правках игры; ревизия сама по себе
 // предупреждение не вызывает.
-const AI_VERSION = "1.03.1";
+const AI_VERSION = "1.05.1";
+// v1.05.1 (полный аудит по прямому запросу автора, 2026-07-24, вместе с bump'ом
+// GAME_VERSION до 1.05 — hp/atk-ребаланс Dreegan/Umbasir/Orbiton/Mechird/Xuiqtr) —
+// сверка ai.js против ВСЕХ спеллов/тегов, накопившихся с последнего аудита (v1.03.1,
+// GAME_VERSION 1.03 → 1.04 без сопровождающего аудита ИИ, отсюда и предупреждение
+// _warnIfAiVersionStale() в этой сборке до сих пор). Что исправлено:
+//   1. Шесть спелл-механик были вообще не оценены в aiScoreCard() — падали в общий
+//      flat-фоллбек ('card.cost*w.spellBase+0.5', как у обычного "draw 1"), не видя
+//      реальную силу карты вообще: spell_random_spread (SCATTERSHOT/SHRAPNEL),
+//      spell_draw_scale (MULTITUDE/LEGION), spell_destroy_target (SUNDER/BLIGHT),
+//      spell_destroy_all_enemies (CATACLYSM/EXTINCTION — самый мощный спелл в игре,
+//      полный вайп вражеского поля, ИИ мог сыграть его практически наугад или не
+//      сыграть вообще), spell_burn_target/spell_fear_target (CINDER/DREAD) и
+//      draw_on_kill (модификатор EXECUTE/CULL поверх spell_dmg_target). Добавлены
+//      отдельные ветки с whiff-guard на пустом поле по образцу уже существующих
+//      aoe_count/fear_all/burn_all.
+//   2. atk_vs_feared/atk_vs_burning (FAERON, RYVLEN, TRAVELER #128/#720, введены
+//      2026-07-19..23) весили 0 в tagBonus — та же категория пробела, что чинили в
+//      предыдущих трёх аудитах для armor/ward/bolt/vampiric/intercept и т.п. Плюс
+//      более глубокая находка: effAtk() в принципе не может учитывать эти теги (они
+//      условны на СОСТОЯНИИ ЦЕЛИ — target.burning/target.feared, а effAtk() видит
+//      только атакующего) — добавлен effAtkVsTarget(attacker,target), используется в
+//      aiActWithCreature() для killable-проверки и приоритета целей (тот же путь,
+//      что и world_atk_vs_burning/world_atk_vs_feared ауры VALLEY/HUNGER).
+//   3. Known boundary (сознательно НЕ чинили в этом проходе, задокументировано для
+//      следующего): effAtkVsTarget() применён только в aiActWithCreature() (реальный
+//      выбор цели атаки) — остальные ~35 мест, где ai.js использует effAtk() для
+//      сортировки/сравнения силы существ (bounce-приоритет, spell-target выбор и
+//      т.п.), по-прежнему не видят target-зависимый бонус. Это не баг корректности
+//      (effAtk() там сравнивает существ МЕЖДУ СОБОЙ, не конкретный урон по конкретной
+//      цели), но при желании более точного тюнинга — та же замена применима точечно
+//      везде, где сравнение реально завязано на burning/feared цель.
 // v1.3.1 (аудит по запросу автора, 2026-07-18, вместе с bump'ом GAME_VERSION до 1.03) —
 // полная сверка ai.js против всех правок этой большой сессии (рефактор классик-колоды,
 // новые теги/карты, Bolt-фикс, Ward-фикс). Что исправлено:
@@ -822,7 +885,10 @@ function aiScoreCard(card, me){
         // "a kill exists" — removal on a vanilla 1/1 is much weaker than the
         // same removal on the opponent's best attacker.
         const best=killable.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
-        return card.cost*w.spellBase + w.removalKillBonus + effAtk(best)*w.removalKillTargetAtkWeight;
+        // draw_on_kill (2026-07-24, EXECUTE/CULL) — extra draw only actually happens if
+        // this cast kills something, so the bonus only applies inside this branch.
+        const killBonus=hasTag(card,'draw_on_kill')?w.drawOnKillBonus:0;
+        return card.cost*w.spellBase + w.removalKillBonus + effAtk(best)*w.removalKillTargetAtkWeight + killBonus;
       }
       // Can't finish anything off this turn — still chip damage/setup, worth
       // more when we're already behind and need any pressure we can get.
@@ -963,6 +1029,56 @@ function aiScoreCard(card, me){
       return card.cost*w.spellBase + enemies.length*w.burnAllPerTargetWeight + (race==='behind'?w.burnAllBehindBonus:0);
     }
 
+    // SCATTERSHOT/SHRAPNEL (2026-07-24) — рандомный урон по вражескому полю, тот же
+    // whiff-на-пустом-поле риск, что и у aoe_count, но per-target вес ниже — урон не
+    // гарантированно ложится в живую цель (может весь уйти в Ward/невидимость, см.
+    // execution-кейс 'random_spread' в abilities.js).
+    if(hasTag(card,'spell_random_spread')){
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      if(enemies.length===0) return w.randomSpreadEmptyBoardScore;
+      return card.cost*w.spellBase + enemies.length*w.randomSpreadPerTargetWeight;
+    }
+
+    // MULTITUDE/LEGION (2026-07-24) — добор = число своих существ на поле, честный скейл
+    // без минимума (см. case 'draw_scale' в abilities.js) — пустое своё поле = гарантированный
+    // whiff, та же логика, что у aoe_count/random_spread выше, только по СВОЕМУ полю.
+    if(hasTag(card,'spell_draw_scale')){
+      const myCreatures=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
+      if(myCreatures===0) return w.drawScaleEmptyBoardScore;
+      return card.cost*w.spellBase + myCreatures*w.drawScalePerCreatureWeight;
+    }
+
+    // SUNDER/BLIGHT (2026-07-24) — aiSpellHasValidTarget уже гарантирует, что у противника
+    // есть Мир ИЛИ Артефакт; та же приоритезация, что в aiResolvePendingSpellTarget (Мир
+    // ценнее — обычно постоянная аура на всё поле, Артефакт — запасной вариант).
+    if(hasTag(card,'spell_destroy_target')){
+      const bonus=G[G.humanFaction].world ? w.destroyTargetWorldBonus : w.destroyTargetArtifactBonus;
+      return card.cost*w.spellBase + bonus;
+    }
+
+    // CATACLYSM/EXTINCTION (2026-07-24) — гарантированный вайп ВСЕГО вражеского поля,
+    // самый высокий per-target вес в игре (см. комментарий у веса) — но всё ещё честный
+    // whiff-guard на пустом поле, той же формы, что у aoe_count/random_spread выше.
+    if(hasTag(card,'spell_destroy_all_enemies')){
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      if(enemies.length===0) return w.destroyAllEnemiesEmptyBoardScore;
+      return card.cost*w.spellBase + enemies.length*w.destroyAllEnemiesPerTargetWeight;
+    }
+
+    // CINDER/DREAD (2026-07-24) — одиночные версии burn_all/fear_all. aiSpellHasValidTarget
+    // гарантирует хоть одну ВООБЩЕ таргетируемую цель, но не "новую" (не под тем же статусом
+    // уже) — recast на уже горящую/испуганную цель ничего не добавляет (оба булевы, не
+    // стакаются), поэтому здесь отдельно фильтруем именно новые цели, как и в fear_all/burn_all.
+    if(hasTag(card,'spell_burn_target')||hasTag(card,'spell_fear_target')){
+      const isBurn=hasTag(card,'spell_burn_target');
+      const fresh=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&
+        isSpellTargetable(c,G[G.humanFaction].field)&&!(isBurn?c.burning:c.feared));
+      if(fresh.length===0) return w.singleDebuffAlreadyAffectedScore;
+      const best=fresh.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
+      const race=aiRaceState();
+      return card.cost*w.spellBase + effAtk(best)*w.singleDebuffAtkWeight + (race==='behind'?w.singleDebuffBehindBonus:0);
+    }
+
     if(hasTag(card,'ess_add')){
       const gain=getTagVal(card,'ess_add')||1;
       const fieldFullNow=me.field.length>=6;
@@ -1073,6 +1189,25 @@ function effAtk(c){
   return c.atk + (c.atkBonus||0) + rageAtkBonus(c) + (c.squadAtkBonus||0) + (c.tempAtkBonus||0);
 }
 
+// effAtkVsTarget — 2026-07-24 аудит: effAtk() выше не видит atk_vs_burning:N/atk_vs_feared:N
+// (FAERON/RYVLEN/TRAVELER #128/#720, введены 2026-07-19..23) и их командные версии
+// world_atk_vs_burning:N/world_atk_vs_feared:N (ауры VALLEY/HUNGER) — они условны на
+// СОСТОЯНИИ КОНКРЕТНОЙ ЦЕЛИ (target.burning/target.feared), а effAtk() принимает только
+// атакующего. Без этого ИИ мог решить, что удар не добивает горящую/испуганную цель, хотя
+// реальный бой (doAttack() в game.js, та же формула здесь) нанёс бы больше урона — либо
+// наоборот, недооценить, какую из нескольких целей выгоднее убить именно этим существом.
+// Используется точечно там, где решение зависит от урона по КОНКРЕТНОЙ цели (aiActWithCreature)
+// — везде, где сравнивается общая "сила" существ без привязки к цели, effAtk() остаётся верным.
+function effAtkVsTarget(attacker, target){
+  let atk = effAtk(attacker);
+  if(hasTag(attacker,'atk_vs_burning') && target.burning) atk += getTagVal(attacker,'atk_vs_burning')||0;
+  if(hasTag(attacker,'atk_vs_feared') && target.feared) atk += getTagVal(attacker,'atk_vs_feared')||0;
+  const curWorld = G[attacker.f] && G[attacker.f].world;
+  if(curWorld && hasTag(curWorld,'world_atk_vs_burning') && target.burning) atk += getTagVal(curWorld,'world_atk_vs_burning')||0;
+  if(curWorld && hasTag(curWorld,'world_atk_vs_feared') && target.feared) atk += getTagVal(curWorld,'world_atk_vs_feared')||0;
+  return atk;
+}
+
 // (2026-07-18, по просьбе автора) — "нет смысла бить его картой 1/1 существо с бронёй 1,
 // чтобы тупо получить ответку и умереть". Полностью бесполезный размен: наш физический
 // урон целиком гасится бронёй цели (Броня поглощает первой, см. dmgCard()) — 0 реального
@@ -1118,7 +1253,6 @@ function aiActWithCreature(creature){
     }
   }
 
-  const atk = effAtk(creature);
   const targetableIds = getTargetableCards(oppField, creature);
   const targetable = oppField.filter(c => targetableIds.includes(c.id));
   // Provoke rework (2026-07-17): pierce no longer exempt — forced is now just
@@ -1137,8 +1271,13 @@ function aiActWithCreature(creature){
   // проверял shieldConsumed — ИИ мог "убить" щит-цель ударом, который на деле снимался в 0.
   // Теперь такая цель не считается killable, пока щит ещё цел (см. также getAiCreatureQueue()
   // — порядок атакующих теперь сам подставляет слабое существо под щит первым).
+  // 2026-07-24: killable/worthKilling теперь считают урон per-target через effAtkVsTarget()
+  // вместо общего atk — атакующий с atk_vs_burning/atk_vs_feared (или под аурой
+  // world_atk_vs_burning/world_atk_vs_feared) реально наносит больше урона именно по
+  // горящей/испуганной цели, обычный effAtk() эту разницу не видел (см. комментарий у
+  // effAtkVsTarget() выше).
   const stillShielded = t => hasTag(t,'shield') && !t.shieldConsumed;
-  const killable = targetable.filter(t => !stillShielded(t) && atk >= t.hp + (t.armor||0));
+  const killable = targetable.filter(t => !stillShielded(t) && effAtkVsTarget(creature,t) >= t.hp + (t.armor||0));
   // Не считаем "нужным" килл на цели, которая и так умрёт от собственного burn'а
   // в начале хода ЕЁ владельца (endTurn(), тикает раньше её controller-а), если
   // вместо этого можно бить прямо по базе — тратить атаку на гарантированно
@@ -1146,7 +1285,7 @@ function aiActWithCreature(creature){
   // здесь не при чём — при forced=true целью всё равно распоряжается не ИИ.
   const worthKilling = forced ? killable : killable.filter(t => !(t.burning && t.hp<=1));
   if(worthKilling.length > 0){
-    worthKilling.sort((a,b) => effAtk(b) - effAtk(a));
+    worthKilling.sort((a,b) => effAtkVsTarget(creature,b) - effAtkVsTarget(creature,a));
     aiAttack(creature, worthKilling[0]);
     return;
   }
@@ -1160,7 +1299,7 @@ function aiActWithCreature(creature){
   // Единственные доступные "киллы" были обречённые burn-цели, а по базе ударить
   // нельзя (Provoke без Pierce и т.п.) — тогда всё же добиваем их, лучше чем простой.
   if(killable.length > 0){
-    killable.sort((a,b) => effAtk(b) - effAtk(a));
+    killable.sort((a,b) => effAtkVsTarget(creature,b) - effAtkVsTarget(creature,a));
     aiAttack(creature, killable[0]);
     return;
   }
