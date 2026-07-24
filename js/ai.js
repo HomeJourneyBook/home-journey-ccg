@@ -124,6 +124,11 @@ const AI_WEIGHTS = {
   destroyAllEnemiesPerTargetWeight: 1.0, // за каждое вражеское существо — САМЫЙ высокий per-target вес в игре:
                                      // гарантированный килл (не просто урон), причём КАЖДОГО существа разом,
                                      // ничего похожего по масштабу эффекта в игре больше нет
+  // РЕДИЗАЙН (2026-07-24, по прямому запросу автора) — теперь бьёт и по своему полю тоже,
+  // добор частично компенсирует потерю, поэтому вес меньше, чем per-target выше, а не
+  // равный ему — существо ценнее карты в руке (тело на столе > карта, которую ещё нужно
+  // разыграть), так что net всё ещё отрицательный за каждое своё потерянное существо.
+  destroyAllEnemiesOwnLossWeight: 0.6,
   singleDebuffAlreadyAffectedScore: -0.3, // CINDER/DREAD — единственная валидная (по aiSpellHasValidTarget)
                                      // цель уже под этим же статусом (recast ничего не добавляет, burning/feared
                                      // не стакаются) — небольшой минус, а не -0.5 как у настоящего whiff'а
@@ -140,6 +145,21 @@ const AI_WEIGHTS = {
                                      // реально теряются) — та же логика веса, что у draw:N по
                                      // сути карт, просто может быть ОТРИЦАТЕЛЬНЫМ (при полной
                                      // руке это чистый минус, не кантрип)
+  // 2026-07-24 (седьмой проход — большая ревизия спеллов по фидбеку автора):
+  bounceTargetCostWeight: 0.3,        // TEMPEST/MAELSTROM — за cost лучшей вражеской цели
+                                     // (не effAtk — та же логика, что и aiResolvePendingSpellTarget:
+                                     // темп-урон пропорционален тому, сколько эссенции придётся
+                                     // отдать заново, не боевой силе)
+  bounceAllyEtbBonus: 0.6,            // GUST/REVERSE/TEMPEST-fallback — спасти существо с ценным
+                                     // enter-эффектом ради повторного триггера
+  bounceAllyVanguardBonus: 1.0,       // GUST/REVERSE — redeploy уставшего vanguard = гарантированная
+                                     // доп.атака тем же ходом, ценнее голого ETB-повтора
+  lootFlatBonus: 0.3,                  // MUSE/SCAVENGE — небольшой плюс поверх spellBase, см. комментарий у ветки
+  essAddBigHandPenalty: 1.2,           // SCHEME/BLACK MAGIC — штраф при большой руке (см. комментарий у ветки)
+  comboDrawWeight: 0.5,                 // GLIMPSE/OMEN (draw+healbase комбо) — за карту добора, тот же
+                                     // порядок, что у draw-тега вообще, знак зависит от размера руки
+                                     // (см. комментарий у ветки — при большой руке становится отрицательным)
+  comboHealWeight: 0.3,                 // GLIMPSE/OMEN — за фактически восстановленное HP базы (min(val,missing))
   raceHpBehindThreshold: -4,     // моё HP - вражеское <= это ⇒ 'behind'
   raceHpAheadThreshold: 4,
   racePowerBehindThreshold: -3,  // сумма effAtk моего поля - вражеского
@@ -505,6 +525,28 @@ function aiResolvePendingSpellTarget(){
     doSpellBounceTarget(ownTargets[0]);
     return;
   }
+  if(G.phase==='spellBounceAllyTarget'){
+    // GUST/REVERSE redesign (2026-07-24) — та же приоритезация, что у "своей стороны"
+    // ветки spellBounceTarget выше (vanguard-редетаплой первым, иначе подешевле).
+    const ownTargets=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
+    if(ownTargets.length===0){ cancelPendingSpell(); return; }
+    ownTargets.sort((a,b)=>{
+      const va=hasTag(a,'vanguard')&&a.exhausted, vb=hasTag(b,'vanguard')&&b.exhausted;
+      if(va!==vb) return va?-1:1;
+      return a.cost-b.cost;
+    });
+    doSpellBounceTarget(ownTargets[0]);
+    return;
+  }
+  if(G.phase==='spellExecuteHalfTarget'){
+    // JUDGMENT/DEATHBLOW (2026-07-24) — среди легальных (≤50% maxHP, не Ward) целей
+    // убиваем самую опасную (effAtk), как и у обычного spellDmgTarget.
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&c.hp*2<=c.maxHp&&isSpellTargetable(c,G[humanF].field));
+    if(targets.length===0){ cancelPendingSpell(); return; }
+    targets.sort((a,b)=>effAtk(b)-effAtk(a));
+    doSpellExecuteHalfTarget(targets[0]);
+    return;
+  }
   if(G.phase==='spellProvokeBreakTarget'){
     const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c,G[humanF].field));
     if(targets.length===0){ cancelPendingSpell(); return; }
@@ -817,6 +859,17 @@ function aiSpellHasValidTarget(card){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field)) ||
            G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
   }
+  if(hasTag(card,'spell_bounce_ally_target')){
+    // GUST/REVERSE redesign (2026-07-24) — та же aiWorthBouncingOwn-проверка, что и у
+    // "своя сторона" ветки spell_bounce_target выше, просто это ЕДИНСТВЕННЫЙ вариант
+    // цели теперь (нет вражеской альтернативы).
+    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
+  }
+  if(hasTag(card,'spell_execute_half')){
+    // JUDGMENT/DEATHBLOW (2026-07-24) — та же ward-фильтрация, что у spell_dmg_target,
+    // плюс обязательное условие ≤50% maxHP (та же формула, что в game.js/render.js).
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&c.hp*2<=c.maxHp&&isSpellTargetable(c,G[humanF].field));
+  }
   if(hasTag(card,'spell_provoke_break_target')){
     // Только реальные непогашенные Provoke-цели — как и click-хендлер в game.js, тут нет
     // смысла "промахиваться" мимо любой другой карты.
@@ -881,6 +934,48 @@ function aiScoreCard(card, me){
       const myBoard=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
       const theirBoard=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact).length;
       return theirBoard>myBoard+1 ? (card.cost*w.spellBase+w.bounceBehindBonus) : w.bounceAheadPenalty;
+    }
+
+    // TEMPEST/MAELSTROM (2026-07-24) — универсальный point-баунс (любая сторона),
+    // выделен из GUST/REVERSE при их редизайне в ally-only. Раньше spell_bounce_target
+    // вообще не имел отдельной ветки тут — падал в общий flat-фоллбек, тот же класс
+    // пробела, что чинили весь день у других механик. Приоритет — вражеская цель, если
+    // есть (тот же cost-based приоритет, что и в aiResolvePendingSpellTarget — темп-урон
+    // ценнее по дорогим картам), иначе свой aiWorthBouncingOwn-кандидат как fallback.
+    if(hasTag(card,'spell_bounce_target')){
+      const humanF=G.humanFaction;
+      const enemyTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
+      if(enemyTargets.length>0){
+        const best=enemyTargets.reduce((a,b)=>b.cost>a.cost?b:a);
+        return card.cost*w.spellBase + best.cost*w.bounceTargetCostWeight;
+      }
+      const ownTargets=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
+      if(ownTargets.length===0) return -1;
+      return card.cost*w.spellBase + w.bounceAllyEtbBonus;
+    }
+
+    // GUST/REVERSE redesign (2026-07-24) — только своя сторона: спасти существо с
+    // ценным enter-эффектом (сыграть его ETB второй раз) или redeploy уставшего
+    // vanguard (доп. атака тем же ходом). aiSpellHasValidTarget уже гарантирует, что
+    // aiWorthBouncingOwn-кандидат есть, если мы вообще досюда дошли.
+    if(hasTag(card,'spell_bounce_ally_target')){
+      const targets=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
+      if(targets.length===0) return -1;
+      const hasVanguardReady=targets.some(c=>hasTag(c,'vanguard')&&c.exhausted);
+      return card.cost*w.spellBase + (hasVanguardReady?w.bounceAllyVanguardBonus:w.bounceAllyEtbBonus);
+    }
+
+    // JUDGMENT/DEATHBLOW (2026-07-24) — условный дешёвый килл (только ≤50% maxHP).
+    // aiSpellHasValidTarget уже гарантирует хотя бы одну легальную цель. Ценность —
+    // как у обычного removal (effAtk лучшей доступной цели), но БЕЗ removalKillBonus
+    // обычного spell_dmg_target — тут killable гарантирован самим условием таргетинга,
+    // не нужно отдельно проверять "хватит ли урона".
+    if(hasTag(card,'spell_execute_half')){
+      const humanF=G.humanFaction;
+      const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&c.hp*2<=c.maxHp&&isSpellTargetable(c,G[humanF].field));
+      if(targets.length===0) return -1;
+      const best=targets.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
+      return card.cost*w.spellBase + w.removalKillBonus + effAtk(best)*w.removalKillTargetAtkWeight;
     }
 
     if(hasTag(card,'spell_dmg_target')){
@@ -1056,6 +1151,31 @@ function aiScoreCard(card, me){
     // (cost3*spellBase1.0) перебивала штраф в -1..-2 и держала итоговый score
     // положительным даже на набитой руке. Убрана — теперь пустая рука даёт чёткий плюс,
     // полная — чёткий минус, ничего не тянет счёт в сторону "всё равно казать" искусственно.
+    // MUSE/SCAVENGE (2026-07-24) — облегчённый фильтр (сброс+добор val, не всю руку).
+    // Осознанно НЕ делаю такую же контекстную модель, как у refresh_hand — карта дешёвая
+    // (cost1) и низко-рискованная по конструкции: draw всегда происходит независимо от
+    // размера руки, discard капается по факту доступных карт (пустая рука — просто
+    // draw без даунсайда). Небольшая фиксированная ценность отражает это: не бывает
+    // по-настоящему плохим кастом, но и не великим — всегда чуть выше нуля.
+    // GLIMPSE/OMEN (2026-07-24) — draw1+healbase2 комбо, раньше вообще не имел своей
+    // ветки (flat-фоллбек) — play-context отчёт поймал 44.4% winrate при большой руке
+    // против 57-62% при маленькой/средней. Draw-часть контекстно зависима (та же логика,
+    // что у refresh_hand — карта добора ценнее при тонкой руке), heal-часть — от
+    // реального недостатка HP базы (лечить полную базу бесполезно).
+    if(hasTag(card,'draw') && hasTag(card,'spell_heal_base')){
+      const drawVal=getTagVal(card,'draw')||1;
+      const healVal=getTagVal(card,'spell_heal_base')||1;
+      const otherInHand=Math.max(0, me.hand.length-1);
+      const drawScore = (otherInHand>=5 ? -drawVal : drawVal) * w.comboDrawWeight;
+      const hpMissing=Math.max(0, me.maxHp-me.hp);
+      const healScore=Math.min(healVal,hpMissing)*w.comboHealWeight;
+      return card.cost*w.spellBase + drawScore + healScore;
+    }
+
+    if(hasTag(card,'spell_loot')){
+      return card.cost*w.spellBase + w.lootFlatBonus;
+    }
+
     if(hasTag(card,'spell_refresh_hand')){
       const val=getTagVal(card,'spell_refresh_hand')||3;
       const otherInHand=Math.max(0, me.hand.length-1);
@@ -1090,13 +1210,18 @@ function aiScoreCard(card, me){
       return card.cost*w.spellBase + bonus;
     }
 
-    // CATACLYSM/EXTINCTION (2026-07-24) — гарантированный вайп ВСЕГО вражеского поля,
-    // самый высокий per-target вес в игре (см. комментарий у веса) — но всё ещё честный
-    // whiff-guard на пустом поле, той же формы, что у aoe_count/random_spread выше.
+    // CATACLYSM/EXTINCTION — РЕДИЗАЙН (2026-07-24, по прямому запросу автора) — теперь
+    // бьёт по ОБОИМ полям, не только вражескому: гарантированный вайп + добор по числу
+    // своих погибших. Score теперь = ценность вражеских килов МИНУС цена своих потерь
+    // (частично компенсированных добором, отсюда destroyAllEnemiesOwnLossWeight < per-
+    // target вес врагов — см. комментарии у весов). Whiff-guard теперь смотрит на ОБА
+    // поля разом — пустое поле с обеих сторон означает буквально нечего вайпать.
     if(hasTag(card,'spell_destroy_all_enemies')){
       const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
-      if(enemies.length===0) return w.destroyAllEnemiesEmptyBoardScore;
-      return card.cost*w.spellBase + enemies.length*w.destroyAllEnemiesPerTargetWeight;
+      const mine=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      if(enemies.length===0 && mine.length===0) return w.destroyAllEnemiesEmptyBoardScore;
+      return card.cost*w.spellBase + enemies.length*w.destroyAllEnemiesPerTargetWeight
+        - mine.length*w.destroyAllEnemiesOwnLossWeight;
     }
 
     // CINDER/DREAD (2026-07-24) — одиночные версии burn_all/fear_all. aiSpellHasValidTarget
@@ -1110,7 +1235,16 @@ function aiScoreCard(card, me){
       if(fresh.length===0) return w.singleDebuffAlreadyAffectedScore;
       const best=fresh.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
       const race=aiRaceState();
-      return card.cost*w.spellBase + effAtk(best)*w.singleDebuffAtkWeight + (race==='behind'?w.singleDebuffBehindBonus:0);
+      // ИСПРАВЛЕНО (2026-07-24, play-context отчёт: 40.2% winrate при маленькой руке
+      // против 61% при большой — обратный паттерн относительно ess_add/GLIMPSE выше).
+      // Гипотеза: 'behind'-бонус раньше выдавался безусловно, даже с пустой рукой — но
+      // burn/fear тут НЕ removal (не убивает само по себе, просто временный дебафф),
+      // так что "камбэк"-ценность реальна только если есть чем закрепить размен следующим
+      // ходом. При почти пустой руке (≤2 карты вместе с этим спеллом) такого форварда нет —
+      // бонус тут переоценивал карту именно в тех партиях, где ресурсов на самом деле не
+      // хватало продолжить давление.
+      const behindBonus = (race==='behind' && me.hand.length>2) ? w.singleDebuffBehindBonus : 0;
+      return card.cost*w.spellBase + effAtk(best)*w.singleDebuffAtkWeight + behindBonus;
     }
 
     if(hasTag(card,'ess_add')){
@@ -1125,7 +1259,17 @@ function aiScoreCard(card, me){
       const unlocked = me.hand.some(c => c!==card && c.cost>me.ess && c.cost<=me.ess+gain &&
         aiSpellHasValidTarget(c) && !(fieldFullNow && !c.spell && !c.world && !c.artifact));
       if(!unlocked) return -1;
-      return card.cost*w.spellBase + 0.5;
+      // ИСПРАВЛЕНО (2026-07-24, play-context отчёт симулятора поймал: 34.8% winrate при
+      // большой руке против 50.6% при средней) — "unlocked" гейт выше проверяет только
+      // "есть ли ЧТО-ТО, что становится доступно", но не "а не лучше ли доиграть уже
+      // доступные карты в первую очередь". При большой руке почти всегда что-нибудь да
+      // разблокируется чисто по количеству вариантов — гейт проходит легко, но трата
+      // ЦЕЛОГО хода на разгон вместо развития борда/ответа сопернику при большом выборе
+      // карт — явно не лучший приоритет. Небольшой штраф компенсирует это, не блокируя
+      // полностью (гейт unlocked уже гарантирует минимальную осмысленность).
+      const otherInHand=Math.max(0, me.hand.length-1);
+      const bigHandPenalty = otherInHand>=5 ? w.essAddBigHandPenalty : 0;
+      return card.cost*w.spellBase + 0.5 - bigHandPenalty;
     }
 
     // Draw / untap / dispel / anything else generic — flat baseline,
