@@ -99,6 +99,13 @@ function getAbilities(card){
       case 'lose':
         if(card.spell) ab.push({timing:'instant',effect:'lose',val});
         break;
+      // spell_refresh_hand:N (2026-07-24, "RENEWAL"/"AMNESIA", по прямому запросу автора) —
+      // сбрасывает ВСЮ ОСТАВШУЮСЯ руку заклинателя (в отличие от 'lose' выше — тот бьёт по
+      // руке ПРОТИВНИКА) в Пустоту, затем добирает N новых карт. Реальный execution —
+      // кейс 'refresh_hand' ниже.
+      case 'spell_refresh_hand':
+        if(card.spell) ab.push({timing:'instant',effect:'refresh_hand',val});
+        break;
       // spell_aoe_count (2026-07-17, "Board Purge") — деалт-значение НЕ фиксированное
       // число на теге (в отличие от 'aoe'/enter_aoe выше), а считается в момент розыгрыша
       // как размер вражеского поля — поэтому здесь нет val вообще, реальный расчёт живёт в
@@ -358,6 +365,27 @@ function triggerAbilities(card, timing, ctx={}){
           const n=cur.field.length;
           for(let i=0;i<n;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
           lg(`${card.name}: draws ${n} card(s) — 1 per creature on your battleground.`,'imp');
+        } break;
+
+      case 'refresh_hand':
+        // RENEWAL/AMNESIA (2026-07-24, по прямому запросу автора) — сбрасывает ВСЮ
+        // оставшуюся руку заклинателя (этот спелл уже покинул руку к моменту резолва,
+        // так что в cur.hand его тут нет) в Пустоту навсегда — тот же 'voided=true' +
+        // push в .void, что у 'lose' выше, просто по СВОЕЙ руке, а не по руке противника —
+        // затем добирает a.val новых карт. Чистый выигрыш в размере руки только если рука
+        // уже была меньше a.val карт; при полной руке это намеренный net-минус — плата за
+        // "перемешать" некачественную руку на свежую, не гарантированная прибавка карт.
+        {
+          const lostCards=[...cur.hand];
+          cur.hand.length=0;
+          lostCards.forEach(c=>{ c.voided=true; cur.void.push(c); });
+          let drawn=0;
+          for(let i=0;i<a.val;i++){ if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); drawn++; } }
+          if(lostCards.length>0){
+            lg(`${card.name}: discards ${lostCards.length} card(s), draws ${drawn}.`,'imp');
+          } else {
+            lg(`${card.name}: hand was already empty — draws ${drawn}.`,'imp');
+          }
         } break;
 
       case 'destroy_all_enemies':
