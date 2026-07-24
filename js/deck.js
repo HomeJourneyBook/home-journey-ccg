@@ -39,58 +39,71 @@ const RUSH_MIN = 28;
 //   масс-ответа в этом матчапе нельзя.
 // 2026-07-22 (по прямому запросу автора, печатная classic-колода, 16 спеллов/фракцию):
 // draw:1 / draw:2 / bounce_target — по 2 копии каждой (обе фракции); anti-provoke
-// (EXPOSE/UNMASK) и ess_add (SCHEME/BLACK MAGIC) — исключены полностью (эссенция уже
-// выдаётся 2-му игроку отдельным Unseen-бонусом, ess_add дублирует эту роль); все
-// остальные 10 пар — по 1 копии. См. полный разбор ролей в CLAUDE.md/сессионной записи.
+// (EXPOSE/UNMASK) и ess_add (SCHEME/BLACK MAGIC) — исключены полностью в ЭТОЙ конкретной
+// печатной classic-колоде (решение по вкусу/теме, не по механическому дублированию —
+// см. поправку ниже); все остальные 10 пар — по 1 копии. См. полный разбор ролей в
+// CLAUDE.md/сессионной записи.
+// ИСПРАВЛЕНО (2026-07-24, автор поймал устаревшую причину в этом же комментарии): здесь
+// раньше было написано, что ess_add исключён, потому что "эссенция уже выдаётся 2-му
+// игроку отдельным Unseen-бонусом" — неверно вдвойне. Во-первых, бонус 2-го игрока
+// (`grantUnseenBonus()`, ui.js) с 2026-07-23 — это НАСТОЯЩАЯ 6-я карта из собственной
+// колоды игрока, а не эссенция и не карта UNSEEN. Во-вторых, сам UNSEEN (до 2026-07-23
+// бывший механизмом бонуса) — это bounce-спелл, тоже не эссенция. Ни один из двух
+// реальных вариантов бонуса никогда не выдавал эссенцию — старая формулировка путала
+// сразу оба. exclusion SCHEME/BLACK MAGIC в classic остаётся в силе (это решение по теме/
+// балансу колоды, см. выше), просто не по этой причине.
+// 2026-07-24 (по прямому запросу автора — полная замена под новую 35-карточную сборку):
+// раньше эта таблица держала квоты под старый 16-спелловый набор. Теперь набор сильно уже —
+// только 10 спеллов на фракцию (2 добор + 2 хил + 2 эссенция + 6 прочих), всё остальное на 0.
 const SPELL_COPIES = {
   // Tea
-  t_sp1:1,  // ARCHIVE (combat-trick +1 ATK)
-  t_sp2:1,  // JOURNEY (bolt 3)
-  t_sp3:1,  // SHEN'S CALL (revive full)
-  t_sp4:0,  // SCHEME (cost2, ess_add:4 — rebalanced 2026-07-23) — всё ещё исключён из classic, решение включать ли не принято
-  t_sp5:2,  // GUST (bounce any)
-  t_sp6:1,  // RECKONING (aoe count)
-  t_sp7:1,  // FORGET-ME-NOT (discard 2)
+  t_sp1:0,  // ARCHIVE (combat-trick +1 ATK) — исключён
+  t_sp2:0,  // VERDICT (bolt 999) — исключён
+  t_sp3:0,  // SHEN'S CALL (revive full) — исключён (по прямому запросу автора: без воскрешения)
+  t_sp4:2,  // SCHEME (ess_add:4) — эссенция ×2
+  t_sp5:1,  // GUST (bounce any)
+  t_sp6:0,  // RECKONING (aoe count) — исключён
+  t_sp7:0,  // FORGET-ME-NOT (discard 2) — исключён (срезан ради лимита 35 карт)
   t_sp8:0,  // EXPOSE (anti-provoke tech) — исключён
   t_sp9:1,  // BREACH (bolt 5 + trample)
-  t_sp10:1, // WILDFIRE (burn_all — сигнатурный payoff темы)
-  t_sp11:1, // REKINDLE (untap)
-  t_sp12:1, // BULWARK (combat-trick +1 Armor)
-  t_sp13:2, // INSIGHT (draw 2)
-  t_sp14:2, // GLIMPSE (draw 1 + heal base 2)
-  t_sp15:1, // SPARK (bolt 2)
-  t_sp16:1, // SANCTUARY (heal all 2 + heal base 2) — new 2026-07-23
-  t_sp17:1, // JAB (bolt 1) — new 2026-07-24
-  t_sp18:1, // SCATTERSHOT (3 random spread) — new 2026-07-24
-  t_sp19:1, // MULTITUDE (scaling draw) — new 2026-07-24
-  t_sp20:1, // EXECUTE (bolt3 + draw on kill) — new 2026-07-24
-  t_sp21:1, // SUNDER (destroy world/artifact) — new 2026-07-24
-  t_sp22:1, // CATACLYSM (destroy all enemies) — new 2026-07-24
-  t_sp23:1, // CINDER (single-target burn) — new 2026-07-24
+  t_sp10:1, // WILDFIRE (burn_all) — АОЕ-поджог, добавлен по прямому запросу автора
+  t_sp11:0, // REKINDLE (untap) — исключён
+  t_sp12:0, // BULWARK (combat-trick +1 Armor) — исключён
+  t_sp13:2, // INSIGHT (draw 2) — добор ×2
+  t_sp14:1, // GLIMPSE (draw 1 + heal base 2)
+  t_sp15:0, // SPARK (bolt 2) — исключён
+  t_sp16:2, // SANCTUARY (heal all 2 + heal base 2) — хил ×2
+  t_sp17:1, // JAB (bolt 1)
+  t_sp18:1, // SCATTERSHOT (3 random spread)
+  t_sp19:0, // MULTITUDE (scaling draw) — исключён
+  t_sp20:1, // EXECUTE (bolt3 + draw on kill)
+  t_sp21:0, // SUNDER (destroy world/artifact) — исключён
+  t_sp22:0, // CATACLYSM (destroy all enemies) — исключён
+  t_sp23:1, // CINDER (single-target burn) — точечный поджог, добавлен по прямому запросу автора
   // Jeet
-  j_sp1:2,  // JEET WAVE (draw 2)
-  j_sp2:1,  // OBLIVION (untap)
-  j_sp3:1,  // FORGETTING (revive full)
-  j_sp4:0,  // BLACK MAGIC (cost2, ess_add:4 — rebalanced 2026-07-23) — всё ещё исключён из classic, решение включать ли не принято
-  j_sp5:2,  // REVERSE (bounce any)
-  j_sp6:1,  // SWARM CULL (aoe count)
-  j_sp7:1,  // MINDROT (discard 2)
+  j_sp1:2,  // JEET WAVE (draw 2) — добор ×2
+  j_sp2:0,  // OBLIVION (untap) — исключён
+  j_sp3:0,  // FORGETTING (revive full) — исключён (без воскрешения)
+  j_sp4:2,  // BLACK MAGIC (ess_add:4) — эссенция ×2
+  j_sp5:1,  // REVERSE (bounce any)
+  j_sp6:0,  // SWARM CULL (aoe count) — исключён
+  j_sp7:0,  // MINDROT (discard 2) — исключён (срезан ради лимита 35 карт)
   j_sp8:0,  // UNMASK (anti-provoke tech) — исключён
   j_sp9:1,  // RUPTURE (bolt 5 + trample)
-  j_sp10:1, // NIGHTMARE (fear_all — сигнатурный payoff темы)
-  j_sp11:1, // FRENZY (combat-trick +1 ATK)
-  j_sp12:1, // CARAPACE (combat-trick +1 Armor)
-  j_sp13:1, // HEX (bolt 3)
-  j_sp14:2, // OMEN (draw 1 + heal base 2)
-  j_sp15:1, // MALICE (bolt 2)
-  j_sp16:1, // VIGIL (heal all 2 + heal base 2) — new 2026-07-23
-  j_sp17:1, // STING (bolt 1) — new 2026-07-24
-  j_sp18:1, // SHRAPNEL (3 random spread) — new 2026-07-24
-  j_sp19:1, // LEGION (scaling draw) — new 2026-07-24
-  j_sp20:1, // CULL (bolt3 + draw on kill) — new 2026-07-24
-  j_sp21:1, // BLIGHT (destroy world/artifact) — new 2026-07-24
-  j_sp22:1, // EXTINCTION (destroy all enemies) — new 2026-07-24
-  j_sp23:1, // DREAD (single-target fear) — new 2026-07-24
+  j_sp10:1, // NIGHTMARE (fear_all) — АОЕ-фир, добавлен по прямому запросу автора
+  j_sp11:0, // FRENZY (combat-trick +1 ATK) — исключён
+  j_sp12:0, // CARAPACE (combat-trick +1 Armor) — исключён
+  j_sp13:0, // DAMNATION (bolt 999) — исключён
+  j_sp14:1, // OMEN (draw 1 + heal base 2)
+  j_sp15:0, // MALICE (bolt 2) — исключён
+  j_sp16:2, // VIGIL (heal all 2 + heal base 2) — хил ×2
+  j_sp17:1, // STING (bolt 1)
+  j_sp18:1, // SHRAPNEL (3 random spread)
+  j_sp19:0, // LEGION (scaling draw) — исключён
+  j_sp20:1, // CULL (bolt3 + draw on kill)
+  j_sp21:0, // BLIGHT (destroy world/artifact) — исключён
+  j_sp22:0, // EXTINCTION (destroy all enemies) — исключён
+  j_sp23:1, // DREAD (single-target fear) — точечный фир, добавлен по прямому запросу автора
 };
 
 const DECK_CONFIGS = {
@@ -114,59 +127,46 @@ function shuffleArr(d){
 function _composeDeckList(f, cfg){
   const t = f==='tea';
 
-  // 2026-07-23 (симметрия 4/4/4/4/4/4, по прямому запросу автора): каждый архетип теперь
-  // РОВНО 4 карты на фракцию (было 5/5/5/3/3/3 у Tea против 2/3/4/5/5/5 у Jeet — асимметрия
-  // архетипов, не только тем). Burn(Tea)/Fear(Jeet) — ровно 1 карта на архетип с каждой
-  // стороны (6 burn = 6 fear суммарно). Кривая по cost выровнена НАСКОЛЬКО возможно без
-  // смены тегов — где джитовская fear-карта сидела на другом costе, чем тийская burn-карта
-  // в том же архетипе, статы/cost самой карты пересчитаны под пира (см. j_trvl434_w и
-  // j_trvl859_w в data.js, оба репрайснуты 2026-07-23 — теги НЕ трогали, только cost/hp/atk).
-  // RESERVE (not in deck, still live in data.js/catalog): Tea #890/#694/#7, Jeet
-  // #971/#740/#434 (2026-07-23: #1008 заменил #434 в живой деке — тот же cost3/fear
-  // слот, но 1 тег вместо 2, см. историю #434 в data.js).
-  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl57_w','t_trvl34_w']
-                   : ['j_trvl12_w','j_trvl49_w','j_trvl1008_w','j_trvl551_w'];
+  // 2026-07-24 (по прямому запросу автора — полная замена предыдущего дизайна классик-
+  // колоды): раньше Classic держал ВСЕ 6 архетипов симметрично 4/4/4/4/4/4 (Tea=szg/orb/drg
+  // + umb/mch/xui в резерве темы, Jeet наоборот). Теперь обе фракции играют ОДНИМ и тем же
+  // набором архетипов — szg/orb/drg/xui — umb/mch в Classic больше не участвуют вообще
+  // (пустые массивы ниже; сами карты остаются в data.js/каталоге, просто не в этой сборке).
+  // Распределение по cost внутри архетипа задано явно автором:
+  //   szg/orb: cost1×2, cost2×1, cost3×1 (4 карты)
+  //   drg/xui: cost2×2, cost3×1, cost4×1 (4 карты)
+  // Тег-зеркалирование Jeet(fear)/Tea(burn) выдержано на cost3 у всех четырёх архетипов,
+  // где для этого была тегованная карта на этом cost (иначе — где возможно, идентичные
+  // теги, см. Dreegan cost4 — оба untamed).
+  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl55_w','t_trvl57_w']
+                   : ['j_trvl12_w','j_trvl971_w','j_trvl7_w','j_trvl1008_w'];
 
-  // RESERVE: Tea #1034/#503, Jeet — весь пул уже используется (только 4 карты всего).
-  const orb    = t ? ['t_trvl433_w','t_trvl218_w','t_trvl10_w','t_trvl398_w']
-                   : ['j_trvl170_w','j_trvl429_w','j_trvl523_w','j_trvl454_w'];
+  const orb    = t ? ['t_trvl503_w','t_trvl433_w','t_trvl218_w','t_trvl10_w']
+                   : ['j_trvl170_w','j_trvl429_w','j_trvl457_w','j_trvl523_w'];
 
-  // RESERVE: Tea #605, Jeet #1015.
-  const drg    = t ? ['t_trvl14_w','t_trvl1_w','t_trvl31_w','t_trvl388_w']
-                   : ['j_trvl41_w','j_trvl36_w','j_trvl775_w','j_trvl859_w'];
+  const drg    = t ? ['t_trvl14_w','t_trvl58_w','t_trvl605_w','t_trvl388_w']
+                   : ['j_trvl41_w','j_trvl27_w','j_trvl36_w','j_trvl163_w'];
 
-  // RESERVE: Tea #2/#137, Jeet #20/#248.
-  const umb    = t ? ['t_trvl52_w','t_trvl6_w','t_trvl583_w','t_trvl387_w']
-                   : ['j_trvl54_w','j_trvl934_w','j_trvl53_w','j_trvl550_w'];
+  // umb/mch — не участвуют в этой сборке Classic (см. комментарий выше).
+  const umb    = [];
+  const mch    = [];
 
-  // RESERVE: Tea #11, Jeet #320/#128 (128 остаётся в резерве Jeet — не был задуман для
-  // живой classic-колоды, см. историю).
-  const mch    = t ? ['t_trvl18_w','t_trvl35_w','t_trvl921_w','t_trvl38_w']
-                   : ['j_trvl724_w','j_trvl22_w','j_trvl804_w','j_trvl663_w'];
+  const xui    = t ? ['t_trvl39_w','t_trvl42_w','t_trvl972_w','t_trvl847_w']
+                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl806_w'];
 
-  // RESERVE: Tea #26, Jeet #704. (#951 перенесён к TEA ранее сегодня — ключ j_trvl951_w
-  // ПЕРЕСТАЛ существовать в DEFS, но тут в массиве остался стухший — mkCard() на
-  // несуществующий ключ возвращает null, и этот null тихо просачивался в колоду JEET,
-  // а потом в руку при обычном доборе — ТА САМАЯ причина зависания хода, пойманная
-  // автором через консоль 2026-07-24. Заменено на #720 из резерва.)
-  const xui    = t ? ['t_trvl39_w','t_trvl972_w','t_trvl402_w','t_trvl26_w']
-                   : ['j_trvl50_w','j_trvl37_w','j_trvl579_w','j_trvl720_w'];
+  // Уники — только 3 на фракцию (было все 5): Tea меняет TEANTIST→FAERON (burn-тема,
+  // подхватывает atk_vs_burning), ASLEX не участвует; Jeet меняет RYVLEN→SEEKER
+  // (fear-тема), REAPER не участвует.
+  const legs   = t ? ['t_tuborg','t_faeron','t_nab']
+                   : ['j_phleg','j_mal','j_vard'];
 
-  const legs   = t ? ['t_tean','t_aslex','t_tuborg','t_faeron','t_nab']
-                   : ['j_reap','j_ryv','j_mal','j_phleg','j_vard'];
-
-  // +GLIMPSE/OMEN (2026-07-19, ребаланс кривой под ход 1) — см. SPELL_COPIES выше.
   const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16','t_sp17','t_sp18','t_sp19','t_sp20','t_sp21','t_sp22','t_sp23']
                    : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16','j_sp17','j_sp18','j_sp19','j_sp20','j_sp21','j_sp22','j_sp23'];
 
-  // 2026-07-22 (по прямому запросу автора, печатная classic-колода) — оба Мира и оба
-  // Артефакта на фракцию снова в игре (VALLEY/HUNGER возвращены, несмотря на прежний баг
-  // с разгоном руки через JEET WAVE/OMEN — при 16 спеллах/16 существах на фракцию в
-  // 50-карточной колоде та же связка уже не выбивает колоду насухо так быстро, как било
-  // на старой 40-карточной; если повторится на игровых логах — придётся точечно резать
-  // draw-плотность, а не сам Мир).
-  const worlds = t ? ['t_w2','t_w1'] : ['j_w2','j_w1'];
-  const arts   = t ? ['t_a1','t_a2'] : ['j_a1','j_a2'];
+  // Мир/Артефакт — только ОДИН на фракцию (было оба): Tea IGNEON(было DOMUS)+SCORCH(было
+  // FOUNTAIN), Jeet HUNGER(было NORRIA)+SHARD(было ALTAR) — вторые версии каждой пары.
+  const worlds = t ? ['t_w1'] : ['j_w1'];
+  const arts   = t ? ['t_a1'] : ['j_a1'];
 
   let d = [];
   const namedGroups = { szarg, orb, drg, umb, mch, xui };
