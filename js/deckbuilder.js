@@ -280,6 +280,16 @@ function dbSetQty(faction,key,newQty,sourceStackEl){
   const max=entry?entry.max:1;
   newQty=Math.max(0,Math.min(max,newQty));
   const oldQty=_db.picks[faction][key]||0;
+  // RUSH_MAX (2026-07-24, по прямому запросу автора: "минимум и максимум чтоб было 35
+  // карт") — раньше был только нижний порог (RUSH_MIN), верхнего не было вообще, колоду
+  // можно было набрать сколь угодно большой. Если попытка добавить карту(ы) пробивает
+  // потолок — обрезаем newQty ровно до отметки "итого 35", не отклоняем целиком (частичное
+  // добавление лучше, чем молча ничего не делать).
+  if(newQty>oldQty){
+    const totalWithoutThis=_dbTotal(faction)-oldQty;
+    const roomLeft=Math.max(0, RUSH_MAX-totalWithoutThis);
+    newQty=Math.min(newQty, roomLeft);
+  }
   if(oldQty===newQty) return;
   const movingToChosen=newQty>oldQty; // только пул→выбрано летит; обратно пока как было (по просьбе автора)
   let flyClone=null;
@@ -417,7 +427,7 @@ function _updateDeckBuilderCount(){
   const el=document.getElementById('deckBuilderStats');
   if(el){
     el.innerHTML=
-      `<div class="db-stat-line ${total>=RUSH_MIN?'db-count-ok':''}">Selected: ${total} (min ${RUSH_MIN})</div>`+
+      `<div class="db-stat-line ${total===RUSH_MIN?'db-count-ok':''}">Selected: ${total} / ${RUSH_MIN}</div>`+
       `<div class="db-stat-line">Travelers: ${counts.traveler}</div>`+
       `<div class="db-stat-line">Uniques: ${counts.unique}</div>`+
       `<div class="db-stat-line">Spells: ${counts.spell}</div>`+
@@ -425,7 +435,7 @@ function _updateDeckBuilderCount(){
       `<div class="db-stat-line">Artifacts: ${counts.artifact}</div>`;
   }
   const btn=document.getElementById('deckBuilderNextBtn');
-  btn.disabled = total<RUSH_MIN;
+  btn.disabled = total!==RUSH_MIN;
   const isLastStep = _db.stepIndex >= _db.buildOrder.length-1;
   // Кнопка теперь иконка (✅), без видимого текста — что именно она сделает
   // (доиграть дальше vs начать партию) уходит в title (тултип по наведению)
@@ -435,7 +445,7 @@ function _updateDeckBuilderCount(){
 
 function deckBuilderConfirm(){
   const faction=_dbFaction();
-  if(_dbTotal(faction)<RUSH_MIN) return;
+  if(_dbTotal(faction)!==RUSH_MIN) return;
   playSfx('yellow_buttom');
   const modal=document.getElementById('deckBuilderModal');
   const proceed=()=>{
@@ -483,11 +493,18 @@ function _finishRushBuild(){
     return;
   }
 
-  // vsAI: only the human went through the builder; AI gets an automatic sample.
+  // vsAI: only the human went through the builder; AI gets the curated Classic deck.
+  // 2026-07-24 (по прямому запросу автора): раньше здесь стоял buildAiRushDeck(ai) —
+  // случайный RUSH_MIN-сэмпл из ВСЕГО пула карт фракции, без учёта кривой/архетипов/
+  // синергии. ИИ теперь просто играет ту же курированную Classic-колоду, что и в
+  // Classic-режиме (_composeDeckList() в deck.js) — она уже сбалансирована и прогнана
+  // через симулятор, не нужно директория второй параллельный "случайный" ИИ-опыт.
+  // buildAiRushDeck() сама оставлена в deck.js нетронутой (вдруг понадобится для other
+  // future use), просто больше не вызывается отсюда.
   const human=_db.vsAiHumanFaction;
   const ai = human==='tea' ? 'jeet' : 'tea';
   rushDecks[human]=_dbPicksToList(human);
-  rushDecks[ai]=buildAiRushDeck(ai);
+  rushDecks[ai]=buildDeck(ai, 'classic');
   _db=null;
 
   document.getElementById('game').style.display='flex';
