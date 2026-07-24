@@ -1668,7 +1668,7 @@ const TAG_TOOLTIPS = {
   'atk_vs_feared': { name: 'Haunt', desc: 'Deals +X bonus damage when attacking a Feared creature.' },
 };
 
-const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box';
+const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box, .card-incarn-badge';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
 
 let _tooltipEl = null;
@@ -1689,6 +1689,18 @@ function _tooltipDataFor(el){
       return { name: base.name, desc: base.desc.replace('+X', `+${el.dataset.tagval}`) };
     }
     return base;
+  }
+  // Плашка с обратным отсчётом на кладбище (card-incarn-badge, render.js) — раньше её
+  // единственной подсказкой был нативный browser title (терялся/не в стиле остальных
+  // тултипов), а сама плашка физически перекрывала обычную тег-иконку incarnation
+  // (которая как раз даёт этот тултип везде, кроме кладбища — см. фильтр в mkEl()).
+  // Заводим тут её на общий тултип-движок, с тем же именем/текстом, что и обычная
+  // иконка, плюс живой счётчик ходов/статус ожидания слота.
+  if(el.classList.contains('card-incarn-badge')){
+    const base=TAG_TOOLTIPS['incarnation'];
+    const timer=Number(el.dataset.incarnTimer);
+    if(timer>0) return { name: `Incarnation ${timer}`, desc: base.desc };
+    return { name: 'Incarnation', desc: 'Battleground is full — waiting to revive as soon as a slot opens.' };
   }
   if(el.classList.contains('card-cost') || el.classList.contains('card-small-cost')){
     return { name: '', desc: 'Cost of <img src="img/ess.png" class="tt-ess-icon" alt="Essence">' };
