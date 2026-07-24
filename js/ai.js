@@ -155,6 +155,7 @@ const AI_WEIGHTS = {
   bounceAllyVanguardBonus: 1.0,       // GUST/REVERSE — redeploy уставшего vanguard = гарантированная
                                      // доп.атака тем же ходом, ценнее голого ETB-повтора
   lootFlatBonus: 0.3,                  // MUSE/SCAVENGE — небольшой плюс поверх spellBase, см. комментарий у ветки
+  healAllWeight: 0.4,                   // SANCTUARY/VIGIL — за каждую реально долеченную единицу HP (существа+база)
   essAddBigHandPenalty: 1.2,           // SCHEME/BLACK MAGIC — штраф при большой руке (см. комментарий у ветки)
   comboDrawWeight: 0.5,                 // GLIMPSE/OMEN (draw+healbase комбо) — за карту добора, тот же
                                      // порядок, что у draw-тега вообще, знак зависит от размера руки
@@ -1170,6 +1171,23 @@ function aiScoreCard(card, me){
       const hpMissing=Math.max(0, me.maxHp-me.hp);
       const healScore=Math.min(healVal,hpMissing)*w.comboHealWeight;
       return card.cost*w.spellBase + drawScore + healScore;
+    }
+
+    // SANCTUARY/VIGIL (2026-07-24) — heal_all+heal_base КАК ОТДЕЛЬНАЯ карта (не в паре
+    // с draw, та комбо-ветка выше уже поймала бы GLIMPSE/OMEN первой). Раньше вообще не
+    // имела своей ветки — игралась вслепую (flat-фоллбек), включая на пустом поле с
+    // полной базой, где эффект буквально ничего не делает. Считаем реальный "долечиваемый"
+    // объём (min(val, missing) на каждую цель) и не играем вообще, если он 0.
+    if(hasTag(card,'spell_heal_all')){
+      const healAllVal=getTagVal(card,'spell_heal_all')||0;
+      const healBaseVal=getTagVal(card,'spell_heal_base')||0;
+      const myCreatures=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      const creatureHealing=myCreatures.reduce((sum,c)=>sum+Math.min(healAllVal,c.maxHp-c.hp),0);
+      const baseMissing=Math.max(0, me.maxHp-me.hp);
+      const baseHealing=Math.min(healBaseVal,baseMissing);
+      const totalHealing=creatureHealing+baseHealing;
+      if(totalHealing<=0) return -1;
+      return card.cost*w.spellBase*0.3 + totalHealing*w.healAllWeight;
     }
 
     if(hasTag(card,'spell_loot')){
