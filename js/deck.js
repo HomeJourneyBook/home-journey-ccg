@@ -80,6 +80,7 @@ const SPELL_COPIES = {
   t_sp21:0, // SUNDER (destroy world/artifact) — исключён
   t_sp22:1, // CATACLYSM (destroy all enemies) — добавлен 2026-07-24, больше атаки в арсенал
   t_sp23:1, // CINDER (single-target burn) — точечный поджог, добавлен по прямому запросу автора
+  t_sp24:1, // RENEWAL (discard hand, draw 3) — добавлен в Classic 2026-07-24, заменил TUBORG
   // Jeet
   j_sp1:2,  // JEET WAVE (draw 2) — добор ×2
   j_sp2:0,  // OBLIVION (untap) — исключён
@@ -104,6 +105,7 @@ const SPELL_COPIES = {
   j_sp21:0, // BLIGHT (destroy world/artifact) — исключён
   j_sp22:1, // EXTINCTION (destroy all enemies) — добавлен 2026-07-24, больше атаки в арсенал
   j_sp23:1, // DREAD (single-target fear) — точечный фир, добавлен по прямому запросу автора
+  j_sp24:1, // AMNESIA (discard hand, draw 3) — добавлен в Classic 2026-07-24, заменил ABYSSWALKER
 };
 
 const DECK_CONFIGS = {
@@ -158,14 +160,14 @@ function _composeDeckList(f, cfg){
   // относительно тел на столе.
   const xui    = [];
 
-  // Уники — только 3 на фракцию (было все 5): Tea меняет TEANTIST→FAERON (burn-тема,
-  // подхватывает atk_vs_burning), ASLEX не участвует; Jeet меняет RYVLEN→SEEKER
-  // (fear-тема), REAPER не участвует.
-  const legs   = t ? ['t_tuborg','t_faeron','t_nab']
-                   : ['j_phleg','j_mal','j_vard'];
+  // Уники — только 2 на фракцию (было 3, TUBORG/ABYSSWALKER убраны 2026-07-24 по прямому
+  // запросу автора, освободившиеся слоты ушли под RENEWAL/AMNESIA — см. spells ниже):
+  // Tea FAERON(burn-тема)+NABUNAGI, Jeet SEEKER(fear-тема)+PHLEGMOR.
+  const legs   = t ? ['t_faeron','t_nab']
+                   : ['j_phleg','j_vard'];
 
-  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16','t_sp17','t_sp18','t_sp19','t_sp20','t_sp21','t_sp22','t_sp23']
-                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16','j_sp17','j_sp18','j_sp19','j_sp20','j_sp21','j_sp22','j_sp23'];
+  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16','t_sp17','t_sp18','t_sp19','t_sp20','t_sp21','t_sp22','t_sp23','t_sp24']
+                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16','j_sp17','j_sp18','j_sp19','j_sp20','j_sp21','j_sp22','j_sp23','j_sp24'];
 
   // Мир/Артефакт — только ОДИН на фракцию (было оба): Tea IGNEON(было DOMUS)+SCORCH(было
   // FOUNTAIN), Jeet HUNGER(было NORRIA)+SHARD(было ALTAR) — вторые версии каждой пары.
