@@ -255,6 +255,29 @@ function onClick(card,zone){
     }
     cancelPendingSpell();return;
   }
+  if(G.phase==='spellBounceAllyTarget'){
+    // GUST/REVERSE redesign (2026-07-24) — единственное отличие от spellBounceTarget
+    // выше: только СВОЯ сторона (card.f===G.turn), видимость не при чём (своя карта
+    // всегда видна). Резолвит той же doSpellBounceTarget() — эффект идентичен, разница
+    // только в том, кого вообще можно кликнуть.
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
+      doSpellBounceTarget(card);return;
+    }
+    cancelPendingSpell();return;
+  }
+  if(G.phase==='spellExecuteHalfTarget'){
+    // JUDGMENT/DEATHBLOW (2026-07-24) — вражеская цель ТОЛЬКО на ≤50% maxHP (та же
+    // формула, что и в render.js подсветке/aiSpellHasValidTarget — держать в одном
+    // месте нельзя технически, три независимых гейта, как и у всех остальных
+    // targeted-спеллов в игре, но условие продублировано один в один).
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp*2<=card.maxHp){
+      if(isSpellTargetable(card,G[opp].field)){
+        doSpellExecuteHalfTarget(card);return;
+      }
+      return;
+    }
+    cancelPendingSpell();return;
+  }
   if(G.phase==='spellProvokeBreakTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&isSpellTargetable(card,G[opp].field)){
       doSpellProvokeBreakTarget(card);return;
@@ -321,7 +344,7 @@ function onClick(card,zone){
 // не дублируя весь if/else список из _resolvePlayedCard() ниже. Если добавляешь новый тип
 // таргетируемого спелла — впиши его тег и сюда тоже, иначе он ошибочно попадёт под
 // spell-cast-out-анимацию (см. isPlainInstantSpell в doPlay()).
-const TARGETED_SPELL_TAGS = ['spell_dmg_target','spell_buff_temp','spell_armor_temp','spell_dispel','spell_untap','spell_bounce_target','spell_provoke_break_target','spell_dmg_trample_target','spell_destroy_target','spell_burn_target','spell_fear_target'];
+const TARGETED_SPELL_TAGS = ['spell_dmg_target','spell_buff_temp','spell_armor_temp','spell_dispel','spell_untap','spell_bounce_target','spell_bounce_ally_target','spell_provoke_break_target','spell_dmg_trample_target','spell_destroy_target','spell_burn_target','spell_fear_target','spell_execute_half'];
 
 function doPlay(card, afterResolve){
   const cur=G[G.turn];
@@ -454,6 +477,18 @@ function _resolvePlayedCard(card){
   } else if(card.spell&&hasTag(card,'spell_bounce_target')){
     G.pendingSpell=card;G.phase='spellBounceTarget';
     lg(`${card.name}: select any creature on the field.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_bounce_ally_target')){
+    // GUST/REVERSE redesign (2026-07-24) — тот же bounce-эффект (doSpellBounceTarget()
+    // ниже уже общий для обеих версий), но таргетинг ограничен своей стороной — вся
+    // разница живёт в phase-гейте (onClick()) и render.js подсветке, не в самой функции.
+    G.pendingSpell=card;G.phase='spellBounceAllyTarget';
+    lg(`${card.name}: select an ally creature.`,'hint');
+  } else if(card.spell&&hasTag(card,'spell_execute_half')){
+    // JUDGMENT/DEATHBLOW (2026-07-24, по прямому запросу автора) — условный дешёвый
+    // килл: только по цели на ПОЛОВИНЕ maxHP или меньше. Реальная фильтрация цели —
+    // doSpellExecuteHalfTarget() ниже + onClick()/render.js гейт.
+    G.pendingSpell=card;G.phase='spellExecuteHalfTarget';
+    lg(`${card.name}: select an enemy creature at half HP or less.`,'hint');
   } else if(card.spell&&hasTag(card,'spell_provoke_break_target')){
     G.pendingSpell=card;G.phase='spellProvokeBreakTarget';
     lg(`${card.name}: select an enemy Provoke creature.`,'hint');
@@ -1884,6 +1919,24 @@ function doSpellBounceTarget(card){
     render();
   },400); // та же задержка, что у полного bounce — карта не появляется в руке ДО того,
           // как её "призрак" на поле закончил гаснуть
+}
+
+function doSpellExecuteHalfTarget(card){
+  // JUDGMENT/DEATHBLOW (2026-07-24, по прямому запросу автора) — условный дешёвый килл:
+  // легальность цели (≤50% maxHP) уже проверена в onClick() до вызова этой функции, тут
+  // просто резолв — тот же insta-kill путь (999 dmg, bypassArmor), что у VERDICT/
+  // DAMNATION/CATACLYSM, тот же "не показывать голое число" — DESTROYED вместо -999.
+  const spell=G.pendingSpell;
+  if(!spell) return;
+  const oppK=card.f;
+  playSfx('card_spell_atack');
+  lg(`${spell.name} destroys ${card.name}!`,'dmg');
+  queueFieldFx(card.id,'DESTROYED','fx-spell-dmg');
+  dmgCard(card,999,oppK,true,false,'DESTROYED');
+  G[G.turn].void.push(spell);
+  spell.voided=true;
+  G.pendingSpell=null;G.phase='action';G.sel=null;
+  render();
 }
 
 function doShardTarget(card){
