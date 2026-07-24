@@ -106,6 +106,12 @@ function getAbilities(card){
       case 'spell_refresh_hand':
         if(card.spell) ab.push({timing:'instant',effect:'refresh_hand',val});
         break;
+      // spell_loot:N (2026-07-24, "MUSE"/"SCAVENGE", по прямому запросу автора) — дешёвый
+      // фильтрующий кузен spell_refresh_hand: сбрасывает N СЛУЧАЙНЫХ карт из оставшейся
+      // руки (не всю руку целиком), добирает N новых. Execution — кейс 'loot' ниже.
+      case 'spell_loot':
+        if(card.spell) ab.push({timing:'instant',effect:'loot',val});
+        break;
       // spell_aoe_count (2026-07-17, "Board Purge") — деалт-значение НЕ фиксированное
       // число на теге (в отличие от 'aoe'/enter_aoe выше), а считается в момент розыгрыша
       // как размер вражеского поля — поэтому здесь нет val вообще, реальный расчёт живёт в
@@ -388,24 +394,60 @@ function triggerAbilities(card, timing, ctx={}){
           }
         } break;
 
-      case 'destroy_all_enemies':
-        // CATACLYSM/EXTINCTION (2026-07-24, по прямому запросу автора) — 999 урона (заведомо
-        // летально при любом HP) каждому вражескому существу через dmgCard(...,bypassArmor=
-        // true) — ТОТ ЖЕ путь, что у Bolt/AOE-эффектов выше, поэтому Solana Shield и Ward
-        // работают против этого точно так же, как против любого другого магического удара.
-        // Игрок не должен видеть голое "-999" — показываем "DESTROYED" (дополнительный
-        // 2026-07-24 заход, по прямому запросу автора).
+      case 'loot':
+        // MUSE/SCAVENGE (2026-07-24, по прямому запросу автора) — облегчённая версия
+        // refresh_hand: сбрасывает a.val СЛУЧАЙНЫХ карт из оставшейся руки (не всю целиком),
+        // добирает a.val новых. Тот же voided=true+push в .void, что и у lose/refresh_hand.
         {
-          const wipeTargets=[...G[oppK].field];
-          if(wipeTargets.length>0){
-            playSfx('card_spell_atack');
-            wipeTargets.forEach(t=>{
-              queueFieldFx(t.id,'DESTROYED','fx-spell-dmg');
-              dmgCard(t,999,oppK,true,false,'DESTROYED');
-            });
-            lg(`${card.name}: destroys ALL enemy creatures!`,'imp');
+          const toDiscard=Math.min(a.val, cur.hand.length);
+          let discardedNames=[];
+          for(let i=0;i<toDiscard;i++){
+            const idx=Math.floor(Math.random()*cur.hand.length);
+            const c=cur.hand.splice(idx,1)[0];
+            c.voided=true; cur.void.push(c);
+            discardedNames.push(c.name);
+          }
+          let drawn=0;
+          for(let i=0;i<a.val;i++){ if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); drawn++; } }
+          if(discardedNames.length>0){
+            lg(`${card.name}: discards ${discardedNames.join(', ')}, draws ${drawn}.`,'imp');
           } else {
-            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+            lg(`${card.name}: hand was already empty — draws ${drawn}.`,'imp');
+          }
+        } break;
+
+      case 'destroy_all_enemies':
+        // CATACLYSM/EXTINCTION — РЕДИЗАЙН (2026-07-24, по прямому запросу автора, идея
+        // автора): раньше уничтожало только вражеское поле. Теперь — полный вайп ОБЕИХ
+        // сторон разом (своё поле включено!), взамен добор по числу СВОИХ реально
+        // погибших существ — не по общему числу целей, Ward/Shield спасают своих
+        // владельцев точно так же, как и вражеских (см. dmgCard() — иммунитеты внутри
+        // неё, ничего специально обходить не нужно). Считаем "реально погиб" тем же
+        // hpBefore/hpAfter снимком, что и draw_on_kill в doSpellDmgTarget() (game.js) —
+        // если существо пережило удар (Ward/Shield), в счёт добора не идёт.
+        // 999 урона (bypassArmor=true) — тот же путь, что и раньше, просто теперь бьёт
+        // по обоим полям, не только по oppK.
+        {
+          const enemyTargets=[...G[oppK].field];
+          const myTargets=[...cur.field].map(t=>({t, hpBefore:t.hp}));
+          if(enemyTargets.length===0 && myTargets.length===0){
+            lg(`${card.name}: no creatures on the field at all — fizzles.`,'hint');
+            break;
+          }
+          playSfx('card_spell_atack');
+          enemyTargets.forEach(t=>{
+            queueFieldFx(t.id,'DESTROYED','fx-spell-dmg');
+            dmgCard(t,999,oppK,true,false,'DESTROYED');
+          });
+          myTargets.forEach(({t})=>{
+            queueFieldFx(t.id,'DESTROYED','fx-spell-dmg');
+            dmgCard(t,999,curK,true,false,'DESTROYED');
+          });
+          const myDied=myTargets.filter(({t,hpBefore})=>hpBefore>0 && t.hp<=0).length;
+          lg(`${card.name}: destroys ALL creatures on the field!`,'imp');
+          if(myDied>0){
+            for(let i=0;i<myDied;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
+            lg(`${card.name}: draw ${myDied} for your own fallen creatures.`,'imp');
           }
         } break;
 
