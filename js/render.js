@@ -23,7 +23,11 @@ function _isTargetedSpell(card){
     hasTag(card,'spell_destroy_target') ||
     // CINDER/DREAD (2026-07-24) — та же история сразу при заводе: только звук поджога/
     // страха на резолве, никакого общего звука на Play.
-    hasTag(card,'spell_burn_target') || hasTag(card,'spell_fear_target')
+    hasTag(card,'spell_burn_target') || hasTag(card,'spell_fear_target') ||
+    // 2026-07-24 (баг, автор, ещё заход): GUST/REVERSE-редизайн (spell_bounce_ally_target)
+    // и JUDGMENT/DEATHBLOW (spell_execute_half) — оба новые targeted-теги, забытые в этом
+    // списке при заводе, та же самая история, что и у всех остальных выше.
+    hasTag(card,'spell_bounce_ally_target') || hasTag(card,'spell_execute_half')
   );
 }
 
@@ -53,7 +57,14 @@ function _spellHasOwnSfx(card){
     // СВОЙ звук на резолве (random_spread → 'card_spell_atack' в момент удара по целям,
     // heal_all/heal_base → 'heal'), общий звук на Play был лишним/дублирующим для первого
     // (тот же звук дважды подряд) и просто неуместным для второго (должен быть только 'heal').
-    hasTag(card,'spell_random_spread') || hasTag(card,'spell_heal_all'));
+    hasTag(card,'spell_random_spread') || hasTag(card,'spell_heal_all') ||
+    // 2026-07-24 (баг, автор, ещё заход): RENEWAL/AMNESIA (spell_refresh_hand) и MUSE/
+    // SCAVENGE (spell_loot) — оба резолвятся МГНОВЕННО и молча (никакого playSfx в
+    // execution-кейсах 'refresh_hand'/'loot' в abilities.js — автор позже добавит свой
+    // звук отдельно), так что общий 'card_spell_atack' на Play был единственным звуком,
+    // но неверным по смыслу (это не удар/урон). Тишина сейчас и есть "свой звук" по факту,
+    // тот же принцип, что у MULTITUDE/LEGION выше.
+    hasTag(card,'spell_refresh_hand') || hasTag(card,'spell_loot'));
 }
 
 // ГЛАВНАЯ функция перерисовки экрана игры. Вызывается после каждого действия (ход, атака, игра карты и т.д.)
