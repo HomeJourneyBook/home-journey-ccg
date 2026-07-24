@@ -271,7 +271,8 @@ function _cardStatusEntries(card){
   if(card.interceptUsed) entries.push({icon:'img/ico_intercept.png', text:'Intercept triggered — already redirected an attack this turn.'});
   if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely from any source, one time only.'});
   if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
-  if(hasTag(card,'stealth')&&!card.stealthBroken) entries.push({icon:'img/ico_stealth.png', text:'This creature is invisible/stealthy — it cannot be targeted by attacks or spells.'});
+  if(hasTag(card,'invisible')) entries.push({icon:'img/ico_invis.png', text:'Invisible — cannot be targeted by attacks or spells while a non-invisible ally is still on the field. Also deals no counter-attack damage when it is attacked.'});
+  if(hasTag(card,'stealth')&&!card.stealthBroken) entries.push({icon:'img/ico_stealth.png', text:'Stealth — cannot be targeted by attacks or spells until it attacks for the first time. That first attack deals no counter-damage. One-time only.'});
   // Бафы
   if(card.atkBonus) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
   if(card.auraMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battlefield.`});
@@ -847,9 +848,16 @@ function mkEl(card,zone){
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
 };
+// В кладбище incarnation уже отдельно показана таймер-плашкой (card-incarn-badge, см.
+// ниже) — она физически перекрывает верхний угол колонки card-tag-icons (обе сидят в
+// одном углу карты), из-за чего обычная тег-иконка incarnation становится недостижимой
+// для курсора и её тултип "пропадает" именно в этой зоне. Убираем дубль иконки из общего
+// списка только для zone==='grave' (на поле/в руке/превью — иконка остаётся как обычно,
+// там плашки нет и перекрывать нечего).
 const tagIcons = (card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
   .filter(t=>TAG_ICONS[t.base])
+  .filter(t=>!(zone==='grave' && t.base==='incarnation' && card.incarnTimer!=null))
   .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${TAG_ICONS[t.base]}</div>`)
   .join('');
   // ── Ветка для карт-Миров И визуально-полноартовых карт (fullArt:true, напр. UNSEEN) ──
@@ -918,7 +926,7 @@ const tagIcons = (card.tags||[])
   d.innerHTML=`
     <div class="card-dim-overlay"></div>
     <div class="card-cost">${card.cost}</div>
-    ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" title="${card.incarnTimer>0?`Incarnation: returns in ${card.incarnTimer} turn(s)`:`Battleground is full — waiting to revive as soon as a slot opens`}"><img src="./img/ico_incarn.png" class="card-incarn-icon" style="width:70%;height:auto;">${card.incarnTimer}</div>`:''}
+    ${(zone==='grave'&&card.incarnTimer!=null)?`<div class="card-incarn-badge" data-incarn-timer="${card.incarnTimer}"><img src="./img/ico_incarn.png" class="card-incarn-icon" style="width:70%;height:auto;">${card.incarnTimer}</div>`:''}
     ${armorDisp?`<div class="card-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${card.burning?'<div class="burning-icon"></div>':''}
@@ -1228,7 +1236,13 @@ function _mkPcardHtml(card, isPlayer){
   const cls=faction==='tea'?'tcp':'jcp';
   const isActivatable=hasTag(card,'shard')||hasTag(card,'sacrifice');
   const sleepCls=(isActivatable&&card.sleeping)?' sleeping':'';
-  const readyCls=(isPlayer&&isActivatable&&!card.sleeping&&!card.exhausted)?' pcard-active':'';
+  // isMyTurn — isPlayer только говорит "это бар человека" (в vsAI он ВСЕГДА true для своей
+  // стороны, даже во время хода ИИ, т.к. playerK=G.humanFaction фиксирован — см. reorderZones()).
+  // Без явной проверки G.turn===faction активация Shard/Altar оставалась кликабельной прямо
+  // во время хода ИИ (баг, найденный автором 2026-07-24) — onclick тут вешается напрямую,
+  // в обход onClick()/isAiTurn() в game.js, у которых такая проверка уже есть.
+  const isMyTurn=G.turn===faction;
+  const readyCls=(isPlayer&&isMyTurn&&isActivatable&&!card.sleeping&&!card.exhausted)?' pcard-active':'';
   // "Устал"/"спит" — прозрачность вешаем только на текст (.pcard-text ниже), а не на весь .pcard,
   // иначе вместе с текстом гаснет и фон-рамка со спрайтом створок, что выглядит как баг.
   const textExhaustedStyle=(isActivatable&&card.exhausted)?'opacity:0.5;':'';
@@ -1239,7 +1253,7 @@ function _mkPcardHtml(card, isPlayer){
   // пропадала и визуально "усаживалась". Теперь рамка не трогается вообще, меняется только текст
   // (см. .pcard-targeting .pcard-text в styles.css — белый цвет + медленное мигание).
   let targetingCls='';
-  if(isPlayer&&!card.sleeping&&!card.exhausted){
+  if(isPlayer&&isMyTurn&&!card.sleeping&&!card.exhausted){
     if(hasTag(card,'shard')){
       if(G.phase==='shardTarget'){
         targetingCls=' pcard-targeting';
@@ -1261,7 +1275,7 @@ function _mkPcardHtml(card, isPlayer){
   // (тот флаг означает "своя сторона для активации Shard/Altar", не связан с тем, кто сейчас
   // ходит): цель — Мир/Артефакт ПРОТИВНИКА текущего хода (card.f!==G.turn), НЕ своя карта.
   // Та же красная подсветка-таргет, что у существ (aim-target, см. styles.css).
-  if(card.f!==G.turn&&G.phase==='spellDestroyTarget'){
+  if(card.f!==G.turn&&G.phase==='spellDestroyTarget'&&!isAiTurn()){
     targetingCls+=' pcard-targeting aim-target';
     onclick=`onclick="event.stopPropagation();doSpellDestroyTarget('${card.id}')"`;
   }
