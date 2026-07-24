@@ -517,6 +517,13 @@ function _resolvePlayedCard(card){
     G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
   }
   render();
+  // checkWin() (2026-07-24, по прямому запросу автора) — раньше тут не было, потому что
+  // ни один инстант-эффект без фазы выбора цели не мог напрямую снять HP игроку (все
+  // damage-эффекты били только по существам). SCATTERSHOT/SHRAPNEL теперь могут случайно
+  // попасть по базе (см. case 'random_spread' в abilities.js) — тот же checkWin(), что
+  // уже стоит в конце каждого doSpellXTarget() в этом файле, просто на уровень выше, раз
+  // тут нет отдельного резолвера для мгновенных эффектов.
+  checkWin();
   // Раньше aiResolvePendingSpellTarget() вызывался СНАРУЖИ, сразу после doPlay(), в
   // aiPlayCardsStep() (ai.js). Теперь, когда doPlay() может уйти в асинхронный колбэк
   // (needsReveal выше), эта проверка централизована здесь — работает одинаково что для
@@ -1651,7 +1658,17 @@ function cancelPendingSpell(){
 function doSpellDmgTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
-  const dmg=getTagVal(spell,'spell_dmg_target')||3;
+  let dmg=getTagVal(spell,'spell_dmg_target')||3;
+  // SPARK/MALICE (2026-07-24, по прямому запросу автора) — условный бонус урона, если у
+  // заклинателя на момент каста есть активный Мир ИЛИ Артефакт (любой из двух, не оба
+  // разом). Первая карта такого типа в игре — раньше условные бонусы урона были только
+  // у существ (atk_vs_burning/atk_vs_feared), не у спеллов. Реюз того же getTagVal-паттерна,
+  // что и у draw_on_kill/draw_on_no_kill — отдельный тег-модификатор поверх базового
+  // spell_dmg_target, а не отдельная ветка эффекта.
+  if(hasTag(spell,'spell_dmg_bonus_world_artifact')){
+    const cur=G[G.turn];
+    if(cur.world || cur.artifacts.length>0) dmg+=getTagVal(spell,'spell_dmg_bonus_world_artifact')||0;
+  }
   // VERDICT/DAMNATION (2026-07-24, по прямому запросу автора) — используют этот же путь
   // с dmg=999 как условность "безусловное убийство". Игрок не должен видеть голое число —
   // ни в логе, ни во всплывающей надписи над картой, ни в плавающем "-999".
@@ -1669,6 +1686,15 @@ function doSpellDmgTarget(card){
   if(hasTag(spell,'draw_on_kill') && hpBefore>0 && card.hp<=0){
     const cur=G[G.turn];
     if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); lg(`${spell.name}: kill confirmed — draws 1 card.`,'imp'); }
+  }
+  // draw_on_no_kill (2026-07-24, "JAB"/"STING", по прямому запросу автора) — зеркальное
+  // условие: тянем карту, только если цель ПЕРЕЖИЛА удар (card.hp>0 после) — "промазал
+  // мимо килла — вот тебе утешительная карта". hpBefore>0 всё ещё нужен (та же защита от
+  // "бил по уже мёртвой карте", которой тут в принципе быть не должно, но для симметрии
+  // с draw_on_kill оставлено то же условие).
+  if(hasTag(spell,'draw_on_no_kill') && hpBefore>0 && card.hp>0){
+    const cur=G[G.turn];
+    if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); lg(`${spell.name}: target survives — draws 1 card.`,'imp'); }
   }
   G[G.turn].void.push(spell);
   spell.voided=true;
