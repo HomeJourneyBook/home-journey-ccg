@@ -629,10 +629,37 @@ function aiTryUseAoe(){
 // ── АРТЕФАКТ: SHARD (прямой урон) ────────────────────────────────
 // AI никогда этим не пользовался. Бьём, если можем добить существо (учитывая
 // +1 урона от feared), иначе — самую опасную цель по эффективному ATK.
-function aiTryUseShard(){
+// aiShardWouldBenefitFromAttackingFirst (2026-07-24, по прямому запросу автора, поймано
+// живьём: ИИ юзнул Shard первым — 0 урона (shard_fear_scale считает 0 feared врагов на
+// тот момент) — а ПОТОМ атаковал Seeker'ом (тег 'fear', вешает страх при ударе), упустив
+// тот самый бонус, ради которого Shard вообще стоило приберечь. shardBaseDmg()/
+// doShardTarget() (game.js) считают feared/burning ТЕКУЩИМ снимком на момент резолва —
+// если нужный статус ещё не навешен, бонус просто теряется навсегда в этот ход.
+function aiShardWouldBenefitFromAttackingFirst(shard){
+  let wantTag=null;
+  if(hasTag(shard,'shard_fear_scale')) wantTag='fear';
+  else if(hasTag(shard,'shard_burn_scale')) wantTag='burn';
+  if(!wantTag) return false;
+  const me=G[G.aiFaction];
+  const humanF=G.humanFaction;
+  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+  if(enemyField.length===0) return false;
+  // Есть ли ещё непотраченный атакующий с нужным тегом, который реально сходит в этот
+  // ход (не спит/не устал/не в страхе)? Не проверяем "убьёт ли врага" — fear/burn
+  // вешаются в момент УДАРА независимо от того, добивает атака или нет.
+  return me.field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.exhausted&&!c.sleeping&&!c.feared&&hasTag(c,wantTag));
+}
+
+function aiTryUseShard(forceNow){
   const me=G[G.aiFaction];
   const shard=me.artifacts.find(a=>hasTag(a,'shard')&&!a.exhausted&&!a.sleeping);
   if(!shard) return false;
+  // Откладываем до конца атак (см. комментарий у функции выше и aiAttackStep() — там
+  // есть повторная попытка после queue, специально под этот случай). forceNow=true на
+  // той повторной попытке — атаки уже закончились, откладывать больше некуда, иначе
+  // при вечно доступном (но, например, forced на Provoke) fear/burn-атакующем Shard
+  // откладывался бы бесконечно и не срабатывал вообще.
+  if(!forceNow && aiShardWouldBenefitFromAttackingFirst(shard)) return false;
   const humanF=G.humanFaction;
   // Ward блокирует Shard целиком (тоже bypassArmor=true) — не тратим активку на них.
   // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
@@ -1353,7 +1380,16 @@ function getAiCreatureQueue(){
 
 function aiAttackStep(queue, idx){
   if(!isAiTurn()){ showAiBanner(false); return; }
-  if(idx >= queue.length){ finishAiTurn(); return; }
+  if(idx >= queue.length){
+    // Догоняющая попытка Shard (2026-07-24, по прямому запросу автора) — если
+    // aiTryUseShard() в aiRunActivesThenAttack() сознательно отложил активку до конца
+    // атак (см. aiShardWouldBenefitFromAttackingFirst()), сейчас как раз тот момент:
+    // все атаки уже случились, нужный fear/burn статус (если он вообще возник) уже
+    // навешен. forceNow=true — откладывать больше некуда.
+    const usedShardLate=aiTryUseShard(true);
+    setTimeout(()=>finishAiTurn(), usedShardLate?AI_STEP_DELAY:0);
+    return;
+  }
   const stillThere = G[G.aiFaction].field.find(c => c.id === queue[idx].id);
   if(!stillThere || stillThere.exhausted || stillThere.sleeping || stillThere.feared){
     aiAttackStep(queue, idx + 1);
@@ -1434,6 +1470,30 @@ function aiHasOwnDeathBenefit(){
   return me.field.some(c => hasTag(c,'on_own_death')||hasTag(c,'on_own_death_base'));
 }
 
+// aiShouldHoldProvokeWall (2026-07-24, по прямому запросу автора) — "1 Дриган против
+// 3 карт соперника: лучше не бить, остаться открытым и продолжать вынуждать атаки на
+// себя" (Provoke/Intercept форсят/перехватывают, только пока сама карта НЕ exhausted —
+// см. правку 2026-07-24 "открытая карта" в game.js/getTargetableCards()). Раньше ИИ не
+// учитывал эту связь вообще: атаковал voluntary-целью (шаг 2 ниже, "бить по базе, раз
+// никто не форсит") просто потому что мог, превращая единственную стену в exhausted и
+// открывая себя следующим ходом соперника. Возвращает true, только если: (а) у карты
+// сейчас реально активный Provoke/Intercept, (б) это ЕДИНСТВЕННЫЙ такой блокер на поле
+// (была бы другая стена — эта не критична), (в) вражеский борд реально опасен (2+ тела,
+// суммарный ATK способен пробить эту стену насквозь за один размен, будь она голой).
+function aiShouldHoldProvokeWall(creature, oppField){
+  const isWall = (hasTag(creature,'provoke')&&!creature.provokeBroken) ||
+                 (hasTag(creature,'intercept')&&!creature.interceptUsed);
+  if(!isWall) return false;
+  const me=G[G.aiFaction];
+  const myOtherWalls=me.field.filter(c=>c.id!==creature.id&&!c.spell&&!c.world&&!c.artifact&&!c.exhausted&&
+    ((hasTag(c,'provoke')&&!c.provokeBroken)||(hasTag(c,'intercept')&&!c.interceptUsed)));
+  if(myOtherWalls.length>0) return false;
+  const enemyThreat=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact);
+  if(enemyThreat.length<2) return false;
+  const totalEnemyAtk=enemyThreat.reduce((s,c)=>s+effAtk(c),0);
+  return totalEnemyAtk >= creature.hp;
+}
+
 function aiActWithCreature(creature){
   const humanF = G.humanFaction;
   const oppField = G[humanF].field;
@@ -1488,6 +1548,18 @@ function aiActWithCreature(creature){
     aiAttack(creature, worthKilling[0]);
     return;
   }
+
+  // "Держим стену" (2026-07-24, по прямому запросу автора: "1 Дриган против 3 карт —
+  // лучше не бить, остаться открытым") — НИЧЕГО ценного убить не вышло (worthKilling
+  // пуст), и атаковать не форсят (иначе выбора вообще нет). Единственный вариант ниже —
+  // voluntary-атака (по базе в шаге 2, либо слабейшая цель в шаге 3) ради небольшого
+  // чипа/размена. Если эта карта — единственная активная Provoke/Intercept-стена, а
+  // вражеский борд реально может её пробить — чип не стоит того, чтобы стать exhausted
+  // и открыть себя следующим ходом соперника (Provoke/Intercept форсят/перехватывают
+  // только пока НЕ exhausted — см. правку "открытая карта" в game.js). Ранний return
+  // здесь, а не точечный гейт на шаге 2 — иначе выполнение просто проваливается в шаг 3
+  // и атакует слабейшую цель всё равно, сводя гейт на нет.
+  if(!forced && aiShouldHoldProvokeWall(creature, oppField)) return;
 
   // 2) Иначе, если ничего не заставляет атаковать конкретную цель — бьём по базе.
   if(!forced && aiCanHitBase(creature, oppField)){
