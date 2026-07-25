@@ -135,21 +135,25 @@ function shuffleArr(d){
 // 2026-07-25 — classic-ростер заменён на 35 карт из Rush-колоды автора (Tea) +
 // Jeet-аналог (burn→fear). Просто два списка ключей, без доп. логики.
 const CLASSIC_TEA_DECK = [
-  't_w1','t_a1','t_faeron','t_tuborg',
-  't_trvl10_w','t_trvl31_w','t_trvl57_w','t_trvl692_w','t_trvl921_w','t_trvl295_w','t_trvl387_w',
-  't_trvl33_w','t_trvl870_w','t_trvl890_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl32_w',
+  't_w1','t_a1','t_faeron','t_aslex',
+  't_trvl33_w','t_trvl870_w','t_trvl890_w',
+  't_trvl14_w','t_trvl58_w','t_trvl42_w',
+  't_trvl57_w','t_trvl10_w','t_trvl692_w','t_trvl31_w','t_trvl921_w','t_trvl972_w',
   't_trvl1015_w','t_trvl388_w',
-  't_sp10','t_sp21','t_sp12','t_sp14','t_sp14','t_sp14','t_sp5','t_sp17',
-  't_sp23','t_sp23','t_sp13','t_sp18','t_sp19','t_sp6','t_sp9',
+  't_trvl387_w','t_trvl295_w',
+  't_sp23','t_sp23','t_sp10','t_sp9','t_sp20','t_sp17',
+  't_sp14','t_sp14','t_sp13','t_sp4','t_sp16','t_sp18','t_sp6','t_sp15','t_sp12',
 ];
 
 const CLASSIC_JEET_DECK = [
-  'j_w1','j_a1','j_vard','j_mal',
-  'j_trvl523_w','j_trvl859_w','j_trvl1008_w','j_trvl523_w','j_trvl663_w','j_trvl128_w','j_trvl550_w',
-  'j_trvl12_w','j_trvl971_w','j_trvl740_w','j_trvl41_w','j_trvl27_w','j_trvl50_w','j_trvl37_w',
-  'j_trvl163_w','j_trvl36_w',
-  'j_sp10','j_sp21','j_sp12','j_sp14','j_sp14','j_sp14','j_sp5','j_sp17',
-  'j_sp23','j_sp23','j_sp1','j_sp18','j_sp19','j_sp6','j_sp9',
+  'j_w1','j_a1','j_vard','j_reap',
+  'j_trvl12_w','j_trvl971_w','j_trvl740_w',
+  'j_trvl41_w','j_trvl27_w','j_trvl50_w',
+  'j_trvl1008_w','j_trvl523_w','j_trvl579_w','j_trvl36_w','j_trvl720_w',
+  'j_trvl434_w','j_trvl859_w','j_trvl550_w','j_trvl663_w',
+  'j_trvl704_w',
+  'j_sp23','j_sp23','j_sp10','j_sp9','j_sp20','j_sp17',
+  'j_sp14','j_sp14','j_sp1','j_sp4','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12',
 ];
 
 function _composeDeckList(f, cfg){
