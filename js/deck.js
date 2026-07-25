@@ -141,8 +141,8 @@ const CLASSIC_TEA_DECK = [
   't_trvl57_w','t_trvl10_w','t_trvl692_w','t_trvl31_w','t_trvl921_w','t_trvl972_w',
   't_trvl1015_w','t_trvl388_w',
   't_trvl387_w','t_trvl295_w',
-  't_sp23','t_sp23','t_sp10','t_sp9','t_sp20','t_sp17',
-  't_sp14','t_sp14','t_sp13','t_sp4','t_sp16','t_sp18','t_sp6','t_sp15','t_sp12',
+  't_sp23','t_sp10','t_sp20','t_sp17',
+  't_sp14','t_sp14','t_sp13','t_sp4','t_sp16','t_sp18','t_sp6','t_sp15','t_sp12','t_sp1','t_sp27',
 ];
 
 const CLASSIC_JEET_DECK = [
@@ -152,8 +152,8 @@ const CLASSIC_JEET_DECK = [
   'j_trvl1008_w','j_trvl523_w','j_trvl579_w','j_trvl36_w','j_trvl720_w',
   'j_trvl434_w','j_trvl859_w','j_trvl550_w','j_trvl663_w',
   'j_trvl704_w',
-  'j_sp23','j_sp23','j_sp10','j_sp9','j_sp20','j_sp17',
-  'j_sp14','j_sp14','j_sp1','j_sp4','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12',
+  'j_sp23','j_sp10','j_sp20','j_sp17',
+  'j_sp14','j_sp14','j_sp1','j_sp4','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp11','j_sp27',
 ];
 
 function _composeDeckList(f, cfg){
