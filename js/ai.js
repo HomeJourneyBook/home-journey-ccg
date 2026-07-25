@@ -92,6 +92,17 @@ const AI_WEIGHTS = {
   removalKillTargetAtkWeight: 0.3, // + за то, НАСКОЛЬКО опасную цель убивает
   removalChipMult: 0.6,            // спелл урона никого не добивает — просто "заполнитель"
   removalChipBehindBonus: 0.5,     // чуть ценнее, если мы уже 'behind' (любой урон помогает)
+  // 2026-07-25 (по прямому запросу автора — "не тратить килл-спелл на кост1, если скоро
+  // может понадобиться на что-то ценнее"): VERDICT/DAMNATION (dmg:999, "убей что угодно")
+  // — это премиальный, редкий ресурс. Если единственная убиваемая им цель — мелочь, которую
+  // и так прямо сейчас добивает обычная атака без потерь, спелл на неё тратить не стоит:
+  // придержать для цели, которую бой не берёт (Ward уже исключён отдельно, тут про
+  // высокий HP/невыгодный размен). Порог 50 отделяет "настоящий" килл-спелл (999) от
+  // обычного removal (JAB/SPARK/EXECUTE — dmg 1-3), у которых это правило не применяется:
+  // они и задуманы как дешёвая размена-замена, а не стратегический резерв.
+  premiumRemovalDmgThreshold: 50,
+  premiumRemovalMinorCostThreshold: 2, // cost<=2 у цели — считаем "мелочью", которую жалко на неё топ-килл
+  premiumRemovalHoldScore: -0.4,       // мягкий hold-back — не запрет, если больше вообще нечем заняться
   buffTargetAtkWeight: 0.2,
   buffLethalBonus: 2.0,            // грубая (без учёта provoke/bushido) оценка "может добить в лицо"
   reviveEmptyGraveyardScore: -0.5,
@@ -100,6 +111,14 @@ const AI_WEIGHTS = {
   loseHandSizeWeight: 0.25,      // за каждую карту в руке соперника сверх минимума — крупнее рука, ценнее сброс
   aoeCountEmptyBoardScore: -0.5, // (2026-07-17) Board Purge на пустом поле соперника — то же самое, что revive
   aoeCountPerTargetWeight: 0.6,  // за каждое вражеское существо на поле — карта одновременно бьёт СИЛЬНЕЕ (dmg=count) и ШИРЕ (тел больше), отсюда вес выше, чем у loseHandSizeWeight
+  // 2026-07-25 — тот же hold-back принцип, что у premiumRemoval выше и randomSpread ниже:
+  // если бой и так СВОБОДНО (без Provoke/Bushido-форса) добивает весь мелкий вражеский борд
+  // не жертвуя атакой по лицу, тратить карту незачем — придержать для борда, который бой
+  // не потянет. aoeCountHoldMaxTargets невелик (2) — при большем количестве целей aoe_count
+  // и так почти всегда выгоднее прямого размена (бьёт СРАЗУ по всем, не тратя несколько атак).
+  aoeCountHoldMaxTargets: 2,
+  aoeCountRedundantScore: -0.4,
+
   provokeBreakStuckAtkWeight: 0.35, // (2026-07-17) EXPOSE/UNMASK — за суммарный effAtk своих существ, которых сейчас форсит вражеский Provoke
   provokeBreakNoStuckScore: -0.5,   // (2026-07-18) ничего из нашего поля СЕЙЧАС не форсится этим Provoke — по прямому запросу автора: не разыгрывать taunt_break "просто так" в качестве неопределённой заготовки, только когда реально нужно обойти танк прямо сейчас
   trampleOverflowWeight: 0.3,       // (2026-07-17) BREACH/RUPTURE — доп. вес за гарантированный перелив в базу сверх обычного removal-килла
@@ -116,9 +135,27 @@ const AI_WEIGHTS = {
   // Шестой проход аудита (2026-07-24, полная сверка ai.js против всех спеллов, добавленных
   // этой сессией) — 6 механик были вообще не оценены (падали в общий flat-фоллбек ниже
   // 'card.cost*w.spellBase+0.5', одинаково с "draw 1"), см. комментарии у каждой веток ниже:
-  randomSpreadEmptyBoardScore: -0.5,  // SCATTERSHOT/SHRAPNEL на пустом поле — whiff, зеркало aoeCountEmptyBoardScore
+  randomSpreadEmptyBoardScore: -0.5,  // больше НЕ используется для пустого поля (см. randomSpreadFaceDmgWeight
+                                     // ниже — там теперь честный расчёт вместо whiff-заглушки); оставлен
+                                     // как есть на случай будущих мест, где нужен именно "чистый fizzle"-скор
   randomSpreadPerTargetWeight: 0.4,   // ниже aoeCountPerTargetWeight(0.6) — урон рандомный, не гарантированно
                                      // ложится туда, где нужнее (может уйти в Ward/невидимость впустую)
+  // 2026-07-25 (по прямому запросу автора, аудит механики) — ДВЕ поправки разом:
+  // 1) База ВСЕГДА в пуле целей этого спелла (см. abilities.js case 'random_spread' —
+  //    "база НИКОГДА не выбывает из пула"), в отличие от aoe_count/fear_all/burn_all,
+  //    которые честно бьют в никуда на пустом поле. Пустой борд соперника здесь = весь
+  //    фиксированный урон (val) гарантированно летит в лицо — это скорее хорошо (дешёвый
+  //    прямой Bolt), а не whiff. randomSpreadFaceDmgWeight — цена урона по лицу на пустом
+  //    поле (тот же порядок величины, что и общий per-target вес).
+  // 2) Урон ФИКСИРОВАН (val, обычно 3), просто размазывается по пулу (враги+база) —
+  //    БОЛЬШЕ врагов не значит БОЛЬШЕ суммарного урона (в отличие от aoe_count, где dmg=
+  //    count целей) — это те же val очков тоньше размазанные, шанс кого-то реально добить
+  //    только падает. randomSpreadHoldMaxTargets/RedundantScore — тот же hold-back
+  //    принцип, что у aoeCount/premiumRemoval выше: не тратить карту, если бой и так
+  //    свободно (без Provoke/Bushido-форса) добивает эту мелочь без потерь.
+  randomSpreadFaceDmgWeight: 0.35,
+  randomSpreadHoldMaxTargets: 2,
+  randomSpreadRedundantScore: -0.4,
   drawScaleEmptyBoardScore: -0.5,     // MULTITUDE/LEGION с пустым СВОИМ полем — добор=0, чистый whiff
   drawScalePerCreatureWeight: 0.5,    // за каждое своё существо на поле — тот же порядок, что draw(0.6) тега,
                                      // чуть ниже, т.к. тут это негарантированный скейл, а не постоянный тег
@@ -957,6 +994,32 @@ function aiPickBestCard(){
 // что уже на поле (Squad-прогресс), на счёт гонки (risk vs stable), и, для
 // таргетированных спеллов, на РЕАЛЬНУЮ лучшую цель, а не только на факт
 // "цель существует" (это отдельно проверяет aiSpellHasValidTarget).
+// 2026-07-25 (по прямому запросу автора — "не кидать АОЕ на 1-2 цели, если бой и так их
+// счистит") — общий helper для aoe_count/random_spread: могут ли текущие доступные
+// атакующие ИИ убить ВСЕ переданные цели этим же ходом обычной атакой, без спелла?
+// Учитывает Provoke/Bushido: если такая стена есть и ни одна из переданных целей — не она
+// сама, бой ФИЗИЧЕСКИ не может до них дотянуться (все атаки форсятся на стену) — в этом
+// случае считаем "бой не справится", карта остаётся полезной именно как обход стены.
+// Иначе — жадное распределение "1 атакующий на 1 цель", тем же простым принципом, что и
+// остальная эвристика в этом файле (не оптимальный паросочетание, но дёшево и достаточно).
+function aiCanCombatClearSmallBoard(enemies){
+  if(enemies.length===0) return true;
+  const oppField=G[G.humanFaction].field;
+  const forced = oppField.some(c=>hasTag(c,'bushido')) ||
+    oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared);
+  if(forced && !enemies.some(e=>hasTag(e,'bushido')||(e.tags.includes('provoke')&&!e.provokeBroken&&!e.exhausted&&!e.feared))){
+    return false;
+  }
+  const me=G[G.aiFaction];
+  const remaining=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
+  for(const e of enemies){
+    const idx=remaining.findIndex(a=>effAtkVsTarget(a,e)>=e.hp+(e.armor||0));
+    if(idx===-1) return false;
+    remaining.splice(idx,1);
+  }
+  return true;
+}
+
 function aiScoreCard(card, me){
   const w=AI_WEIGHTS;
 
@@ -1028,6 +1091,14 @@ function aiScoreCard(card, me){
         // draw_on_kill (2026-07-24, EXECUTE/CULL) — extra draw only actually happens if
         // this cast kills something, so the bonus only applies inside this branch.
         const killBonus=hasTag(card,'draw_on_kill')?w.drawOnKillBonus:0;
+        // 2026-07-25 (по прямому запросу автора) — premium-килл (VERDICT/DAMNATION, dmg
+        // 999) не должен уходить на мелочь, которую бой и так добивает бесплатно прямо
+        // сейчас: придержать для цели, которую бой не берёт. JAB/SPARK/EXECUTE (dmg 1-3)
+        // это правило не задевает — они и задуманы как расходный removal, не резерв.
+        if(dmg>=w.premiumRemovalDmgThreshold && best.cost<=w.premiumRemovalMinorCostThreshold &&
+           aiCanCombatClearSmallBoard([best])){
+          return w.premiumRemovalHoldScore;
+        }
         return card.cost*w.spellBase + w.removalKillBonus + effAtk(best)*w.removalKillTargetAtkWeight + killBonus;
       }
       // Can't finish anything off this turn — still chip damage/setup, worth
@@ -1078,20 +1149,14 @@ function aiScoreCard(card, me){
       const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
       const enemyCount=enemies.length;
       if(enemyCount===0) return w.aoeCountEmptyBoardScore;
-      // 2026-07-20 (по прямому запросу автора, найдено в логах — SWARM CULL кастовался
-      // на единственную вражескую карту, которую и так добивала следующая же атака):
-      // при enemyCount===1 спелл фактически бьёт как обычный point-removal, только по
-      // формуле "1 dmg" — если эта единственная цель и так умрёт в этот же ход от ОДНОЙ
-      // нашей доступной атаки (без спелла вообще), каст — чистый оверкилл, ничем не лучше
-      // пустого борда (та же цена карты+эссенции за 0 дополнительной пользы). Достаточно
-      // одного атакующего, чей effAtk один уже покрывает hp+armor цели — squad/сложение
-      // нескольких атакующих не проверяем: если нужно 2+ атакующих сразу, спелл всё ещё
-      // экономит нам ходы/атаки, это не оверкилл.
-      if(enemyCount===1){
-        const lone=enemies[0];
-        const myAttackers=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
-        const alreadyLethal=myAttackers.some(a=>effAtk(a)>=lone.hp+(lone.armor||0));
-        if(alreadyLethal) return w.aoeCountEmptyBoardScore;
+      // 2026-07-20/25 (по прямому запросу автора, найдено в логах — SWARM CULL кастовался
+      // на цели, которые и так добивала обычная атака): при небольшом борде (до
+      // aoeCountHoldMaxTargets целей) — если бой СВОБОДНО (без Provoke/Bushido-форса,
+      // см. aiCanCombatClearSmallBoard) убивает их всех и без спелла, каст — чистый
+      // оверкилл, ничем не лучше пустого борда. При большем количестве целей aoe_count
+      // почти всегда выгоднее серии разменов (бьёт всех разом), поэтому порог держим низким.
+      if(enemyCount<=w.aoeCountHoldMaxTargets && aiCanCombatClearSmallBoard(enemies)){
+        return w.aoeCountRedundantScore;
       }
       return card.cost*w.spellBase + enemyCount*w.aoeCountPerTargetWeight;
     }
@@ -1244,9 +1309,28 @@ function aiScoreCard(card, me){
     // гарантированно ложится в живую цель (может весь уйти в Ward/невидимость, см.
     // execution-кейс 'random_spread' в abilities.js).
     if(hasTag(card,'spell_random_spread')){
+      const val=getTagVal(card,'spell_random_spread')||3;
       const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
-      if(enemies.length===0) return w.randomSpreadEmptyBoardScore;
-      return card.cost*w.spellBase + enemies.length*w.randomSpreadPerTargetWeight;
+      // 2026-07-25 fix — база ВСЕГДА в пуле целей этого спелла (abilities.js case
+      // 'random_spread': "база НИКОГДА не выбывает из пула"), в отличие от aoe_count/
+      // fear_all/burn_all, которые честно физзлят на пустом поле. Пустой борд соперника
+      // здесь = весь val гарантированно летит в лицо — это хороший исход (дешёвый прямой
+      // Bolt), не whiff, поэтому раньше он ошибочно оценивался как randomSpreadEmptyBoardScore.
+      if(enemies.length===0){
+        return card.cost*w.spellBase + val*w.randomSpreadFaceDmgWeight;
+      }
+      // 2026-07-25 fix — урон ФИКСИРОВАН (val), просто размазывается по пулу (враги+база):
+      // больше врагов НЕ значит больше суммарного урона (в отличие от aoe_count, где
+      // dmg=count) — те же val очков тоньше размазанные, шанс кого-то реально добить
+      // только падает. Не растим оценку линейно без ограничения — реальный "охват"
+      // ограничен самим val (+1 слот на базу).
+      const effectiveSpread = Math.min(enemies.length+1, val);
+      // Hold-back — тот же принцип, что у aoe_count/premiumRemoval: не тратить карту на
+      // маленький борд, который бой и так свободно (без Provoke/Bushido-форса) добивает.
+      if(enemies.length<=w.randomSpreadHoldMaxTargets && aiCanCombatClearSmallBoard(enemies)){
+        return w.randomSpreadRedundantScore;
+      }
+      return card.cost*w.spellBase + effectiveSpread*w.randomSpreadPerTargetWeight;
     }
 
     // MULTITUDE/LEGION (2026-07-24) — добор = число своих существ на поле, честный скейл
@@ -1525,6 +1609,26 @@ function aiShouldHoldProvokeWall(creature, oppField){
   return totalEnemyAtk >= creature.hp;
 }
 
+// 2026-07-25 (по прямому запросу автора — "движковую карту убивать выгоднее вазилина
+// с тем же ATK, а ИИ этого не видит") — выбор цели для убийства (killable/worthKilling
+// sort ниже) раньше смотрел ИСКЛЮЧИТЕЛЬНО на effAtkVsTarget (сырой урон), совсем не видя
+// теги: 1-ATK хилер, кормящий Squad Heal 4 всей команде каждый ход, или Bolt-утилити тело
+// с активкой — для сортировки ничем не отличались от ванильного тела с тем же ATK, хотя по
+// факту убить движковую карту обычно куда важнее. aiScoreCard (что играть) уже давно очень
+// подробно взвешивает теги — этот helper подтягивает ту же чувствительность к "кого убивать".
+// Небольшой добавочный вес (не заменяет effAtk, а складывается с ним) — реальная опасность
+// (ATK) всё ещё главный фактор, утилити только разводит близкие по силе цели.
+function aiTargetUtilityBonus(target){
+  const tags=target.tags||[];
+  let bonus=0;
+  if(tags.some(t=>t.startsWith('heal:'))) bonus+=1.2;      // Squad Heal-движок — снежным комом лечит весь борд
+  if(tags.some(t=>t.startsWith('bolt:'))) bonus+=0.8;      // повторяемый прямой урон каждый ход
+  if(tags.some(t=>t==='enter_draw:1'||t==='draw_attack')) bonus+=0.5; // добор карт с ценностью
+  if(hasTag(target,'provoke')||hasTag(target,'intercept')) bonus+=0.6; // снос стены открывает остальной борд
+  if(hasTag(target,'vanguard')) bonus+=0.3;                 // лишняя атака тем же ходом при редеплое
+  return bonus;
+}
+
 function aiActWithCreature(creature){
   const humanF = G.humanFaction;
   const oppField = G[humanF].field;
@@ -1575,7 +1679,7 @@ function aiActWithCreature(creature){
   // здесь не при чём — при forced=true целью всё равно распоряжается не ИИ.
   const worthKilling = forced ? killable : killable.filter(t => !(t.burning && t.hp<=1));
   if(worthKilling.length > 0){
-    worthKilling.sort((a,b) => effAtkVsTarget(creature,b) - effAtkVsTarget(creature,a));
+    worthKilling.sort((a,b) => (effAtkVsTarget(creature,b)+aiTargetUtilityBonus(b)) - (effAtkVsTarget(creature,a)+aiTargetUtilityBonus(a)));
     aiAttack(creature, worthKilling[0]);
     return;
   }
@@ -1601,7 +1705,7 @@ function aiActWithCreature(creature){
   // Единственные доступные "киллы" были обречённые burn-цели, а по базе ударить
   // нельзя (Provoke без Pierce и т.п.) — тогда всё же добиваем их, лучше чем простой.
   if(killable.length > 0){
-    killable.sort((a,b) => effAtkVsTarget(creature,b) - effAtkVsTarget(creature,a));
+    killable.sort((a,b) => (effAtkVsTarget(creature,b)+aiTargetUtilityBonus(b)) - (effAtkVsTarget(creature,a)+aiTargetUtilityBonus(a)));
     aiAttack(creature, killable[0]);
     return;
   }
