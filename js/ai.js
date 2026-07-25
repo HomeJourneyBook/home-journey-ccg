@@ -24,7 +24,13 @@ const AI_WEIGHTS = {
   atkVsHpRatio: 1.3,     // вклад ATK относительно HP в базовую эффективность существа
   tagBonus: { // безусловный бонус тега, независимо от ситуации на поле
     provoke:0.4, pierce:0.3, vanguard:0.3, rage:0.5, bushido:0.5, invisible:0.6,
-    fear:0.5, burn:0.4, regen:0.3, draw_attack:0.6, heal:0.4, aoe:0.4, enter_aoe:0.4,
+    // burn:0.4→0.45 (2026-07-25, по прямому запросу автора — вместе с BURN_DURATION=2 в
+    // game.js): раньше burn был бессрочным (сильнее fear на практике), но весил МЕНЬШЕ
+    // fear:0.5 — несостыковка с реальной ценностью. Теперь burn ограничен 2 ходами и
+    // по силе близок к fear (2 гарантированных урона ≈ пропуск одной атаки) — подняли
+    // вес ближе друг к другу, оставив fear чуть выше (мгновенно снимает угрозу атаки,
+    // burn просто тикает урон, который ещё нужно пережить сопернику).
+    fear:0.5, burn:0.45, regen:0.3, draw_attack:0.6, heal:0.4, aoe:0.4, enter_aoe:0.4,
     // Добавлено при аудите ai.js (см. CLAUDE.md "AI version tracking") — эти теги
     // существовали в движке, но не были оценены ИИ вообще (0 влияния на выбор карты):
     armor:0.4,       // Броня — доп. живучесть, сопоставимо по весу с provoke
@@ -75,7 +81,7 @@ const AI_WEIGHTS = {
   // Доп. вес СВЕРХ tagBonus, включается только в соответствующем состоянии
   // гонки (см. aiRaceState()) — т.е. "рискнуть vs сыграть стабильнее".
   stabilizeTagBonus: { provoke:0.5, heal:0.5, regen:0.4 }, // когда 'behind'
-  aggroTagBonus:     { fear:0.3, pierce:0.3, burn:0.2, rage:0.2 }, // когда 'ahead'
+  aggroTagBonus:     { fear:0.3, pierce:0.3, burn:0.25, rage:0.2 }, // когда 'ahead' — burn 0.2→0.25, см. tagBonus.burn выше
   squadCompleteBonus: 1.0, // эта копия — 3-я того же gtype на поле → включает Squad-бонус ВСЕЙ группе
   squadBuildBonus: 0.3,    // 1-я/2-я копия — прогресс к Squad-бонусу, но ещё не включает его
   worldArtifactBase: 0.9,
