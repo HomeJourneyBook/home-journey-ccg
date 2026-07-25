@@ -132,66 +132,28 @@ function shuffleArr(d){
 // faction + config — shared by buildDeck() and getRushPool(). Kept separate so
 // the Rush deckbuilder's pool is always exactly "whatever Classic currently
 // contains", with zero duplicated card-list logic to keep in sync.
+// 2026-07-25 — classic-ростер заменён на 35 карт из Rush-колоды автора (Tea) +
+// Jeet-аналог (burn→fear). Просто два списка ключей, без доп. логики.
+const CLASSIC_TEA_DECK = [
+  't_w1','t_a1','t_faeron','t_tuborg',
+  't_trvl10_w','t_trvl31_w','t_trvl57_w','t_trvl692_w','t_trvl921_w','t_trvl295_w','t_trvl387_w',
+  't_trvl33_w','t_trvl870_w','t_trvl890_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl32_w',
+  't_trvl1015_w','t_trvl388_w',
+  't_sp10','t_sp21','t_sp12','t_sp14','t_sp14','t_sp14','t_sp5','t_sp17',
+  't_sp23','t_sp23','t_sp13','t_sp18','t_sp19','t_sp6','t_sp9',
+];
+
+const CLASSIC_JEET_DECK = [
+  'j_w1','j_a1','j_vard','j_mal',
+  'j_trvl523_w','j_trvl859_w','j_trvl1008_w','j_trvl523_w','j_trvl663_w','j_trvl128_w','j_trvl550_w',
+  'j_trvl12_w','j_trvl971_w','j_trvl740_w','j_trvl41_w','j_trvl27_w','j_trvl50_w','j_trvl37_w',
+  'j_trvl163_w','j_trvl36_w',
+  'j_sp10','j_sp21','j_sp12','j_sp14','j_sp14','j_sp14','j_sp5','j_sp17',
+  'j_sp23','j_sp23','j_sp1','j_sp18','j_sp19','j_sp6','j_sp9',
+];
+
 function _composeDeckList(f, cfg){
-  const t = f==='tea';
-
-  // 2026-07-24 (по прямому запросу автора — полная замена предыдущего дизайна классик-
-  // колоды): раньше Classic держал ВСЕ 6 архетипов симметрично 4/4/4/4/4/4 (Tea=szg/orb/drg
-  // + umb/mch/xui в резерве темы, Jeet наоборот). Теперь обе фракции играют ОДНИМ и тем же
-  // набором архетипов — szg/orb/drg/xui — umb/mch в Classic больше не участвуют вообще
-  // (пустые массивы ниже; сами карты остаются в data.js/каталоге, просто не в этой сборке).
-  // Распределение по cost внутри архетипа задано явно автором:
-  //   szg/orb: cost1×2, cost2×1, cost3×1 (4 карты)
-  //   drg/xui: cost2×2, cost3×1, cost4×1 (4 карты)
-  // Тег-зеркалирование Jeet(fear)/Tea(burn) выдержано на cost3 у всех четырёх архетипов,
-  // где для этого была тегованная карта на этом cost (иначе — где возможно, идентичные
-  // теги, см. Dreegan cost4 — оба untamed).
-  const szarg  = t ? ['t_trvl33_w','t_trvl870_w','t_trvl55_w','t_trvl57_w']
-                   : ['j_trvl12_w','j_trvl971_w','j_trvl7_w','j_trvl1008_w'];
-
-  const orb    = t ? ['t_trvl503_w','t_trvl433_w','t_trvl218_w','t_trvl10_w']
-                   : ['j_trvl170_w','j_trvl429_w','j_trvl457_w','j_trvl523_w'];
-
-  const drg    = t ? ['t_trvl14_w','t_trvl58_w','t_trvl605_w','t_trvl388_w']
-                   : ['j_trvl41_w','j_trvl27_w','j_trvl36_w','j_trvl163_w'];
-
-  // umb/mch — не участвуют в этой сборке Classic (см. комментарий выше).
-  const umb    = [];
-  const mch    = [];
-
-  // 2026-07-24 (по прямому запросу автора, второй заход — "слишком много существ"):
-  // Xuiqtr убран из Classic целиком (было 4 карты) — освободившиеся 4 слота ушли в спеллы
-  // (см. SPELL_COPIES ниже: +SPARK/MALICE, +BULWARK/CARAPACE — защитный бафф, +VERDICT/
-  // DAMNATION, +CATACLYSM/EXTINCTION), чтобы в руке было больше атакующего арсенала
-  // относительно тел на столе.
-  const xui    = [];
-
-  // Уники — только 2 на фракцию (было 3, TUBORG/ABYSSWALKER убраны 2026-07-24 по прямому
-  // запросу автора, освободившиеся слоты ушли под RENEWAL/AMNESIA — см. spells ниже):
-  // Tea FAERON(burn-тема)+NABUNAGI, Jeet SEEKER(fear-тема)+PHLEGMOR.
-  const legs   = t ? ['t_faeron','t_nab']
-                   : ['j_phleg','j_vard'];
-
-  const spells = t ? ['t_sp1','t_sp2','t_sp3','t_sp4','t_sp5','t_sp6','t_sp7','t_sp8','t_sp9','t_sp10','t_sp11','t_sp12','t_sp13','t_sp14','t_sp15','t_sp16','t_sp17','t_sp18','t_sp19','t_sp20','t_sp21','t_sp22','t_sp23','t_sp24']
-                   : ['j_sp1','j_sp2','j_sp3','j_sp4','j_sp5','j_sp6','j_sp7','j_sp8','j_sp9','j_sp10','j_sp11','j_sp12','j_sp13','j_sp14','j_sp15','j_sp16','j_sp17','j_sp18','j_sp19','j_sp20','j_sp21','j_sp22','j_sp23','j_sp24'];
-
-  // Мир/Артефакт — только ОДИН на фракцию (было оба): Tea IGNEON(было DOMUS)+SCORCH(было
-  // FOUNTAIN), Jeet HUNGER(было NORRIA)+SHARD(было ALTAR) — вторые версии каждой пары.
-  const worlds = t ? ['t_w1'] : ['j_w1'];
-  const arts   = t ? ['t_a1'] : ['j_a1'];
-
-  let d = [];
-  const namedGroups = { szarg, orb, drg, umb, mch, xui };
-  Object.entries(namedGroups).forEach(([name, group]) => {
-    group.forEach(k => d.push(k));
-  });
-
-  legs.forEach(k => d.push(k));
-  spells.forEach(k => { const copies = SPELL_COPIES[k] !== undefined ? SPELL_COPIES[k] : 1; for(let i=0;i<copies;i++) d.push(k); });
-  worlds.forEach(k => d.push(k));
-  arts.forEach(k => d.push(k));
-
-  return d;
+  return (f==='tea' ? CLASSIC_TEA_DECK : CLASSIC_JEET_DECK).slice();
 }
 
 function buildDeck(f, configKey) {
