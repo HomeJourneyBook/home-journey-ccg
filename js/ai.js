@@ -584,7 +584,10 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellBurnTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.burning&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    // 2026-07-25 — тот же aiBurnWorthRefresh-принцип, что в aiScoreCard()/spell_burn_all:
+    // цель с burnTurns<=1 (вот-вот отгорит) тоже полноценный кандидат, не только не-горящая.
+    const isFreshBurnTarget = c => !c.burning || (c.burnTurns!==undefined && c.burnTurns<=1);
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isFreshBurnTarget(c)&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
     const pool=targets.length>0?targets:G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
     if(pool.length===0){ cancelPendingSpell(); return; }
     pool.sort((a,b)=>effAtk(b)-effAtk(a));
@@ -1158,14 +1161,16 @@ function aiScoreCard(card, me){
       // per-target scaling shape as spell_fear_all above, smaller 'behind' bonus (see
       // burnAllBehindBonus comment — DOT, not immediate tempo relief).
       // 2026-07-18: тот же фильтр "только новые цели", что и у fear_all выше — burning
-      // ТОЖЕ булев и персистентный (тикает каждый ход владельца, не снимается само по
-      // себе, см. game.js) — recast на уже горящую цель абсолютно ничего не добавляет.
-      // RENEWAL/AMNESIA (2026-07-24) — сбрасывает всю ОСТАВШУЮСЯ руку (эта карта уже не в
-      // ней к моменту резолва — исключаем её из подсчёта), добирает фиксированные val карт.
-      // Ценность зависит целиком от текущего размера руки: на пустой/почти пустой руке это
-      // чистый прирост карт (хороший кантрип), на полной руке — намеренный net-минус (платим
-      // за "перемешать" некачественную руку, не за прибавку).
-      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.burning);
+      // булев, recast поверх уже горящей цели ничего не добавляет.
+      // ИСПРАВЛЕНО (2026-07-25, по прямому запросу автора — вместе с BURN_DURATION=2 в
+      // game.js): раньше (до этой правки) Burn был бессрочным, так что "уже горит" ЗНАЧИЛО
+      // "recast ничего не даёт" — теперь Burn считает burnTurns и снимается сам через 2 хода,
+      // так что цель с burnTurns<=1 (вот-вот отгорит) — ПОЛНОЦЕННАЯ цель для recast'а: он
+      // обновляет счётчик обратно до 2 (см. abilities.js case 'burn_all'). Без этой поправки
+      // ИИ считал WILDFIRE бесполезным на борде, где сам же поджёг всех в предыдущий ход —
+      // ровно тогда, когда продлить огонь реально важно.
+      const aiBurnWorthRefresh = c => !c.burning || (c.burnTurns!==undefined && c.burnTurns<=1);
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&aiBurnWorthRefresh(c));
       if(enemies.length===0) return w.burnAllEmptyBoardScore;
       const race=aiRaceState();
       return card.cost*w.spellBase + enemies.length*w.burnAllPerTargetWeight + (race==='behind'?w.burnAllBehindBonus:0);
@@ -1276,13 +1281,17 @@ function aiScoreCard(card, me){
     }
 
     // CINDER/DREAD (2026-07-24) — одиночные версии burn_all/fear_all. aiSpellHasValidTarget
-    // гарантирует хоть одну ВООБЩЕ таргетируемую цель, но не "новую" (не под тем же статусом
-    // уже) — recast на уже горящую/испуганную цель ничего не добавляет (оба булевы, не
-    // стакаются), поэтому здесь отдельно фильтруем именно новые цели, как и в fear_all/burn_all.
+    // гарантирует хоть одну ВООБЩЕ таргетируемую цель, но не "новую", поэтому здесь отдельно
+    // фильтруем именно новые цели, как и в fear_all/burn_all.
+    // ИСПРАВЛЕНО (2026-07-25) — DREAD/fear по-прежнему булев без счётчика, recast на уже
+    // испуганную цель ничего не даёт. CINDER/burn — уже НЕТ (см. BURN_DURATION в game.js):
+    // цель с burnTurns<=1 вот-вот отгорит, recast на неё полноценно продлевает эффект — та
+    // же поправка, что у spell_burn_all выше (aiBurnWorthRefresh).
     if(hasTag(card,'spell_burn_target')||hasTag(card,'spell_fear_target')){
       const isBurn=hasTag(card,'spell_burn_target');
+      const isFreshTarget = c => isBurn ? (!c.burning || (c.burnTurns!==undefined && c.burnTurns<=1)) : !c.feared;
       const fresh=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&
-        isSpellTargetable(c,G[G.humanFaction].field)&&!(isBurn?c.burning:c.feared));
+        isSpellTargetable(c,G[G.humanFaction].field)&&isFreshTarget(c));
       if(fresh.length===0) return w.singleDebuffAlreadyAffectedScore;
       const best=fresh.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
       const race=aiRaceState();
@@ -1380,6 +1389,16 @@ function getAiCreatureQueue(){
   // game (one card currently carries `shield`, see AI_WEIGHTS.tagBonus.shield in ai.js).
   const humanF = G.humanFaction;
   const shieldTarget = G[humanF].field.find(c => hasTag(c,'shield') && !c.shieldConsumed);
+  // Fear-first ordering (2026-07-25, по прямому запросу автора — паттерн, замеченный в
+  // живой партии): существо с тегом 'fear' вешает страх на цель КАК ПОБОЧНЫЙ эффект своего
+  // удара, но контратака блокируется только если цель БЫЛА feared ДО этого конкретного удара
+  // (wasFearedBefore в doAttack(), game.js) — то есть сам ударивший fear-атакующий контрудар
+  // всё равно получает, а вот КАЖДЫЙ СЛЕДУЮЩИЙ атакующий, что бьёт ТУ ЖЕ уже-испуганную цель
+  // в этот же ход, бьёт полностью безопасно. Раньше очередь не учитывала это вообще — fear-
+  // существа могли пойти атаковать последними, к тому моменту весь смысл уже потерян (больше
+  // некому подбирать бесконтрную атаку на уже испуганную цель). Теперь fear-атакующие всегда
+  // идут первыми (кроме shield-pop случая ниже, который приоритетнее и реже встречается).
+  queue.sort((a,b) => (hasTag(b,'fear')?1:0) - (hasTag(a,'fear')?1:0));
   if(shieldTarget) queue.sort((a,b) => effAtk(a) - effAtk(b));
   return queue;
 }
@@ -1460,6 +1479,12 @@ function aiIsWastefulArmorTrade(attacker, target){
   const atk = effAtk(attacker);
   const targetArmor = target.armor||0;
   if(atk > targetArmor) return false; // хоть что-то реально прошло бы по HP — не бесполезно
+  // 2026-07-25 (по прямому запросу автора) — цель, уже находящаяся в Fear (feared=true
+  // ДО этого удара), не наносит контрудар вообще (wasFearedBefore в doAttack(), game.js) —
+  // упомянуто в комментарии выше ("wasFeared... среди условий пропуска контрудара"), но
+  // сама функция это не проверяла. Без этой строки ИИ мог считать полностью безопасный
+  // добивающий удар по уже испуганной цели "бесполезным разменом" и пропускать его.
+  if(target.feared) return false;
   const counterDmg = effAtk(target);
   const ourArmor = attacker.armor||0;
   const realCounterDmg = Math.max(0, counterDmg-ourArmor);
@@ -1587,7 +1612,10 @@ function aiActWithCreature(creature){
   // на поле) и нет причины умирать нарочно (aiHasOwnDeathBenefit). В этом случае лучше
   // придержать существо, чем гарантированно потерять его за 0 урона.
   if(targetable.length > 0){
-    targetable.sort((a,b) => effAtk(a) - effAtk(b));
+    // 2026-07-25 — уже испуганная цель не контратакует вообще (см. aiIsWastefulArmorTrade
+    // выше), это строго безопаснее любой не-feared цели независимо от её ATK — сортируем
+    // её в приоритет, и уже среди остальных (или при равенстве) — по слабости, как раньше.
+    targetable.sort((a,b) => (b.feared?1:0) - (a.feared?1:0) || effAtk(a) - effAtk(b));
     const otherCreatures = G[G.aiFaction].field.some(c => c.id!==creature.id && !c.spell&&!c.world&&!c.artifact);
     const canAffordToSkip = otherCreatures && !aiHasOwnDeathBenefit();
     const viable = canAffordToSkip ? targetable.filter(t => !aiIsWastefulArmorTrade(creature,t)) : targetable;
