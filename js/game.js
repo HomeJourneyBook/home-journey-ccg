@@ -20,6 +20,16 @@
 // атаке (getTargetableCards()). Мишень/подсветка и кликабельность — одно и то же: не видно
 // как targetable → нельзя и нажать, без побочных эффектов и без сообщений об отмене. См.
 // каждую ветку G.phase==='...Target' в onClick() ниже — там именно этот паттерн.
+// 2026-07-25 (по прямому запросу автора — баланс burn vs fear, см. sim-данные):
+// Burn раньше был бессрочным (тикал до смерти/Clean) — на порядок сильнее Fear
+// (тот снимается сам через ~1 ход, см. endTurn() ниже). Теперь Burn считает ходы:
+// card.burnTurns ставится в BURN_DURATION в момент наложения (все места, где
+// стоит `.burning=true` — abilities.js case 'burn'/'burn_all', game.js
+// doSpellBurnTarget) и тикает вниз в endTurn() вместе с уроном; на 0 — снимается
+// сам (card.burning=false), как Fear. Повторное наложение поверх уже горящей
+// карты ОБНОВЛЯЕТ счётчик до полного BURN_DURATION (refresh), не складывает.
+const BURN_DURATION = 2;
+
 function isSpellTargetable(card, oppField){
   if(hasTag(card,'stealth') && !card.stealthBroken) return false;
   if(hasTag(card,'invisible')){
@@ -1718,6 +1728,7 @@ function doSpellBurnTarget(card){
     lg(`${card.name}'s Ward blocks the burn entirely.`,'dmg');
   } else {
     card.burning=true;
+    card.burnTurns=BURN_DURATION;
     playSfx('card_fire_atack');
     lg(`${spell.name}: ${card.name} is on fire!`,'imp');
   }
@@ -2210,6 +2221,10 @@ function endTurn(){
       // dmgCard()'s armor-absorbs-first math. Burn is meant to be a reliable,
       // un-mitigatable ongoing HP loss.
       card.hp-=1;
+      // 2026-07-25 — Burn теперь ограничен BURN_DURATION ходами (см. константу выше),
+      // а не бессрочен: считаем тик и снимаем флаг сам собой на нуле, как Fear.
+      card.burnTurns=(card.burnTurns===undefined?BURN_DURATION:card.burnTurns)-1;
+      if(card.burnTurns<=0) card.burning=false;
       const burnId=card.id;
       const lethal=card.hp<=0;
       // Same as dmgCard() — skip the shake on a lethal burn tick, so it doesn't
