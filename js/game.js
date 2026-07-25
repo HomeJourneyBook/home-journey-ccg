@@ -80,7 +80,10 @@ function getTargetableCards(oppField, att){
   // вышла, ещё не может атаковать сама) — это НЕ exhausted, такая карта всё ещё "открыта"
   // и провоцирует как обычно; единственное состояние, которое снимает форс — реально
   // походившая этим ходом (или иначе уставшая) карта.
-  const provokes=visible.filter(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted);
+  // 2026-07-25 (по прямому запросу автора) — Fear теперь тоже снимает форс-таргет
+  // Provoke, тем же принципом, что и exhausted (испуганная карта не может "стоять
+  // как открытая" и заставлять бить себя).
+  const provokes=visible.filter(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared);
   if(provokes.length>0) return provokes.map(c=>c.id);
   return visible.map(c=>c.id);
 }
@@ -934,16 +937,19 @@ function onBaseClick(faction){
 // ИЗМЕНЕНО (2026-07-24, по прямому запросу автора — ОТМЕНЯЕТ строку ниже): раньше тут было
 // "Sleeping/exhausted/feared НЕ исключают". Теперь exhausted ИСКЛЮЧАЕТ — и Provoke, и
 // Intercept "стоят как открытые карты" (та же логика, что у getTargetableCards() выше):
-// форсят/перехватывают, только пока сама карта untapped. Sleeping/feared по-прежнему НЕ
-// исключают (это не про способность действовать самой, а про то, была ли уже потрачена
-// атакой в этом ходу).
+// форсят/перехватывают, только пока сама карта untapped. Sleeping по-прежнему НЕ исключает
+// (это не про способность действовать самой, а про то, была ли уже потрачена атакой в этом
+// ходу). ИЗМЕНЕНО ЕЩЁ РАЗ (2026-07-25, по прямому запросу автора): feared ТЕПЕРЬ ТОЖЕ
+// исключает — испуганная карта не может ни форсить атаку на себя (Provoke), ни перехватывать
+// (Intercept), тем же принципом, что и exhausted.
 // Порядок между несколькими Кситрами — первый вышедший на поле первым и перехватывает:
 // field.push() в doCreature() всегда добавляет новые карты в конец массива, так что
 // filter()+[0] по живому полю уже даёт нужный порядок без отдельной сортировки.
 function getInterceptor(oppField, target){
   const bushido = oppField.some(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return null;
-  const provoke = oppField.some(c=>c.tags&&c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted);
+  // 2026-07-25 — тот же !c.feared, что и везде ниже: испуганный Provoke не блокирует Intercept.
+  const provoke = oppField.some(c=>c.tags&&c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared);
   if(provoke) return null;
   // Баг-фикс (2026-07-19, автор нашёл живьём): если атакующий и так уже выбрал целью
   // ДРУГОЕ существо с Intercept ("Xuiqtr") — перехват вообще не должен срабатывать.
@@ -955,7 +961,8 @@ function getInterceptor(oppField, target){
   // одному Xuiqtr'у переманивать удар с другого. Если target уже сам Intercept —
   // перехвата нет вообще, атака идёт как выбрана.
   if(target && hasTag(target,'intercept')) return null;
-  const candidates = oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'intercept')&&!c.interceptUsed&&!c.exhausted);
+  // 2026-07-25 — испуганный Intercept тоже не перехватывает (тот же принцип, что у Provoke выше).
+  const candidates = oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'intercept')&&!c.interceptUsed&&!c.exhausted&&!c.feared);
   return candidates.length>0 ? candidates[0] : null;
 }
 
@@ -977,8 +984,8 @@ function canAttackBase(){
   // и был смыслом самого спелла.
   // Provoke "открытая карта" (2026-07-24, по прямому запросу автора) — та же поправка,
   // что у getTargetableCards() выше: провокация блокирует базу, только пока сама карта
-  // не exhausted.
-  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted);
+  // не exhausted. + !c.feared (2026-07-25) — испуганная тоже не блокирует.
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared);
   if(provoke) return false;
   return true;
 }
@@ -997,8 +1004,8 @@ function tryAttackBase(){
   // to reach a provoke creature (forced target selection, same as any other attacker).
   // Same provokeBroken fix as canAttackBase() above — see its comment.
   // "Открытая карта" (2026-07-24, по прямому запросу автора) — тот же !c.exhausted, что
-  // везде выше.
-  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted);
+  // везде выше. + !c.feared (2026-07-25).
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared);
   if(provoke){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
   // Intercept (2026-07-17, Xuiqtr) — третий слой, ниже Bushido/Provoke (оба уже проверены
   // и не сработали выше, раз мы досюда дошли). Игрок кликнул по базе — но если есть
