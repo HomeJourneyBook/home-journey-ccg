@@ -725,7 +725,7 @@ function aiTryUseBolt(){
     // "Открытая карта" (2026-07-24, по прямому запросу автора) — Provoke форсит только
     // пока не exhausted, тот же принцип везде в этом файле/game.js.
     const forced = oppField.some(c=>hasTag(c,'bushido')) ||
-      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted);
+      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared); // +!c.feared (2026-07-25)
     // 0-ATK bolt bodies (e.g. TRAVELER #52/#6/#54 — pure Umbasir utility, atk:0):
     // a normal attack from these does NOTHING (0 dmg, and a full counter-attack
     // eaten for free if Provoke/Bushido forces a creature fight) — Bolt's chip
@@ -1420,7 +1420,7 @@ function aiCanHitBase(creature, oppField){
   // Provoke was still blocking the base here too, since this check never looked at the flag.
   // "Открытая карта" (2026-07-24, по прямому запросу автора) — Provoke блокирует базу
   // только пока сама карта не exhausted, тот же принцип, что в game.js.
-  const provoke = oppField.find(c => c.tags && c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted);
+  const provoke = oppField.find(c => c.tags && c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared); // +!c.feared (2026-07-25)
   if(provoke) return false;
   return true;
 }
@@ -1524,7 +1524,7 @@ function aiActWithCreature(creature){
   // "Открытая карта" (2026-07-24, по прямому запросу автора) — и тут тоже !c.exhausted.
   const forced =
     oppField.some(c => hasTag(c,'bushido')) ||
-    oppField.some(c => c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted);
+    oppField.some(c => c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared); // +!c.feared (2026-07-25)
 
   // 1) Если можем убить кого-то без потери существа зря — убиваем самую опасную цель.
   // Броня поглощает физический урон ПЕРВОЙ (обычная атака её не игнорирует — см.
