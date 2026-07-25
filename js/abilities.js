@@ -548,6 +548,7 @@ function triggerAbilities(card, timing, ctx={}){
                 lg(`${t.name}'s Solana Shield blocks the fire entirely and shatters.`,'dmg');
               } else {
                 t.burning=true;
+                t.burnTurns=BURN_DURATION;
               }
             });
           } else {
@@ -561,6 +562,7 @@ function triggerAbilities(card, timing, ctx={}){
             lg(`${ctx.target.name}'s Ward blocks the burn entirely.`,'dmg');
           } else {
             ctx.target.burning=true;
+            ctx.target.burnTurns=BURN_DURATION;
             playSfx('card_fire_atack');
             lg(`${card.name}: ${ctx.target.name} is on fire!`,'imp');
           }
