@@ -712,6 +712,12 @@ function aiTryUseShard(forceNow){
   const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
   const baseDmg=shardBaseDmg(shard,humanF);
+  // 2026-07-25 (по прямому запросу автора — найдено в реальных логах симуляции: SHARD/
+  // SCORCH активировались КАЖДЫЙ ход, даже когда baseDmg=0, т.е. ни одного горящего/
+  // испуганного врага на тот момент нет — "SHARD: X takes 0 damage!" раз за разом без
+  // всякого эффекта). Активка не даёт вообще ничего, кроме exhausted-статуса артефакту —
+  // нет смысла её жать впустую, если полезного урона всё равно 0.
+  if(baseDmg<=0) return false;
   // 2026-07-17: no more per-target feared bonus on top — shardBaseDmg() already folds
   // that into shard_fear_scale's count (see game.js comment on doShardTarget). dmg is now
   // the SAME flat number for every candidate, so this is really just picking the most
