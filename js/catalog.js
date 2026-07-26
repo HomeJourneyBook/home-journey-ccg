@@ -122,11 +122,12 @@ function renderCatalog(){
   'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
   'vampiric': '<img src="img/ico_vamp.png" style="width:60%;height:60%;">',
   'necrophage': '<img src="img/ico_erase.png" style="width:60%;height:60%;">',
+  'remember': '<img src="img/ico_remember.png" style="width:60%;height:60%;">', // REMEMBER EVERYTHING — 2026-07-26, замена Erase на живых картах
   'intercept': '<img src="img/ico_intercept.png" style="width:60%;height:60%;">',
   'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
-  'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
+  'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
   'death_bolt': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — death_bolt:N, 2026-07-26 (замена taunt_break на существах)
     };
@@ -193,11 +194,12 @@ function openCardDetail(def){
   'taunt_break': '<img src="img/ico_tb.png" style="width:60%;height:60%;">',
   'vampiric': '<img src="img/ico_vamp.png" style="width:60%;height:60%;">',
   'necrophage': '<img src="img/ico_erase.png" style="width:60%;height:60%;">',
+  'remember': '<img src="img/ico_remember.png" style="width:60%;height:60%;">', // REMEMBER EVERYTHING — 2026-07-26, замена Erase на живых картах
   'intercept': '<img src="img/ico_intercept.png" style="width:60%;height:60%;">',
   'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
-  'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
+  'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
   'death_bolt': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — death_bolt:N, 2026-07-26 (замена taunt_break на существах)
   };
