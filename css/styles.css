@@ -151,7 +151,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     кнопки режима не сдвигаются (position:absolute не влияет на flex-
     центровку .play-gate-wrap). Размер квадрата = высота бокса (64/256),
     т.е. точно тот же размер, что был у этих кнопок на полосе audio. ──*/
-.landing-strip-play .play-audio-btn{position:absolute; top:0; height:100%; width:calc(var(--lw-bottom) * 64 / 256); z-index:5;}
+.landing-strip-play .play-audio-btn{position:absolute; top:0; height:100%; width:calc(var(--lw-bottom) * 32 / 256); z-index:5;}
 .landing-strip-play .play-audio-btn-left{left:0;}
 .landing-strip-play .play-audio-btn-right{right:0;}
 /*── Ряд Rules — 64(1:1, плейсхолдер stolL) + 128(2:1) + 64(1:1, плейсхолдер
