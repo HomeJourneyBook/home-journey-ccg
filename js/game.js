@@ -1141,20 +1141,25 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel){
 
 function killCard(card,faction,toVoid=false){
   // REMEMBER EVERYTHING — remember (2026-07-26, по прямому запросу автора) — на ПЕРВУЮ смерть
-  // за игру карта вообще не умирает: полностью восстанавливает HP и остаётся на поле, но
-  // теряет любые накопленные баффы ATK/Armor/maxHP — тот же набор полей/логика, что снимает
-  // doSpellDispelTarget() (Dispel-спелл) и case 'scheme' (abilities.js): squadAtkBonus/
-  // squadArmorBonus(+armorMax)/squadMaxHpBonus(+maxHp)/squadParam/atkBonus. Fear/Burn/
-  // Provoke-suppression НЕ трогаем — автор просил сбросить только ATK/Armor-баффы, не дебаффы.
+  // за игру карта вообще не умирает: полностью восстанавливает HP и остаётся на поле, ПОЛНОСТЬЮ
+  // "обновляясь" — сбрасываются и баффы (ATK/Armor/maxHP — squadAtkBonus/squadArmorBonus
+  // (+armorMax)/squadMaxHpBonus(+maxHp)/squadParam/atkBonus, тот же набор полей, что снимает
+  // doSpellDispelTarget()/case 'scheme'), И дебаффы (feared/burning/provokeBroken) — уточнено
+  // автором 2026-07-26: "полностью обновляется" значит буквально всё, не только баффы.
   // Проверяется САМОЙ ПЕРВОЙ строкой функции — раньше, чем card вырезается из
   // G[faction].field, потому что при срабатывании карта из поля никуда не уходит (return до
   // этой строки). На ВТОРУЮ смерть эффект уже потрачен (card.rememberUsed стоит от первого
   // раза) — карта умирает как обычно, НО СРАЗУ в Войд (toVoid форсируется), минуя кладбище —
   // тот же принцип "второй раз без пощады", что у Инкарнации ниже по функции. Работает только
-  // на существах (не spell/world/artifact).
+  // на существах (не spell/world/artifact). rememberUsed сбрасывается в resetC() (state.js) —
+  // если карту сдувают обратно в руку, она "забывает", что уже воскресала, и получает свежий
+  // заряд — тот же принцип, что уже применяется к incarnUsed/stealthBroken/shieldConsumed там же.
   if(!card.spell&&!card.world&&!card.artifact&&hasTag(card,'remember')){
     if(!card.rememberUsed){
       card.rememberUsed=true;
+      card.feared=false;
+      card.burning=false;
+      card.provokeBroken=false;
       if(card.atkBonus){card.atkBonus=0;}
       if(card.squadAtkBonus){card.squadAtkBonus=0;}
       if(card.squadMaxHpBonus){card.maxHp-=card.squadMaxHpBonus;card.squadMaxHpBonus=0;}
@@ -1162,7 +1167,7 @@ function killCard(card,faction,toVoid=false){
       if(card.squadParam){card.squadParam=null;}
       card.hp=card.maxHp;
       playSfx('heal');
-      lg(`${card.name}: Remember Everything — fully restores and stays on the field (buffs reset)!`,'hl');
+      lg(`${card.name}: Remember Everything — fully restores and stays on the field (all buffs and debuffs reset)!`,'hl');
       const rememberId=card.id;
       requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rememberId,'REBORN','heal')));
       return;
