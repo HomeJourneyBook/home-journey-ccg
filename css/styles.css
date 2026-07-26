@@ -209,10 +209,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── ХВОСТ — вне сетки, но высота теперь ЗАФИКСИРОВАНА к сетке --lw-bottom
     (32/256), а не к vh-паддингам (2026-07-26, по запросу автора — раньше
     "плавала" вместе с высотой вьюпорта, что не совпадало с left/right dno
-    выше). Safe-area снизу — отдельный доп. паддинг ПОВЕРХ фикс-высоты
-    (box-sizing:content-box для низа не нужен: паддинг просто добавляет
-    воздух под текстом, не меняя высоту фонового art-бокса dno). ─────*/
-.landing-tail{width:var(--lw); flex:0 0 auto; height:calc(var(--lw-bottom) * 32 / 256); position:relative; padding:0 12px calc(env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+    выше). Safe-area снизу — margin-bottom СНАРУЖИ бокса (2026-07-26,
+    было padding-bottom — из-за этого align-items:center центрировал
+    иконки/текст по высоте МИНУС отступ, а не по всей высоте бокса,
+    контент visually "уезжал" вверх на устройствах с safe-area >0;
+    margin эту область не трогает, центрирование теперь честное). ─────*/
+.landing-tail{width:var(--lw); flex:0 0 auto; height:calc(var(--lw-bottom) * 32 / 256); position:relative; padding:0 12px; margin-bottom:env(safe-area-inset-bottom, 0px); box-sizing:border-box; display:flex;flex-direction:row;align-items:center;justify-content:space-between;
   /*── Шрифт (текст + △◎▣-символы) и иконки теперь РАЗНЫЕ величины
       (2026-07-26, по запросу автора — иконки-то ок на 65%, а вот текст
       попросили ужать до 40% высоты бокса). Иконки больше не в em от
