@@ -148,6 +148,14 @@ function runGame(opts = {}){
   const { sandbox, queue } = makeSandbox();
   const firstFaction = opts.firstFaction || (Math.random() < 0.5 ? 'tea' : 'jeet');
 
+  // defsPatch — merge hypothetical/test card defs into the loaded DEFS BEFORE
+  // initState builds decks off it. Lets us A/B a not-yet-committed card (e.g.
+  // a candidate cost5 Szarg) purely in-memory, without editing data.js.
+  // {key: {name,cost,hp,atk,art,img,f,tags,ab}, ...}
+  if(opts.defsPatch){
+    vm.runInContext(`Object.assign(DEFS, ${JSON.stringify(opts.defsPatch)});`, sandbox);
+  }
+
   const deckConfig = opts.deckConfig || 'classic';
   const rushDecksJson = opts.rushDecks ? JSON.stringify(opts.rushDecks) : 'null';
   vm.runInContext(`initState({ mode:'vsai', humanFaction:'tea', spectator:true,
