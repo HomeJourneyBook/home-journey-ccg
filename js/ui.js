@@ -1655,17 +1655,18 @@ const TAG_TOOLTIPS = {
   'provoke': { name: 'Provoke', desc: 'While this creature is untapped (not exhausted), all enemy attacks must target it.' },
   'intercept': { name: 'Intercept', desc: 'While untapped (not exhausted) and if nothing forces all attacks onto itself (Bushido/Provoke), one enemy attack per turn is automatically redirected onto this creature, no matter who the attacker chose. Doesn\'t consume the intercept if the attacker already picked this creature. Once per turn — with multiple Intercept creatures, whichever entered the field earliest triggers first.' },
   'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
-  'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
+  'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked. Also deals +1 ATK when it attacks an already-Feared target (see atk_vs_feared).' },
   'untamed': { name: 'Untamed', desc: "Clears exhausted at the start of the opponent's turn." },
   'ward':    { name: 'Ward', desc: 'Immune to magic damage, Fear and Burn.' },
   'incarnation': { name: 'Incarnation', desc: 'When this creature dies, it returns from the graveyard on its own after a set number of its owner\'s turns, at full HP. One-time — if it dies again after returning, it is exiled for the Void instead.' },
   'taunt_break': { name: 'Taunt Break', desc: 'On attack: suppresses Provoke on the target — it can be freely attacked past this turn, ignoring Provoke. Wears off at the start of its own owner\'s next turn.' },
   'vampiric': { name: 'Vampiric', desc: 'On attack: heals for exactly the HP it actually removes from the target (Armor absorption doesn\'t count) — capped at its own missing HP.' },
   'necrophage': { name: 'Erase', desc: 'On attack, if the hit is lethal: erases the fallen creature from its owner\'s graveyard for the Void, fully restores this creature\'s HP, and cleanses its own Burning.' },
+  'remember': { name: 'Remember Everything', desc: 'The first time this creature dies each game, it fully restores its HP and stays on the field instead (ATK/Armor buffs are reset). The second time, it goes straight to the Void.' },
   'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes X damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-burning target (see atk_vs_burning).' },
-  'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage. One-time — does nothing once broken.' },
+  'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage and draws 3 cards. One-time — does nothing once broken.' },
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the battleground. If the creature leaves the battleground and returns, the shield recharges.' },
-  'atk_vs_feared': { name: 'Haunt', desc: 'Deals +X bonus damage when attacking a Feared creature.' },
+  'draw_attack': { name: 'Haunt', desc: 'Draws 1 card whenever this creature attacks.' },
   'death_heal': { name: 'Bamboo', desc: 'When this creature dies, heals a random wounded ally for 4 HP.' },
   'death_bolt': { name: 'Scheme', desc: 'When this creature dies, deals 4 damage to a random enemy creature.' },
 };
@@ -1686,9 +1687,6 @@ function _tooltipDataFor(el){
     // без параметра в тексте тултипа не нуждаются в подстановке значения.
     if(el.dataset.tag==='incarnation' && el.dataset.tagval){
       return { name: `Incarnation ${el.dataset.tagval}`, desc: base.desc };
-    }
-    if(el.dataset.tag==='atk_vs_feared' && el.dataset.tagval){
-      return { name: base.name, desc: base.desc.replace('+X', `+${el.dataset.tagval}`) };
     }
     return base;
   }
