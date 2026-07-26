@@ -583,12 +583,18 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellExecuteHalfTarget'){
-    // JUDGMENT/DEATHBLOW (2026-07-24) — среди легальных (≤50% maxHP, не Ward) целей
-    // убиваем самую опасную (effAtk), как и у обычного spellDmgTarget.
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&c.hp*2<=c.maxHp&&isSpellTargetable(c,G[humanF].field));
-    if(targets.length===0){ cancelPendingSpell(); return; }
-    targets.sort((a,b)=>effAtk(b)-effAtk(a));
-    doSpellExecuteHalfTarget(targets[0]);
+    // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель уже не ограничена ≤50% maxHP (спелл сам
+    // решает, добивать или нет, ПОСЛЕ Bolt 1). Ward всё ещё исключаем — блокирует и болт, и
+    // добивание одинаково, каст на такую цель просто впустую тратит карту. Предпочитаем цель,
+    // которую добьём ПРЯМО СЕЙЧАС (hp-1<=floor(maxHp/2)) — если такая есть, среди них берём
+    // самую опасную (effAtk); если готовых к добиванию целей нет, ведём себя как обычный
+    // spellDmgTarget — бьём на 1 самую опасную цель без килла.
+    const legalTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    if(legalTargets.length===0){ cancelPendingSpell(); return; }
+    const executable=legalTargets.filter(c=>(c.hp-1)<=Math.floor(c.maxHp/2));
+    const pool=executable.length>0?executable:legalTargets;
+    pool.sort((a,b)=>effAtk(b)-effAtk(a));
+    doSpellExecuteHalfTarget(pool[0]);
     return;
   }
   if(G.phase==='spellProvokeBreakTarget'){
@@ -946,9 +952,9 @@ function aiSpellHasValidTarget(card){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact && aiWorthBouncingOwn(c));
   }
   if(hasTag(card,'spell_execute_half')){
-    // JUDGMENT/DEATHBLOW (2026-07-24) — та же ward-фильтрация, что у spell_dmg_target,
-    // плюс обязательное условие ≤50% maxHP (та же формула, что в game.js/render.js).
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&c.hp*2<=c.maxHp&&isSpellTargetable(c,G[humanF].field));
+    // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель уже не ограничена ≤50% maxHP, та же
+    // ward-фильтрация, что у spell_dmg_target, и всё.
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_provoke_break_target')){
     // Только реальные непогашенные Provoke-цели — как и click-хендлер в game.js, тут нет
@@ -1071,17 +1077,24 @@ function aiScoreCard(card, me){
       return card.cost*w.spellBase + (hasVanguardReady?w.bounceAllyVanguardBonus:w.bounceAllyEtbBonus);
     }
 
-    // JUDGMENT/DEATHBLOW (2026-07-24) — условный дешёвый килл (только ≤50% maxHP).
-    // aiSpellHasValidTarget уже гарантирует хотя бы одну легальную цель. Ценность —
-    // как у обычного removal (effAtk лучшей доступной цели), но БЕЗ removalKillBonus
-    // обычного spell_dmg_target — тут killable гарантирован самим условием таргетинга,
-    // не нужно отдельно проверять "хватит ли урона".
+    // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель уже не ограничена ≤50% maxHP: спелл
+    // сперва бьёт Bolt 1, и ТОЛЬКО если этого хватает довести цель до ≤50% maxHP (округление
+    // вниз) — добивает. Оценка теперь гибридная, тем же паттерном, что spell_dmg_target ниже:
+    // если среди легальных целей есть хоть одна, которую добьём (hp-1<=floor(maxHp/2)) —
+    // считаем это гарантированным removal (killBonus по effAtk лучшей такой цели); если нет —
+    // это просто чип-урон на 1, дешёвая ценность, чуть выше в невыгодной позиции (та же
+    // формула removalChipMult/removalChipBehindBonus, что у spell_dmg_target).
     if(hasTag(card,'spell_execute_half')){
       const humanF=G.humanFaction;
-      const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&c.hp*2<=c.maxHp&&isSpellTargetable(c,G[humanF].field));
+      const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
       if(targets.length===0) return -1;
-      const best=targets.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
-      return card.cost*w.spellBase + w.removalKillBonus + effAtk(best)*w.removalKillTargetAtkWeight;
+      const executable=targets.filter(t=>(t.hp-1)<=Math.floor(t.maxHp/2));
+      if(executable.length>0){
+        const best=executable.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
+        return card.cost*w.spellBase + w.removalKillBonus + effAtk(best)*w.removalKillTargetAtkWeight;
+      }
+      const race=aiRaceState();
+      return card.cost*w.spellBase*w.removalChipMult + (race==='behind'?w.removalChipBehindBonus:0);
     }
 
     if(hasTag(card,'spell_dmg_target')){
