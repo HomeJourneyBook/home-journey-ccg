@@ -83,7 +83,7 @@ const DB_TAG_ICONS = {
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
-  'spell_dispel': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — 2026-07-26
+  'scheme': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — 2026-07-26 (замена taunt_break на существах)
 };
 
 // Категории для кнопок-фильтров над правой (пул) областью — переиспользует ту же
