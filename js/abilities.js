@@ -45,6 +45,11 @@ function getAbilities(card){
       // ровно то, что попросил автор ("к след ходу противника, его карта уже
       // реабилитируется").
       case 'taunt_break': ab.push({timing:'on_attack',effect:'taunt_break'}); break;
+      // scheme (2026-07-26, замена taunt_break на существах, по прямому запросу автора) —
+      // тоже on_attack, но эффект другой: снимает с ЦЕЛИ её текущие БАФФЫ (не дебаффы —
+      // цели незачем снимать с неё то, что и так работает ПРОТИВ её владельца). См.
+      // execution ниже (case 'scheme') за полным списком, что именно снимается.
+      case 'scheme':      ab.push({timing:'on_attack',effect:'scheme'}); break;
       // vampiric (2026-07-13, автор) — на СВОЕЙ атаке лечится на РЕАЛЬНО снятый урон
       // (ctx.realDmgDealt, см. doAttack() в game.js — снимок HP цели до/после удара,
       // Броня/Solana Shield уже учтены самим фактом, что не убавили HP). НЕ реагирует на
@@ -591,6 +596,34 @@ function triggerAbilities(card, timing, ctx={}){
           playSfx('debaf');
           lg(`${card.name}: ${ctx.target.name}'s Provoke is suppressed!`,'imp');
           queueFieldFx(ctx.target.id,'EXPOSED!','fx-fear'); // переиспользуем готовый fx-класс fear — тот же "красный всплеск"
+        } break;
+
+      case 'scheme':
+        // SCHEME (2026-07-26, замена taunt_break, по прямому запросу автора) — on_attack:
+        // снимает с ЦЕЛИ её текущие БАФФЫ. Список полей — та же баффная половина, что
+        // чистит doSpellDispelTarget() (game.js, спелл-версия Dispel): temp ATK-бафф
+        // (spell_buff_temp), squad-бонусы (ATK/maxHP/Armor) и squadParam. ДЕБАФФЫ цели
+        // (feared/burning/provokeBroken) СОЗНАТЕЛЬНО не трогаем — снимать с врага то, что
+        // и так работает ПРОТИВ него, не имеет смысла как атакующий эффект (в отличие от
+        // спелл-версии Dispel, который может быть сыгран и на СВОЮ карту ради очистки —
+        // у on_attack-версии цель всегда вражеская, так что дебафф-половина тут просто
+        // неприменима). Не блокируется Ward — тот же прецедент, что у taunt_break (Ward
+        // блокирует только Fear/Burn/магический урон, не это). Молча ничего не делает,
+        // если у цели и так нет ни одного из этих баффов (без лога/звука/значка, как и
+        // остальные условные on_attack-эффекты выше).
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
+          const t=ctx.target;
+          let stripped=false;
+          if(t.atkBonus){t.atkBonus=0;stripped=true;}
+          if(t.squadAtkBonus){t.squadAtkBonus=0;stripped=true;}
+          if(t.squadMaxHpBonus){t.hp=Math.min(t.hp,t.maxHp-t.squadMaxHpBonus);t.maxHp-=t.squadMaxHpBonus;t.squadMaxHpBonus=0;stripped=true;}
+          if(t.squadArmorBonus){t.armor=Math.min(t.armor,(t.armorMax||0)-t.squadArmorBonus);t.armorMax=(t.armorMax||0)-t.squadArmorBonus;t.squadArmorBonus=0;stripped=true;}
+          if(t.squadParam){t.squadParam=null;stripped=true;}
+          if(stripped){
+            playSfx('debaf');
+            lg(`${card.name}: ${t.name}'s buffs are stripped!`,'imp');
+            queueFieldFx(t.id,'STRIPPED!','fx-fear');
+          }
         } break;
 
       case 'vampiric':
