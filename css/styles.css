@@ -60,32 +60,31 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    ═══════════════════════════════════════════════════════════════════════ */
 /*── Кнопки выбора фракции (VS AI picker) — квадратные, кастомный арт ────────*/
 .modal-faction-btn{width:var(--modal-footer-btn-h);height:var(--modal-footer-btn-h); flex-shrink:0; border:none;background-color:transparent; background-repeat:no-repeat;background-position:center;background-size:100% 100%; cursor:pointer;padding:0;transition:none;}
-/*── Композиция лендинга — сетка 256 условных единиц по ширине ──────────────
-   --lw = логическая ширина композиции: растёт вместе с экраном (100vw), но
-   не дальше 600px (см. договорённость с автором 2026-07-13) — на более
-   широких экранах центр замирает, а по бокам .landing-bottom добавляются
-   декоративные выносы (.landing-bottom-ext-*). Все "жёсткие" размеры ниже —
-   calc(var(--lw) * N / 256), где N — юнит из ТЗ автора; единственное
-   исключение — .landing-buffer (гибкий буфер) и .landing-tail (свой vh,
-   вне сетки вообще, см. ниже). ──────────────────────────────────────────*/
-.landing{--lw: min(100vw, 600px); --lw-bottom: var(--lw); position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; overflow-y:auto; overflow-x:hidden; background-color:#0c1013; background-size:cover; background-position:center;}
-/*── ВЕРХ — потолок(32) + стена-с-иллюминатором(256) фикс, буфер(~36) гибкий.
-    .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
-    родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
-    min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
-/*── ВЕРХ — потолок(32) + стена-с-иллюминатором(256) фикс, буфер(~36) гибкий.
-    Стена теперь ровно 256 (не 192) — иллюминатор сам квадратный 256x256 и
-    должен ложиться встык по ШИРИНЕ с потолком (тоже 256 шириной), так что
-    стене нужно ровно столько же высоты, сколько ширины у всей композиции,
-    иначе иллюминатор либо обрежется, либо не совпадёт по краю (см. чат
-    2026-07-14 — ровно это и произошло при 192).
-    .landing-top сам — flex-shrink:1 у .landing (единственный сжимаемый
-    родитель), внутри он ужимает ТОЛЬКО .landing-buffer (flex-shrink:1,
-    min-height:0), потолок/стена держат flex-shrink:0 и никогда не трогаются. ──*/
-.landing-top{width:var(--lw); flex:1 1 auto; min-height:var(--lw); display:flex;flex-direction:column;}
-.landing-ceiling{display:none; flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-image:url('../img/land_fonar.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
+/*── Композиция лендинга — единая сетка: 256 условных единиц по ширине,
+   560 по высоте (32 потолок + 256 стена + 240 стол + 32 дно, см. разбор
+   в HTML-комментарии выше и чат 2026-07-26). --lw — единственный юнит на
+   ВЕСЬ лендинг (раньше был отдельный --lw-bottom = --lw×1.2 для стола —
+   убрано вместе с буфером, теперь всё в одном масштабе, стык-в-стык):
+   растёт вместе с высотой вьюпорта (100vh × 256/560 — ровно столько,
+   чтобы вся колонка из 560 юнитов заняла 100% высоты), но не дальше
+   100vw и не дальше 600px (см. договорённость с автором 2026-07-13) —
+   если ширина или 600px-кап становятся у́же, чем vh-формула, сверху/снизу
+   остаётся воздух (неизбежно при жёстком соотношении сторон без резинового
+   буфера). Все "жёсткие" размеры ниже — calc(var(--lw) * N / 256), где
+   N — юнит из ТЗ автора; --lw-bottom оставлен только для обратной
+   совместимости старых calc()-формул у стола/выносов, равен --lw. ────*/
+.landing{--lw: min(calc(100vh * 256 / 560), 100vw, 600px); --lw-bottom: var(--lw); position:fixed;inset:0;z-index:200; display:flex;flex-direction:column;align-items:center; overflow-y:auto; overflow-x:hidden; background-color:#0c1013; background-size:cover; background-position:center;}
+/*── ВЕРХ — потолок(32) + стена-с-иллюминатором(256), оба фикс, никогда не
+    сжимаются (буфер между ними убран 2026-07-26 — раньше был гибким
+    "воздухом", теперь всё стык-в-стык, высоту берёт на себя единый --lw). ──*/
+/*── Стена ровно 256 (не 192) — иллюминатор сам квадратный 256x256 и должен
+    ложиться встык по ШИРИНЕ с потолком (тоже 256 шириной), так что стене
+    нужно ровно столько же высоты, сколько ширины у всей композиции, иначе
+    иллюминатор либо обрежется, либо не совпадёт по краю (см. чат
+    2026-07-14 — ровно это и произошло при 192). ─────────────────────────*/
+.landing-top{width:var(--lw); flex:0 0 auto; display:flex;flex-direction:column;}
+.landing-ceiling{flex:0 0 calc(var(--lw) * 32 / 256); width:100%; background-image:url('../img/land_fonar.gif'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
 .landing-wall{flex:0 0 var(--lw); width:100%; position:relative; /* плейсхолдер — арт стены ещё не готов, прозрачно */ display:flex;align-items:center;justify-content:center;}
-.landing-buffer{flex:1 1 calc(var(--lw) * 36 / 256); min-height:0; width:100%; /* плейсхолдер — пустая стена, режется первой, прозрачно */}
 /*── Иллюминатор — раньше сидел на height:100% (от высоты .landing-wall,
     192/256 lw) с width:auto — из-за этого его ФАКТИЧЕСКАЯ ширина выходила
     меньше ширины потолка (те же 256 lw), хотя оба ассета нарисованы
@@ -111,19 +110,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .porthole-glass::before{content:''; position:absolute; top:-60%;left:-150%; width:55%;height:220%; background:linear-gradient(75deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%); transform:rotate(20deg); animation:portholeGlare 13s ease-in-out infinite;}
 .porthole-frame{position:absolute;inset:0;z-index:3; background-image:url('../img/logo_window.png'); background-size:100% 100%; background-repeat:no-repeat; pointer-events:none;}
 /*── НИЗ — единый функциональный блок, 240/256 высоты, НИКОГДА не сжимается.
-    Автор попросил (2026-07-15) сделать эту группу на 20% крупнее физически,
-    но НЕ трогать формулу верхней группы/--lw — поэтому: (1) все внутренние
-    calc() здесь и у выносов -ext/-ext2/-tail-ext переведены на отдельную
-    переменную --lw-bottom = --lw × 1.2 (см. .landing{} выше), а не на --lw
-    напрямую; (2) чтобы это не отъедало место у .landing-top (не меняло
-    --lw/буфер), высота, которую блок РЕЗЕРВИРУЕТ в потоке, остаётся
-    ПРЕЖНЕЙ (на базе --lw, не --lw-bottom) — лишние 20% высоты "вылезают"
-    вверх через отрицательный margin-top (ровно на величину прироста), и
-    z-index поднимает блок над буфером, чтобы прирост визуально лёг поверх
-    него, а не был им перекрыт. Итог: нижний край стола остаётся ровно там
-    же, где и был (стык с .landing-tail не ломается), а верхний — приближается
-    к окну, поедая буфер визуально, а не по факту в layout. ───────────────*/
-.landing-bottom{width:var(--lw-bottom); flex:0 0 auto; position:relative; z-index:2; margin-top:0; display:flex;flex-direction:column;}
+    Раньше эта группа была физически на 20% крупнее (--lw-bottom = --lw×1.2,
+    только на десктопе) с компенсирующим отрицательным margin-top — убрано
+    2026-07-26 вместе с буфером: теперь --lw-bottom всегда равен --lw,
+    стол в той же шкале, что и всё остальное, стык-в-стык без нахлёстов. ──*/
+.landing-bottom{width:var(--lw-bottom); flex:0 0 auto; position:relative; z-index:2; display:flex;flex-direction:column;}
 .landing-strip{width:100%; flex:0 0 auto;}
 .landing-strip-perspective{height:calc(var(--lw-bottom) * 8 / 256); background-image:url('../img/top_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-strip-play{height:calc(var(--lw-bottom) * 64 / 256); position:relative; display:flex;align-items:center;justify-content:center;}
@@ -207,52 +198,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .landing-tail-ext-left{left:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_left_dno.gif');}
 .landing-tail-ext-right{right:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_right_dno.gif');}
 @media(min-width:600px){
-  .landing-ceiling{display:block;}
   .landing-bottom-ext{display:block;}
   .landing-wall-ext,.landing-bottom-ext2,.landing-tail-ext{display:block;}
-  /* Десктоп: высота — ведущая, и ТЕПЕРЬ весь бюджет 100vh целиком
-     разложен без остатка: --tail-h откусывается первым (фикс кусок под
-     copyright/версию — раньше это была ДОБАВКА поверх 100vh, из-за чего
-     приходилось скроллить; теперь она часть тех же 100vh), а всё, что
-     осталось, делится 50/50 между верхом и низом.
-     --lw считается ДВУМЯ способами и берётся min() — раньше был только
-     один (от низа), и при 40/60 это ломало верх: низ хотел --lw такой,
-     что "потолок+стена" (288/256 от неё, после того как стену подняли
-     с 192 до 256 для стыковки иллюминатора с потолком — см. чат
-     2026-07-14) требовали БОЛЬШЕ места, чем было выделено верху (40vh) —
-     отсюда обрезанный иллюминатор на скрине. При
-     50/50 обе величины равны, поэтому это будет строго безопасно и без
-     min() — но оставляю min() на будущее, если пропорция снова станет
-     несимметричной, чтобы обрезания не повторилось. */
-  .landing{
-    --tail-h: 6vh;
-    --top-vh: calc((100vh - var(--tail-h)) * 0.5);
-    --bottom-vh: calc((100vh - var(--tail-h)) * 0.5);
-    --lw: min(calc(var(--bottom-vh) * 256 / 240), calc(var(--top-vh) * 256 / 288), 100vw);
-    --lw-bottom: calc(var(--lw) * 1.2);
-  }
-  /*── Нижняя группа физически на 20% крупнее (--lw-bottom), только на
-      десктопе (автор попросил именно "для лаптопа", не для телефона —
-      на телефоне буфер часто МЕНЬШЕ прироста, и стол залезал бы на само
-      окно, не на буфер — проверено 2026-07-15 в headless-браузере).
-      margin-top тянет её вверх ровно на добавленные 20% высоты (в
-      единицах ИСХОДНОГО --lw, не --lw-bottom), чтобы место, которое блок
-      резервирует в потоке, осталось прежним — нижний край остаётся
-      прибит к .landing-tail, а верхний прирост визуально ложится на
-      буфер (z-index:2 красит его поверх). ────────────────────────────*/
-  .landing-bottom{margin-top:calc(var(--lw) * -48 / 256);}
-  /*── landing-top ФИКСИРОВАН на var(--top-vh) только для расчёта --lw
-      (см. формулу min() выше) — сам --lw уже определяет пиксельный
-      размер потолка/стены независимо от того, растёт ли landing-top
-      дальше var(--top-vh) или нет. Если у landing-bottom (auto-высота,
-      240/256 от --lw) на факте выходит МЕНЬШЕ, чем --bottom-vh ей
-      выделили, остаток пустует в самом низу .landing — раньше там
-      просто зависал мёртвый воздух. flex:1 1 (вместо 0 0) отдаёт этот
-      остаток landing-top, а внутри него — ТОЛЬКО буферу (потолок/стена
-      flex-shrink:0, не тронутся), сдвигая нижний блок вниз, как и
-      просили 2026-07-14. min-height подстраховывает нижнюю границу. ──*/
-  .landing-top{flex:1 1 var(--top-vh); min-height:var(--top-vh);}
-  .landing-tail{flex:0 0 auto; height:calc(var(--lw-bottom) * 32 / 256); padding:0 12px; align-items:center;}
 }
 /*── ХВОСТ — вне сетки, но высота теперь ЗАФИКСИРОВАНА к сетке --lw-bottom
     (32/256), а не к vh-паддингам (2026-07-26, по запросу автора — раньше
