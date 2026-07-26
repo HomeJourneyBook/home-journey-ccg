@@ -1535,7 +1535,7 @@ const ESS_CAP = 10;
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'armor', val:1},
   {gtype:'mch', count:3, effect:'atk',   val:1},
-  {gtype:'orb', count:3, effect:'param', param:'heal',   val:4},
+  {gtype:'orb', count:3, effect:'armor', val:2},
   {gtype:'umb', count:3, effect:'param', param:'bolt',   val:2},
   {gtype:'szg', count:3, effect:'maxhp', val:1},
   {gtype:'xui', count:3, effect:'atk',   val:1},
