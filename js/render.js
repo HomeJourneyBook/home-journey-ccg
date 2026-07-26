@@ -650,6 +650,8 @@ function mkSmallEl(card){
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
+  'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
+  'spell_dispel': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — 2026-07-26
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -875,6 +877,8 @@ function mkEl(card,zone){
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
+  'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
+  'spell_dispel': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — 2026-07-26
 };
 // В кладбище incarnation уже отдельно показана таймер-плашкой (card-incarn-badge, см.
 // ниже) — она физически перекрывает верхний угол колонки card-tag-icons (обе сидят в
