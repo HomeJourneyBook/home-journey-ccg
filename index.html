@@ -1120,19 +1120,23 @@
       <button class="cat-box filter-btn cat-w3" data-gate="xui" onclick="playSfx('yellow_buttom');setGateFilter('xui',this)">Xuiqtr</button>
     </div>
 
-    <!-- Строка 8 — 2vh: Sort: (3:1) + 4 кнопки сортировки, A-Z/HP 2:1, Cost/ATK 3:1
+    <!-- Строка 8 — декор. Sort-ярлык и кнопки сортировки переехали на
+         строку 9 ниже (2026-07-26, по запросу автора — та же техника, что
+         раньше применили к gate-фильтрам на строке 7: контент просто
+         переносится на уже существующую строку, новая не создаётся). -->
+    <div class="cat-row cat-row-decor cat-line-8"></div>
+
+    <!-- Строка 9 — 2vh: Sort: (3:1) + 4 кнопки сортировки, A-Z/HP 2:1, Cost/ATK 3:1
          (обе подписи toggle-пары — A-Z/Z-A, Cost ↑/↓ и т.д. — одинаковой длины,
-         так что фикс-ratio не потребует ресайза при переключении направления). -->
-    <div class="cat-row cat-row-4 cat-line-8" id="sortFilters">
+         так что фикс-ratio не потребует ресайза при переключении направления).
+         Раньше был декор строкой выше (cat-line-8) — контент переехал сюда. -->
+    <div class="cat-row cat-row-4 cat-line-9" id="sortFilters">
       <div class="cat-box cat-w5 cat-sort-label">Sort:</div>
       <button class="cat-box filter-btn cat-w2 active" data-label1="A-Z" data-label2="Z-A" onclick="playSfx('yellow_buttom');setSort('name',this)">A-Z</button>
       <button class="cat-box filter-btn cat-w3" data-label1="Cost ↑" data-label2="Cost ↓" onclick="playSfx('yellow_buttom');setSort('cost',this)">Cost ↑</button>
       <button class="cat-box filter-btn cat-w2" data-label1="HP ↓" data-label2="HP ↑" onclick="playSfx('yellow_buttom');setSort('hp',this)">HP ↓</button>
       <button class="cat-box filter-btn cat-w3" data-label1="ATK ↓" data-label2="ATK ↑" onclick="playSfx('yellow_buttom');setSort('atk',this)">ATK ↓</button>
     </div>
-
-    <!-- Строка 9 — декор. -->
-    <div class="cat-row cat-row-decor cat-line-9"></div>
 
     <!-- Строка 10 — 3vh моб / 6vh лаптоп: поиск, прибит слева. Двойной бокс:
          наружный (7:1) держит запас слева и справа под будущий кастомный
