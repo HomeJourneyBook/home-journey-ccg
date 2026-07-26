@@ -157,16 +157,31 @@
            (см. выше, .play-gate-wrap теперь 70% бокса) ужаты внутрь неё,
            оставляя "воздух" от краёв бокса. -->
       <div class="play-gate-frame"></div>
+
+      <!-- Слой 4 (z:5, поверх рамки): Music/SFX — переехали сюда с полосы
+           audio (2026-07-26, по запросу автора, см. референс). Прибиты
+           впритык к левому/правому краю ЭТОГО ЖЕ бокса (play-gate-wrap
+           занимает только 70% ширины по центру — эти квадраты лежат в
+           оставшихся 15%+15% по бокам, но НЕ участвуют в flex-центровке
+           гейта/рамки, т.к. position:absolute). Высота = вся высота
+           бокса (те же 64/256, что и раньше у art-btn-square), ширина
+           равна высоте (квадрат) — размер не менялся, только позиция. -->
+      <button class="art-btn-square music-on play-audio-btn play-audio-btn-left"
+              id="musicToggleBtn" onclick="toggleMusic()"></button>
+      <button class="art-btn-square sfx-on play-audio-btn play-audio-btn-right"
+              id="sfxToggleBtn" onclick="toggleSfx()"></button>
     </div>
 
-    <!-- Полоса 3 (64/256): Music 64 (1:1) + Rules-«журнал» 128 (2:1) + SFX 64 (1:1).
-         Существующий арт (btn_music_on/off, btn_rules) остаётся — просто
-         растягивается под новое соотношение (background-size:100% 100%
-         уже так и работал), автор перерисует под точный размер позже. -->
+    <!-- Полоса 3 (64/256): плейсхолдер stolL 64 (1:1) + Rules-«журнал» 128
+         (2:1) + плейсхолдер stolR 64 (1:1). Music/SFX отсюда убраны —
+         переехали на полосу Play (см. выше), здесь их место заняли чисто
+         декоративные боксы под арт стола: .landing-desk-deco-left/right
+         (фон stolL.gif/stolR.gif) — заменить ссылку на реальный файл,
+         когда автор его добавит в img/. Некликабельны. -->
     <div class="landing-row-audio">
-      <button class="art-btn-square music-on" id="musicToggleBtn" onclick="toggleMusic()"></button>
+      <div class="art-btn-square landing-desk-deco landing-desk-deco-left"></div>
       <button class="art-btn art-btn-rules" onclick="playSfx('yellow_buttom');showScreen('rules',this);rulesOnScreenOpened()"></button>
-      <button class="art-btn-square sfx-on" id="sfxToggleBtn" onclick="toggleSfx()"></button>
+      <div class="art-btn-square landing-desk-deco landing-desk-deco-right"></div>
     </div>
 
     <!-- Полоса 4 (8/256): кромка стола — плейсхолдер, арт от автора позже. -->
