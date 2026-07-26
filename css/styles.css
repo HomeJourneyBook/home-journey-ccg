@@ -146,10 +146,26 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .play-gate-sprite.gate-frame-7{background-position:100% 0; pointer-events:none;}
 .play-gate-wrap.gates-open .play-mode-buttons{pointer-events:all;}
 .play-gate-frame{position:absolute;inset:0;z-index:4; background-image:url('../img/btn_playgame_frame.png'); background-size:100% 100%;background-repeat:no-repeat; pointer-events:none;}
-/*── Ряд Music/Rules/SFX — 64(1:1) + 128(2:1) + 64(1:1) = 256, край-в-край ──*/
+/*── Music/SFX поверх play-бокса (2026-07-26) — впритык к левому/правому
+    краю landing-strip-play, z-index выше рамки (4), сама рамка/ворота/3
+    кнопки режима не сдвигаются (position:absolute не влияет на flex-
+    центровку .play-gate-wrap). Размер квадрата = высота бокса (64/256),
+    т.е. точно тот же размер, что был у этих кнопок на полосе audio. ──*/
+.landing-strip-play .play-audio-btn{position:absolute; top:0; height:100%; width:calc(var(--lw-bottom) * 64 / 256); z-index:5;}
+.landing-strip-play .play-audio-btn-left{left:0;}
+.landing-strip-play .play-audio-btn-right{right:0;}
+/*── Ряд Rules — 64(1:1, плейсхолдер stolL) + 128(2:1) + 64(1:1, плейсхолдер
+    stolR) = 256, край-в-край. Music/SFX отсюда убраны (см. play-audio-btn
+    выше), боксы стали чисто декоративными плейсхолдерами под арт стола. ──*/
 .landing-row-audio{width:100%; height:calc(var(--lw-bottom) * 64 / 256); display:flex;flex-direction:row;}
 .landing-row-audio .art-btn-square{width:calc(var(--lw-bottom) * 64 / 256); height:100%;}
 .landing-row-audio .art-btn-rules{width:calc(var(--lw-bottom) * 128 / 256); height:100%;}
+/*── Плейсхолдеры стола вместо старых music/sfx — некликабельны, ждут арт
+    stolL.gif/stolR.gif (заменить url, когда файлы появятся в img/). ──*/
+.landing-row-audio .landing-desk-deco{background-color:#3d494f; background-repeat:no-repeat; background-size:100% 100%; cursor:default;}
+.landing-row-audio .landing-desk-deco:hover{filter:none;}
+.landing-desk-deco-left{background-image:url('../img/stolL.gif');}
+.landing-desk-deco-right{background-image:url('../img/stolR.gif');}
 /*── Ряд Lore/декор/Catalog — 64(2:3) + 128(4:3) + 64(2:3) = 256, край-в-край ──*/
 .landing-row-nav{width:100%; height:calc(var(--lw-bottom) * 96 / 256); display:flex;flex-direction:row;}
 .landing-row-nav .art-btn-lore,.landing-row-nav .art-btn-catalog{width:calc(var(--lw-bottom) * 64 / 256); height:100%;}
