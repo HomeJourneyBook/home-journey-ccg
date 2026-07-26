@@ -279,11 +279,11 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellExecuteHalfTarget'){
-    // JUDGMENT/DEATHBLOW (2026-07-24) — вражеская цель ТОЛЬКО на ≤50% maxHP (та же
-    // формула, что и в render.js подсветке/aiSpellHasValidTarget — держать в одном
-    // месте нельзя технически, три независимых гейта, как и у всех остальных
-    // targeted-спеллов в игре, но условие продублировано один в один).
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&card.hp*2<=card.maxHp){
+    // JUDGMENT/DEATHBLOW rework (2026-07-26, по прямому запросу автора) — раньше цель была
+    // ограничена ≤50% maxHP ДО выбора (условный insta-kill). Теперь цель — ЛЮБОЕ вражеское
+    // существо, тот же гейт видимости, что у spellDmgTarget выше — сам спелл сначала бьёт
+    // Bolt 1, и УЖЕ ПОСЛЕ этого решает, добивать или нет (см. doSpellExecuteHalfTarget()).
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       if(isSpellTargetable(card,G[opp].field)){
         doSpellExecuteHalfTarget(card);return;
       }
@@ -2067,20 +2067,36 @@ function doSpellBounceTarget(card){
 }
 
 function doSpellExecuteHalfTarget(card){
-  // JUDGMENT/DEATHBLOW (2026-07-24, по прямому запросу автора) — условный дешёвый килл:
-  // легальность цели (≤50% maxHP) уже проверена в onClick() до вызова этой функции, тут
-  // просто резолв — тот же insta-kill путь (999 dmg, bypassArmor), что у VERDICT/
-  // DAMNATION/CATACLYSM, тот же "не показывать голое число" — DESTROYED вместо -999.
+  // JUDGMENT/DEATHBLOW rework (2026-07-26, по прямому запросу автора) — раньше это был
+  // условный insta-kill (999 dmg), доступный ТОЛЬКО если цель уже была ≤50% maxHP (гейт на
+  // этапе выбора цели). Теперь цель — ЛЮБОЕ вражеское существо: спелл сперва наносит Bolt 1
+  // (магический урон, тот же dmgCard(...,true), что у doBoltTarget() — bypassArmor,
+  // блокируется Ward), и ТОЛЬКО ЕСЛИ у цели после этого удара осталось ≤50% maxHP
+  // (округление ВНИЗ, Math.floor — с 5 maxHP умирает уже на 2 HP, не на 2.5/3) — добивает
+  // (999 dmg, тот же bypassArmor+forceLabel 'DESTROYED', что и раньше). Если цель осталась
+  // выше половины — спелл просто наносит 1 урона, никакого килла.
+  // deferDeath=true на болте — если ОН САМ оказался смертельным (низкий maxHP), не резолвим
+  // смерть тут же: добиваем условие ниже по актуальному hp (которое dmgCard() намеренно
+  // оставляет отрицательным на летальном попадании, см. её комментарии), killCard() вызывается
+  // явно один раз, без риска дважды прогнать одну и ту же карту через смерть.
   const spell=G.pendingSpell;
   if(!spell) return;
   const oppK=card.f;
   playSfx('card_spell_atack');
-  lg(`${spell.name} destroys ${card.name}!`,'dmg');
-  queueFieldFx(card.id,'DESTROYED','fx-spell-dmg');
-  dmgCard(card,999,oppK,true,false,'DESTROYED');
+  lg(`${spell.name}: Bolt 1 to ${card.name}!`,'dmg');
+  queueFieldFx(card.id,'BOLT!','fx-shard');
+  dmgCard(card,1,oppK,true,true);
+  if(card.hp<=0){
+    killCard(card,oppK);
+  } else if(card.hp<=Math.floor(card.maxHp/2)){
+    lg(`${spell.name} destroys ${card.name}!`,'dmg');
+    queueFieldFx(card.id,'DESTROYED','fx-spell-dmg');
+    dmgCard(card,999,oppK,true,false,'DESTROYED');
+  }
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
   render();
 }
 
