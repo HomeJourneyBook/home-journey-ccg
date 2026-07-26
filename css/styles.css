@@ -161,9 +161,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .landing-row-nav{width:100%; height:calc(var(--lw-bottom) * 96 / 256); display:flex;flex-direction:row;}
 .landing-row-nav .art-btn-lore,.landing-row-nav .art-btn-catalog{width:calc(var(--lw-bottom) * 64 / 256); height:100%;}
 .landing-nav-decor{width:calc(var(--lw-bottom) * 128 / 256); height:100%; background-image:url('../img/bot_table.png'); background-size:100% 100%; background-repeat:no-repeat;}
-/*── Десктоп-выносы (≥600px, тот же порог, что капает --lw) — по всей высоте
-    .landing-bottom (240/256), 64/256 шириной каждый, чистый плейсхолдер. ──*/
-.landing-bottom-ext{display:none; position:absolute; top:0; height:calc(var(--lw-bottom) * 240 / 256); width:calc(var(--lw-bottom) * 64 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+/*── Выносы стола (2026-07-26: были видны только ≥600px, теперь ВСЕГДА —
+    на узких экранах, где --lw < 100vw (см. формулу --lw в .landing выше),
+    сбоку от центральной колонки остаётся зазор до края вьюпорта; раньше
+    там просто светился фон .landing (сплошной цвет), теперь туда всегда
+    рендерится этот арт — а .landing уже держит overflow-x:hidden, так что
+    видна ровно та часть выноса, что физически влезает в оставшийся зазор
+    (по сути "выглядывающий краешек"), без изменений в разметке. ─────*/
+.landing-bottom-ext{position:absolute; top:0; height:calc(var(--lw-bottom) * 240 / 256); width:calc(var(--lw-bottom) * 64 / 256); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-bottom-ext-left{left:calc(var(--lw-bottom) * -64 / 256); background-image:url('../img/left_table.gif');}
 .landing-bottom-ext-right{right:calc(var(--lw-bottom) * -64 / 256); background-image:url('../img/right_table.png');}
 /*── Три новых парных выноса (2026-07-14), та же техника, что у
@@ -181,14 +186,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     ОСТАЁТСЯ на --lw (не --lw-bottom) — структурно это часть ВЕРХНЕЙ
     группы (буквально вложен в .landing-wall в HTML), должен совпадать
     по размеру с окном/потолком, а не со столом. ─────────────────────*/
-.landing-wall-ext{display:none; position:absolute; top:calc(var(--lw) * -32 / 256); height:calc(var(--lw) * 288 / 256); width:calc(var(--lw) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-wall-ext{position:absolute; top:calc(var(--lw) * -32 / 256); height:calc(var(--lw) * 288 / 256); width:calc(var(--lw) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-wall-ext-left{left:calc(var(--lw) * -304 / 256); background-image:url('../img/land_left_wall.gif');}
 .landing-wall-ext-right{right:calc(var(--lw) * -304 / 256); background-image:url('../img/land_right_wall.gif');}
 /*── 3/4 — "стол-стол" (240, та же высота, что у .landing-bottom и у
     существующих *-table-выносов), сидят встык СНАРУЖИ от них (левее
     left_table / правее right_table), поэтому смещение -304 = -(64+240):
     крайняя точка существующего 64-выноса. На --lw-bottom, как и стол. ───*/
-.landing-bottom-ext2{display:none; position:absolute; top:0; height:calc(var(--lw-bottom) * 240 / 256); width:calc(var(--lw-bottom) * 240 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-bottom-ext2{position:absolute; top:0; height:calc(var(--lw-bottom) * 240 / 256); width:calc(var(--lw-bottom) * 240 / 256); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-bottom-ext2-left{left:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_left_left_table.gif');}
 .landing-bottom-ext2-right{right:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_right_right_table.gif');}
 /*── 5/6 — "дно" под уже упомянутыми выносами. Высота ЗАФИКСИРОВАНА к той же
@@ -198,13 +203,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     запросу автора). Ширина = 64+240=304, та же, что у пары выносов над ним.
     На --lw-bottom — визуально продолжает стол, должен совпадать по
     ширине с .landing-bottom-ext/-ext2, а не с исходным --lw. ──────────*/
-.landing-tail-ext{display:none; position:absolute; top:0; height:calc(var(--lw-bottom) * 32 / 256); width:calc(var(--lw-bottom) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-tail-ext{position:absolute; top:0; height:calc(var(--lw-bottom) * 32 / 256); width:calc(var(--lw-bottom) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-tail-ext-left{left:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_left_dno.gif');}
 .landing-tail-ext-right{right:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_right_dno.gif');}
-@media(min-width:600px){
-  .landing-bottom-ext{display:block;}
-  .landing-wall-ext,.landing-bottom-ext2,.landing-tail-ext{display:block;}
-}
 /*── ХВОСТ — вне сетки, но высота теперь ЗАФИКСИРОВАНА к сетке --lw-bottom
     (32/256), а не к vh-паддингам (2026-07-26, по запросу автора — раньше
     "плавала" вместе с высотой вьюпорта, что не совпадало с left/right dno
