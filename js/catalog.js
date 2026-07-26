@@ -128,7 +128,7 @@ function renderCatalog(){
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
-  'scheme': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — 2026-07-26 (замена taunt_break на существах)
+  'death_bolt': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — death_bolt:N, 2026-07-26 (замена taunt_break на существах)
     };
     const tagIcons=(def.tags||[])
       .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -199,7 +199,7 @@ function openCardDetail(def){
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'atk_vs_feared': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — fear-зеркало Kindle, 2026-07-23
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
-  'scheme': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — 2026-07-26 (замена taunt_break на существах)
+  'death_bolt': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — death_bolt:N, 2026-07-26 (замена taunt_break на существах)
   };
   const tagIcons = (def.tags||[])
     .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
