@@ -134,15 +134,29 @@ function shuffleArr(d){
 // contains", with zero duplicated card-list logic to keep in sync.
 // 2026-07-25 — classic-ростер заменён на 35 карт из Rush-колоды автора (Tea) +
 // Jeet-аналог (burn→fear). Просто два списка ключей, без доп. логики.
+// 2026-07-26 (по прямому запросу автора, шлифовка свободных слотов Classic-деки —
+// см. CLAUDE.md "Classic-дека: раунд шлифовки свободных слотов" за полную методологию
+// и историю): 8 фикс-поджог рядовых/фракцию (было ошибочно записано "минимум 5" в чате,
+// по факту уже 8 — трогать НЕЛЬЗЯ), мир/артефакт/тематический уник (Faeron/Seeker) —
+// тоже фикс. Заменены 2 явных выброса на cost4 у Tea (оба Dreegan 8/2, WWP 55.5%/58.5%
+// на N=3000-прогоне) на Orbiton/Mechird (диверсификация архетипа + меньше сырой силы) и
+// 2 спелла на каждой фракции (MUSE/SCATTERSHOT у Tea, FRENZY/BLACK MAGIC у Jeet).
+// ВАЖНЫЙ УРОК (round 2 сессии): попытка заменить ВТОРОЕ cost4-тело Tea (#388→Umbasir)
+// СВЕРХ первой замены обрушила винрейт до 37.7/62.3 — Tea без обоих мясистых тел на
+// cost4 не может устоять против fear-агра Jeet. Откачен обратно на Mechird (#495,
+// 54.3% — тёплый, но не критично) вместо дальнейшего урезания тела. Аналогично ELIXIRS
+// (замена RENEWAL) в одиночку просадила Tea на 6.5пп (untap почти мёртв без
+// комбо-партнёра в этой деке) — RENEWAL оставлен, несмотря на то что сам по себе горячий
+// (58.6%) — деке в целом лучше с ним, чем без. Итог: TEA 48.8% / JEET 51.2% на N=3000.
 const CLASSIC_TEA_DECK = [
   't_w1','t_a1','t_faeron','t_aslex',
   't_trvl33_w','t_trvl870_w','t_trvl890_w',
   't_trvl14_w','t_trvl58_w','t_trvl42_w',
   't_trvl57_w','t_trvl10_w','t_trvl692_w','t_trvl31_w','t_trvl921_w','t_trvl972_w',
-  't_trvl1015_w','t_trvl388_w',
+  't_trvl398_w','t_trvl495_w',                         // было t_trvl1015_w, t_trvl388_w
   't_trvl387_w','t_trvl295_w',
   't_sp23','t_sp10','t_sp20','t_sp17',
-  't_sp14','t_sp14','t_sp13','t_sp4','t_sp16','t_sp18','t_sp6','t_sp15','t_sp12','t_sp1','t_sp27',
+  't_sp14','t_sp14','t_sp13','t_sp4','t_sp16','t_sp24','t_sp6','t_sp15','t_sp12','t_sp1','t_sp26', // t_sp18→t_sp24(RENEWAL), t_sp27→t_sp26(JUDGMENT)
 ];
 
 const CLASSIC_JEET_DECK = [
@@ -153,7 +167,7 @@ const CLASSIC_JEET_DECK = [
   'j_trvl434_w','j_trvl859_w','j_trvl550_w','j_trvl663_w',
   'j_trvl704_w',
   'j_sp23','j_sp10','j_sp20','j_sp17',
-  'j_sp14','j_sp14','j_sp1','j_sp4','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp11','j_sp27',
+  'j_sp14','j_sp14','j_sp1','j_sp21','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp2','j_sp27', // j_sp4(BLACK MAGIC)→j_sp21(BLIGHT), j_sp11(FRENZY)→j_sp2(OBLIVION)
 ];
 
 function _composeDeckList(f, cfg){
