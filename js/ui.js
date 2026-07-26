@@ -1667,7 +1667,7 @@ const TAG_TOOLTIPS = {
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the battleground. If the creature leaves the battleground and returns, the shield recharges.' },
   'atk_vs_feared': { name: 'Haunt', desc: 'Deals +X bonus damage when attacking a Feared creature.' },
   'death_heal': { name: 'Bamboo', desc: 'When this creature dies, heals a random wounded ally for 4 HP.' },
-  'spell_dispel': { name: 'Scheme', desc: 'Target spell: removes all temporary buffs and negative status effects from the chosen creature (Fear, Burn, Provoke suppression, ATK/Armor/maxHP buffs).' },
+  'scheme': { name: 'Scheme', desc: 'On attack: strips the target\'s ATK/Armor/maxHP buffs (temporary combat buffs and squad bonuses).' },
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box, .card-incarn-badge';
