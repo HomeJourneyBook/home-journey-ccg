@@ -246,7 +246,7 @@ function aiGtypeCount(faction, gtype){
 // Если ПРЕФИКС разошёлся с GAME_VERSION — это сигнал (в консоли и в игровом
 // логе), что ИИ мог не узнать о недавних правках игры; ревизия сама по себе
 // предупреждение не вызывает.
-const AI_VERSION = "1.05.1";
+const AI_VERSION = "1.05.2";
 // v1.05.1 (полный аудит по прямому запросу автора, 2026-07-24, вместе с bump'ом
 // GAME_VERSION до 1.05 — hp/atk-ребаланс Dreegan/Umbasir/Orbiton/Mechird/Xuiqtr) —
 // сверка ai.js против ВСЕХ спеллов/тегов, накопившихся с последнего аудита (v1.03.1,
@@ -1098,7 +1098,14 @@ function aiScoreCard(card, me){
     }
 
     if(hasTag(card,'spell_dmg_target')){
-      const dmg=getTagVal(card,'spell_dmg_target')||3;
+      // SPARK/MALICE (2026-07-26, найдено аудитом — тег существовал с 2026-07-24, но
+      // ИИ никогда не читал его при оценке карты, всегда видел только базовый урон):
+      // если у заклинателя есть Мир/Артефакт, реальный урон выше — учитываем это ДО
+      // расчёта killable/best, иначе бот не видит килл, который эта карта реально даёт.
+      let dmg=getTagVal(card,'spell_dmg_target')||3;
+      if(hasTag(card,'spell_dmg_bonus_world_artifact') && (me.world || me.artifacts.length>0)){
+        dmg+=getTagVal(card,'spell_dmg_bonus_world_artifact')||0;
+      }
       const targets=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward'));
       if(targets.length===0) return -1; // aiSpellHasValidTarget should already exclude this case
       const killable=targets.filter(t=>dmg>=t.hp);
@@ -1293,6 +1300,18 @@ function aiScoreCard(card, me){
       const hpMissing=Math.max(0, me.maxHp-me.hp);
       const healScore=Math.min(healVal,hpMissing)*w.comboHealWeight;
       return card.cost*w.spellBase + drawScore + healScore;
+    }
+
+    // INSIGHT/JEET WAVE (2026-07-26, найдено аудитом) — чистый draw:N БЕЗ heal_base
+    // раньше падал в общий flat-фоллбек (cost*spellBase+0.5), тот же паттерн бага, что уже
+    // чинили у GLIMPSE/OMEN 2026-07-24 — карта добора одинаково оценивалась что с пустой
+    // рукой, что при 7 картах. Тот же otherInHand>=5 порог/вес, что и в комбо-ветке выше,
+    // без heal-части (её тут просто нет).
+    if(hasTag(card,'draw') && !hasTag(card,'draw_attack')){
+      const drawVal=getTagVal(card,'draw')||1;
+      const otherInHand=Math.max(0, me.hand.length-1);
+      const drawScore = (otherInHand>=5 ? -drawVal : drawVal) * w.comboDrawWeight;
+      return card.cost*w.spellBase + drawScore;
     }
 
     // SANCTUARY/VIGIL (2026-07-24) — heal_all+heal_base КАК ОТДЕЛЬНАЯ карта (не в паре
