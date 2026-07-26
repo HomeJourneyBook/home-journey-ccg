@@ -212,7 +212,27 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
     выше). Safe-area снизу — отдельный доп. паддинг ПОВЕРХ фикс-высоты
     (box-sizing:content-box для низа не нужен: паддинг просто добавляет
     воздух под текстом, не меняя высоту фонового art-бокса dno). ─────*/
-.landing-tail{width:var(--lw); flex:0 0 auto; height:calc(var(--lw-bottom) * 32 / 256); position:relative; padding:0 12px calc(env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;align-items:center;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2; background-image:url('../img/land_dno.gif'); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-tail{width:var(--lw); flex:0 0 auto; height:calc(var(--lw-bottom) * 32 / 256); position:relative; padding:0 12px calc(env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+  /*── Шрифт/иконки = 65% высоты бокса (2026-07-26, по запросу автора —
+      "60-70% от высоты"), вместо старого фикс 9px. Считается от той же
+      calc(var(--lw-bottom)*32/256), что и height бокса выше — растёт
+      вместе с ним, а не с шириной экрана напрямую. Иконки заданы в em
+      (width/height:1em) — размер подхватывается автоматически от этого
+      font-size, отдельно трогать не нужно. ────────────────────────*/
+  font-size:calc(var(--lw-bottom) * 32 / 256 * 0.65);
+  letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2; background-image:url('../img/land_dno.gif'); background-size:100% 100%; background-repeat:no-repeat;}
+/*── Соцсети слева (2026-07-26) — иконки временно общие SVG (см. комментарий
+    в HTML), 1em × 1em (= font-size родителя, те же 65% высоты бокса).
+    Заменить href на реальные ссылки и SVG на пиксельный арт позже. ────*/
+.landing-tail-social{display:flex;flex-direction:row;align-items:center;gap:0.5em;}
+.landing-tail-icon{width:1em;height:1em;display:inline-flex;align-items:center;justify-content:center;color:#ffffff66;text-decoration:none;flex-shrink:0;}
+.landing-tail-icon:hover{color:#ffffffb3;}
+.landing-tail-icon svg{width:100%;height:100%;display:block;}
+/*── Версия + копирайт справа, сгруппированы вместе (небольшой gap между
+    ними), а не растянуты по всей ширине через justify-content родителя —
+    иначе от иконок до "vX.XX" и от "vX.XX" до "© ..." был бы одинаковый
+    зазор, а в референсе версия и копирайт стоят плотной парой. ───────*/
+.landing-tail-info{display:flex;flex-direction:row;align-items:center;gap:0.6em;}
 /*── Переходы экранов (зум+блюр «в направлении ящика», см. showScreen/hideScreen
     в ui.js — они задают landing.style.transformOrigin по месту клика). ────*/
 .landing{transition:transform 0.315s cubic-bezier(0.4,0,0.2,1) 0s, opacity 0.22s ease 0.08s, filter 0.2s ease 0.09s;}
