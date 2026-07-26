@@ -196,13 +196,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .landing-bottom-ext2{display:none; position:absolute; top:0; height:calc(var(--lw-bottom) * 240 / 256); width:calc(var(--lw-bottom) * 240 / 256); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-bottom-ext2-left{left:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_left_left_table.gif');}
 .landing-bottom-ext2-right{right:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_right_right_table.gif');}
-/*── 5/6 — "дно" под уже упомянутыми выносами, высота = высоте самого
-    .landing-tail (100%, не хардкожу vh — на десктопе это --tail-h=6vh,
-    но так работает при любом значении без дублирования магического
-    числа), ширина = 64+240=304, та же, что у пары выносов над ним.
+/*── 5/6 — "дно" под уже упомянутыми выносами. Высота ЗАФИКСИРОВАНА к той же
+    сетке --lw-bottom (32/256), что и сама .landing-tail ниже — раньше была
+    100% от .landing-tail (которая "плавала" от vh), теперь оба гарантированно
+    совпадают, т.к. считаются одной и той же формулой (2026-07-26, по
+    запросу автора). Ширина = 64+240=304, та же, что у пары выносов над ним.
     На --lw-bottom — визуально продолжает стол, должен совпадать по
     ширине с .landing-bottom-ext/-ext2, а не с исходным --lw. ──────────*/
-.landing-tail-ext{display:none; position:absolute; top:0; height:100%; width:calc(var(--lw-bottom) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
+.landing-tail-ext{display:none; position:absolute; top:0; height:calc(var(--lw-bottom) * 32 / 256); width:calc(var(--lw-bottom) * 304 / 256); background-size:100% 100%; background-repeat:no-repeat;}
 .landing-tail-ext-left{left:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_left_dno.gif');}
 .landing-tail-ext-right{right:calc(var(--lw-bottom) * -304 / 256); background-image:url('../img/land_right_dno.gif');}
 @media(min-width:600px){
@@ -251,10 +252,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
       flex-shrink:0, не тронутся), сдвигая нижний блок вниз, как и
       просили 2026-07-14. min-height подстраховывает нижнюю границу. ──*/
   .landing-top{flex:1 1 var(--top-vh); min-height:var(--top-vh);}
-  .landing-tail{flex:0 0 var(--tail-h); height:var(--tail-h); padding:0 12px; align-items:center;}
+  .landing-tail{flex:0 0 auto; height:calc(var(--lw-bottom) * 32 / 256); padding:0 12px; align-items:center;}
 }
-/*── ХВОСТ — вне сетки, чистый vh-отступ под игрой (copyright+версия). ─────*/
-.landing-tail{width:var(--lw); flex:0 0 auto; position:relative; padding:2vh 12px calc(3vh + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2; background-image:url('../img/land_dno.gif'); background-size:100% 100%; background-repeat:no-repeat;}
+/*── ХВОСТ — вне сетки, но высота теперь ЗАФИКСИРОВАНА к сетке --lw-bottom
+    (32/256), а не к vh-паддингам (2026-07-26, по запросу автора — раньше
+    "плавала" вместе с высотой вьюпорта, что не совпадало с left/right dno
+    выше). Safe-area снизу — отдельный доп. паддинг ПОВЕРХ фикс-высоты
+    (box-sizing:content-box для низа не нужен: паддинг просто добавляет
+    воздух под текстом, не меняя высоту фонового art-бокса dno). ─────*/
+.landing-tail{width:var(--lw); flex:0 0 auto; height:calc(var(--lw-bottom) * 32 / 256); position:relative; padding:0 12px calc(env(safe-area-inset-bottom, 0px)); box-sizing:border-box; display:flex;flex-direction:row;align-items:center;justify-content:space-between; font-size:9px; letter-spacing:.3px; color:#ffffff66; font-family:'MEK',monospace; line-height:1.2; background-image:url('../img/land_dno.gif'); background-size:100% 100%; background-repeat:no-repeat;}
 /*── Переходы экранов (зум+блюр «в направлении ящика», см. showScreen/hideScreen
     в ui.js — они задают landing.style.transformOrigin по месту клика). ────*/
 .landing{transition:transform 0.315s cubic-bezier(0.4,0,0.2,1) 0s, opacity 0.22s ease 0.08s, filter 0.2s ease 0.09s;}
