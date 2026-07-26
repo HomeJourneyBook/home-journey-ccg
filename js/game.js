@@ -1252,6 +1252,33 @@ function killCard(card,faction,toVoid=false){
 
   const drawTag=getTagVal(card,'draw');
   if(drawTag){G[card.f].extraDraw=Math.max(0,G[card.f].extraDraw-drawTag);}
+
+  // BAMBOO-style death_heal:N (2026-07-26, по прямому запросу автора — замена старой
+  // enter_heal:2, которая давала хил ВСЕМ раненым при входе на поле; теперь вместо
+  // входа триггер — СВОЯ смерть, и вместо "все раненые" — ОДИН случайный раненый
+  // союзник, на фиксированные N=4). В отличие от on_own_death_base выше (который
+  // проверяется на ВСЕХ выживших союзниках — реагирует на любую свою смерть), это
+  // self-only: тег читается прямо с УМИРАЮЩЕЙ card, а не с окружения. card уже
+  // вырезана из G[faction].field строкой в самом начале killCard() — так что при
+  // выборе случайного раненого союзника ниже сама умирающая карта естественным
+  // образом не попадает в пул кандидатов (то же исключение, что у on_own_death_base).
+  // Триггерится независимо от toVoid (сожжение в войд тоже считается "своей
+  // смертью") — тот же скоуп, что у on_own_death_base, ради единообразия. Живёт на
+  // travelers, зарезервированных под Bamboo World-trait — см. data.js.
+  if(!card.spell&&!card.world&&!card.artifact){
+    const bambooHeal=getTagVal(card,'death_heal');
+    if(bambooHeal){
+      const woundedAllies=G[card.f].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.hp<c.maxHp);
+      if(woundedAllies.length>0){
+        const healTarget=woundedAllies[Math.floor(Math.random()*woundedAllies.length)];
+        healTarget.hp=Math.min(healTarget.maxHp,healTarget.hp+bambooHeal);
+        playSfx('heal');
+        lg(`${card.name}: dies — heals ${healTarget.name} +${bambooHeal} HP → ${healTarget.hp}/${healTarget.maxHp}.`,'hl');
+        const healTargetId=healTarget.id;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(healTargetId,`+${bambooHeal}`,'heal')));
+      }
+    }
+  }
 }
 
 function doBurnCard(card){
