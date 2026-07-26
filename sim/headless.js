@@ -156,6 +156,21 @@ function runGame(opts = {}){
     vm.runInContext(`Object.assign(DEFS, ${JSON.stringify(opts.defsPatch)});`, sandbox);
   }
 
+  // squadPatch — in-memory override of one gtype's row in SQUAD_DEFS (game.js),
+  // e.g. {gtype:'orb', effect:'armor', val:2} to swap Orbiton's squad payout
+  // from heal to armor for an A/B test, without editing game.js.
+  if(opts.squadPatch){
+    vm.runInContext(`
+      (function(){
+        const entry = SQUAD_DEFS.find(s => s.gtype === ${JSON.stringify(opts.squadPatch.gtype)});
+        if(entry){
+          for(const k of Object.keys(entry)) delete entry[k];
+          Object.assign(entry, ${JSON.stringify(opts.squadPatch)});
+        }
+      })();
+    `, sandbox);
+  }
+
   const deckConfig = opts.deckConfig || 'classic';
   const rushDecksJson = opts.rushDecks ? JSON.stringify(opts.rushDecks) : 'null';
   vm.runInContext(`initState({ mode:'vsai', humanFaction:'tea', spectator:true,
