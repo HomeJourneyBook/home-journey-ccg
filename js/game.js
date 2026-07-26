@@ -1279,6 +1279,30 @@ function killCard(card,faction,toVoid=false){
       }
     }
   }
+
+  // SCHEME-style death_bolt:N (2026-07-26, по прямому запросу автора) — на СВОЮ
+  // смерть наносит N магического урона (dmgCard(...,true) — bypassArmor:
+  // Ward блокирует, Броня нет, та же категория, что active AOE/Shard/точечный
+  // спелл-урон) случайному вражескому существу. Тот же self-only паттерн, что у
+  // death_heal выше — тег читается прямо с умирающей card, а не с окружения.
+  // Если у противника нет существ на поле — молча ничего не делает (нет
+  // валидной цели, без лога/звука). dmgCard() может рекурсивно вызвать
+  // killCard() для boltTarget, если удар окажется смертельным — это ожидаемо
+  // и безопасно (та же цепная механика уже есть у enter_aoe/random_spread).
+  if(!card.spell&&!card.world&&!card.artifact){
+    const schemeBolt=getTagVal(card,'death_bolt');
+    if(schemeBolt){
+      const enemyFaction=card.f==='tea'?'jeet':'tea';
+      const enemyField=G[enemyFaction].field;
+      if(enemyField.length>0){
+        const boltTarget=enemyField[Math.floor(Math.random()*enemyField.length)];
+        playSfx('card_spell_atack');
+        lg(`${card.name}: dies — Bolt ${schemeBolt} to ${boltTarget.name}!`,'imp');
+        queueFieldFx(boltTarget.id,'HIT!','fx-spell-dmg');
+        dmgCard(boltTarget,schemeBolt,enemyFaction,true);
+      }
+    }
+  }
 }
 
 function doBurnCard(card){
