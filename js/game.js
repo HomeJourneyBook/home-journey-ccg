@@ -840,6 +840,21 @@ function doAttack(att,target){
   // Stealth — раскрывается после ЛЮБОЙ первой атаки, вне зависимости от исхода (даже если
   // att сам погиб от контрудара выше — не важно, тег одноразовый и это его единственная работа).
   if(hasTag(att,'stealth')) att.stealthBroken=true;
+  // Stealth reveal bonus (2026-07-26, по прямому запросу автора) — В ДОПОЛНЕНИЕ к пропуску
+  // контрудара (см. stealthFirstStrike выше, объявлен ДО строки att.stealthBroken=true —
+  // тот же снимок "до себя же", что и у wasFearedBefore/wasExhaustedBefore) первая атака из
+  // стелса ещё и добирает 3 карты владельцу. Срабатывает независимо от того, выжил ли att
+  // после Thorns/побочного урона выше — раскрытие уже состоялось этим ударом, тег одноразовый,
+  // эффект не привязан к выживанию (та же логика, что у самого att.stealthBroken=true строкой
+  // выше). Пустая колода — молчаливый частичный/нулевой добор, без лога-ошибки (тот же
+  // паттерн, что у обычного case 'draw' в abilities.js).
+  if(stealthFirstStrike){
+    const stealthDrawN=3;
+    const ownHand=G[att.f].hand, ownDeck=G[att.f].deck;
+    let stealthDrawn=0;
+    for(let i=0;i<stealthDrawN;i++){ if(ownDeck.length>0){ ownHand.push(ownDeck.shift()); stealthDrawn++; } }
+    if(stealthDrawn>0) lg(`${att.name}: reveals from Stealth — draws ${stealthDrawn} card(s).`,'imp');
+  }
   G.sel=null;
   G.phase='action';
   checkWin();
@@ -1125,6 +1140,36 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel){
 }
 
 function killCard(card,faction,toVoid=false){
+  // REMEMBER EVERYTHING — remember (2026-07-26, по прямому запросу автора) — на ПЕРВУЮ смерть
+  // за игру карта вообще не умирает: полностью восстанавливает HP и остаётся на поле, но
+  // теряет любые накопленные баффы ATK/Armor/maxHP — тот же набор полей/логика, что снимает
+  // doSpellDispelTarget() (Dispel-спелл) и case 'scheme' (abilities.js): squadAtkBonus/
+  // squadArmorBonus(+armorMax)/squadMaxHpBonus(+maxHp)/squadParam/atkBonus. Fear/Burn/
+  // Provoke-suppression НЕ трогаем — автор просил сбросить только ATK/Armor-баффы, не дебаффы.
+  // Проверяется САМОЙ ПЕРВОЙ строкой функции — раньше, чем card вырезается из
+  // G[faction].field, потому что при срабатывании карта из поля никуда не уходит (return до
+  // этой строки). На ВТОРУЮ смерть эффект уже потрачен (card.rememberUsed стоит от первого
+  // раза) — карта умирает как обычно, НО СРАЗУ в Войд (toVoid форсируется), минуя кладбище —
+  // тот же принцип "второй раз без пощады", что у Инкарнации ниже по функции. Работает только
+  // на существах (не spell/world/artifact).
+  if(!card.spell&&!card.world&&!card.artifact&&hasTag(card,'remember')){
+    if(!card.rememberUsed){
+      card.rememberUsed=true;
+      if(card.atkBonus){card.atkBonus=0;}
+      if(card.squadAtkBonus){card.squadAtkBonus=0;}
+      if(card.squadMaxHpBonus){card.maxHp-=card.squadMaxHpBonus;card.squadMaxHpBonus=0;}
+      if(card.squadArmorBonus){card.armor=Math.min(card.armor,(card.armorMax||0)-card.squadArmorBonus);card.armorMax=(card.armorMax||0)-card.squadArmorBonus;card.squadArmorBonus=0;}
+      if(card.squadParam){card.squadParam=null;}
+      card.hp=card.maxHp;
+      playSfx('heal');
+      lg(`${card.name}: Remember Everything — fully restores and stays on the field (buffs reset)!`,'hl');
+      const rememberId=card.id;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rememberId,'REBORN','heal')));
+      return;
+    } else {
+      toVoid=true;
+    }
+  }
   G[faction].field=G[faction].field.filter(c=>c.id!==card.id);
   card.squadMaxHpBonus=0;
   card.squadAtkBonus=0;
