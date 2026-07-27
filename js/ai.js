@@ -512,14 +512,14 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellBuffTarget'){
-    const mine=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
+    const mine=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared&&!c.frozen);
     if(mine.length===0){ cancelPendingSpell(); return; }
     mine.sort((a,b)=>effAtk(b)-effAtk(a)); // buff the hardest hitter that can still act
     doSpellBuffTarget(mine[0]);
     return;
   }
   if(G.phase==='spellArmorTarget'){
-    const mine=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared);
+    const mine=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared&&!c.frozen);
     if(mine.length===0){ cancelPendingSpell(); return; }
     // Приоритет — самый живучий/опасный союзник, не обязательно готовый к действию в этот
     // же ход (в отличие от spell_buff_temp): броня — защитный, а не темповый бонус, ценнее
@@ -638,7 +638,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellFearTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared&&!c.frozen&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
     const pool=targets.length>0?targets:G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
     if(pool.length===0){ cancelPendingSpell(); return; }
     pool.sort((a,b)=>effAtk(b)-effAtk(a));
@@ -663,7 +663,7 @@ function aiTryUseAoe(){
   // dmgCard() в game.js) — считаем ценность AOE только по НЕ-warded целям.
   const vulnerableField=enemyField.filter(c=>!hasTag(c,'ward'));
   if(vulnerableField.length===0) return false; // всё поле противника под Ward — активка ничего не даст
-  const aoeCreatures=me.field.filter(c=>hasTag(c,'aoe')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.spell&&!c.world&&!c.artifact);
+  const aoeCreatures=me.field.filter(c=>hasTag(c,'aoe')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&!c.spell&&!c.world&&!c.artifact);
   let used=false;
   aoeCreatures.forEach(umb=>{
     if(umb.exhausted) return; // could've been used by a squad-shared check already
@@ -699,7 +699,7 @@ function aiShardWouldBenefitFromAttackingFirst(shard){
   // Есть ли ещё непотраченный атакующий с нужным тегом, который реально сходит в этот
   // ход (не спит/не устал/не в страхе)? Не проверяем "убьёт ли врага" — fear/burn
   // вешаются в момент УДАРА независимо от того, добивает атака или нет.
-  return me.field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.exhausted&&!c.sleeping&&!c.feared&&hasTag(c,wantTag));
+  return me.field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&hasTag(c,wantTag));
 }
 
 function aiTryUseShard(forceNow){
@@ -761,7 +761,7 @@ function aiTryUseBolt(){
   // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
   const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
-  const boltCreatures=me.field.filter(c=>hasTag(c,'bolt')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.spell&&!c.world&&!c.artifact);
+  const boltCreatures=me.field.filter(c=>hasTag(c,'bolt')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&!c.spell&&!c.world&&!c.artifact);
   let used=false;
   boltCreatures.forEach(bolt=>{
     if(bolt.exhausted) return; // could've acted already earlier in this same pass
@@ -777,7 +777,7 @@ function aiTryUseBolt(){
     // "Открытая карта" (2026-07-24, по прямому запросу автора) — Provoke форсит только
     // пока не exhausted, тот же принцип везде в этом файле/game.js.
     const forced = oppField.some(c=>hasTag(c,'bushido')) ||
-      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared); // +!c.feared (2026-07-25)
+      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen); // +!c.feared (2026-07-25), +!c.frozen (2026-07-27)
     // 0-ATK bolt bodies (e.g. TRAVELER #52/#6/#54 — pure Umbasir utility, atk:0):
     // a normal attack from these does NOTHING (0 dmg, and a full counter-attack
     // eaten for free if Provoke/Bushido forces a creature fight) — Bolt's chip
@@ -927,12 +927,12 @@ function aiSpellHasValidTarget(card){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_buff_temp')){
-    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
+    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared&&!c.frozen);
   }
   if(hasTag(card,'spell_armor_temp')){
     // Та же relaxed-таргетинг правка, что и у spell_buff_temp (2026-07-15) — sleeping/
     // exhausted валидны, только feared исключён.
-    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared);
+    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared&&!c.frozen);
   }
   if(hasTag(card,'spell_untap')){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
@@ -1018,12 +1018,12 @@ function aiCanCombatClearSmallBoard(enemies){
   if(enemies.length===0) return true;
   const oppField=G[G.humanFaction].field;
   const forced = oppField.some(c=>hasTag(c,'bushido')) ||
-    oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared);
-  if(forced && !enemies.some(e=>hasTag(e,'bushido')||(e.tags.includes('provoke')&&!e.provokeBroken&&!e.exhausted&&!e.feared))){
+    oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen);
+  if(forced && !enemies.some(e=>hasTag(e,'bushido')||(e.tags.includes('provoke')&&!e.provokeBroken&&!e.exhausted&&!e.feared&&!e.frozen))){
     return false;
   }
   const me=G[G.aiFaction];
-  const remaining=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
+  const remaining=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared&&!c.frozen);
   for(const e of enemies){
     const idx=remaining.findIndex(a=>effAtkVsTarget(a,e)>=e.hp+(e.armor||0));
     if(idx===-1) return false;
@@ -1135,7 +1135,7 @@ function aiScoreCard(card, me){
 
     if(hasTag(card,'spell_buff_temp')){
       const buffAmt=getTagVal(card,'spell_buff_temp')||2;
-      const mine=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
+      const mine=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared&&!c.frozen);
       if(mine.length===0) return -1; // aiSpellHasValidTarget should already exclude this
       const best=mine.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
       const opp=G[G.humanFaction];
@@ -1192,7 +1192,7 @@ function aiScoreCard(card, me){
       // lethal-check (armor doesn't threaten the opponent's face) and using effAtk as a proxy
       // for "worth protecting" rather than "worth buffing offensively" — a defensive bonus is
       // most valuable on the creature that's both dangerous AND likely to keep tanking hits.
-      const mine=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared);
+      const mine=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared&&!c.frozen);
       if(mine.length===0) return -1; // aiSpellHasValidTarget should already exclude this case
       const best=mine.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
       return card.cost*w.spellBase + effAtk(best)*w.buffTargetAtkWeight + w.permanentBuffBonus;
@@ -1205,7 +1205,7 @@ function aiScoreCard(card, me){
       // entirely from how much of OUR OWN board is currently forced onto that Provoke
       // creature instead of reaching the enemy base/better targets — the more/stronger our
       // stuck attackers, the more this is worth clearing right now instead of later.
-      const stuck=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared);
+      const stuck=me.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.sleeping&&!c.exhausted&&!c.feared&&!c.frozen);
       if(stuck.length===0) return w.provokeBreakNoStuckScore; // ничего сейчас не форсится этим Provoke — нет причины трогать его именно сейчас
       const totalStuckAtk=stuck.reduce((sum,c)=>sum+effAtk(c),0);
       return card.cost*w.spellBase + totalStuckAtk*w.provokeBreakStuckAtkWeight;
@@ -1240,7 +1240,7 @@ function aiScoreCard(card, me){
       // испуганной цели ничего не добавляет, card.feared — булев флаг, не стакается).
       // Без этого фильтра ИИ повторно кастовал mass-fear на поле, которое он же сам
       // только что зафировал, оценивая это так же высоко, как первый каст.
-      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.feared);
+      const enemies=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&!c.feared&&!c.frozen);
       if(enemies.length===0) return w.fearAllEmptyBoardScore;
       const race=aiRaceState();
       return card.cost*w.spellBase + enemies.length*w.fearAllPerTargetWeight + (race==='behind'?w.fearAllBehindBonus:0);
@@ -1411,7 +1411,7 @@ function aiScoreCard(card, me){
     // же поправка, что у spell_burn_all выше (aiBurnWorthRefresh).
     if(hasTag(card,'spell_burn_target')||hasTag(card,'spell_fear_target')){
       const isBurn=hasTag(card,'spell_burn_target');
-      const isFreshTarget = c => isBurn ? (!c.burning || (c.burnTurns!==undefined && c.burnTurns<=1)) : !c.feared;
+      const isFreshTarget = c => isBurn ? (!c.frozen && (!c.burning || (c.burnTurns!==undefined && c.burnTurns<=1))) : (!c.frozen && !c.feared);
       const fresh=G[G.humanFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&
         isSpellTargetable(c,G[G.humanFaction].field)&&isFreshTarget(c));
       if(fresh.length===0) return w.singleDebuffAlreadyAffectedScore;
@@ -1497,7 +1497,7 @@ function aiScoreCard(card, me){
 // ── ФАЗА 2: атаки ───────────────────────────────────────────────
 function getAiCreatureQueue(){
   const queue = G[G.aiFaction].field.filter(c =>
-    !c.sleeping && !c.exhausted && !c.feared && !c.spell && !c.world && !c.artifact
+    !c.sleeping && !c.exhausted && !c.feared && !c.frozen && !c.spell && !c.world && !c.artifact
   );
   // Shield-pop ordering (2026-07-17): dmgCard() lets an unconsumed Solana Shield (`shield`
   // tag) absorb the FIRST hit against its owner COMPLETELY, regardless of how much dmg
@@ -1538,7 +1538,7 @@ function aiAttackStep(queue, idx){
     return;
   }
   const stillThere = G[G.aiFaction].field.find(c => c.id === queue[idx].id);
-  if(!stillThere || stillThere.exhausted || stillThere.sleeping || stillThere.feared){
+  if(!stillThere || stillThere.exhausted || stillThere.sleeping || stillThere.feared || stillThere.frozen){
     aiAttackStep(queue, idx + 1);
     return;
   }
@@ -1561,7 +1561,7 @@ function aiCanHitBase(creature, oppField){
   // Provoke was still blocking the base here too, since this check never looked at the flag.
   // "Открытая карта" (2026-07-24, по прямому запросу автора) — Provoke блокирует базу
   // только пока сама карта не exhausted, тот же принцип, что в game.js.
-  const provoke = oppField.find(c => c.tags && c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared); // +!c.feared (2026-07-25)
+  const provoke = oppField.find(c => c.tags && c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen); // +!c.feared (2026-07-25), +!c.frozen (2026-07-27)
   if(provoke) return false;
   return true;
 }
@@ -1606,7 +1606,7 @@ function aiIsWastefulArmorTrade(attacker, target){
   // упомянуто в комментарии выше ("wasFeared... среди условий пропуска контрудара"), но
   // сама функция это не проверяла. Без этой строки ИИ мог считать полностью безопасный
   // добивающий удар по уже испуганной цели "бесполезным разменом" и пропускать его.
-  if(target.feared) return false;
+  if(target.feared||target.frozen) return false;
   const counterDmg = effAtk(target);
   const ourArmor = attacker.armor||0;
   const realCounterDmg = Math.max(0, counterDmg-ourArmor);
@@ -1691,7 +1691,7 @@ function aiActWithCreature(creature){
   // "Открытая карта" (2026-07-24, по прямому запросу автора) — и тут тоже !c.exhausted.
   const forced =
     oppField.some(c => hasTag(c,'bushido')) ||
-    oppField.some(c => c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared); // +!c.feared (2026-07-25)
+    oppField.some(c => c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen); // +!c.feared (2026-07-25), +!c.frozen (2026-07-27)
 
   // 1) Если можем убить кого-то без потери существа зря — убиваем самую опасную цель.
   // Броня поглощает физический урон ПЕРВОЙ (обычная атака её не игнорирует — см.
