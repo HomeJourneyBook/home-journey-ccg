@@ -771,7 +771,6 @@ function doAttack(att,target){
   const debuffBlocked = target.frozen || hasTag(target,'ward');
   const willFear = hasTag(att,'fear') && targetSurvives && !debuffBlocked;
   const willBurn = hasTag(att,'burn') && targetSurvives && !debuffBlocked;
-  if(!willFear && !willBurn) playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
 
   // Снимок ДО on_attack-эффектов этого удара: fear, наложенный ИМЕННО этим ударом, не должен
@@ -806,6 +805,13 @@ function doAttack(att,target){
 
   const hpBefore=target.hp;
   dmgCard(target,atk,oppK);
+  // Foxy Trick (2026-07-27, по прямому запросу автора: "сначала проверка не промахнётся ли
+  // атака вообще, потом уже абсорб урона") — звук решается ПОСЛЕ dmgCard(), а не до, потому
+  // что флаг промаха (_foxyDodgedThisHit) появляется только внутри неё. На промах — БЕЗ
+  // звука вообще (автор добавит отдельный SFX позже), только визуал (queueFieldFx 'MISSED!'
+  // уже отыгран самой dmgCard()). Иначе — прежняя логика: обычный звук атаки, если дебафф
+  // в итоге не наложится (Ward/Frost), иначе тишина — сыграет debaf-звук чуть ниже.
+  if(!target._foxyDodgedThisHit && !willFear && !willBurn) playAttackSfx(att);
   // Math.max(0,target.hp) — если удар был лишним "оверкиллом" (hp ушло в минус), не даём
   // realDmgDealt раздуться сверх того, сколько у цели реально БЫЛО жизни (hpBefore).
   const realDmgDealt=Math.max(0, hpBefore-Math.max(0,target.hp));
@@ -1105,7 +1111,28 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel){
   // Сбрасываем ПЕРЕД любым ранним return (включая dmg<=0 ниже) — иначе устаревший true с
   // прошлого удара мог бы утечь в проверку fear/burn/taunt_break этого хода (см. ниже).
   card._shieldBlockedThisHit=false;
+  card._foxyDodgedThisHit=false;
   if(dmg<=0)return;
+  // Foxy Trick (2026-07-27, "Foxy Trick", ультраредкий Mood-трейт Orange from FFF, ico_fff.png)
+  // — ПЕРВАЯ проверка вообще, ДО Frost/Shield/Armor/Ward (по прямому запросу автора: сначала
+  // решаем, промахнулась ли атака вообще, и только потом — если не промахнулась — остальной
+  // абсорб). 50% шанс, что ЛЮБОЙ входящий удар (атака/контрудар/bolt/spell dmg/AOE — вообще
+  // любой вызов dmgCard()) промахивается целиком: 0 урона, Frost/Shield НЕ трогаются и не
+  // тратятся (промах — значит удар физически не долетел, нечему поглощать). Один бросок
+  // решает ОБА исхода сразу — если атака промахнулась, любой дебафф (Fear/Burn/Frost/
+  // Provoke-break), который нёс этот же удар, тоже не применяется (см.
+  // `_foxyDodgedThisHit`, тот же паттерн флага "полностью не долетевший удар", что уже
+  // используют `_shieldBlockedThisHit`/`_frostBlockedThisHit` — читается в abilities.js
+  // case 'fear'/'burn'/'frost'/'taunt_break' и в doSpellFearTarget/doSpellBurnTarget/
+  // doSpellProvokeBreakTarget/fear_all/burn_all, где у dmgCard() своего вызова нет вообще —
+  // там бросок кидается ЗАНОВО тем же способом, отдельно). Звука пока нет (по прямому
+  // запросу автора, добавит позже) — только визуал (queueFieldFx 'MISSED!').
+  if(hasTag(card,'foxy') && Math.random()<0.5){
+    card._foxyDodgedThisHit=true;
+    queueFieldFx(card.id,'MISSED!','fx-miss');
+    lg(`${card.name}'s Foxy Trick makes the attack miss entirely!`,'imp');
+    return;
+  }
   // Frost (2026-07-27) — АНАЛОГ Solana Shield: пока card.frozen, следующий ЛЮБОЙ удар (физика
   // или магия, включая контратаку — та же формулировка, что у Shield) поглощается ЦЕЛИКОМ, и
   // Заморозка снимается (см. scheduleFrostRemoval() выше — с анимацией исчезновения). Стоит
@@ -1936,6 +1963,12 @@ function doSpellBurnTarget(card){
     lg(`${card.name}'s Solana Shield blocks the fire entirely.`,'dmg');
   } else if(hasTag(card,'ward')){
     lg(`${card.name}'s Ward blocks the burn entirely.`,'dmg');
+  } else if(hasTag(card,'foxy') && Math.random()<0.5){
+    // Foxy Trick (2026-07-27) — не идёт через dmgCard() вообще (чистое навешивание
+    // статуса, не урон), поэтому бросок кидается ЗДЕСЬ отдельно, тем же способом,
+    // что и в dmgCard()/fear_all/burn_all.
+    queueFieldFx(card.id,'MISSED!','fx-miss');
+    lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
     card.burning=true;
     card.burnTurns=BURN_DURATION;
@@ -1960,6 +1993,10 @@ function doSpellFearTarget(card){
     lg(`${card.name}'s Solana Shield blocks the fear entirely.`,'dmg');
   } else if(hasTag(card,'ward')){
     lg(`${card.name}'s Ward blocks the fear entirely.`,'dmg');
+  } else if(hasTag(card,'foxy') && Math.random()<0.5){
+    // Foxy Trick (2026-07-27) — см. комментарий в doSpellBurnTarget() выше.
+    queueFieldFx(card.id,'MISSED!','fx-miss');
+    lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
     card.feared=true;
     playSfx('debaf');
@@ -2090,10 +2127,17 @@ function doSpellDispelTarget(card){
 function doSpellProvokeBreakTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
-  playSfx('debaf');
-  card.provokeBroken=true;
-  lg(`${spell.name}: ${card.name}'s Provoke is suppressed!`,'imp');
-  queueFieldFx(card.id,'EXPOSED!','fx-fear'); // тот же fx, что у taunt_break на существах
+  // Foxy Trick (2026-07-27, по прямому запросу автора — Provoke-break тоже считается
+  // дебаффом под уклонение) — та же логика, что в doSpellFearTarget/doSpellBurnTarget.
+  if(hasTag(card,'foxy') && Math.random()<0.5){
+    queueFieldFx(card.id,'MISSED!','fx-miss');
+    lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
+  } else {
+    playSfx('debaf');
+    card.provokeBroken=true;
+    lg(`${spell.name}: ${card.name}'s Provoke is suppressed!`,'imp');
+    queueFieldFx(card.id,'EXPOSED!','fx-fear'); // тот же fx, что у taunt_break на существах
+  }
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
