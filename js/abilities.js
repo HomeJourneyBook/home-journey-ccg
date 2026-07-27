@@ -322,7 +322,11 @@ function triggerAbilities(card, timing, ctx={}){
           if(dmgAmt>0){
             playSfx('card_spell_atack');
             purgeTargets.forEach(t=>{
-              queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
+              // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора) —
+              // тот же принцип, что и в random_spread ниже: если урон физически не
+              // пройдёт, HIT!-плашка не нужна.
+              const absorbed = hasTag(t,'ward') || t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed);
+              if(!absorbed) queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
               dmgCard(t,dmgAmt,oppK,true);
             });
             lg(`${card.name}: ${dmgAmt} dmg to ALL enemy creatures (board count)!`,'imp');
@@ -398,7 +402,15 @@ function triggerAbilities(card, timing, ctx={}){
             const t=pool.find(p=>p.id===tid);
             if(!t) return;
             hitTargets++;
-            queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+            // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора) —
+            // dmgCard() сама уже полностью блокирует урон в этих случаях (Ward — честная
+            // случайность, damage-point намеренно МОЖЕТ впустую уйти в защищённую цель, это
+            // НЕ баг, см. историю выше), но раз физически ничего не произойдёт, обычная
+            // HIT!-анимация на такой цели не нужна — выглядело как баг ("анимация есть,
+            // эффекта нет"). Frost/Shield и так получают СВОЮ отдельную анимацию поглощения
+            // изнутри dmgCard() (shake+лог) — вторая HIT!-плашка поверх была бы избыточной.
+            const absorbed = hasTag(t,'ward') || t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed);
+            if(!absorbed) queueFieldFx(t.id,'HIT!','fx-spell-dmg');
             dmgCard(t,dmgAmt,oppK,true);
           });
           if(baseHits>0){
@@ -570,7 +582,7 @@ function triggerAbilities(card, timing, ctx={}){
         } break;
 
       case 'burn':
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._frostBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
           if(ctx.target.frozen){
             lg(`${ctx.target.name} is frozen — immune to Burn.`,'dmg');
           } else if(hasTag(ctx.target,'ward')){
@@ -584,7 +596,7 @@ function triggerAbilities(card, timing, ctx={}){
         } break;
 
       case 'fear':
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._frostBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
           if(ctx.target.frozen){
             lg(`${ctx.target.name} is frozen — immune to Fear.`,'dmg');
           } else if(hasTag(ctx.target,'ward')){
@@ -612,7 +624,7 @@ function triggerAbilities(card, timing, ctx={}){
         // (0 урона), Заморозка исчезает. НЕ снимается спеллом/активкой "Heal N and Clean"
         // (Orbiton) — тот чистит только feared/burning/provokeBroken (см. onClick()
         // healTarget-ветку в game.js), card.frozen туда сознательно не добавлен.
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._frostBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
           if(hasTag(ctx.target,'ward')){
             lg(`${ctx.target.name}'s Ward blocks the frost entirely.`,'dmg');
           } else {
@@ -632,7 +644,7 @@ function triggerAbilities(card, timing, ctx={}){
         // условные on_attack эффекты выше. _shieldBlockedThisHit — см. Solana Shield в
         // dmgCard() (game.js): удар полностью поглощён щитом → и сам урон, и любой эффект,
         // который он нёс с собой (fear/burn/taunt_break), не применяется вообще.
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._foxyDodgedThisHit&&hasTag(ctx.target,'provoke')){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._frostBlockedThisHit&&!ctx.target._foxyDodgedThisHit&&hasTag(ctx.target,'provoke')){
           ctx.target.provokeBroken=true;
           playSfx('debaf');
           lg(`${card.name}: ${ctx.target.name}'s Provoke is suppressed!`,'imp');
@@ -652,7 +664,7 @@ function triggerAbilities(card, timing, ctx={}){
         // блокирует только Fear/Burn/магический урон, не это). Молча ничего не делает,
         // если у цели и так нет ни одного из этих баффов (без лога/звука/значка, как и
         // остальные условные on_attack-эффекты выше).
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._frostBlockedThisHit){
           const t=ctx.target;
           let stripped=false;
           if(t.atkBonus){t.atkBonus=0;stripped=true;}
