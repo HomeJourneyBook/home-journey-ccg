@@ -87,6 +87,7 @@ const DB_TAG_ICONS = {
   'death_bolt': '<img src="img/ico_cloud.png" style="width:60%;height:60%;">', // PINK CLOUDS / Thunder Storm — death_bolt:N, переехал со Scheme (2026-07-27)
   'death_armor': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME (новый тег) — death_armor:N, 2026-07-27, занял иконку/трейт-слот после переезда death_bolt на Pink Clouds
   'frost': '<img src="img/ico_snow.png" style="width:60%;height:60%;">', // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
+  'foxy': '<img src="img/ico_fff.png" style="width:60%;height:60%;">', // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
 };
 
 // Категории для кнопок-фильтров над правой (пул) областью — переиспользует ту же
