@@ -496,13 +496,23 @@ function triggerAbilities(card, timing, ctx={}){
             break;
           }
           playSfx('card_spell_atack');
+          // Ward/Frost (2026-07-27, по прямому запросу автора) — это ДЕСТРОЙ-эффект, та же
+          // категория, что и targeted JUDGMENT/DEATHBLOW (doSpellExecuteHalfTarget, см. её
+          // комментарий в game.js): Frost НЕ спасает вообще (bypassFrost=true на dmgCard()
+          // ниже), а Ward блокирует, ТОЛЬКО если не прикрыт ещё активным Shield (та же
+          // логика, что и у targeted-урона — щит стоит слоем выше). Раньше DESTROYED
+          // всплывало даже на Ward-цели, хотя эффекта не было — теперь на такой цели
+          // всплывает IMMUNE вместо DESTROYED, и dmgCard() вообще не вызывается.
+          const wardBlocks=t=>hasTag(t,'ward') && !(hasTag(t,'shield') && !t.shieldConsumed);
           enemyTargets.forEach(t=>{
+            if(wardBlocks(t)){ queueFieldFx(t.id,'IMMUNE','fx-immune'); return; }
             queueFieldFx(t.id,'DESTROYED','fx-spell-dmg');
-            dmgCard(t,999,oppK,true,false,'DESTROYED');
+            dmgCard(t,999,oppK,true,false,'DESTROYED',true);
           });
           myTargets.forEach(({t})=>{
+            if(wardBlocks(t)){ queueFieldFx(t.id,'IMMUNE','fx-immune'); return; }
             queueFieldFx(t.id,'DESTROYED','fx-spell-dmg');
-            dmgCard(t,999,curK,true,false,'DESTROYED');
+            dmgCard(t,999,curK,true,false,'DESTROYED',true);
           });
           const myDied=myTargets.filter(({t,hpBefore})=>hpBefore>0 && t.hp<=0).length;
           lg(`${card.name}: destroys ALL creatures on the field!`,'imp');
@@ -528,13 +538,26 @@ function triggerAbilities(card, timing, ctx={}){
         // (dmgCard(), game.js) может снять Shield — Fear/Burn больше не считаются такой
         // угрозой ни в каком виде (ни точечно, ни по AOE).
         {
-          const fearTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward')&&!t.frozen&&!(hasTag(t,'shield')&&!t.shieldConsumed));
-          if(fearTargets.length>0){
+          const allEnemies=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact);
+          // IMMUNE-попап (2026-07-27, по прямому запросу автора) — раньше Ward/Frost/Shield
+          // цели просто тихо ИСКЛЮЧАЛИСЬ из списка (фильтром, как ниже в fearTargets) — эффект
+          // на них корректно не срабатывал, но было непонятно ПОЧЕМУ на скрине ничего не
+          // произошло. Теперь проходим по ВСЕМ врагам: у кого иммунитет — всплывает IMMUNE,
+          // у остальных — FEARED! как раньше.
+          const fearTargets=allEnemies.filter(t=>!hasTag(t,'ward')&&!t.frozen&&!(hasTag(t,'shield')&&!t.shieldConsumed));
+          if(allEnemies.length===0){
+            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+          } else {
             playSfx('debaf');
-            lg(`${card.name}: all enemy creatures are Feared!`,'imp');
-            fearTargets.forEach(t=>{
+            if(fearTargets.length>0) lg(`${card.name}: all enemy creatures are Feared!`,'imp');
+            else lg(`${card.name}: fizzles — every enemy creature is immune.`,'hint');
+            allEnemies.forEach(t=>{
+              if(!fearTargets.includes(t)){
+                queueFieldFx(t.id,'IMMUNE','fx-immune');
+                return;
+              }
               // Foxy Trick (2026-07-27) — в отличие от Ward/Frost/Shield (детерминированные
-              // иммунитеты, отфильтрованы ЗАРАНЕЕ из fearTargets выше), у Foxy Trick шанс
+              // иммунитеты, отфильтрованы ЗАРАНЕЕ в fearTargets выше), у Foxy Trick шанс
               // 50/50 — КАЖДАЯ цель кидает СВОЮ монетку отдельно, поэтому проверяется здесь,
               // ВНУТРИ forEach, а не в общем фильтре списка целей.
               if(hasTag(t,'foxy') && Math.random()<0.5){
@@ -543,8 +566,6 @@ function triggerAbilities(card, timing, ctx={}){
               }
               t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');
             });
-          } else {
-            lg(`${card.name}: no valid targets — fizzles.`,'hint');
           }
         } break;
 
@@ -562,11 +583,21 @@ function triggerAbilities(card, timing, ctx={}){
         // 2026-07-27) — тот же самый гейт, зеркально для Поджога: щит просто исключён из
         // целей, больше не тратится попыткой наложения.
         {
-          const burnTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward')&&!t.frozen&&!(hasTag(t,'shield')&&!t.shieldConsumed));
-          if(burnTargets.length>0){
+          const allEnemies=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact);
+          // IMMUNE-попап — см. подробный комментарий у fear_all чуть выше, тот же принцип
+          // зеркально для Поджога (2026-07-27, по прямому запросу автора).
+          const burnTargets=allEnemies.filter(t=>!hasTag(t,'ward')&&!t.frozen&&!(hasTag(t,'shield')&&!t.shieldConsumed));
+          if(allEnemies.length===0){
+            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+          } else {
             playSfx('card_fire_atack');
-            lg(`${card.name}: all enemy creatures are on fire!`,'imp');
-            burnTargets.forEach(t=>{
+            if(burnTargets.length>0) lg(`${card.name}: all enemy creatures are on fire!`,'imp');
+            else lg(`${card.name}: fizzles — every enemy creature is immune.`,'hint');
+            allEnemies.forEach(t=>{
+              if(!burnTargets.includes(t)){
+                queueFieldFx(t.id,'IMMUNE','fx-immune');
+                return;
+              }
               // Foxy Trick (2026-07-27) — см. подробный комментарий у fear_all выше, тот же
               // принцип: каждая цель кидает свою монетку 50/50 отдельно.
               if(hasTag(t,'foxy') && Math.random()<0.5){
@@ -576,8 +607,6 @@ function triggerAbilities(card, timing, ctx={}){
               t.burning=true;
               t.burnTurns=BURN_DURATION;
             });
-          } else {
-            lg(`${card.name}: no valid targets — fizzles.`,'hint');
           }
         } break;
 
