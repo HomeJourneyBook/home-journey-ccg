@@ -1346,6 +1346,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    дальше просто половина высоты арта (--card-small-art-h). Клики не перехватывает. ──*/
 .card-small.aim-target::after,.card-small.aim-heal::after{content:'';position:absolute;top:calc(2px + var(--card-small-art-h) / 2);left:50%;width:calc(var(--card-small-w) / 2);height:calc(var(--card-small-w) / 2);transform:translate(-50%,-50%);background-size:contain;background-repeat:no-repeat;background-position:center;pointer-events:none;z-index:25;animation:mishenBlink 1.1s ease-in-out infinite;} /* z-index 5→25 (2026-07-27, автор поймал живьём) — мишень рисовалась ПОД .frost-overlay (z-index:20), на замороженной цели выглядела блёкло; теперь мишень поверх ВСЕГО на карте, как и дебафф-бэйджи */
 .card-small.aim-target::after{background-image:url('../img/mishen_red.png');}
+/* Мишень-череп (2026-07-27, по прямому запросу автора) — для JUDGMENT/DEATHBLOW (и
+   аналогов, VERDICT/DAMNATION): та же красная мишень, но с черепом — только на целях,
+   которые реально УМРУТ от этого конкретного каста (JUDGMENT — не всегда: сперва Bolt 1,
+   добивание срабатывает только если это опустит цель до ≤50% maxHP, см. mkSmallEl() в
+   render.js; VERDICT/DAMNATION — insta-kill 999 dmg, всегда убивает ЛЮБУЮ валидную цель,
+   так что у них череп будет на 100% валидных целей поголовно). Класс navешивается ДОПОЛНИТЕЛЬНО
+   к aim-target, не вместо — просто переопределяет background-image тем же селектором с
+   большей специфичностью. */
+.card-small.aim-target.aim-target-kill::after{background-image:url('../img/mishen_red2.png');}
 /* IMMUNE-надпись (2026-07-27, по прямому запросу автора) — раньше карта, недоступная целью
    из-за Ward/Frost/активного Solana Shield, просто оставалась "пустой" (без мишени) — на
    глаз не всегда очевидно, что это НАМЕРЕННЫЙ иммунитет, а не баг/недогруз. Тот же принцип
