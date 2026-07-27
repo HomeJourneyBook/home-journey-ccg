@@ -82,14 +82,24 @@ function render(){
     if(hc)hc.textContent=p.hand.length;
     // Stats bar counters
     const dc=document.getElementById(f+'DeckCountStat');
-    if(dc)dc.textContent=p.deck.length;
+    if(dc){
+      dc.textContent=p.deck.length;
+      // Мигание красным при 0 картах в колоде (2026-07-27, по прямому запросу автора —
+      // геймдизайн-нюанс: fatigue-проигрыш иначе абсолютно неочевиден игроку). Тот же
+      // mishenBlink, что уже использует мишень атаки/.pcard.aim-target — "не сильно
+      // быстрое" мигание, 1.1с цикл.
+      dc.classList.toggle('deck-count-empty', p.deck.length===0);
+    }
     const gc=document.getElementById(f+'GraveCountStat');
     if(gc)gc.textContent=p.grave.length;
     // Bottom bar badges
     const graveBadge=document.getElementById(f+'GraveBadge');
     if(graveBadge)graveBadge.textContent=p.grave.length;
     const deckBadge=document.getElementById(f+'DeckBadge');
-    if(deckBadge)deckBadge.textContent=p.deck.length;
+    if(deckBadge){
+      deckBadge.textContent=p.deck.length;
+      deckBadge.classList.toggle('deck-count-empty', p.deck.length===0);
+    }
   });
   rZone('teaField',G.tea.field,'field');
   rZone('jeetField',G.jeet.field,'field');
