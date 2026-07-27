@@ -83,7 +83,7 @@ function getTargetableCards(oppField, att){
   // 2026-07-25 (по прямому запросу автора) — Fear теперь тоже снимает форс-таргет
   // Provoke, тем же принципом, что и exhausted (испуганная карта не может "стоять
   // как открытая" и заставлять бить себя).
-  const provokes=visible.filter(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared);
+  const provokes=visible.filter(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared&&!c.frozen);
   if(provokes.length>0) return provokes.map(c=>c.id);
   return visible.map(c=>c.id);
 }
@@ -196,7 +196,7 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellBurnTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen){
       if(isSpellTargetable(card,G[opp].field)){
         doSpellBurnTarget(card);return;
       }
@@ -205,7 +205,7 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellFearTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen){
       if(isSpellTargetable(card,G[opp].field)){
         doSpellFearTarget(card);return;
       }
@@ -322,7 +322,7 @@ function onClick(card,zone){
       lg(`${card.name}: select a creature to sacrifice.`,'hint');
       render();return;
     }
-    if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.spell&&!card.world&&!card.artifact){
+    if(zone==='field'&&card.f===G.turn&&!card.sleeping&&!card.exhausted&&!card.feared&&!card.frozen&&!card.spell&&!card.world&&!card.artifact){
       // Хилер больше не прыгает в healTarget сразу по клику — как и AOE-существа
       // (Umbasir/Vardan), он просто выделяется (selectTarget), а над ним всплывает
       // попап-кнопка (см. mkSmallEl в render.js: isHealerAbility/hasHealTarget) —
@@ -646,7 +646,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.atkBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.frozen=false;card.frozenTurnsLeft=0;card._frostLeaving=false;card.atkBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
   // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
   // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
@@ -759,6 +759,11 @@ function doAttack(att,target){
   // же ударом). Дальше, на СЛЕДУЮЩИХ атаках по уже feared цели, контратака как и раньше не идёт.
   const wasFearedBefore = target.feared;
   const wasExhaustedBefore = target.exhausted;
+  // Frost (2026-07-27) — тот же принцип "снимок ДО": замороженная цель не контратакует
+  // (не может действовать вообще, пока заморожена), но Frost, наложенный ИМЕННО этим
+  // ударом, не должен отменять контратаку ЗА ЭТОТ ЖЕ удар — иначе Frost-атакующий бил бы
+  // первый раз безнаказанно.
+  const wasFrozenBefore = target.frozen;
   // Stealth (2026-07-17, TEANTIST) — anti-invisible пара #2: пока не атаковал ни разу,
   // недостижим вообще (см. getTargetableCards()); в момент первой атаки становится
   // достижимым НАВСЕГДА (см. att.stealthBroken=true ниже), а именно ЭТА первая атака ещё и
@@ -786,7 +791,7 @@ function doAttack(att,target){
 
   // Контрудар — deferDeath=true: HP атакующего может уйти в минус, но killCard() для него
   // пока НЕ вызывается — vampiric/Erase ниже ещё могут его спасти (см. шапку файла выше).
-  if(!hasTag(att,'invisible') && !wasFearedBefore && !wasExhaustedBefore && !stealthFirstStrike)
+  if(!hasTag(att,'invisible') && !wasFearedBefore && !wasExhaustedBefore && !stealthFirstStrike && !wasFrozenBefore)
   dmgCard(att, targetCounterAtk, curK, false, true);
 
   // Thorns / "Огненный Щит" (2026-07-17, FAERON) — анти-invisible пара: вместо того чтобы
@@ -882,7 +887,7 @@ function doVardan(){
   if(!G.sel){lg('No card selected — select an AOE card first.','hint');return;}
   const vard=findC(G.sel);
   if(!vard||!hasTag(vard,'aoe')){lg('Select an AOE card first.','hint');return;}
-  if(vard.exhausted){lg(`${vard.name} already acted this turn.`,'dmg');return;}
+  if(vard.exhausted||vard.frozen){lg(`${vard.name} already acted this turn.`,'dmg');return;}
   playSfx('card_spell_atack');
   const dmgAmt=getTagVal(vard,'aoe')||2;
   lg(`⚡ ${vard.name} — Dark Will: ${dmgAmt} dmg to ALL enemies!`,'imp');
@@ -901,7 +906,7 @@ function doVardan(){
 function doUmbBolt(){
   const bolt=findC(G.sel);
   if(!bolt||!hasTag(bolt,'bolt')){lg('Select a Bolt card first.','hint');return;}
-  if(bolt.exhausted){lg(`${bolt.name} already acted this turn.`,'dmg');return;}
+  if(bolt.exhausted||bolt.frozen){lg(`${bolt.name} already acted this turn.`,'dmg');return;}
   if(G.phase==='boltTarget'){G.phase='action';G.sel=null;render();return;} // повторный клик — отмена
   G.phase='boltTarget';
   lg(`${bolt.name}: select an enemy creature to deal ${(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1} damage.`,'hint');
@@ -964,7 +969,7 @@ function getInterceptor(oppField, target){
   const bushido = oppField.some(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido) return null;
   // 2026-07-25 — тот же !c.feared, что и везде ниже: испуганный Provoke не блокирует Intercept.
-  const provoke = oppField.some(c=>c.tags&&c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared);
+  const provoke = oppField.some(c=>c.tags&&c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared&&!c.frozen);
   if(provoke) return null;
   // Баг-фикс (2026-07-19, автор нашёл живьём): если атакующий и так уже выбрал целью
   // ДРУГОЕ существо с Intercept ("Xuiqtr") — перехват вообще не должен срабатывать.
@@ -977,14 +982,14 @@ function getInterceptor(oppField, target){
   // перехвата нет вообще, атака идёт как выбрана.
   if(target && hasTag(target,'intercept')) return null;
   // 2026-07-25 — испуганный Intercept тоже не перехватывает (тот же принцип, что у Provoke выше).
-  const candidates = oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'intercept')&&!c.interceptUsed&&!c.exhausted&&!c.feared);
+  const candidates = oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'intercept')&&!c.interceptUsed&&!c.exhausted&&!c.feared&&!c.frozen);
   return candidates.length>0 ? candidates[0] : null;
 }
 
 function canAttackBase(){
   if(!G.sel) return false;
   const att=findC(G.sel);
-  if(!att||att.exhausted||att.sleeping||att.feared) return false;
+  if(!att||att.exhausted||att.sleeping||att.feared||att.frozen) return false;
   const oppK=G.turn==='tea'?'jeet':'tea';
   const opp=G[oppK];
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
@@ -1000,7 +1005,7 @@ function canAttackBase(){
   // Provoke "открытая карта" (2026-07-24, по прямому запросу автора) — та же поправка,
   // что у getTargetableCards() выше: провокация блокирует базу, только пока сама карта
   // не exhausted. + !c.feared (2026-07-25) — испуганная тоже не блокирует.
-  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared);
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared&&!c.frozen);
   if(provoke) return false;
   return true;
 }
@@ -1020,7 +1025,7 @@ function tryAttackBase(){
   // Same provokeBroken fix as canAttackBase() above — see its comment.
   // "Открытая карта" (2026-07-24, по прямому запросу автора) — тот же !c.exhausted, что
   // везде выше. + !c.feared (2026-07-25).
-  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared);
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared&&!c.frozen);
   if(provoke){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
   // Intercept (2026-07-17, Xuiqtr) — третий слой, ниже Bushido/Provoke (оба уже проверены
   // и не сработали выше, раз мы досюда дошли). Игрок кликнул по базе — но если есть
@@ -1051,11 +1056,39 @@ function tryAttackBase(){
   activateCard(att.id); 
 }
 
+// Frost (2026-07-27, "Frost Attack", ultra-rare Mood trait Winter from RGB) — снятие статуса
+// (по урону ИЛИ по естественному истечению 2 ходов в endTurn()) откладывается на один
+// render-тик с card._frostLeaving=true, чтобы CSS в mkSmallEl() (render.js) успела доиграть
+// обратную анимацию исчезновения frost-бокса (тот же трюк, что у .burning-out в руке —
+// см. css/styles.css), прежде чем card.frozen реально станет false.
+function scheduleFrostRemoval(card){
+  card._frostLeaving=true;
+  const cardId=card.id;
+  setTimeout(()=>{
+    card.frozen=false;
+    card.frozenTurnsLeft=0;
+    card._frostLeaving=false;
+    render();
+  }, 300);
+}
+
 function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel){
   // Сбрасываем ПЕРЕД любым ранним return (включая dmg<=0 ниже) — иначе устаревший true с
   // прошлого удара мог бы утечь в проверку fear/burn/taunt_break этого хода (см. ниже).
   card._shieldBlockedThisHit=false;
   if(dmg<=0)return;
+  // Frost (2026-07-27) — АНАЛОГ Solana Shield: пока card.frozen, следующий ЛЮБОЙ удар (физика
+  // или магия, включая контратаку — та же формулировка, что у Shield) поглощается ЦЕЛИКОМ, и
+  // Заморозка снимается (см. scheduleFrostRemoval() выше — с анимацией исчезновения). Стоит
+  // ДО Shield/Armor/Ward — Frost и Shield на одной карте одновременно не ожидаются в дизайне,
+  // но если как-то совпадут, Frost гасит удар первым (порядок значения не имеет на практике).
+  if(card.frozen){
+    card._frostBlockedThisHit=true;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+    lg(`${card.name}'s Frost absorbs the hit entirely and shatters.`,'dmg');
+    scheduleFrostRemoval(card);
+    return;
+  }
   // Solana Shield (World-трейт, 2026-07-13) — абсолютный одноразовый абсорб ПЕРВОГО удара
   // ЛЮБОГО типа (физика И магия, включая контратаку) — в отличие от Брони (только физика)
   // и Ward (только магия), щит стоит ДО обеих проверок и гасит вообще любой источник урона
@@ -2260,6 +2293,14 @@ function endTurn(){
   // хода ВЛАДЕЛЬЦА цели — см. `cur.field.forEach` чуть ниже в этой же функции.
   G[G.turn].field.forEach(c=>{
     c.sleeping=false;c.feared=false;
+    // Frost (2026-07-27) — держится 2 СВОИХ хода владельца (не 1, как Fear): тикаем
+    // frozenTurnsLeft тем же событием, что снимает Fear выше (конец хода ВЫХОДЯЩЕГО
+    // игрока = конец его же собственного хода), но снимаем сам статус только когда
+    // счётчик дойдёт до 0 — т.е. переживает ДВА своих хода подряд, а не один.
+    if(c.frozen){
+      c.frozenTurnsLeft=(c.frozenTurnsLeft===undefined?2:c.frozenTurnsLeft)-1;
+      if(c.frozenTurnsLeft<=0) scheduleFrostRemoval(c);
+    }
     if(hasTag(c,'untamed')) c.exhausted=false;
   });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
