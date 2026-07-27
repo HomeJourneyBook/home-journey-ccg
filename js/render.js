@@ -666,7 +666,15 @@ function mkSmallEl(card){
   // "все враги invisible → все становятся видимой целью", как и у обычной атаки.
   if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
-  if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)){
+    d.classList.add('targetable','aim-target');
+    // Мишень-череп (2026-07-27) — VERDICT/DAMNATION (spell_dmg_target ≥ текущего HP цели,
+    // на практике это insta-kill спеллы с фиксированным 999) убивают ЛЮБУЮ валидную цель —
+    // череп показывается поголовно на всех подсвеченных целях этой фазы, когда каст именно
+    // такого спелла. Обычные (не insta-kill) spell_dmg_target — просто урон, обычная мишень.
+    const spellDmg=G.pendingSpell?getTagVal(G.pendingSpell,'spell_dmg_target'):0;
+    if(spellDmg>=card.hp) d.classList.add('aim-target-kill');
+  }
   // CINDER/DREAD (2026-07-24) — тот же паттерн подсветки, что у spellDmgTarget.
   if((G.phase==='spellBurnTarget'||G.phase==='spellFearTarget')&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
@@ -695,7 +703,15 @@ function mkSmallEl(card){
   // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель теперь ЛЮБОЕ вражеское существо, тот же
   // общий гейт видимости, что у spellDmgTarget — эффект (Bolt 1, потом условное добивание)
   // решается внутри doSpellExecuteHalfTarget(), не на этапе выбора цели.
-  if(G.phase==='spellExecuteHalfTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellExecuteHalfTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)){
+    d.classList.add('targetable','aim-target');
+    // Мишень-череп (2026-07-27, по прямому запросу автора) — JUDGMENT/DEATHBLOW сперва
+    // наносит Bolt 1, добивает только если ЭТО опускает цель до ≤50% maxHP (округление
+    // вниз) — та же формула, что и в самом doSpellExecuteHalfTarget() (game.js). Если цель
+    // и так переживёт (останется выше половины после Bolt 1) — обычная красная мишень,
+    // "просто урон".
+    if((card.hp-1)<=Math.floor(card.maxHp/2)) d.classList.add('aim-target-kill');
+  }
   // IMMUNE-надпись (2026-07-27, по прямому запросу автора) — раньше карта, недоступная
   // целью конкретно из-за Ward/Frost/активного Shield, просто оставалась "пустой" (без
   // мишени, без объяснения) — теперь на ней мигает IMMUNE (см. .card-small.immune-target
