@@ -317,7 +317,10 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellProvokeBreakTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&isSpellTargetable(card,G[opp].field)){
+    // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора — этот спелл
+    // ПРОПУСТИЛ эту проверку раньше, хотя Provoke-break — такой же дебафф, как Fear/Burn,
+    // и должен блокироваться теми же тремя иммунитетами тем же способом).
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[opp].field)){
       doSpellProvokeBreakTarget(card);return;
     }
     // Клик мимо валидной Provoke-цели — как и spellUntapTarget, НЕ считается отменой:
@@ -1959,7 +1962,13 @@ function doSpellDmgTarget(card){
   const oppK=G.turn==='tea'?'jeet':'tea';
   queueFieldFx(card.id,isInstaKill?'DESTROYED':'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
   const hpBefore=card.hp;
-  dmgCard(card,dmg,oppK,true,false,isInstaKill?'DESTROYED':null);
+  // bypassFrost=isInstaKill (2026-07-27, по прямому запросу автора) — VERDICT/DAMNATION это
+  // targeted-DESTROY эффект (та же категория, что JUDGMENT/DEATHBLOW и CATACLYSM/EXTINCTION,
+  // см. их комментарии) — Frost не должна спасать от него вообще, только Ward/активный
+  // Shield (те уже проверены на этапе выбора цели, см. click-хендлер). Обычные (не insta-kill)
+  // spell_dmg_target спеллы это условие НЕ трогает — для них Frost по-прежнему абсорбирует
+  // как обычно.
+  dmgCard(card,dmg,oppK,true,false,isInstaKill?'DESTROYED':null,isInstaKill);
   // draw_on_kill (2026-07-24, "EXECUTE"/"CULL", по прямому запросу автора) — если этот
   // конкретный удар добил цель (была жива ДО удара, после — 0 или меньше), тянем 1 карту.
   // Не трогает обычные JOURNEY/HEX/SPARK/MALICE/Bolt1 — у них просто нет этого тега.
@@ -2167,9 +2176,18 @@ function doSpellDispelTarget(card){
 function doSpellProvokeBreakTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
-  // Foxy Trick (2026-07-27, по прямому запросу автора — Provoke-break тоже считается
-  // дебаффом под уклонение) — та же логика, что в doSpellFearTarget/doSpellBurnTarget.
-  if(hasTag(card,'foxy') && Math.random()<0.5){
+  // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора) — defensive
+  // фолбэк (click-хендлер уже фильтрует эти случаи выше, см. onClick()) — та же логика,
+  // что в doSpellFearTarget/doSpellBurnTarget.
+  if(card.frozen){
+    lg(`${card.name} is frozen — immune to Provoke-break.`,'dmg');
+  } else if(hasTag(card,'shield') && !card.shieldConsumed){
+    lg(`${card.name}'s Solana Shield blocks the effect entirely.`,'dmg');
+  } else if(hasTag(card,'ward')){
+    lg(`${card.name}'s Ward blocks the effect entirely.`,'dmg');
+  } else if(hasTag(card,'foxy') && Math.random()<0.5){
+    // Foxy Trick (2026-07-27, по прямому запросу автора — Provoke-break тоже считается
+    // дебаффом под уклонение) — та же логика, что в doSpellFearTarget/doSpellBurnTarget.
     queueFieldFx(card.id,'MISSED!','fx-miss');
     lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
