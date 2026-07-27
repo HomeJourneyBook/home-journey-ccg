@@ -382,6 +382,15 @@ function preloadAssets(){
     'img/mishen_red.png', 'img/mishen_green.png',
     'img/ico_tb.png', 'img/solana_shield.png',
     'img/ico_vamp.png', 'img/ico_erase.png',
+    // Полная сверка (2026-07-27, автор поймал живьём на Thunder Storm) — список TAG_ICONS
+    // (render.js) сверен построчно с этим preload-списком: помимо новых иконок этой сессии
+    // (ico_snow/ico_fff ниже), обнаружено ЕЩЁ 13 давно существующих тег-иконок, которые
+    // никогда не были в preload вообще (гэп появился до этой сессии, не из-за неё) — та же
+    // "невидимая анимация/задержка при первом использовании" потенциально касалась и их.
+    'img/ico_bambo.png', 'img/ico_cloud.png', 'img/ico_fire_shield.png', 'img/ico_haunt.png',
+    'img/ico_incarn.png', 'img/ico_intercept.png', 'img/ico_invis.png', 'img/ico_remember.png',
+    'img/ico_scheme.png', 'img/ico_solana_shield.png', 'img/ico_stealth.png',
+    'img/ico_untamed.png', 'img/ico_ward.png',
     // Frost Attack (2026-07-27) — БЕЗ преload анимация появления/исчезновения (css/styles.css,
     // .frost-overlay) была практически невидима: CSS-анимация scale(0.01→1) стартует сразу по
     // вычислению стилей, НЕ дожидаясь загрузки самой картинки — на первом же применении frost.png
