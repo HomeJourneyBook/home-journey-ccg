@@ -646,9 +646,9 @@ function mkSmallEl(card){
   // используют ОДНУ и ту же функцию с ОДНИМ и тем же контекстом поля (G[card.f].field —
   // card.f тут всегда вражеская сторона, т.к. card.f!==G.turn), включая fallback
   // "все враги invisible → все становятся видимой целью", как и у обычной атаки.
-  if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
-  if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
-  if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   // CINDER/DREAD (2026-07-24) — тот же паттерн подсветки, что у spellDmgTarget.
   if((G.phase==='spellBurnTarget'||G.phase==='spellFearTarget')&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
@@ -659,7 +659,7 @@ function mkSmallEl(card){
   // как валидные, как и у spellUntapTarget выше (нет смысла подсвечивать то, по чему клик
   // всё равно молча проигнорируется — см. click-хендлер в game.js).
   if(G.phase==='spellProvokeBreakTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
-  if(G.phase==='spellDmgTrampleTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellDmgTrampleTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared||card.provokeBroken))d.classList.add('healable','aim-heal');
   if(G.phase==='healTarget'&&card.f!==G.turn){
     const oppField2=G[card.f].field;
@@ -677,7 +677,7 @@ function mkSmallEl(card){
   // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель теперь ЛЮБОЕ вражеское существо, тот же
   // общий гейт видимости, что у spellDmgTarget — эффект (Bolt 1, потом условное добивание)
   // решается внутри doSpellExecuteHalfTarget(), не на этапе выбора цели.
-  if(G.phase==='spellExecuteHalfTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellExecuteHalfTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   // Solana Shield (2026-07-13) — визуальная подмена ТОЛЬКО на поле боя (mkSmallEl), не
   // в руке/каталоге/деккбилдере (там просто текст "Solana Shield" в ab, по просьбе автора).
   const shieldActive=hasTag(card,'shield')&&!card.shieldConsumed;
