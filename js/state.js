@@ -30,6 +30,12 @@ function newPlayer(f, deckConfig, customList){
 function initState(opts){
   UID=0;
   if(typeof _seenPcardPids!=='undefined') _seenPcardPids.clear(); // сброс между партиями, см. render.js/reorderZones
+  // Очистка DOM-панели лога (2026-07-27) — раньше lg() перестраивал innerHTML панели
+  // ЦЕЛИКОМ из G.logs на КАЖДЫЙ вызов, так что сброс G.logs=[] ниже автоматически
+  // "стирал" и видимую панель на следующей же строке лога. Теперь lg() только
+  // ДОБАВЛЯЕТ новую строку (см. её комментарий в этом же файле) — без явной очистки
+  // здесь старые записи ПРЕДЫДУЩЕЙ партии визуально оставались бы в панели.
+  { const logEl=document.getElementById('log'); if(logEl) logEl.innerHTML=''; }
   const deckConfig=(opts&&opts.deckConfig)||'classic';
   const rushDecks=(opts&&opts.rushDecks)||null;
   const firstFaction=(opts&&opts.firstFaction==='jeet')?'jeet':'tea';
@@ -75,9 +81,23 @@ function lg(msg,cls=''){
     hint(msg);return;
   }
   G.logs.push({msg,cls});
+  // Оптимизация (2026-07-27, по прямому запросу автора — расследование серии
+  // необъяснимых "вылетов на лендинг" после ДОЛГИХ сессий на iPad/MacBook Safari, без
+  // единой ошибки в консоли: подозрение пало на накопление памяти/DOM-мусора за долгую
+  // партию, а WebKit тихо убивает и перезагружает вкладку под давлением памяти — именно
+  // так это и выглядело бы: без исключения, без лога, просто холодная перезагрузка на
+  // лендинг, см. initState()/боевой boot внизу ui.js). Раньше КАЖДЫЙ вызов lg() полностью
+  // перестраивал innerHTML всей панели лога из G.logs.filter(...).map(...).join('') —
+  // O(n) работы на каждую НОВУЮ строку, O(n²) суммарно за партию с сотнями записей (бои,
+  // спеллы, триггеры — длинная партия легко копит 300-500+). G.logs НЕ обрезаем (полная
+  // история нужна для downloadBattleLog()) — но саму ВИДИМУЮ панель теперь просто
+  // ДОПОЛНЯЕМ одним новым узлом вместо пересборки всего накопленного заново.
   const el=document.getElementById('log');
   if(el){
-    el.innerHTML=G.logs.filter(e=>!e.hidden).map(e=>`<div class="le ${e.cls}">${e.msg}</div>`).join('');
+    const div=document.createElement('div');
+    div.className=`le ${cls}`;
+    div.innerHTML=msg;
+    el.appendChild(div);
     el.scrollTop=el.scrollHeight;
   }
 }
