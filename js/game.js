@@ -1330,7 +1330,7 @@ function killCard(card,faction,toVoid=false){
     }
   }
 
-  // SCHEME-style death_bolt:N (2026-07-26, по прямому запросу автора) — на СВОЮ
+  // THUNDER STORM-style death_bolt:N (2026-07-26, по прямому запросу автора) — на СВОЮ
   // смерть наносит N магического урона (dmgCard(...,true) — bypassArmor:
   // Ward блокирует, Броня нет, та же категория, что active AOE/Shard/точечный
   // спелл-урон) случайному вражескому существу. Тот же self-only паттерн, что у
@@ -1339,17 +1339,50 @@ function killCard(card,faction,toVoid=false){
   // валидной цели, без лога/звука). dmgCard() может рекурсивно вызвать
   // killCard() для boltTarget, если удар окажется смертельным — это ожидаемо
   // и безопасно (та же цепная механика уже есть у enter_aoe/random_spread).
+  // ПЕРЕЕХАЛ с трейта Scheme на Pink Clouds (2026-07-27, по прямому запросу автора —
+  // Схема отдаёт этот тег/эффект Pink Clouds под именем "Thunder Storm"; сам тег
+  // `death_bolt` не переименован, переезжает только его трейт-привязка и иконка —
+  // см. TAG_ICONS/TAG_TOOLTIPS ниже, теперь ico_cloud.png). Пока не назначен ни на
+  // одного живого traveler — Pink Clouds ждёт ручного ввода карт.
   if(!card.spell&&!card.world&&!card.artifact){
-    const schemeBolt=getTagVal(card,'death_bolt');
-    if(schemeBolt){
+    const stormBolt=getTagVal(card,'death_bolt');
+    if(stormBolt){
       const enemyFaction=card.f==='tea'?'jeet':'tea';
       const enemyField=G[enemyFaction].field;
       if(enemyField.length>0){
         const boltTarget=enemyField[Math.floor(Math.random()*enemyField.length)];
         playSfx('card_spell_atack');
-        lg(`${card.name}: dies — Bolt ${schemeBolt} to ${boltTarget.name}!`,'imp');
+        lg(`${card.name}: dies — Bolt ${stormBolt} to ${boltTarget.name}!`,'imp');
         queueFieldFx(boltTarget.id,'HIT!','fx-spell-dmg');
-        dmgCard(boltTarget,schemeBolt,enemyFaction,true);
+        dmgCard(boltTarget,stormBolt,enemyFaction,true);
+      }
+    }
+  }
+
+  // SCHEME-style death_armor:N (2026-07-27, по прямому запросу автора — НОВЫЙ тег,
+  // заменяет death_bolt на трейте Scheme после его переезда на Pink Clouds/Thunder
+  // Storm). На СВОЮ смерть даёт N Брони СЛУЧАЙНОМУ союзнику (любому, не обязательно
+  // раненому — в отличие от death_heal, тут не важно текущее HP цели). Тот же
+  // self-only паттерн, что у death_heal/death_bolt выше — тег читается прямо с
+  // умирающей card, а не с окружения; сама умирающая карта уже вырезана из
+  // G[faction].field строкой в начале killCard(), так что естественным образом не
+  // попадает в пул кандидатов. Бонус реализован через `spellArmorBonus` — тот же
+  // "до конца боя" one-time стек, что уже использует BULWARK/CARAPACE
+  // (doSpellArmorTarget(), см. выше) — сразу пересчитывается через recalcArmor(),
+  // так что видимая Броня цели обновляется в тот же тик. Если союзников на поле нет
+  // (сама умершая карта была последней) — молча ничего не делает.
+  if(!card.spell&&!card.world&&!card.artifact){
+    const schemeArmor=getTagVal(card,'death_armor');
+    if(schemeArmor){
+      const allyField=G[card.f].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      if(allyField.length>0){
+        const armorTarget=allyField[Math.floor(Math.random()*allyField.length)];
+        armorTarget.spellArmorBonus=(armorTarget.spellArmorBonus||0)+schemeArmor;
+        recalcArmor(card.f);
+        playSfx('baf');
+        lg(`${card.name}: dies — ${armorTarget.name} +${schemeArmor} Armor.`,'hl');
+        const armorTargetId=armorTarget.id;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(armorTargetId,'+Armor','armoraura')));
       }
     }
   }
