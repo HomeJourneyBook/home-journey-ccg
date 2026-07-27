@@ -1160,7 +1160,12 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   // запросу автора, добавит позже) — только визуал (queueFieldFx 'MISSED!').
   if(hasTag(card,'foxy') && Math.random()<0.5){
     card._foxyDodgedThisHit=true;
-    queueFieldFx(card.id,'MISSED!','fx-miss');
+    // queueFieldFxReplace (2026-07-27, автор поймал живьём) — почти каждый вызов dmgCard()
+    // приходит от кода, который УЖЕ поставил в очередь свою плашку (DESTROYED/HIT!/BOLT!/
+    // т.п.) ДО того, как выяснится, что удар вообще-то промазал мимо Foxy Trick — обычный
+    // queueFieldFx() тут дал бы ДВЕ наложенные друг на друга надписи. Та же самая функция,
+    // что уже чинит этот класс бага у Solana Shield (ABSORB) — см. её комментарий выше.
+    queueFieldFxReplace(card.id,'MISSED!','fx-miss');
     lg(`${card.name}'s Foxy Trick makes the attack miss entirely!`,'imp');
     return;
   }
@@ -1259,11 +1264,19 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   }
   const cardId=card.id;
   const dmgAmt=dmg;
-  // forceLabel (2026-07-24, по прямому запросу автора) — VERDICT/DAMNATION/CATACLYSM/
-  // EXTINCTION хотят показывать "DESTROYED" вместо голого "-999" (число — это техническая
-  // деталь реализации "безусловное убийство", не то, что должен видеть игрок). Любой
-  // другой вызов dmgCard() без этого параметра ведёт себя как раньше — обычное число.
-  requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,forceLabel||`-${dmgAmt}`,'dmg')));
+  // forceLabel (2026-07-24, по прямому запросу автора) — изначально задумывалось показывать
+  // "DESTROYED" ВМЕСТО голого "-999" именно ТУТ, плавающим текстом у HP. Позже (2026-07-27)
+  // почти все вызывающие DESTROY-эффекты (VERDICT/DAMNATION/JUDGMENT-добивание/CATACLYSM/
+  // EXTINCTION) ДОПОЛНИТЕЛЬНО стали сами ставить в очередь свою большую центральную плашку
+  // "DESTROYED" (queueFieldFx, тот же паттерн, что у HIT!/BOLT!/MISSED!/IMMUNE/ABSORB) — и
+  // получались ДВЕ надписи "DESTROYED" разом (автор поймал живьём: "рядом с хп ещё одна
+  // надпись, кажись дублировано"). Раз центральная плашка уже полностью покрывает "что
+  // произошло", плавающий текст у HP при forceLabel теперь просто НЕ показывается —
+  // единственная надпись остаётся по центру карты. Обычные (без forceLabel) вызовы dmgCard()
+  // ведут себя как раньше — обычное число "-N" по-прежнему всплывает у HP.
+  if(!forceLabel){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(cardId,`-${dmgAmt}`,'dmg')));
+  }
   lg(`${card.name} takes ${dmg} → ${card.hp}/${card.maxHp} HP.`,'dmg');
   // deferDeath=true (используется контрударом в doAttack()) — HP уходит в минус, но
   // killCard() здесь не вызывается: вызывающий код сам решает, когда резолвить смерть,
