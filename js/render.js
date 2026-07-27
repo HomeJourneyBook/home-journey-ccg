@@ -558,6 +558,16 @@ function _armorDisplay(card){
   }
   return null;
 }
+// Frost overlay (2026-07-27) — mkSmallEl() rebuilds a FRESH DOM node for every card on every
+// single render() call (see rZone() above — even already-on-field cards get replaceWith'd),
+// so a plain CSS `animation` on the overlay would replay its pop-in on every unrelated
+// re-render while the card stays frozen. Same problem _seenPcardPids (below) already solves
+// for lore-page reveals — same fix here: a persistent JS-side Set remembers which card ids
+// have ALREADY played the entrance this "freeze session", so it only plays once per actual
+// freeze event, not once per render tick. Cleared (id removed) the moment the card stops
+// being frozen, so a LATER re-freeze plays the entrance fresh again.
+const _frostSeenIds = new Set();
+
 function mkSmallEl(card){
   const d=document.createElement('div');
   d.className=`card-small ${card.f}-card`;
@@ -580,6 +590,27 @@ function mkSmallEl(card){
   }
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
+  // Frost overlay box (2026-07-27) — field-only (mkSmallEl), same convention as Solana
+  // Shield's hp-box swap: hand/catalog/deckbuilder show no visual swap, just the tag icon +
+  // "Frost Attack" tooltip text. Shown while card.frozen OR still mid-exit (_frostLeaving,
+  // see scheduleFrostRemoval() in game.js) so the shatter animation has a frame to play on.
+  if(card.frozen||card._frostLeaving){
+    const frostBox=document.createElement('div');
+    frostBox.className='frost-overlay';
+    const cid=String(card.id);
+    if(!card.frozen && card._frostLeaving){
+      frostBox.classList.add('frost-leaving');
+      _frostSeenIds.delete(cid);
+    } else if(_frostSeenIds.has(cid)){
+      // Уже видели вход этой заморозки — не переигрываем pop-in на каждый рендер.
+      frostBox.style.animation='none';
+    } else {
+      _frostSeenIds.add(cid);
+    }
+    d.appendChild(frostBox);
+  } else {
+    _frostSeenIds.delete(String(card.id));
+  }
   if(G.phase==='sacrificeTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('targetable','aim-target');
   if(G.phase==='selectTarget'&&card.f!==G.turn){
     const oppField=G[card.f].field;
@@ -598,7 +629,7 @@ function mkSmallEl(card){
   if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   // CINDER/DREAD (2026-07-24) — тот же паттерн подсветки, что у spellDmgTarget.
-  if((G.phase==='spellBurnTarget'||G.phase==='spellFearTarget')&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if((G.phase==='spellBurnTarget'||G.phase==='spellFearTarget')&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
   if(G.phase==='spellArmorTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
@@ -654,6 +685,7 @@ function mkSmallEl(card){
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
   'death_bolt': '<img src="img/ico_cloud.png" style="width:60%;height:60%;">', // PINK CLOUDS / Thunder Storm — death_bolt:N, переехал со Scheme (2026-07-27)
   'death_armor': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME (новый тег) — death_armor:N, 2026-07-27, занял иконку/трейт-слот после переезда death_bolt на Pink Clouds
+  'frost': '<img src="img/ico_snow.png" style="width:60%;height:60%;">', // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -883,6 +915,7 @@ function mkEl(card,zone){
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
   'death_bolt': '<img src="img/ico_cloud.png" style="width:60%;height:60%;">', // PINK CLOUDS / Thunder Storm — death_bolt:N, переехал со Scheme (2026-07-27)
   'death_armor': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME (новый тег) — death_armor:N, 2026-07-27, занял иконку/трейт-слот после переезда death_bolt на Pink Clouds
+  'frost': '<img src="img/ico_snow.png" style="width:60%;height:60%;">', // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
 };
 // В кладбище incarnation уже отдельно показана таймер-плашкой (card-incarn-badge, см.
 // ниже) — она физически перекрывает верхний угол колонки card-tag-icons (обе сидят в
