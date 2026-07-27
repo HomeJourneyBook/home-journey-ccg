@@ -580,6 +580,14 @@ function _armorDisplay(card){
 // have ALREADY played the entrance this "freeze session", so it only plays once per actual
 // freeze event, not once per render tick. Cleared (id removed) the moment the card stops
 // being frozen, so a LATER re-freeze plays the entrance fresh again.
+// IMMUNE-надпись (2026-07-27, по прямому запросу автора) — списки фаз выбора цели, где
+// Ward/Frost/активный Shield могут заблокировать ИМЕННО карту (см. использование в
+// mkSmallEl() ниже). Вынесено на уровень модуля, а не внутрь функции — списки не меняются,
+// нет смысла пересоздавать литерал массива на каждый вызов mkSmallEl() (render() и так
+// пересобирает весь DOM каждый раз, лишняя работа множится на каждую карту на поле).
+const DEBUFF_TARGET_PHASES=['spellFearTarget','spellBurnTarget','spellProvokeBreakTarget'];
+const DMG_TARGET_PHASES=['spellDmgTarget','spellDmgTrampleTarget','spellExecuteHalfTarget','shardTarget','boltTarget'];
+
 const _frostSeenIds = new Set();
 
 function mkSmallEl(card){
@@ -668,7 +676,7 @@ function mkSmallEl(card){
   // spellProvokeBreakTarget (EXPOSE/UNMASK) — только реальные Provoke-цели подсвечиваются
   // как валидные, как и у spellUntapTarget выше (нет смысла подсвечивать то, по чему клик
   // всё равно молча проигнорируется — см. click-хендлер в game.js).
-  if(G.phase==='spellProvokeBreakTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if(G.phase==='spellProvokeBreakTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&hasTag(card,'provoke')&&!card.provokeBroken&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDmgTrampleTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='healTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.hp<card.maxHp||card.burning||card.feared||card.provokeBroken))d.classList.add('healable','aim-heal');
   if(G.phase==='healTarget'&&card.f!==G.turn){
@@ -688,6 +696,24 @@ function mkSmallEl(card){
   // общий гейт видимости, что у spellDmgTarget — эффект (Bolt 1, потом условное добивание)
   // решается внутри doSpellExecuteHalfTarget(), не на этапе выбора цели.
   if(G.phase==='spellExecuteHalfTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  // IMMUNE-надпись (2026-07-27, по прямому запросу автора) — раньше карта, недоступная
+  // целью конкретно из-за Ward/Frost/активного Shield, просто оставалась "пустой" (без
+  // мишени, без объяснения) — теперь на ней мигает IMMUNE (см. .card-small.immune-target
+  // в css/styles.css), чтобы было понятно ПОЧЕМУ нельзя нажать, а не просто "ничего нет".
+  // Единая проверка для debuff-фаз (Ward+Frost+Shield все три блокируют) и damage/destroy-
+  // фаз (только Ward, с поправкой на ещё активный Shield — тот же принцип, что и у самих
+  // aim-target проверок этих фаз выше). НЕ навешивается, если карта и так не была бы
+  // валидной целью по ДРУГОЙ причине (не враг/невидима/спелл-мир-артефакт/не-Provoke) —
+  // условие isSpellTargetable() ниже уже отсеивает invisible/нераскрытый stealth.
+  if(card.f!==G.turn && !card.spell && !card.world && !card.artifact && isSpellTargetable(card,G[card.f].field)){
+    const shieldActiveNow=hasTag(card,'shield')&&!card.shieldConsumed;
+    if(DEBUFF_TARGET_PHASES.includes(G.phase)){
+      const baseOk = G.phase!=='spellProvokeBreakTarget' || (hasTag(card,'provoke') && !card.provokeBroken);
+      if(baseOk && (card.frozen || hasTag(card,'ward') || shieldActiveNow)) d.classList.add('immune-target');
+    } else if(DMG_TARGET_PHASES.includes(G.phase)){
+      if(hasTag(card,'ward') && !shieldActiveNow) d.classList.add('immune-target');
+    }
+  }
   // Solana Shield (2026-07-13) — визуальная подмена ТОЛЬКО на поле боя (mkSmallEl), не
   // в руке/каталоге/деккбилдере (там просто текст "Solana Shield" в ab, по просьбе автора).
   const shieldActive=hasTag(card,'shield')&&!card.shieldConsumed;
