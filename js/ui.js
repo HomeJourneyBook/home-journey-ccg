@@ -391,6 +391,7 @@ function preloadAssets(){
     // полный размер", без самого поп-ина. Та же причина отдельно объясняет и поп-аут при снятии.
     'img/frost.png', 'img/ico_snow.png',
     'img/ico_fff.png', // Foxy Trick (2026-07-27) — тот же превентивный фикс, что у Frost выше
+    'img/invis.png', // Invis/Stealth overlay (2026-07-27) — та же превентивная мера
 
     // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
