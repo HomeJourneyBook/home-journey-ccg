@@ -150,7 +150,7 @@ function onClick(card,zone){
       // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора — тот же
       // принцип, что и у spellDmgTarget: раньше клик проходил, играла анимация SHARD!,
       // урон тихо блокировался внутри dmgCard() — выглядело как баг.
-      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
+      if(hasTag(card,'ward') && !(hasTag(card,'shield')&&!card.shieldConsumed)) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика. Ward блокирует урон, НО пока активен Shield — щит стоит СЛОЕМ ВЫШЕ (2026-07-27, автор поймал живьём): карту с обоими тегами можно выбрать целью, пока щит ещё цел (собьёт его), и только когда щит уже потрачен — Ward начинает защищать тело напрямую и цель становится недоступна.
       if(isSpellTargetable(card,G[opp].field)){
         doShardTarget(card);return;
       }
@@ -167,7 +167,7 @@ function onClick(card,zone){
   if(G.phase==='boltTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       // См. комментарий у shardTarget выше — тот же принцип для Bolt.
-      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
+      if(hasTag(card,'ward') && !(hasTag(card,'shield')&&!card.shieldConsumed)) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика. Ward блокирует урон, НО пока активен Shield — щит стоит СЛОЕМ ВЫШЕ (2026-07-27, автор поймал живьём): карту с обоими тегами можно выбрать целью, пока щит ещё цел (собьёт его), и только когда щит уже потрачен — Ward начинает защищать тело напрямую и цель становится недоступна.
       if(isSpellTargetable(card,G[opp].field)){
         doBoltTarget(card);return;
       }
@@ -190,7 +190,7 @@ function onClick(card,zone){
       // тихо блокировался внутри dmgCard() — по факту "анимация есть, эффекта нет",
       // выглядело как баг. Теперь клик по такой карте — тихий no-op (спелл остаётся
       // pending, ждёт другую цель), она вообще не долетает до резолвера.
-      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
+      if(hasTag(card,'ward') && !(hasTag(card,'shield')&&!card.shieldConsumed)) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика. Ward блокирует урон, НО пока активен Shield — щит стоит СЛОЕМ ВЫШЕ (2026-07-27, автор поймал живьём): карту с обоими тегами можно выбрать целью, пока щит ещё цел (собьёт его), и только когда щит уже потрачен — Ward начинает защищать тело напрямую и цель становится недоступна.
       if(isSpellTargetable(card,G[opp].field)){
         doSpellDmgTarget(card);return;
       }
@@ -308,7 +308,7 @@ function onClick(card,zone){
     // Bolt 1, и УЖЕ ПОСЛЕ этого решает, добивать или нет (см. doSpellExecuteHalfTarget()).
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       // См. комментарий у spellDmgTarget выше — тот же принцип, 2026-07-27.
-      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
+      if(hasTag(card,'ward') && !(hasTag(card,'shield')&&!card.shieldConsumed)) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика. Ward блокирует урон, НО пока активен Shield — щит стоит СЛОЕМ ВЫШЕ (2026-07-27, автор поймал живьём): карту с обоими тегами можно выбрать целью, пока щит ещё цел (собьёт его), и только когда щит уже потрачен — Ward начинает защищать тело напрямую и цель становится недоступна.
       if(isSpellTargetable(card,G[opp].field)){
         doSpellExecuteHalfTarget(card);return;
       }
@@ -329,7 +329,7 @@ function onClick(card,zone){
   if(G.phase==='spellDmgTrampleTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       // См. комментарий у spellDmgTarget выше — тот же принцип, 2026-07-27.
-      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
+      if(hasTag(card,'ward') && !(hasTag(card,'shield')&&!card.shieldConsumed)) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика. Ward блокирует урон, НО пока активен Shield — щит стоит СЛОЕМ ВЫШЕ (2026-07-27, автор поймал живьём): карту с обоими тегами можно выбрать целью, пока щит ещё цел (собьёт его), и только когда щит уже потрачен — Ward начинает защищать тело напрямую и цель становится недоступна.
       if(isSpellTargetable(card,G[opp].field)){
         doSpellDmgTrampleTarget(card);return;
       }
@@ -1133,7 +1133,7 @@ function scheduleFrostRemoval(card){
   }, 300);
 }
 
-function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel){
+function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost){
   // Сбрасываем ПЕРЕД любым ранним return (включая dmg<=0 ниже) — иначе устаревший true с
   // прошлого удара мог бы утечь в проверку fear/burn/taunt_break этого хода (см. ниже).
   card._shieldBlockedThisHit=false;
@@ -1165,7 +1165,14 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel){
   // Заморозка снимается (см. scheduleFrostRemoval() выше — с анимацией исчезновения). Стоит
   // ДО Shield/Armor/Ward — Frost и Shield на одной карте одновременно не ожидаются в дизайне,
   // но если как-то совпадут, Frost гасит удар первым (порядок значения не имеет на практике).
-  if(card.frozen){
+  // bypassFrost (2026-07-27, по прямому запросу автора) — targeted-destroy спелл
+  // (doSpellExecuteHalfTarget/JUDGMENT-DEATHBLOW) и AOE destroy-all (destroy_all_enemies/
+  // CATACLYSM-EXTINCTION) ДОЛЖНЫ уничтожать даже замороженную цель — Frost её не спасает
+  // вообще (в отличие от Shield/Ward, которые по-прежнему защищают как обычно, проверяются
+  // ниже уже без исключений). Сам статус Заморозки при этом НЕ трогаем — если карта каким-то
+  // образом переживёт этот конкретный удар (напр. Bolt 1 в первой части JUDGMENT), она
+  // просто останется замороженной как была, эта проверка её никак не снимает.
+  if(card.frozen && !bypassFrost){
     card._frostBlockedThisHit=true;
     requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
     lg(`${card.name}'s Frost absorbs the hit entirely and shatters.`,'dmg');
@@ -2260,13 +2267,18 @@ function doSpellExecuteHalfTarget(card){
   playSfx('card_spell_atack');
   lg(`${spell.name}: Bolt 1 to ${card.name}!`,'dmg');
   queueFieldFx(card.id,'BOLT!','fx-shard');
-  dmgCard(card,1,oppK,true,true);
+  // bypassFrost=true (2026-07-27, по прямому запросу автора) — JUDGMENT/DEATHBLOW это
+  // targeted-DESTROY эффект, Frost её не спасает вообще (только Shield-активный/Ward, они
+  // и так уже проверены на этапе выбора цели — см. click-хендлер выше). На обоих ударах
+  // (Bolt 1 и финальный добивающий), иначе замороженная цель просто поглотила бы Bolt 1,
+  // не получила урона и никогда не дошла бы до порога добивания.
+  dmgCard(card,1,oppK,true,true,undefined,true);
   if(card.hp<=0){
     killCard(card,oppK);
   } else if(card.hp<=Math.floor(card.maxHp/2)){
     lg(`${spell.name} destroys ${card.name}!`,'dmg');
     queueFieldFx(card.id,'DESTROYED','fx-spell-dmg');
-    dmgCard(card,999,oppK,true,false,'DESTROYED');
+    dmgCard(card,999,oppK,true,false,'DESTROYED',true);
   }
   G[G.turn].void.push(spell);
   spell.voided=true;
