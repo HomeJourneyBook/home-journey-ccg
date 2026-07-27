@@ -757,9 +757,18 @@ function triggerAbilities(card, timing, ctx={}){
 
       case 'draw':
         // instant: spells draw immediately
-        // on_attack: Ryvlen draws on each attack
+        // on_attack: Ryvlen draws on each attack — ПРОПУСКАЕТСЯ только если атака промахнулась
+        // целиком (Foxy Trick, ctx.target._foxyDodgedThisHit, 2026-07-27, по прямому запросу
+        // автора) — та же логика, что уже применена к Fear/Burn/Frost/Taunt Break/Scheme на
+        // этом же промахе: атаки физически не было, ничего вообще не случилось. НО если атака
+        // была ПОГЛОЩЕНА (Solana Shield/Frost — _shieldBlockedThisHit/_frostBlockedThisHit),
+        // карта ВСЁ РАВНО тянется — атакующий фактически совершил атаку (замахнулся и ударил),
+        // просто магия цели свела последствия к нулю; сам факт атаки — заслуга/действие
+        // атакующего, не завязан на то, что стало с целью (в отличие от vampiric ниже —
+        // намеренно другая философия, там нужен realDmgDealt>0).
         // on_enter: enter_draw:N — creature draws for its owner when played (2026-07-13)
         // on_turn: handled via extraDraw in endTurn — skip here
+        if(a.timing==='on_attack' && ctx && ctx.target && ctx.target._foxyDodgedThisHit) break;
         if(a.timing==='instant'||a.timing==='on_attack'||a.timing==='on_enter'){
           for(let i=0;i<a.val;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
           lg(`${card.name}: draws ${a.val} card(s).`,'imp');
