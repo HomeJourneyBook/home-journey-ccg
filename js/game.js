@@ -2422,6 +2422,29 @@ function endTurn(){
     G.aiFaction=G.turn;
     G.humanFaction=G.turn==='tea'?'jeet':'tea';
   }
+
+  // Разделение endTurn() на "конец старого хода" (выше, сразу) и "начало нового хода"
+  // (_runTurnStartEffects() ниже — раньше было прямым продолжением этой же функции)
+  // (2026-07-27, по прямому запросу автора — геймдизайн-фикс: в хотсите весь "старт хода"
+  // (тик горения/инкарнации, добор карты и fatigue-предупреждение, эссенция, экран "Turn N")
+  // раньше отыгрывался СРАЗУ, пока на экране висел pass-device оверлей "передайте
+  // устройство" — игрок слышал звуки, но не видел ничего, и предупреждение о пустой
+  // колоде (см. showDeckEmptyWarning(), ui.js) пряталось за этим же оверлеем, оставаясь
+  // незамеченным. Теперь в хотсите старт хода откладывается до момента, когда следующий
+  // игрок нажмёт "Ready" на pass-device экране (см. showPassScreen()/passReady(), ui.js —
+  // тот же cb-механизм, что уже использовался для стартового муллиган-хэндоффа tea→jeet) —
+  // и увидит/услышит всё сам, в свой момент. В vs-AI (и AI vs AI spectator) хэндоффа нет
+  // вообще — там всё как раньше, без задержки.
+  const showHandoff = (G.mode!=='vsai') && !G.gameOver;
+  if(showHandoff && typeof showPassScreen==='function'){
+    showPassScreen(G.turn, _runTurnStartEffects);
+  } else {
+    _runTurnStartEffects();
+  }
+}
+
+function _runTurnStartEffects(){
+  if(G.gameOver) return; // защита: игра могла закончиться, пока висел pass-device экран
   const cur=G[G.turn];
   // exhausted снимается здесь — у ИГРОКА, ЧЕЙ ход начинается, а не у того, чей закончился.
   // Артефакты — туда же, для визуальной консистентности (симметрично картам, хотя
@@ -2589,6 +2612,12 @@ function endTurn(){
         // НЕ сбрасывается (колода только убывает, никогда не пополняется в этой игре).
         cur.emptyDrawCount=(cur.emptyDrawCount||0)+1;
         lg(`${G.turn.toUpperCase()}'s deck is empty — no card to draw! (${cur.emptyDrawCount}/3)`,'dmg');
+        // Предупреждение о пустой колоде (2026-07-27, по прямому запросу автора —
+        // геймдизайн-нюанс, см. showDeckEmptyWarning()/ui.js) — только если ЭТА попытка ещё
+        // не добила до проигрыша (тот случай ниже уже показывает свою модалку победы).
+        if(cur.emptyDrawCount<3 && typeof showDeckEmptyWarning==='function'){
+          showDeckEmptyWarning(3-cur.emptyDrawCount);
+        }
         if(cur.emptyDrawCount>=3 && !G.gameOver){
           G.gameOver=true;
           const winner=G.turn==='tea'?'jeet':'tea';
@@ -2600,7 +2629,7 @@ function endTurn(){
           // модалки победы. try/catch гарантирует, что showWin() сработает в любом случае.
           try{ render(); } catch(e){ console.error('render() failed during fatigue win:', e); }
           showWin(winner);
-          return; // не продолжаем обычную концовку хода (AI-ход/pass-screen и т.п.)
+          return; // не продолжаем обычную концовку хода (AI-ход и т.п.)
         }
       }
     }
@@ -2612,12 +2641,13 @@ function endTurn(){
   const lp=document.getElementById('logPanel');if(lp)lp.classList.remove('open');
   render();
 
+  // showPassScreen() больше НЕ вызывается здесь — теперь это забота вызывающей стороны
+  // (endTurn() выше передаёт _runTurnStartEffects саму в качестве onReady-колбэка
+  // showPassScreen() для хотсита, см. комментарий там) — эта функция либо запускается
+  // СРАЗУ (vs-AI/spectator), либо уже ПОСЛЕ того, как игрок нажал "Ready" (хотсит), так что
+  // здесь остаётся только собственно AI-ход.
   if(isAiTurn()&&typeof runAiTurn==='function'){
     setTimeout(()=>runAiTurn(),600);
-  } else if(G.mode!=='vsai'&&!G.gameOver&&typeof showPassScreen==='function'){
-    // Hotseat: hand the device over before the next player sees anything —
-    // same modal as the initial tea->jeet mulligan handoff, reused generically.
-    showPassScreen(G.turn, null);
   }
 }
 
