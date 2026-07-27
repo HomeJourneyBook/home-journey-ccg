@@ -1351,6 +1351,61 @@
     </div>
   </div>
 </div>
+<!-- Персистентный crash-лог (2026-07-27, по прямому запросу автора — "лог сохранить никак не
+     могу в момент краша"). Ошибка сохраняется в localStorage СРАЗУ в момент возникновения —
+     переживает даже полный вылет/перезагрузку страницы. При СЛЕДУЮЩЕЙ загрузке страницы, если
+     есть сохранённый краш, он автоматически печатается в консоль (console.error, со стеком) —
+     можно скопировать и прислать, даже если консоль не была открыта ДО самого краша. Также
+     доступно в любой момент из консоли: getLastCrash() / clearLastCrash(). ВАЖНО: это ловит
+     только НАСТОЯЩИЕ JS-исключения — если проблема НЕ бросает ошибку (например, штатный код
+     срабатывает не от того нажатия — см. фикс confirmModal в game.js этой же сессии), сюда
+     ничего не попадёт; это отдельный, дополнительный слой на случай, если причина всё же
+     где-то в необработанном исключении. Ставится ПЕРВЫМ скриптом, до всех остальных, чтобы
+     ловить ошибки откуда угодно, включая сам процесс загрузки. -->
+<script>
+(function(){
+  function saveCrash(info){
+    try{ localStorage.setItem('hj_last_crash', JSON.stringify(info)); }catch(e){}
+  }
+  window.getLastCrash=function(){
+    try{
+      const raw=localStorage.getItem('hj_last_crash');
+      if(!raw){ console.log('No crash log saved.'); return null; }
+      const info=JSON.parse(raw);
+      console.log(info);
+      return info;
+    }catch(e){ console.log('No crash log saved.'); return null; }
+  };
+  window.clearLastCrash=function(){
+    try{ localStorage.removeItem('hj_last_crash'); }catch(e){}
+    console.log('Crash log cleared.');
+  };
+  window.addEventListener('error', function(e){
+    saveCrash({
+      type:'error', message:e.message,
+      source:(e.filename||'')+':'+e.lineno+':'+e.colno,
+      stack:e.error && e.error.stack,
+      time:new Date().toISOString(), url:location.href,
+    });
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    saveCrash({
+      type:'unhandledrejection',
+      message:e.reason && (e.reason.message||String(e.reason)),
+      stack:e.reason && e.reason.stack,
+      time:new Date().toISOString(), url:location.href,
+    });
+  });
+  try{
+    const raw=localStorage.getItem('hj_last_crash');
+    if(raw){
+      const info=JSON.parse(raw);
+      console.error('⚠️ Найден сохранённый краш с прошлой сессии (сохранён '+info.time+'):', info);
+      console.error('Вызови clearLastCrash() в консоли, чтобы убрать это сообщение при следующей загрузке.');
+    }
+  }catch(e){}
+})();
+</script>
 <!-- SCRIPTS (order matters: data → abilities → deck → state → render → game → catalog → ui) -->
 <script src="js/data.js"></script>
 <script src="js/abilities.js"></script>
