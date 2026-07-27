@@ -150,7 +150,7 @@ function onClick(card,zone){
       // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора — тот же
       // принцип, что и у spellDmgTarget: раньше клик проходил, играла анимация SHARD!,
       // урон тихо блокировался внутри dmgCard() — выглядело как баг.
-      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
+      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
       if(isSpellTargetable(card,G[opp].field)){
         doShardTarget(card);return;
       }
@@ -167,7 +167,7 @@ function onClick(card,zone){
   if(G.phase==='boltTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       // См. комментарий у shardTarget выше — тот же принцип для Bolt.
-      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
+      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
       if(isSpellTargetable(card,G[opp].field)){
         doBoltTarget(card);return;
       }
@@ -190,7 +190,7 @@ function onClick(card,zone){
       // тихо блокировался внутри dmgCard() — по факту "анимация есть, эффекта нет",
       // выглядело как баг. Теперь клик по такой карте — тихий no-op (спелл остаётся
       // pending, ждёт другую цель), она вообще не долетает до резолвера.
-      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
+      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
       if(isSpellTargetable(card,G[opp].field)){
         doSpellDmgTarget(card);return;
       }
@@ -308,7 +308,7 @@ function onClick(card,zone){
     // Bolt 1, и УЖЕ ПОСЛЕ этого решает, добивать или нет (см. doSpellExecuteHalfTarget()).
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       // См. комментарий у spellDmgTarget выше — тот же принцип, 2026-07-27.
-      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
+      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
       if(isSpellTargetable(card,G[opp].field)){
         doSpellExecuteHalfTarget(card);return;
       }
@@ -329,7 +329,7 @@ function onClick(card,zone){
   if(G.phase==='spellDmgTrampleTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
       // См. комментарий у spellDmgTarget выше — тот же принцип, 2026-07-27.
-      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
+      if(hasTag(card,'ward')) return; // Shield/Frost намеренно ОСТАЮТСЯ валидными целями для урона (2026-07-27, откат — щит/заморозка ДОЛЖНЫ ловить и лопаться от урона, это и есть их механика; иммунен только Ward)
       if(isSpellTargetable(card,G[opp].field)){
         doSpellDmgTrampleTarget(card);return;
       }
@@ -2657,35 +2657,50 @@ function doMulligan(faction){
   render();
 }
 
-// Spacebar: confirms whichever modal is currently open (mulligan Ready, pass-device
-// Ready, win modal) — or, if none is open, ends the turn (old behaviour). Modal check
-// runs first so the two shortcuts never both fire at once.
+// Spacebar: ends the turn, OR (if the pass-device "Hand the device over" screen is open)
+// confirms it — nothing else. Modal check runs first so the two shortcuts never both fire
+// at once.
+//
+// ИСТОРИЯ (2026-07-27, автор сам поймал причину серии "необъяснимых вылетов на лендинг" в
+// хотсите): это была НЕ ошибка и НЕ краш вообще — двойное нажатие Space "по привычке"
+// (первое — передать ход, второе — сразу же подтвердить pass-device экран) ИНОГДА
+// накладывалось на момент, когда игра ЗАКАНчивалась по истощению колоды (fatigue win) —
+// вместо pass-device экрана внезапно всплывал WIN MODAL, и то самое "второе" нажатие Space
+// (уже по привычке, не глядя) тут же подтверждало ЕГО — автор пропускал победный экран, не
+// успев его увидеть, и решал, что это краш. Раньше Space также подтверждал `winModal` и
+// `mulliganScreen` — теперь ОБА убраны из списка: Space отныне работает ТОЛЬКО для (1) конца
+// хода без модалок и (2) кнопки "Ready" на pass-device экране — победный экран и муллиган
+// требуют осознанного клика/тапа, чтобы больше никогда не проскакивать мимо них вслепую.
 document.addEventListener('keydown',(e)=>{
   if(e.code!=='Space') return;
   const tag=(document.activeElement&&document.activeElement.tagName)||'';
   if(tag==='INPUT'||tag==='TEXTAREA') return; // don't hijack Space while typing (e.g. catalog search)
 
-  // confirmModal (2026-07-27, по прямому запросу автора — вероятная причина
-  // необъяснимого "вылета на лендинг" в хотсите, без единой ошибки в консоли, которую
-  // автор ловил вживую и не мог поймать: этот модал ПЕРЕИСПОЛЬЗУЕТСЯ и для
-  // askMenu()/"Yes, Exit" (showLanding() — полный сброс игры), и для askRestart()/
-  // "Yes, Restart" — оба ДЕСТРУКТИВНЫ и НЕОБРАТИМЫ. Раньше Space автоматически жал
-  // confirmYesBtn, если этот модал оказывался открыт (например игрок машинально/случайно
-  // ткнул "← Menu" в углу экрана, не заметил модалку или отвлёкся и не закрыл её Cancel'ом,
-  // продолжил играть) — следующее же нажатие Space "чтобы передать ход" молча подтверждало
-  // ВЫХОД или РЕСТАРТ вместо этого. Никакой JS-ошибки при этом не было и не могло быть —
-  // это полностью штатный, корректно работающий код, просто сработавший не от того нажатия.
-  // Теперь Space по этому модалу вообще НИЧЕГО не делает (только глушит скролл) —
-  // дестрактивное подтверждение остаётся доступно ТОЛЬКО явным кликом/тапом.
+  // confirmModal (2026-07-27, по прямому запросу автора — исходно заподозренная, но НЕ
+  // подтвердившаяся причина той же серии "вылетов" — см. историю выше, настоящая причина
+  // оказалась в winModal/mulliganScreen). Логика по-прежнему верна и остаётся: этот модал
+  // переиспользуется для askMenu()/"Yes, Exit" и askRestart()/"Yes, Restart" — обе
+  // деструктивны и необратимы, Space по нему не должен делать ничего.
   const confirmModal=document.getElementById('confirmModal');
   if(confirmModal && !confirmModal.classList.contains('hidden')){
     e.preventDefault();
     return;
   }
+  // winModal/mulliganScreen (2026-07-27) — Space по ним теперь ничего не делает (см.
+  // историю выше), но само их присутствие всё равно должно ГЛУШИТЬ Space целиком — иначе
+  // не найдя совпадения в modalButtons ниже, обработчик провалился бы дальше и вызвал
+  // endTurn() поверх открытого модала (endTurn() сам по себе безопасен при G.gameOver —
+  // см. ранний return в начале функции, — но во время mulliganScreen такой защиты нет,
+  // финиш хода в разгар муллигана — путаное, ненужное состояние).
+  const winModal=document.getElementById('winModal');
+  const mulliganScreen=document.getElementById('mulliganScreen');
+  if((winModal && !winModal.classList.contains('hidden')) ||
+     (mulliganScreen && !mulliganScreen.classList.contains('hidden'))){
+    e.preventDefault();
+    return;
+  }
 
   const modalButtons=[
-    ['winModal','winBtn'],
-    ['mulliganScreen','mulliganReadyBtn'],
     ['passScreen','passReadyBtn'],
   ];
   for(const [modalId,btnId] of modalButtons){
