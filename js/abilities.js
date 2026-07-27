@@ -521,6 +521,14 @@ function triggerAbilities(card, timing, ctx={}){
             playSfx('debaf');
             lg(`${card.name}: all enemy creatures are Feared!`,'imp');
             fearTargets.forEach(t=>{
+              // Foxy Trick (2026-07-27) — в отличие от Ward/Frost/Shield (детерминированные
+              // иммунитеты, отфильтрованы ЗАРАНЕЕ из fearTargets выше), у Foxy Trick шанс
+              // 50/50 — КАЖДАЯ цель кидает СВОЮ монетку отдельно, поэтому проверяется здесь,
+              // ВНУТРИ forEach, а не в общем фильтре списка целей.
+              if(hasTag(t,'foxy') && Math.random()<0.5){
+                queueFieldFx(t.id,'MISSED!','fx-miss');
+                return;
+              }
               t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');
             });
           } else {
@@ -547,6 +555,12 @@ function triggerAbilities(card, timing, ctx={}){
             playSfx('card_fire_atack');
             lg(`${card.name}: all enemy creatures are on fire!`,'imp');
             burnTargets.forEach(t=>{
+              // Foxy Trick (2026-07-27) — см. подробный комментарий у fear_all выше, тот же
+              // принцип: каждая цель кидает свою монетку 50/50 отдельно.
+              if(hasTag(t,'foxy') && Math.random()<0.5){
+                queueFieldFx(t.id,'MISSED!','fx-miss');
+                return;
+              }
               t.burning=true;
               t.burnTurns=BURN_DURATION;
             });
@@ -556,7 +570,7 @@ function triggerAbilities(card, timing, ctx={}){
         } break;
 
       case 'burn':
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
           if(ctx.target.frozen){
             lg(`${ctx.target.name} is frozen — immune to Burn.`,'dmg');
           } else if(hasTag(ctx.target,'ward')){
@@ -570,7 +584,7 @@ function triggerAbilities(card, timing, ctx={}){
         } break;
 
       case 'fear':
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
           if(ctx.target.frozen){
             lg(`${ctx.target.name} is frozen — immune to Fear.`,'dmg');
           } else if(hasTag(ctx.target,'ward')){
@@ -598,7 +612,7 @@ function triggerAbilities(card, timing, ctx={}){
         // (0 урона), Заморозка исчезает. НЕ снимается спеллом/активкой "Heal N and Clean"
         // (Orbiton) — тот чистит только feared/burning/provokeBroken (см. onClick()
         // healTarget-ветку в game.js), card.frozen туда сознательно не добавлен.
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
           if(hasTag(ctx.target,'ward')){
             lg(`${ctx.target.name}'s Ward blocks the frost entirely.`,'dmg');
           } else {
@@ -618,7 +632,7 @@ function triggerAbilities(card, timing, ctx={}){
         // условные on_attack эффекты выше. _shieldBlockedThisHit — см. Solana Shield в
         // dmgCard() (game.js): удар полностью поглощён щитом → и сам урон, и любой эффект,
         // который он нёс с собой (fear/burn/taunt_break), не применяется вообще.
-        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&hasTag(ctx.target,'provoke')){
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._foxyDodgedThisHit&&hasTag(ctx.target,'provoke')){
           ctx.target.provokeBroken=true;
           playSfx('debaf');
           lg(`${card.name}: ${ctx.target.name}'s Provoke is suppressed!`,'imp');
