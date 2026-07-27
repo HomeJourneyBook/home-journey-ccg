@@ -196,7 +196,15 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellBurnTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      // Frost/Ward/активный Solana Shield — полный иммунитет к Burn (2026-07-27, по
+      // прямому запросу автора): клик по такой цели теперь просто НИЧЕГО не делает
+      // (спелл остаётся pending, ждёт другую цель), а НЕ отменяет спелл целиком —
+      // раньше это молча попадало в общий cancelPendingSpell() ниже, как будто игрок
+      // кликнул мимо поля/по своей карте. Shield ТЕПЕРЬ НЕ тратится такой попыткой —
+      // снять его может только реальный входящий урон (см. dmgCard() в game.js), та же
+      // логика, что уже применяется к Frost.
+      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
       if(isSpellTargetable(card,G[opp].field)){
         doSpellBurnTarget(card);return;
       }
@@ -205,7 +213,9 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellFearTarget'){
-    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      // См. комментарий в spellBurnTarget выше — тот же принцип для Fear.
+      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
       if(isSpellTargetable(card,G[opp].field)){
         doSpellFearTarget(card);return;
       }
@@ -748,8 +758,19 @@ function doAttack(att,target){
   // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
   // один из этих эффектов (цель выживает после урона), звук самой атаки не играем.
   const targetSurvives = (target.hp - atk) > 0;
-  const willFear = hasTag(att,'fear') && targetSurvives;
-  const willBurn = hasTag(att,'burn') && targetSurvives;
+  // 2026-07-27 (автор поймал живьём) — раньше willFear/willBurn проверяли ТОЛЬКО тег
+  // атакующего + выживание цели, не саму ВОЗМОЖНОСТЬ дебаффа реально примениться. Из-за
+  // этого атака Fear/Burn-существа по цели с Ward (Ward блокирует именно Fear/Burn —
+  // см. case 'fear'/'burn' в abilities.js) проходила В ПОЛНОЙ ТИШИНЕ: обычный звук атаки
+  // пропускался (считалось, что "сыграет debaf-звук"), а debaf-звук не играл ВООБЩЕ, т.к.
+  // Ward блокирует эффект без своего звука. Тот же провал — у замороженной цели (Frost
+  // тоже блокирует Fear/Burn целиком, см. тот же case). Теперь debuffBlocked учитывает
+  // обе иммунности — если дебафф реально не наложится, играем ОБЫЧНЫЙ звук атаки вместо
+  // тишины (по прямому запросу автора: "хоть эффект дебафа и не случился, звук атаки
+  // всё равно должен звучать").
+  const debuffBlocked = target.frozen || hasTag(target,'ward');
+  const willFear = hasTag(att,'fear') && targetSurvives && !debuffBlocked;
+  const willBurn = hasTag(att,'burn') && targetSurvives && !debuffBlocked;
   if(!willFear && !willBurn) playAttackSfx(att);
   lg(`${att.name} attacks ${target.name}!`,'imp');
 
@@ -978,9 +999,17 @@ function getInterceptor(oppField, target){
   // при атаке на второго вышедшего Xuiqtr'a первый (раньше вышедший) всё равно
   // подменял собой цель — то есть между собой Intercept-существа воровали удары друг у
   // друга, хотя Intercept задуман как защита "обычных" существ, а не как способ
-  // одному Xuiqtr'у переманивать удар с другого. Если target уже сам Intercept —
-  // перехвата нет вообще, атака идёт как выбрана.
-  if(target && hasTag(target,'intercept')) return null;
+  // одному Xuiqtr'у переманивать удар с другого.
+  // ИСПРАВЛЕНО (2026-07-27, автор поймал живьём): предыдущая версия блокировала защиту
+  // ВСЕГДА, когда цель сама несёт intercept — включая случай, когда эта цель уже
+  // "закрыта" (exhausted/feared/frozen/уже перехватывала в этот ход), то есть больше НЕ
+  // "стоит как открытая карта" и сама перехватывать не может. Баг: открытый Xuiqtr не
+  // защищал ЗАКРЫТОГО Xuiqtr — цель оставалась беззащитной, хотя рядом стоял ровно тот
+  // же самый защитник, что спас бы любое другое существо того же поля. Правило "не
+  // воровать хиты друг у друга" должно применяться, ТОЛЬКО пока цель САМА сейчас
+  // способна перехватывать (т.е. reально "стоит открытой") — если цель уже закрыта, она
+  // не отличается от любого другого беззащитного существа и ДОЛЖНА получить защиту.
+  if(target && hasTag(target,'intercept') && !target.exhausted && !target.feared && !target.frozen && !target.interceptUsed) return null;
   // 2026-07-25 — испуганный Intercept тоже не перехватывает (тот же принцип, что у Provoke выше).
   const candidates = oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'intercept')&&!c.interceptUsed&&!c.exhausted&&!c.feared&&!c.frozen);
   return candidates.length>0 ? candidates[0] : null;
@@ -1895,9 +1924,16 @@ function doSpellBurnTarget(card){
   if(!spell) return;
   // Только звук поджога/блока — БЕЗ общего 'card_spell_atack' (по прямому запросу
   // автора, 2026-07-24) — тот же принцип, что уже применён к SUNDER/BLIGHT.
-  if(hasTag(card,'shield') && !card.shieldConsumed){
-    card.shieldConsumed=true;
-    lg(`${card.name}'s Solana Shield blocks the fire entirely and shatters.`,'dmg');
+  // 2026-07-27 (по прямому запросу автора) — Frost/Ward/активный Solana Shield теперь
+  // ПОЛНЫЙ иммунитет: клик по такой карте вообще не долетает сюда (см. click-хендлер в
+  // onClick() выше — card.frozen/ward/активный shield отфильтрованы там же, до вызова
+  // этой функции). Ветки ниже — оставлены defensive-фолбэком на случай другого пути вызова
+  // (напр. будущий AI-код) — Shield БОЛЬШЕ НЕ тратится такой попыткой (снять его может
+  // только реальный входящий урон, см. dmgCard()), та же логика, что уже у Frost.
+  if(card.frozen){
+    lg(`${card.name} is frozen — immune to Burn.`,'dmg');
+  } else if(hasTag(card,'shield') && !card.shieldConsumed){
+    lg(`${card.name}'s Solana Shield blocks the fire entirely.`,'dmg');
   } else if(hasTag(card,'ward')){
     lg(`${card.name}'s Ward blocks the burn entirely.`,'dmg');
   } else {
@@ -1916,10 +1952,12 @@ function doSpellBurnTarget(card){
 function doSpellFearTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
-  // Только звук страха/блока — БЕЗ общего 'card_spell_atack', тот же принцип.
-  if(hasTag(card,'shield') && !card.shieldConsumed){
-    card.shieldConsumed=true;
-    lg(`${card.name}'s Solana Shield blocks the fear entirely and shatters.`,'dmg');
+  // Только звук страха/блока — БЕЗ общего 'card_spell_atack', тот же принцип. См.
+  // комментарий в doSpellBurnTarget() выше — та же логика зеркально для Fear.
+  if(card.frozen){
+    lg(`${card.name} is frozen — immune to Fear.`,'dmg');
+  } else if(hasTag(card,'shield') && !card.shieldConsumed){
+    lg(`${card.name}'s Solana Shield blocks the fear entirely.`,'dmg');
   } else if(hasTag(card,'ward')){
     lg(`${card.name}'s Ward blocks the fear entirely.`,'dmg');
   } else {
