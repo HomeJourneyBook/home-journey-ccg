@@ -502,7 +502,7 @@ function aiPlayCardsStep(iter){
 function aiResolvePendingSpellTarget(){
   const humanF=G.humanFaction;
   if(G.phase==='spellDmgTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
     if(targets.length===0){ cancelPendingSpell(); return; }
     const dmg=getTagVal(G.pendingSpell,'spell_dmg_target')||3;
     const killable=targets.filter(c=>dmg>=(c.hp+(c.feared?0:0)));
@@ -589,7 +589,7 @@ function aiResolvePendingSpellTarget(){
     // которую добьём ПРЯМО СЕЙЧАС (hp-1<=floor(maxHp/2)) — если такая есть, среди них берём
     // самую опасную (effAtk); если готовых к добиванию целей нет, ведём себя как обычный
     // spellDmgTarget — бьём на 1 самую опасную цель без килла.
-    const legalTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    const legalTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
     if(legalTargets.length===0){ cancelPendingSpell(); return; }
     const executable=legalTargets.filter(c=>(c.hp-1)<=Math.floor(c.maxHp/2));
     const pool=executable.length>0?executable:legalTargets;
@@ -607,7 +607,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellDmgTrampleTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
     if(targets.length===0){ cancelPendingSpell(); return; }
     const dmg=getTagVal(G.pendingSpell,'spell_dmg_trample_target')||5;
     const killable=targets.filter(c=>dmg>=(c.hp+(c.armor||0)));
@@ -721,7 +721,7 @@ function aiTryUseShard(forceNow){
   const humanF=G.humanFaction;
   // Ward блокирует Shard целиком (тоже bypassArmor=true) — не тратим активку на них.
   // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
-  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+  const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
   const baseDmg=shardBaseDmg(shard,humanF);
   // 2026-07-25 (по прямому запросу автора — найдено в реальных логах симуляции: SHARD/
@@ -766,7 +766,7 @@ function aiTryUseBolt(){
   // Ward/Frost/активный Solana Shield блокируют Bolt целиком (тоже bypassArmor=true) —
   // исключаем такие цели (2026-07-27 — добавлены Frost/Shield, Ward был и раньше).
   // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
-  const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+  const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
   const boltCreatures=me.field.filter(c=>hasTag(c,'bolt')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&!c.spell&&!c.world&&!c.artifact);
   let used=false;
@@ -928,7 +928,7 @@ function aiSpellHasValidTarget(card){
   if(!card.spell) return true;
   const humanF=G.humanFaction;
   if(hasTag(card,'spell_dmg_target')){
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_dispel')){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&isSpellTargetable(c,G[humanF].field));
@@ -961,7 +961,7 @@ function aiSpellHasValidTarget(card){
   if(hasTag(card,'spell_execute_half')){
     // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель уже не ограничена ≤50% maxHP, та же
     // ward-фильтрация, что у spell_dmg_target, и всё.
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_provoke_break_target')){
     // Только реальные непогашенные Provoke-цели — как и click-хендлер в game.js, тут нет
@@ -969,7 +969,7 @@ function aiSpellHasValidTarget(card){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_dmg_trample_target')){
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_destroy_target')){
     // SUNDER/BLIGHT (2026-07-24) — валидно, если у противника есть Мир или Артефакт.
@@ -1096,7 +1096,7 @@ function aiScoreCard(card, me){
     // формула removalChipMult/removalChipBehindBonus, что у spell_dmg_target).
     if(hasTag(card,'spell_execute_half')){
       const humanF=G.humanFaction;
-      const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!hasTag(c,'ward')&&isSpellTargetable(c,G[humanF].field));
+      const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
       if(targets.length===0) return -1;
       const executable=targets.filter(t=>(t.hp-1)<=Math.floor(t.maxHp/2));
       if(executable.length>0){
