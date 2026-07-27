@@ -1382,6 +1382,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small .card-tag-icon{width:calc(var(--card-small-h)*0.13);height:calc(var(--card-small-h)*0.13);}
 .card-small.hit{animation: hitShake .25s ease;}
 .burning-icon{position:absolute;top:-6px;right:-6px;width:calc(var(--card-h)*0.107);height:calc(var(--card-h)*0.107);z-index:5;}
+/* Frost overlay box (2026-07-27, "Frost Attack") — art-only box drawn OVER the whole card,
+   110% of its size, centered (frost.png already has its own transparency/glow baked in — no
+   extra effects layered on top here). Appears with a scale-in pop, disappears with the same
+   animation reversed. No sound yet (по прямому запросу автора). */
+.frost-overlay{position:absolute;top:-5%;left:-5%;width:110%;height:110%;background:url('../img/frost.png') center/100% 100% no-repeat;pointer-events:none;z-index:20;animation:frostIn 0.25s ease-out;}
+.frost-overlay.frost-leaving{animation:frostOut 0.3s ease-in forwards;}
+@keyframes frostIn{from{transform:scale(0.01);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes frostOut{from{transform:scale(1);opacity:1;}to{transform:scale(0.01);opacity:0;}}
 .card-small.entering{animation: cardEnter 0.35s ease-out forwards;}
 .card-small.entering:not(.sleeping){animation: cardEnterAwake 0.35s ease-out forwards;}
 .card-small .stat-icon{width:0.6em;height:0.6em;}
