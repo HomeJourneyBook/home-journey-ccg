@@ -598,7 +598,7 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellProvokeBreakTarget'){
-    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c,G[humanF].field));
+    const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&!c.frozen&&!hasTag(c,'ward')&&!(hasTag(c,'shield')&&!c.shieldConsumed)&&isSpellTargetable(c,G[humanF].field));
     if(targets.length===0){ cancelPendingSpell(); return; }
     // Только одна Provoke-цель обычно и бывает разом (см. aiSpellHasValidTarget) — если
     // вдруг больше одной, берём самую опасную (effAtk), как и везде выше.
@@ -966,7 +966,7 @@ function aiSpellHasValidTarget(card){
   if(hasTag(card,'spell_provoke_break_target')){
     // Только реальные непогашенные Provoke-цели — как и click-хендлер в game.js, тут нет
     // смысла "промахиваться" мимо любой другой карты.
-    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&isSpellTargetable(c,G[humanF].field));
+    return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&c.tags.includes('provoke')&&!c.provokeBroken&&!c.frozen&&!hasTag(c,'ward')&&!(hasTag(c,'shield')&&!c.shieldConsumed)&&isSpellTargetable(c,G[humanF].field));
   }
   if(hasTag(card,'spell_dmg_trample_target')){
     return G[humanF].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
