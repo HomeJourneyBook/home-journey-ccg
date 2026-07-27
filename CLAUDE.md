@@ -4243,3 +4243,38 @@ AOE Fear/Burn (fear_all/burn_all) IMMUNE — уже было сделано в �
 без изменений здесь, просто подтверждено рабочим.
 
 Проверено симулятором (450 партий, 0 крашей).
+
+----
+### VERDICT/DAMNATION bypassFrost + IMMUNE-надпись на недоступных целях (2026-07-27, ночь #7)
+
+**Баг:** VERDICT/DAMNATION ("Destroy target enemy creature") не уничтожали замороженную
+цель — они технически идут через `doSpellDmgTarget` (обычный `spell_dmg_target:999`), а НЕ
+через `doSpellExecuteHalfTarget`, который уже получил `bypassFrost` в прошлой сессии.
+Исправлено: `doSpellDmgTarget()` уже вычисляет `isInstaKill=dmg>=999` (только чтобы не
+показывать голое число игроку) — теперь этот же флаг передаётся в `dmgCard()` как
+`bypassFrost`. Обычные (не insta-kill) `spell_dmg_target`-спеллы (BREACH/RUPTURE и т.п.)
+не затронуты — Frost для них по-прежнему абсорбирует как обычно.
+
+**Попутно найден и исправлен второй пробел:** `spellProvokeBreakTarget` (EXPOSE/UNMASK)
+вообще НИКОГДА не проверял Ward/Frost/активный Shield — хотя Provoke-break такой же дебафф,
+как Fear/Burn. Добавлена та же тройная защита (клик-хендлер, подсветка render.js,
+AI-таргетинг + `aiSpellHasValidTarget`, defensive-фолбэк в резолвере) — 5 мест правки.
+
+**Геймдизайн: мигающая надпись IMMUNE на картах, недоступных целью из-за Ward/Frost/
+активного Shield.** Раньше такая карта просто оставалась "пустой" (без мишени, без
+объяснения) — неочевидно, баг это или намеренный иммунитет. Новый CSS-класс
+`.card-small.immune-target::after` — тот же mishenBlink, что у мишени, текстом "IMMUNE"
+вместо картинки прицела, тот же z-index:25 (поверх всего на карте). Единая проверка в
+`mkSmallEl()` (render.js, вынесена в module-level константы `DEBUFF_TARGET_PHASES`/
+`DMG_TARGET_PHASES`, чтобы не пересоздавать массивы на каждый вызов) покрывает ВСЕ фазы
+ручного выбора цели:
+- **Debuff-фазы** (`spellFearTarget`, `spellBurnTarget`, `spellProvokeBreakTarget`) — Ward
+  ИЛИ Frost ИЛИ активный Shield.
+- **Damage/destroy-фазы** (`spellDmgTarget`, `spellDmgTrampleTarget`,
+  `spellExecuteHalfTarget`, `shardTarget`, `boltTarget`) — только Ward (с поправкой на ещё
+  активный Shield — та же логика "щит слоем выше", что и у самой возможности выбора цели).
+
+Не навешивается, если карта и так не была бы целью по другой причине (не враг, невидима/
+нераскрытый stealth, не Provoke — для provoke-break, спелл/мир/артефакт).
+
+Проверено симулятором (550 партий, 0 крашей).
