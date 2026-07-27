@@ -1097,11 +1097,20 @@ function tryAttackBase(){
 // обратную анимацию исчезновения frost-бокса (тот же трюк, что у .burning-out в руке —
 // см. css/styles.css), прежде чем card.frozen реально станет false.
 function scheduleFrostRemoval(card){
+  // БАГФИКС (2026-07-27, автор поймал живьём): раньше card.frozen становился false ТОЛЬКО
+  // внутри setTimeout, ОДНОВРЕМЕННО с _frostLeaving=false — то есть состояние "уже не
+  // frozen, но ещё _frostLeaving=true" (единственное, при котором mkSmallEl(), render.js,
+  // вообще применяет класс .frost-leaving и проигрывает анимацию сжатия) физически ни разу
+  // не рендерилось. Видимый эффект: бокс просто исчезал мгновенно, без анимации, хотя
+  // появление (entrance, frostIn) работало нормально. Фикс: frozen становится false СРАЗУ,
+  // синхронно, вместе с render() — именно этот тик и показывает "leaving"-состояние;
+  // setTimeout ниже только дожидается конца CSS-анимации (0.3с, см. .frost-leaving в
+  // css/styles.css) и убирает бокс из DOM насовсем.
+  card.frozen=false;
+  card.frozenTurnsLeft=0;
   card._frostLeaving=true;
-  const cardId=card.id;
+  render();
   setTimeout(()=>{
-    card.frozen=false;
-    card.frozenTurnsLeft=0;
     card._frostLeaving=false;
     render();
   }, 300);
