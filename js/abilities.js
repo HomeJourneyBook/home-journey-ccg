@@ -508,29 +508,23 @@ function triggerAbilities(card, timing, ctx={}){
         // кнопку активки в render.js). Существо, уже Feared от чего-то другого, просто
         // получает флаг повторно — не складывается, не страшно.
         //
-        // Solana Shield (2026-07-19, по прямому запросу автора — живой баг с WILDFIRE,
-        // см. AI BALANCE NOTES) — эта AOE-абилка никогда не идёт через dmgCard() (чистое
-        // наложение статус-флага, не урон), поэтому обычная проверка щита там (см. его
-        // комментарий в dmgCard()) сюда не долетает вообще — щит "висел" на карте, но
-        // Fear/Burn всё равно накладывались. Теперь щит одноразово блокирует именно
-        // ПОПЫТКУ наложения — тратится здесь же, тем же способом (card.shieldConsumed=true),
-        // что и от прямого удара. Ward по-прежнему тихо исключён ИЗ СПИСКА целей заранее
-        // (см. фильтр ниже) — это не меняли, тот же принцип, что уже был.
+        // Solana Shield (ПЕРЕСМОТРЕНО 2026-07-27, по прямому запросу автора — раньше щит
+        // ОДНОРАЗОВО блокировал попытку наложения и ТРАТИЛСЯ, см. историю коммитов если
+        // нужна старая версия). Теперь щит ведёт себя как Ward — существо с активным
+        // Shield просто ИСКЛЮЧЕНО из списка целей заранее (тот же фильтр, что уже у Ward/
+        // Frost), НИЧЕГО не тратится и не ломается. Только РЕАЛЬНЫЙ входящий урон
+        // (dmgCard(), game.js) может снять Shield — Fear/Burn больше не считаются такой
+        // угрозой ни в каком виде (ни точечно, ни по AOE).
         {
-          const fearTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward')&&!t.frozen);
+          const fearTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward')&&!t.frozen&&!(hasTag(t,'shield')&&!t.shieldConsumed));
           if(fearTargets.length>0){
             playSfx('debaf');
             lg(`${card.name}: all enemy creatures are Feared!`,'imp');
             fearTargets.forEach(t=>{
-              if(hasTag(t,'shield') && !t.shieldConsumed){
-                t.shieldConsumed=true;
-                lg(`${t.name}'s Solana Shield blocks the Fear entirely and shatters.`,'dmg');
-              } else {
-                t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');
-              }
+              t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');
             });
           } else {
-            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+            lg(`${card.name}: no valid targets — fizzles.`,'hint');
           }
         } break;
 
@@ -544,24 +538,20 @@ function triggerAbilities(card, timing, ctx={}){
         // queueFieldFx-попапа — одиночный Burn (case 'burn' ниже) тоже не показывает всплывашку,
         // сама горящая иконка на карте (card.burning) уже достаточный визуальный фидбек.
         //
-        // Solana Shield (2026-07-19) — см. подробный комментарий у fear_all чуть выше, тот
-        // же самый гейт, зеркально для Поджога.
+        // Solana Shield — см. подробный комментарий у fear_all чуть выше (пересмотрено
+        // 2026-07-27) — тот же самый гейт, зеркально для Поджога: щит просто исключён из
+        // целей, больше не тратится попыткой наложения.
         {
-          const burnTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward')&&!t.frozen);
+          const burnTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward')&&!t.frozen&&!(hasTag(t,'shield')&&!t.shieldConsumed));
           if(burnTargets.length>0){
             playSfx('card_fire_atack');
             lg(`${card.name}: all enemy creatures are on fire!`,'imp');
             burnTargets.forEach(t=>{
-              if(hasTag(t,'shield') && !t.shieldConsumed){
-                t.shieldConsumed=true;
-                lg(`${t.name}'s Solana Shield blocks the fire entirely and shatters.`,'dmg');
-              } else {
-                t.burning=true;
-                t.burnTurns=BURN_DURATION;
-              }
+              t.burning=true;
+              t.burnTurns=BURN_DURATION;
             });
           } else {
-            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+            lg(`${card.name}: no valid targets — fizzles.`,'hint');
           }
         } break;
 
