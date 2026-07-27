@@ -36,6 +36,10 @@ function getAbilities(card){
       case 'pierce':     ab.push({timing:'passive',effect:'pierce'}); break;
       case 'fear':       ab.push({timing:'on_attack',effect:'fear'}); break;
       case 'burn':       ab.push({timing:'on_attack',effect:'burn'}); break;
+      // frost (2026-07-27, "Frost Attack", ультраредкий Mood-трейт Winter from RGB) — на
+      // атаке вешает Заморозку на 2 СВОИХ хода цели (не 1, как Fear) — см. execution-кейс
+      // 'frost' ниже и decrement-логику в endTurn() (game.js, card.frozenTurnsLeft).
+      case 'frost':      ab.push({timing:'on_attack',effect:'frost'}); break;
       // taunt_break (2026-07-13, автор) — на атаке подавляет Provoke у цели (можно бить
       // мимо танка до конца этого хода) — снимается тем же путём, что и fear/exhausted
       // (см. endTurn() в game.js, "снимаются у ВЫХОДЯЩЕГО игрока сразу" — тот же блок,
@@ -513,7 +517,7 @@ function triggerAbilities(card, timing, ctx={}){
         // что и от прямого удара. Ward по-прежнему тихо исключён ИЗ СПИСКА целей заранее
         // (см. фильтр ниже) — это не меняли, тот же принцип, что уже был.
         {
-          const fearTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward'));
+          const fearTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward')&&!t.frozen);
           if(fearTargets.length>0){
             playSfx('debaf');
             lg(`${card.name}: all enemy creatures are Feared!`,'imp');
@@ -543,7 +547,7 @@ function triggerAbilities(card, timing, ctx={}){
         // Solana Shield (2026-07-19) — см. подробный комментарий у fear_all чуть выше, тот
         // же самый гейт, зеркально для Поджога.
         {
-          const burnTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward'));
+          const burnTargets=[...G[oppK].field].filter(t=>!t.spell&&!t.world&&!t.artifact&&!hasTag(t,'ward')&&!t.frozen);
           if(burnTargets.length>0){
             playSfx('card_fire_atack');
             lg(`${card.name}: all enemy creatures are on fire!`,'imp');
@@ -563,7 +567,9 @@ function triggerAbilities(card, timing, ctx={}){
 
       case 'burn':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
-          if(hasTag(ctx.target,'ward')){
+          if(ctx.target.frozen){
+            lg(`${ctx.target.name} is frozen — immune to Burn.`,'dmg');
+          } else if(hasTag(ctx.target,'ward')){
             lg(`${ctx.target.name}'s Ward blocks the burn entirely.`,'dmg');
           } else {
             ctx.target.burning=true;
@@ -575,13 +581,44 @@ function triggerAbilities(card, timing, ctx={}){
 
       case 'fear':
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
-          if(hasTag(ctx.target,'ward')){
+          if(ctx.target.frozen){
+            lg(`${ctx.target.name} is frozen — immune to Fear.`,'dmg');
+          } else if(hasTag(ctx.target,'ward')){
             lg(`${ctx.target.name}'s Ward blocks the fear entirely.`,'dmg');
           } else {
             ctx.target.feared=true;
             playSfx('debaf');
             lg(`${card.name}: ${ctx.target.name} is Feared!`,'imp');
             queueFieldFx(ctx.target.id,'FEARED!','fx-fear');
+          }
+        } break;
+
+      case 'frost':
+        // Frost Attack (2026-07-27, ультраредкий Mood-трейт Winter from RGB, ico_snow.png).
+        // На атаке вешает Заморозку на 2 СВОИХ хода цели (card.frozenTurnsLeft=2, тикает в
+        // endTurn() game.js — см. комментарий там). Пока заморожена: карта не может
+        // действовать вообще (ни атаковать, ни юзать Active — см. click-хендлер и
+        // doUmbBolt() в game.js), не форсит Provoke/Intercept (см. фильтры в game.js,
+        // тот же принцип что уже у !c.feared). Снимает ЛЮБОЙ другой дебафф цели (Fear/Burn)
+        // — тот же принцип "новый статус вытесняет старый", простой оверрайт. Пока
+        // заморожена — иммунна к НОВОМУ Fear/Burn (см. их case'ы выше, ctx.target.frozen
+        // проверяется первым). Заморозка — слой защиты, АНАЛОГ Solana Shield: снимается
+        // целиком при получении ЛЮБОГО следующего урона (см. dmgCard() в game.js, самый
+        // верх функции, тот же приоритет что у shield) — тот удар полностью поглощается
+        // (0 урона), Заморозка исчезает. НЕ снимается спеллом/активкой "Heal N and Clean"
+        // (Orbiton) — тот чистит только feared/burning/provokeBroken (см. onClick()
+        // healTarget-ветку в game.js), card.frozen туда сознательно не добавлен.
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit){
+          if(hasTag(ctx.target,'ward')){
+            lg(`${ctx.target.name}'s Ward blocks the frost entirely.`,'dmg');
+          } else {
+            ctx.target.feared=false;
+            ctx.target.burning=false;
+            ctx.target.frozen=true;
+            ctx.target.frozenTurnsLeft=2;
+            playSfx('debaf');
+            lg(`${card.name}: ${ctx.target.name} is Frozen!`,'imp');
+            queueFieldFx(ctx.target.id,'FROZEN!','fx-fear');
           }
         } break;
 
