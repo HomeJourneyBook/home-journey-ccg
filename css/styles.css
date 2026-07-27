@@ -1960,6 +1960,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   0%,100%{opacity:1;}
   50%{opacity:0.55;}
 }
+/* Пустая колода (2026-07-27, по прямому запросу автора) — тот же mishenBlink, что уже
+   использует мишень атаки/.pcard.aim-target, применён к счётчику колоды (0 карт). */
+.deck-count-empty{color:#ff3b3b;font-weight:bold;animation:mishenBlink 1.1s ease-in-out infinite;}
 @keyframes pulseG{
   from{box-shadow:0 0 4px #44ff88;}
   to{box-shadow:0 0 12px #44ff88;}
