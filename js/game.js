@@ -849,11 +849,12 @@ function doAttack(att,target){
   // тега сразу, не только thorns.
   // Резолвится вне зависимости от того, выжила ли цель (та же логика "regardless of
   // outcome", что и контрудар выше — deferDeath=true, финальная смерть att разрешится один
-  // раз чуть ниже). Пропускается, если этот конкретный удар был полностью поглощён Solana
-  // Shield (target._shieldBlockedThisHit) — тот же принцип, что уже действует для
-  // fear/burn/taunt_break: полностью заблокированный удар не тащит с собой ни один из
-  // своих побочных эффектов, не только 0 урона.
-  if(hasTag(target,'thorns') && !target._shieldBlockedThisHit){
+  // раз чуть ниже). Пропускается, если этот конкретный удар был полностью поглощён/
+  // промазан (target._shieldBlockedThisHit/_frostBlockedThisHit/_foxyDodgedThisHit,
+  // последние два добавлены 2026-07-27 по прямому запросу автора — тот же принцип, что уже
+  // действует для fear/burn/taunt_break: если атака физически не задела цель, шипы бить в
+  // ответ нечему, удар до тела не долетел).
+  if(hasTag(target,'thorns') && !target._shieldBlockedThisHit && !target._frostBlockedThisHit && !target._foxyDodgedThisHit){
     const thornsVal=getTagVal(target,'thorns')||1;
     dmgCard(att,thornsVal,curK,true,true); // bypassArmor=true ("огонь" игнорирует броню), deferDeath=true
     lg(`${target.name}'s Fire Shield burns ${att.name} for ${thornsVal}!`,'dmg');
