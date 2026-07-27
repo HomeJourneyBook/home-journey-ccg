@@ -1670,6 +1670,7 @@ const TAG_TOOLTIPS = {
   'death_heal': { name: 'Bamboo', desc: 'When this creature dies, heals a random wounded ally for 4 HP.' },
   'death_bolt': { name: 'Thunder Storm', desc: 'When this creature dies, deals 4 damage to a random enemy creature.' }, // переехал с трейта Scheme на Pink Clouds (2026-07-27, по прямому запросу автора) — сам тег/эффект не менялся, только трейт-привязка/имя/иконка (ico_cloud.png)
   'death_armor': { name: 'Scheme', desc: 'When this creature dies, gives 2 Armor to a random ally.' }, // новый тег (2026-07-27, по прямому запросу автора) — занял трейт-слот Scheme после переезда death_bolt на Pink Clouds, использует прежнюю иконку (ico_scheme.png)
+  'frost': { name: 'Frost Attack', desc: 'On attack: Freezes the target for 2 of its own turns — it cannot act at all (attack or use Active abilities) and no longer forces Provoke/Intercept. Freezing clears any Fear/Burn on the target and grants immunity to new Fear/Burn while frozen. Frost is shattered by the next hit the target takes, of any kind, which is fully absorbed (like Solana Shield).' }, // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box, .card-incarn-badge';
