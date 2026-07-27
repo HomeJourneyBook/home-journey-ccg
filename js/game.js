@@ -147,6 +147,10 @@ function onClick(card,zone){
   }
   if(G.phase==='shardTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора — тот же
+      // принцип, что и у spellDmgTarget: раньше клик проходил, играла анимация SHARD!,
+      // урон тихо блокировался внутри dmgCard() — выглядело как баг.
+      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
       if(isSpellTargetable(card,G[opp].field)){
         doShardTarget(card);return;
       }
@@ -162,6 +166,8 @@ function onClick(card,zone){
   }
   if(G.phase==='boltTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      // См. комментарий у shardTarget выше — тот же принцип для Bolt.
+      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
       if(isSpellTargetable(card,G[opp].field)){
         doBoltTarget(card);return;
       }
@@ -178,6 +184,13 @@ function onClick(card,zone){
   }
   if(G.phase==='spellDmgTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      // Ward/Frost/активный Solana Shield — полный иммунитет к магическому урону спеллов
+      // (2026-07-27, по прямому запросу автора — тот же принцип, что уже применён к Fear/
+      // Burn): раньше такую карту МОЖНО было выбрать целью, играла анимация HIT!, но урон
+      // тихо блокировался внутри dmgCard() — по факту "анимация есть, эффекта нет",
+      // выглядело как баг. Теперь клик по такой карте — тихий no-op (спелл остаётся
+      // pending, ждёт другую цель), она вообще не долетает до резолвера.
+      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
       if(isSpellTargetable(card,G[opp].field)){
         doSpellDmgTarget(card);return;
       }
@@ -294,6 +307,8 @@ function onClick(card,zone){
     // существо, тот же гейт видимости, что у spellDmgTarget выше — сам спелл сначала бьёт
     // Bolt 1, и УЖЕ ПОСЛЕ этого решает, добивать или нет (см. doSpellExecuteHalfTarget()).
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      // См. комментарий у spellDmgTarget выше — тот же принцип, 2026-07-27.
+      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
       if(isSpellTargetable(card,G[opp].field)){
         doSpellExecuteHalfTarget(card);return;
       }
@@ -313,6 +328,8 @@ function onClick(card,zone){
   }
   if(G.phase==='spellDmgTrampleTarget'){
     if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      // См. комментарий у spellDmgTarget выше — тот же принцип, 2026-07-27.
+      if(card.frozen||hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed)) return;
       if(isSpellTargetable(card,G[opp].field)){
         doSpellDmgTrampleTarget(card);return;
       }
@@ -1121,6 +1138,7 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel){
   // прошлого удара мог бы утечь в проверку fear/burn/taunt_break этого хода (см. ниже).
   card._shieldBlockedThisHit=false;
   card._foxyDodgedThisHit=false;
+  card._frostBlockedThisHit=false; // БАГФИКС (2026-07-27, автор поймал живьём) — раньше этот флаг НИКОГДА не сбрасывался здесь (только выставлялся в true ниже), поэтому один раз замороженный удар мог навсегда "заглушить" debuff-эффекты на ВСЕХ последующих, никак не связанных ударах по этой же карте
   if(dmg<=0)return;
   // Foxy Trick (2026-07-27, "Foxy Trick", ультраредкий Mood-трейт Orange from FFF, ico_fff.png)
   // — ПЕРВАЯ проверка вообще, ДО Frost/Shield/Armor/Ward (по прямому запросу автора: сначала
