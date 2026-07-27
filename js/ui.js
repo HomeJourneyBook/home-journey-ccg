@@ -390,6 +390,7 @@ function preloadAssets(){
     // давно доехал до конечного scale(1) — пользователь видел только "внезапное появление уже в
     // полный размер", без самого поп-ина. Та же причина отдельно объясняет и поп-аут при снятии.
     'img/frost.png', 'img/ico_snow.png',
+    'img/ico_fff.png', // Foxy Trick (2026-07-27) — тот же превентивный фикс, что у Frost выше
 
     // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
@@ -1679,6 +1680,7 @@ const TAG_TOOLTIPS = {
   'death_bolt': { name: 'Thunder Storm', desc: 'When this creature dies, deals 4 damage to a random enemy creature.' }, // переехал с трейта Scheme на Pink Clouds (2026-07-27, по прямому запросу автора) — сам тег/эффект не менялся, только трейт-привязка/имя/иконка (ico_cloud.png)
   'death_armor': { name: 'Scheme', desc: 'When this creature dies, gives 2 Armor to a random ally.' }, // новый тег (2026-07-27, по прямому запросу автора) — занял трейт-слот Scheme после переезда death_bolt на Pink Clouds, использует прежнюю иконку (ico_scheme.png)
   'frost': { name: 'Frost Attack', desc: 'On attack: Freezes the target for 2 of its own turns — it cannot act at all (attack or use Active abilities) and no longer forces Provoke/Intercept. Freezing clears any Fear/Burn on the target and grants immunity to new Fear/Burn while frozen. Frost is shattered by the next hit the target takes, of any kind, which is fully absorbed (like Solana Shield).' }, // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
+  'foxy': { name: 'Foxy Trick', desc: '50% chance to dodge entirely: any incoming damage, or any attempt to apply a debuff (Fear/Burn/Frost/Provoke-break) to this card, has a 50% chance to simply miss.' }, // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box, .card-incarn-badge';
