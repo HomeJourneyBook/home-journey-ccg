@@ -253,7 +253,7 @@ function preloadAssets(){
 
     // ── Ящик Lore/Catalog (добавлено 2026-07-13) ──
     'img/bg_lore_modal.png',
-    'img/btn_lore_archive1.png', 'img/btn_lore_archiveH.png', 'img/btn_lore_archive2.png',
+    'img/btn_lore_archive1.png', /* 'img/btn_lore_archiveH.png', 'img/btn_lore_archive2.png', */ // H/2-состояния этих кнопок пока не в репо (404 на деплое, автор попросил закомментить, 2026-07-27) — вернуть, когда появятся ассеты
     'img/lore_books.png',
     'img/btn_lore_ru4ka1.png', 'img/btn_lore_ru4kaH.png', 'img/btn_lore_ru4ka2.png',
 
@@ -310,7 +310,7 @@ function preloadAssets(){
     'img/ico_ward.png',
     'img/ico_incarn.png',
     'img/trubi1.png',
-    'img/trubi1_jeet.png',
+    /* 'img/trubi1_jeet.png', */ // пока не в репо (404 на деплое, закомментить попросил автор, 2026-07-27)
 
     // ── Книга правил (обложка, страницы, кнопки навигации) ──
     'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_pages1.png', 'img/rules_pages2.png', 'img/rules_pages3.png', 'img/rules_navigation_box.png', 'img/rules_title_bg.png', 'img/rules_bg.png',
@@ -330,16 +330,18 @@ function preloadAssets(){
     'img/ico_tea.png', 'img/ico_jeet.png', 'img/ico_mulligan.png',
 
     // ── Декоративные плейсхолдеры статус-бара и боттом-бара — разведены tea/jeet в этой сессии ──
-    'img/statbar_edge_right2_jeet.png', 'img/statbar_edge_left_jeet.png',
-    'img/boltik_jeet.png',
-    'img/statbar_extra_tea.png', 'img/statbar_extra_jeet.png',
+    // Jeet-версии этих декоративных плейсхолдеров пока не в репо (пока прозрачные заглушки,
+    // 404 на деплое — автор попросил закомментить, 2026-07-27; вернуть, когда появятся ассеты).
+    /* 'img/statbar_edge_right2_jeet.png', 'img/statbar_edge_left_jeet.png', */
+    /* 'img/boltik_jeet.png', */
+    /* 'img/statbar_extra_tea.png', 'img/statbar_extra_jeet.png', */
     'img/bg_counters_jeet.png',
     'img/armor_bg.png',
-    'img/dat4ik_jeet.gif',
-    'img/zabor1_jeet.png', 'img/zabor2_jeet.png',
-    'img/screen1.gif', 'img/bottom_extra2_jeet.png',
-    'img/dat4ik_small.gif', 'img/bottom_extra3_jeet.png',
-    'img/boltics.png', 'img/bottom_extra4_jeet.png',
+    /* 'img/dat4ik_jeet.gif', */
+    /* 'img/zabor1_jeet.png', 'img/zabor2_jeet.png', */
+    'img/screen1.gif', /* 'img/bottom_extra2_jeet.png', */
+    'img/dat4ik_small.gif', /* 'img/bottom_extra3_jeet.png', */
+    'img/boltics.png', /* 'img/bottom_extra4_jeet.png', */
     'img/drill.png', 'img/left_tea.png',
 
     // ── Дайс-модалка (order-roll, выбор первого хода) — арт граней ──
@@ -353,7 +355,7 @@ function preloadAssets(){
     'img/card_tea.png', 'img/card_jeet.png',
     'img/card_name_bg.png', 'img/card_name_world_bg.png', 'img/card_text_bg.png',
     'img/card_stat_bg.png', 'img/card_text_world_bg.png',
-    'img/pcard_bg.png',
+    /* 'img/pcard_bg.png', */ // пока не в репо (404 на деплое, закомментить попросил автор, 2026-07-27)
     'img/pcard_tea_shutter_sheet.png', 'img/pcard_jeet_shutter_sheet.png',
     'img/tag_bg.png',
 
