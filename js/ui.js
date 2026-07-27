@@ -1272,11 +1272,20 @@ function _playFieldStarsGrowIn(){
 // держится и пульсирует 1с → уходит в fade.
 // Font-size подгоняется под ~40% ширины экрана измерением фактической ширины отрисованного
 // текста (на глаз в vw для произвольного шрифта 'MEK' — ненадёжно, ширина глифов неизвестна).
-function _playBattleBeginsText(){
+// Универсальный "growing center banner" (2026-07-27, по прямому запросу автора —
+// обобщено из "Battle begins!" ниже, чтобы переиспользовать для предупреждения о пустой
+// колоде и любых будущих подобных надписей). Тот же тайминг/анимация, просто произвольный
+// текст. _playBattleBeginsText() остаётся тонкой обёрткой для обратной совместимости.
+// Вырастает из точки шва между полями боя (чуть выше центра экрана) → держится и
+// пульсирует 1с → уходит в fade.
+// Font-size подгоняется под ~40% ширины экрана измерением фактической ширины отрисованного
+// текста (на глаз в vw для произвольного шрифта 'MEK' — ненадёжно, ширина глифов неизвестна).
+function _playCenterBannerText(text){
   const wrap = document.getElementById('battleBeginsText');
   const inner = document.getElementById('battleBeginsInner');
   if(!wrap || !inner) return;
 
+  inner.textContent = text;
   inner.classList.remove('battle-begins-in','battle-begins-pulse','battle-begins-out');
   wrap.classList.remove('hidden');
 
@@ -1324,6 +1333,20 @@ function _playBattleBeginsText(){
     inner.style.fontSize='';
   }, growMs+holdMs+fadeMs);
 }
+function _playBattleBeginsText(){
+  _playCenterBannerText('Battle begins!');
+}
+
+// Предупреждение о пустой колоде (2026-07-27, по прямому запросу автора — геймдизайн-нюанс:
+// без этого fatigue-проигрыш абсолютно неочевиден игроку, даже автору самому было непонятно,
+// откуда взялось поражение). Тот же growing-баннер, что и "Battle begins!" — показывается
+// в начале хода игрока, у которого колода пуста (см. _runTurnStartEffects() в game.js), с
+// количеством оставшихся ходов до поражения по истощению (fatigue win — жёстко 3 неудачных
+// попытки добора подряд/суммарно, см. cur.emptyDrawCount в endTurn()/game.js).
+function showDeckEmptyWarning(turnsLeft){
+  _playCenterBannerText(`NO CARDS LEFT! You lose in ${turnsLeft} more turn${turnsLeft===1?'':'s'}!`);
+}
+
 
 function doMulliganPhase(){
   doMulligan(G.mulliganTurn);
@@ -1607,7 +1630,7 @@ function passReady(){
   G._passCallback = null;
   const proceed = () => {
     passEl.classList.add('hidden');
-    if(cb) cb(); // else: nothing further needed, board is already rendered
+    if(cb) cb(); // без cb — переход уже полностью произошёл раньше, нечего доигрывать
   };
   _modalPopOut(passEl, proceed, 250);
 }
