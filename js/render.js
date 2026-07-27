@@ -637,7 +637,7 @@ function mkSmallEl(card){
   if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   // CINDER/DREAD (2026-07-24) — тот же паттерн подсветки, что у spellDmgTarget.
-  if((G.phase==='spellBurnTarget'||G.phase==='spellFearTarget')&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  if((G.phase==='spellBurnTarget'||G.phase==='spellFearTarget')&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&!hasTag(card,'ward')&&!(hasTag(card,'shield')&&!card.shieldConsumed)&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
   if(G.phase==='spellArmorTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
