@@ -2640,15 +2640,32 @@ function doMulligan(faction){
 }
 
 // Spacebar: confirms whichever modal is currently open (mulligan Ready, pass-device
-// Ready, win modal, exit/restart confirm) — or, if none is open, ends the turn (old
-// behaviour). Modal check runs first so the two shortcuts never both fire at once.
+// Ready, win modal) — or, if none is open, ends the turn (old behaviour). Modal check
+// runs first so the two shortcuts never both fire at once.
 document.addEventListener('keydown',(e)=>{
   if(e.code!=='Space') return;
   const tag=(document.activeElement&&document.activeElement.tagName)||'';
   if(tag==='INPUT'||tag==='TEXTAREA') return; // don't hijack Space while typing (e.g. catalog search)
 
+  // confirmModal (2026-07-27, по прямому запросу автора — вероятная причина
+  // необъяснимого "вылета на лендинг" в хотсите, без единой ошибки в консоли, которую
+  // автор ловил вживую и не мог поймать: этот модал ПЕРЕИСПОЛЬЗУЕТСЯ и для
+  // askMenu()/"Yes, Exit" (showLanding() — полный сброс игры), и для askRestart()/
+  // "Yes, Restart" — оба ДЕСТРУКТИВНЫ и НЕОБРАТИМЫ. Раньше Space автоматически жал
+  // confirmYesBtn, если этот модал оказывался открыт (например игрок машинально/случайно
+  // ткнул "← Menu" в углу экрана, не заметил модалку или отвлёкся и не закрыл её Cancel'ом,
+  // продолжил играть) — следующее же нажатие Space "чтобы передать ход" молча подтверждало
+  // ВЫХОД или РЕСТАРТ вместо этого. Никакой JS-ошибки при этом не было и не могло быть —
+  // это полностью штатный, корректно работающий код, просто сработавший не от того нажатия.
+  // Теперь Space по этому модалу вообще НИЧЕГО не делает (только глушит скролл) —
+  // дестрактивное подтверждение остаётся доступно ТОЛЬКО явным кликом/тапом.
+  const confirmModal=document.getElementById('confirmModal');
+  if(confirmModal && !confirmModal.classList.contains('hidden')){
+    e.preventDefault();
+    return;
+  }
+
   const modalButtons=[
-    ['confirmModal','confirmYesBtn'],
     ['winModal','winBtn'],
     ['mulliganScreen','mulliganReadyBtn'],
     ['passScreen','passReadyBtn'],
