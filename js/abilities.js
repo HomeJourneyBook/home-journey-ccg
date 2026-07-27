@@ -322,11 +322,15 @@ function triggerAbilities(card, timing, ctx={}){
           if(dmgAmt>0){
             playSfx('card_spell_atack');
             purgeTargets.forEach(t=>{
-              // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора) —
-              // тот же принцип, что и в random_spread ниже: если урон физически не
-              // пройдёт, HIT!-плашка не нужна.
-              const absorbed = hasTag(t,'ward') || t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed);
-              if(!absorbed) queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
+              // Ward (2026-07-27, по прямому запросу автора) — показываем IMMUNE, а не
+              // тишину, чтобы было понятно, почему эффект не сработал. Frost/активный
+              // Solana Shield — свою плашку показывает сама dmgCard() (ABSORB у щита,
+              // shake+лог у заморозки), тут дублировать не нужно.
+              if(hasTag(t,'ward')){
+                queueFieldFx(t.id,'IMMUNE','fx-immune');
+              } else if(!(t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed))){
+                queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
+              }
               dmgCard(t,dmgAmt,oppK,true);
             });
             lg(`${card.name}: ${dmgAmt} dmg to ALL enemy creatures (board count)!`,'imp');
@@ -402,15 +406,17 @@ function triggerAbilities(card, timing, ctx={}){
             const t=pool.find(p=>p.id===tid);
             if(!t) return;
             hitTargets++;
-            // Ward/Frost/активный Solana Shield (2026-07-27, по прямому запросу автора) —
-            // dmgCard() сама уже полностью блокирует урон в этих случаях (Ward — честная
-            // случайность, damage-point намеренно МОЖЕТ впустую уйти в защищённую цель, это
-            // НЕ баг, см. историю выше), но раз физически ничего не произойдёт, обычная
-            // HIT!-анимация на такой цели не нужна — выглядело как баг ("анимация есть,
-            // эффекта нет"). Frost/Shield и так получают СВОЮ отдельную анимацию поглощения
-            // изнутри dmgCard() (shake+лог) — вторая HIT!-плашка поверх была бы избыточной.
-            const absorbed = hasTag(t,'ward') || t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed);
-            if(!absorbed) queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+            // Ward (2026-07-27, по прямому запросу автора) — показываем IMMUNE, а не тишину
+            // (Ward — честная случайность, damage-point намеренно МОЖЕТ впустую уйти в
+            // защищённую цель, это НЕ баг, см. историю выше — просто теперь видно ПОЧЕМУ).
+            // Frost/активный Solana Shield и так получают СВОЮ отдельную анимацию поглощения
+            // изнутри dmgCard() (ABSORB у щита, shake+лог у заморозки) — вторая плашка поверх
+            // была бы избыточной.
+            if(hasTag(t,'ward')){
+              queueFieldFx(t.id,'IMMUNE','fx-immune');
+            } else if(!(t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed))){
+              queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+            }
             dmgCard(t,dmgAmt,oppK,true);
           });
           if(baseHits>0){
