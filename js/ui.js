@@ -381,7 +381,7 @@ function preloadAssets(){
     'img/ico_fear.png', 'img/ico_pierce.png', 'img/ico_regen.png',
     'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png', 'img/ico_vanguard.png',
     'img/zzz.png',
-    'img/mishen_red.png', 'img/mishen_green.png',
+    'img/mishen_red.png', 'img/mishen_green.png', 'img/mishen_red2.png',
     'img/ico_tb.png', 'img/solana_shield.png',
     'img/ico_vamp.png', 'img/ico_erase.png',
     // Полная сверка (2026-07-27, автор поймал живьём на Thunder Storm) — список TAG_ICONS
