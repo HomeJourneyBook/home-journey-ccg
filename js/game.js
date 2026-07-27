@@ -1195,6 +1195,12 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
     card.shieldConsumed=true;
     card._shieldBlockedThisHit=true;
     requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+    // ABSORB-плашка (2026-07-27, по прямому запросу автора — была задумана раньше, потерялась
+    // по пути) — queueFieldFxReplace() (см. выше) стирает любую уже поставленную звонящим
+    // кодом плашку (HIT!/BOLT!/DESTROYED и т.п. — почти все вызовы dmgCard() ставят свою ДО
+    // того, как сама dmgCard() решит, поглотит ли щит) и подменяет её на ABSORB — чтобы на
+    // экране осталась только ОДНА, точная плашка, а не обе разом друг на друге.
+    queueFieldFxReplace(card.id,'ABSORB','fx-absorb');
     lg(`${card.name}'s Solana Shield absorbs the hit entirely — shield spent.`,'dmg');
     return;
   }
@@ -2869,6 +2875,20 @@ function _applyPendingEssGlitch(){
 // render() runs would just be thrown away.
 function queueFieldFx(cardId, label, cls){
   if(!G._pendingFieldFx) G._pendingFieldFx=[];
+  G._pendingFieldFx.push({cardId,label,cls});
+}
+// queueFieldFxReplace (2026-07-27, по прямому запросу автора) — Solana Shield: звонящий код
+// (doAttack()/doBoltTarget()/doSpellDmgTarget() и т.п.) почти всегда СНАЧАЛА ставит в очередь
+// свою "HIT!"/"BOLT!"-плашку, и только ПОТОМ зовёт dmgCard() — которая уже решает, поглотит
+// ли щит удар. Обычный queueFieldFx() тут не годится — вторая плашка легла бы РЯДОМ с первой
+// (обе абсолютно спозиционированы в центр карты — наложились бы друг на друга нечитаемо), а
+// не заменила бы её. Эта функция вместо этого вычищает все ещё не отрисованные fx-записи
+// для той же самой карты из очереди, прежде чем добавить новую — так что к моменту рендера
+// на карте гарантированно окажется только ОДНА, самая точная плашка ("ABSORB" вместо
+// "HIT!"/"BOLT!"), а не обе разом.
+function queueFieldFxReplace(cardId, label, cls){
+  if(!G._pendingFieldFx) G._pendingFieldFx=[];
+  G._pendingFieldFx=G._pendingFieldFx.filter(fx=>String(fx.cardId)!==String(cardId));
   G._pendingFieldFx.push({cardId,label,cls});
 }
 function _applyPendingFieldFx(){
