@@ -290,6 +290,10 @@ function _cardStatusEntries(card){
     entries.push({icon:'img/ico_burn.png', text:`Burning — loses 1 HP at the start of each of its turns. ${bt} turn${bt===1?'':'s'} left.`});
   }
   if(card.provokeBroken) entries.push({icon:'img/ico_tb.png', text:'Provoke suppressed — can be attacked freely, bypassing Provoke, until the start of its owner\'s next turn.'});
+  if(card.frozen){
+    const ft = card.frozenTurnsLeft!==undefined ? card.frozenTurnsLeft : 2;
+    entries.push({icon:'img/ico_snow.png', text:`Frozen for ${ft} more of its own turn${ft===1?'':'s'} — cannot act at all. Any incoming damage will be blocked entirely and shatter the freeze.`});
+  }
   if(card.interceptUsed) entries.push({icon:'img/ico_intercept.png', text:'Intercept triggered — already redirected an attack this turn.'});
   if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely from any source, one time only.'});
   if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
@@ -590,24 +594,28 @@ function mkSmallEl(card){
   }
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
-  // Frost overlay box (2026-07-27) — field-only (mkSmallEl), same convention as Solana
-  // Shield's hp-box swap: hand/catalog/deckbuilder show no visual swap, just the tag icon +
-  // "Frost Attack" tooltip text. Shown while card.frozen OR still mid-exit (_frostLeaving,
-  // see scheduleFrostRemoval() in game.js) so the shatter animation has a frame to play on.
+  // Frost overlay box (2026-07-27) — БАГФИКС (автор поймал 2026-07-27): раньше здесь стоял
+  // d.appendChild(frostBox) — но чуть ниже по функции есть d.innerHTML=`...` (весь основной
+  // шаблон карты), которое полностью ЗАМЕНЯЕТ содержимое d, стирая любой appendChild,
+  // сделанный ДО этой строки (тот же баг молча топит и `inv` — Invisible-лейбл выше, — просто
+  // никто не заметил, т.к. .invisible-visual и так стилизуется через CSS-класс без текста).
+  // Правильный паттерн — тот же, что уже используют card-small-burning/-feared/-tauntbroken
+  // чуть ниже: посчитать HTML-строку ЗАРАНЕЕ и вставить её ВНУТРЬ самого innerHTML-шаблона
+  // (см. frostBoxHtml, используется в шаблоне ниже), а не создавать отдельный DOM-узел здесь.
+  let frostBoxHtml='';
   if(card.frozen||card._frostLeaving){
-    const frostBox=document.createElement('div');
-    frostBox.className='frost-overlay';
     const cid=String(card.id);
+    let extraClass='', extraStyle='';
     if(!card.frozen && card._frostLeaving){
-      frostBox.classList.add('frost-leaving');
+      extraClass=' frost-leaving';
       _frostSeenIds.delete(cid);
     } else if(_frostSeenIds.has(cid)){
       // Уже видели вход этой заморозки — не переигрываем pop-in на каждый рендер.
-      frostBox.style.animation='none';
+      extraStyle=' style="animation:none;"';
     } else {
       _frostSeenIds.add(cid);
     }
-    d.appendChild(frostBox);
+    frostBoxHtml=`<div class="frost-overlay${extraClass}"${extraStyle}></div>`;
   } else {
     _frostSeenIds.delete(String(card.id));
   }
@@ -709,6 +717,7 @@ const tagIcons=(card.tags||[])
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.feared?'<div class="card-small-feared"><img src="img/ef_fear.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.provokeBroken?'<div class="card-small-tauntbroken"><img src="img/ef_tb.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
+    ${frostBoxHtml}
     ${card.sleeping?'<div class="card-zzz"><span>z</span><span>Z</span><span>Z</span></div>':''}
     <div class="card-small-art">${card.img?`<img src="img/cards/${card.img}" style="width:100%;height:100%;object-fit:cover;display:block;">`:card.art}</div>
     <div class="card-small-name-box"><div class="card-small-name">${card.name}</div></div>
