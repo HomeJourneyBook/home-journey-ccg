@@ -9,6 +9,7 @@ const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
 
   // Szarg Tea
+  t_trvl24_w:   {name:"TRAVELER #24",   cost:4,hp:4,atk:5,art:"🦈", img:"24.png",   f:"tea",tags:["foxy","death_heal:4","gtype:szg"],                  ab:"Squad +1 maxHP."}, // новая карта (2026-07-27, по прямому запросу автора) — cost4 Szarg, 2 доп.тега (foxy/Orange from FFF + death_heal/Bamboo), статы по формуле Szarg (HP=cost, ATK=cost+1) = 4/5
   j_trvl25_w:   {name:"TRAVELER #25",   cost:3,hp:3,atk:4,art:"🦈", img:"25.png",   f:"jeet",tags:["untamed","gtype:szg"],                  ab:"Squad +1 maxHP."}, // перенесён Tea→Jeet (2026-07-24, по прямому запросу автора)
   t_trvl33_w:   {name:"TRAVELER #33",   cost:1,hp:1,atk:2,art:"🦈", img:"33.png",   f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
   j_trvl7_w:    {name:"TRAVELER #7",    cost:2,hp:2,atk:3,art:"🦈", img:"7.png",   f:"jeet",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."}, // hp/atk 1/1→2/3 (2026-07-24, по прямому запросу автора) — таблица Szarg в CLAUDE.md имела нестыковку на cost2 (см. историю), исправлено на 2/3; перенесён Tea→Jeet (2026-07-24)
@@ -189,6 +190,7 @@ const DEFS = {
   j_trvl481_w:  {name:"TRAVELER #481",  cost:4,hp:8,atk:2,art:"🌳", img:"481.png",  f:"jeet",tags:["provoke","untamed","death_bolt:4","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-27, по прямому запросу автора) — cost4 Dreegan, 2 доп.тега сверх сигнатурного provoke (untamed/Anime + death_bolt/Pink Clouds), статы по формуле Dreegan (HP=cost×2, ATK: cost≥4→2) = 8/2
 
   // Umbasir Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
+  j_trvl15_w:   {name:"TRAVELER #15",   cost:5,hp:5,atk:2,art:"🌀", img:"15.png",   f:"jeet",tags:["bolt:1","foxy","enter_lose:1","gtype:umb"],           ab:"On play Lose 1. Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-27, по прямому запросу автора) — cost5 Umbasir, 2 доп.тега (foxy/Orange from FFF + enter_lose/Net), статы по формуле Umbasir (HP=cost, ATK=1, искл. cost≥4→ATK=2) = 5/2
     j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:2,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","death_armor:2","gtype:umb"],           ab:"Active Bolt 1. Squad Bolt 2."}, // taunt_break→scheme→death_bolt:4→death_armor:2 (2026-07-27, по прямому запросу автора — Схема отдала death_bolt Pink Clouds/Thunder Storm, взамен получила НОВЫЙ тег: при смерти даёт 2 Брони случайному союзнику)
      j_trvl53_w:    {name:"TRAVELER #53",   cost:3,hp:3,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play Lose 1. Active Bolt 1. Squad Bolt 2."},
      j_trvl54_w:    {name:"TRAVELER #54",   cost:1,hp:1,atk:1,art:"🌀", img:"54.png",   f:"jeet",tags:["bolt:1","gtype:umb"],                  ab:"Active Bolt 1. Squad Bolt 2."},
