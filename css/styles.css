@@ -1353,12 +1353,21 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small.feared{border-style:solid;box-shadow:0 0 8px #66666688;}
 /* invisible-visual/stealth-visual (2026-07-19, по прямому запросу автора) — box-shadow
    индикатор убран целиком (сперва была яркая cream-рамка, потом тёмный shadow box) —
-   пока нет отдельного визуального решения для этих статусов, классы ниже намеренно
-   пустые. Классы .invisible-visual/.stealth-visual по-прежнему навешиваются в
-   mkSmallEl() (render.js) — 'Invis'-текстовая плашка и любой будущий индикатор
-   продолжат работать, просто сейчас здесь нечего рисовать. */
+   классы ниже намеренно пустые, но продолжают навешиваться в mkSmallEl() (render.js) как
+   маркер состояния (на случай будущей точечной стилизации по классу). Реальный визуальный
+   индикатор с 2026-07-27 — картинка-оверлей .invis-overlay (см. ниже), не CSS-стиль этих
+   классов. */
 .card-small.invisible-visual{}
 .card-small.stealth-visual{}
+/* Invis/Stealth overlay box (2026-07-27, по прямому запросу автора) — box ТОГО ЖЕ размера,
+   что и сама card-small (100%, НЕ 110% как у .frost-overlay — тот специально чуть больше
+   карты, этот — вровень с ней), картинка invis.png уже содержит нужную прозрачность, никаких
+   доп. эффектов сюда не добавляем. z-index между обычным содержимым карты и дебафф-бэйджами
+   (card-small-feared/-burning/-tauntbroken, z-index:5) и Frost-оверлеем (z-index:20) — "поверх
+   всего, кроме дебафов и фрост ассета", по прямому запросу автора: те продолжают рисоваться
+   НАД этим боксом, а не под ним. Появляется/исчезает мгновенно вместе с обычным render() —
+   никакой отдельной анимации не просили (в отличие от Frost). */
+.invis-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:url('../img/invis.png') center/100% 100% no-repeat;pointer-events:none;z-index:3;}
 .card-small-feared{position:absolute;top:calc(var(--card-small-h) * -0.085);left:20%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:5;}
 .card-small-burning{position:absolute;top:calc(var(--card-small-h) * -0.085);left:80%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:5;}
 .card-small-tauntbroken{position:absolute;top:calc(var(--card-small-h) * -0.085);left:50%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:5;}
