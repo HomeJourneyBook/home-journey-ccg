@@ -579,13 +579,7 @@ function mkSmallEl(card){
   if(card.id===G.sel)d.classList.add('selected');
   if(card.sleeping)d.classList.add('sleeping');
   if(card.exhausted)d.classList.add('exhausted');
-  if(hasTag(card,'invisible')){
-    const inv=document.createElement('span');
-    inv.className='tag-label';
-    inv.textContent='Invis';
-    d.appendChild(inv);
-    d.classList.add('invisible-visual');
-  }
+  if(hasTag(card,'invisible')) d.classList.add('invisible-visual');
   // Stealth — полупрозрачность только пока эффект ещё активен (не сработал ни разу).
   // card.stealthBroken выставляется в true при первой атаке (см. game.js doAttack/hitCard) —
   // это одноразовый эффект на всю игру, дальше карта выглядит как обычно.
@@ -594,6 +588,25 @@ function mkSmallEl(card){
   }
   if(card.feared)d.classList.add('feared');
   if(card.burning)d.classList.add('burning');
+  // Invis/Stealth overlay box (2026-07-27, по прямому запросу автора) — тот же баг и тот же
+  // фикс, что у Frost чуть ниже: раньше здесь был d.appendChild() для 'Invis'-текстовой
+  // плашки (`inv` span) — но он стоял ДО d.innerHTML=`...` дальше по функции, которое стирает
+  // ЛЮБОЙ appendChild, сделанный раньше (см. подробный разбор бага в комментарии у
+  // frostBoxHtml ниже) — плашка молча никогда не рендерилась. Теперь вместо неё — HTML-строка
+  // (тот же паттерн, что уже используют card-small-burning/-feared/-tauntbroken/frostBoxHtml),
+  // вставляется ВНУТРЬ самого шаблона. Условие показа — ТА ЖЕ логика видимости, что уже
+  // использует getTargetableCards() (game.js): stealth, пока не раскрылась (card.stealthBroken
+  // === false), ИЛИ invisible, пока рядом на своём поле есть хотя бы один ВИДИМЫЙ (не-invisible)
+  // союзник (allInvisible — если ВСЕ свои существа invisible разом, сама карта уже
+  // targetable, оверлей не нужен).
+  let invisBoxHtml='';
+  if(hasTag(card,'stealth') && !card.stealthBroken){
+    invisBoxHtml='<div class="invis-overlay"></div>';
+  } else if(hasTag(card,'invisible')){
+    const ownField=G[card.f].field;
+    const allInvisible=ownField.length>0 && ownField.every(c=>hasTag(c,'invisible'));
+    if(!allInvisible) invisBoxHtml='<div class="invis-overlay"></div>';
+  }
   // Frost overlay box (2026-07-27) — БАГФИКС (автор поймал 2026-07-27): раньше здесь стоял
   // d.appendChild(frostBox) — но чуть ниже по функции есть d.innerHTML=`...` (весь основной
   // шаблон карты), которое полностью ЗАМЕНЯЕТ содержимое d, стирая любой appendChild,
@@ -715,6 +728,7 @@ const tagIcons=(card.tags||[])
     ${armorDisp?`<div class="card-small-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-small-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
+    ${invisBoxHtml}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.feared?'<div class="card-small-feared"><img src="img/ef_fear.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.provokeBroken?'<div class="card-small-tauntbroken"><img src="img/ef_tb.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
