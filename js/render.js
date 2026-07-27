@@ -652,7 +652,8 @@ function mkSmallEl(card){
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
-  'death_bolt': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — death_bolt:N, 2026-07-26 (замена taunt_break на существах)
+  'death_bolt': '<img src="img/ico_cloud.png" style="width:60%;height:60%;">', // PINK CLOUDS / Thunder Storm — death_bolt:N, переехал со Scheme (2026-07-27)
+  'death_armor': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME (новый тег) — death_armor:N, 2026-07-27, занял иконку/трейт-слот после переезда death_bolt на Pink Clouds
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -880,7 +881,8 @@ function mkEl(card,zone){
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
-  'death_bolt': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME — death_bolt:N, 2026-07-26 (замена taunt_break на существах)
+  'death_bolt': '<img src="img/ico_cloud.png" style="width:60%;height:60%;">', // PINK CLOUDS / Thunder Storm — death_bolt:N, переехал со Scheme (2026-07-27)
+  'death_armor': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME (новый тег) — death_armor:N, 2026-07-27, занял иконку/трейт-слот после переезда death_bolt на Pink Clouds
 };
 // В кладбище incarnation уже отдельно показана таймер-плашкой (card-incarn-badge, см.
 // ниже) — она физически перекрывает верхний угол колонки card-tag-icons (обе сидят в
