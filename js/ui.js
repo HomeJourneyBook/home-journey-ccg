@@ -1654,7 +1654,7 @@ const TAG_TOOLTIPS = {
   'rage':    { name: 'Rage',    desc: '+2 ATK while wounded to half its max HP or below (floor(maxHP/2)) — turns off if healed back above the threshold.' },
   'provoke': { name: 'Provoke', desc: 'While this creature is untapped (not exhausted), all enemy attacks must target it.' },
   'intercept': { name: 'Intercept', desc: 'While untapped (not exhausted) and if nothing forces all attacks onto itself (Bushido/Provoke), one enemy attack per turn is automatically redirected onto this creature, no matter who the attacker chose. Doesn\'t consume the intercept if the attacker already picked this creature. Once per turn — with multiple Intercept creatures, whichever entered the field earliest triggers first.' },
-  'vanguard':{ name: 'Vanguard', desc: 'Enters the battlefield already active — can attack the same turn it is played.' },
+  'vanguard':{ name: 'Swiftness', desc: 'Enters the battlefield already active — can attack the same turn it is played.' }, // переименован из Vanguard в Swiftness/Стремительность (2026-07-27, по прямому запросу автора) — тег и иконка (ico_vanguard.png) не менялись, только отображаемое имя
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked. Also deals +1 ATK when it attacks an already-Feared target (see atk_vs_feared).' },
   'untamed': { name: 'Untamed', desc: "Clears exhausted at the start of the opponent's turn." },
   'ward':    { name: 'Ward', desc: 'Immune to magic damage, Fear and Burn.' },
@@ -1668,7 +1668,8 @@ const TAG_TOOLTIPS = {
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the battleground. If the creature leaves the battleground and returns, the shield recharges.' },
   'draw_attack': { name: 'Haunt', desc: 'Draws 1 card whenever this creature attacks.' },
   'death_heal': { name: 'Bamboo', desc: 'When this creature dies, heals a random wounded ally for 4 HP.' },
-  'death_bolt': { name: 'Scheme', desc: 'When this creature dies, deals 4 damage to a random enemy creature.' },
+  'death_bolt': { name: 'Thunder Storm', desc: 'When this creature dies, deals 4 damage to a random enemy creature.' }, // переехал с трейта Scheme на Pink Clouds (2026-07-27, по прямому запросу автора) — сам тег/эффект не менялся, только трейт-привязка/имя/иконка (ico_cloud.png)
+  'death_armor': { name: 'Scheme', desc: 'When this creature dies, gives 2 Armor to a random ally.' }, // новый тег (2026-07-27, по прямому запросу автора) — занял трейт-слот Scheme после переезда death_bolt на Pink Clouds, использует прежнюю иконку (ico_scheme.png)
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box, .card-incarn-badge';
