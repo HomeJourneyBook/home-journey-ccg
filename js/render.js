@@ -760,6 +760,7 @@ function mkSmallEl(card){
   'death_armor': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME (новый тег) — death_armor:N, 2026-07-27, занял иконку/трейт-слот после переезда death_bolt на Pink Clouds
   'frost': '<img src="img/ico_snow.png" style="width:60%;height:60%;">', // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
   'foxy': '<img src="img/ico_fff.png" style="width:60%;height:60%;">', // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
+  'market': '<img src="img/ico_market.png" style="width:60%;height:60%;">', // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -993,6 +994,7 @@ function mkEl(card,zone){
   'death_armor': '<img src="img/ico_scheme.png" style="width:60%;height:60%;">', // SCHEME (новый тег) — death_armor:N, 2026-07-27, занял иконку/трейт-слот после переезда death_bolt на Pink Clouds
   'frost': '<img src="img/ico_snow.png" style="width:60%;height:60%;">', // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
   'foxy': '<img src="img/ico_fff.png" style="width:60%;height:60%;">', // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
+  'market': '<img src="img/ico_market.png" style="width:60%;height:60%;">', // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
 };
 // В кладбище incarnation уже отдельно показана таймер-плашкой (card-incarn-badge, см.
 // ниже) — она физически перекрывает верхний угол колонки card-tag-icons (обе сидят в
