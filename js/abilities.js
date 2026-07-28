@@ -97,6 +97,15 @@ function getAbilities(card){
       // противника сбросить N случайных карт из руки в Пустоту. Тот же on_enter timing,
       // что и enter_heal/enter_draw — резолвится сразу, без анимации прилёта карты.
       case 'enter_lose': ab.push({timing:'on_enter',effect:'lose',val}); break;
+      // enter_fear_all (2026-07-28, "LORD OF TERROR", по прямому запросу автора) — тот же
+      // AOE-фир, что у NIGHTMARE (spell_fear_all → execution-кейс 'fear_all' ниже), но
+      // триггерится ON ENTER (когда существо садится на поле), а не спелл-кастом. Полностью
+      // реюзает готовый 'fear_all' кейс — со всей его иммунной логикой (Ward/Frost/активный
+      // Solana Shield/Foxy Trick) уже встроенной, ничего дублировать не пришлось.
+      case 'enter_fear_all': ab.push({timing:'on_enter',effect:'fear_all'}); break;
+      // enter_burn_all (2026-07-28, "OGNIVEN'", по прямому запросу автора) — Tea-зеркало
+      // enter_fear_all выше: тот же 'burn_all' кейс (реюз WILDFIRE-движка), но on_enter.
+      case 'enter_burn_all': ab.push({timing:'on_enter',effect:'burn_all'}); break;
       // lose:N (2026-07-17, автор) — "Потеря карты": сбрасывает N случайных карт из руки
       // ПРОТИВНИКА владельца этой карты в Пустоту (навсегда, без возможности вернуть —
       // тот же принцип, что и burn-сброс/сожжение). Если рука противника уже пуста —
