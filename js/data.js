@@ -107,7 +107,7 @@ const DEFS = {
   // получении удара, см. doAttack() в game.js) + 'atk_vs_burning:N' (наступательная часть —
   // сама карта наносит +N атаки, если ЕЁ цель уже горит). Если в будущем захочешь дать
   // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
-  t_faeron:    {name:"FAERON",     cost:5,hp:8,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1"], ab:"\“Yet another one burned.\”",unique:true}, // enter_aoe:1 (On play AOE 1) снят (2026-07-23, баланс, по прямому запросу автора) — карту вообще не трогали раньше, была 58-61.1% winrate-when-played; Fire Shield (thorns:2+atk_vs_burning:1) не тронут
+  t_faeron:    {name:"FAERON",     cost:6,hp:8,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1"], ab:"\“Yet another one burned.\”",unique:true}, // enter_aoe:1 (On play AOE 1) снят (2026-07-23, баланс, по прямому запросу автора) — карту вообще не трогали раньше, была 58-61.1% winrate-when-played; Fire Shield (thorns:2+atk_vs_burning:1) не тронут
   t_nab:       {name:"NABUNAGI",   cost:8,hp:8,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1"], ab:"\"Bushido\": All attacks must target him.",unique:true}, // ATK 3→2 (2026-07-23, по прямому запросу автора) — HP-срезы (13→10→8) не помогли достаточно (59.4-66.1% winrate-when-played), пробуем срезать ATK вместо HP
   // OGNIVEN' (2026-07-28, по прямому запросу автора) — новый уникальный Tea, замена ASLEX
   // в classic-деке (см. CLASSIC_TEA_DECK в deck.js — ASLEX остаётся в data.js/Rush-пуле,
@@ -118,7 +118,7 @@ const DEFS = {
   // иммунитет, что уже встроен в fear_all/burn_all (замороженные тоже иммунны — check
   // t.frozen внутри case 'burn_all'), ничего доп. кодить не пришлось. Статы = те же, что
   // были у ASLEX (cost6, 7hp/3atk) — только способность другая.
-  t_ogniv:     {name:"OGNIVEN'",   cost:6,hp:7,atk:3,art:"🔥", img:"012_Ogon.png",    f:"tea",tags:["unique","enter_burn_all"], ab:"On play: set ALL enemy creatures on fire. “Every ember remembers.”",unique:true},
+  t_ogniv:     {name:"OGNIVEN'",   cost:6,hp:7,atk:3,art:"🔥", img:"012_Ogon.png",    f:"tea",tags:["unique","enter_burn_all","burn"], ab:"On play: set ALL enemy creatures on fire. “Every ember remembers.”",unique:true},
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
@@ -247,7 +247,7 @@ const DEFS = {
   // Shield — тот же полный иммунитет, что уже встроен в fear_all/burn_all (замороженные
   // тоже иммунны — check t.frozen внутри case 'fear_all'), ничего доп. кодить не пришлось.
   // Статы = те же, что были у REAPER (cost6, 7hp/3atk) — только способность другая.
-  j_terror:    {name:"LORD OF TERROR", cost:6,hp:7,atk:3,art:"👹", img:"013_Terror.png",  f:"jeet",tags:["unique","enter_fear_all"], ab:"On play: Fear ALL enemy creatures. “The dark has a face now.”",unique:true},
+  j_terror:    {name:"LORD OF TERROR", cost:6,hp:7,atk:3,art:"👹", img:"013_Terror.png",  f:"jeet",tags:["unique","enter_fear_all","fear"], ab:"On play: Fear ALL enemy creatures. “The dark has a face now.”",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2.",spell:true},
