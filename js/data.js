@@ -47,6 +47,7 @@ const DEFS = {
   t_trvl388_w:  {name:"TRAVELER #388",  cost:4,hp:8,atk:2,art:"🌳", img:"388.png",  f:"tea",tags:["provoke","untamed","enter_draw:1","gtype:drg"],            ab:"On play Draw 1. Squad +1 Armor."},
   t_trvl14_w:   {name:"TRAVELER #14",   cost:2,hp:4,atk:1,art:"🌳", img:"14.png",   f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad +1 Armor."},
   t_trvl58_w:   {name:"TRAVELER #58",   cost:2,hp:4,atk:1,art:"🌳", img:"58.png",   f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad +1 Armor."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #14/#41 (cost2 Dreegan, 0 доп.тегов)
+  t_trvl179_w:  {name:"TRAVELER #179",  cost:5,hp:10,atk:2,art:"🌳", img:"179.png",  f:"tea",tags:["provoke","market","shield","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-28, по прямому запросу автора) — cost5 Dreegan, 2 доп.тега сверх сигнатурного provoke (market/To the Moon with DHD + shield/Solana Home), статы по формуле Dreegan (HP=cost×2, ATK: cost≥4→2) = 10/2, без урезки за 2 доп.тега (см. живые cost4 2-тег-пиры #388/#481 — оба на формуле литерально)
 
   // Umbasir Tea (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
     t_trvl583_w:    {name:"TRAVELER #583",  cost:4,hp:4,atk:2,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","death_heal:4","gtype:umb"],ab:"Active Bolt 1. Squad Bolt 2."}, // enter_heal:2→death_heal:4 (2026-07-26, перепривязка Бамбука)
@@ -59,6 +60,7 @@ const DEFS = {
   t_trvl730_w:    {name:"TRAVELER #730",    cost:3,hp:3,atk:1,art:"🌀", img:"730.png",    f:"tea",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-24, по прямому запросу автора) — cost3 Umbasir, 1 доп.тег (untamed), статы по образцу пиров #2/#53/#6/#137
       t_trvl387_w:  {name:"TRAVELER #387",  cost:5,hp:5,atk:2,art:"🌀", img:"387.png",  f:"tea",tags:["bolt:1","burn","remember","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // necrophage(Erase)→remember (2026-07-26, по прямому запросу автора — Erase временно снят со всех карт, придержан для будущего уникального)
       t_trvl137_w:  {name:"TRAVELER #137",  cost:3,hp:3,atk:1,art:"🌀", img:"137.png",  f:"tea",tags:["bolt:1","shield","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
+      t_trvl191_w:  {name:"TRAVELER #191",  cost:3,hp:3,atk:1,art:"🌀", img:"191.png",  f:"tea",tags:["bolt:1","market","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-28, по прямому запросу автора) — cost3 Umbasir, 1 доп.тег сверх сигнатурного bolt:1 (market/To the Moon with DHD), статы по формуле Umbasir (HP=cost, ATK=1) = 3/1, по образцу живого cost3 1-тег-пира #137
 
   // Mechird Tea
   // Ребаланс (2026-07-20, по прямому запросу автора) — ATK срезан (было завышено
@@ -175,6 +177,7 @@ const DEFS = {
   // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону #12/#49/#971 выше.
   j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
   j_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:4,atk:5,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // ATK 5→4 (2026-07-24, по прямому запросу автора)
+  j_trvl196_w:  {name:"TRAVELER #196",  cost:4,hp:4,atk:5,art:"🦈", img:"196.png",  f:"jeet",tags:["market","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // новая карта (2026-07-28, по прямому запросу автора) — cost4 Szarg, 2 доп.тега (market/To the Moon with DHD + incarnation/Ancient), статы по формуле Szarg (HP=cost, ATK=cost+1, без исключений на тег-каунт) = 4/5
 
   // Orbiton Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
   j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad: +2 Armor."},
@@ -219,6 +222,7 @@ const DEFS = {
   j_trvl663_w:  {name:"TRAVELER #663",  cost:4,hp:4,atk:3,art:"🤖", img:"663.png",  f:"jeet",tags:["pierce","fear","death_heal:4","gtype:mch"],ab:"Squad +1 ATK."}, // enter_heal:2→death_heal:4 (2026-07-26, перепривязка Бамбука)
   j_trvl320_w:  {name:"TRAVELER #320",  cost:4,hp:4,atk:3,art:"🤖", img:"320.png",  f:"jeet",tags:["pierce","remember","untamed","gtype:mch"],          ab:"Squad +1 ATK."}, // necrophage(Erase)→remember (2026-07-26, по прямому запросу автора)
   j_trvl901_w:  {name:"TRAVELER #901",  cost:3,hp:3,atk:2,art:"🤖", img:"901.png",  f:"jeet",tags:["pierce","ward","gtype:mch"],          ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #22/#804/#38 (cost3 Mechird, 1 доп.тег)
+  j_trvl174_w:  {name:"TRAVELER #174",  cost:5,hp:5,atk:4,art:"🤖", img:"174.png",  f:"jeet",tags:["pierce","market","enter_lose:1","gtype:mch"],ab:"On play Lose 1. Squad +1 ATK."}, // новая карта (2026-07-28, по прямому запросу автора) — cost5 Mechird, 2 доп.тега сверх сигнатурного pierce (market/To the Moon with DHD + enter_lose/Net), статы по формуле Mechird (HP=cost, ATK=max(1,cost−1)) = 5/4, по образцу живых cost5 2-тег-пиров #295/#128/#607 (все 5/4 независимо от числа доп.тегов)
 
   // Xuiqtr Jeet (ребаланс 2026-07-20 — см. комментарий у Xuiqtr Tea выше)
     j_trvl579_w:    {name:"TRAVELER #579",  cost:3,hp:4,atk:2,art:"🐙", img:"579.png",  f:"jeet",tags:["intercept","fear","gtype:xui"],          ab:"Squad +1 ATK."},
