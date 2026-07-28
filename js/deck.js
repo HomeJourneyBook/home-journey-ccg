@@ -148,35 +148,33 @@ function shuffleArr(d){
 // (замена RENEWAL) в одиночку просадила Tea на 6.5пп (untap почти мёртв без
 // комбо-партнёра в этой деке) — RENEWAL оставлен, несмотря на то что сам по себе горячий
 // (58.6%) — деке в целом лучше с ним, чем без. Итог: TEA 48.8% / JEET 51.2% на N=3000.
-// 2026-07-28 (по прямому запросу автора): ASLEX → OGNIVEN' (новый уникальный, on_enter
-// AOE-поджог всего поля вместо on_own_death_base хила базы) — ASLEX остаётся в data.js/
-// Rush-пуле, просто больше не в фикс-списке classic. Заодно t_sp15 (SPARK, bolt2) заменён
-// на t_sp21 (SUNDER, destroy target World/Artifact) — Tea получает антимировой/антиартефактный
-// тех в classic, которого раньше не было вообще (у Jeet он уже стоял: j_sp21 BLIGHT).
+// 2026-07-28 (по прямому запросу автора): CLASSIC_TEA_DECK/CLASSIC_JEET_DECK ПОЛНОСТЬЮ
+// синхронизированы с Rush-сборками, которые автор вручную докрутил в деккбилдере и
+// прогнал через sim/headless.js (1000 партий, TEA 50.8% / JEET 49.2% — макро сбалансировано;
+// см. чат-разбор per-card/per-gtype winrate-when-played на этот же билд). Раньше Classic и
+// Rush-старт ИИ были РАЗНЫМИ списками (Classic — более старый "печатный" набор, см. историю
+// правок выше) — теперь это один и тот же список, так что "играть именно этими сборками" в
+// Classic и смотреть на них в Rush-деккбилдере — один и тот же контент. При следующей ручной
+// правке в деккбилдере — не забыть синхронизировать оба списка ниже заново тем же способом
+// (экспорт JSON из деккбилдера → развернуть qty в плоский массив → вставить сюда).
 const CLASSIC_TEA_DECK = [
   't_w1','t_a1','t_faeron','t_ogniv',
-  't_trvl33_w','t_trvl870_w','t_trvl890_w',
-  't_trvl14_w','t_trvl58_w','t_trvl42_w',
-  't_trvl57_w','t_trvl10_w','t_trvl692_w','t_trvl31_w','t_trvl921_w','t_trvl972_w',
-  't_trvl398_w','t_trvl495_w',                         // было t_trvl1015_w, t_trvl388_w
-  't_trvl387_w','t_trvl295_w',
+  't_trvl870_w','t_trvl890_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl692_w',
+  't_trvl31_w','t_trvl921_w','t_trvl972_w','t_trvl495_w','t_trvl1034_w','t_trvl6_w',
+  't_trvl250_w','t_trvl28_w','t_trvl39_w','t_trvl1015_w',
   't_sp23','t_sp10','t_sp20','t_sp17',
-  't_sp14','t_sp14','t_sp13','t_sp4','t_sp16','t_sp24','t_sp6','t_sp21','t_sp12','t_sp1','t_sp26', // t_sp18→t_sp24(RENEWAL), t_sp27→t_sp26(JUDGMENT), t_sp15(SPARK)→t_sp21(SUNDER)
+  't_sp14','t_sp14','t_sp13','t_sp16','t_sp24','t_sp6','t_sp12','t_sp26','t_sp22','t_sp18','t_sp27',
 ];
 
-// 2026-07-28 (по прямому запросу автора): REAPER → LORD OF TERROR (новый уникальный,
-// on_enter AOE-фир всего поля вместо on_own_death_base хила базы) — REAPER остаётся в
-// data.js/Rush-пуле, просто больше не в фикс-списке classic.
 const CLASSIC_JEET_DECK = [
   'j_w1','j_a1','j_vard','j_terror',
-  'j_trvl12_w','j_trvl971_w','j_trvl740_w',
-  'j_trvl41_w','j_trvl27_w','j_trvl50_w',
-  'j_trvl1008_w','j_trvl523_w','j_trvl579_w','j_trvl36_w','j_trvl720_w',
-  'j_trvl434_w','j_trvl859_w','j_trvl550_w','j_trvl663_w',
-  'j_trvl704_w',
+  'j_trvl971_w','j_trvl740_w','j_trvl41_w','j_trvl27_w','j_trvl50_w','j_trvl1008_w',
+  'j_trvl523_w','j_trvl579_w','j_trvl36_w','j_trvl434_w','j_trvl859_w','j_trvl663_w',
+  'j_trvl578_w','j_trvl359_w','j_trvl53_w','j_trvl901_w',
   'j_sp23','j_sp10','j_sp20','j_sp17',
-  'j_sp14','j_sp14','j_sp1','j_sp21','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp2','j_sp27', // j_sp4(BLACK MAGIC)→j_sp21(BLIGHT), j_sp11(FRENZY)→j_sp2(OBLIVION)
+  'j_sp14','j_sp14','j_sp1','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp2','j_sp27','j_sp22',
 ];
+
 
 function _composeDeckList(f, cfg){
   return (f==='tea' ? CLASSIC_TEA_DECK : CLASSIC_JEET_DECK).slice();
