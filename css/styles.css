@@ -1894,6 +1894,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .field-fx-popup.fx-miss{color:#e8e8e8;} /* Foxy Trick (2026-07-27) — нейтрально-серый, отличается от красного fx-fear/fx-spell-dmg, чтобы промах читался не как урон */
 .field-fx-popup.fx-immune{color:#5be3ff;} /* Ward-иммунитет (2026-07-27, по прямому запросу автора) — тот же голубой, что у fx-cleaned, читается как "защитный", не как урон/дебафф */
 .field-fx-popup.fx-absorb{color:#ffd700;} /* Solana Shield поглощает удар (2026-07-27, по прямому запросу автора) — золотой, как fx-squad, читается как "мощная защитная реакция" */
+.field-fx-popup.fx-market-up{color:#4caf50;} /* Game of Market (2026-07-28) — рынок вверх, бонус-урон по цели — зелёный */
+.field-fx-popup.fx-market-down{color:#e05555;} /* Game of Market (2026-07-28) — рынок вниз, самоурон — тот же красный, что fx-spell-dmg */
 .card-small.dying{animation: cardDie 0.4s ease-in forwards; pointer-events:none;}
 .card-small.activating{animation: cardActivate 0.5s ease-in-out forwards; z-index: 10;}
 @keyframes cardEnter{
