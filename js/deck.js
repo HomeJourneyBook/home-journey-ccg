@@ -77,13 +77,13 @@ const SPELL_COPIES = {
   t_sp12:1, // BULWARK (combat-trick +1 Armor) — защитный бафф, добавлен 2026-07-24
   t_sp13:2, // INSIGHT (draw 2) — добор ×2
   t_sp14:1, // GLIMPSE (draw 1 + heal base 2)
-  t_sp15:1, // SPARK (bolt 2) — добавлен 2026-07-24, больше атаки в арсенал
+  t_sp15:0, // SPARK (bolt 2) — исключён 2026-07-28 (по прямому запросу автора), заменён на SUNDER
   t_sp16:2, // SANCTUARY (heal all 2 + heal base 2) — хил ×2
   t_sp17:1, // JAB (bolt 1)
   t_sp18:1, // SCATTERSHOT (3 random spread)
   t_sp19:0, // MULTITUDE (scaling draw) — исключён
   t_sp20:1, // EXECUTE (bolt3 + draw on kill)
-  t_sp21:0, // SUNDER (destroy world/artifact) — исключён
+  t_sp21:1, // SUNDER (destroy world/artifact) — добавлен в Classic 2026-07-28 (по прямому запросу автора), заменил SPARK
   t_sp22:1, // CATACLYSM (destroy all enemies) — добавлен 2026-07-24, больше атаки в арсенал
   t_sp23:1, // CINDER (single-target burn) — точечный поджог, добавлен по прямому запросу автора
   t_sp24:1, // RENEWAL (discard hand, draw 3) — добавлен в Classic 2026-07-24, заменил TUBORG
@@ -148,19 +148,27 @@ function shuffleArr(d){
 // (замена RENEWAL) в одиночку просадила Tea на 6.5пп (untap почти мёртв без
 // комбо-партнёра в этой деке) — RENEWAL оставлен, несмотря на то что сам по себе горячий
 // (58.6%) — деке в целом лучше с ним, чем без. Итог: TEA 48.8% / JEET 51.2% на N=3000.
+// 2026-07-28 (по прямому запросу автора): ASLEX → OGNIVEN' (новый уникальный, on_enter
+// AOE-поджог всего поля вместо on_own_death_base хила базы) — ASLEX остаётся в data.js/
+// Rush-пуле, просто больше не в фикс-списке classic. Заодно t_sp15 (SPARK, bolt2) заменён
+// на t_sp21 (SUNDER, destroy target World/Artifact) — Tea получает антимировой/антиартефактный
+// тех в classic, которого раньше не было вообще (у Jeet он уже стоял: j_sp21 BLIGHT).
 const CLASSIC_TEA_DECK = [
-  't_w1','t_a1','t_faeron','t_aslex',
+  't_w1','t_a1','t_faeron','t_ogniv',
   't_trvl33_w','t_trvl870_w','t_trvl890_w',
   't_trvl14_w','t_trvl58_w','t_trvl42_w',
   't_trvl57_w','t_trvl10_w','t_trvl692_w','t_trvl31_w','t_trvl921_w','t_trvl972_w',
   't_trvl398_w','t_trvl495_w',                         // было t_trvl1015_w, t_trvl388_w
   't_trvl387_w','t_trvl295_w',
   't_sp23','t_sp10','t_sp20','t_sp17',
-  't_sp14','t_sp14','t_sp13','t_sp4','t_sp16','t_sp24','t_sp6','t_sp15','t_sp12','t_sp1','t_sp26', // t_sp18→t_sp24(RENEWAL), t_sp27→t_sp26(JUDGMENT)
+  't_sp14','t_sp14','t_sp13','t_sp4','t_sp16','t_sp24','t_sp6','t_sp21','t_sp12','t_sp1','t_sp26', // t_sp18→t_sp24(RENEWAL), t_sp27→t_sp26(JUDGMENT), t_sp15(SPARK)→t_sp21(SUNDER)
 ];
 
+// 2026-07-28 (по прямому запросу автора): REAPER → LORD OF TERROR (новый уникальный,
+// on_enter AOE-фир всего поля вместо on_own_death_base хила базы) — REAPER остаётся в
+// data.js/Rush-пуле, просто больше не в фикс-списке classic.
 const CLASSIC_JEET_DECK = [
-  'j_w1','j_a1','j_vard','j_reap',
+  'j_w1','j_a1','j_vard','j_terror',
   'j_trvl12_w','j_trvl971_w','j_trvl740_w',
   'j_trvl41_w','j_trvl27_w','j_trvl50_w',
   'j_trvl1008_w','j_trvl523_w','j_trvl579_w','j_trvl36_w','j_trvl720_w',
