@@ -20,18 +20,10 @@ const DEFS = {
   t_trvl55_w: {name:"TRAVELER #55", cost:2,hp:2,atk:3,art:"🦈", img:"55.png",  f:"tea",tags:["gtype:szg"],            ab:"Squad +1 maxHP."}, // hp/atk 1/1→2/3 (2026-07-24, по прямому запросу автора) — исправлено вслед за #7
   t_trvl28_w: {name:"TRAVELER #28", cost:2,hp:2,atk:3,art:"🦈", img:"28.png",  f:"tea",tags:["gtype:szg"],            ab:"Squad +1 maxHP."}, // hp/atk 1/1→2/3 (2026-07-24, по прямому запросу автора) — исправлено вслед за #7
   t_trvl250_w: {name:"TRAVELER #250", cost:4,hp:4,atk:5,art:"🦈", img:"250.png",  f:"tea",tags:["burn","death_bolt:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // cost 5→4 (2026-07-27, по прямому запросу автора — Szarg не должен существовать на cost5 вообще, см. история "cost5 Szarg — решение отложено" ниже), hp/atk пересчитаны по формуле Szarg (HP=cost, ATK=cost+1) = 4/5
-  // TRAVELER #57 удалён (2026-07-28, по прямому запросу автора) — эта NFT была заменена
-  // допмолодом на Orbiton (см. секцию Orbiton Tea ниже, t_trvl57_w теперь там с untamed),
-  // Szarg-версии этого номера в реальной коллекции больше не существует.
-  // +2 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #33 выше (тот же
-  // 1/2 болван, gtype:szg, идентичная Squad-абилка), см. AI BALANCE NOTES.
   t_trvl870_w: {name:"TRAVELER #870", cost:1,hp:1,atk:2,art:"🦈", img:"870.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
   t_trvl890_w: {name:"TRAVELER #890", cost:1,hp:1,atk:2,art:"🦈", img:"890.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
 
   // Orbiton Tea
-  // Ребаланс HP (2026-07-20, по прямому запросу автора) — Orbiton/Umbasir были
-  // заметно жирнее Szarg на том же cost'е; срезано до кривой hp≈cost, как у
-  // Szarg (см. Szarg Tea/Jeet выше) — ATK/теги (heal/bolt) не тронуты.
   t_trvl10_w:   {name:"TRAVELER #10",   cost:3,hp:3,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:3","burn","gtype:orb"],             ab:"Active Heal 3 and Clean. Squad: +2 Armor."}, // ATK 2→1 (2026-07-27, по прямому запросу автора — откат формулы Orbiton: cost≥3→ATK=2 стало cost≥4→ATK=2, кривая 1-1-2-2-2 → 1-1-1-2-2)
   t_trvl398_w:  {name:"TRAVELER #398",  cost:4,hp:4,atk:2,art:"👁️", img:"398.png",  f:"tea",tags:["heal:3","vanguard","untamed","gtype:orb"],         ab:"Active Heal 3 and Clean. Squad: +2 Armor."},
   t_trvl433_w:  {name:"Selora",  cost:1,hp:1,atk:1,art:"👁️", img:"433.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad: +2 Armor."}, // ИМЕННОЙ путешественник (2026-07-28, по прямому запросу автора) — TRAVELER #433 сожжён из коллекции (ритуал 10 врат). Паттерн имён Orbiton — см. "Именные путешественники" в CLAUDE.md. Статы/теги не менялись, только name.
@@ -39,7 +31,6 @@ const DEFS = {
   t_trvl692_w:  {name:"TRAVELER #692",  cost:3,hp:3,atk:1,art:"👁️", img:"692.png",  f:"tea",tags:["heal:3","burn","gtype:orb"],                   ab:"Active Heal 3 and Clean. Squad: +2 Armor."}, // ATK 2→1 (2026-07-27, откат формулы Orbiton, см. #10). новая карта (2026-07-23, по прямому запросу автора) — cost3 Orbiton, 1 доп.тег (burn), статы по образцу пира #10 (cost3, 1 доп.тег = hp3/atk1); TEA — burn-тема, явное указание автора
   t_trvl218_w:  {name:"TRAVELER #218",  cost:2,hp:2,atk:1,art:"👁️", img:"218.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad: +2 Armor."},
   t_trvl1034_w: {name:"TRAVELER #1034", cost:1,hp:1,atk:1,art:"👁️", img:"1034.png", f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad: +2 Armor."},
-  // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону TRAVELER #433/#1034 выше.
   t_trvl503_w:  {name:"TRAVELER #503",  cost:1,hp:1,atk:1,art:"👁️", img:"503.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad: +2 Armor."},
   t_trvl995_w:  {name:"TRAVELER #995",  cost:1,hp:1,atk:1,art:"👁️", img:"995.png",  f:"tea",tags:["heal:2","gtype:orb"],                   ab:"Active Heal 2 and Clean. Squad: +2 Armor."}, // cost 2→1 (2026-07-28, по прямому запросу автора — правило "0 тегов → cost1-2, 1 тег → cost3, 2 тега → только cost5"), ваниль (mood "10", без эффекта), статы по формуле Orbiton (HP=cost, ATK=1, heal=2) = 1/1
   t_trvl776_w:  {name:"TRAVELER #776",  cost:3,hp:3,atk:1,art:"👁️", img:"776.png",  f:"tea",tags:["heal:3","burn","gtype:orb"],           ab:"Active Heal 3 and Clean. Squad: +2 Armor."}, // новая карта (2026-07-28, по прямому запросу автора) — cost3 Orbiton, 1 доп.тег (burn/Flame), статы по формуле Orbiton (HP=cost, ATK=1, heal=3) = 3/1; TEA — продолжает burn-тему фракции
@@ -58,7 +49,7 @@ const DEFS = {
   t_trvl58_w:   {name:"TRAVELER #58",   cost:2,hp:4,atk:1,art:"🌳", img:"58.png",   f:"tea",tags:["provoke","gtype:drg"],                   ab:"Squad +1 Armor."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #14/#41 (cost2 Dreegan, 0 доп.тегов)
   t_trvl179_w:  {name:"TRAVELER #179",  cost:5,hp:10,atk:2,art:"🌳", img:"179.png",  f:"tea",tags:["provoke","market","shield","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-28, по прямому запросу автора) — cost5 Dreegan, 2 доп.тега сверх сигнатурного provoke (market/To the Moon with DHD + shield/Solana Home), статы по формуле Dreegan (HP=cost×2, ATK: cost≥4→2) = 10/2, без урезки за 2 доп.тега (см. живые cost4 2-тег-пиры #388/#481 — оба на формуле литерально)
 
-  // Umbasir Tea (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
+  // Umbasir Tea
     t_trvl583_w:    {name:"TRAVELER #583",  cost:4,hp:4,atk:2,art:"🌀", img:"583.png",  f:"tea",tags:["bolt:1","regen","death_heal:4","gtype:umb"],ab:"Active Bolt 1. Squad Bolt 2."}, // enter_heal:2→death_heal:4 (2026-07-26, перепривязка Бамбука)
       j_trvl2_w:    {name:"TRAVELER #2",    cost:3,hp:3,atk:1,art:"🌀", img:"2.png",    f:"jeet",tags:["bolt:1","untamed","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // перенесён Tea→Jeet (2026-07-24, по прямому запросу автора), cost не менялся
      t_trvl52_w:    {name:"TRAVELER #52",   cost:1,hp:1,atk:1,art:"🌀", img:"52.png",   f:"tea",tags:["bolt:1","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."},
@@ -72,9 +63,6 @@ const DEFS = {
       t_trvl191_w:  {name:"TRAVELER #191",  cost:3,hp:3,atk:1,art:"🌀", img:"191.png",  f:"tea",tags:["bolt:1","market","gtype:umb"],                     ab:"Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-28, по прямому запросу автора) — cost3 Umbasir, 1 доп.тег сверх сигнатурного bolt:1 (market/To the Moon with DHD), статы по формуле Umbasir (HP=cost, ATK=1) = 3/1, по образцу живого cost3 1-тег-пира #137
 
   // Mechird Tea
-  // Ребаланс (2026-07-20, по прямому запросу автора) — ATK срезан (было завышено
-  // относительно Szarg на том же cost'е), HP приведён к кривой hp≈cost, как у
-  // Szarg (см. комментарий у Orbiton Tea выше) — та же логика, другая ось.
   t_trvl38_w:   {name:"TRAVELER #38",   cost:3,hp:3,atk:2,art:"🤖", img:"38.png",   f:"tea",tags:["pierce","vampiric","gtype:mch"],              ab:"Squad +1 ATK."}, // rage→vampiric (2026-07-26, по прямому запросу автора — перепривязка NFT-трейтов: Blood теперь даёт vampiric, Незабываемый/Unforgettable даёт rage)
   t_trvl18_w:   {name:"TRAVELER #18",   cost:2,hp:2,atk:1,art:"🤖", img:"18.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad +1 ATK."},
   t_trvl35_w:   {name:"TRAVELER #35",   cost:2,hp:2,atk:1,art:"🤖", img:"35.png",   f:"tea",tags:["pierce","gtype:mch"],                    ab:"Squad +1 ATK."},
@@ -90,11 +78,6 @@ const DEFS = {
   t_trvl607_w:  {name:"TRAVELER #607",  cost:5,hp:5,atk:4,art:"🤖", img:"607.png",  f:"tea",tags:["pierce","draw_attack:1","remember","gtype:mch"],           ab:"Squad +1 ATK."}, // новая карта (2026-07-27, по прямому запросу автора) — cost5 Mechird, 2 доп.тега (draw_attack/Candle + remember/Remember Everything), статы по формуле Mechird (HP=cost, ATK=max(1,cost−1)) = 5/4
 
   // Xuiqtr Tea
-  // Ребаланс (2026-07-20, по прямому запросу автора) — на cost 1-3 HP поднят до
-  // уровня Dreegan на том же cost'е (см. Dreegan Tea/Jeet выше, ATK не тронут —
-  // Xuiqtr остаётся заметно ударнее Dreegan там же); с cost 4+ упор смещён на
-  // рост ATK вместо продолжения HP-кривой Dreegan (та у cost 4-6 уходит в
-  // 8-13 HP) — HP растёт медленно (+1 за cost), ATK быстро (+1 за cost).
     t_trvl402_w:    {name:"TRAVELER #402",  cost:5,hp:6,atk:3,art:"🐙", img:"402.png",  f:"tea",tags:["intercept","regen","vampiric","gtype:xui"],                   ab:"Squad +1 ATK."}, // cost 4→5 (2026-07-24, по прямому запросу автора), статы по образцу пира #704 (cost5, 2 доп.тега = hp8/atk3). rage→vampiric (2026-07-26, перепривязка NFT-трейтов)
   t_trvl847_w:    {name:"TRAVELER #847",  cost:4,hp:5,atk:3,art:"🐙", img:"847.png",  f:"tea",tags:["intercept","ward","gtype:xui"],                   ab:"Squad +1 ATK."}, // новая карта (2026-07-24, по прямому запросу автора) — cost4 Xuiqtr, 1 доп.тег (ward); прямого 1-тегового пира на cost4 нет, статы взяты по уровню 2-теговых cost4 пиров (#806, было #402 до переноса) — hp6/atk2, не проверено симуляцией
      t_trvl26_w:    {name:"TRAVELER #26",   cost:3,hp:4,atk:2,art:"🐙", img:"26.png",   f:"tea",tags:["intercept","death_armor:2","gtype:xui"],            ab:"Squad +1 ATK."}, // taunt_break→scheme→death_bolt:4→death_armor:2 (2026-07-27, по прямому запросу автора — Схема отдала death_bolt Pink Clouds/Thunder Storm, взамен получила НОВЫЙ тег: при смерти даёт 2 Брони случайному союзнику)
@@ -106,11 +89,6 @@ const DEFS = {
   t_trvl193_w:  {name:"Mai Vrai",   cost:5,hp:6,atk:3,art:"🐙", img:"193.png",   f:"tea",tags:["intercept","market","death_heal:4","gtype:xui"],          ab:"Squad +1 ATK."}, // ИМЕННОЙ путешественник (2026-07-28, по прямому запросу автора) — TRAVELER #193 сожжён из коллекции (ритуал 10 врат), первая карта с именем вместо номера. Паттерн имён Xuiqtr — см. "Именные путешественники" в CLAUDE.md. cost5 Xuiqtr, 2 доп.тега (market/To the Moon with DHD + death_heal/Bamboo), статы по формуле Xuiqtr (HP=cost+1, ATK=cost-1, искл. cost≥5→cost-2) = 6/3
 
   // ── TEA LEGENDARIES ─────────────────────────────────────────────
-  // Ребаланс 2026-07-19 (по прямому запросу автора) — стоимость легендарок поднята с
-  // диапазона 4-6 в 6-9 ("если уж уникальный — пусть будет праздник"). Статы пересчитаны
-  // от реальной кривой рядовых карт (см. AI BALANCE NOTES/чат) с небольшой премией за
-  // уникальность; ATK почти не тронут (максимум +1), основной вес добавки — в HP и по
-  // ОДНОМУ новому тегу на карту, чтобы не раздувать чистые цифры без текстуры.
   t_tean:      {name:"TEANTIST",   cost:6,hp:9,atk:2,art:"🧙", img:"002_Teantist.png", f:"tea",tags:["unique","stealth","heal:4"],            ab:"Active Heal 4 and Clean. “Healed in silence.”",unique:true}, // ATK 3→2 (2026-07-28, по прямому запросу автора, по итогам чистого изолированного sim-теста N=3000: baseline 54.8% WWP — у верхней границы коридора, без явного запаса на баф; автор решил слегка подрезать вместо баффа). 2026-07-23 (баланс, по прямому запросу автора): draw_attack:1 снят (65.6% winrate-when-played на 2000 партий) — заменён на heal:4, уже готовая движковая механика (см. Traveler-орбы), даёт стабильно ~50.1% winrate вместо карточного движка
   t_aslex:     {name:"ASLEX",      cost:6,hp:9,atk:2,art:"🍵", img:"008_Aslex.png",    f:"tea",tags:["unique","on_own_death_base:1"],      ab:"“Elegy”: When your creature dies, Heal Base 1 HP.",unique:true}, // ATK→HP сдвиг (2026-07-28, по прямому запросу автора) — атк3/hp7 → атк2/hp9. Чистый изолированный sim-тест (N=3000, карта одна в проверенной Classic-деке) показал baseline 56.8% WWP (горячая), после сдвига 52.0% (вернулась в коридор 45-55) — сдвиг одновременно чинит перегрев И делает тело крепче против бурста. HP 10→7 (2026-07-23); shield снят (2026-07-23); названа "Elegy", уровнена с REAPER (2026-07-23, по прямому запросу автора) — оставалась 56.5-63.2% winrate-when-played
   t_tuborg:    {name:"TUBORG",     cost:7,hp:9,atk:2,art:"👑", img:"011_Tuborg.png",   f:"tea",tags:["unique","aura:armor:1","untamed"],       ab:"Aura: +1 Armor. “None pass unbruised.”",unique:true}, // ATK→HP сдвиг (2026-07-28, по прямому запросу автора) — атк3/hp7 → атк2/hp9. Чистый изолированный sim-тест (N=3000) показал baseline 60.6% WWP (очень горячая), после сдвига 56.1% — заметно лучше, но всё ещё выше коридора 45-55; автор в курсе, что может понадобиться доп.срез позже, попросил применить сдвиг как первый шаг. HP 8→7 (2026-07-23, по прямому запросу автора) — тест против ABYSSWALKER'а armor:2 версии; aura:atk:1 → aura:armor:1 (2026-07-23)
@@ -121,25 +99,10 @@ const DEFS = {
   // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
   t_faeron:    {name:"FAERON",     cost:6,hp:8,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1"], ab:"\“Yet another one burned.\”",unique:true}, // enter_aoe:1 (On play AOE 1) снят (2026-07-23, баланс, по прямому запросу автора) — карту вообще не трогали раньше, была 58-61.1% winrate-when-played; Fire Shield (thorns:2+atk_vs_burning:1) не тронут
   t_nab:       {name:"NABUNAGI",   cost:8,hp:8,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1"], ab:"\"Bushido\": All attacks must target him.",unique:true}, // ATK 3→2 (2026-07-23, по прямому запросу автора) — HP-срезы (13→10→8) не помогли достаточно (59.4-66.1% winrate-when-played), пробуем срезать ATK вместо HP
-  // OGNIVEN' (2026-07-28, по прямому запросу автора) — новый уникальный Tea, замена ASLEX
-  // в classic-деке (см. CLASSIC_TEA_DECK в deck.js — ASLEX остаётся в data.js/Rush-пуле,
-  // просто больше не в фикс-списке classic). On play: AOE-поджог всего поля — реюзает
-  // ГОТОВЫЙ execution-путь эффекта 'burn_all' (см. abilities.js, тот же движок, что у
-  // WILDFIRE), просто триггерится on_enter вместо spell-каста (новый тег 'enter_burn_all',
-  // см. getAbilities() в abilities.js). Ward/Frost/активный Solana Shield — тот же полный
-  // иммунитет, что уже встроен в fear_all/burn_all (замороженные тоже иммунны — check
-  // t.frozen внутри case 'burn_all'), ничего доп. кодить не пришлось. Статы = те же, что
-  // были у ASLEX (cost6, 7hp/3atk) — только способность другая.
   t_ogniv:     {name:"LORD OF TERROR",   cost:6,hp:7,atk:3,art:"🔥", img:"013_Terror.png",    f:"tea",tags:["unique","enter_burn_all","burn"], ab:"On play: set ALL enemy creatures on fire. “Every ember remembers.”",unique:true},
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
-  // ARCHIVE/FRENZY нерф (2026-07-21 вечер, по прямому запросу автора, на данных
-  // sim-прогона 1000 партий: FRENZY 63.7% winrate-when-played — топ-3 спелл Jeet;
-  // перманентный до смерти существа +2 ATK за 3 оказался слишком дешёвым свингом):
-  // +2 ATK → +1 ATK, цена 3 → 2. Оба зеркала правятся вместе — эффект и цена
-  // остаются симметричными. aiScoreCard() читает величину через getTagVal — правок ИИ
-  // не требуется.
   t_sp1:       {name:"ARCHIVE",     cost:1,hp:0,atk:0,art:"📜", img:"1_Archive.png", f:"tea",tags:["spell","spell_buff_temp:1"],     ab:"Target ally: +1 ATK until end of battle.",spell:true}, // cost 2→1 (2026-07-24, по прямому запросу автора)
   t_sp2:       {name:"VERDICT",     cost:5,hp:0,atk:0,art:"🌌", img:"1_Journey.png", f:"tea",tags:["spell","spell_dmg_target:999","draw_on_kill"],     ab:"Destroy target enemy creature. Draw 1.",spell:true}, // cost 6→5, +draw_on_kill (2026-07-24, по прямому запросу автора) — реюз готового draw_on_kill-механизма (уже есть у EXECUTE/CULL), 999 dmg гарантирует килл почти всегда (кроме Ward), так что draw срабатывает практически каждый каст
   t_sp3:       {name:"SHEN'S CALL", cost:3,hp:0,atk:0,art:"✨", img:"1_Shen.png",    f:"tea",tags:["spell","revive:full"],ab:"Revive top creature from your graveyard.",spell:true},
@@ -184,12 +147,11 @@ const DEFS = {
   j_trvl1008_w: {name:"TRAVELER #1008", cost:3,hp:3,atk:4,art:"🦈", img:"1008.png", f:"jeet",tags:["fear","gtype:szg"],      ab:"Squad +1 maxHP."}, // новая карта (2026-07-23, по прямому запросу автора) — cost3 Szarg, 1 доп.тег (fear), статы по образцу пира #551/#25/#34/#694/#57 (cost3 Szarg, 1 доп.тег = hp3/atk4); заменяет #434 в classic-деке (см. deck.js) — #434 возвращён в резерв
   j_trvl734_w: {name:"TRAVELER #734", cost:3,hp:3,atk:4,art:"🦈", img:"734.png", f:"jeet",tags:["remember","gtype:szg"],      ab:"Squad +1 maxHP."}, // cost 4→3, hp/atk пересчитаны по формуле Szarg (HP=cost, ATK=cost+1: 4/5→3/4) (2026-07-27, по прямому запросу автора). ATK 5→4 (2026-07-26, по прямому запросу автора). necrophage(Erase)→remember (2026-07-26, по прямому запросу автора). ATK 4→5 (2026-07-24, по прямому запросу автора)
   j_trvl971_w: {name:"TRAVELER #971", cost:1,hp:1,atk:2,art:"🦈", img:"971.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
-  // +1 (2026-07-19, ребаланс кривой под ход 1) — по шаблону #12/#49/#971 выше.
   j_trvl740_w: {name:"TRAVELER #740", cost:1,hp:1,atk:2,art:"🦈", img:"740.png", f:"jeet",tags:["gtype:szg"],      ab:"Squad +1 maxHP."},
   j_trvl434_w:  {name:"TRAVELER #434",  cost:4,hp:4,atk:5,art:"🦈", img:"434.png",  f:"jeet",tags:["fear","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // ATK 5→4 (2026-07-24, по прямому запросу автора)
   j_trvl196_w:  {name:"TRAVELER #196",  cost:4,hp:4,atk:5,art:"🦈", img:"196.png",  f:"jeet",tags:["market","incarnation:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // новая карта (2026-07-28, по прямому запросу автора) — cost4 Szarg, 2 доп.тега (market/To the Moon with DHD + incarnation/Ancient), статы по формуле Szarg (HP=cost, ATK=cost+1, без исключений на тег-каунт) = 4/5
 
-  // Orbiton Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
+  // Orbiton Jeet 
   j_trvl170_w: {name:"TRAVELER #170", cost:1,hp:1,atk:1,art:"👁️", img:"170.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad: +2 Armor."},
   j_trvl429_w: {name:"TRAVELER #429", cost:1,hp:1,atk:1,art:"👁️", img:"429.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad: +2 Armor."},
   j_trvl578_w: {name:"TRAVELER #578", cost:1,hp:1,atk:1,art:"👁️", img:"578.png", f:"jeet",tags:["heal:2","gtype:orb"],                  ab:"Active Heal 2 and Clean. Squad: +2 Armor."}, // новая карта (2026-07-24, по прямому запросу автора) — cost1 Orbiton, ваниль, статы по образцу пира #170/#429/#433/#1034/#503 (cost1, 0 доп.тегов = hp1/atk1)
@@ -219,7 +181,7 @@ const DEFS = {
   j_trvl27_w:   {name:"TRAVELER #27",   cost:2,hp:4,atk:1,art:"🌳", img:"27.png",  f:"jeet",tags:["provoke","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #14/#41/#58 (cost2 Dreegan, 0 доп.тегов)
   j_trvl481_w:  {name:"TRAVELER #481",  cost:4,hp:8,atk:2,art:"🌳", img:"481.png",  f:"jeet",tags:["provoke","untamed","death_bolt:4","gtype:drg"],ab:"Squad +1 Armor."}, // новая карта (2026-07-27, по прямому запросу автора) — cost4 Dreegan, 2 доп.тега сверх сигнатурного provoke (untamed/Anime + death_bolt/Pink Clouds), статы по формуле Dreegan (HP=cost×2, ATK: cost≥4→2) = 8/2
 
-  // Umbasir Jeet (HP ребаланс 2026-07-20 — см. комментарий у Orbiton Tea выше)
+  // Umbasir Jeet 
   j_trvl15_w:   {name:"TRAVELER #15",   cost:5,hp:5,atk:2,art:"🌀", img:"15.png",   f:"jeet",tags:["bolt:1","foxy","enter_lose:1","gtype:umb"],           ab:"On play Lose 1. Active Bolt 1. Squad Bolt 2."}, // новая карта (2026-07-27, по прямому запросу автора) — cost5 Umbasir, 2 доп.тега (foxy/Orange from FFF + enter_lose/Net), статы по формуле Umbasir (HP=cost, ATK=1, искл. cost≥4→ATK=2) = 5/2
     j_trvl550_w:    {name:"TRAVELER #550",  cost:4,hp:4,atk:2,art:"🌀", img:"550.png",  f:"jeet",tags:["bolt:1","fear","death_armor:2","gtype:umb"],           ab:"Active Bolt 1. Squad Bolt 2."}, // taunt_break→scheme→death_bolt:4→death_armor:2 (2026-07-27, по прямому запросу автора — Схема отдала death_bolt Pink Clouds/Thunder Storm, взамен получила НОВЫЙ тег: при смерти даёт 2 Брони случайному союзнику)
      j_trvl53_w:    {name:"TRAVELER #53",   cost:3,hp:3,atk:1,art:"🌀", img:"53.png",   f:"jeet",tags:["bolt:1","enter_lose:1","gtype:umb"],                  ab:"On play Lose 1. Active Bolt 1. Squad Bolt 2."},
@@ -230,7 +192,7 @@ const DEFS = {
      j_trvl20_w:    {name:"TRAVELER #20",   cost:4,hp:4,atk:2,art:"🌀", img:"20.png",   f:"jeet",tags:["bolt:1","vanguard","untamed","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
      j_trvl248_w:   {name:"TRAVELER #248",  cost:5,hp:5,atk:2,art:"🌀", img:"248.png",  f:"jeet",tags:["bolt:1","shield","ward","gtype:umb"],        ab:"Active Bolt 1. Squad Bolt 2."},
 
-  // Mechird Jeet (ребаланс 2026-07-20 — см. комментарий у Mechird Tea выше)
+  // Mechird Jeet 
   j_trvl22_w:   {name:"TRAVELER #22",   cost:3,hp:3,atk:2,art:"🤖", img:"22.png",   f:"jeet",tags:["pierce","untamed","gtype:mch"],                 ab:"Squad +1 ATK."},
   j_trvl724_w:  {name:"TRAVELER #724",  cost:2,hp:2,atk:1,art:"🤖", img:"724.png",  f:"jeet",tags:["pierce","gtype:mch"],                 ab:"Squad +1 ATK."},
   j_trvl1079_w:  {name:"TRAVELER #1079",  cost:2,hp:2,atk:1,art:"🤖", img:"1079.png",  f:"jeet",tags:["pierce","gtype:mch"],                 ab:"Squad +1 ATK."}, // новая карта (2026-07-24, по прямому запросу автора) — cost2 Mechird, ваниль, статы по образцу пиров #18/#35/#724
@@ -241,7 +203,7 @@ const DEFS = {
   j_trvl901_w:  {name:"TRAVELER #901",  cost:3,hp:3,atk:2,art:"🤖", img:"901.png",  f:"jeet",tags:["pierce","ward","gtype:mch"],          ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #22/#804/#38 (cost3 Mechird, 1 доп.тег)
   j_trvl174_w:  {name:"TRAVELER #174",  cost:5,hp:5,atk:4,art:"🤖", img:"174.png",  f:"jeet",tags:["pierce","market","enter_lose:1","gtype:mch"],ab:"On play Lose 1. Squad +1 ATK."}, // новая карта (2026-07-28, по прямому запросу автора) — cost5 Mechird, 2 доп.тега сверх сигнатурного pierce (market/To the Moon with DHD + enter_lose/Net), статы по формуле Mechird (HP=cost, ATK=max(1,cost−1)) = 5/4, по образцу живых cost5 2-тег-пиров #295/#128/#607 (все 5/4 независимо от числа доп.тегов)
 
-  // Xuiqtr Jeet (ребаланс 2026-07-20 — см. комментарий у Xuiqtr Tea выше)
+  // Xuiqtr Jeet 
     j_trvl579_w:    {name:"TRAVELER #579",  cost:3,hp:4,atk:2,art:"🐙", img:"579.png",  f:"jeet",tags:["intercept","fear","gtype:xui"],          ab:"Squad +1 ATK."},
      j_trvl50_w:    {name:"TRAVELER #50",   cost:2,hp:3,atk:1,art:"🐙", img:"50.png",   f:"jeet",tags:["intercept","gtype:xui"],                 ab:"Squad +1 ATK."},
      j_trvl37_w:    {name:"TRAVELER #37",   cost:2,hp:3,atk:1,art:"🐙", img:"37.png",   f:"jeet",tags:["intercept","gtype:xui"],                 ab:"Squad +1 ATK."},
@@ -253,21 +215,11 @@ const DEFS = {
   j_trvl0_w:    {name:"TRAVELER #0",    cost:2,hp:3,atk:1,art:"🐙", img:"0.png",  f:"jeet",tags:["intercept","gtype:xui"],             ab:"Squad +1 ATK."}, // новая карта (2026-07-23, по прямому запросу автора) — статы по образцу пира #50/#37/#39 (cost2 Xuiqtr, 0 доп.тегов)
 
   // ── JEET LEGENDARIES ────────────────────────────────────────────
-  // Ребаланс 2026-07-19 — см. подробный комментарий у TEA LEGENDARIES выше, тот же принцип.
   j_reap:      {name:"REAPER",      cost:6,hp:7,atk:3,art:"☠️", img:"004_Reaper.png",      f:"jeet",tags:["unique","on_own_death_base:1"],        ab:"“Harvest”: When your creature dies, Heal Base 1 HP.",unique:true}, // on_enemy_death_base:1 → on_own_death_base:1 (2026-07-23, по прямому запросу автора) — уровнен с ASLEX (оба теперь хилят базу за смерть СВОИХ существ), названа "Harvest"; cost 7→6, HP 11→7 (2026-07-23); enter_aoe:1 снят (2026-07-23)
-  j_ryv:       {name:"RYVLEN",      cost:6,hp:10,atk:2,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","enter_lose:1","draw_attack:1"],        ab:"On play Lose 1. “Candles in Space”",unique:true}, // ATK→HP сдвиг (2026-07-28, по прямому запросу автора) — атк3/hp8 → атк2/hp10. Чистый изолированный sim-тест (N=3000) показал baseline 60.4% WWP (очень горячая), после сдвига 58.7% — небольшое улучшение, всё ещё выше коридора 45-55; как и у TUBORG, вероятно понадобится доп.срез позже. atk_vs_feared→draw_attack (2026-07-26, по прямому запросу автора — Haunt теперь = draw 1 на атаку, тем самым RYVLEN буквально возвращается к своему исходному draw_attack:1 до правки 2026-07-23). Текст сокращён — не дублирует Haunt-тег; HP 9→8 (2026-07-23) — оставалась 57-61.3% winrate-when-played
+  j_ryv:       {name:"RYVLEN",      cost:6,hp:8,atk:2,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","enter_lose:1","draw_attack:1"],        ab:"On play Lose 1. “Candles in Space”",unique:true}, // ATK→HP сдвиг (2026-07-28, по прямому запросу автора) — атк3/hp8 → атк2/hp10. Чистый изолированный sim-тест (N=3000) показал baseline 60.4% WWP (очень горячая), после сдвига 58.7% — небольшое улучшение, всё ещё выше коридора 45-55; как и у TUBORG, вероятно понадобится доп.срез позже. atk_vs_feared→draw_attack (2026-07-26, по прямому запросу автора — Haunt теперь = draw 1 на атаку, тем самым RYVLEN буквально возвращается к своему исходному draw_attack:1 до правки 2026-07-23). Текст сокращён — не дублирует Haunt-тег; HP 9→8 (2026-07-23) — оставалась 57-61.3% winrate-when-played
   j_mal:       {name:"ABYSSWALKER", cost:7,hp:9,atk:2,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","aura:armor:1","armor:2"],          ab:"Aura: +1 Armor. “The dark strikes first.”",unique:true}, // ATK→HP сдвиг (2026-07-28, по прямому запросу автора) — атк3/hp7 → атк2/hp9. Чистый изолированный sim-тест (N=3000) показал baseline 56.2% WWP (горячая), после сдвига 47.9% — вернулась в коридор 45-55, сдвиг сработал идеально. armor:1→armor:2 (2026-07-23, по прямому запросу автора) — предыдущая попытка (HP 8→7 + armor:1) не сблизила с TUBORG (62.0% vs 51.2%), пробуем armor:2 вместо дальнейшего среза HP
   j_phleg:     {name:"PHLEGMOR",    cost:8,hp:8,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true}, // HP 10→8 (2026-07-28, по прямому запросу автора) — чистый изолированный sim-тест (N=3000) показал baseline 57.8% WWP (горячая), пробный БАФ (+1 HP) сделал ЕЩЁ горячее (59.4%) — правильное направление оказалось противоположным, срез вместо баффа. ATK 3→2 (2026-07-23, по прямому запросу автора) — HP 13→10 + regen/incarnation сняты, оставалась 56.2-59.7% winrate-when-played, пробуем срезать ATK
   j_vard:      {name:"SEEKER",      cost:5,hp:8,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","atk_vs_feared:1"],    ab:"\"Seek, and ye shall find.\"",unique:true}, // 'fear' тег снят (2026-07-28, по прямому запросу автора) — SEEKER больше не фирит на своей атаке; atk_vs_feared:1 остаётся (бонус урона по УЖЕ испуганным целям — теперь работает только от ДРУГИХ источников фира на поле, не от самого себя). atk_vs_feared:1 добавлен (2026-07-26, по прямому запросу автора) — бонус урона по фирным существам теперь "довесок" к invisible, БЕЗ отдельного рендера (тот же паттерн, что thorns+atk_vs_burning у FAERON — см. invisible-тултип), не отдельный Haunt-тег (тот переехал на draw_attack)
-  // LORD OF TERROR (2026-07-28, по прямому запросу автора) — новый уникальный Jeet, замена
-  // REAPER в classic-деке (см. CLASSIC_JEET_DECK в deck.js — REAPER остаётся в data.js/
-  // Rush-пуле, просто больше не в фикс-списке classic). On play: AOE-фир всего поля —
-  // реюзает ГОТОВЫЙ execution-путь эффекта 'fear_all' (см. abilities.js, тот же движок,
-  // что у NIGHTMARE), просто триггерится on_enter вместо spell-каста (новый тег
-  // 'enter_fear_all', см. getAbilities() в abilities.js). Ward/Frost/активный Solana
-  // Shield — тот же полный иммунитет, что уже встроен в fear_all/burn_all (замороженные
-  // тоже иммунны — check t.frozen внутри case 'fear_all'), ничего доп. кодить не пришлось.
-  // Статы = те же, что были у REAPER (cost6, 7hp/3atk) — только способность другая.
   j_terror:    {name:"OGNIVEN", cost:6,hp:7,atk:3,art:"👹", img:"012_Ogon.png",  f:"jeet",tags:["unique","enter_fear_all","fear"], ab:"On play: Fear ALL enemy creatures. “The Fear has a Fire now.”",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
