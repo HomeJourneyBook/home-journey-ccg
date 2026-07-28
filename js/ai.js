@@ -73,6 +73,13 @@ const AI_WEIGHTS = {
     atk_vs_burning:0.3, // условный бонус урона (только по горящей цели) — ниже безусловного
                       // bolt(0.4)/burn(0.4), сопоставим с taunt_break/thorns/stealth
     atk_vs_feared:0.3,  // то же самое, но по испуганной цели (RYVLEN/Haunt-семейство)
+    // 2026-07-28 (LORD OF TERROR/OGNIVEN', по прямому запросу автора) — on_enter версии
+    // spell_fear_all/spell_burn_all (NIGHTMARE/WILDFIRE), реюзают тот же 'fear_all'/
+    // 'burn_all' execution-кейс, только триггерятся при розыгрыше существа, не спеллом.
+    // Вес выше обычного enter_aoe(0.4) — бьёт по ВСЕМУ вражескому полю разом (масштаб как
+    // у spell-версий), не по одной цели/фиксированному числу; ниже постоянного provoke-тира,
+    // потому что одноразовый эффект на теле, которое ещё и надо разменять/пережить.
+    enter_fear_all:0.6, enter_burn_all:0.55,
   },
   permanentBuffBonus: 1.0, // spell_buff_temp (ARCHIVE) теперь живёт до смерти существа, а не до конца хода —
                            // старая оценка (только "текущий урон + грубый лефал-чек") недооценивала его, т.к.
@@ -920,7 +927,7 @@ function aiTryUseSacrifice(){
 // игнорирует sleeping — редетаплой = дополнительная атака тем же ходом).
 function aiWorthBouncingOwn(c){
   return hasTag(c,'enter_aoe') || hasTag(c,'enter_heal') || hasTag(c,'enter_draw') ||
-         hasTag(c,'enter_lose') ||
+         hasTag(c,'enter_lose') || hasTag(c,'enter_fear_all') || hasTag(c,'enter_burn_all') ||
          (hasTag(c,'vanguard') && c.exhausted);
 }
 
