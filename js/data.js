@@ -118,7 +118,7 @@ const DEFS = {
   // иммунитет, что уже встроен в fear_all/burn_all (замороженные тоже иммунны — check
   // t.frozen внутри case 'burn_all'), ничего доп. кодить не пришлось. Статы = те же, что
   // были у ASLEX (cost6, 7hp/3atk) — только способность другая.
-  t_ogniv:     {name:"OGNIVEN'",   cost:6,hp:7,atk:3,art:"🔥", img:"012_Ogon.png",    f:"tea",tags:["unique","enter_burn_all","burn"], ab:"On play: set ALL enemy creatures on fire. “Every ember remembers.”",unique:true},
+  t_ogniv:     {name:"LORD OF TERROR",   cost:6,hp:7,atk:3,art:"🔥", img:"013_Terror.png",    f:"tea",tags:["unique","enter_burn_all","burn"], ab:"On play: set ALL enemy creatures on fire. “Every ember remembers.”",unique:true},
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
@@ -247,7 +247,7 @@ const DEFS = {
   // Shield — тот же полный иммунитет, что уже встроен в fear_all/burn_all (замороженные
   // тоже иммунны — check t.frozen внутри case 'fear_all'), ничего доп. кодить не пришлось.
   // Статы = те же, что были у REAPER (cost6, 7hp/3atk) — только способность другая.
-  j_terror:    {name:"LORD OF TERROR", cost:6,hp:7,atk:3,art:"👹", img:"013_Terror.png",  f:"jeet",tags:["unique","enter_fear_all","fear"], ab:"On play: Fear ALL enemy creatures. “The dark has a face now.”",unique:true},
+  j_terror:    {name:"OGNIVEN", cost:6,hp:7,atk:3,art:"👹", img:"012_Ogon.png",  f:"jeet",tags:["unique","enter_fear_all","fear"], ab:"On play: Fear ALL enemy creatures. “The Fear has a Fire now.”",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2.",spell:true},
