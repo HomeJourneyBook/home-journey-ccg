@@ -109,6 +109,16 @@ const DEFS = {
   // Fire Shield ещё одной карте — вешай ОБА тега вместе, не только thorns.
   t_faeron:    {name:"FAERON",     cost:5,hp:8,atk:2,art:"🔥", img:"010_Faeron.png",   f:"tea",tags:["unique","burn","thorns:2","untamed","atk_vs_burning:1"], ab:"\“Yet another one burned.\”",unique:true}, // enter_aoe:1 (On play AOE 1) снят (2026-07-23, баланс, по прямому запросу автора) — карту вообще не трогали раньше, была 58-61.1% winrate-when-played; Fire Shield (thorns:2+atk_vs_burning:1) не тронут
   t_nab:       {name:"NABUNAGI",   cost:8,hp:8,atk:2,art:"⛩️", img:"009_Oda.png",     f:"tea",tags:["unique","bushido","armor:1"], ab:"\"Bushido\": All attacks must target him.",unique:true}, // ATK 3→2 (2026-07-23, по прямому запросу автора) — HP-срезы (13→10→8) не помогли достаточно (59.4-66.1% winrate-when-played), пробуем срезать ATK вместо HP
+  // OGNIVEN' (2026-07-28, по прямому запросу автора) — новый уникальный Tea, замена ASLEX
+  // в classic-деке (см. CLASSIC_TEA_DECK в deck.js — ASLEX остаётся в data.js/Rush-пуле,
+  // просто больше не в фикс-списке classic). On play: AOE-поджог всего поля — реюзает
+  // ГОТОВЫЙ execution-путь эффекта 'burn_all' (см. abilities.js, тот же движок, что у
+  // WILDFIRE), просто триггерится on_enter вместо spell-каста (новый тег 'enter_burn_all',
+  // см. getAbilities() в abilities.js). Ward/Frost/активный Solana Shield — тот же полный
+  // иммунитет, что уже встроен в fear_all/burn_all (замороженные тоже иммунны — check
+  // t.frozen внутри case 'burn_all'), ничего доп. кодить не пришлось. Статы = те же, что
+  // были у ASLEX (cost6, 7hp/3atk) — только способность другая.
+  t_ogniv:     {name:"OGNIVEN'",   cost:6,hp:7,atk:3,art:"🔥", img:"012_Ogon.png",    f:"tea",tags:["unique","enter_burn_all"], ab:"On play: set ALL enemy creatures on fire. “Every ember remembers.”",unique:true},
 
 
   // ── TEA SPELLS ──────────────────────────────────────────────────
@@ -227,7 +237,17 @@ const DEFS = {
   j_ryv:       {name:"RYVLEN",      cost:6,hp:8,atk:3,art:"🎭", img:"007_Ryvlen.png",      f:"jeet",tags:["unique","enter_lose:1","draw_attack:1"],        ab:"On play Lose 1. “Candles in Space”",unique:true}, // atk_vs_feared→draw_attack (2026-07-26, по прямому запросу автора — Haunt теперь = draw 1 на атаку, тем самым RYVLEN буквально возвращается к своему исходному draw_attack:1 до правки 2026-07-23). Текст сокращён — не дублирует Haunt-тег; HP 9→8 (2026-07-23) — оставалась 57-61.3% winrate-when-played
   j_mal:       {name:"ABYSSWALKER", cost:7,hp:7,atk:3,art:"🗡️", img:"001_Abysswalker.png", f:"jeet",tags:["unique","aura:armor:1","armor:2"],          ab:"Aura: +1 Armor. “The dark strikes first.”",unique:true}, // armor:1→armor:2 (2026-07-23, по прямому запросу автора) — предыдущая попытка (HP 8→7 + armor:1) не сблизила с TUBORG (62.0% vs 51.2%), пробуем armor:2 вместо дальнейшего среза HP
   j_phleg:     {name:"PHLEGMOR",    cost:8,hp:10,atk:2,art:"💀", img:"005_Phelgmor.png",    f:"jeet",tags:["unique","raise:1"],                     ab:"On turn \"Necromancy\": Revive top graveyard card at 1 HP.",unique:true}, // ATK 3→2 (2026-07-23, по прямому запросу автора) — HP 13→10 + regen/incarnation сняты, оставалась 56.2-59.7% winrate-when-played, пробуем срезать ATK
-  j_vard:      {name:"SEEKER",      cost:5,hp:8,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","fear","atk_vs_feared:1"],    ab:"\"Seek, and ye shall find.\"",unique:true}, // atk_vs_feared:1 добавлен (2026-07-26, по прямому запросу автора) — бонус урона по фирным существам теперь "довесок" к invisible, БЕЗ отдельного рендера (тот же паттерн, что thorns+atk_vs_burning у FAERON — см. invisible-тултип), не отдельный Haunt-тег (тот переехал на draw_attack)
+  j_vard:      {name:"SEEKER",      cost:5,hp:8,atk:2,art:"🌑", img:"003_Seeker.png",      f:"jeet",tags:["unique","invisible","atk_vs_feared:1"],    ab:"\"Seek, and ye shall find.\"",unique:true}, // 'fear' тег снят (2026-07-28, по прямому запросу автора) — SEEKER больше не фирит на своей атаке; atk_vs_feared:1 остаётся (бонус урона по УЖЕ испуганным целям — теперь работает только от ДРУГИХ источников фира на поле, не от самого себя). atk_vs_feared:1 добавлен (2026-07-26, по прямому запросу автора) — бонус урона по фирным существам теперь "довесок" к invisible, БЕЗ отдельного рендера (тот же паттерн, что thorns+atk_vs_burning у FAERON — см. invisible-тултип), не отдельный Haunt-тег (тот переехал на draw_attack)
+  // LORD OF TERROR (2026-07-28, по прямому запросу автора) — новый уникальный Jeet, замена
+  // REAPER в classic-деке (см. CLASSIC_JEET_DECK в deck.js — REAPER остаётся в data.js/
+  // Rush-пуле, просто больше не в фикс-списке classic). On play: AOE-фир всего поля —
+  // реюзает ГОТОВЫЙ execution-путь эффекта 'fear_all' (см. abilities.js, тот же движок,
+  // что у NIGHTMARE), просто триггерится on_enter вместо spell-каста (новый тег
+  // 'enter_fear_all', см. getAbilities() в abilities.js). Ward/Frost/активный Solana
+  // Shield — тот же полный иммунитет, что уже встроен в fear_all/burn_all (замороженные
+  // тоже иммунны — check t.frozen внутри case 'fear_all'), ничего доп. кодить не пришлось.
+  // Статы = те же, что были у REAPER (cost6, 7hp/3atk) — только способность другая.
+  j_terror:    {name:"LORD OF TERROR", cost:6,hp:7,atk:3,art:"👹", img:"013_Terror.png",  f:"jeet",tags:["unique","enter_fear_all"], ab:"On play: Fear ALL enemy creatures. “The dark has a face now.”",unique:true},
 
   // ── JEET SPELLS ─────────────────────────────────────────────────
   j_sp1:       {name:"JEET WAVE",  cost:2,hp:0,atk:0,art:"🌊", img:"1_Wave.png",      f:"jeet",tags:["spell","draw:2"],     ab:"Draw 2.",spell:true},
