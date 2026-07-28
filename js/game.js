@@ -860,6 +860,15 @@ function doAttack(att,target){
     lg(`${target.name}'s Fire Shield burns ${att.name} for ${thornsVal}!`,'dmg');
   }
 
+  // Game of Market (2026-07-28, "To the Moon with DHD", ультраредкий Mood-трейт,
+  // ico_market.png) — та же гейтинг-логика, что у Thorns чуть выше: пропускается, если
+  // этот конкретный удар был полностью поглощён/промазан (shield/frost/foxy). bypassArmor
+  // для бонус-урона = false — это "довесок" к обычной физической атаке, уважает броню
+  // цели так же, как сама атака (в отличие от Bolt-хука в doBoltTarget() ниже, где бонус
+  // магический). Резолвится с задержкой (см. resolveMarketEvent()) — по прямому запросу
+  // автора, чтобы бонус/самоурон не сливался в тот же момент, что и сама атака.
+  resolveMarketEvent(att, curK, target, oppK, false);
+
   triggerAbilities(att,'on_attack',{target,realDmgDealt});
   if(target.hp<=0) triggerAbilities(att,'on_kill',{target});
 
@@ -972,7 +981,13 @@ function doBoltTarget(card){
   const dmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
   lg(`${bolt.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   queueFieldFx(card.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта
+  const boltOwnerK=G.turn;
   dmgCard(card,dmg,oppK,true);
+  // Game of Market (2026-07-28) — Umbasir-болтер тоже может нести этот тег (по прямому
+  // запросу автора: "болт умбасира может нанести не 1 а 3 урона, либо -2 хп"). Тот же
+  // хук, что в doAttack() — bypassArmor=true для бонус-урона здесь, т.к. сам Bolt уже
+  // магический (bypassArmor=true чуть выше), бонус наследует ту же природу удара.
+  resolveMarketEvent(bolt, boltOwnerK, card, oppK, true);
   const boltId=bolt.id;
   bolt.exhausted=true;
   G.phase='action';G.sel=null;
@@ -1135,6 +1150,61 @@ function scheduleFrostRemoval(card){
     card._frostLeaving=false;
     render();
   }, 300);
+}
+
+// Game of Market (2026-07-28, "To the Moon with DHD", ультраредкий Mood-трейт,
+// ico_market.png) — при каждой атаке/Bolt носителя тега `market` 50/50: либо +2
+// бонус-урона по цели, либо -2 HP самому носителю. Гейтинг — та же логика, что у
+// Thorns/draw_attack (см. doAttack()): не срабатывает, если этот конкретный удар был
+// целиком промазан Foxy Trick (`target._foxyDodgedThisHit`) или поглощён активным
+// Solana Shield/заморозкой (`target._shieldBlockedThisHit`/`_frostBlockedThisHit`) —
+// удар физически не долетел до цели, разыгрывать рынок не на чем.
+//
+// Тайминг (по прямому запросу автора, 2026-07-28) — намеренно НЕ синхронно с самим
+// ударом: сперва пауза (500мс), затем плашка "MARKET UP"/"MARKET DOWN" (зелёная/
+// красная, queueFieldFxReplace на случай если на карте уже висит другая плашка), ещё
+// пауза (700мс), и только потом реально прилетает бонус-урон/самоурон — та же интрига
+// "не два удара подряд", что и у HIT!→ABSORB и т.п. В headless-симуляторе (sim/
+// headless.js) setTimeout выполняется синхронно через очередь (queue.push), так что
+// это НЕ ломает детерминизм самоплея — тайминг влияет только на живой браузер.
+//
+// marketCard — карта с тегом market (атакующий в doAttack() ИЛИ болтер в
+// doBoltTarget()); marketFaction — её владелец; targetCard/targetFaction — цель этого
+// конкретного удара. bonusBypassArmor — наследует природу урона, который нёс исходный
+// удар (false у обычной атаки, true у магического Bolt) — самоурон себе всегда
+// bypassArmor=true (тот же принцип "самоокупаемая порча", что у Thorns/самоурона).
+//
+// Обе стороны эффекта перепроверяют, что нужная карта ВСЁ ЕЩЁ на поле к моменту
+// срабатывания таймера (могла умереть/уйти с поля за прошедшую паузу от контрудара,
+// другого Bolt и т.п.) — если карта уже не на поле, соответствующая часть эффекта
+// молча пропускается (не воскрешает мёртвых, не бьёт по пустому месту).
+function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction, bonusBypassArmor){
+  if(!hasTag(marketCard,'market')) return;
+  if(targetCard._foxyDodgedThisHit || targetCard._shieldBlockedThisHit || targetCard._frostBlockedThisHit) return;
+  const marketId=marketCard.id, targetId=targetCard.id;
+  setTimeout(()=>{
+    const mc=G[marketFaction].field.find(c=>c.id===marketId);
+    if(!mc) return; // носитель тега уже не на поле — розыгрыш рынка не состоится
+    const up=Math.random()<0.5;
+    queueFieldFxReplace(marketId, up?'MARKET UP':'MARKET DOWN', up?'fx-market-up':'fx-market-down');
+    render();
+    setTimeout(()=>{
+      const mc2=G[marketFaction].field.find(c=>c.id===marketId);
+      if(!mc2) return;
+      if(up){
+        const tc=G[targetFaction].field.find(c=>c.id===targetId);
+        if(tc){
+          lg(`${mc2.name}: Game of Market rolls UP — ${tc.name} takes 2 bonus dmg!`,'imp');
+          dmgCard(tc,2,targetFaction,bonusBypassArmor);
+        }
+      } else {
+        lg(`${mc2.name}: Game of Market rolls DOWN — takes 2 dmg!`,'imp');
+        dmgCard(mc2,2,marketFaction,true);
+      }
+      checkWin();
+      render();
+    },700);
+  },500);
 }
 
 function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost){
