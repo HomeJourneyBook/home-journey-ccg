@@ -1909,11 +1909,14 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    поверх интерфейса + тень; transform/left/top/opacity анимируются инлайново
    из _flyCardFromDeck (render.js). ──────────────────────────────────────────*/
 .card-fly-clone{z-index:5500; pointer-events:none; box-shadow:0 6px 18px #000000aa;}
-/* NANA (2026-07-29, "Nanas from SMB") — плейсхолдер-эмодзи 🍌, летящий от карты-носителя
-   тега к выбранной цели (карте или базе), см. throwBananaFx() в game.js. Тот же
-   position:fixed + left/top-transition приём, что у .card-fly-clone выше, но без клона
-   карты — плоский текстовый эмодзи-узел. */
-.nana-banana-fly{position:fixed; z-index:5500; pointer-events:none; font-size:max(4vh,2.2vw); line-height:1; filter:drop-shadow(0 2px 4px #000000aa);}
+/* NANA (2026-07-29, "Nanas from SMB") — арт-ассет nana.gif, физически летящий от карты-
+   носителя тега к выбранной цели (карте или базе), см. throwBananaFx() в game.js. Тот же
+   position:fixed + left/top-transition приём, что у .card-fly-clone выше. Квадратный gif,
+   размер — calc() от var(--card-small-h) (переопределяется в адаптивном брейкпоинте выше
+   по файлу), а НЕ vh/vw напрямую — по прямому запросу автора, чтобы пропорция к размеру
+   карты на поле оставалась одинаковой на любом устройстве, а не только к вьюпорту. 0.34 —
+   подобрано под прежний визуальный размер эмодзи-плейсхолдера, который заменяет. */
+.nana-banana-fly{position:fixed; z-index:5500; pointer-events:none; width:calc(var(--card-small-h) * 0.34); height:calc(var(--card-small-h) * 0.34); object-fit:contain; filter:drop-shadow(0 2px 4px #000000aa);}
 /*── Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора, VS AI режим ТОЛЬКО —
    см. playSpellRevealAnimation() в render.js) — клон реальной карты вылетает из центра
    скрытой руки ИИ (oppHandZone) к центру поля, зависает лицом кверху ~0.4с, затем
