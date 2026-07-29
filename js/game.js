@@ -991,7 +991,13 @@ function doBoltTarget(card){
   if(card.f===G.turn||card.spell||card.world||card.artifact){
     lg('Select an enemy creature.','hint');return;
   }
-  playSfx('card_spell_atack');
+  // Звук на ЗАПУСК (2026-07-30, по прямому запросу автора) — раньше тут стоял
+  // 'card_spell_atack' (звук импакта/магии), теперь он переехал на момент приземления
+  // (см. setTimeout ниже). На запуск — 'wind_card', тот же звук полёта, что уже
+  // используют bounce-спеллы (GUST/REVERSE/UNSEEN, см. doSpellBounceTarget()/
+  // abilities.js case 'bounce') — тематически подходит: "что-то унеслось", а не "что-то
+  // ударило".
+  playSfx('wind_card');
   const dmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
   const boltOwnerK=G.turn;
   const boltId=bolt.id, targetId=card.id;
@@ -1000,18 +1006,26 @@ function doBoltTarget(card){
 
   bolt.exhausted=true;
   G.phase='action';G.sel=null;
-  // Баг-фикс (2026-07-19, автор нашёл живьём): doAttack()/doUmbAsir() уже дают кастующей
-  // карте "пульс поднятия" через activateCard() (см. @keyframes cardActivate, styles.css) —
-  // ровно тот визуал, который сигналит "эта карта только что подействовала". Держим его на
-  // моменте ЗАПУСКА снаряда (не приземления) — та же логика, что у самой атаки: "подействовал"
-  // относится к моменту, когда карта потратила свой ход, не к моменту, когда долетел эффект.
-  activateCard(boltId);
+  // Баг-фикс (2026-07-19, автор нашёл живьём; порядок ИСПРАВЛЕН 2026-07-30, автор поймал
+  // живьём второй раз): doAttack()/doUmbAsir() дают кастующей карте "пульс поднятия" через
+  // activateCard() (@keyframes cardActivate, styles.css) ПОСЛЕ render() — render() у нас
+  // синхронно перестраивает DOM (innerHTML), так что если позвать activateCard() ДО него,
+  // класс 'activating' вешается на элемент, который тут же уничтожается перестройкой DOM —
+  // класс стирается раньше, чем браузер успевает нарисовать хоть один кадр анимации, пульс
+  // пропадает полностью. Раньше (до реворка Bolt на снаряд) activateCard() тут стоял ПОСЛЕ
+  // render() и всё работало; при переписывании на throwBoltFx() порядок случайно
+  // перепутался — restored к рабочему порядку.
   render();
+  activateCard(boltId);
 
   setTimeout(()=>{
     const boltC=G[boltOwnerK].field.find(c=>c.id===boltId);
     const targetC=G[oppK].field.find(c=>c.id===targetId);
     if(!boltC || !targetC) return; // носитель или цель успели уйти с поля за время полёта — бить нечем
+    // Звук на ПРИЗЕМЛЕНИЕ (2026-07-30, по прямому запросу автора) — "магический" звук,
+    // который раньше играл сразу при нажатии кнопки, теперь звучит именно в момент
+    // нанесения урона, когда снаряд визуально долетел до цели.
+    playSfx('card_spell_atack');
     queueFieldFx(targetC.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта на сам импакт
     dmgCard(targetC,dmg,oppK,true);
     // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
@@ -1345,6 +1359,16 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
 // гарантированно применён. Дамаг-веток это не касается — там применение сознательно
 // сохранено НА МОМЕНТ приземления (см. существующие комментарии выше), это не то, на
 // что жаловался автор.
+//
+// NANA_WINDUP_MS (2026-07-30, по прямому запросу автора — "занос руки" перед броском) —
+// activateCard(nanaId) чуть ниже даёт карте ВТОРОЙ пульс подъёма (@keyframes cardActivate,
+// 0.5с: пик высоты приходится на 40% = 200мс). Раньше throwBananaFx() стартовал В ТОТ ЖЕ
+// момент, что и сам пульс, — банан улетал, пока карта только-только начала подниматься, к
+// пику полёт был уже наполовину пройден: жест читался как "начала вставать и одновременно
+// уже метнула", а не "занесла руку — и в пике броска кинула". NANA_WINDUP_MS — небольшая
+// пауза МЕЖДУ стартом второго пульса и стартом самого броска (звук+вылет банана), чтобы
+// вылет совпадал с пиком подъёма карты, а не с его началом.
+const NANA_WINDUP_MS = 180;
 function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction, bonusBypassArmor, targetIsBase){
   if(!hasTag(nanaCard,'nana')) return;
   if(!targetIsBase && (hitTargetCard._foxyDodgedThisHit || hitTargetCard._shieldBlockedThisHit || hitTargetCard._frostBlockedThisHit)) return;
@@ -1365,75 +1389,96 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
       const before=target.hp;
       target.hp=Math.min(target.maxHp,target.hp+2); // применяется сразу — см. комментарий у функции выше
       const healed=target.hp-before;
-      throwBananaFx(nanaId, targetId, null);
       setTimeout(()=>{
-        const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
-        if(!nc2) return;
-        if(healed>0){
-          playSfx('heal');
-          lg(`${nc2.name}: 🍌 heals ${target.name} for ${healed}!`,'imp');
-          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(targetId,`+${healed}`,'heal')));
-        }
-        checkWin();
-        render();
-      },450);
+        // Звук на ЗАПУСК (2026-07-30, по прямому запросу автора) — 'wind_card', тот же
+        // звук полёта, что у bounce-спеллов (GUST/REVERSE/UNSEEN) — играет в момент, когда
+        // банан физически появляется и стартует, а не когда долетает (см. звук удара ниже).
+        playSfx('wind_card');
+        throwBananaFx(nanaId, targetId, null);
+        setTimeout(()=>{
+          const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+          if(!nc2) return;
+          if(healed>0){
+            playSfx('heal');
+            lg(`${nc2.name}: 🍌 heals ${target.name} for ${healed}!`,'imp');
+            requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(targetId,`+${healed}`,'heal')));
+          }
+          checkWin();
+          render();
+        },450);
+      }, NANA_WINDUP_MS);
     } else if(wantHeal){
       const before=G[nanaFaction].hp;
       G[nanaFaction].hp=Math.min(G[nanaFaction].maxHp,G[nanaFaction].hp+2); // применяется сразу, см. выше
       const healed=G[nanaFaction].hp-before;
-      throwBananaFx(nanaId, null, nanaFaction);
       setTimeout(()=>{
-        const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
-        if(!nc2) return;
-        if(healed>0){
-          playSfx('heal');
-          lg(`${nc2.name}: 🍌 heals the ${nanaFaction} base for ${healed}!`,'imp');
-          flashBase(nanaFaction,'heal',healed);
-        }
-        checkWin();
-        render();
-      },450);
+        playSfx('wind_card');
+        throwBananaFx(nanaId, null, nanaFaction);
+        setTimeout(()=>{
+          const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+          if(!nc2) return;
+          if(healed>0){
+            playSfx('heal');
+            lg(`${nc2.name}: 🍌 heals the ${nanaFaction} base for ${healed}!`,'imp');
+            flashBase(nanaFaction,'heal',healed);
+          }
+          checkWin();
+          render();
+        },450);
+      }, NANA_WINDUP_MS);
     } else {
       const enemies=G[oppFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.id!==hitId);
       if(enemies.length>0){
         const target=enemies[Math.floor(Math.random()*enemies.length)];
         const targetId=target.id;
-        throwBananaFx(nanaId, targetId, null);
         setTimeout(()=>{
-          const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
-          const t=G[oppFaction].field.find(c=>c.id===targetId);
-          if(!nc2 || !t) return;
-          // bypassArmor ЖЁСТКО false, НЕ bonusBypassArmor (2026-07-29, баг-фикс по прямому
-          // запросу автора) — банан физический и ДОЛЖЕН всегда игнорировать Ward
-          // (dmgCard() блокирует Wardʼом только bypassArmor=true урон). Раньше сюда
-          // протекал bonusBypassArmor, унаследованный от исходного удара (как у Market) —
-          // и на Bolt-триггере (Umbasir #151, несёт и bolt:1, и nana сразу) банан внезапно
-          // становился "магическим", и Ward начинал его блокировать целиком, хотя дизайн
-          // прямо требовал "Ward банан не блокирует никогда, при любом раскладе".
-          dmgCard(t,2,oppFaction,false);
-          // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс):
-          // раньше "hits X for 2 dmg!" писался ДО вызова dmgCard(), поэтому при уклонении
-          // по Foxy (или полном поглощении Shield/Frost) в лог противоречиво улетали ОБЕ
-          // строки подряд — наша "hits for 2 dmg!" и следом своя у dmgCard() ("Foxy Trick
-          // makes the attack miss entirely!"/"Solana Shield absorbs..."/"Frost absorbs...").
-          // Те три случая уже логируют себя сами — тут просто не дублируем поверх них.
-          if(!t._foxyDodgedThisHit && !t._shieldBlockedThisHit && !t._frostBlockedThisHit){
-            lg(`${nc2.name}: 🍌 hits ${t.name} for 2 dmg!`,'imp');
-          }
-          checkWin();
-          render();
-        },450);
+          playSfx('wind_card');
+          throwBananaFx(nanaId, targetId, null);
+          setTimeout(()=>{
+            const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+            const t=G[oppFaction].field.find(c=>c.id===targetId);
+            if(!nc2 || !t) return;
+            // bypassArmor ЖЁСТКО false, НЕ bonusBypassArmor (2026-07-29, баг-фикс по прямому
+            // запросу автора) — банан физический и ДОЛЖЕН всегда игнорировать Ward
+            // (dmgCard() блокирует Wardʼом только bypassArmor=true урон). Раньше сюда
+            // протекал bonusBypassArmor, унаследованный от исходного удара (как у Market) —
+            // и на Bolt-триггере (Umbasir #151, несёт и bolt:1, и nana сразу) банан внезапно
+            // становился "магическим", и Ward начинал его блокировать целиком, хотя дизайн
+            // прямо требовал "Ward банан не блокирует никогда, при любом раскладе".
+            dmgCard(t,2,oppFaction,false);
+            // Лог + звук — ПОСЛЕ dmgCard() и только если реально не промах/не поглощение
+            // (2026-07-30, звук добавлен по прямому запросу автора — раньше банан бил по
+            // существу вообще беззвучно; 'card_atack' — тот же звук, что у обычной атаки по
+            // карте, см. playAttackSfx()). Раньше "hits X for 2 dmg!" писался ДО вызова
+            // dmgCard(), поэтому при уклонении по Foxy (или полном поглощении Shield/Frost)
+            // в лог противоречиво улетали ОБЕ строки подряд — наша "hits for 2 dmg!" и
+            // следом своя у dmgCard() ("Foxy Trick makes the attack miss entirely!"/"Solana
+            // Shield absorbs..."/"Frost absorbs..."). Те три случая уже логируют себя сами —
+            // тут просто не дублируем поверх них (и не проигрываем звук удачного попадания
+            // поверх их собственной звуковой/визуальной обратной связи).
+            if(!t._foxyDodgedThisHit && !t._shieldBlockedThisHit && !t._frostBlockedThisHit){
+              playSfx('card_atack');
+              lg(`${nc2.name}: 🍌 hits ${t.name} for 2 dmg!`,'imp');
+            }
+            checkWin();
+            render();
+          },450);
+        }, NANA_WINDUP_MS);
       } else {
-        throwBananaFx(nanaId, null, oppFaction);
         setTimeout(()=>{
-          const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
-          if(!nc2) return;
-          lg(`${nc2.name}: 🍌 hits the ${oppFaction} base for 2 dmg!`,'imp');
-          G[oppFaction].hp=Math.max(0,G[oppFaction].hp-2);
-          flashBase(oppFaction,'dmg',2);
-          checkWin();
-          render();
-        },450);
+          playSfx('wind_card');
+          throwBananaFx(nanaId, null, oppFaction);
+          setTimeout(()=>{
+            const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+            if(!nc2) return;
+            playSfx('base_atack'); // 2026-07-30, по прямому запросу автора — тот же звук, что у обычного удара по базе
+            lg(`${nc2.name}: 🍌 hits the ${oppFaction} base for 2 dmg!`,'imp');
+            G[oppFaction].hp=Math.max(0,G[oppFaction].hp-2);
+            flashBase(oppFaction,'dmg',2);
+            checkWin();
+            render();
+          },450);
+        }, NANA_WINDUP_MS);
       }
     }
   },500);
@@ -1487,6 +1532,14 @@ function throwBananaFx(fromId, toId, baseFaction){
 // крутится по пути) — так голова всегда указывает в сторону движения, а хвост тянется
 // назад, как у кометы.
 //
+// fromId=null (2026-07-30, по прямому запросу автора — те же снаряды у Bolt-спеллов
+// JAB/STING/SPARK/MALICE/EXECUTE/CULL/JUDGMENT/DEATHBLOW/BREACH/RUPTURE, см.
+// doSpellDmgTarget()/doSpellDmgTrampleTarget()/doSpellExecuteHalfTarget()) — у заклинаний,
+// в отличие от Умбасира, нет своей карты на поле, откуда мог бы вылететь снаряд (спелл уже
+// ушёл в войд к моменту резолва). По прямому запросу автора снаряд в этом случае вылетает
+// из БАЗЫ игрока-кастера — fromBaseFaction обязателен вместо fromId, резолвится тем же
+// _statsElIdForFaction(), что и toId=null у банана/у самого болта ниже.
+//
 // Математика поворота: angle = atan2(dy,dx) в градусах (dx,dy — вектор ОТ источника К
 // цели в экранных координатах, где +y вниз) даёт направление "0°=вправо, 90°=вниз,
 //180°/-180°=влево, -90°=вверх" — стандартный atan2. Дефолтная ориентация спрайта (голова
@@ -1494,8 +1547,9 @@ function throwBananaFx(fromId, toId, baseFaction){
 // точно на угол `angle`, нужно добавить +90° (rotate(angle+90deg) переводит вектор из -90°
 // ровно в angle) — если МЫ (или следующий человек) поменяем арт на "голова вниз", это
 // смещение надо будет заменить на angle-90 (или добавить rotate(180deg) поверх текущего).
-function throwBoltFx(fromId, toId, baseFaction){
-  const fromEl=document.querySelector(`.card-small[data-id="${fromId}"]`);
+function throwBoltFx(fromId, toId, baseFaction, fromBaseFaction){
+  const fromEl = fromId ? document.querySelector(`.card-small[data-id="${fromId}"]`)
+                        : document.getElementById(_statsElIdForFaction(fromBaseFaction));
   if(!fromEl) return;
   const toEl = toId ? document.querySelector(`.card-small[data-id="${toId}"]`)
                      : document.getElementById(_statsElIdForFaction(baseFaction));
@@ -2427,50 +2481,90 @@ function doSpellDmgTarget(card){
   // с dmg=999 как условность "безусловное убийство". Игрок не должен видеть голое число —
   // ни в логе, ни во всплывающей надписи над картой, ни в плавающем "-999".
   const isInstaKill=dmg>=999;
-  playSfx('card_spell_atack');
   const oppK=G.turn==='tea'?'jeet':'tea';
-  queueFieldFx(card.id,isInstaKill?'DESTROYED':'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
-  const hpBefore=card.hp;
-  // bypassFrost=isInstaKill (2026-07-27, по прямому запросу автора) — VERDICT/DAMNATION это
-  // targeted-DESTROY эффект (та же категория, что JUDGMENT/DEATHBLOW и CATACLYSM/EXTINCTION,
-  // см. их комментарии) — Frost не должна спасать от него вообще, только Ward/активный
-  // Shield (те уже проверены на этапе выбора цели, см. click-хендлер). Обычные (не insta-kill)
-  // spell_dmg_target спеллы это условие НЕ трогает — для них Frost по-прежнему абсорбирует
-  // как обычно.
-  dmgCard(card,dmg,oppK,true,false,isInstaKill?'DESTROYED':null,isInstaKill);
-  // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
-  // паттерн что у Market/Nana/Bolt — см. их комментарии): раньше "takes N damage!"/
-  // "destroys!" писался ДО вызова dmgCard(), поэтому при Foxy (единственное, что тут в
-  // принципе может сработать — Frost bypass'ится на insta-kill, Ward/Shield уже
-  // отфильтрованы на этапе выбора цели) в лог противоречиво улетали ОБЕ строки подряд.
-  if(!card._foxyDodgedThisHit && !card._shieldBlockedThisHit && !card._frostBlockedThisHit){
-    if(isInstaKill) lg(`${spell.name} destroys ${card.name}!`,'dmg');
-    else lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  const casterFaction=G.turn;
+
+  if(isInstaKill){
+    // VERDICT/DAMNATION (2026-07-30, по прямому запросу автора) — НЕ снаряд. Тематически
+    // это "спавн разрушения прямо на карте", не что-то летящее — та же категория, что и у
+    // SHARD/FIERY ALTAR (doShardTarget() ниже). Своя анимация будет нарисована отдельно
+    // позже; пока — прежнее мгновенное разрешение, без полёта/доп.паузы.
+    playSfx('card_spell_atack');
+    queueFieldFx(card.id,'DESTROYED','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
+    // bypassFrost=true — VERDICT/DAMNATION это targeted-DESTROY эффект (та же категория,
+    // что JUDGMENT/DEATHBLOW и CATACLYSM/EXTINCTION, см. их комментарии) — Frost не должна
+    // спасать от него вообще, только Ward/активный Shield (те уже проверены на этапе
+    // выбора цели, см. click-хендлер).
+    dmgCard(card,dmg,oppK,true,false,'DESTROYED',true);
+    if(!card._foxyDodgedThisHit && !card._shieldBlockedThisHit && !card._frostBlockedThisHit){
+      lg(`${spell.name} destroys ${card.name}!`,'dmg');
+    }
+    G[casterFaction].void.push(spell);
+    spell.voided=true;
+    G.pendingSpell=null;G.phase='action';G.sel=null;
+    G[casterFaction].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
+    checkWin();render();
+    return;
   }
-  // draw_on_kill (2026-07-24, "EXECUTE"/"CULL", по прямому запросу автора) — если этот
-  // конкретный удар добил цель (была жива ДО удара, после — 0 или меньше), тянем 1 карту.
-  // Не трогает обычные JOURNEY/HEX/SPARK/MALICE/Bolt1 — у них просто нет этого тега.
-  if(hasTag(spell,'draw_on_kill') && hpBefore>0 && card.hp<=0){
-    const cur=G[G.turn];
-    if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); lg(`${spell.name}: kill confirmed — draws 1 card.`,'imp'); }
-  }
-  // draw_on_no_kill (2026-07-24, "JAB"/"STING", по прямому запросу автора) — зеркальное
-  // условие: тянем карту, только если цель ПЕРЕЖИЛА удар (card.hp>0 после) — "промазал
-  // мимо килла — вот тебе утешительная карта". hpBefore>0 всё ещё нужен (та же защита от
-  // "бил по уже мёртвой карте", которой тут в принципе быть не должно, но для симметрии
-  // с draw_on_kill оставлено то же условие).
-  if(hasTag(spell,'draw_on_no_kill') && hpBefore>0 && card.hp>0){
-    const cur=G[G.turn];
-    if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); lg(`${spell.name}: target survives — draws 1 card.`,'imp'); }
-  }
-  G[G.turn].void.push(spell);
+
+  // Обычный Bolt-спелл (JAB/STING/SPARK/MALICE/EXECUTE/CULL, 2026-07-30, по прямому запросу
+  // автора) — тот же снаряд, что у Bolt Умбасира (throwBoltFx(), bolt.gif — арт временный,
+  // используется для всех, пока не нарисованы уникальные под каждый спелл; логика от этого
+  // не изменится, замена будет чисто визуальной). У спелла, в отличие от Умбасира, нет
+  // своей карты на поле — снаряд вылетает из БАЗЫ кастера (fromId=null). Полёт стартует
+  // СРАЗУ по входу в эту функцию, а вызывается она только ПОСЛЕ того, как карта уже
+  // "сгорела" из руки (человек — карта покидает руку мгновенно ещё на Play, до фазы выбора
+  // цели; ИИ — уже после playSpellRevealAnimation(), см. doPlay()) — так что "полёт
+  // начинается после сжигания карты" соблюдается самой последовательностью вызовов, без
+  // нужды в отдельном таймере на это.
+  const targetId=card.id;
+  playSfx('wind_card');
+  throwBoltFx(null, targetId, null, casterFaction);
+  G[casterFaction].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
-  // Баг-фикс: таргетируемые спеллы обрывались в doPlay() ДО строки, где триггерится
-  // on_play_creature (FAERON и т.п.) — она никогда не срабатывала для JOURNEY/ARCHIVE/
-  // dispel/untap. Теперь триггерим здесь же, в момент реального разрешения спелла.
-  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
-  checkWin();render();
+  G[casterFaction].field.forEach(c=>triggerAbilities(c,'on_play_creature'));
+  render();
+
+  // Счётчик endTurn() (2026-07-24, тот же паттерн, что у "простых" instant-спеллов в
+  // doPlay() — см. её комментарий у G._pendingInstantSpellResolve) — не даёт ходу
+  // переключиться, пока снаряд ещё в полёте: иначе урон применился бы уже под ЧУЖИМ
+  // G.turn, если игрок успеет нажать End Turn за эти 420мс.
+  G._pendingInstantSpellResolve=(G._pendingInstantSpellResolve||0)+1;
+  setTimeout(()=>{
+    try{
+      const targetC=G[oppK].field.find(c=>c.id===targetId);
+      if(!targetC) return; // цель успела уйти с поля за время полёта — бить нечем
+      playSfx('card_spell_atack');
+      queueFieldFx(targetC.id,'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
+      const hpBefore=targetC.hp;
+      dmgCard(targetC,dmg,oppK,true);
+      // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот
+      // же паттерн что у Market/Nana/Bolt — см. их комментарии).
+      if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+        lg(`${spell.name}: ${targetC.name} takes ${dmg} damage!`,'dmg');
+      }
+      // draw_on_kill (2026-07-24, "EXECUTE"/"CULL", по прямому запросу автора) — если этот
+      // конкретный удар добил цель (была жива ДО удара, после — 0 или меньше), тянем 1
+      // карту. Не трогает обычные JOURNEY/HEX/SPARK/MALICE/Bolt1 — у них просто нет этого
+      // тега.
+      if(hasTag(spell,'draw_on_kill') && hpBefore>0 && targetC.hp<=0){
+        const cur=G[casterFaction];
+        if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); lg(`${spell.name}: kill confirmed — draws 1 card.`,'imp'); }
+      }
+      // draw_on_no_kill (2026-07-24, "JAB"/"STING", по прямому запросу автора) — зеркальное
+      // условие: тянем карту, только если цель ПЕРЕЖИЛА удар (card.hp>0 после) — "промазал
+      // мимо килла — вот тебе утешительная карта".
+      if(hasTag(spell,'draw_on_no_kill') && hpBefore>0 && targetC.hp>0){
+        const cur=G[casterFaction];
+        if(cur.deck.length>0){ cur.hand.push(cur.deck.shift()); lg(`${spell.name}: target survives — draws 1 card.`,'imp'); }
+      }
+      checkWin();
+      render();
+    } finally {
+      G._pendingInstantSpellResolve--;
+    }
+  },420);
 }
 
 function doSpellBurnTarget(card){
@@ -2691,28 +2785,49 @@ function doSpellDmgTrampleTarget(card){
   const spell=G.pendingSpell;
   if(!spell) return;
   const dmg=getTagVal(spell,'spell_dmg_trample_target')||5;
-  playSfx('card_spell_atack');
   const oppK=G.turn==='tea'?'jeet':'tea';
-  queueFieldFx(card.id,'HIT!','fx-spell-dmg');
-  dmgCard(card,dmg,oppK,true);
-  // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
-  // паттерн что у Market/Nana/Bolt/spell_dmg_target — см. их комментарии выше): раньше
-  // "takes N damage!" писался ДО вызова dmgCard(), поэтому при Foxy/Shield/Frost на цели в
-  // лог противоречиво улетали ОБЕ строки подряд.
-  if(!card._foxyDodgedThisHit && !card._shieldBlockedThisHit && !card._frostBlockedThisHit){
-    lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
-  }
-  const overflow=Math.max(0,-card.hp);
-  if(overflow>0){
-    G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
-    lg(`${spell.name}: overkill carries ${overflow} dmg into the ${oppK.toUpperCase()} base!`,'dmg');
-    flashBase('opp','dmg',overflow);
-  }
-  G[G.turn].void.push(spell);
+  const casterFaction=G.turn;
+  const targetId=card.id;
+
+  // Снаряд (2026-07-30, по прямому запросу автора — тот же паттерн, что у
+  // doSpellDmgTarget()/Bolt Умбасира, см. её подробный комментарий): bolt.gif, вылетает из
+  // БАЗЫ кастера, полёт стартует сразу по входу в функцию (после того, как карта уже
+  // сгорела/раскрылась — см. doPlay()).
+  playSfx('wind_card');
+  throwBoltFx(null, targetId, null, casterFaction);
+  G[casterFaction].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
-  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
-  checkWin();render();
+  G[casterFaction].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
+  render();
+
+  G._pendingInstantSpellResolve=(G._pendingInstantSpellResolve||0)+1;
+  setTimeout(()=>{
+    try{
+      const targetC=G[oppK].field.find(c=>c.id===targetId);
+      if(!targetC) return; // цель успела уйти с поля за время полёта — бить нечем
+      playSfx('card_spell_atack');
+      queueFieldFx(targetC.id,'HIT!','fx-spell-dmg');
+      dmgCard(targetC,dmg,oppK,true);
+      // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
+      // паттерн что у Market/Nana/Bolt/spell_dmg_target — см. их комментарии выше): раньше
+      // "takes N damage!" писался ДО вызова dmgCard(), поэтому при Foxy/Shield/Frost на цели в
+      // лог противоречиво улетали ОБЕ строки подряд.
+      if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+        lg(`${spell.name}: ${targetC.name} takes ${dmg} damage!`,'dmg');
+      }
+      const overflow=Math.max(0,-targetC.hp);
+      if(overflow>0){
+        G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
+        lg(`${spell.name}: overkill carries ${overflow} dmg into the ${oppK.toUpperCase()} base!`,'dmg');
+        flashBase(oppK,'dmg',overflow);
+      }
+      checkWin();
+      render();
+    } finally {
+      G._pendingInstantSpellResolve--;
+    }
+  },420);
 }
 
 function doSpellUntapTarget(card){
@@ -2769,30 +2884,58 @@ function doSpellExecuteHalfTarget(card){
   // смерть тут же: добиваем условие ниже по актуальному hp (которое dmgCard() намеренно
   // оставляет отрицательным на летальном попадании, см. её комментарии), killCard() вызывается
   // явно один раз, без риска дважды прогнать одну и ту же карту через смерть.
+  //
+  // Снаряд (2026-07-30, по прямому запросу автора) — тот же паттерн, что у
+  // doSpellDmgTarget()/Bolt Умбасира: bolt.gif летит из БАЗЫ кастера, это именно Bolt 1
+  // (первый удар). Финальное добивание (999, если сработал порог ≤50%) — НЕ отдельный
+  // снаряд, а мгновенный "спавн разрушения на карте" сразу по приземлении болта (та же
+  // категория, что у VERDICT/DAMNATION в doSpellDmgTarget() — см. её комментарий) —
+  // тематически это одно продолжающееся действие ("добил тем же ударом"), не второй бросок.
   const spell=G.pendingSpell;
   if(!spell) return;
   const oppK=card.f;
-  playSfx('card_spell_atack');
-  lg(`${spell.name}: Bolt 1 to ${card.name}!`,'dmg');
-  queueFieldFx(card.id,'BOLT!','fx-shard');
-  // bypassFrost=true (2026-07-27, по прямому запросу автора) — JUDGMENT/DEATHBLOW это
-  // targeted-DESTROY эффект, Frost её не спасает вообще (только Shield-активный/Ward, они
-  // и так уже проверены на этапе выбора цели — см. click-хендлер выше). На обоих ударах
-  // (Bolt 1 и финальный добивающий), иначе замороженная цель просто поглотила бы Bolt 1,
-  // не получила урона и никогда не дошла бы до порога добивания.
-  dmgCard(card,1,oppK,true,true,undefined,true);
-  if(card.hp<=0){
-    killCard(card,oppK);
-  } else if(card.hp<=Math.floor(card.maxHp/2)){
-    lg(`${spell.name} destroys ${card.name}!`,'dmg');
-    queueFieldFx(card.id,'DESTROYED','fx-spell-dmg');
-    dmgCard(card,999,oppK,true,false,'DESTROYED',true);
-  }
-  G[G.turn].void.push(spell);
+  const casterFaction=G.turn;
+  const targetId=card.id;
+
+  playSfx('wind_card');
+  throwBoltFx(null, targetId, null, casterFaction);
+  G[casterFaction].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
-  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
+  G[casterFaction].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
   render();
+
+  G._pendingInstantSpellResolve=(G._pendingInstantSpellResolve||0)+1;
+  setTimeout(()=>{
+    try{
+      const targetC=G[oppK].field.find(c=>c.id===targetId);
+      if(!targetC) return; // цель успела уйти с поля за время полёта — бить нечем
+      playSfx('card_spell_atack');
+      queueFieldFx(targetC.id,'BOLT!','fx-shard');
+      // bypassFrost=true (2026-07-27, по прямому запросу автора) — JUDGMENT/DEATHBLOW это
+      // targeted-DESTROY эффект, Frost её не спасает вообще (только Shield-активный/Ward,
+      // они и так уже проверены на этапе выбора цели — см. click-хендлер выше). На обоих
+      // ударах (Bolt 1 и финальный добивающий), иначе замороженная цель просто поглотила
+      // бы Bolt 1, не получила урона и никогда не дошла бы до порога добивания.
+      dmgCard(targetC,1,oppK,true,true,undefined,true);
+      // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-30, тот же баг-фикс,
+      // что у Market/Nana/Bolt/spell_dmg_target — см. их комментарии; раньше "Bolt 1 to X!"
+      // писался ДО вызова dmgCard() тут, без этой проверки вообще).
+      if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+        lg(`${spell.name}: Bolt 1 to ${targetC.name}!`,'dmg');
+      }
+      if(targetC.hp<=0){
+        killCard(targetC,oppK);
+      } else if(targetC.hp<=Math.floor(targetC.maxHp/2)){
+        lg(`${spell.name} destroys ${targetC.name}!`,'dmg');
+        queueFieldFx(targetC.id,'DESTROYED','fx-spell-dmg');
+        dmgCard(targetC,999,oppK,true,false,'DESTROYED',true);
+      }
+      render();
+    } finally {
+      G._pendingInstantSpellResolve--;
+    }
+  },420);
 }
 
 function doShardTarget(card){
@@ -3303,9 +3446,21 @@ function activateCard(cardId){
   const el = document.querySelector(`.card-small[data-id="${cardId}"]`);
   if(!el) return;
   el.classList.remove('activating');
-  void el.offsetWidth; 
+  void el.offsetWidth;
   el.classList.add('activating');
-  setTimeout(()=>el.classList.remove('activating'), 500);
+  // Токен вместо голого таймера (2026-07-30, баг-фикс автор поймал живьём — "у Умбасира
+  // при болте пропал подъём"): activateCard() на одну и ту же карту может вызываться ДВАЖДЫ
+  // подряд в пределах 500мс — например, атака сама даёт пульс сразу, а потом Nana даёт ЕЩЁ
+  // ОДИН пульс ~500мс спустя (см. resolveNanaEvent). Раньше старый setTimeout от ПЕРВОГО
+  // вызова слепо снимал класс через 500мс — если он срабатывал ПОСЛЕ того, как второй вызов
+  // только что заново навесил 'activating', это стирало свежую анимацию, даже не дав ей
+  // проиграться. Токен решает: у каждого вызова свой номер, таймер снимает класс, только
+  // если это всё ещё ЕГО номер (никто не перезапустил анимацию заново после него) — старые
+  // таймеры от предыдущих вызовов теперь молча ничего не делают, если их обогнал новый.
+  const token = (el._activateToken = (el._activateToken||0) + 1);
+  setTimeout(()=>{
+    if(el._activateToken === token) el.classList.remove('activating');
+  }, 500);
 }
 function hitCard(cardId){
   const el = document.querySelector(`.card-small[data-id="${cardId}"]`);
