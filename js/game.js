@@ -977,6 +977,13 @@ function doUmbBolt(){
   render();
 }
 
+// Полёт снаряда (2026-07-30, bolt.gif, по прямому запросу автора — тот же приём, что у
+// Nana/throwBananaFx() выше, с направленным поворотом вместо кручения, см. throwBoltFx()).
+// Урон/лог/Market/Nana теперь ЖДУТ, пока снаряд визуально долетит (420мс, тот же тайминг,
+// что throwBoltFx()) — до этого момента бить нечем, разряд ещё в полёте. Само состояние
+// хода (exhausted/phase/sel/пульс поднятия) выставляется СРАЗУ при запуске — ход не
+// блокируется на время полёта, ровно как у обычной атаки (только сама механика Bolt внутри
+// стала отложенной, сам факт "карта подействовала" — нет).
 function doBoltTarget(card){
   const oppK=G.turn==='tea'?'jeet':'tea';
   const bolt=findC(G.sel);
@@ -986,34 +993,45 @@ function doBoltTarget(card){
   }
   playSfx('card_spell_atack');
   const dmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
-  queueFieldFx(card.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта
   const boltOwnerK=G.turn;
-  dmgCard(card,dmg,oppK,true);
-  // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
-  // паттерн что у Market/Nana — см. их комментарии выше): раньше "takes N damage!" писался
-  // ДО вызова dmgCard(), поэтому при Foxy/Shield/Frost на цели в лог противоречиво улетали
-  // ОБЕ строки подряд — наша и следом своя у dmgCard() (MISSED!/ABSORB/Frost-shatter).
-  if(!card._foxyDodgedThisHit && !card._shieldBlockedThisHit && !card._frostBlockedThisHit){
-    lg(`${bolt.name}: ${card.name} takes ${dmg} damage!`,'dmg');
-  }
-  // Game of Market (2026-07-28) — Umbasir-болтер тоже может нести этот тег (по прямому
-  // запросу автора: "болт умбасира может нанести не 1 а 3 урона, либо -2 хп"). Тот же
-  // хук, что в doAttack() — bypassArmor=true для бонус-урона здесь, т.к. сам Bolt уже
-  // магический (bypassArmor=true чуть выше), бонус наследует ту же природу удара.
-  resolveMarketEvent(bolt, boltOwnerK, card, oppK, true);
-  // NANA (2026-07-29) — тот же хук, что у Market чуть выше: bypassArmor=true для
-  // дамаг-ветки, т.к. сам Bolt уже магический, бонус наследует ту же природу удара.
-  resolveNanaEvent(bolt, boltOwnerK, card, oppK, true);
-  const boltId=bolt.id;
+  const boltId=bolt.id, targetId=card.id;
+
+  throwBoltFx(boltId, targetId, null);
+
   bolt.exhausted=true;
   G.phase='action';G.sel=null;
-  checkWin();render();
   // Баг-фикс (2026-07-19, автор нашёл живьём): doAttack()/doUmbAsir() уже дают кастующей
   // карте "пульс поднятия" через activateCard() (см. @keyframes cardActivate, styles.css) —
-  // ровно тот визуал, который сигналит "эта карта только что подействовала". У Bolt его не
-  // было вообще — карта просто гасла в exhausted без какого-либо явного сигнала, что именно
-  // ОНА была источником эффекта. Добавлено для консистентности со всеми остальными активками.
+  // ровно тот визуал, который сигналит "эта карта только что подействовала". Держим его на
+  // моменте ЗАПУСКА снаряда (не приземления) — та же логика, что у самой атаки: "подействовал"
+  // относится к моменту, когда карта потратила свой ход, не к моменту, когда долетел эффект.
   activateCard(boltId);
+  render();
+
+  setTimeout(()=>{
+    const boltC=G[boltOwnerK].field.find(c=>c.id===boltId);
+    const targetC=G[oppK].field.find(c=>c.id===targetId);
+    if(!boltC || !targetC) return; // носитель или цель успели уйти с поля за время полёта — бить нечем
+    queueFieldFx(targetC.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта на сам импакт
+    dmgCard(targetC,dmg,oppK,true);
+    // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
+    // паттерн что у Market/Nana — см. их комментарии выше): раньше "takes N damage!" писался
+    // ДО вызова dmgCard(), поэтому при Foxy/Shield/Frost на цели в лог противоречиво улетали
+    // ОБЕ строки подряд — наша и следом своя у dmgCard() (MISSED!/ABSORB/Frost-shatter).
+    if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+      lg(`${boltC.name}: ${targetC.name} takes ${dmg} damage!`,'dmg');
+    }
+    // Game of Market (2026-07-28) — Umbasir-болтер тоже может нести этот тег (по прямому
+    // запросу автора: "болт умбасира может нанести не 1 а 3 урона, либо -2 хп"). Тот же
+    // хук, что в doAttack() — bypassArmor=true для бонус-урона здесь, т.к. сам Bolt уже
+    // магический (bypassArmor=true чуть выше), бонус наследует ту же природу удара.
+    resolveMarketEvent(boltC, boltOwnerK, targetC, oppK, true);
+    // NANA (2026-07-29) — тот же хук, что у Market чуть выше: bypassArmor=true для
+    // дамаг-ветки, т.к. сам Bolt уже магический, бонус наследует ту же природу удара.
+    resolveNanaEvent(boltC, boltOwnerK, targetC, oppK, true);
+    checkWin();
+    render();
+  },420);
 }
 
 function onBaseClick(faction){
@@ -1457,6 +1475,53 @@ function throwBananaFx(fromId, toId, baseFaction){
   banana.style.top=(toRect.top+toRect.height/2)+'px';
   banana.style.transform='translate(-50%,-50%) scale(1.3) rotate(360deg)';
   setTimeout(()=>{ if(banana.parentElement) banana.remove(); },450);
+}
+
+// throwBoltFx — арт bolt.gif (2026-07-30, Umbasir Bolt, по прямому запросу автора), летящий
+// от карты-кастера к цели. Тот же приём, что throwBananaFx() чуть выше (position:fixed +
+// left/top-transition между координатами двух realtime DOM rect'ов, тот же тайминг 420мс),
+// но с ОДНИМ отличием: bolt.gif нарисован направленно (голова кометы вверх, хвост вниз,
+// 2:1 — см. .bolt-fly в styles.css), поэтому вместо кручения (rotate 0→360, как у банана —
+// банан визуально симметричен, ему всё равно, куда он "смотрит") спрайт поворачивается
+// РОВНО ОДИН РАЗ, под угол между источником и целью, и держит этот угол весь полёт (не
+// крутится по пути) — так голова всегда указывает в сторону движения, а хвост тянется
+// назад, как у кометы.
+//
+// Математика поворота: angle = atan2(dy,dx) в градусах (dx,dy — вектор ОТ источника К
+// цели в экранных координатах, где +y вниз) даёт направление "0°=вправо, 90°=вниз,
+//180°/-180°=влево, -90°=вверх" — стандартный atan2. Дефолтная ориентация спрайта (голова
+// вверх, до применения rotate) соответствует -90° в этой системе. Чтобы повернуть "вверх"
+// точно на угол `angle`, нужно добавить +90° (rotate(angle+90deg) переводит вектор из -90°
+// ровно в angle) — если МЫ (или следующий человек) поменяем арт на "голова вниз", это
+// смещение надо будет заменить на angle-90 (или добавить rotate(180deg) поверх текущего).
+function throwBoltFx(fromId, toId, baseFaction){
+  const fromEl=document.querySelector(`.card-small[data-id="${fromId}"]`);
+  if(!fromEl) return;
+  const toEl = toId ? document.querySelector(`.card-small[data-id="${toId}"]`)
+                     : document.getElementById(_statsElIdForFaction(baseFaction));
+  if(!toEl) return;
+  const fromRect=fromEl.getBoundingClientRect();
+  const toRect=toEl.getBoundingClientRect();
+  const fromX=fromRect.left+fromRect.width/2, fromY=fromRect.top+fromRect.height/2;
+  const toX=toRect.left+toRect.width/2, toY=toRect.top+toRect.height/2;
+  const angle=Math.atan2(toY-fromY, toX-fromX)*180/Math.PI + 90;
+  const bolt=document.createElement('img');
+  bolt.className='bolt-fly';
+  bolt.src='img/bolt.gif';
+  bolt.alt='';
+  bolt.style.left=fromX+'px';
+  bolt.style.top=fromY+'px';
+  bolt.style.transform=`translate(-50%,-50%) rotate(${angle}deg) scale(1)`;
+  document.body.appendChild(bolt);
+  void bolt.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+  bolt.style.transition='left 420ms ease-in, top 420ms ease-in, transform 420ms ease-in';
+  bolt.style.left=toX+'px';
+  bolt.style.top=toY+'px';
+  // Поворот НЕ меняется между стартом и финишем (angle тот же) — только позиция и лёгкий
+  // "удар" через scale, чтобы приземление читалось. Прямая линия полёта → угол постоянный
+  // весь путь, кометы не нужно доворачивать на лету.
+  bolt.style.transform=`translate(-50%,-50%) rotate(${angle}deg) scale(1.15)`;
+  setTimeout(()=>{ if(bolt.parentElement) bolt.remove(); },450);
 }
 
 // DD Cleave (2026-07-29, "DD's Signature", ультраредкий Mood-трейт, ico_dd.png, по
