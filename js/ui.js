@@ -403,6 +403,7 @@ function preloadAssets(){
     'img/frost.png', 'img/ico_snow.png',
     'img/ico_fff.png', // Foxy Trick (2026-07-27) — тот же превентивный фикс, что у Frost выше
     'img/ico_market.png', // Game of Market (2026-07-28) — тот же превентивный фикс, что у Foxy/Frost выше
+    'img/ico_nana.png', // Nana (2026-07-29) — тот же превентивный фикс
     'img/invis.png', // Invis/Stealth overlay (2026-07-27) — та же превентивная мера
 
     // ── Кнопки в игре ──
@@ -1718,6 +1719,7 @@ const TAG_TOOLTIPS = {
   'frost': { name: 'Frost Attack', desc: 'On attack: Freezes the target for 2 of its own turns — it cannot act at all (attack or use Active abilities) and no longer forces Provoke/Intercept. Freezing clears any Fear/Burn on the target and grants immunity to new Fear/Burn while frozen. Frost is shattered by the next hit the target takes, of any kind, which is fully absorbed (like Solana Shield).' }, // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
   'foxy': { name: 'Foxy Trick', desc: '50% chance to dodge entirely: any incoming damage, or any attempt to apply a debuff (Fear/Burn/Frost/Provoke-break) to this card, has a 50% chance to simply miss.' }, // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
   'market': { name: 'Game of Market', desc: 'On this card\'s attack (or Bolt): 50/50 — either 2 bonus damage to the target, or 2 damage to itself. Skipped if the hit was dodged (Foxy), absorbed by an active Solana Shield, or absorbed by Frost.' }, // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
+  'nana': { name: 'Nana', desc: 'On this card\'s attack (or Bolt): 50/50 — either throws a banana at a random enemy (not the one just hit) for 2 damage, or at a random wounded ally for 2 healing (falls back to its own base if no wounded ally, or to the enemy if there\'s nothing to heal). Skipped if the hit was dodged (Foxy), absorbed by an active Solana Shield, or absorbed by Frost.' }, // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box, .card-incarn-badge';
