@@ -1960,8 +1960,20 @@ function killCard(card,faction,toVoid=false){
   // ПЕРЕЕХАЛ с трейта Scheme на Pink Clouds (2026-07-27, по прямому запросу автора —
   // Схема отдаёт этот тег/эффект Pink Clouds под именем "Thunder Storm"; сам тег
   // `death_bolt` не переименован, переезжает только его трейт-привязка и иконка —
-  // см. TAG_ICONS/TAG_TOOLTIPS ниже, теперь ico_cloud.png). Пока не назначен ни на
-  // одного живого traveler — Pink Clouds ждёт ручного ввода карт.
+  // см. TAG_ICONS/TAG_TOOLTIPS ниже, теперь ico_cloud.png). Живые карты: #250 (tea,
+  // death_bolt:4) и #481 (jeet, death_bolt:4) — поймал себя на устаревшем комментарии
+  // здесь (2026-07-30, раньше писал "ещё не назначен ни на одного traveler" — неправда,
+  // не сверился с data.js напрямую перед тем как написать это).
+  //
+  // Снаряд (2026-07-30, по прямому запросу автора — "тот же ассет, та же скорость, тот же
+  // звук", что у остальных Bolt-эффектов этой сессии) — throwBoltFx(dyingId, targetId,...)
+  // летит ПРЯМО ОТ УМИРАЮЩЕЙ КАРТЫ (та же карточная, а не базовая, версия функции, что у
+  // Bolt Умбасира) к случайно выбранной цели. Field-массив уже почищен от этой карты чуть
+  // выше по функции (см. самое начало killCard()), НО render() ещё не звался — DOM-элемент
+  // с её последней отрисованной позицией физически ещё на месте, throwBoltFx() успевает
+  // его найти и взять координаты ДО того, как следующий render() сотрёт/пересоберёт узел.
+  // wind_card на запуск, card_spell_atack + сам урон — на приземление (420мс), тот же
+  // тайминг, что у Bolt-спеллов (doSpellDmgTarget() и т.д., см. её комментарий).
   if(!card.spell&&!card.world&&!card.artifact){
     const stormBolt=getTagVal(card,'death_bolt');
     if(stormBolt){
@@ -1969,10 +1981,24 @@ function killCard(card,faction,toVoid=false){
       const enemyField=G[enemyFaction].field;
       if(enemyField.length>0){
         const boltTarget=enemyField[Math.floor(Math.random()*enemyField.length)];
-        playSfx('card_spell_atack');
-        lg(`${card.name}: dies — Bolt ${stormBolt} to ${boltTarget.name}!`,'imp');
-        queueFieldFx(boltTarget.id,'HIT!','fx-spell-dmg');
-        dmgCard(boltTarget,stormBolt,enemyFaction,true);
+        const dyingId=card.id, dyingName=card.name, targetId=boltTarget.id;
+        playSfx('wind_card');
+        throwBoltFx(dyingId, targetId, null);
+        setTimeout(()=>{
+          const t=G[enemyFaction].field.find(c=>c.id===targetId);
+          if(!t) return; // цель успела уйти с поля за время полёта — бить нечем
+          playSfx('card_spell_atack');
+          queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+          dmgCard(t,stormBolt,enemyFaction,true);
+          // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (тот же баг-фикс, что у
+          // Market/Nana/Bolt/spell_dmg_target — см. их комментарии): раньше "dies — Bolt N
+          // to X!" писался ДО вызова dmgCard(), без этой проверки вообще.
+          if(!t._foxyDodgedThisHit && !t._shieldBlockedThisHit && !t._frostBlockedThisHit){
+            lg(`${dyingName}: dies — Bolt ${stormBolt} to ${t.name}!`,'imp');
+          }
+          checkWin();
+          render();
+        },420);
       }
     }
   }
