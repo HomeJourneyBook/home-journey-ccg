@@ -1267,16 +1267,34 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
 // выше: прямой удар по базе через tryAttackBase() раньше вообще не звал этот резолвер) —
 // когда удар шёл НЕ по существу, а напрямую по базе: hitTargetCard тогда null,
 // hitTargetFaction — фракция самой атакуемой базы. У базы нет Foxy/Shield/Frost —
-// гейтинг пропускается целиком. По прямому запросу автора дамаг-ветка в этом случае НЕ
-// выбирает случайное вражеское существо — банан летит следом в ТУ ЖЕ базу, которую
-// только что ударили (та же логика "продолжение того же удара", что у Market/UP выше);
-// хил-ветка не меняется вообще (союзник/своя база — как обычно).
+// гейтинг пропускается целиком. Дамаг-ветка в этом случае — ОБЫЧНЫЙ пул случайных
+// вражеских существ (hitId=null ничего не исключает — атакованной картой была сама
+// база, исключать нечего), с тем же фолбэком на базу, если существ на поле нет: если у
+// противника есть хоть кто-то на поле, банан может улететь в него так же, как в любой
+// другой момент; в базу — только если противник вообще пуст (уточнено автором
+// 2026-07-29, отменяет более раннюю версию, где банан после удара по базе ВСЕГДА летел
+// в базу — это было неверно). Хил-ветка не меняется вообще (союзник/своя база — как
+// обычно).
 //
 // Все точки применения эффекта перепроверяют, что нужные карты ВСЁ ЕЩЁ на поле к моменту
 // срабатывания (могли умереть за прошедшую паузу — контрудар, Thorns, второй Bolt и т.п.)
 // — тот же принцип, что у Market: если носитель тега уже не на поле, розыгрыш не состоится
 // вообще; если успела исчезнуть уже ВЫБРАННАЯ цель банана, эта конкретная порция эффекта
 // молча пропускается (не бьёт и не лечит пустое место).
+//
+// Хил-ветки (2026-07-29, баг-фикс — автор поймал живьём: банан периодически "долетал" до
+// уже полностью вылеченного союзника и визуально ничего не делал) — HP теперь меняется
+// СРАЗУ, в момент выбора цели (тот же тик, что и сам выбор — самое свежее состояние,
+// без временнОго зазора), а не 450мс спустя, когда банан долетает. Раньше между выбором
+// цели и применением эффекта проходило 450мс полёта, и если за это время ДРУГОЙ
+// одновременный эффект (например, вторая Nana/heal-карта, атаковавшая чуть раньше в той
+// же серии атак хода) успевал долечить того же союзника — банан всё равно долетал, но
+// хилить уже было нечего: 0 хила, без лога/цифры, визуально "впустую". Теперь гонки нет:
+// решение "кого лечить" и само изменение HP происходят одновременно, полёт банана —
+// чисто визуальная задержка перед логом/всплывающей цифрой, к тому моменту эффект уже
+// гарантированно применён. Дамаг-веток это не касается — там применение сознательно
+// сохранено НА МОМЕНТ приземления (см. существующие комментарии выше), это не то, на
+// что жаловался автор.
 function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction, bonusBypassArmor, targetIsBase){
   if(!hasTag(nanaCard,'nana')) return;
   if(!targetIsBase && (hitTargetCard._foxyDodgedThisHit || hitTargetCard._shieldBlockedThisHit || hitTargetCard._frostBlockedThisHit)) return;
@@ -1294,47 +1312,34 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
     if(wantHeal && woundedAllies.length>0){
       const target=woundedAllies[Math.floor(Math.random()*woundedAllies.length)];
       const targetId=target.id;
+      const before=target.hp;
+      target.hp=Math.min(target.maxHp,target.hp+2); // применяется сразу — см. комментарий у функции выше
+      const healed=target.hp-before;
       throwBananaFx(nanaId, targetId, null);
       setTimeout(()=>{
         const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
-        const t=G[nanaFaction].field.find(c=>c.id===targetId);
-        if(!nc2 || !t) return;
-        const before=t.hp;
-        t.hp=Math.min(t.maxHp,t.hp+2);
-        const healed=t.hp-before;
+        if(!nc2) return;
         if(healed>0){
           playSfx('heal');
-          lg(`${nc2.name}: 🍌 heals ${t.name} for ${healed}!`,'imp');
-          const tId=t.id;
-          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(tId,`+${healed}`,'heal')));
+          lg(`${nc2.name}: 🍌 heals ${target.name} for ${healed}!`,'imp');
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(targetId,`+${healed}`,'heal')));
         }
         checkWin();
         render();
       },450);
     } else if(wantHeal){
+      const before=G[nanaFaction].hp;
+      G[nanaFaction].hp=Math.min(G[nanaFaction].maxHp,G[nanaFaction].hp+2); // применяется сразу, см. выше
+      const healed=G[nanaFaction].hp-before;
       throwBananaFx(nanaId, null, nanaFaction);
       setTimeout(()=>{
         const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
         if(!nc2) return;
-        const before=G[nanaFaction].hp;
-        G[nanaFaction].hp=Math.min(G[nanaFaction].maxHp,G[nanaFaction].hp+2);
-        const healed=G[nanaFaction].hp-before;
         if(healed>0){
           playSfx('heal');
           lg(`${nc2.name}: 🍌 heals the ${nanaFaction} base for ${healed}!`,'imp');
           flashBase(nanaFaction,'heal',healed);
         }
-        checkWin();
-        render();
-      },450);
-    } else if(targetIsBase){
-      throwBananaFx(nanaId, null, oppFaction);
-      setTimeout(()=>{
-        const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
-        if(!nc2) return;
-        lg(`${nc2.name}: 🍌 follows up on the ${oppFaction} base for 2 dmg!`,'imp');
-        G[oppFaction].hp=Math.max(0,G[oppFaction].hp-2);
-        flashBase(oppFaction,'dmg',2);
         checkWin();
         render();
       },450);
