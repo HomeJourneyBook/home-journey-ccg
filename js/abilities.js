@@ -373,14 +373,23 @@ function triggerAbilities(card, timing, ctx={}){
         //   случайная логика, что была раньше единственной: случайная ЖИВАЯ цель за раз,
         //   мёртвые выбывают из пула сразу (оверкилл-расход на труп исключён, пока есть
         //   куда его деть — Ward/невидимость/база не "труп", туда улетать можно).
+        //
+        // Снаряды ПО ОДНОМУ (2026-07-30, по прямому запросу автора — "один за другим
+        // выглядит эффектнее") — та же пара звуков/тот же снаряд, что у остальных
+        // Bolt-спеллов этой сессии (throwBoltFx() из базы кастера, wind_card на запуск,
+        // card_spell_atack на приземление, см. doSpellDmgTarget() в game.js за подробным
+        // комментарием паттерна). Порядок целей для КАЖДОГО очка урона решается ЗАРАНЕЕ,
+        // всей 2-фазной логикой выше, целиком синхронно (fairness не меняется вообще —
+        // просто раньше результат сразу схлопывался в hitCounts/baseHits одним махом,
+        // теперь ещё и разворачивается во времени, один снаряд на очко). Между приземлением
+        // одного снаряда и запуском следующего — пауза (см. SPREAD_SHOT_GAP_MS), чтобы
+        // темп читался как "выстрел-пауза-выстрel", а не слипшаяся очередь.
         {
           const pool=[...G[oppK].field];
-          playSfx('card_spell_atack');
           let alive=pool.map(t=>({t, hpLeft:t.hp, isBase:false}));
           alive.push({isBase:true}); // псевдо-цель — база соперника, без hpLeft/выбывания
-          const hitCounts=new Map();
-          let baseHits=0;
           let pointsLeft=a.val;
+          const shots=[]; // упорядоченный список: {isBase:true} или {targetId}
 
           // Фаза 1 — по одному очку на каждую цель пула, в случайном порядке.
           const shuffled=[...alive];
@@ -390,8 +399,8 @@ function triggerAbilities(card, timing, ctx={}){
           }
           for(let i=0;i<shuffled.length && pointsLeft>0;i++){
             const entry=shuffled[i];
-            if(entry.isBase){ baseHits++; pointsLeft--; continue; }
-            hitCounts.set(entry.t.id,(hitCounts.get(entry.t.id)||0)+1);
+            if(entry.isBase){ shots.push({isBase:true}); pointsLeft--; continue; }
+            shots.push({targetId:entry.t.id});
             entry.hpLeft-=1;
             pointsLeft--;
             if(entry.hpLeft<=0){
@@ -404,39 +413,67 @@ function triggerAbilities(card, timing, ctx={}){
           for(let i=0;i<pointsLeft && alive.length>0;i++){
             const idx=Math.floor(Math.random()*alive.length);
             const entry=alive[idx];
-            if(entry.isBase){ baseHits++; continue; }
-            hitCounts.set(entry.t.id,(hitCounts.get(entry.t.id)||0)+1);
+            if(entry.isBase){ shots.push({isBase:true}); continue; }
+            shots.push({targetId:entry.t.id});
             entry.hpLeft-=1;
             if(entry.hpLeft<=0) alive.splice(idx,1);
           }
 
-          let hitTargets=0;
-          hitCounts.forEach((dmgAmt,tid)=>{
-            const t=pool.find(p=>p.id===tid);
-            if(!t) return;
-            hitTargets++;
-            // Ward (2026-07-27, по прямому запросу автора) — показываем IMMUNE, а не тишину
-            // (Ward — честная случайность, damage-point намеренно МОЖЕТ впустую уйти в
-            // защищённую цель, это НЕ баг, см. историю выше — просто теперь видно ПОЧЕМУ).
-            // Frost/активный Solana Shield и так получают СВОЮ отдельную анимацию поглощения
-            // изнутри dmgCard() (ABSORB у щита, shake+лог у заморозки) — вторая плашка поверх
-            // была бы избыточной.
-            if(hasTag(t,'ward')){
-              queueFieldFx(t.id,'IMMUNE','fx-immune');
-            } else if(!(t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed))){
-              queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+          const SPREAD_SHOT_GAP_MS=150; // пауза между приземлением одного снаряда и запуском следующего
+          const casterFaction=curK;
+          const hitNames=new Set();
+          let baseHits=0;
+          // Счётчик endTurn() (тот же паттерн, что у doSpellDmgTarget()/Bolt-спеллов этой
+          // сессии — см. её комментарий) — не даёт ходу переключиться, пока вся очередь
+          // снарядов ещё не отстрелялась.
+          G._pendingInstantSpellResolve=(G._pendingInstantSpellResolve||0)+1;
+          const fireShot=(i)=>{
+            if(i>=shots.length){
+              G._pendingInstantSpellResolve--;
+              const parts=[];
+              if(hitNames.size>0) parts.push(`${hitNames.size} enemy creature(s)`);
+              if(baseHits>0) parts.push('the base');
+              lg(`${card.name}: ${a.val} damage randomly split across ${parts.join(' and ')||'nothing'}.`,'imp');
+              checkWin();
+              render();
+              return;
             }
-            dmgCard(t,dmgAmt,oppK,true);
-          });
-          if(baseHits>0){
-            G[oppK].hp=Math.max(0,G[oppK].hp-baseHits);
-            flashBase('opp','dmg',baseHits);
-            lg(`${card.name}: ${baseHits} damage hits the enemy base!`,'dmg');
-          }
-          const parts=[];
-          if(hitTargets>0) parts.push(`${hitTargets} enemy creature(s)`);
-          if(baseHits>0) parts.push('the base');
-          lg(`${card.name}: ${a.val} damage randomly split across ${parts.join(' and ')||'nothing'}.`,'imp');
+            const shot=shots[i];
+            playSfx('wind_card');
+            if(shot.isBase) throwBoltFx(null, null, oppK, casterFaction);
+            else throwBoltFx(null, shot.targetId, null, casterFaction);
+            setTimeout(()=>{
+              playSfx('card_spell_atack');
+              if(shot.isBase){
+                baseHits++;
+                G[oppK].hp=Math.max(0,G[oppK].hp-1);
+                flashBase(oppK,'dmg',1);
+              } else {
+                const t=G[oppK].field.find(c=>c.id===shot.targetId);
+                if(t){
+                  hitNames.add(t.id);
+                  // Ward (2026-07-27, по прямому запросу автора) — показываем IMMUNE, а не
+                  // тишину (Ward — честная случайность, damage-point намеренно МОЖЕТ впустую
+                  // уйти в защищённую цель, это НЕ баг, см. историю выше — просто теперь
+                  // видно ПОЧЕМУ). Frost/активный Solana Shield и так получают СВОЮ
+                  // отдельную анимацию поглощения изнутри dmgCard() (ABSORB у щита,
+                  // shake+лог у заморозки) — вторая плашка поверх была бы избыточной.
+                  if(hasTag(t,'ward')){
+                    queueFieldFx(t.id,'IMMUNE','fx-immune');
+                  } else if(!(t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed))){
+                    queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
+                  }
+                  dmgCard(t,1,oppK,true);
+                }
+                // Цель уже умерла/ушла с поля между расчётом и приземлением этого конкретного
+                // снаряда — молча пропускаем (тот же принцип, что у остальных отложенных
+                // Bolt-эффектов в этой сессии), очередь просто идёт дальше.
+              }
+              render();
+              setTimeout(()=>fireShot(i+1), SPREAD_SHOT_GAP_MS);
+            },420);
+          };
+          fireShot(0);
         } break;
 
       case 'draw_scale':
