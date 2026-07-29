@@ -405,6 +405,7 @@ function preloadAssets(){
     'img/ico_market.png', // Game of Market (2026-07-28) — тот же превентивный фикс, что у Foxy/Frost выше
     'img/ico_nana.png', // Nana (2026-07-29) — тот же превентивный фикс
     'img/nana.gif', // Nana — сам летящий банан-арт (throwBananaFx, game.js)
+    'img/bolt.gif', // Umbasir Bolt — летящий снаряд-арт (throwBoltFx, game.js), 2026-07-30
     'img/ico_dd.png', // DD Cleave (2026-07-29) — тот же превентивный фикс
     'img/ico_optic.png', // Optic Dope (2026-07-29) — тот же превентивный фикс
     'img/invis.png', // Invis/Stealth overlay (2026-07-27) — та же превентивная мера
