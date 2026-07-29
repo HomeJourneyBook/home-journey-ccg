@@ -405,6 +405,8 @@ function preloadAssets(){
     'img/ico_market.png', // Game of Market (2026-07-28) — тот же превентивный фикс, что у Foxy/Frost выше
     'img/ico_nana.png', // Nana (2026-07-29) — тот же превентивный фикс
     'img/nana.gif', // Nana — сам летящий банан-арт (throwBananaFx, game.js)
+    'img/ico_dd.png', // DD Cleave (2026-07-29) — тот же превентивный фикс
+    'img/ico_optic.png', // Optic Dope (2026-07-29) — тот же превентивный фикс
     'img/invis.png', // Invis/Stealth overlay (2026-07-27) — та же превентивная мера
 
     // ── Кнопки в игре ──
@@ -1721,6 +1723,8 @@ const TAG_TOOLTIPS = {
   'foxy': { name: 'Foxy Trick', desc: '50% chance to dodge entirely: any incoming damage, or any attempt to apply a debuff (Fear/Burn/Frost/Provoke-break) to this card, has a 50% chance to simply miss.' }, // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
   'market': { name: 'Game of Market', desc: 'On this card\'s attack (or Bolt): 50/50 — either 2 bonus damage to the target, or 2 damage to itself. Skipped if the hit was dodged (Foxy), absorbed by an active Solana Shield, or absorbed by Frost.' }, // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
   'nana': { name: 'Nana', desc: 'On this card\'s attack (or Bolt): 50/50 — either throws a banana at a random enemy (not the one just hit) for 2 damage, or at a random wounded ally for 2 healing (falls back to its own base if no wounded ally, or to the enemy if there\'s nothing to heal). Skipped if the hit was dodged (Foxy), absorbed by an active Solana Shield, or absorbed by Frost.' }, // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
+  'dd': { name: 'DD Cleave', desc: 'On this card\'s attack: deals 1 physical damage to every other enemy card on the field, in addition to the normal hit. Skipped if the hit was dodged (Foxy), absorbed by an active Solana Shield, or absorbed by Frost.' }, // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
+  'death_atk': { name: 'Optic Dope', desc: 'When this creature dies, gives +1 ATK to a random ally (permanent, until that ally leaves the battleground).' }, // OPTIC DOPE — death_atk:N, ультраредкий Mood-трейт, 2026-07-29
 };
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box, .card-incarn-badge';
