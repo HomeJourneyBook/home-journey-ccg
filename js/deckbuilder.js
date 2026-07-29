@@ -89,6 +89,7 @@ const DB_TAG_ICONS = {
   'frost': '<img src="img/ico_snow.png" style="width:60%;height:60%;">', // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
   'foxy': '<img src="img/ico_fff.png" style="width:60%;height:60%;">', // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
   'market': '<img src="img/ico_market.png" style="width:60%;height:60%;">', // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
+  'nana': '<img src="img/ico_nana.png" style="width:60%;height:60%;">', // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
 };
 
 // Категории для кнопок-фильтров над правой (пул) областью — переиспользует ту же
