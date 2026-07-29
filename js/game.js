@@ -868,6 +868,10 @@ function doAttack(att,target){
   // магический). Резолвится с задержкой (см. resolveMarketEvent()) — по прямому запросу
   // автора, чтобы бонус/самоурон не сливался в тот же момент, что и сама атака.
   resolveMarketEvent(att, curK, target, oppK, false);
+  // NANA (2026-07-29, "Nanas from SMB") — тот же вызов-паттерн, что у Market чуть выше,
+  // bypassArmor=false для дамаг-ветки по прямому запросу автора (банан от обычной атаки
+  // уважает Armor цели так же, как сама атака).
+  resolveNanaEvent(att, curK, target, oppK, false);
 
   triggerAbilities(att,'on_attack',{target,realDmgDealt});
   if(target.hp<=0) triggerAbilities(att,'on_kill',{target});
@@ -988,6 +992,9 @@ function doBoltTarget(card){
   // хук, что в doAttack() — bypassArmor=true для бонус-урона здесь, т.к. сам Bolt уже
   // магический (bypassArmor=true чуть выше), бонус наследует ту же природу удара.
   resolveMarketEvent(bolt, boltOwnerK, card, oppK, true);
+  // NANA (2026-07-29) — тот же хук, что у Market чуть выше: bypassArmor=true для
+  // дамаг-ветки, т.к. сам Bolt уже магический, бонус наследует ту же природу удара.
+  resolveNanaEvent(bolt, boltOwnerK, card, oppK, true);
   const boltId=bolt.id;
   bolt.exhausted=true;
   G.phase='action';G.sel=null;
@@ -1205,6 +1212,150 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
       render();
     },700);
   },500);
+}
+
+// Nana (2026-07-29, "Nanas from SMB", ультраредкий Mood-трейт, ico_nana.png) — при каждой
+// атаке/Bolt носителя тега `nana` 50/50: либо банан летит в случайного ПРОТИВНИКА (кроме
+// того, кого только что ударили — если других нет, летит в базу противника) на 2 урона,
+// либо в случайного РАНЕНОГО союзника (нельзя выбрать себя — если раненых союзников нет,
+// летит в свою базу на 2 хила). В отличие от Market это НЕ симметричная ставка — self-harm
+// ветки нет вообще, поэтому если выпал хил, а лечить абсолютно некого (нет раненых союзников
+// И своя база уже полная) — по прямому запросу автора банан не пропадает впустую, а летит
+// наносить урон вместо этого (дамаг-ветка всегда имеет валидную цель — своя/чужая база
+// никогда не исчезает с поля).
+//
+// Гейтинг и общий тайминг-принцип — калька с resolveMarketEvent() чуть выше (см. её
+// комментарий): пропускается, если этот конкретный удар был промазан Foxy Trick или
+// поглощён активным Solana Shield/заморозкой цели, которую ударили (удар физически не
+// долетел — разыгрывать банан не на чем). Первая пауза (500мс) — тот же "не сразу вслед за
+// самим ударом" эффект, что у Market, но вместо плашки тут carrier получает повторный
+// "пульс поднятия" через activateCard() (тот же @keyframes cardActivate, что уже
+// сигнализирует "эта карта действует" на самой атаке/Bolt/активках) — по прямому запросу
+// автора ("анимация подьема карты, как у нас при действии карт"). Сразу вслед за пульсом
+// стартует полёт эмодзи-банана (throwBananaFx(), 450мс) от карты-носителя к выбранной цели
+// (карте или базе) — урон/хил применяется только когда банан долетел.
+//
+// nanaCard/nanaFaction — карта с тегом (атакующий в doAttack() ИЛИ болтер в
+// doBoltTarget()); hitTargetCard/hitTargetFaction — цель ИСХОДНОГО удара (нужна только для
+// гейтинга и для исключения из пула дамаг-ветки — сама она бананом не поражается второй
+// раз). bonusBypassArmor — наследует природу исходного удара, как у Market (false у
+// обычной атаки, true у магического Bolt).
+//
+// Все точки применения эффекта перепроверяют, что нужные карты ВСЁ ЕЩЁ на поле к моменту
+// срабатывания (могли умереть за прошедшую паузу — контрудар, Thorns, второй Bolt и т.п.)
+// — тот же принцип, что у Market: если носитель тега уже не на поле, розыгрыш не состоится
+// вообще; если успела исчезнуть уже ВЫБРАННАЯ цель банана, эта конкретная порция эффекта
+// молча пропускается (не бьёт и не лечит пустое место).
+function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction, bonusBypassArmor){
+  if(!hasTag(nanaCard,'nana')) return;
+  if(hitTargetCard._foxyDodgedThisHit || hitTargetCard._shieldBlockedThisHit || hitTargetCard._frostBlockedThisHit) return;
+  const nanaId=nanaCard.id, hitId=hitTargetCard.id, oppFaction=nanaFaction==='tea'?'jeet':'tea';
+  setTimeout(()=>{
+    const nc=G[nanaFaction].field.find(c=>c.id===nanaId);
+    if(!nc) return; // носитель тега уже не на поле (например, умер от контрудара) — розыгрыш не состоится
+    activateCard(nanaId);
+
+    let wantHeal=Math.random()<0.5;
+    const woundedAllies=G[nanaFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.id!==nanaId&&c.hp<c.maxHp);
+    const baseWounded=G[nanaFaction].hp<G[nanaFaction].maxHp;
+    if(wantHeal && woundedAllies.length===0 && !baseWounded) wantHeal=false; // некого и нечего лечить — фолбэк на дамаг
+
+    if(wantHeal && woundedAllies.length>0){
+      const target=woundedAllies[Math.floor(Math.random()*woundedAllies.length)];
+      const targetId=target.id;
+      throwBananaFx(nanaId, targetId, null);
+      setTimeout(()=>{
+        const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+        const t=G[nanaFaction].field.find(c=>c.id===targetId);
+        if(!nc2 || !t) return;
+        const before=t.hp;
+        t.hp=Math.min(t.maxHp,t.hp+2);
+        const healed=t.hp-before;
+        if(healed>0){
+          playSfx('heal');
+          lg(`${nc2.name}: 🍌 heals ${t.name} for ${healed}!`,'imp');
+          const tId=t.id;
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(tId,`+${healed}`,'heal')));
+        }
+        checkWin();
+        render();
+      },450);
+    } else if(wantHeal){
+      throwBananaFx(nanaId, null, nanaFaction);
+      setTimeout(()=>{
+        const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+        if(!nc2) return;
+        const before=G[nanaFaction].hp;
+        G[nanaFaction].hp=Math.min(G[nanaFaction].maxHp,G[nanaFaction].hp+2);
+        const healed=G[nanaFaction].hp-before;
+        if(healed>0){
+          playSfx('heal');
+          lg(`${nc2.name}: 🍌 heals the ${nanaFaction} base for ${healed}!`,'imp');
+          flashBase(nanaFaction,'heal',healed);
+        }
+        checkWin();
+        render();
+      },450);
+    } else {
+      const enemies=G[oppFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.id!==hitId);
+      if(enemies.length>0){
+        const target=enemies[Math.floor(Math.random()*enemies.length)];
+        const targetId=target.id;
+        throwBananaFx(nanaId, targetId, null);
+        setTimeout(()=>{
+          const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+          const t=G[oppFaction].field.find(c=>c.id===targetId);
+          if(!nc2 || !t) return;
+          lg(`${nc2.name}: 🍌 hits ${t.name} for 2 dmg!`,'imp');
+          dmgCard(t,2,oppFaction,bonusBypassArmor);
+          checkWin();
+          render();
+        },450);
+      } else {
+        throwBananaFx(nanaId, null, oppFaction);
+        setTimeout(()=>{
+          const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+          if(!nc2) return;
+          lg(`${nc2.name}: 🍌 hits the ${oppFaction} base for 2 dmg!`,'imp');
+          G[oppFaction].hp=Math.max(0,G[oppFaction].hp-2);
+          flashBase(oppFaction,'dmg',2);
+          checkWin();
+          render();
+        },450);
+      }
+    }
+  },500);
+}
+// throwBananaFx — плейсхолдер-эмодзи 🍌, физически летящий от карты-носителя тега к
+// выбранной цели (карте ИЛИ базе), 2026-07-29. Тот же приём, что у _flyCardFromDeck()
+// (render.js, полёт карты из колоды в руку) — фиксированно позиционированный элемент,
+// left/top анимируются CSS transition'ом между координатами двух realtime DOM rect'ов —
+// но сильно проще: плоский div с эмодзи вместо клона целой карты. toId=null означает, что
+// цель — база, тогда baseFaction обязателен (резолвится в нужный stats-бар через
+// _statsElIdForFaction(), чтобы попасть в фактически видимый top/bottom бар, а не
+// залипнуть на фракции). Если исходную или целевую DOM-ноду не нашли (сцена уже
+// перерисована/сменилась) — молча ничего не анимирует, сам урон/хил это не блокирует.
+function throwBananaFx(fromId, toId, baseFaction){
+  const fromEl=document.querySelector(`.card-small[data-id="${fromId}"]`);
+  if(!fromEl) return;
+  const toEl = toId ? document.querySelector(`.card-small[data-id="${toId}"]`)
+                     : document.getElementById(_statsElIdForFaction(baseFaction));
+  if(!toEl) return;
+  const fromRect=fromEl.getBoundingClientRect();
+  const toRect=toEl.getBoundingClientRect();
+  const banana=document.createElement('div');
+  banana.className='nana-banana-fly';
+  banana.textContent='🍌';
+  banana.style.left=(fromRect.left+fromRect.width/2)+'px';
+  banana.style.top=(fromRect.top+fromRect.height/2)+'px';
+  banana.style.transform='translate(-50%,-50%) scale(1) rotate(0deg)';
+  document.body.appendChild(banana);
+  void banana.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+  banana.style.transition='left 420ms ease-in, top 420ms ease-in, transform 420ms ease-in';
+  banana.style.left=(toRect.left+toRect.width/2)+'px';
+  banana.style.top=(toRect.top+toRect.height/2)+'px';
+  banana.style.transform='translate(-50%,-50%) scale(1.3) rotate(360deg)';
+  setTimeout(()=>{ if(banana.parentElement) banana.remove(); },450);
 }
 
 function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost){
