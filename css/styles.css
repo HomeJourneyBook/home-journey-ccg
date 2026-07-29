@@ -1914,15 +1914,16 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    position:fixed + left/top-transition приём, что у .card-fly-clone выше. Квадратный gif,
    размер — calc() от var(--card-small-h) (переопределяется в адаптивном брейкпоинте выше
    по файлу), а НЕ vh/vw напрямую — по прямому запросу автора, чтобы пропорция к размеру
-   карты на поле оставалась одинаковой на любом устройстве, а не только к вьюпорту. 0.34 —
-   подобрано под прежний визуальный размер эмодзи-плейсхолдера, который заменяет. */
-.nana-banana-fly{position:fixed; z-index:5500; pointer-events:none; width:calc(var(--card-small-h) * 0.34); height:calc(var(--card-small-h) * 0.34); object-fit:contain; filter:drop-shadow(0 2px 4px #000000aa);}
+   карты на поле оставалась одинаковой на любом устройстве, а не только к вьюпорту. Изначально
+   было 0.34 (подобрано под прежний визуальный размер эмодзи-плейсхолдера, который заменяет),
+   уменьшено на 25% (2026-07-30, по прямому запросу автора) → 0.255. */
+.nana-banana-fly{position:fixed; z-index:5500; pointer-events:none; width:calc(var(--card-small-h) * 0.255); height:calc(var(--card-small-h) * 0.255); object-fit:contain; filter:drop-shadow(0 2px 4px #000000aa);}
 /* BOLT (Umbasir, 2026-07-30) — арт bolt.gif, летящий от карты-кастера к цели, см.
    throwBoltFx() в game.js. Тот же position:fixed + left/top-transition приём, что у
    .nana-banana-fly выше — ширина сознательно = ширине банана (по прямому запросу автора),
    высота НЕ фиксируется числом, а считается через aspect-ratio (артборд 2:1, высокий) —
    так пропорция картинки не искажается, чем бы ни задавалась ширина. */
-.bolt-fly{position:fixed; z-index:5500; pointer-events:none; width:calc(var(--card-small-h) * 0.34); aspect-ratio:1/2; object-fit:contain; filter:drop-shadow(0 2px 4px #000000aa);}
+.bolt-fly{position:fixed; z-index:5500; pointer-events:none; width:calc(var(--card-small-h) * 0.255); aspect-ratio:1/2; object-fit:contain; filter:drop-shadow(0 2px 4px #000000aa);}
 /*── Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора, VS AI режим ТОЛЬКО —
    см. playSpellRevealAnimation() в render.js) — клон реальной карты вылетает из центра
    скрытой руки ИИ (oppHandZone) к центру поля, зависает лицом кверху ~0.4с, затем
