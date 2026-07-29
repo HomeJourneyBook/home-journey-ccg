@@ -90,6 +90,8 @@ const DB_TAG_ICONS = {
   'foxy': '<img src="img/ico_fff.png" style="width:60%;height:60%;">', // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
   'market': '<img src="img/ico_market.png" style="width:60%;height:60%;">', // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
   'nana': '<img src="img/ico_nana.png" style="width:60%;height:60%;">', // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
+  'dd': '<img src="img/ico_dd.png" style="width:60%;height:60%;">', // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
+  'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, ультраредкий Mood-трейт, 2026-07-29
 };
 
 // Категории для кнопок-фильтров над правой (пул) областью — переиспользует ту же
