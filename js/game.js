@@ -1123,6 +1123,13 @@ function tryAttackBase(){
   playSfx('base_atack');
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
+  // Market/Nana (2026-07-29, баг-фикс по прямому запросу автора) — раньше прямой удар по
+  // базе (эта функция) вообще не звал ни один из двух хуков, только doAttack() по
+  // существу их вызывал. targetIsBase=true — см. комментарии у самих функций выше
+  // (resolveMarketEvent/resolveNanaEvent) за подробностями, чем этот путь отличается от
+  // обычного удара по существу.
+  resolveMarketEvent(att, G.turn, null, oppK, false, true);
+  resolveNanaEvent(att, G.turn, null, oppK, false, true);
   triggerAbilities(att,'on_attack',{target:null});
   att.exhausted=true;G.sel=null;G.phase='action';
   // Stealth (2026-07-17) — атака по базе тоже считается "первой атакой", раскрывает
@@ -1181,14 +1188,23 @@ function scheduleFrostRemoval(card){
 // удар (false у обычной атаки, true у магического Bolt) — самоурон себе всегда
 // bypassArmor=true (тот же принцип "самоокупаемая порча", что у Thorns/самоурона).
 //
+// targetIsBase (2026-07-29, по прямому запросу автора — баг-фикс: прямой удар по базе
+// через tryAttackBase() раньше вообще не звал ни этот хук, ни резолвер Nana) — когда
+// удар шёл НЕ по существу, а напрямую по базе (tryAttackBase()): targetCard тогда null,
+// targetFaction — фракция самой атакуемой базы. У базы нет Foxy/Shield/Frost — гейтинг на
+// targetCard пропускается целиком. На "UP" бонус-урон летит той же базе, которую только
+// что ударили (та же цель, что и у самого удара — ровно то же поведение, что у обычной
+// цели-существа, просто цель — база); "DOWN" не меняется вообще (самоурон себе не
+// завязан на типе цели).
+//
 // Обе стороны эффекта перепроверяют, что нужная карта ВСЁ ЕЩЁ на поле к моменту
 // срабатывания таймера (могла умереть/уйти с поля за прошедшую паузу от контрудара,
 // другого Bolt и т.п.) — если карта уже не на поле, соответствующая часть эффекта
 // молча пропускается (не воскрешает мёртвых, не бьёт по пустому месту).
-function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction, bonusBypassArmor){
+function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction, bonusBypassArmor, targetIsBase){
   if(!hasTag(marketCard,'market')) return;
-  if(targetCard._foxyDodgedThisHit || targetCard._shieldBlockedThisHit || targetCard._frostBlockedThisHit) return;
-  const marketId=marketCard.id, targetId=targetCard.id;
+  if(!targetIsBase && (targetCard._foxyDodgedThisHit || targetCard._shieldBlockedThisHit || targetCard._frostBlockedThisHit)) return;
+  const marketId=marketCard.id, targetId=targetIsBase?null:targetCard.id;
   setTimeout(()=>{
     const mc=G[marketFaction].field.find(c=>c.id===marketId);
     if(!mc) return; // носитель тега уже не на поле — розыгрыш рынка не состоится
@@ -1199,10 +1215,16 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
       const mc2=G[marketFaction].field.find(c=>c.id===marketId);
       if(!mc2) return;
       if(up){
-        const tc=G[targetFaction].field.find(c=>c.id===targetId);
-        if(tc){
-          lg(`${mc2.name}: Game of Market rolls UP — ${tc.name} takes 2 bonus dmg!`,'imp');
-          dmgCard(tc,2,targetFaction,bonusBypassArmor);
+        if(targetIsBase){
+          lg(`${mc2.name}: Game of Market rolls UP — ${targetFaction} base takes 2 bonus dmg!`,'imp');
+          G[targetFaction].hp=Math.max(0,G[targetFaction].hp-2);
+          flashBase(targetFaction,'dmg',2);
+        } else {
+          const tc=G[targetFaction].field.find(c=>c.id===targetId);
+          if(tc){
+            lg(`${mc2.name}: Game of Market rolls UP — ${tc.name} takes 2 bonus dmg!`,'imp');
+            dmgCard(tc,2,targetFaction,bonusBypassArmor);
+          }
         }
       } else {
         lg(`${mc2.name}: Game of Market rolls DOWN — takes 2 dmg!`,'imp');
@@ -1241,15 +1263,24 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
 // раз). bonusBypassArmor — наследует природу исходного удара, как у Market (false у
 // обычной атаки, true у магического Bolt).
 //
+// targetIsBase (2026-07-29, по прямому запросу автора — тот же баг-фикс, что у Market
+// выше: прямой удар по базе через tryAttackBase() раньше вообще не звал этот резолвер) —
+// когда удар шёл НЕ по существу, а напрямую по базе: hitTargetCard тогда null,
+// hitTargetFaction — фракция самой атакуемой базы. У базы нет Foxy/Shield/Frost —
+// гейтинг пропускается целиком. По прямому запросу автора дамаг-ветка в этом случае НЕ
+// выбирает случайное вражеское существо — банан летит следом в ТУ ЖЕ базу, которую
+// только что ударили (та же логика "продолжение того же удара", что у Market/UP выше);
+// хил-ветка не меняется вообще (союзник/своя база — как обычно).
+//
 // Все точки применения эффекта перепроверяют, что нужные карты ВСЁ ЕЩЁ на поле к моменту
 // срабатывания (могли умереть за прошедшую паузу — контрудар, Thorns, второй Bolt и т.п.)
 // — тот же принцип, что у Market: если носитель тега уже не на поле, розыгрыш не состоится
 // вообще; если успела исчезнуть уже ВЫБРАННАЯ цель банана, эта конкретная порция эффекта
 // молча пропускается (не бьёт и не лечит пустое место).
-function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction, bonusBypassArmor){
+function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction, bonusBypassArmor, targetIsBase){
   if(!hasTag(nanaCard,'nana')) return;
-  if(hitTargetCard._foxyDodgedThisHit || hitTargetCard._shieldBlockedThisHit || hitTargetCard._frostBlockedThisHit) return;
-  const nanaId=nanaCard.id, hitId=hitTargetCard.id, oppFaction=nanaFaction==='tea'?'jeet':'tea';
+  if(!targetIsBase && (hitTargetCard._foxyDodgedThisHit || hitTargetCard._shieldBlockedThisHit || hitTargetCard._frostBlockedThisHit)) return;
+  const nanaId=nanaCard.id, hitId=targetIsBase?null:hitTargetCard.id, oppFaction=nanaFaction==='tea'?'jeet':'tea';
   setTimeout(()=>{
     const nc=G[nanaFaction].field.find(c=>c.id===nanaId);
     if(!nc) return; // носитель тега уже не на поле (например, умер от контрудара) — розыгрыш не состоится
@@ -1296,6 +1327,17 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
         checkWin();
         render();
       },450);
+    } else if(targetIsBase){
+      throwBananaFx(nanaId, null, oppFaction);
+      setTimeout(()=>{
+        const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
+        if(!nc2) return;
+        lg(`${nc2.name}: 🍌 follows up on the ${oppFaction} base for 2 dmg!`,'imp');
+        G[oppFaction].hp=Math.max(0,G[oppFaction].hp-2);
+        flashBase(oppFaction,'dmg',2);
+        checkWin();
+        render();
+      },450);
     } else {
       const enemies=G[oppFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.id!==hitId);
       if(enemies.length>0){
@@ -1326,12 +1368,18 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
     }
   },500);
 }
-// throwBananaFx — плейсхолдер-эмодзи 🍌, физически летящий от карты-носителя тега к
-// выбранной цели (карте ИЛИ базе), 2026-07-29. Тот же приём, что у _flyCardFromDeck()
-// (render.js, полёт карты из колоды в руку) — фиксированно позиционированный элемент,
-// left/top анимируются CSS transition'ом между координатами двух realtime DOM rect'ов —
-// но сильно проще: плоский div с эмодзи вместо клона целой карты. toId=null означает, что
-// цель — база, тогда baseFaction обязателен (резолвится в нужный stats-бар через
+// throwBananaFx — арт-ассет nana.gif (2026-07-29, заменил эмодзи-плейсхолдер 🍌 по
+// прямому запросу автора), физически летящий от карты-носителя тега к выбранной цели
+// (карте ИЛИ базе). Тот же приём, что у _flyCardFromDeck() (render.js, полёт карты из
+// колоды в руку) — фиксированно позиционированный элемент, left/top анимируются CSS
+// transition'ом между координатами двух realtime DOM rect'ов — но сильно проще: одна
+// <img>, а не клон целой карты. Размер задаётся в CSS (.nana-banana-fly) через
+// calc(var(--card-small-h) * ...) — тот же приём, что у ЛЮБОГО другого размера в игре
+// (card-small-*, card-tag-icon и т.п.), НЕ vh/vw напрямую — так размер банана всегда
+// остаётся строго пропорционален размеру самой карты на экране (а не вьюпорту), включая
+// адаптивный брейкпоинт, где --card-small-h сама переопределяется (см. styles.css,
+// :root{--card-small-h: 11.52vh} на узких экранах). toId=null означает, что цель — база,
+// тогда baseFaction обязателен (резолвится в нужный stats-бар через
 // _statsElIdForFaction(), чтобы попасть в фактически видимый top/bottom бар, а не
 // залипнуть на фракции). Если исходную или целевую DOM-ноду не нашли (сцена уже
 // перерисована/сменилась) — молча ничего не анимирует, сам урон/хил это не блокирует.
@@ -1343,9 +1391,10 @@ function throwBananaFx(fromId, toId, baseFaction){
   if(!toEl) return;
   const fromRect=fromEl.getBoundingClientRect();
   const toRect=toEl.getBoundingClientRect();
-  const banana=document.createElement('div');
+  const banana=document.createElement('img');
   banana.className='nana-banana-fly';
-  banana.textContent='🍌';
+  banana.src='img/nana.gif';
+  banana.alt='';
   banana.style.left=(fromRect.left+fromRect.width/2)+'px';
   banana.style.top=(fromRect.top+fromRect.height/2)+'px';
   banana.style.transform='translate(-50%,-50%) scale(1) rotate(0deg)';
