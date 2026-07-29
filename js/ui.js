@@ -404,6 +404,7 @@ function preloadAssets(){
     'img/ico_fff.png', // Foxy Trick (2026-07-27) — тот же превентивный фикс, что у Frost выше
     'img/ico_market.png', // Game of Market (2026-07-28) — тот же превентивный фикс, что у Foxy/Frost выше
     'img/ico_nana.png', // Nana (2026-07-29) — тот же превентивный фикс
+    'img/nana.gif', // Nana — сам летящий банан-арт (throwBananaFx, game.js)
     'img/invis.png', // Invis/Stealth overlay (2026-07-27) — та же превентивная мера
 
     // ── Кнопки в игре ──
