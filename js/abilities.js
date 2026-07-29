@@ -344,7 +344,7 @@ function triggerAbilities(card, timing, ctx={}){
             });
             lg(`${card.name}: ${dmgAmt} dmg to ALL enemy creatures (board count)!`,'imp');
           } else {
-            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+            lg(`${card.name}: no enemy creatures on the battleground — fizzles.`,'hint');
           }
         } break;
 
@@ -507,7 +507,7 @@ function triggerAbilities(card, timing, ctx={}){
           const enemyTargets=[...G[oppK].field];
           const myTargets=[...cur.field].map(t=>({t, hpBefore:t.hp}));
           if(enemyTargets.length===0 && myTargets.length===0){
-            lg(`${card.name}: no creatures on the field at all — fizzles.`,'hint');
+            lg(`${card.name}: no creatures on the battleground at all — fizzles.`,'hint');
             break;
           }
           playSfx('card_spell_atack');
@@ -530,7 +530,7 @@ function triggerAbilities(card, timing, ctx={}){
             dmgCard(t,999,curK,true,false,'DESTROYED',true);
           });
           const myDied=myTargets.filter(({t,hpBefore})=>hpBefore>0 && t.hp<=0).length;
-          lg(`${card.name}: destroys ALL creatures on the field!`,'imp');
+          lg(`${card.name}: destroys ALL creatures on the battleground!`,'imp');
           if(myDied>0){
             for(let i=0;i<myDied;i++) if(cur.deck.length>0) cur.hand.push(cur.deck.shift());
             lg(`${card.name}: draw ${myDied} for your own fallen creatures.`,'imp');
@@ -561,7 +561,7 @@ function triggerAbilities(card, timing, ctx={}){
           // у остальных — FEARED! как раньше.
           const fearTargets=allEnemies.filter(t=>!hasTag(t,'ward')&&!t.frozen&&!(hasTag(t,'shield')&&!t.shieldConsumed));
           if(allEnemies.length===0){
-            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+            lg(`${card.name}: no enemy creatures on the battleground — fizzles.`,'hint');
           } else {
             playSfx('debaf');
             if(fearTargets.length>0) lg(`${card.name}: all enemy creatures are Feared!`,'imp');
@@ -603,7 +603,7 @@ function triggerAbilities(card, timing, ctx={}){
           // зеркально для Поджога (2026-07-27, по прямому запросу автора).
           const burnTargets=allEnemies.filter(t=>!hasTag(t,'ward')&&!t.frozen&&!(hasTag(t,'shield')&&!t.shieldConsumed));
           if(allEnemies.length===0){
-            lg(`${card.name}: no enemy creatures on the field — fizzles.`,'hint');
+            lg(`${card.name}: no enemy creatures on the battleground — fizzles.`,'hint');
           } else {
             playSfx('card_fire_atack');
             if(burnTargets.length>0) lg(`${card.name}: all enemy creatures are on fire!`,'imp');
