@@ -763,7 +763,7 @@ function mkSmallEl(card){
   'market': '<img src="img/ico_market.png" style="width:60%;height:60%;">', // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
   'nana': '<img src="img/ico_nana.png" style="width:60%;height:60%;">', // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
   'dd': '<img src="img/ico_dd.png" style="width:60%;height:60%;">', // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
-  'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, ультраредкий Mood-трейт, 2026-07-29
+  'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, World-трейт (Optical Dope), 2026-07-29
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -1000,7 +1000,7 @@ function mkEl(card,zone){
   'market': '<img src="img/ico_market.png" style="width:60%;height:60%;">', // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
   'nana': '<img src="img/ico_nana.png" style="width:60%;height:60%;">', // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
   'dd': '<img src="img/ico_dd.png" style="width:60%;height:60%;">', // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
-  'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, ультраредкий Mood-трейт, 2026-07-29
+  'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, World-трейт (Optical Dope), 2026-07-29
 };
 // В кладбище incarnation уже отдельно показана таймер-плашкой (card-incarn-badge, см.
 // ниже) — она физически перекрывает верхний угол колонки card-tag-icons (обе сидят в
