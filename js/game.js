@@ -519,7 +519,7 @@ function _resolvePlayedCard(card){
     lg(`${card.name}: select an ally creature to activate.`,'hint');
   } else if(card.spell&&hasTag(card,'spell_bounce_target')){
     G.pendingSpell=card;G.phase='spellBounceTarget';
-    lg(`${card.name}: select any creature on the field.`,'hint');
+    lg(`${card.name}: select any creature on the battleground.`,'hint');
   } else if(card.spell&&hasTag(card,'spell_bounce_ally_target')){
     // GUST/REVERSE redesign (2026-07-24) — тот же bounce-эффект (doSpellBounceTarget()
     // ниже уже общий для обеих версий), но таргетинг ограничен своей стороной — вся
@@ -872,6 +872,9 @@ function doAttack(att,target){
   // bypassArmor=false для дамаг-ветки по прямому запросу автора (банан от обычной атаки
   // уважает Armor цели так же, как сама атака).
   resolveNanaEvent(att, curK, target, oppK, false);
+  // DD CLEAVE (2026-07-29, "DD's Signature", по прямому запросу автора) — только обычная
+  // атака, НЕ Bolt (в отличие от Market/Nana). Синхронно, без задержки/анимации.
+  resolveDdCleave(att, curK, target, oppK, false);
 
   triggerAbilities(att,'on_attack',{target,realDmgDealt});
   if(target.hp<=0) triggerAbilities(att,'on_kill',{target});
@@ -983,10 +986,16 @@ function doBoltTarget(card){
   }
   playSfx('card_spell_atack');
   const dmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
-  lg(`${bolt.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   queueFieldFx(card.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта
   const boltOwnerK=G.turn;
   dmgCard(card,dmg,oppK,true);
+  // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
+  // паттерн что у Market/Nana — см. их комментарии выше): раньше "takes N damage!" писался
+  // ДО вызова dmgCard(), поэтому при Foxy/Shield/Frost на цели в лог противоречиво улетали
+  // ОБЕ строки подряд — наша и следом своя у dmgCard() (MISSED!/ABSORB/Frost-shatter).
+  if(!card._foxyDodgedThisHit && !card._shieldBlockedThisHit && !card._frostBlockedThisHit){
+    lg(`${bolt.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  }
   // Game of Market (2026-07-28) — Umbasir-болтер тоже может нести этот тег (по прямому
   // запросу автора: "болт умбасира может нанести не 1 а 3 урона, либо -2 хп"). Тот же
   // хук, что в doAttack() — bypassArmor=true для бонус-урона здесь, т.к. сам Bolt уже
@@ -1130,6 +1139,9 @@ function tryAttackBase(){
   // обычного удара по существу.
   resolveMarketEvent(att, G.turn, null, oppK, false, true);
   resolveNanaEvent(att, G.turn, null, oppK, false, true);
+  // DD CLEAVE (2026-07-29) — тот же баг-фикс: прямой удар по базе тоже должен запускать
+  // Cleave, см. комментарий у resolveDdCleave() выше.
+  resolveDdCleave(att, G.turn, null, oppK, true);
   triggerAbilities(att,'on_attack',{target:null});
   att.exhausted=true;G.sel=null;G.phase='action';
   // Stealth (2026-07-17) — атака по базе тоже считается "первой атакой", раскрывает
@@ -1222,13 +1234,27 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
         } else {
           const tc=G[targetFaction].field.find(c=>c.id===targetId);
           if(tc){
-            lg(`${mc2.name}: Game of Market rolls UP — ${tc.name} takes 2 bonus dmg!`,'imp');
+            // Лог — ПОСЛЕ dmgCard() и только если реально не промах/не поглощение
+            // (2026-07-29, тот же баг-фикс, что и у Nana — см. её комментарий): раньше
+            // "takes 2 bonus dmg!" писался ДО вызова dmgCard(), поэтому при Foxy/Shield/
+            // Frost на цели в лог противоречиво улетали ОБЕ строки подряд.
             dmgCard(tc,2,targetFaction,bonusBypassArmor);
+            if(!tc._foxyDodgedThisHit && !tc._shieldBlockedThisHit && !tc._frostBlockedThisHit){
+              lg(`${mc2.name}: Game of Market rolls UP — ${tc.name} takes 2 bonus dmg!`,'imp');
+            }
           }
         }
       } else {
-        lg(`${mc2.name}: Game of Market rolls DOWN — takes 2 dmg!`,'imp');
+        // Тот же баг-фикс, что у UP-ветки выше — применяется и к самоурону: ЕСЛИ
+        // носитель тега сам несёт Foxy/Shield/Frost (см. напр. TRAVELER #179 —
+        // market+shield на одной карте), самонаказание может промахнуться/поглотиться
+        // точно так же, как любой другой входящий удар (dmgCard() не делает исключений
+        // для "урона самому себе") — лог должен отражать это, а не утверждать урон
+        // безусловно.
         dmgCard(mc2,2,marketFaction,true);
+        if(!mc2._foxyDodgedThisHit && !mc2._shieldBlockedThisHit && !mc2._frostBlockedThisHit){
+          lg(`${mc2.name}: Game of Market rolls DOWN — takes 2 dmg!`,'imp');
+        }
       }
       checkWin();
       render();
@@ -1260,8 +1286,14 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
 // nanaCard/nanaFaction — карта с тегом (атакующий в doAttack() ИЛИ болтер в
 // doBoltTarget()); hitTargetCard/hitTargetFaction — цель ИСХОДНОГО удара (нужна только для
 // гейтинга и для исключения из пула дамаг-ветки — сама она бананом не поражается второй
-// раз). bonusBypassArmor — наследует природу исходного удара, как у Market (false у
-// обычной атаки, true у магического Bolt).
+// раз). bonusBypassArmor — принимается для симметрии сигнатуры с resolveMarketEvent() и
+// совместимости с вызовами из doAttack()/doBoltTarget(), но БОЛЬШЕ НЕ ИСПОЛЬЗУЕТСЯ внутри
+// (2026-07-29, баг-фикс по прямому запросу автора — см. комментарий прямо у dmgCard() в
+// дамаг-ветке ниже): банан всегда bypassArmor=false, независимо от природы исходного
+// удара — так и Armor уважает (по прежнему решению автора), и Ward НИКОГДА не блокирует
+// банан (Ward в dmgCard() блокирует только bypassArmor=true урон) — раньше на
+// Bolt-триггере (bonusBypassArmor=true) банан внезапно становился "магическим" и Ward его
+// блокировал целиком, хотя дизайн прямо требовал обратного.
 //
 // targetIsBase (2026-07-29, по прямому запросу автора — тот же баг-фикс, что у Market
 // выше: прямой удар по базе через tryAttackBase() раньше вообще не звал этот резолвер) —
@@ -1353,8 +1385,23 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
           const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
           const t=G[oppFaction].field.find(c=>c.id===targetId);
           if(!nc2 || !t) return;
-          lg(`${nc2.name}: 🍌 hits ${t.name} for 2 dmg!`,'imp');
-          dmgCard(t,2,oppFaction,bonusBypassArmor);
+          // bypassArmor ЖЁСТКО false, НЕ bonusBypassArmor (2026-07-29, баг-фикс по прямому
+          // запросу автора) — банан физический и ДОЛЖЕН всегда игнорировать Ward
+          // (dmgCard() блокирует Wardʼом только bypassArmor=true урон). Раньше сюда
+          // протекал bonusBypassArmor, унаследованный от исходного удара (как у Market) —
+          // и на Bolt-триггере (Umbasir #151, несёт и bolt:1, и nana сразу) банан внезапно
+          // становился "магическим", и Ward начинал его блокировать целиком, хотя дизайн
+          // прямо требовал "Ward банан не блокирует никогда, при любом раскладе".
+          dmgCard(t,2,oppFaction,false);
+          // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс):
+          // раньше "hits X for 2 dmg!" писался ДО вызова dmgCard(), поэтому при уклонении
+          // по Foxy (или полном поглощении Shield/Frost) в лог противоречиво улетали ОБЕ
+          // строки подряд — наша "hits for 2 dmg!" и следом своя у dmgCard() ("Foxy Trick
+          // makes the attack miss entirely!"/"Solana Shield absorbs..."/"Frost absorbs...").
+          // Те три случая уже логируют себя сами — тут просто не дублируем поверх них.
+          if(!t._foxyDodgedThisHit && !t._shieldBlockedThisHit && !t._frostBlockedThisHit){
+            lg(`${nc2.name}: 🍌 hits ${t.name} for 2 dmg!`,'imp');
+          }
           checkWin();
           render();
         },450);
@@ -1410,6 +1457,37 @@ function throwBananaFx(fromId, toId, baseFaction){
   banana.style.top=(toRect.top+toRect.height/2)+'px';
   banana.style.transform='translate(-50%,-50%) scale(1.3) rotate(360deg)';
   setTimeout(()=>{ if(banana.parentElement) banana.remove(); },450);
+}
+
+// DD Cleave (2026-07-29, "DD's Signature", ультраредкий Mood-трейт, ico_dd.png, по
+// прямому запросу автора) — при ОБЫЧНОЙ атаке (НЕ Bolt — по прямому запросу автора,
+// в отличие от Market/Nana) носитель тега `dd` наносит 1 физический урон (bypassArmor=
+// false, уважает Armor цели, как сама атака) ВСЕМ ОСТАЛЬНЫМ картам противника на поле —
+// кроме той, что была только что атакована ею самой основным ударом (эта уже получила
+// свой урон отдельно, от самого доAttack()/dmgCard() выше). Никакой случайности (в
+// отличие от Market/Nana) — срабатывает каждый раз безусловно, если основной удар
+// долетел. Резолвится СИНХРОННО, без задержки/анимации (по прямому запросу автора, в
+// отличие от отложенных Market/Nana) — сразу в тот же тик, что и сам удар.
+//
+// Гейтинг — тот же принцип, что у Market/Nana (по прямому запросу автора): если этот
+// конкретный удар был целиком промазан Foxy Trick или поглощён активным Solana
+// Shield/заморозкой цели — Cleave тоже не срабатывает (удар физически не долетел,
+// раскидывать нечем).
+//
+// targetIsBase — тот же баг-фикс, что у Market/Nana: прямой удар по базе
+// (tryAttackBase()) тоже должен запускать Cleave. hitTargetCard тогда null (гейтинг
+// пропускается — у базы нет Foxy/Shield/Frost), hitId=null ничего не исключает из пула
+// (атакованной "картой" была сама база, исключать среди существ нечего) — Cleave просто
+// бьёт вообще ВСЕХ существ противника на 1.
+function resolveDdCleave(ddCard, ddFaction, hitTargetCard, hitTargetFaction, targetIsBase){
+  if(!hasTag(ddCard,'dd')) return;
+  if(!targetIsBase && (hitTargetCard._foxyDodgedThisHit || hitTargetCard._shieldBlockedThisHit || hitTargetCard._frostBlockedThisHit)) return;
+  const oppFaction=ddFaction==='tea'?'jeet':'tea';
+  const hitId=targetIsBase?null:hitTargetCard.id;
+  const others=G[oppFaction].field.filter(c=>c.id!==hitId);
+  if(others.length===0) return;
+  lg(`${ddCard.name}: DD Cleave — 1 dmg to all other enemies!`,'imp');
+  others.forEach(c=>dmgCard(c,1,oppFaction,false));
 }
 
 function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost){
@@ -1588,7 +1666,7 @@ function killCard(card,faction,toVoid=false){
       if(card.squadParam){card.squadParam=null;}
       card.hp=card.maxHp;
       playSfx('heal');
-      lg(`${card.name}: Remember Everything — fully restores and stays on the field (all buffs and debuffs reset)!`,'hl');
+      lg(`${card.name}: Remember Everything — fully restores and stays on the battleground (all buffs and debuffs reset)!`,'hl');
       const rememberId=card.id;
       requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(rememberId,'REBORN','heal')));
       return;
@@ -1804,6 +1882,45 @@ function killCard(card,faction,toVoid=false){
         lg(`${card.name}: dies — ${armorTarget.name} +${schemeArmor} Armor.`,'hl');
         const armorTargetId=armorTarget.id;
         requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(armorTargetId,'+Armor','armoraura')));
+      }
+    }
+  }
+
+  // OPTIC DOPE-style death_atk:N (2026-07-29, ico_optic.png, по прямому запросу автора) —
+  // тот же self-only паттерн, что у death_heal/death_bolt/death_armor выше: тег читается
+  // прямо с УМИРАЮЩЕЙ card. На СВОЮ смерть даёт N ATK СЛУЧАЙНОМУ союзнику (любому, не
+  // обязательно раненому — как у death_armor, HP цели тут ни при чём).
+  //
+  // ВАЖНЫЙ нюанс (ради которого стоило спросить "а точно всё так просто?"): бонус ЖИВЁТ в
+  // `tempAtkBonus`, а НЕ в `atkBonus`/`squadAtkBonus`, хотя те и выглядят более "напрямую
+  // относящимися к ATK". Причина — `atkBonus` целиком принадлежит ауре соседей
+  // (aura:atk — applyAuras() обнуляет и пересчитывает его С НУЛЯ при КАЖДОМ пересчёте
+  // аур, см. её комментарии), а `squadAtkBonus` — сквад-бонусу архетипа (тоже
+  // пересчитывается с нуля). Присвой мы туда — бонус исчезал бы почти сразу же, при
+  // первом же пересчёте ауры/сквада от вообще не связанного события (другая карта вышла
+  // на поле, кто-то ещё умер и т.п.) — тот же баг, что уже словил автор на
+  // doSpellBuffTarget()/ARCHIVE ("Dedicated field — NOT atkBonus... reusing it here made
+  // the trick's bonus vanish the instant ANY other card was played", см. её комментарий
+  // выше). `tempAtkBonus` — несмотря на обманчивое имя — это и есть тот самый "живёт,
+  // пока карта не умрёт/не возродится/не будет рассеяна" аккумулятор (endTurn() его
+  // намеренно НЕ трогает, см. её комментарий), и он уже прошит ВЕЗДЕ, где считается
+  // эффективный ATK: doAttack()/tryAttackBase() (атака и контрудар), render.js (обе
+  // карточные вьюхи), ai.js (оценка позиции), state.js (дебаг-дамп), dispel-эффекты
+  // (снимают его вместе с atkBonus как единый "buff"). Заведи мы вместо этого НОВОЕ поле
+  // (напр. deathAtkBonus) — пришлось бы вручную продублировать его в КАЖДОМ из этих мест,
+  // и любое пропущенное стало бы тихим, малозаметным багом (бонус либо не считался бы в
+  // бою, либо не отражался бы в UI/ИИ-оценке). Поэтому переиспользуем tempAtkBonus.
+  if(!card.spell&&!card.world&&!card.artifact){
+    const opticAtk=getTagVal(card,'death_atk');
+    if(opticAtk){
+      const allyField=G[card.f].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
+      if(allyField.length>0){
+        const atkTarget=allyField[Math.floor(Math.random()*allyField.length)];
+        atkTarget.tempAtkBonus=(atkTarget.tempAtkBonus||0)+opticAtk;
+        playSfx('baf');
+        lg(`${card.name}: dies — ${atkTarget.name} +${opticAtk} ATK.`,'hl');
+        const atkTargetId=atkTarget.id;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(atkTargetId,`+${opticAtk}`,'atk')));
       }
     }
   }
@@ -2246,8 +2363,6 @@ function doSpellDmgTarget(card){
   // ни в логе, ни во всплывающей надписи над картой, ни в плавающем "-999".
   const isInstaKill=dmg>=999;
   playSfx('card_spell_atack');
-  if(isInstaKill) lg(`${spell.name} destroys ${card.name}!`,'dmg');
-  else lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   const oppK=G.turn==='tea'?'jeet':'tea';
   queueFieldFx(card.id,isInstaKill?'DESTROYED':'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
   const hpBefore=card.hp;
@@ -2258,6 +2373,15 @@ function doSpellDmgTarget(card){
   // spell_dmg_target спеллы это условие НЕ трогает — для них Frost по-прежнему абсорбирует
   // как обычно.
   dmgCard(card,dmg,oppK,true,false,isInstaKill?'DESTROYED':null,isInstaKill);
+  // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
+  // паттерн что у Market/Nana/Bolt — см. их комментарии): раньше "takes N damage!"/
+  // "destroys!" писался ДО вызова dmgCard(), поэтому при Foxy (единственное, что тут в
+  // принципе может сработать — Frost bypass'ится на insta-kill, Ward/Shield уже
+  // отфильтрованы на этапе выбора цели) в лог противоречиво улетали ОБЕ строки подряд.
+  if(!card._foxyDodgedThisHit && !card._shieldBlockedThisHit && !card._frostBlockedThisHit){
+    if(isInstaKill) lg(`${spell.name} destroys ${card.name}!`,'dmg');
+    else lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  }
   // draw_on_kill (2026-07-24, "EXECUTE"/"CULL", по прямому запросу автора) — если этот
   // конкретный удар добил цель (была жива ДО удара, после — 0 или меньше), тянем 1 карту.
   // Не трогает обычные JOURNEY/HEX/SPARK/MALICE/Bolt1 — у них просто нет этого тега.
@@ -2503,10 +2627,16 @@ function doSpellDmgTrampleTarget(card){
   if(!spell) return;
   const dmg=getTagVal(spell,'spell_dmg_trample_target')||5;
   playSfx('card_spell_atack');
-  lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   const oppK=G.turn==='tea'?'jeet':'tea';
   queueFieldFx(card.id,'HIT!','fx-spell-dmg');
   dmgCard(card,dmg,oppK,true);
+  // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
+  // паттерн что у Market/Nana/Bolt/spell_dmg_target — см. их комментарии выше): раньше
+  // "takes N damage!" писался ДО вызова dmgCard(), поэтому при Foxy/Shield/Frost на цели в
+  // лог противоречиво улетали ОБЕ строки подряд.
+  if(!card._foxyDodgedThisHit && !card._shieldBlockedThisHit && !card._frostBlockedThisHit){
+    lg(`${spell.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  }
   const overflow=Math.max(0,-card.hp);
   if(overflow>0){
     G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
