@@ -146,7 +146,7 @@ function renderCatalog(){
       .join('');
 
     const div=document.createElement('div');
-    div.className=`card cat-card ${def.f==='tea'?'tea-card':'jeet-card'}${def.neutral?' neutral-card':''}`;
+    div.className=`card cat-card ${def.f==='tea'?'tea-card':'jeet-card'}${def.neutral?' neutral-card':''}${def.golden?' golden':''}`;
     div.style.cursor='pointer';
     div.onclick=()=>{playSfx('yellow_buttom');openCardDetail(def);};
     div.addEventListener('mouseenter',()=>playSfx('card_navigation_cursor'));
@@ -239,13 +239,14 @@ function openCardDetail(def){
   const bgClass = faction==='tea'?'tea-card':'jeet-card';
   const neutralClass = def.neutral?'neutral-card':'';
   const worldClass = (def.world||def.fullArt)?'world-card':'';
+  const goldenClass = def.golden?'golden':'';
   const worldBg = (def.world||def.fullArt) && def.img ? `background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;` : '';
 
   box.className = 'card-detail-box';
 
   if(def.world||def.fullArt){
     box.innerHTML = `
-      <div class="card ${bgClass} ${worldClass} ${neutralClass} card-detail-scaled" style="${worldBg}">
+      <div class="card ${bgClass} ${worldClass} ${neutralClass} ${goldenClass} card-detail-scaled" style="${worldBg}">
         <div class="card-cost">${def.cost}</div>
         <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
         <div class="card-name-box"><div class="card-name">${def.name}</div></div>
@@ -257,7 +258,7 @@ function openCardDetail(def){
   }
 
   box.innerHTML = `
-    <div class="card ${bgClass} ${worldClass} ${neutralClass} card-detail-scaled" style="${worldBg}">
+    <div class="card ${bgClass} ${worldClass} ${neutralClass} ${goldenClass} card-detail-scaled" style="${worldBg}">
       <div class="card-cost">${def.cost}</div>
       ${hasTag(def,'armor')?`<div class="card-armor-box" data-armor="${getTagVal(def,'armor')||0}" data-maxarmor="${getTagVal(def,'armor')||0}"><span class="card-armor"><img src="./img/armor.png" class="stat-icon">${getTagVal(def,'armor')||0}</span></div>`:''}
       <div class="card-type-dot" data-type="${typeLabel}" style="background-image:url('${typeDot}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
