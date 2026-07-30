@@ -180,6 +180,7 @@ function render(){
     spellBurnTarget:'Select an enemy creature to set on fire.',
     spellFearTarget:'Select an enemy creature to Fear.',
     spellBounceAllyTarget:'Select an ally creature.',
+    gustAllyTarget:'Select an ally creature to return to hand.',
     spellExecuteHalfTarget:'Select an enemy creature.',
   };
   const hintEl2=document.getElementById('hint'+sfx+'2');
@@ -205,7 +206,7 @@ function render(){
       G.phase==='spellProvokeBreakTarget'||G.phase==='spellDmgTrampleTarget'||
       G.phase==='spellArmorTarget'||G.phase==='spellDestroyTarget'||
       G.phase==='spellBurnTarget'||G.phase==='spellFearTarget'||
-      G.phase==='spellBounceAllyTarget'||G.phase==='spellExecuteHalfTarget'
+      G.phase==='spellBounceAllyTarget'||G.phase==='spellExecuteHalfTarget'||G.phase==='gustAllyTarget'
     );
     targetPromptOverlay.classList.toggle('hidden',!showTargetPrompt);
   }
@@ -711,6 +712,10 @@ function mkSmallEl(card){
   if(G.phase==='spellBounceTarget'&&!card.spell&&!card.world&&!card.artifact&&(card.f===G.turn||isSpellTargetable(card,G[card.f].field))) d.classList.add('targetable','aim-target');
   // GUST/REVERSE redesign (2026-07-24) — тот же bounce, только своя сторона.
   if(G.phase==='spellBounceAllyTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
+  // TEANTIST "Return your ally" (2026-07-30, по прямому запросу автора) — тот же
+  // .healable/.aim-heal стиль подсветки, что у GUST/REVERSE выше, но card.id!==G.sel —
+  // сам кастер не подсвечивается и не кликабелен как цель (не может вернуть себя).
+  if(G.phase==='gustAllyTarget'&&card.f===G.turn&&card.id!==G.sel&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
   // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель теперь ЛЮБОЕ вражеское существо, тот же
   // общий гейт видимости, что у spellDmgTarget — эффект (Bolt 1, потом условное добивание)
   // решается внутри doSpellExecuteHalfTarget(), не на этапе выбора цели.
@@ -824,7 +829,13 @@ ${!isSW?`<div class="card-small-stats">
     // режим лечения.
     const isHealerAbility=card.tags.some(t=>t.startsWith('heal:'));
     const hasHealTarget=isHealerAbility&&G[card.f].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.hp<c.maxHp||c.burning||c.feared));
-    if(isUmb||isVard||isBolt||hasHealTarget){
+    // TEANTIST "Return your ally" (2026-07-30, по прямому запросу автора) — тот же паттерн,
+    // что у hasHealTarget выше: кнопка появляется, только если есть кого вернуть в руку.
+    // c.id!==card.id — по прямому запросу автора карта НЕ может вернуть в руку сама себя,
+    // только других союзников.
+    const isBounceAlly=hasTag(card,'bounce_ally');
+    const hasBounceTarget=isBounceAlly&&G[card.f].field.some(c=>c.id!==card.id&&!c.spell&&!c.world&&!c.artifact);
+    if(isUmb||isVard||isBolt||hasHealTarget||hasBounceTarget){
       const pop=document.createElement('div');
       pop.className='field-ability-popup';
       if(isUmb){
@@ -864,6 +875,19 @@ ${!isSW?`<div class="card-small-stats">
         } else {
           btn.className='fab-btn heal'; // плейсхолдер img/btn_heal.png — автор подключит свою картинку позже
           btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;G.phase='healTarget';render();};
+        }
+        pop.appendChild(btn);
+      }
+      if(hasBounceTarget){
+        const btn=document.createElement('button');
+        // Тот же паттерн переключения в Cancel, что и у Heal выше.
+        const isCancellingBounce=G.phase==='gustAllyTarget'&&G.sel===card.id;
+        if(isCancellingBounce){
+          btn.className='fab-btn cancel';
+          btn.onclick=(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();};
+        } else {
+          btn.className='fab-btn bounce_ally'; // тот же ассет btn_spell.png, что у Umbasir/Vardan выше
+          btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;G.phase='gustAllyTarget';render();};
         }
         pop.appendChild(btn);
       }
