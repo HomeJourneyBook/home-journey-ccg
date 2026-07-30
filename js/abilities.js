@@ -239,6 +239,13 @@ function getAbilities(card){
       case 'on_enemy_death':       ab.push({timing:'on_enemy_death',effect:'draw',val}); break;
       case 'shard':                ab.push({timing:'active',effect:'shard',val}); break;
       case 'sacrifice':            ab.push({timing:'active',effect:'sacrifice'}); break;
+      // TEANTIST active skill "Return your ally" (2026-07-30, по прямому запросу автора,
+      // замена старому Active Heal 4) — тот же эффект, что у GUST/REVERSE
+      // (spell_bounce_ally_target), просто доставлен активным скилом существа на поле, а не
+      // спеллом. Реальный триггер кнопки/фазы — прямые проверки hasTag(card,'bounce_ally') в
+      // render.js/game.js (тот же паттерн, что уже используют bolt/aoe/heal — 'active' здесь
+      // регистрируется для полноты/единообразия getAbilities(), исполнение вне этого пайплайна).
+      case 'bounce_ally':           ab.push({timing:'active',effect:'bounce_ally'}); break;
       case 'invisible':            ab.push({timing:'passive',effect:'invisible'}); break;
       case 'ward':                 ab.push({timing:'passive',effect:'ward'}); break;
       case 'world_maxhp':          ab.push({timing:'on_turn',effect:'world_maxhp',val}); break;
