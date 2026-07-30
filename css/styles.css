@@ -1393,6 +1393,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    НАД этим боксом, а не под ним. Появляется/исчезает мгновенно вместе с обычным render() —
    никакой отдельной анимации не просили (в отличие от Frost). */
 .invis-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:url('../img/invis.png') center/100% 100% no-repeat;pointer-events:none;z-index:3;}
+/* MonoMEK Метка (2026-07-30) — тот же низкий слой, что у .invis-overlay (НЕ z-index:20, как
+   у .frost-overlay ниже) — по прямому запросу автора остальные дебафф-бэйджи (Fear/Burn/
+   TauntBroken/мишень таргетинга) должны оставаться визуально ПОВЕРХ этого оверлея. */
+.mek-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:url('../img/mek.png') center/100% 100% no-repeat;pointer-events:none;z-index:3;}
 .card-small-feared{position:absolute;top:calc(var(--card-small-h) * -0.085);left:20%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:5;}
 .card-small-burning{position:absolute;top:calc(var(--card-small-h) * -0.085);left:80%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:5;}
 .card-small-tauntbroken{position:absolute;top:calc(var(--card-small-h) * -0.085);left:50%;transform:translateX(-50%);width:calc(var(--card-small-h) * 0.155);height:calc(var(--card-small-h) * 0.155);z-index:5;}
