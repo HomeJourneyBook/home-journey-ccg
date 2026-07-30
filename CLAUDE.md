@@ -4483,3 +4483,5 @@ DESTROY-вызовы ДОПОЛНИТЕЛЬНО стали сами ставит
 - `mishen_red2.png` добавлен в предзагрузку (`criticalImages`, ui.js).
 
 Проверено симулятором (550 партий, 0 крашей).
+
+https://drive.google.com/drive/folders/1BUE6ltPisKRAtKQQEeYEU_URbzBXdwpG
