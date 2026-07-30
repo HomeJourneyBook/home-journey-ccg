@@ -597,7 +597,7 @@ const _frostSeenIds = new Set();
 
 function mkSmallEl(card){
   const d=document.createElement('div');
-  d.className=`card-small ${card.f}-card`;
+  d.className=`card-small ${card.f}-card${card.golden?' golden':''}`;
   d.dataset.id=card.id;
   if(card.id===G.sel)d.classList.add('selected');
   if(card.sleeping)d.classList.add('sleeping');
@@ -982,7 +982,7 @@ function closeZoomHandCard(){
 // для всех остальных типов карт: существ, заклинаний, артефактов.
 function mkEl(card,zone){
   const d=document.createElement('div');
-  d.className=`card ${card.f}-card${card.neutral?' neutral-card':''}`;
+  d.className=`card ${card.f}-card${card.neutral?' neutral-card':''}${card.golden?' golden':''}`;
   d.style.flexShrink='0';
   d.dataset.id=card.id;
   if(card.id===G.sel)d.classList.add('selected');
