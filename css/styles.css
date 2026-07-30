@@ -1569,6 +1569,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .fab-btn{display:block;width:calc(var(--card-small-w) * 0.65);height:calc(var(--card-small-w) * 0.65 * 44/122);border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
 .fab-btn.umbasir{background-image:url('../img/btn_spell.png');}
 .fab-btn.vardan{background-image:url('../img/btn_spell.png');}
+.fab-btn.bounce_ally{background-image:url('../img/btn_spell.png');} /* TEANTIST "Return your ally" (2026-07-30) — тот же ассет */
 /*Плейсхолдер под btn_heal.png — файла пока нет, а background-image с несуществующим*/
 .fab-btn.heal{background-image:url('../img/btn_heal.png');}
 .fab-btn.cancel{background-image:url('../img/btn_spell_cncl.png')}
