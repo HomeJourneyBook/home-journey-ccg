@@ -669,6 +669,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    ═══════════════════════════════════════════════════════════════════════ */
 .card.tea-card,.card-small.tea-card,.cat-card.tea-card{background-image:url('../img/card_tea.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
 .card.jeet-card,.card-small.jeet-card,.cat-card.jeet-card{background-image:url('../img/card_jeet.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
+/* Golden Travelers (2026-07-30) — тот же принцип, что и у обычного фона выше, только
+   .golden в довесок к .tea-card/.jeet-card — правило ниже идёт ПОСЛЕ базового, поэтому
+   !important против !important побеждает более специфичный/более поздний селектор. */
+.card.tea-card.golden,.card-small.tea-card.golden,.cat-card.tea-card.golden{background-image:url('../img/card_tea_gold.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
+.card.jeet-card.golden,.card-small.jeet-card.golden,.cat-card.jeet-card.golden{background-image:url('../img/card_jeet_gold.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
 /*── Модалки: иконки-кнопки вместо списков (win/deck-builder/deck-picker) ──*/
 .modal-icon-btn{border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0; background-size:100% 100%;background-repeat:no-repeat;background-position:center; transition:transform .1s,filter .1s; position:relative;}
 .art-btn-catalog{background-image:url('../img/btn_catalog1.png');}
@@ -948,6 +953,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .db-stack-layer{position:absolute; inset:0; border-radius:5%; filter:brightness(.4) saturate(.6); transform:translate(calc(var(--layer-i) * 4px), calc(var(--layer-i) * 4px)); z-index:0;}
 .db-stack-layer.tea-card{background-image:url('../img/card_tea.png');background-size:cover;background-position:center;}
 .db-stack-layer.jeet-card{background-image:url('../img/card_jeet.png');background-size:cover;background-position:center;}
+.db-stack-layer.tea-card.golden{background-image:url('../img/card_tea_gold.png');background-size:cover;background-position:center;}
+.db-stack-layer.jeet-card.golden{background-image:url('../img/card_jeet_gold.png');background-size:cover;background-position:center;}
 /*── Футер контента: статистика (слева, построчно) + кривая маны (справа, чистый CSS) ──*/
 .db-stats{flex:0 0 auto;font-size:11px;color:#E8E0C8;line-height:1.2;justify-content:center; padding:4px 8px; border-radius:2px; border:1px solid #a9b5b2; box-shadow:inset 0 0 0 2px #000;}
 .db-stat-line.db-count-ok{color:#5BDF7A;}
