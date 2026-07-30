@@ -118,7 +118,7 @@ function _dbCardEl(faction,key,def){
     .join('');
 
   const div=document.createElement('div');
-  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${(def.world||def.fullArt)?'world-card':''}${def.neutral?' neutral-card':''}`;
+  div.className=`card cat-card db-card ${def.f==='tea'?'tea-card':'jeet-card'} ${(def.world||def.fullArt)?'world-card':''}${def.neutral?' neutral-card':''}${def.golden?' golden':''}`;
   if((def.world||def.fullArt) && def.img) div.style.cssText += `;background-image:url('img/cards/${def.img}')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;`;
 
   // Никаких надписей/рамок поверх карты — сам факт того, в какой из двух колонок
@@ -164,7 +164,7 @@ function _dbStackEl(faction,key,def,count,onClick){
   const shadowLayers=Math.min(count-1,2);
   for(let s=shadowLayers;s>=1;s--){
     const layer=document.createElement('div');
-    layer.className=`db-stack-layer ${def.f==='tea'?'tea-card':'jeet-card'}`;
+    layer.className=`db-stack-layer ${def.f==='tea'?'tea-card':'jeet-card'}${def.golden?' golden':''}`;
     layer.style.setProperty('--layer-i', s);
     wrap.appendChild(layer);
   }
