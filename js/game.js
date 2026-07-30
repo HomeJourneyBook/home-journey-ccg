@@ -2017,7 +2017,12 @@ function killCard(card,faction,toVoid=false){
     const stormBolt=getTagVal(card,'death_bolt');
     if(stormBolt){
       const enemyFaction=card.f==='tea'?'jeet':'tea';
-      const enemyField=G[enemyFaction].field;
+      // Невидимость/нераскрытый stealth (2026-07-30, по прямому запросу автора — третье
+      // место с тем же пробелом, что уже чинили у SCATTERSHOT/SHRAPNEL и Nana: случайный
+      // выбор ОДНОЙ жертвы — это targeting, значит должен уважать ту же targetability, что
+      // и обычный таргетируемый спелл). Этот случай не всплыл вместе с теми двумя, потому
+      // что срабатывает только при смерти носителя тега, а не на атаке/болте.
+      const enemyField=G[enemyFaction].field.filter(c=>isSpellTargetable(c,G[enemyFaction].field));
       if(enemyField.length>0){
         const boltTarget=enemyField[Math.floor(Math.random()*enemyField.length)];
         const dyingId=card.id, dyingName=card.name, targetId=boltTarget.id;
