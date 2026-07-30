@@ -1701,7 +1701,7 @@ const IS_TOUCH_DEVICE = ('ontouchstart' in window) || (navigator.maxTouchPoints 
 const TAG_TOOLTIPS = {
   'fear':    { name: 'Fear',    desc: 'On attack: target skips its next turn and deals no counter-damage.' },
   'pierce':  { name: 'Pierce',  desc: 'After attacking an enemy creature card, if it dies from the hit, any remaining excess damage carries over to the enemy base.' },
-  'regen':   { name: 'Regen',   desc: 'Restores X HP to itself at the start of each of your turns.' },
+  'regen':   { name: 'Regen',   desc: 'Restores {val} HP to itself at the start of each of your turns.' },
   'burn':    { name: 'Burn',    desc: 'On attack: target loses 1 HP at the start of each of its turns until death.' },
   'rage':    { name: 'Rage',    desc: '+2 ATK while wounded to half its max HP or below (floor(maxHP/2)) — turns off if healed back above the threshold.' },
   'provoke': { name: 'Provoke', desc: 'While this creature is untapped (not exhausted), all enemy attacks must target it.' },
@@ -1715,21 +1715,30 @@ const TAG_TOOLTIPS = {
   'vampiric': { name: 'Vampiric', desc: 'On attack: heals for exactly the HP it actually removes from the target (Armor absorption doesn\'t count) — capped at its own missing HP.' },
   'necrophage': { name: 'Erase', desc: 'On attack, if the hit is lethal: erases the fallen creature from its owner\'s graveyard for the Void, fully restores this creature\'s HP, and cleanses its own Burning.' },
   'remember': { name: 'Remember Everything', desc: 'The first time this creature dies each game, it fully restores its HP and stays on the field instead (all buffs and debuffs are reset). The second time, it goes straight to the Void.' },
-  'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes X damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-burning target (see atk_vs_burning).' },
+  'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes {val} damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-burning target (see atk_vs_burning).' },
   'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage and draws 3 cards. One-time — does nothing once broken.' },
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit of any kind, including any side-effects that would come with that hit. Triggers once per time the card enters the battleground. If the creature leaves the battleground and returns, the shield recharges.' },
-  'draw_attack': { name: 'Haunt', desc: 'Draws 1 card whenever this creature attacks.' },
-  'death_heal': { name: 'Bamboo', desc: 'When this creature dies, heals a random wounded ally for 4 HP.' },
-  'death_bolt': { name: 'Thunder Storm', desc: 'When this creature dies, deals 4 damage to a random enemy creature.' }, // переехал с трейта Scheme на Pink Clouds (2026-07-27, по прямому запросу автора) — сам тег/эффект не менялся, только трейт-привязка/имя/иконка (ico_cloud.png)
-  'death_armor': { name: 'Scheme', desc: 'When this creature dies, gives 2 Armor to a random ally.' }, // новый тег (2026-07-27, по прямому запросу автора) — занял трейт-слот Scheme после переезда death_bolt на Pink Clouds, использует прежнюю иконку (ico_scheme.png)
+  'draw_attack': { name: 'Haunt', desc: 'Draws {val} card{plural} whenever this creature attacks.' },
+  'death_heal': { name: 'Bamboo', desc: 'When this creature dies, heals a random wounded ally for {val} HP.' },
+  'death_bolt': { name: 'Thunder Storm', desc: 'When this creature dies, deals {val} damage to a random enemy creature.' }, // переехал с трейта Scheme на Pink Clouds (2026-07-27, по прямому запросу автора) — сам тег/эффект не менялся, только трейт-привязка/имя/иконка (ico_cloud.png)
+  'death_armor': { name: 'Scheme', desc: 'When this creature dies, gives {val} Armor to a random ally.' }, // новый тег (2026-07-27, по прямому запросу автора) — занял трейт-слот Scheme после переезда death_bolt на Pink Clouds, использует прежнюю иконку (ico_scheme.png)
   'frost': { name: 'Frost Attack', desc: 'On attack: Freezes the target for 2 of its own turns — it cannot act at all (attack or use Active abilities) and no longer forces Provoke/Intercept. Freezing clears any Fear/Burn on the target and grants immunity to new Fear/Burn while frozen. Frost is shattered by the next hit the target takes, of any kind, which is fully absorbed (like Solana Shield).' }, // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
   'foxy': { name: 'Foxy Trick', desc: '50% chance to dodge entirely: any incoming damage, or any attempt to apply a debuff (Fear/Burn/Frost/Provoke-break) to this card, has a 50% chance to simply miss.' }, // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
   'market': { name: 'Game of Market', desc: 'On this card\'s attack (or Bolt): 50/50 — either 2 bonus damage to the target, or 2 damage to itself. Skipped if the hit was dodged (Foxy), absorbed by an active Solana Shield, or absorbed by Frost.' }, // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
   'nana': { name: 'Nana', desc: 'On this card\'s attack (or Bolt): 50/50 — either throws a banana at a random enemy (not the one just hit) for 2 damage, or at a random wounded ally for 2 healing (falls back to its own base if no wounded ally, or to the enemy if there\'s nothing to heal). Skipped if the hit was dodged (Foxy), absorbed by an active Solana Shield, or absorbed by Frost.' }, // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
   'dd': { name: 'DD Cleave', desc: 'On this card\'s attack: deals 1 physical damage to every other enemy card on the field, in addition to the normal hit. Skipped if the hit was dodged (Foxy), absorbed by an active Solana Shield, or absorbed by Frost.' }, // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
-  'death_atk': { name: 'Optic Dope', desc: 'When this creature dies, gives +1 ATK to a random ally (permanent, until that ally leaves the battleground).' }, // OPTIC DOPE — death_atk:N, World-трейт (Optical Dope), 2026-07-29
+  'death_atk': { name: 'Optic Dope', desc: 'When this creature dies, gives +{val} ATK to a random ally (permanent, until that ally leaves the battleground).' }, // OPTIC DOPE — death_atk:N, World-трейт (Optical Dope), 2026-07-29
   'mek': { name: 'MonoMEK', desc: 'On attack: Marks the target for 2 of its own turns — while Marked, it takes +1 damage from any source (applied before Armor, so an already-full Armor pool can still fully absorb it that turn). No Ward immunity, doesn\'t stack (re-attacking just refreshes the 2-turn timer), and isn\'t cleansed by Heal-and-Clean.' }, // MonoMEK — ультраредкий World-трейт, 2026-07-30
 };
+// Golden Travelers tooltip sync fix (2026-07-30, автор поймал живьём — Scheme на голден-
+// Кситре #310 (death_armor:4) всё ещё показывал старый хардкод "2 Armor") — теги, чьё
+// значение реально варьируется от карты к карте (regen/thorns/draw_attack/death_heal/
+// death_bolt/death_armor/death_atk), больше НЕ хранят число в тексте напрямую: вместо
+// этого в desc — плейсхолдер {val} (и {plural} у Haunt, единственного текста с "card(s)"),
+// подставляется в _tooltipDataFor() из живого data-tagval конкретной наведённой иконки.
+// Раньше часть текстов (regen/thorns) буквально содержала букву "X" вместо числа — это
+// была формулировка только для внутренней документации/README, не для игрового UI.
+const DYNAMIC_VAL_TAGS = ['regen','thorns','draw_attack','death_heal','death_bolt','death_armor','death_atk'];
 
 const TOOLTIP_TRIGGER_SELECTOR = '.card-tag-icon, .card-cost, .card-small-cost, .card-type-dot, .stat-ess-box, .card-small-hp-box, .card-hp-box, .card-atk-box, .card-small-atk-box, .card-armor-box, .card-small-armor-box, .card-incarn-badge';
 const TOOLTIP_SHOW_DELAY = 500; // мс — подсказка не появляется мгновенно
@@ -1743,10 +1752,22 @@ function _tooltipDataFor(el){
   if(el.classList.contains('card-tag-icon')){
     const base=TAG_TOOLTIPS[el.dataset.tag];
     if(!base) return null;
-    // Инкарнация — единственный тег-иконка с переменным числом (X ходов), остальные теги
-    // без параметра в тексте тултипа не нуждаются в подстановке значения.
+    // Инкарнация — единственный тег-иконка, у которой число живёт в НАЗВАНИИ (живой
+    // счётчик оставшихся ходов на возрождение, см. card-incarn-badge ниже — там то же
+    // число меняется по ходу партии, это НЕ статичное описание способности).
     if(el.dataset.tag==='incarnation' && el.dataset.tagval){
       return { name: `Incarnation ${el.dataset.tagval}`, desc: base.desc };
+    }
+    // Остальные варьирующиеся по значению теги (regen/thorns/draw_attack/death_heal/
+    // death_bolt/death_armor/death_atk, 2026-07-30 — автор поймал живьём: Scheme на
+    // голден-Кситре #310 показывал старый хардкод "2 Armor" вместо реальных death_armor:4)
+    // — название остаётся ЧИСТЫМ (без числа), а число подставляется в САМ ТЕКСТ описания
+    // из живого data-tagval этой конкретной карты через плейсхолдер {val}.
+    if(DYNAMIC_VAL_TAGS.includes(el.dataset.tag)){
+      const val=el.dataset.tagval||'?';
+      let desc=base.desc.replace('{val}', val);
+      if(desc.includes('{plural}')) desc=desc.replace('{plural}', val==='1'?'':'s');
+      return { name: base.name, desc };
     }
     return base;
   }
