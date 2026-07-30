@@ -353,6 +353,7 @@ function preloadAssets(){
 
     // ── Карты — базовые фреймы ──
     'img/card_tea.png', 'img/card_jeet.png',
+    'img/card_tea_gold.png', 'img/card_jeet_gold.png', // Golden Travelers (2026-07-30) — тот же превентивный фикс, что и у остальных ассетов этой сессии
     'img/card_name_bg.png', 'img/card_name_world_bg.png', 'img/card_text_bg.png',
     'img/card_stat_bg.png', 'img/card_text_world_bg.png',
     /* 'img/pcard_bg.png', */ // пока не в репо (404 на деплое, закомментить попросил автор, 2026-07-27)
