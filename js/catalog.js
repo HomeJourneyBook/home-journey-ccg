@@ -1,8 +1,15 @@
 function getCardType(def){
-  if(def.unique) return 'unique';
   if(def.spell) return 'spell';
   if(def.world) return 'world';
   if(def.artifact) return 'artifact';
+  // Golden Travelers (2026-07-30) — unique:true БЕЗ gtype (TEANTIST/RYVLEN/...) остаются
+  // 'unique'. Golden-путешественники (unique:true + gtype:xxx, той же архетипной механикой,
+  // что обычные Travelers, просто золотые) должны попадать под "Travelers"/Gate-фильтры,
+  // а не прятаться под отдельной вкладкой "Unique" — иначе они не находятся ни по фракции+
+  // Врата (тип принудительно ставится в 'creature' при выборе Врат, см. setGateFilter()),
+  // ни в общем списке Travelers. Баг, найденный автором живьём.
+  const hasGtype=(def.tags||[]).some(t=>t.startsWith('gtype:'));
+  if(def.unique&&!hasGtype) return 'unique';
   return 'creature';
 }
 
