@@ -99,10 +99,17 @@ const DB_TAG_ICONS = {
 // классификацию, что и .card-type-dot (getTypeDotLabel в render.js), просто сводит
 // Unique к Traveler (легендарки — всё ещё существа с hp/atk, отдельная кнопка под
 // них не нужна, тем более пока их нет в Rush-пуле).
+// Golden Travelers (2026-07-30) — старое допущение выше ("пока их нет в Rush-пуле")
+// больше не верно: золотые путешественники — unique:true, ЕСТЬ в Rush-пуле, И несут
+// gtype (та же архетипная механика, что у обычных Travelers, просто золотые). Критерий
+// теперь — наличие gtype, а не флаг unique: TEANTIST/RYVLEN/... (unique БЕЗ gtype)
+// остаются под "Uniques", золотые путешественники (unique + gtype) — под "Travelers".
+// Баг, найденный автором живьём (карты пропадали из обеих вкладок деккбилдера).
+const _hasGtype=def=>(def.tags||[]).some(t=>t.startsWith('gtype:'));
 const DB_FILTERS = [
   {id:'all',      label:'All',       test:()=>true},
-  {id:'traveler', label:'Travelers', test:def=>!def.world&&!def.artifact&&!def.spell&&!def.unique},
-  {id:'unique',   label:'Uniques',   test:def=>!!def.unique},
+  {id:'traveler', label:'Travelers', test:def=>!def.world&&!def.artifact&&!def.spell&&(!def.unique||_hasGtype(def))},
+  {id:'unique',   label:'Uniques',   test:def=>!!def.unique&&!_hasGtype(def)},
   {id:'spell',    label:'Spells',    test:def=>!!def.spell},
   {id:'world',    label:'Worlds',    test:def=>!!def.world},
   {id:'artifact', label:'Artifacts', test:def=>!!def.artifact},
