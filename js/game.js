@@ -676,7 +676,7 @@ function doSpell(card){
 function reviveCard(card,toF){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.frozen=false;card.frozenTurnsLeft=0;card._frostLeaving=false;card.atkBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.frozen=false;card.frozenTurnsLeft=0;card._frostLeaving=false;card.mekMarked=false;card.mekMarkTurns=0;card.atkBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
   // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
   // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
@@ -1616,6 +1616,14 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   card._foxyDodgedThisHit=false;
   card._frostBlockedThisHit=false; // БАГФИКС (2026-07-27, автор поймал живьём) — раньше этот флаг НИКОГДА не сбрасывался здесь (только выставлялся в true ниже), поэтому один раз замороженный удар мог навсегда "заглушить" debuff-эффекты на ВСЕХ последующих, никак не связанных ударах по этой же карте
   if(dmg<=0)return;
+  // MonoMEK Метка (2026-07-30) — +1 к ЛЮБОМУ входящему урону из ЛЮБОГО источника, пока
+  // card.mekMarked. Единственная choke-point точка для этого эффекта (в отличие от Foxy/
+  // Frost/Shield ниже, которые бинарные "промах/абсорб всё", Метка — простой числовой
+  // модификатор dmg ДО брони, поэтому броня по-прежнему поглощает свой номинал как обычно,
+  // а Метка "пробивает" ровно то, что бронёй не покрыто — см. обсуждение с автором,
+  // сессия 2026-07-30). Стоит ПОСЛЕ раннего return на dmg<=0 — Метка не создаёт урон из
+  // ничего, только усиливает уже существующий удар.
+  if(card.mekMarked) dmg+=1;
   // Foxy Trick (2026-07-27, "Foxy Trick", ультраредкий Mood-трейт Orange from FFF, ico_fff.png)
   // — ПЕРВАЯ проверка вообще, ДО Frost/Shield/Armor/Ward (по прямому запросу автора: сначала
   // решаем, промахнулась ли атака вообще, и только потом — если не промахнулась — остальной
@@ -3098,6 +3106,14 @@ function endTurn(){
     if(c.frozen){
       c.frozenTurnsLeft=(c.frozenTurnsLeft===undefined?2:c.frozenTurnsLeft)-1;
       if(c.frozenTurnsLeft<=0) scheduleFrostRemoval(c);
+    }
+    // MonoMEK Метка (2026-07-30) — держится 2 СВОИХ хода владельца, тот же тайминг/паттерн
+    // декремента, что и Frost чуть выше (конец хода ВЫХОДЯЩЕГО игрока = конец его же
+    // собственного хода). Никакого урона тут не тикает (в отличие от Burn) — просто счётчик,
+    // снимается сам собой на нуле.
+    if(c.mekMarked){
+      c.mekMarkTurns=(c.mekMarkTurns===undefined?2:c.mekMarkTurns)-1;
+      if(c.mekMarkTurns<=0) c.mekMarked=false;
     }
     if(hasTag(c,'untamed')) c.exhausted=false;
   });
