@@ -3,7 +3,7 @@
 // no longer match reality — e.g. a card renamed/removed/rebalanced. Read by
 // dbExportDeck()/_applyImportedDeck() (deck JSON) and downloadBattleLog()
 // (ui.js), so old exports can be flagged instead of silently misapplied.
-const GAME_VERSION = "1.08";
+const GAME_VERSION = "1.06";
   
 const DEFS = {
   // ── TEA CREATURES ───────────────────────────────────────────────
@@ -25,7 +25,7 @@ const DEFS = {
   t_trvl250_w: {name:"TRAVELER #250", cost:4,hp:4,atk:5,art:"🦈", img:"250.png",  f:"tea",tags:["burn","death_bolt:4","gtype:szg"],            ab:"Squad +1 maxHP."}, // cost 5→4 (2026-07-27, по прямому запросу автора — Szarg не должен существовать на cost5 вообще, см. история "cost5 Szarg — решение отложено" ниже), hp/atk пересчитаны по формуле Szarg (HP=cost, ATK=cost+1) = 4/5
   t_trvl870_w: {name:"TRAVELER #870", cost:1,hp:1,atk:2,art:"🦈", img:"870.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
   t_trvl890_w: {name:"TRAVELER #890", cost:1,hp:1,atk:2,art:"🦈", img:"890.png", f:"tea",tags:["gtype:szg"],                  ab:"Squad +1 maxHP."},
-  t_trvl139_w: {name:"TRAVELER #139", cost:2,hp:2,atk:3,art:"🦈", img:"139.png", f:"tea",tags:["mek","untamed","gtype:szg"],                  ab:"Squad +1 maxHP."}, // новая карта (2026-07-30, по прямому запросу автора) — cost2 Szarg, 2 доп.тега (mek/MonoMEK — 1-й/5 travelers этого трейта + untamed/Anime Pink), статы по формуле Szarg (HP=cost, ATK=cost+1) = 2/3
+  t_trvl139_w: {name:"TRAVELER #139", cost:4,hp:4,atk:5,art:"🦈", img:"139.png", f:"tea",tags:["mek","untamed","gtype:szg"],                  ab:"Squad +1 maxHP."}, // cost 2→4 (2026-07-30, по прямому запросу автора) — cost4 Szarg, 2 доп.тега (mek/MonoMEK — 1-й/5 travelers этого трейта + untamed/Anime Pink), статы по формуле Szarg (HP=cost, ATK=cost+1) = 4/5
 
   // Orbiton Tea
   t_trvl10_w:   {name:"TRAVELER #10",   cost:3,hp:3,atk:1,art:"👁️", img:"10.png",   f:"tea",tags:["heal:3","burn","gtype:orb"],             ab:"Active Heal 3 and Clean. Squad: +2 Armor."}, // ATK 2→1 (2026-07-27, по прямому запросу автора — откат формулы Orbiton: cost≥3→ATK=2 стало cost≥4→ATK=2, кривая 1-1-2-2-2 → 1-1-1-2-2)
