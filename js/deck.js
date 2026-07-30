@@ -235,7 +235,7 @@ function mkCard(key){
   return{id:'c'+UID,key,name:def.name,cost:def.cost,hp:def.hp,maxHp:def.hp,atk:def.atk,art:def.art,img:def.img||null,
     f:def.f,tags:[...(def.tags||[])],ab:def.ab||'',
     spell:!!def.spell,world:!!def.world,artifact:!!def.artifact,unique:!!def.unique,
-    fullArt:!!def.fullArt,neutral:!!def.neutral,
+    fullArt:!!def.fullArt,neutral:!!def.neutral,golden:!!def.golden,
     sleeping:false,exhausted:false,feared:false,burning:false,provokeBroken:false,atkBonus:0,tempAtkBonus:0,
     armor:0,shieldConsumed:false}; // Armor — see game.js dmgCard()/doCreature()/endTurn() for the actual mechanic
 }
