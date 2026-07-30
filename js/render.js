@@ -304,6 +304,10 @@ function _cardStatusEntries(card){
     const ft = card.frozenTurnsLeft!==undefined ? card.frozenTurnsLeft : 2;
     entries.push({icon:'img/ico_snow.png', text:`Frozen for ${ft} more of its own turn${ft===1?'':'s'} — cannot act at all. Any incoming damage will be blocked entirely and shatter the freeze.`});
   }
+  if(card.mekMarked){
+    const mt = card.mekMarkTurns!==undefined ? card.mekMarkTurns : 2;
+    entries.push({icon:'img/ico_mek.png', text:`Marked — takes +1 damage from all sources. ${mt} turn${mt===1?'':'s'} left.`});
+  }
   if(card.interceptUsed) entries.push({icon:'img/ico_intercept.png', text:'Intercept triggered — already redirected an attack this turn.'});
   if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely from any source, one time only.'});
   if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
@@ -625,6 +629,13 @@ function mkSmallEl(card){
     const allInvisible=ownField.length>0 && ownField.every(c=>hasTag(c,'invisible'));
     if(!allInvisible) invisBoxHtml='<div class="invis-overlay"></div>';
   }
+  // Mek overlay box (2026-07-30, "MonoMEK" Метка, по прямому запросу автора) — тот же
+  // паттерн, что и invisBoxHtml выше: HTML-строка ЗАРАНЕЕ, вставляется внутрь основного
+  // innerHTML-шаблона (не appendChild — тот же баг, что чинили у Invis/Frost). НАМЕРЕННО
+  // на том же низком z-index, что и .invis-overlay (см. css/styles.css), а НЕ на высоком,
+  // как .frost-overlay — по прямому запросу автора остальные дебафф-бэйджи (Fear/Burn/
+  // TauntBroken/мишень таргетинга) должны рендериться ПОВЕРХ Метки, не под ней.
+  const mekBoxHtml = card.mekMarked ? '<div class="mek-overlay"></div>' : '';
   // Frost overlay box (2026-07-27) — БАГФИКС (автор поймал 2026-07-27): раньше здесь стоял
   // d.appendChild(frostBox) — но чуть ниже по функции есть d.innerHTML=`...` (весь основной
   // шаблон карты), которое полностью ЗАМЕНЯЕТ содержимое d, стирая любой appendChild,
@@ -764,6 +775,7 @@ function mkSmallEl(card){
   'nana': '<img src="img/ico_nana.png" style="width:60%;height:60%;">', // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
   'dd': '<img src="img/ico_dd.png" style="width:60%;height:60%;">', // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
   'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, World-трейт (Optical Dope), 2026-07-29
+  'mek': '<img src="img/ico_mek.png" style="width:60%;height:60%;">', // MonoMEK — ультраредкий World-трейт, 2026-07-30
 };
 const tagIcons=(card.tags||[])
   .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -785,6 +797,7 @@ const tagIcons=(card.tags||[])
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${invisBoxHtml}
+    ${mekBoxHtml}
     ${card.burning?'<div class="card-small-burning"><img src="img/ef_burn.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.feared?'<div class="card-small-feared"><img src="img/ef_fear.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
     ${card.provokeBroken?'<div class="card-small-tauntbroken"><img src="img/ef_tb.png" style="width:100%;height:100%;object-fit:contain;"></div>':''}
@@ -1001,6 +1014,7 @@ function mkEl(card,zone){
   'nana': '<img src="img/ico_nana.png" style="width:60%;height:60%;">', // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
   'dd': '<img src="img/ico_dd.png" style="width:60%;height:60%;">', // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
   'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, World-трейт (Optical Dope), 2026-07-29
+  'mek': '<img src="img/ico_mek.png" style="width:60%;height:60%;">', // MonoMEK — ультраредкий World-трейт, 2026-07-30
 };
 // В кладбище incarnation уже отдельно показана таймер-плашкой (card-incarn-badge, см.
 // ниже) — она физически перекрывает верхний угол колонки card-tag-icons (обе сидят в
