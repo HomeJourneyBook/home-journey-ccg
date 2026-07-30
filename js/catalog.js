@@ -137,6 +137,7 @@ function renderCatalog(){
   'nana': '<img src="img/ico_nana.png" style="width:60%;height:60%;">', // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
   'dd': '<img src="img/ico_dd.png" style="width:60%;height:60%;">', // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
   'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, World-трейт (Optical Dope), 2026-07-29
+  'mek': '<img src="img/ico_mek.png" style="width:60%;height:60%;">', // MonoMEK — ультраредкий World-трейт, 2026-07-30
     };
     const tagIcons=(def.tags||[])
       .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
@@ -216,6 +217,7 @@ function openCardDetail(def){
   'nana': '<img src="img/ico_nana.png" style="width:60%;height:60%;">', // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
   'dd': '<img src="img/ico_dd.png" style="width:60%;height:60%;">', // DD CLEAVE — DD's Signature, ультраредкий Mood-трейт, 2026-07-29
   'death_atk': '<img src="img/ico_optic.png" style="width:60%;height:60%;">', // OPTIC DOPE — death_atk:N, World-трейт (Optical Dope), 2026-07-29
+  'mek': '<img src="img/ico_mek.png" style="width:60%;height:60%;">', // MonoMEK — ультраредкий World-трейт, 2026-07-30
   };
   const tagIcons = (def.tags||[])
     .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
