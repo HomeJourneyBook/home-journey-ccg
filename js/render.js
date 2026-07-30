@@ -228,7 +228,12 @@ function getTypeDotImg(card){
 // Человекочитаемое название типа для тултипа на .card-type-dot.
 function getTypeDotLabel(card){
   if(card.world) return 'World';
-  if(card.unique) return 'Unique';
+  // Golden Travelers (2026-07-30) — та же поправка, что у getCardType()/DB_FILTERS выше:
+  // unique БЕЗ gtype (TEANTIST/RYVLEN/...) — 'Unique'. unique+gtype (золотые
+  // путешественники, та же архетипная механика, просто золотые) — 'Traveler', золотость
+  // и так видна по золотому фону карты, бэйдж не должен её перекрывать/дублировать.
+  const hasGtype=(card.tags||[]).some(t=>t.startsWith('gtype:'));
+  if(card.unique&&!hasGtype) return 'Unique';
   if(card.artifact) return 'Artifact';
   if(card.spell) return 'Spell';
   return 'Traveler';
