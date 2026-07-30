@@ -301,6 +301,18 @@ function onClick(card,zone){
     }
     cancelPendingSpell();return;
   }
+  if(G.phase==='gustAllyTarget'){
+    // TEANTIST active skill "Return your ally" (2026-07-30, по прямому запросу автора) —
+    // тот же bounce-эффект, что у spellBounceAllyTarget выше, но доставлен активкой
+    // существа на поле, а не спеллом (см. doGustAbility() — кастер НЕ топится в void,
+    // остаётся на поле и exhausted'ится). card.id!==G.sel — по прямому запросу автора
+    // карта не может вернуть в руку сама себя, только других союзников. cancelPendingSpell()
+    // тут безопасен без рефанда — G.pendingSpell для этой фазы всегда пуст (нет спелла).
+    if(zone==='field'&&card.f===G.turn&&card.id!==G.sel&&!card.spell&&!card.world&&!card.artifact){
+      doGustAbility(card);return;
+    }
+    cancelPendingSpell();return;
+  }
   if(G.phase==='spellExecuteHalfTarget'){
     // JUDGMENT/DEATHBLOW rework (2026-07-26, по прямому запросу автора) — раньше цель была
     // ограничена ≤50% maxHP ДО выбора (условный insta-kill). Теперь цель — ЛЮБОЕ вражеское
@@ -2902,6 +2914,34 @@ function doSpellBounceTarget(card){
     G[ownerK].hand.push(card);
     render();
   },400); // та же задержка, что у полного bounce — карта не появляется в руке ДО того,
+          // как её "призрак" на поле закончил гаснуть
+}
+
+function doGustAbility(target){
+  // TEANTIST active skill "Return your ally" (2026-07-30, по прямому запросу автора) —
+  // тот же bounce-эффект и звук, что у GUST/REVERSE (doSpellBounceTarget() выше), но
+  // доставлен активным скилом СУЩЕСТВА на поле, а не спеллом: кастер (TEANTIST) НЕ топится
+  // в void — остаётся на поле и exhausted'ится (тот же паттерн, что у Хилки/Болта, healer.
+  // exhausted=true в onClick()/healTarget выше), плюс activateCard() — тот же "подъём"
+  // эффект, что у остальных активок при использовании. Цель — ТОЛЬКО другой союзник, не
+  // сам кастер (гейт уже на клике, см. onClick() выше).
+  const caster=findC(G.sel);
+  if(!caster) return;
+  const ownerK=target.f;
+  playSfx('wind_card'); // тот же звук, что у GUST/REVERSE/UNSEEN — тематически один жест
+  lg(`${caster.name}: ${target.name} blown back to ${ownerK==='tea'?'Tea':'Jeet'}'s hand.`,'imp');
+  G[ownerK].field=G[ownerK].field.filter(c=>c.id!==target.id);
+  caster.exhausted=true;
+  G.phase='action';G.sel=null;
+  G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // тот же паттерн, что у doSpellBounceTarget/doSpellDmgTarget — пересчёт Squad-бонусов после ухода карты с поля
+  render(); // немедленный рендер — цель пропадает с поля, rZone(zone:'field') сам подхватывает
+            // "умирание" (класс dying + удаление через 400мс), см. комментарий в render.js
+  activateCard(caster.id); // TEANTIST визуально "приподнимается", как и другие активки
+  setTimeout(()=>{
+    resetC(target);
+    G[ownerK].hand.push(target);
+    render();
+  },400); // та же задержка, что у doSpellBounceTarget — карта не появляется в руке ДО того,
           // как её "призрак" на поле закончил гаснуть
 }
 
