@@ -409,6 +409,7 @@ function preloadAssets(){
     'img/ico_dd.png', // DD Cleave (2026-07-29) — тот же превентивный фикс
     'img/ico_optic.png', // Optic Dope (2026-07-29) — тот же превентивный фикс
     'img/invis.png', // Invis/Stealth overlay (2026-07-27) — та же превентивная мера
+    'img/ico_mek.png', 'img/mek.png', // MonoMEK (2026-07-30) — тот же превентивный фикс, что у Frost/Foxy/Nana выше (иконка + full-card оверлей метки)
 
     // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
