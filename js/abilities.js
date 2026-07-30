@@ -40,6 +40,17 @@ function getAbilities(card){
       // атаке вешает Заморозку на 2 СВОИХ хода цели (не 1, как Fear) — см. execution-кейс
       // 'frost' ниже и decrement-логику в endTurn() (game.js, card.frozenTurnsLeft).
       case 'frost':      ab.push({timing:'on_attack',effect:'frost'}); break;
+      // mek (2026-07-30, "MonoMEK" — ультраредкий World-трейт, ico_mek.png, названо в
+      // честь друга-типографа автора, чей шрифт используется в игре) — на атаке вешает
+      // на цель Метку на 2 хода (card.mekMarked/mekMarkTurns, тикает в endTurn() game.js,
+      // тот же паттерн что и Frost). Пока Метка висит — цель получает +1 к ЛЮБОМУ входящему
+      // урону из ЛЮБОГО источника (см. dmgCard() в game.js, самый верх функции, ДО брони —
+      // значит бронированные цели чувствуют Метку только когда броня выбита). Специально
+      // БЕЗ ward-иммунитета (в отличие от Fear/Frost выше) — по прямому запросу автора,
+      // Ward тут не защищает. Не снимается Heal+Clean (Orbiton) — тот же принцип, что и
+      // у Frost, сознательно не добавлено. Не стакается — повторная атака просто освежает
+      // счётчик до 2, а не суммирует бонус.
+      case 'mek':        ab.push({timing:'on_attack',effect:'mek_mark'}); break;
       // taunt_break (2026-07-13, автор) — на атаке подавляет Provoke у цели (можно бить
       // мимо танка до конца этого хода) — снимается тем же путём, что и fear/exhausted
       // (см. endTurn() в game.js, "снимаются у ВЫХОДЯЩЕГО игрока сразу" — тот же блок,
@@ -717,6 +728,20 @@ function triggerAbilities(card, timing, ctx={}){
             lg(`${card.name}: ${ctx.target.name} is Frozen!`,'imp');
             queueFieldFx(ctx.target.id,'FROZEN!','fx-fear');
           }
+        } break;
+
+      case 'mek_mark':
+        // MonoMEK Метка (2026-07-30) — та же гвардия видимости, что у Fear/Frost выше
+        // (не навешиваем, если удар вообще не долетел — Foxy-промах/Frost-абсорб/Solana
+        // Shield-абсорб), НО сознательно БЕЗ проверки ward — по прямому запросу автора
+        // Ward не даёт иммунитета к Метке. Освежаем счётчик до 2, даже если Метка уже
+        // висела (не стакаем несколько Меток разом).
+        if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._frostBlockedThisHit&&!ctx.target._foxyDodgedThisHit){
+          ctx.target.mekMarked=true;
+          ctx.target.mekMarkTurns=2;
+          playSfx('debaf');
+          lg(`${card.name}: ${ctx.target.name} is Marked!`,'imp');
+          queueFieldFx(ctx.target.id,'MARKED!','fx-fear');
         } break;
 
       case 'taunt_break':
