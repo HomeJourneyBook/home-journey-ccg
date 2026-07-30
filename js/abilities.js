@@ -477,34 +477,51 @@ function triggerAbilities(card, timing, ctx={}){
             if(shot.isBase) throwBoltFx(null, null, oppK, casterFaction);
             else throwBoltFx(null, shot.targetId, null, casterFaction);
             setTimeout(()=>{
-              playSfx('card_spell_atack');
-              if(shot.isBase){
-                baseHits++;
-                G[oppK].hp=Math.max(0,G[oppK].hp-1);
-                flashBase(oppK,'dmg',1);
-              } else {
-                const t=G[oppK].field.find(c=>c.id===shot.targetId);
-                if(t){
-                  hitNames.add(t.id);
-                  // Ward (2026-07-27, по прямому запросу автора) — показываем IMMUNE, а не
-                  // тишину (Ward — честная случайность, damage-point намеренно МОЖЕТ впустую
-                  // уйти в защищённую цель, это НЕ баг, см. историю выше — просто теперь
-                  // видно ПОЧЕМУ). Frost/активный Solana Shield и так получают СВОЮ
-                  // отдельную анимацию поглощения изнутри dmgCard() (ABSORB у щита,
-                  // shake+лог у заморозки) — вторая плашка поверх была бы избыточной.
-                  if(hasTag(t,'ward')){
-                    queueFieldFx(t.id,'IMMUNE','fx-immune');
-                  } else if(!(t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed))){
-                    queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
+              // БАГФИКС (2026-07-30, автор поймал живьём — ИИ "зависал" визуально после
+              // Shrapnel): в отличие от ВСЕХ остальных мест, которые трогают
+              // _pendingInstantSpellResolve (doSpellDmgTarget и т.д. — см. их try/finally),
+              // здесь не было защиты вообще. Если что-то внутри одного выстрела бросает
+              // исключение (dmgCard/render/flashBase/queueFieldFx) — рекурсивная цепочка
+              // fireShot() просто обрывается: следующий setTimeout(fireShot(i+1)) никогда
+              // не планируется, а счётчик декрементится ТОЛЬКО в терминальном случае
+              // (i>=shots.length), который тоже никогда не наступит. endTurn() в итоге
+              // форсит ход через 5 секунд (см. её защиту), но ВИЗУАЛЬНО очередь снарядов
+              // выглядит намертво замершей всё это время — это оно и есть. Теперь try/finally
+              // гарантирует, что цепочка ВСЕГДА продолжится к следующему выстрелу, даже если
+              // конкретно этот выстрел упал с ошибкой (та ошибка уйдёт в консоль, очередь — нет).
+              try{
+                playSfx('card_spell_atack');
+                if(shot.isBase){
+                  baseHits++;
+                  G[oppK].hp=Math.max(0,G[oppK].hp-1);
+                  flashBase(oppK,'dmg',1);
+                } else {
+                  const t=G[oppK].field.find(c=>c.id===shot.targetId);
+                  if(t){
+                    hitNames.add(t.id);
+                    // Ward (2026-07-27, по прямому запросу автора) — показываем IMMUNE, а не
+                    // тишину (Ward — честная случайность, damage-point намеренно МОЖЕТ впустую
+                    // уйти в защищённую цель, это НЕ баг, см. историю выше — просто теперь
+                    // видно ПОЧЕМУ). Frost/активный Solana Shield и так получают СВОЮ
+                    // отдельную анимацию поглощения изнутри dmgCard() (ABSORB у щита,
+                    // shake+лог у заморозки) — вторая плашка поверх была бы избыточной.
+                    if(hasTag(t,'ward')){
+                      queueFieldFx(t.id,'IMMUNE','fx-immune');
+                    } else if(!(t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed))){
+                      queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
+                    }
+                    dmgCard(t,1,oppK,true);
                   }
-                  dmgCard(t,1,oppK,true);
+                  // Цель уже умерла/ушла с поля между расчётом и приземлением этого конкретного
+                  // снаряда — молча пропускаем (тот же принцип, что у остальных отложенных
+                  // Bolt-эффектов в этой сессии), очередь просто идёт дальше.
                 }
-                // Цель уже умерла/ушла с поля между расчётом и приземлением этого конкретного
-                // снаряда — молча пропускаем (тот же принцип, что у остальных отложенных
-                // Bolt-эффектов в этой сессии), очередь просто идёт дальше.
+                render();
+              } catch(e){
+                console.error('Shrapnel/Scattershot: shot failed mid-queue — continuing anyway:', e);
+              } finally {
+                setTimeout(()=>fireShot(i+1), SPREAD_SHOT_GAP_MS);
               }
-              render();
-              setTimeout(()=>fireShot(i+1), SPREAD_SHOT_GAP_MS);
             },420);
           };
           fireShot(0);
