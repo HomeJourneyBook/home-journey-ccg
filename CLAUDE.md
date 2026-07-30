@@ -4484,4 +4484,4 @@ DESTROY-вызовы ДОПОЛНИТЕЛЬНО стали сами ставит
 
 Проверено симулятором (550 партий, 0 крашей).
 
-https://drive.google.com/drive/folders/1BUE6ltPisKRAtKQQEeYEU_URbzBXdwpG
+https://drive.google.com/drive/mobile/folders/1unHchBXXRKGDengz6xKRw6vx5aXvHLLK?pli=1&sort=13&direction=a
