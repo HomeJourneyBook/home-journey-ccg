@@ -434,8 +434,21 @@ function doPlay(card, afterResolve){
     cur.hand=cur.hand.filter(c=>c.id!==card.id); // рука ИИ скрыта (рубашки) — убираем сразу, как раньше
     render(); // сразу отражаем -1 рубашку в руке ИИ и списанную эссенцию, ДО анимации
     playSpellRevealAnimation(card, ()=>{
-      _resolvePlayedCard(card);
-      if(typeof afterResolve==='function') afterResolve();
+      // БАГФИКС (2026-07-30, автор поймал живьём — ИИ вис намертво после каста спелла,
+      // напр. SHRAPNEL): та же защита, что уже стоит у isPlainInstantSpell чуть ниже
+      // (добавлена туда 2026-07-24 за идентичный класс бага), просто её забыли
+      // продублировать сюда при добавлении reveal-анимации. Без try/finally — если
+      // _resolvePlayedCard() кидает исключение, afterResolve() никогда не вызывается,
+      // и aiPlayCardsStep() (ai.js) виснет навсегда в ожидании колбэка, которого не
+      // будет. Теперь afterResolve() гарантированно срабатывает в любом случае, даже
+      // если сам эффект спелла упал с ошибкой (та ошибка уйдёт в консоль, ход — нет).
+      try{
+        _resolvePlayedCard(card);
+      } catch(e){
+        console.error('Spell resolution failed (AI reveal path):', card.name, e);
+      } finally {
+        if(typeof afterResolve==='function') afterResolve();
+      }
     });
     return;
   }
@@ -1439,7 +1452,13 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
         },450);
       }, NANA_WINDUP_MS);
     } else {
-      const enemies=G[oppFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.id!==hitId);
+      // Невидимость/нераскрытый stealth (2026-07-30, по прямому запросу автора — тот же
+      // пересмотр, что и у SCATTERSHOT/SHRAPNEL, см. abilities.js/case 'random_spread'):
+      // случайный выбор ОДНОЙ жертвы — это targeting, просто рандом вместо игрока/ИИ
+      // решает кого, значит Invisible/нераскрытый Stealth должны от него защищать так же,
+      // как от прицельного спелла. Если пул опустеет (все враги невидимы/скрыты) —
+      // enemies.length===0 ниже уже обрабатывается (банан просто не летит в этот раз).
+      const enemies=G[oppFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.id!==hitId&&isSpellTargetable(c,G[oppFaction].field));
       if(enemies.length>0){
         const target=enemies[Math.floor(Math.random()*enemies.length)];
         const targetId=target.id;
