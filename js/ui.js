@@ -1351,8 +1351,32 @@ function _playBattleBeginsText(){
 // в начале хода игрока, у которого колода пуста (см. _runTurnStartEffects() в game.js), с
 // количеством оставшихся ходов до поражения по истощению (fatigue win — жёстко 3 неудачных
 // попытки добора подряд/суммарно, см. cur.emptyDrawCount в endTurn()/game.js).
-function showDeckEmptyWarning(turnsLeft){
-  _playCenterBannerText(`NO CARDS LEFT! You lose in ${turnsLeft} more turn${turnsLeft===1?'':'s'}!`);
+//
+// БАГФИКС (2026-08-01, автор поймал живьём — играл за Jeet против ИИ Tea; у ИИ кончилась
+// колода, а баннер "NO CARDS LEFT! You lose in N more turns!" вылез на экран игрока, будто
+// это У НЕГО кончились карты). Причина: текст был написан под хотсит, где device-handoff
+// (showPassScreen()) гарантирует, что к моменту показа баннера на экране физически сидит
+// ИМЕННО тот игрок, чья колода опустела — "You lose" там всегда верно. В VS AI хэндоффа нет
+// вообще (см. showHandoff в endTurn()) — экран ВСЕГДА принадлежит человеку, независимо от
+// того, чей сейчас ход, так что тот же текст, показанный на старте ХОДА ИИ, читается как
+// "это у меня кончились карты", хотя на самом деле кончились у соперника (для человека это
+// хорошая новость — оппонент скоро проиграет по истощению). Сама игровая логика (чья именно
+// колода считается пустой, кому засчитывается emptyDrawCount) всегда была верной — баг был
+// чисто в формулировке баннера, теперь разделяем два случая по новому параметру faction
+// (G.turn на момент вызова, см. game.js) — генерируем разный текст:
+// - faction — это сам человек (или хотсит, где параметр де-факто не имеет значения выше) —
+//   текст не меняется, "You lose".
+// - faction — это ИИ-соперник в VS AI — текст меняется на "ENEMY OUT OF CARDS", с
+//   положительной для игрока формулировкой (они проигрывают, не он).
+// Спектаторский AI vs AI режим (G.spectatorMode) намеренно исключён из различения — там нет
+// настоящего "человека", G.humanFaction/G.aiFaction переворачиваются каждый ход чисто для
+// внутренней логики ИИ (см. её комментарий в endTurn()), общий текст там ничем не хуже.
+function showDeckEmptyWarning(turnsLeft, faction){
+  const isOpponentDeck = G.mode==='vsai' && !G.spectatorMode && faction && faction!==G.humanFaction;
+  const text = isOpponentDeck
+    ? `ENEMY OUT OF CARDS! They lose in ${turnsLeft} more turn${turnsLeft===1?'':'s'}!`
+    : `NO CARDS LEFT! You lose in ${turnsLeft} more turn${turnsLeft===1?'':'s'}!`;
+  _playCenterBannerText(text);
 }
 
 
