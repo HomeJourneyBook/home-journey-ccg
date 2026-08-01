@@ -59,6 +59,103 @@ Built with vanilla HTML/CSS/JS. Hosted on GitHub Pages. No build step required.
 
 -----
 
+## Альтернативная пара стартеров "Hollow Root vs Live Wire" — backlog под будущий
+## рандом-режим (2026-08-01, НЕ реализовано в коде, только задокументировано)
+
+**Контекст.** Автор попросил Клода самостоятельно собрать пару стартовых колод "сбалансированных
+и интересных в плане стратегий" — с разрешением ссылаться на ЛЮБЫЕ карты из первого минта
+коллекции (не только уже введённые в `data.js`) и даже придумывать новые теги/карты, если
+существующий словарь ощущался бы тесно. По факту готовых-но-не-в-Classic карт в `data.js`
+хватило с большим запасом (11-17 карт на комбинацию фракция+Врата, см. census ниже) — ничего
+нового придумывать не пришлось, весь дизайн — перекомбинация уже существующего пула.
+**Автор планирует позже отдельно продумать режим типа "рандом" (детали не обсуждались) — эта
+запись служит справочником-заготовкой для той будущей идеи, сама пара НЕ подключена к
+`DECK_CONFIGS`/деккбилдеру и не заменяет текущий Classic.**
+
+**Дизайн-решение:** вместо повтора нынешнего деления Tea/Jeet (оба фракции сейчас тяготеют к
+похожим "point-removal debuff" темам — burn у Tea, fear у Jeet) — собрана пара **control vs
+aggro**, максимально разные геймплены, с более настоящим стратегическим напряжением:
+
+- **TEA — "HOLLOW ROOT"** (сустейн/контроль): фаворит Dreegan(стены)+Mechird(vampiric/regen)+
+  Orbiton(heal). План: пережить раннее давление, дожать через размен ценности/ремувал.
+- **JEET — "LIVE WIRE"** (агро/темп): фаворит Umbasir(bolt-reach)+Szarg(голые статы)+
+  Xuiqtr(intercept-мидрейндж), сквозная тема Fear (SEEKER/OGNIVEN/HUNGER/SHARD — все четыре
+  завязаны на "бонус-урон/скейл от заференных вражеских существ", цельная под-синергия).
+
+**Состав TEA — HOLLOW ROOT (40 карт):**
+- Легендарки: ASLEX (c6, `on_own_death_base:1` — хилит базу за смерть СВОИХ существ, синергия
+  со смерть-триггерными картами ниже), TUBORG (c7, `aura:armor:1`+`untamed`)
+- Мир/Артефакт: DOMUS (t_w2, c6, +1 maxHP всем союзникам), STATUE (t_a2, c4, хил 1 всем каждый
+  свой ход)
+- **Dreegan×3** (floor, НЕ favored — см. историю тюнинга ниже): t_trvl14_w(c2,provoke),
+  t_trvl58_w(c2,provoke), t_trvl1_w(c3,provoke+death_heal:4)
+- **Mechird×6** (favored): t_trvl18_w(c2,pierce), t_trvl38_w(c3,pierce+vampiric),
+  t_trvl11_w(c3,pierce+death_heal:4), t_trvl17_w(c3,pierce+incarnation:4),
+  t_trvl860_g(c4,УНИК/золотой,pierce+vampiric+regen:3), t_trvl495_w(c4,pierce+ward+death_heal:4)
+- **Orbiton×6** (favored): t_trvl433_w(c1,heal:2/SELORA), t_trvl218_w(c2,heal:2),
+  t_trvl420_w(c3,heal:3+death_heal:4), t_trvl918_g(c3,УНИК/золотой,heal:5+untamed),
+  t_trvl57_w(c3,heal:3+untamed), t_trvl619_w(c4,heal:3+enter_draw:1)
+- Szarg×4: t_trvl870_w(c1), t_trvl28_w(c2), t_trvl55_w(c2), t_trvl1066_w(c4,regen+vanguard —
+  **63.4% WWP в тесте, тёплая, кандидат на полировку при реальном вводе**)
+- Umbasir×3: t_trvl45_w(c2,bolt:1), t_trvl6_w(c3,bolt:1+enter_draw:1),
+  t_trvl583_w(c4,bolt:1+regen+death_heal:4)
+- Xuiqtr×3: t_trvl39_w(c2,intercept), t_trvl951_w(c3,intercept+regen),
+  t_trvl402_w(c5,intercept+regen+vampiric)
+- Спеллы (11): GLIMPSE(c1), BULWARK(c1), EXPOSE(c1), ARCHIVE(c1), INSIGHT(c2), SANCTUARY(c3),
+  EXECUTE(c3), SHEN'S CALL(c3), FORGET-ME-NOT(c4), MULTITUDE(c4), VERDICT(c5)
+
+**Состав JEET — LIVE WIRE (40 карт):**
+- Легендарки: SEEKER (j_vard, c5, `invisible`+`atk_vs_feared:1`), OGNIVEN (j_terror, c6,
+  `enter_fear_all`+`fear`)
+- Мир/Артефакт: HUNGER (j_w1, c4, бонус-урон по Feared-целям), SHARD (j_a1, c5, активный болт,
+  скейлится от числа заференных врагов) — вместе с SEEKER/OGNIVEN четвёрка "fear-tax" карт
+- **Umbasir×5** (favored): j_trvl54_w(c1,bolt:1), j_trvl934_w(c2,bolt:1),
+  j_trvl4_w(c3,bolt:1+untamed), j_trvl550_w(c4,bolt:1+fear+death_armor:2),
+  j_trvl1032_w(c5,bolt:1+frost+death_armor:2)
+- **Szarg×5** (favored): j_trvl12_w(c1), j_trvl7_w(c2), j_trvl1008_w(c3,fear),
+  j_trvl25_w(c3,untamed), j_trvl1029_w(c4,frost+incarnation:4)
+- **Xuiqtr×5** (favored): j_trvl50_w(c2,intercept), j_trvl579_w(c3,intercept+fear),
+  j_trvl720_w(c3,intercept+draw_attack:1), j_trvl806_w(c4,intercept+vanguard+regen),
+  j_trvl704_w(c5,intercept+fear+shield)
+- Dreegan×3: j_trvl41_w(c2,provoke), j_trvl36_w(c3,provoke+untamed),
+  j_trvl859_w(c4,provoke+fear+vanguard)
+- Mechird×3: j_trvl724_w(c2,pierce), j_trvl1053_w(c3,pierce+frost),
+  j_trvl663_w(c4,pierce+fear+death_heal:4)
+- Orbiton×3: j_trvl170_w(c1,heal:2), j_trvl578_w(c1,heal:2), j_trvl457_w(c2,heal:2)
+- Спеллы (12): STING(c1), OMEN(c1), UNMASK(c1), DREAD(c2), DEATHBLOW(c2), MALICE(c2),
+  JEET WAVE(c2), CULL(c3), SHRAPNEL(c3), MAELSTROM(c4), NIGHTMARE(c5), RUPTURE(c5)
+
+**Все карты уже существовали в `data.js` до этой сессии** (census по пулу: 11-17
+карт/фракция/Врата) — ничего нового не вводилось, только перекомбинация квот в пользу
+контроль/агро вместо нынешнего "3 любимых Врат" burn/fear деления.
+
+**Тюнинг — 3 захода через `sim/headless.js` (N=3000 каждый), правки временно подставлялись
+в `CLASSIC_TEA/JEET_DECK` и откатывались после (реальный `deck.js` не тронут):**
+
+| Заход | Правка | Winrate TEA/JEET | Медиана |
+|---|---|---|---|
+| v1 (первый черновик) | Dreegan×5 favored + RECKONING+CATACLYSM (2 вайпа) + SUNDER | **72.6/27.4** — разгром | 14 |
+| v2 | убран RECKONING, урезана 1 стена Dreegan (5→4) | 60.6/39.4 — всё ещё вне коридора | 12 |
+| v3 (принятый состав выше) | Dreegan 5→**3** (провок — абсолютная механика, без обхода даже у pierce — против агро без evasion это оказалось слишком душащим на любой глубине favored), освобождённые слоты ушли в Mechird/Orbiton (+1/+1, лайфстил/хил вместо стен), убран SUNDER (ситуативный) | **49.2/50.8** ✅ в коридоре 45-55 | 12 |
+
+**Вывод по процессу:** первая версия провалилась НЕ из-за одной карты — WWP была системно
+~80% у КАЖДОЙ карты Tea и ~21% у КАЖДОЙ карты Jeet разом (не аутлайер, а архетипный перекос):
+провок-стены + плотный ремувал (2 вайпа + point removal) душили расу раньше, чем агро успевало
+раскрутиться. После урезания глубины Dreegan до floor-уровня (не убирая стены совсем — они
+всё ещё нужны для identity, просто не favored) колоды сошлись. После v3 top/bottom по WWP
+уже вперемешку из ОБЕИХ колод (не разбито по фракциям, как в v1/v2) — здоровый признак.
+
+**Известные огрехи, если/когда реально вводить в игру:**
+- TRAVELER #1066 (Tea Szarg, regen+vanguard) — 63.4% WWP, тёплая, стоит присмотреться при
+  реальном вводе (не обязательно чинить — единичный тёплый выброс на первом же прогоне,
+  та же картина была у топ-карт Classic на ранних итерациях, см. историю выше по файлу).
+- First-player winrate 57.3% в этой паре (выше идеала ~52-53%) — тот же известный открытый
+  вопрос, что и у обычного Classic (см. запись 2026-07-21), не специфично для этой пары.
+- Медиана 12 ходов — заметно быстрее Classic (16-17) — ожидаемо для честной агро/контроль
+  пары, не баг.
+
+-----
+
 ## Золотые путешественники — backlog ("эпопея", НЕ начинать без явного сигнала автора)
 
 **Лор/коллекция.** В коллекции есть 6 золотых путешественников, по 1 на каждый архетип
