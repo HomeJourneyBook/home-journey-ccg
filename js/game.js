@@ -3423,7 +3423,7 @@ function _runTurnStartEffects(){
         // геймдизайн-нюанс, см. showDeckEmptyWarning()/ui.js) — только если ЭТА попытка ещё
         // не добила до проигрыша (тот случай ниже уже показывает свою модалку победы).
         if(cur.emptyDrawCount<3 && typeof showDeckEmptyWarning==='function'){
-          showDeckEmptyWarning(3-cur.emptyDrawCount);
+          showDeckEmptyWarning(3-cur.emptyDrawCount, G.turn);
         }
         if(cur.emptyDrawCount>=3 && !G.gameOver){
           G.gameOver=true;
