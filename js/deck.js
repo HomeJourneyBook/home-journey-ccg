@@ -14,14 +14,21 @@
 //            deckbuilder (js/deckbuilder.js) by picking quantities out of the
 //            SAME pool `classic` uses (see getRushPool() below). Deck size is now
 //            EXACT, not just a floor (2026-07-24, по прямому запросу автора: "минимум
-//            и максимум чтоб было 35 карт") — RUSH_MIN and RUSH_MAX are both 35;
+//            и максимум чтоб было 35 карт") — RUSH_MIN and RUSH_MAX were both 35;
 //            dbSetQty() in deckbuilder.js caps additions at the total, and the
-//            Next/Start button only enables at exactly 35. The AI's own deck in vsAI
+//            Next/Start button only enables at exactly RUSH_MIN. The AI's own deck in vsAI
 //            Rush games is no longer a random sample of the pool (see buildAiRushDeck()
 //            below, now unused by deckbuilder.js but left intact) — it plays the same
 //            curated Classic deck as Classic mode (buildDeck(ai,'classic')).
-const RUSH_MIN = 35;
-const RUSH_MAX = 35;
+//            2026-08-01 (по прямому запросу автора, вслед за Classic 35→40 в этой же
+//            сессии — см. чат/архетипный разбор выше): RUSH_MIN/RUSH_MAX подняты 35→40 в
+//            паре с Classic, чтобы дековый лимит не разъезжался между режимами (Rush и
+//            так всегда следовал за Classic по пулу карт — getRushPool() читает ИЗ ТОГО ЖЕ
+//            DEFS, что и Classic-срез, см. её комментарий ниже). Ничего в самой логике
+//            dbSetQty()/_dbTotal()/UI-подписи "Selected: X / RUSH_MIN" трогать не пришлось —
+//            всё уже читает константу, а не хардкод.
+const RUSH_MIN = 40;
+const RUSH_MAX = 40;
 
 // Копии каждого спелла в Classic — раньше было плоских 3 копии на все 13 спеллов сразу
 // (39/фракция), теперь подобрано по значимости для темы Врат (2026-07-18, по прямому
@@ -162,6 +169,23 @@ const CLASSIC_TEA_DECK = [
   't_trvl870_w','t_trvl890_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl692_w',
   't_trvl31_w','t_trvl921_w','t_trvl972_w','t_trvl495_w','t_trvl1034_w','t_trvl6_w',
   't_trvl250_w','t_trvl28_w','t_trvl39_w','t_trvl1015_w',
+  // ── ЭКСПЕРИМЕНТ 35→40, раунд 2 (2026-08-01, кандидат для сравнительного прогона
+  // sim/headless.js, см. чат — НЕ синхронизировано с Rush-деккбилдером, НЕ финальное
+  // решение). Раунд 1 (см. git-history/чат) добавлял t_trvl607_w (Mechird cost5,
+  // draw_attack+remember) — 71.2% WWP на N=3000, разогнал Tea до 55.7/44.3, вне коридора.
+  // Убран по прямому запросу автора. Теперь ровно 4 тела (столько и нужно, чтобы у
+  // Umbasir/Orbiton/Mechird стало по 3 — сквад-минимум) + 5-е — NABUNAGI (легендарка,
+  // была не в Classic). Приоритет при выборе конкретной карты внутри архетипа — sustain-
+  // теги (regen/vampiric/death_heal), по прямому запросу автора: Mechird и так
+  // тематически "regen+vampiric" (см. CLAUDE.md, золотые путешественники), но до этого
+  // раунда в Classic не было НИ ОДНОЙ vampiric и НИ ОДНОЙ regen карты в принципе (только
+  // 1 death_heal на Mechird, у Tea в целом). Дважды принесло гарантированную выгоду: сам
+  // сквад-минимум и заодно лечит эту дыру.
+  't_trvl45_w',  // Umbasir cost2 (bolt:1, ваниль) — Umbasir 1→2, дешёвый filler
+  't_trvl583_w', // Umbasir cost4 (bolt:1+regen+death_heal:4) — Umbasir 2→3, sustain-пик вместо снятого cost5 burn (#387, тоже был тёплый 59.9% WWP в раунде 1)
+  't_trvl218_w', // Orbiton cost2 (heal:2) — Orbiton 2→3, уже в струю (Orbiton и так heal-архетип)
+  't_trvl38_w',  // Mechird cost3 (pierce+vampiric) — Mechird 2→3, первая vampiric-карта в Tea Classic вообще
+  't_nab',       // NABUNAGI (unique, bushido+armor:1, cost8) — 5-й слот, не было в Classic. ВНИМАНИЕ: у карты своя история балансировки (56-66% WWP на разных срезах статов до текущей atk2/hp8/armor:1) — эта версия последняя протестированная, но не факт что холодная именно в ЭТОЙ колоде, сверить по прогону.
   't_sp23','t_sp10','t_sp20','t_sp17',
   't_sp14','t_sp14','t_sp13','t_sp16','t_sp24','t_sp6','t_sp12','t_sp26','t_sp22','t_sp18','t_sp27',
 ];
@@ -171,6 +195,15 @@ const CLASSIC_JEET_DECK = [
   'j_trvl971_w','j_trvl740_w','j_trvl41_w','j_trvl27_w','j_trvl50_w','j_trvl1008_w',
   'j_trvl523_w','j_trvl579_w','j_trvl36_w','j_trvl434_w','j_trvl859_w','j_trvl663_w',
   'j_trvl578_w','j_trvl359_w','j_trvl53_w','j_trvl901_w',
+  // ── ЭКСПЕРИМЕНТ 35→40, раунд 2 — та же логика, что у Tea выше, зеркально по слабым
+  // архетипам Jeet (Umbasir/Mechird/Xuiqtr). Раунд 1 добавлял j_trvl128_w (Mechird
+  // cost5, draw_attack+incarnation:4) — 58.7% WWP, тоже тёплая, снята вместе с Tea-
+  // парой ради симметрии решения (не потому что сама по себе была вне коридора).
+  'j_trvl934_w', // Umbasir cost2 (bolt:1, ваниль) — Umbasir 1→2, дешёвый filler
+  'j_trvl133_w', // Umbasir cost4 (bolt:1+mek+regen) — Umbasir 2→3, sustain-пик вместо снятого cost5 shield/ward (#248)
+  'j_trvl804_w', // Mechird cost3 (pierce+regen) — Mechird 2→3, первая regen-карта в Jeet Classic вообще (вместо cost2 #724 ваниль из раунда 1)
+  'j_trvl3_w',   // Xuiqtr cost3 (intercept+vampiric) — Xuiqtr 2→3, не менялось с раунда 1 — уже был лучший sustain-пик в архетипе
+  'j_phleg',     // PHLEGMOR (unique, raise:1 — некромантия/воскрешение, cost8) — 5-й слот, не было в Classic. Та же оговорка про историю балансировки, что у NABUNAGI — последний срез (atk2/hp8) в изолированных тестах всё ещё держался 56-59.7% WWP, не факт что холодная.
   'j_sp23','j_sp10','j_sp20','j_sp17',
   'j_sp14','j_sp14','j_sp1','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp2','j_sp27','j_sp22',
 ];
