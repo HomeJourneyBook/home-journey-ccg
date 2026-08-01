@@ -401,6 +401,44 @@ function onClick(card,zone){
 // spell-cast-out-анимацию (см. isPlainInstantSpell в doPlay()).
 const TARGETED_SPELL_TAGS = ['spell_dmg_target','spell_buff_temp','spell_armor_temp','spell_dispel','spell_untap','spell_bounce_target','spell_bounce_ally_target','spell_provoke_break_target','spell_dmg_trample_target','spell_destroy_target','spell_burn_target','spell_fear_target','spell_execute_half'];
 
+// БАГФИКС (2026-08-01, "ИИ виснет намертво после SHRAPNEL/SCATTERSHOT" — автор поймал
+// живьём, повторно, ПОСЛЕ уже нескольких предыдущих заходов на эту же тему).
+//
+// Настоящая причина, которую предыдущие попытки не трогали: G._pendingInstantSpellResolve
+// (см. её комментарий у doPlay()/endTurn()) корректно защищает ПЕРЕКЛЮЧЕНИЕ ХОДА (endTurn()
+// ждёт, пока счётчик не опустеет), но НИЧЕГО не защищало продолжение самого AI-степ-цикла
+// (aiPlayCardsStep() в ai.js) — все три места ниже, где раньше стояло голое
+// `if(typeof afterResolve==='function') afterResolve();`, звали колбэк СРАЗУ по факту
+// СИНХРОННОГО возврата из _resolvePlayedCard(), а не по факту реального завершения эффекта
+// карты. Для большинства карт разницы нет (эффект и правда резолвится синхронно). Но
+// random_spread (SHRAPNEL/SCATTERSHOT) специально бросает 3 снаряда ОДИН ЗА ДРУГИМ с
+// задержкой (см. case 'random_spread', abilities.js, ~1.5-2с суммарно на весь залп) —
+// _resolvePlayedCard() успевает лишь ЗАПУСТИТЬ эту очередь (fireShot(0)) и тут же
+// возвращается, оставляя G._pendingInstantSpellResolve>0 ещё почти на две секунды. Старый
+// код в этот момент уже звал afterResolve() → aiPlayCardsStep(iter+1) (ai.js) уходил в
+// следующую карту/фазу атаки, ПОКА Shrapnel ещё реально бил по G[oppK].field где-то в
+// глубине setTimeout-цепочки — та же гонка, что теоретически есть и у Bolt-спеллов (JAB/
+// STING/SPARK/MALICE/EXECUTE/CULL, doBoltTarget) и spellDmgTarget-цепочек, просто у них
+// залп из одного снаряда и окно гонки настолько узкое (420мс), что почти никогда не
+// успевало реально сломаться — у Shrapnel окно почти в 2 секунды, ловится стабильно.
+// Симулятор (sim/headless.js) эту гонку в принципе не может поймать — там весь каскад
+// setTimeout-колбэков выполняется синхронно одной очередью без реальных задержек (см.
+// makeSandbox() в headless.js), поэтому "next step после afterResolve" там всегда честно
+// идёт ПОСЛЕ того, как все внутренние setTimeout уже отработали — гонки просто нет, только
+// в реальном браузере с настоящими таймерами.
+// Фикс: тот же поллинг-паттерн (100мс, до 50 попыток = 5с потолок), что уже был у
+// endTurn() — просто теперь применяется и к afterResolve() тоже, а не только к
+// переключению G.turn. Раз счётчик общий (используется ЛЮБЫМ отложенным эффектом карты,
+// не только Shrapnel), это закрывает весь класс гонки разом, а не только этот один спелл.
+function deferAfterResolve(afterResolve, tries){
+  if(typeof afterResolve!=='function') return;
+  if(G._pendingInstantSpellResolve>0 && (tries||0)<50){
+    setTimeout(()=>deferAfterResolve(afterResolve,(tries||0)+1),100);
+    return;
+  }
+  afterResolve();
+}
+
 function doPlay(card, afterResolve){
   const cur=G[G.turn];
   if(cur.ess<card.cost){lg(`Not enough essence — need ${card.cost}, have ${cur.ess}.`,'hint');if(typeof afterResolve==='function')afterResolve();return;}
@@ -447,7 +485,7 @@ function doPlay(card, afterResolve){
       } catch(e){
         console.error('Spell resolution failed (AI reveal path):', card.name, e);
       } finally {
-        if(typeof afterResolve==='function') afterResolve();
+        deferAfterResolve(afterResolve);
       }
     });
     return;
@@ -504,7 +542,7 @@ function doPlay(card, afterResolve){
         } finally {
           G._pendingInstantSpellResolve--;
         }
-        if(typeof afterResolve==='function') afterResolve();
+        deferAfterResolve(afterResolve);
       }, 450);
       return;
     }
@@ -514,7 +552,7 @@ function doPlay(card, afterResolve){
 
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   _resolvePlayedCard(card);
-  if(typeof afterResolve==='function') afterResolve();
+  deferAfterResolve(afterResolve);
 }
 
 // Вынесено из doPlay() (2026-07-19) — сама логика "что происходит при розыгрыше карты"
