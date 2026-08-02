@@ -1738,8 +1738,21 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .opp-hand-zone.tea{background:url('../img/bg_handO_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .opp-hand-zone.jeet{background:url('../img/bg_handO_bar_jeet.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .field-zone{border:1px solid #80808080;background:transparent;overflow:visible;display:flex;flex-direction:column;position:relative;z-index:0;padding:2px;}
-#oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;}
-#playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;}
+/*── Резиновая арена (2026-08-02, по прямому запросу автора — под END TURN оставалась
+    пустая полоса ~6vh, потому что все ОСТАЛЬНЫЕ секции .game — header/stats-bar×2/
+    opp-hand/player-hand/bottom-bar — фиксированной высоты, а .field-zone только
+    min-height:20vh без flex:1, так что при сумме < 100vh остаток просто повисал внизу
+    (.game{min-height:100vh}, дети паkуются от начала, flex-grow ни у кого не стоял).
+    flex:1 здесь — не "запас на будущее", а буквально более короткий путь к результату:
+    не нужно руками высчитывать точное число под конкретные пропорции экрана (и оно бы
+    всё равно поехало на очень широких мониторах — у .header формула max(5vh,2.5vw,40px),
+    на ультравайде vw-слагаемое перевешивает vh и шапка становится выше, чем на iPad/
+    лаптопе, так что фикс-число, подогнанное под один экран, на другом бы снова оставило
+    щель). flex:1 гарантированно дотягивает до края при любых пропорциях, без вычислений.
+    min-height:20vh оставлен как подстраховка снизу (не даст полю схлопнуться меньше
+    прежнего, даже если flex почему-то даст 0). ──*/
+#oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;flex:1;}
+#playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;flex:1;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
 .player-hand-zone.tea{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
