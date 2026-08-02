@@ -1586,57 +1586,57 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
 .card-actions-popup:has(.cap-no-ess){width:var(--card-w);}
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
-/*── Поле боя — 6 карт в ряд без переноса, ТОЛЬКО портрет (2026-08-02, по прямому запросу
-    автора). Существа на battlefield рендерятся классом .card-small (см. render.js,
-    drawSmallCard() — "рисует МАЛЕНЬКУЮ карту, это ВСЕ существа на боевом поле, и только
-    они"), который читает --card-small-h/--card-small-w/и т.д., а НЕ --card-h/--card-w —
-    те относятся к руке/деккбилдеру/детальному просмотру.
-    ДВЕ живые проверки через Playwright ДО отправки автору, обе поймали реальные баги:
-    1) первая версия трогала --card-h вместо --card-small-h — ничего не меняла на поле.
-    2) вторая версия переопределяла ТОЛЬКО --card-small-h на .battlefield и словила
-       известную особенность каскада CSS custom properties: var() ВНУТРИ значения другой
-       custom-переменной резолвится в МОМЕНТ ОБЪЯВЛЕНИЯ этой переменной (здесь — только в
-       :root), а не лениво у каждого потомка. Раз --card-small-w/-art-h/-name-h/-stats-h/
-       -name-fs/-stat-fs объявлены ТОЛЬКО в :root как calc(var(--card-small-h) * N), их
-       .card-small ВСЕГДА наследует уже посчитанными от :root'овского --card-small-h, а не
-       пересчитывает от локального переопределения на .battlefield — реальная ширина карты
-       не менялась, хотя сама --card-small-h читалась верно. Тот же паттерн, что уже
-       использует .cat-card/.db-stack выше по файлу (полный набор производных
-       переобъявляется РАЗОМ в одном месте) — просто до сих пор не понадобился для
-       .battlefield, вот и не был очевиден с первого взгляда.
-    Оба порога посчитаны по россыпи реальных устройств (макс. H, при котором 6×card+5×4px
-    зазор ещё влезают в ширину .battlefield ≈ ширина экрана − 4px паддинга у .field-zone —
-    НЕ тот "отступ", что казался на скриншоте автора, там было просто нецентрированное
-    свободное место вокруг 4 карт, не реальное сужение контейнера):
-      телефоны (iPhone SE/13/14 Pro Max, Pixel 7, Galaxy S20) — жёстче всего Galaxy S20
-      360×800 ⇒ порог 8.18vh, взял 8vh с небольшим запасом.
-      планшеты-портрет (iPad mini/обычный/Air/Pro 11/Pro 12.9) — жёстче всего iPad mini
-      744×1133 ⇒ порог 12.37vh, взял 12vh с небольшим запасом.
-    Два медиа-запроса — тот же порог "телефон / планшет-портрет", что уже используется по
-    всему файлу (601px = не телефон по ширине, 1024px = ширина iPad Pro 12.9" в портрете,
-    orientation:portrait — чтобы повёрнутый в landscape телефон/планшет НЕ попадал под
-    правило). Без query вообще (лаптоп/десктоп) и обычный landscape — все card-small-*
-    остаются дефолтными (18vh-базой), ничего не меняется. ──*/
+/*── Поле боя — ТОЛЬКО портрет, раунд 2 (2026-08-02, по прямому запросу автора — раунд 1
+    (6 карт в ряд без переноса) в реальной партии дал крошечные карты И при этом гигантские
+    пустые поля вокруг них: после отдельной правки #oppFieldZone/#playerFieldZone{flex:1}
+    (см. её собственный комментарий выше в файле) зона тянется на всю доступную высоту
+    независимо от числа карт, а раунд-1 карты всегда были ровно 1 строкой — при 1-2 картах
+    на поле это выглядело как одинокая мелкая строка посреди пустоты.
+    Новая раскладка: 3 карты в ряд, перенос до 2 рядов (макс. 6 карт/сторону — жёсткий
+    потолок игры) — карты крупнее, и при заполненном поле реально используют высоту,
+    которую и так дала flex:1-резинка, а не пустуют вокруг мелкой строки.
+    РАЗМЕР посчитан от ВЫСОТЫ, не от ширины — на этот раз ширина не узкое место (3 в ряд
+    много места не просят), узкое место — высота: сколько вообще есть под ОБЕ зоны разом
+    (100vh минус все фиксированные секции — шапка/статы×2/руки×2/бар), поделить пополам
+    (обе зоны тянутся flex:1 поровну в худшем симметричном случае — ОБЕ стороны одновременно
+    забиты по 6, 2 полных ряда с каждой) и на 2 ряда:
+      телефон (замер iPhone13 390×844, фикс.секции 55.08vh): (100-55.08)/2/2 ≈ 10.58vh
+      потолок → взял 10vh с запасом.
+      планшет (замер iPad mini 744×1133, худший случай, фикс.секции 54vh): (100-54)/2/2 ≈
+      10.85vh потолок → взял 10.5vh с запасом.
+    (Для сравнения: чистый лимит по ШИРИНЕ на 3 в ряд — ~17vh телефон / ~25vh планшет,
+    то есть высота тут жёстче в 1.5-2 раза — при таком размере по ширине спокойно влезло бы
+    5, а не 3, поэтому ниже ЯВНО ограничен max-width у .battlefield ровно под 3 карты +
+    2 зазора — без этого перенос сработал бы на 5-6й карте, а не на 4й, и 6 карт легли бы
+    кривым 5+1 вместо 3+3.) align-self:center — .field-zone{display:flex;flex-direction:
+    column} по умолчанию растягивает детей на всю ширину (align-items:stretch), без этого
+    урезанный по max-width .battlefield прилип бы к левому краю вместо центра.
+    Гарантированно без скролла ДАЖЕ в упомянутом худшем случае (6+6 карт разом) — именно
+    поэтому размер и считался от высоты, а не от того, что покрасивее на глаз. ──*/
 @media(max-width:600px) and (orientation:portrait){
   .battlefield{
-    --card-small-h: 8vh;
-    --card-small-w: calc(8vh * 0.856);
-    --card-small-art-h: calc(8vh * 0.622);
-    --card-small-name-h: calc(8vh * 0.133);
-    --card-small-stats-h: calc(8vh * 0.122);
-    --card-small-name-fs: calc(8vh * 0.1);
-    --card-small-stat-fs: calc(8vh * 0.15);
+    --card-small-h: 10vh;
+    --card-small-w: calc(10vh * 0.856);
+    --card-small-art-h: calc(10vh * 0.622);
+    --card-small-name-h: calc(10vh * 0.133);
+    --card-small-stats-h: calc(10vh * 0.122);
+    --card-small-name-fs: calc(10vh * 0.1);
+    --card-small-stat-fs: calc(10vh * 0.15);
+    max-width: calc(3 * var(--card-small-w) + 8px);
+    align-self: center;
   }
 }
 @media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
   .battlefield{
-    --card-small-h: 12vh;
-    --card-small-w: calc(12vh * 0.856);
-    --card-small-art-h: calc(12vh * 0.622);
-    --card-small-name-h: calc(12vh * 0.133);
-    --card-small-stats-h: calc(12vh * 0.122);
-    --card-small-name-fs: calc(12vh * 0.1);
-    --card-small-stat-fs: calc(12vh * 0.15);
+    --card-small-h: 10.5vh;
+    --card-small-w: calc(10.5vh * 0.856);
+    --card-small-art-h: calc(10.5vh * 0.622);
+    --card-small-name-h: calc(10.5vh * 0.133);
+    --card-small-stats-h: calc(10.5vh * 0.122);
+    --card-small-name-fs: calc(10.5vh * 0.1);
+    --card-small-stat-fs: calc(10.5vh * 0.15);
+    max-width: calc(3 * var(--card-small-w) + 8px);
+    align-self: center;
   }
 }
 .stats-bar{position:relative;z-index:0;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
