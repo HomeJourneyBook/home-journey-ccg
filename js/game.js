@@ -3742,7 +3742,12 @@ function _applyPendingFlash(){
         setTimeout(()=>edge.classList.remove('flash-red','flash-green'), 500);
       }
       if(type==='dmg'){
-        [document.getElementById('playerHandZone'), bar]
+        // arenaGravePairPlayer/arenaDeckPairPlayer (2026-08-04, по прямому запросу
+        // автора — "раз уж мы теперь видим боксы кладбища/деки как часть интерфейса,
+        // можно завязать их на шейк при ударе по базе"): те же боксы, что сидят
+        // вплотную к playerStats снизу/сверху колонки — трясутся вместе с рукой/статбаром.
+        [document.getElementById('playerHandZone'), bar,
+         document.getElementById('arenaGravePairPlayer'), document.getElementById('arenaDeckPairPlayer')]
           .forEach(el=>{
             if(!el) return;
             el.classList.remove('zone-shake');
@@ -3755,7 +3760,8 @@ function _applyPendingFlash(){
       // THE OPPONENT's base took damage (viewer just landed a hit on them) —
       // their zones nudge UP instead of down, no red screen-edge glow (it's
       // not a threat to the viewer, just feedback that the hit landed).
-      [document.getElementById('oppHandZone'), bar]
+      [document.getElementById('oppHandZone'), bar,
+       document.getElementById('arenaGravePairOpp'), document.getElementById('arenaDeckPairOpp')]
         .forEach(el=>{
           if(!el) return;
           el.classList.remove('zone-shake-up');
