@@ -3120,18 +3120,13 @@ function openGraveModal(faction){
     });
   }
 
-  const btnId = faction==='tea' ? 'teaBottomBar' : 'jeetBottomBar';
-  const bar = document.getElementById(btnId);
-  const graveBtn = bar ? bar.querySelector('.btn-graveyard') : null;
-  const innerModal = modal.querySelector('.grave-modal');
-  if(graveBtn && innerModal){
-    const r = graveBtn.getBoundingClientRect();
-    innerModal.style.left   = r.left + 'px';
-    innerModal.style.bottom = (window.innerHeight - r.top + 14) + 'px';
-    innerModal.style.top    = '';
-    graveBtn.classList.add('open'); // ← добавь
-  }
+  // Подсветка кнопки, открывшей это кладбище (2026-08-03: раньше модалка ещё и физически
+  // прилипала к этой кнопке через left/bottom — по прямому запросу автора теперь просто
+  // центрируется как обычная модалка через родительский .modal-overlay (см. index.html),
+  // кнопка только подсвечивается классом .open, как и раньше).
+  document.querySelectorAll('.arena-grave-btn').forEach(b=>b.classList.toggle('open', b.dataset.faction===faction));
 
+  const innerModal = modal.querySelector('.grave-modal');
   modal.classList.remove('hidden');
   if(innerModal){
     innerModal.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
@@ -3141,7 +3136,7 @@ function openGraveModal(faction){
 }
 
 function closeGraveModal(){
-  document.querySelectorAll('.btn-graveyard').forEach(b=>b.classList.remove('open'));
+  document.querySelectorAll('.arena-grave-btn').forEach(b=>b.classList.remove('open'));
   const modal=document.getElementById('graveModal');
   const inner=modal.querySelector('.grave-modal');
   const finish=()=>modal.classList.add('hidden');
@@ -3552,10 +3547,10 @@ document.addEventListener('keydown',(e)=>{
 
   if(document.getElementById('game')&&document.getElementById('game').style.display!=='none'){
     e.preventDefault();
-    const teaBB=document.getElementById('teaBottomBar');
-    const jeetBB=document.getElementById('jeetBottomBar');
-    if(teaBB&&teaBB.style.display!=='none') endTurn();
-    else if(jeetBB&&jeetBB.style.display!=='none') endTurn();
+    const teaBtn=document.getElementById('teaEndTurnBtn');
+    const jeetBtn=document.getElementById('jeetEndTurnBtn');
+    if(teaBtn&&teaBtn.style.display!=='none') endTurn();
+    else if(jeetBtn&&jeetBtn.style.display!=='none') endTurn();
   }
 });
 
@@ -3747,7 +3742,7 @@ function _applyPendingFlash(){
         setTimeout(()=>edge.classList.remove('flash-red','flash-green'), 500);
       }
       if(type==='dmg'){
-        [document.getElementById('playerHandZone'), bar, document.getElementById(targetFaction+'BottomBar')]
+        [document.getElementById('playerHandZone'), bar]
           .forEach(el=>{
             if(!el) return;
             el.classList.remove('zone-shake');
@@ -3760,7 +3755,7 @@ function _applyPendingFlash(){
       // THE OPPONENT's base took damage (viewer just landed a hit on them) —
       // their zones nudge UP instead of down, no red screen-edge glow (it's
       // not a threat to the viewer, just feedback that the hit landed).
-      [document.getElementById('oppHandZone'), bar, document.getElementById(targetFaction+'BottomBar')]
+      [document.getElementById('oppHandZone'), bar]
         .forEach(el=>{
           if(!el) return;
           el.classList.remove('zone-shake-up');
