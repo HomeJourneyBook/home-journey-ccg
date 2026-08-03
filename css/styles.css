@@ -39,6 +39,16 @@
   --modal-h2-fs: calc(var(--modal-border-w) * 22 / 54);
   --color-cream: #E8E0C8;
   --jeet-main: #08050A;
+  /* Ширина боковых колонок арены (2026-08-03) — План Б из обсуждения с автором: колонка
+     ФИКСИРОВАННОЙ ширины (не "сколько там останется от карт"), карты подстраиваются под
+     то, что осталось (см. max-width у .battlefield выше/ниже). 8vh с потолком 96px и полом
+     56px — на самом тесном проверенном случае (телефон-портрет, мёртвая зона ~76-83px)
+     остаётся зазор в 8-16px между колонкой и картами; на широких/landscape-экранах
+     сознательно НЕ растёт вместе с гигантской свободной мёртвой зоной (там её как раз
+     с большим запасом) — предсказуемый размер под один комплект арта на все экраны.
+     Автор рисует новый арт под эту ширину — если понадобится другое число, менять только
+     здесь. */
+  --arena-col-w: clamp(56px, 8vh, 96px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
 html{overflow-x:hidden;width:100%;}
@@ -1014,7 +1024,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .modal-icon-btn.btn-back:active{background-image:url('../img/btn_back2.png');filter:brightness(1);transform:none;}
 .modal-icon-btn.btn-clear:hover{background-image:url('../img/btn_cleanH.png');filter:brightness(1);}
 .modal-icon-btn.btn-clear:active{background-image:url('../img/btn_clean2.png');filter:brightness(1);transform:none;}
-.log-panel{position:fixed;top:44px;right:14px;width:320px; background:transparent; border-style:solid; border-width:20px; border-image-source:url('../img/log_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; z-index:650;display:none; filter:drop-shadow(0 4px 20px #000000aa);}
+/*── Лог-панель (2026-08-03, по прямому запросу автора): раньше сама была position:fixed,
+   прибита в правый верхний угол, закрывалась только по крестику. Теперь обёрнута в
+   #logOverlay (.modal-overlay — тот же паттерн, что у GRAVEYARD MODAL: fixed+flex-центр
+   на весь экран, klик по фону = закрыть) — сама панель просто блок нормального размера
+   внутри центрированного оверлея, без своего fixed/z-index/top/right. ──*/
+.log-panel{width:320px; background:transparent; border-style:solid; border-width:20px; border-image-source:url('../img/log_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; filter:drop-shadow(0 4px 20px #000000aa);}
 .log-panel.open{display:block;}
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
@@ -1162,7 +1177,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Бокс с кнопками модалок (confirm/win/mulligan/pass) ──────────────────*/
 .modal-footer{align-self:center; width:auto; background:transparent; border-style:solid; border-width:var(--modal-footer-border-w); border-image-source:url('../img/bg_jest2.png'); border-image-slice:14 fill; border-image-width:var(--modal-footer-border-w); border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; padding:0; display:flex; gap:var(--modal-footer-border-w); justify-content:center; align-items:center;}
 /*── Graveyard modal — рамка и хедер как у battle log ────────────────*/
-.grave-modal{position:fixed; box-sizing:border-box; width:min(calc(2 * var(--card-w) + 44px), 92vw); max-height:65vh; overflow-y:hidden; background:#0a0a12; border-style:solid; border-width:20px; border-image-source:url('../img/grav_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; padding:0; pointer-events:all; z-index:650; display:flex; flex-direction:column; filter:drop-shadow(0 4px 20px #000000aa);}
+.grave-modal{position:relative; box-sizing:border-box; width:min(calc(2 * var(--card-w) + 44px), 92vw); max-height:65vh; overflow-y:hidden; background:#0a0a12; border-style:solid; border-width:20px; border-image-source:url('../img/grav_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; padding:0; pointer-events:all; z-index:650; display:flex; flex-direction:column; filter:drop-shadow(0 4px 20px #000000aa);}
 .grave-modal-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_grav.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex; justify-content:center; align-items:center; padding:0 8px; position:relative; flex-shrink:0;}
 .grave-close-btn{position:absolute; right:6px;top:50%;transform:translateY(-50%); background-image:url('../img/btn_X.png'); background-size:100% 100%; background-color:transparent; border:none;padding:0; width:max(calc(5vh * 0.798), calc(2.5vw * 0.798));height:max(calc(5vh * 0.798), calc(2.5vw * 0.798)); font-size:0;line-height:0; cursor:pointer;}
 .grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
@@ -1563,55 +1578,40 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
 .card-actions-popup:has(.cap-no-ess){width:var(--card-w);}
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
-/*── Поле боя — ТОЛЬКО портрет, раунд 2 (2026-08-02, по прямому запросу автора — раунд 1
-    (6 карт в ряд без переноса) в реальной партии дал крошечные карты И при этом гигантские
-    пустые поля вокруг них: после отдельной правки #oppFieldZone/#playerFieldZone{flex:1}
-    (см. её собственный комментарий выше в файле) зона тянется на всю доступную высоту
-    независимо от числа карт, а раунд-1 карты всегда были ровно 1 строкой — при 1-2 картах
-    на поле это выглядело как одинокая мелкая строка посреди пустоты.
-    Новая раскладка: 3 карты в ряд, перенос до 2 рядов (макс. 6 карт/сторону — жёсткий
-    потолок игры) — карты крупнее, и при заполненном поле реально используют высоту,
-    которую и так дала flex:1-резинка, а не пустуют вокруг мелкой строки.
-    РАЗМЕР посчитан от ВЫСОТЫ, не от ширины — на этот раз ширина не узкое место (3 в ряд
-    много места не просят), узкое место — высота: сколько вообще есть под ОБЕ зоны разом
-    (100vh минус все фиксированные секции — шапка/статы×2/руки×2/бар), поделить пополам
-    (обе зоны тянутся flex:1 поровну в худшем симметричном случае — ОБЕ стороны одновременно
-    забиты по 6, 2 полных ряда с каждой) и на 2 ряда:
-      телефон (замер iPhone13 390×844, фикс.секции 55.08vh): (100-55.08)/2/2 ≈ 10.58vh
-      потолок → взял 10vh с запасом.
-      планшет (замер iPad mini 744×1133, худший случай, фикс.секции 54vh): (100-54)/2/2 ≈
-      10.85vh потолок → взял 10.5vh с запасом.
-    (Для сравнения: чистый лимит по ШИРИНЕ на 3 в ряд — ~17vh телефон / ~25vh планшет,
-    то есть высота тут жёстче в 1.5-2 раза — при таком размере по ширине спокойно влезло бы
-    5, а не 3, поэтому ниже ЯВНО ограничен max-width у .battlefield ровно под 3 карты +
-    2 зазора — без этого перенос сработал бы на 5-6й карте, а не на 4й, и 6 карт легли бы
-    кривым 5+1 вместо 3+3.) align-self:center — .field-zone{display:flex;flex-direction:
-    column} по умолчанию растягивает детей на всю ширину (align-items:stretch), без этого
-    урезанный по max-width .battlefield прилип бы к левому краю вместо центра.
-    Гарантированно без скролла ДАЖЕ в упомянутом худшем случае (6+6 карт разом) — именно
-    поэтому размер и считался от высоты, а не от того, что покрасивее на глаз. ──*/
-@media(max-width:600px) and (orientation:portrait){
+/*── Поле боя — ТОЛЬКО портрет, раунд 3 (2026-08-03, по прямому запросу автора — убрали
+    bottom-bar (7vh) целиком, кнопки кладбища/колоды/лога/конца хода переехали в боковые
+    колонки арены (.arena-col, см. ниже), которые лежат ПОВЕРХ уже существующей "мёртвой
+    зоны" по краям .battlefield — сама раскладка карт (3 в ряд, до 2 рядов, макс 6/сторону)
+    не изменилась, подробный разбор форм improve см. в истории раунда 2 выше по файлу.
+    ЕДИНОЕ правило вместо двух с разрывом (2026-08-02 версия жила только в max-width:600
+    И 601-1024 — портретные окна ШИРЕ 1024px (напр. iPad Pro в вертикальной раскладке,
+    или просто высокое-но-широкое окно десктопа) проваливались в НЕограниченный дефолт
+    (плоские 18vh, без max-width) и реально уезжали в скролл на 6+6 картах — баг, пойманный
+    и подтверждённый живьём (Playwright, 1080×1400/1200×1800, scrollHeight>viewport),
+    существовавший независимо от bottom-bar. Убрали верхнюю границу диапазона совсем —
+    (orientation:portrait) без max-width покрывает всю портретную ширину разом.
+    ЧИСЛО (10.6vh вместо 10/10.5vh): формула та же (свободная высота под обе зоны /2/2),
+    просто теперь без 7vh bottom-bar в фиксированных секциях — НЕ наивные +1.75vh (это
+    давало реальный скролл на практике, см. живой замер), а перепроверенный бинарным
+    поиском по факту рендера потолок БЕЗ скролла на референсном iPhone13 390×844: 10.6vh.
+    Одно и то же число безопасно на ВСЁМ портретном диапазоне (не только на телефоне) —
+    короткие секции (шапка/руки/статы) все на vh, так что процент почти не плывёт с
+    ростом экрана, а на более высоких экранах (планшет и выше) фиксированный px-оверхед
+    (бордеры/паддинги/gap) съедает ещё МЕНЬШУЮ долю vh, чем на телефоне — т.е. 10.6vh
+    можно было бы даже чуть поднять отдельно для планшета, но автор попросил сначала
+    собрать лэйаут, тонкая подстройка — потом. Проверено живьём без скролла на 360×640,
+    390×844, 412×915, 744×1133, 1024×1366, 1080×1400, 1200×1800.
+    align-self:center — см. объяснение в истории раунда 2 (без этого max-width-обрезанный
+    .battlefield прилипает к левому краю вместо центра). ──*/
+@media(orientation:portrait){
   .battlefield{
-    --card-small-h: 10vh;
-    --card-small-w: calc(10vh * 0.856);
-    --card-small-art-h: calc(10vh * 0.622);
-    --card-small-name-h: calc(10vh * 0.133);
-    --card-small-stats-h: calc(10vh * 0.122);
-    --card-small-name-fs: calc(10vh * 0.1);
-    --card-small-stat-fs: calc(10vh * 0.15);
-    max-width: calc(3 * var(--card-small-w) + 8px);
-    align-self: center;
-  }
-}
-@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
-  .battlefield{
-    --card-small-h: 10.5vh;
-    --card-small-w: calc(10.5vh * 0.856);
-    --card-small-art-h: calc(10.5vh * 0.622);
-    --card-small-name-h: calc(10.5vh * 0.133);
-    --card-small-stats-h: calc(10.5vh * 0.122);
-    --card-small-name-fs: calc(10.5vh * 0.1);
-    --card-small-stat-fs: calc(10.5vh * 0.15);
+    --card-small-h: 10.6vh;
+    --card-small-w: calc(10.6vh * 0.856);
+    --card-small-art-h: calc(10.6vh * 0.622);
+    --card-small-name-h: calc(10.6vh * 0.133);
+    --card-small-stats-h: calc(10.6vh * 0.122);
+    --card-small-name-fs: calc(10.6vh * 0.1);
+    --card-small-stat-fs: calc(10.6vh * 0.15);
     max-width: calc(3 * var(--card-small-w) + 8px);
     align-self: center;
   }
@@ -1731,6 +1731,88 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 #oppFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;flex:1;}
 #playerFieldZone{min-height:20vh;height:auto;overflow:visible;border:none;margin-top:6px;flex:1;}
 .field-zone:first-of-type{border-bottom:1px solid #ffffff11;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ARENA SIDE COLUMNS — замена bottom-bar (2026-08-03, по прямому запросу автора)
+   .arena оборачивает oppFieldZone+playerFieldZone (сама раскладка полей не менялась,
+   просто теперь у неё общий relative-родитель) — .arena-col-left/right лежат
+   position:absolute поверх "мёртвой зоны" по краям арены, на всю высоту ОБЕИХ полей
+   разом (включая шов между ними), т.к. .arena сама растягивается на их суммарную высоту
+   через обычный document flow (oppFieldZone/playerFieldZone внутри неё как и раньше).
+   Слоты — грид 1:1:2:1:1 (кнопка:каунтер:большая кнопка:кнопка:каунтер), по требованию
+   автора, с равными отступами на всю высоту (gap как % даёт то же "равноудалённо",
+   что map explicit space-between, но проще считается вместе с 2%-паддингом сверху/снизу).
+   ═══════════════════════════════════════════════════════════════════════ */
+.arena{position:relative;}
+.arena-col{position:absolute;top:0;bottom:0;width:var(--arena-col-w);display:grid;
+  grid-template-rows:1fr 1fr 2fr 1fr 1fr;align-items:center;justify-items:center;
+  gap:2%;padding:2% 0;box-sizing:border-box;z-index:15;}
+.arena-col-left{left:0;}
+.arena-col-right{right:0;}
+
+/* Кладбище (слева) — переиспользует существующий арт button_grav_*.png (был в
+   bottom-bar, просто теперь на 2 динамических слота Opp/Player вместо статичных
+   tea/jeet — см. reorderZones() в render.js, которая на каждый рендер решает, какая
+   фракция сейчас "opp", а какая "player", и перевешивает className/onclick/data-faction
+   на #arenaGraveOpp/#arenaGravePlayer соответственно). */
+.arena-grave-btn{width:70%;aspect-ratio:1/1;border:none;background-color:transparent;
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+  padding:0;cursor:pointer;transition:transform .1s,filter .1s;}
+.arena-grave-btn.tea{background-image:url('../img/button_grav_1.png');}
+.arena-grave-btn.tea:hover{filter:brightness(1.2);}
+.arena-grave-btn.tea:active,.arena-grave-btn.tea.open{background-image:url('../img/button_grav_2.png');}
+.arena-grave-btn.jeet{background-image:url('../img/button_grav_1_jeet.png');}
+.arena-grave-btn.jeet:hover{filter:brightness(1.2);}
+.arena-grave-btn.jeet:active,.arena-grave-btn.jeet.open{background-image:url('../img/button_grav_2_jeet.png');}
+
+/* Колода (справа) — тот же плейсхолдер-арт, что был в bottom-bar (deck.png/deck_jeet.png,
+   раньше ID-скоуп #deckPlaceholderJ, теперь класс — позиция Opp/Player не привязана к
+   фракции намертво). Чисто визуальный якорь + мишень для анимации добора карты
+   (_deckPlaceholderRect() в render.js), не кликабелен. */
+.arena-deck-slot{width:70%;aspect-ratio:1/1;background-image:url('../img/deck.png');
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+  pointer-events:none;}
+.arena-deck-slot.jeet{background-image:url('../img/deck_jeet.png');}
+
+/* Каунтеры — переиспользуют .stat-badge (тот же ЛСД-вид/blink на пустой колоде, см.
+   .stat-badge.deck-count-empty ниже по файлу), tea/jeet-скин раньше был приколочен к
+   #teaBottomBar/#jeetBottomBar — теперь классы, т.к. позиция Opp/Player больше не
+   привязана намертво к фракции. */
+.stat-badge.tea{color:#4DB854;}
+.stat-badge.jeet{color:#b44fd4;background-color:#fff;background-image:url('../img/bg_counters_jeet.png');}
+
+/* Боевой лог (слева, средний слот) — НОВАЯ кнопка, ассета пока нет (автор рисует),
+   плейсхолдер-конвенция как у .modal-icon-btn.placeholder (см. её комментарий выше по
+   файлу) — url() прописан НЕкомментированным сразу под реальные три состояния, просто
+   сейчас не грузится (файлов ещё нет), fallback-рамка+эмодзи поверх видны. Когда автор
+   положит btn_log1/H/2.png — достаточно убрать класс .placeholder в HTML. */
+.arena-log-btn{width:80%;aspect-ratio:1/1;border:none;background-color:transparent;
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+  padding:0;cursor:pointer;position:relative;transition:transform .1s,filter .1s;
+  background-image:url('../img/btn_log1.png');}
+.arena-log-btn:hover{background-image:url('../img/btn_logH.png');}
+.arena-log-btn:active{background-image:url('../img/btn_log2.png');}
+.arena-log-btn.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
+.arena-log-btn.placeholder::after{content:'📋';position:absolute;inset:0;display:flex;
+  align-items:center;justify-content:center;font-size:calc(var(--arena-col-w) * 0.32);}
+.arena-log-btn.placeholder:hover{filter:brightness(1.25);}
+.arena-log-btn.placeholder:active{transform:scale(0.92) translateY(1px);}
+
+/* Конец хода (справа, средний слот) — переиспользует существующий button_1.png/_jeet.png
+   (двойного набора idle/active, как в bottom-bar), просто раньше кнопка сама была
+   position:absolute-центрирована в широком горизонтальном баре (calc(6vh*4)×6vh) — здесь
+   вместо этого заполняет весь квадратный слот через inset, без искажений
+   (background-size:contain). #teaEndTurnBtn/#jeetEndTurnBtn — те же 2 статичных элемента,
+   что были в двух bottom-bar (id/логика показа активного не менялась, см. render.js). */
+.arena-endturn-slot{width:100%;height:100%;position:relative;}
+.arena-endturn-slot .btn-end{position:absolute;inset:4%;left:4%;top:4%;right:4%;bottom:4%;
+  width:auto;height:auto;transform:none;}
+
+/* Плейсхолдер-заглушка ПОКА нет реального арта под конкретный слот (используется, если
+   автор захочет временно спрятать слот тем же .placeholder-конвеншном, что у остальных
+   кнопок проекта) — не применяется по умолчанию ни к одному из элементов выше, кроме
+   .arena-log-btn (см. её собственный .placeholder-блок выше), оставлено про запас. */
+
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
 .player-hand-zone.tea{background:url('../img/bg_handP_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
 .player-hand-zone.jeet{background:url('../img/bg_handP_bar_jeet.png');background-position:center;background-repeat:no-repeat;background-size:cover;}
@@ -1780,102 +1862,27 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   0%,100%{background:rgba(120,0,0,0.10);}
   50%{background:rgba(150,0,0,0.18);}
 }
-/*align-items:stretch (было center) — .bottom-slot без явной высоты раньше сжимался*/
-.bottom-bar{height:7vh;display:flex;flex-direction:row;align-items:stretch;justify-content:space-between;position:relative;border:none;background:url('../img/bg_bottom_bar.png');background-position:center;background-repeat:no-repeat;background-size:cover;padding:0 4px;}
-/* Jeet's bottom bar: solid main color instead of the shared placeholder texture,
-   cream border top/bottom only (matches her stats-bar treatment above). */
-#jeetBottomBar{background:var(--jeet-main);border-top:1px solid var(--color-cream);border-bottom:1px solid var(--color-cream);}
-#teaBottomBar{background:#3d494f;border-top:1px solid #829797;border-bottom:1px solid #829797;}
-/*ПЛЕЙСХОЛДЕРЫ для доп. арта в bottom-bar — 4:1, высота = половина высоты бара (7vh/2),
-  разведены по фракциям (#teaBottomBar/#jeetBottomBar) — Jeet белый фон временно.*/
-.bottom-bar-extra{display:none; width:18.2vh; height:4.55vh; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
-.bottom-bar-extra.align-bottom{align-self:flex-end;}
-.bottom-bar-extra.align-top{align-self:flex-start;}
-#teaBottomBar .bottom-bar-extra.align-bottom{background-image:url('../img/zabor1.png');}
-#teaBottomBar .bottom-bar-extra.align-top{background-image:url('../img/zabor2.png');}
-#jeetBottomBar .bottom-bar-extra.align-bottom{background-color:transparent; background-image:url('../img/zabor1_jeet.png');}
-#jeetBottomBar .bottom-bar-extra.align-top{background-color:transparent; background-image:url('../img/zabor2_jeet.png');}
-@media(min-width:601px){
-  .bottom-bar-extra{display:block;}
-}
-/*── На планшетах (айпад и т.п.) в ВЕРТИКАЛЬНОЙ ориентации — прячем эти
-    декоративные плейсхолдеры (zabor1/zabor2 обеих фракций и их аналоги).
-    601px — уже существующий порог "не телефон" по всему проекту; 1024px —
-    ширина iPad Pro 12.9" в портрете, самого широкого реального планшета в
-    этой ориентации (обычные landscape-мониторы/лаптопы под это не
-    попадают, они всегда шире, чем выше). Автор попросил 2026-07-15. ────*/
-@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
-  .bottom-bar-extra{display:none;}
-}
-/*ПЛЕЙСХОЛДЕР 2 — справа от zabor1 (margin-left отделяет от него), только лаптоп/десктоп.
-  Tea — свой файл (был чёрным без арта, теперь путь под будущий), Jeet — белый фон.*/
-.bottom-bar-extra-2{display:none; width:10.5vh; height:3.5vh; margin-left:10px; background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
-#teaBottomBar .bottom-bar-extra-2{background-image:url('../img/screen1.gif');}
-#jeetBottomBar .bottom-bar-extra-2{background-color:transparent; background-image:url('../img/bottom_extra2_jeet.png');}
-@media(min-width:601px){
-  .bottom-bar-extra-2{display:block;}
-}
-@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
-  .bottom-bar-extra-2{display:none;}
-}
-/* ПЛЕЙСХОЛДЕР 3 — правый слот, левее zabor2, сам прижат к низу бара (align-self:flex-end,
-   родитель .bottom-slot растянут на все 7vh через align-items:stretch — см. выше).
-   2:1, высота = треть высоты бара (7vh/3). Только лаптоп/десктоп. Разведено по фракциям. */
-.bottom-bar-extra-3{display:none; align-self:flex-end; width:calc(7vh / 3 * 2); height:calc(7vh / 3); background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
-#teaBottomBar .bottom-bar-extra-3{background-image:url('../img/boltics.png');}
-#jeetBottomBar .bottom-bar-extra-3{background-color:transparent; background-image:url('../img/bottom_extra3_jeet.png');}
-@media(min-width:601px){
-  .bottom-bar-extra-3{display:block;}
-}
-@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
-  .bottom-bar-extra-3{display:none;}
-}
-/*ПЛЕЙСХОЛДЕР 4 — квадрат, высота = треть высоты бара (7vh/3), справа от кнопки End Turn,
-  разведено по фракциям.*/
-.bottom-bar-extra-4{display:none; position:absolute; left:calc(50% + (6vh * 4 / 2) + 8px); top:50%; transform:translateY(-50%); width:calc(7vh / 3); height:calc(7vh / 3); background-color:#000; background-size:cover; background-position:center; flex-shrink:0;}
-#teaBottomBar .bottom-bar-extra-4{background-image:url('../img/dat4ik_small.gif');}
-#jeetBottomBar .bottom-bar-extra-4{background-color:transparent; background-image:url('../img/bottom_extra4_jeet.png');}
-@media(min-width:601px){
-  .bottom-bar-extra-4{display:block;}
-}
 .actions{display:flex;flex-direction:column;gap:6px;align-items:center;background:#06060e;border-top:1px solid #ffffff11;border-bottom:1px solid #ffffff11;}
 .action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
-.btn-end{position:absolute; left:50%;top:50%; transform:translate(-50%,-50%); border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent; width:calc(6vh * 4);height:6vh; transition:transform .1s,filter .1s; flex-shrink:0;}
+/*── End Turn — базовый (Tea) арт + hover/active/waiting; позиционирование теперь задаёт
+   .arena-endturn-slot .btn-end (см. блок ARENA SIDE COLUMNS выше) — здесь только сам вид
+   кнопки, унаследованный без изменений от bottom-bar. ──*/
+.btn-end{border:none;background:url('../img/button_1.png') center/contain no-repeat;color:transparent; transition:transform .1s,filter .1s; flex-shrink:0;}
 .btn-end:hover{filter:brightness(1.25);}
-.btn-end:active{background-image:url('../img/button_2.png');transform:translate(-50%,-50%);}
-/*── Jeet получил свой арт для End Turn (обычное/нажатое состояние) — та же схема,
-   что у .bottom-bar-sensor/.bottom-bar-extra-4 (скоуп по #jeetBottomBar) ──────*/
-#jeetBottomBar .btn-end{background-image:url('../img/button_1_jeet.png');}
-#jeetBottomBar .btn-end:active{background-image:url('../img/button_2_jeet.png');}
+.btn-end:active{background-image:url('../img/button_2.png');}
+/*── Jeet — свой арт для End Turn. Раньше скоуп шёл через родителя (#jeetBottomBar
+   .btn-end), теперь оба #teaEndTurnBtn/#jeetEndTurnBtn — статичные элементы в ОДНОМ
+   слоте (см. render.js — только один из двух показан за раз), скоуп по id напрямую. ──*/
+#jeetEndTurnBtn{background-image:url('../img/button_1_jeet.png');}
+#jeetEndTurnBtn:active{background-image:url('../img/button_2_jeet.png');}
 /*── Состояние "ход ИИ" (VS AI) — панель игрока не скрывается целиком, вместо*/
 .btn-end.btn-waiting{background-image:url('../img/btn_wait.gif') !important;cursor:default;pointer-events:none;filter:none !important;}
-.btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;transform:translate(-50%,-50%);}
-#jeetBottomBar .btn-end.btn-waiting{background-image:url('../img/btn_wait_jeet.gif') !important;}
-.btn-square{width:6vh;height:6vh;border:none;background:transparent;padding:2px;cursor:pointer;flex-shrink:0;background-size:contain;background-repeat:no-repeat;background-position:center;transition:transform .1s,filter .1s;}
-.btn-graveyard{background-image:url('../img/button_grav_1.png');}
-.btn-graveyard:hover{filter:brightness(1.2);}
-.btn-graveyard:active{background-image:url('../img/button_grav_2.png');}
-.btn-graveyard.open{background-image:url('../img/button_grav_2.png');}
-/*── Jeet: свой арт для кнопки кладбища (обычное/нажатое/открытое состояние) ──*/
-#jeetBottomBar .btn-graveyard{background-image:url('../img/button_grav_1_jeet.png');}
-#jeetBottomBar .btn-graveyard:active{background-image:url('../img/button_grav_2_jeet.png');}
-#jeetBottomBar .btn-graveyard.open{background-image:url('../img/button_grav_2_jeet.png');}
-.deck-placeholder-wrap{position:relative;width:6vh;height:6vh;flex-shrink:0;}
-/*── ПЛЕЙСХОЛДЕР: датчик/индикатор рядом со счётчиком кладбища — Tea оставлен на текущем
-   dat4ik.gif, Jeet получил свой путь (белый фон, пока файла нет) ──────────────*/
-.bottom-bar-sensor{display:none; width:7vh; height:7vh; background-size:cover; background-position:center; flex-shrink:0;}
-#teaBottomBar .bottom-bar-sensor{background-image:url('../img/dat4ik.gif');}
-#jeetBottomBar .bottom-bar-sensor{background-color:transparent; background-image:url('../img/dat4ik_jeet.gif');}
-@media(min-width:601px){
-  .bottom-bar-sensor{display:block;}
-}
-.btn-badge{position:absolute;top:-0.8vh;right:-0.8vh;min-width:2.6vh;height:2.6vh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'MEK',monospace;font-size:1.6vh;font-weight:bold;border:1px solid;pointer-events:none;line-height:1;}
-#teaBottomBar .btn-badge{background:#1a1200;border-color:#4DB854;color:#4DB854;}
-#jeetBottomBar .btn-badge{background:#1a001a;border-color:#b44fd4;color:#b44fd4;}
-/*── Stat-badge для кладбища (справа от кнопки) и колоды (слева от деки) ──*/
+.btn-end.btn-waiting:hover,.btn-end.btn-waiting:active{filter:none;}
+#jeetEndTurnBtn.btn-waiting{background-image:url('../img/btn_wait_jeet.gif') !important;}
+/*── Stat-badge — база переиспользуется для арена-каунтеров кладбища/колоды (см. блок
+   ARENA SIDE COLUMNS выше за .tea/.jeet скин, который раньше был приколочен к
+   #teaBottomBar/#jeetBottomBar). ──*/
 .stat-badge{display:flex; align-items:center; justify-content:center; background-image:url('../img/bg_statbar_hp.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center; min-width:3.5vh; height:2.8vh; font-family:'MEK',monospace; font-size:2.2vh; font-weight:bold; pointer-events:none; padding:0 0.6vh; flex-shrink:0;}
-#teaBottomBar .stat-badge{color:#4DB854;}
-#jeetBottomBar .stat-badge{color:#b44fd4; background-color:#fff; background-image:url('../img/bg_counters_jeet.png');}
 .card-detail-overlay{position:fixed;inset:0;background:#000000cc;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
 .card-detail-box{position:relative;display:flex;align-items:center;justify-content:center;}
 .card-detail-close{position:absolute;top:-32px;right:-8px;font-size:28px;font-family:'MEK',monospace;cursor:pointer;color:#888;background:none;border:none;z-index:10;}
@@ -2248,7 +2255,3 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cap-no-ess.cap-field-full{white-space:normal; text-align:center; line-height:1.15;}
 .cap-no-ess-icon{width:1.1em; height:1.1em; object-fit:contain; vertical-align:middle; filter:drop-shadow(0 0 3px #8A7D62);}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75));}
-.bottom-slot{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.btn-deck-placeholder{background-image:url('../img/deck.png');width:6vh;height:6vh;background-size:contain;background-repeat:no-repeat;background-position:center;padding:2px;position:absolute;top:0;left:0;}
-/*── Jeet: своя картинка колоды-плейсхолдера ──────────────────────────────*/
-#deckPlaceholderJ{background-image:url('../img/deck_jeet.png');}
