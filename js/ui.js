@@ -1191,18 +1191,13 @@ function startMulliganFor(faction){
 // (.field-star, см. spawnStars()), которые вместо этого получают отдельный "вырост из
 // точки" (иначе едут вертикально вместе с контейнером — смотрится странно поверх
 // мерцания). Плюс поверх всего один раз выезжает надпись "Battle begins!". Вызывать
-// ПОСЛЕ render(), чтобы к этому моменту уже был известен актуальный bottomBar (render()
-// сам решает teaBottomBar/jeetBottomBar через display) и руки лежали в верных зонах.
+// ПОСЛЕ render(), чтобы руки уже лежали в верных зонах.
 function playArenaRevealAnimation(){
   const header = document.querySelector('#game .header');
   const topEls = ['oppStats','oppHandZone']
     .map(id=>document.getElementById(id)).filter(Boolean);
-  const bottomBar = ['teaBottomBar','jeetBottomBar']
-    .map(id=>document.getElementById(id))
-    .find(el=>el && el.style.display!=='none');
   const bottomEls = ['playerHandZone','playerStats']
     .map(id=>document.getElementById(id)).filter(Boolean);
-  if(bottomBar) bottomEls.push(bottomBar);
 
   const allEls=[header,...topEls,...bottomEls].filter(Boolean);
   // Сброс на случай повторного показа арены в той же вкладке (напр. Restart) — без
@@ -1510,6 +1505,7 @@ function resetGame(){
 }
 
 function toggleLog(){
+  const overlay=document.getElementById('logOverlay');
   const p=document.getElementById('logPanel');
   if(p.classList.contains('open')){
     playSfx('yellow_buttom');
@@ -1518,9 +1514,11 @@ function toggleLog(){
     p.classList.add('modal-pop-out-fast');
     setTimeout(()=>{
       p.classList.remove('open','modal-pop-out-fast');
+      if(overlay) overlay.classList.add('hidden');
     }, 125);
   } else {
     playSfx('screen_monitor');
+    if(overlay) overlay.classList.remove('hidden');
     p.classList.add('open');
     p.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
     void p.offsetWidth;
