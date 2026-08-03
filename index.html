@@ -893,7 +893,6 @@
 <div class="title"><img src="img/brand.png" style="width:max(calc(5vh * 0.55), calc(2.5vw * 0.55));height:max(calc(5vh * 0.55), calc(2.5vw * 0.55));vertical-align:middle;margin-right:6px;"><span class="title-glitch-wrap" data-text="HOME'S JOURNEY" style="font-family:'MEK',monospace;">HOME'S JOURNEY</span></div>
     <div class="turn-info" id="turnInfo">Turn <span id="turnNum">1</span> · <span id="turnPlayer">TEA</span></div>
     <div class="header-desktop-btns" style="gap:6px;margin-left:auto;">
-      <button class="btn" style="border-color:#5599ff;color:#5599ff;font-size:10px;padding:5px 12px;" onclick="toggleLog()">📋 Log</button>
       <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="playSfx('yellow_buttom');askRestart()">↺ Restart</button>
       <button class="btn btn-reset" style="font-size:10px;padding:5px 12px;" onclick="playSfx('yellow_buttom');askMenu()">← Menu</button>
     </div>
@@ -904,7 +903,6 @@
   <span class="ham-line"></span>
 </button>
 <div id="hamburgerMenu" class="ham-menu">
-  <button class="btn ham-item" onclick="toggleLog();toggleHamburger()">Log</button>
   <button class="btn ham-item" id="hamMusicBtn" onclick="toggleMusic()">Music: On</button>
   <button class="btn ham-item" id="hamSfxBtn" onclick="toggleSfx()">Sound: On</button>
   <button class="btn ham-item" onclick="playSfx('yellow_buttom');askRestart();toggleHamburger()">Restart</button>
@@ -926,18 +924,47 @@
     <span class="stat" sstyle="font-size:calc(4vh * 0.25);color:#555";color:#555">🃏<span id="jeetDeckCountStat">35</span> ☠<span id="jeetGraveCountStat">0</span></span>
   </div>
 
-  <!-- OPP FIELD -->
-  <div class="field-zone" id="oppFieldZone">
-    <div class="battlefield" id="jeetField"></div>
-    <div class="persist" id="jeetPersist"></div>
-  </div>
+  <!-- ARENA — оба поля боя + боковые колонки-кнопки поверх "мёртвой зоны" по краям
+       (2026-08-03, по прямому запросу автора, замена bottom-bar). Левая — кладбище
+       противника/боевой лог/кладбище игрока, правая — колода противника/конец хода/
+       колода игрока. Кто сейчас "противник", а кто "игрок" — решает reorderZones()
+       (js/render.js), тот же принцип, что уже работает для oppStats/playerStats:
+       #arenaGraveOpp/#arenaGravePlayer/#arenaDeckOpp/#arenaDeckPlayer получают
+       className/onclick/data-faction и текст счётчика заново на каждый рендер. -->
+  <div class="arena" id="arena">
+    <!-- ARENA LEFT: кладбище противника / боевой лог / кладбище игрока -->
+    <div class="arena-col arena-col-left" id="arenaColLeft">
+      <button class="arena-grave-btn" id="arenaGraveOpp" title="Graveyard"></button>
+      <span class="stat-badge" id="arenaGraveCounterOpp">0</span>
+      <button class="arena-log-btn placeholder" id="arenaLogBtn" onclick="playSfx('yellow_buttom');toggleLog()" title="Battle Log"></button>
+      <button class="arena-grave-btn" id="arenaGravePlayer" title="Graveyard"></button>
+      <span class="stat-badge" id="arenaGraveCounterPlayer">0</span>
+    </div>
 
-  <!-- PLAYER FIELD -->
-  <div class="field-zone" id="playerFieldZone">
-    <div class="battlefield" id="teaField"></div>
-    <div class="persist" id="teaPersist"></div>
-  </div>
+    <!-- OPP FIELD -->
+    <div class="field-zone" id="oppFieldZone">
+      <div class="battlefield" id="jeetField"></div>
+      <div class="persist" id="jeetPersist"></div>
+    </div>
 
+    <!-- PLAYER FIELD -->
+    <div class="field-zone" id="playerFieldZone">
+      <div class="battlefield" id="teaField"></div>
+      <div class="persist" id="teaPersist"></div>
+    </div>
+
+    <!-- ARENA RIGHT: колода противника / конец хода / колода игрока -->
+    <div class="arena-col arena-col-right" id="arenaColRight">
+      <div class="arena-deck-slot" id="arenaDeckOpp"></div>
+      <span class="stat-badge" id="arenaDeckCounterOpp">35</span>
+      <div class="arena-endturn-slot" id="arenaEndTurnSlot">
+        <button class="btn btn-end" id="teaEndTurnBtn" onclick="endTurn()">End Turn</button>
+        <button class="btn btn-end" id="jeetEndTurnBtn" onclick="endTurn()" style="display:none;">End Turn</button>
+      </div>
+      <div class="arena-deck-slot" id="arenaDeckPlayer"></div>
+      <span class="stat-badge" id="arenaDeckCounterPlayer">35</span>
+    </div>
+  </div>
 
   <!-- PLAYER STATS -->
   <div class="stats-bar tea" id="playerStats" onclick="onBaseClick('tea')">
@@ -964,58 +991,7 @@
       </div>
     </div>
   </div>
-  
-  <!-- BOTTOM BARS -->
-  <div class="bottom-bar" id="teaBottomBar" style="display:none;">
-    <div class="bottom-slot">
-      <button class="btn-square btn-graveyard" onclick="openGraveModal('tea')" title="Graveyard"></button>
-      <span class="stat-badge" id="teaGraveBadge">0</span>
-      <!-- ПЛЕЙСХОЛДЕР — датчик/индикатор, справа от счётчика кладбища. Позже заменится на гифку (см. .bottom-bar-sensor в styles.css) -->
-      <div class="bottom-bar-sensor"></div>
-      <!-- ПЛЕЙСХОЛДЕР — новый, правее датчика, прижат к низу бара -->
-      <div class="bottom-bar-extra align-bottom"></div>
-      <!-- ПЛЕЙСХОЛДЕР 2 — правее zabor1, только лаптоп/десктоп -->
-      <div class="bottom-bar-extra-2"></div>
-    </div>
-    <button class="btn btn-end" id="teaEndTurnBtn" onclick="endTurn()">End Turn</button>
-    <div class="bottom-bar-extra-4"></div>
-    <div class="bottom-slot">
-      <!-- ПЛЕЙСХОЛДЕР 3 — левее zabor2 (align-top), но сам прижат к низу бара, только лаптоп/десктоп -->
-      <div class="bottom-bar-extra-3"></div>
-      <!-- ПЛЕЙСХОЛДЕР — новый, левее счётчика колоды, прижат к верху бара -->
-      <div class="bottom-bar-extra align-top"></div>
-      <span class="stat-badge" id="teaDeckBadge">0</span>
-      <div class="deck-placeholder-wrap">
-        <div class="btn-deck-placeholder" id="deckPlaceholderT"></div>
-      </div>
-    </div>
-  </div>
-  <div class="bottom-bar" id="jeetBottomBar" style="display:none;">
-    <div class="bottom-slot">
-      <button class="btn-square btn-graveyard" onclick="openGraveModal('jeet')" title="Graveyard"></button>
-      <span class="stat-badge" id="jeetGraveBadge">0</span>
-      <!-- ПЛЕЙСХОЛДЕР — датчик/индикатор, справа от счётчика кладбища. Позже заменится на гифку (см. .bottom-bar-sensor в styles.css) -->
-      <div class="bottom-bar-sensor"></div>
-      <!-- ПЛЕЙСХОЛДЕР — новый, правее датчика, прижат к низу бара -->
-      <div class="bottom-bar-extra align-bottom"></div>
-      <!-- ПЛЕЙСХОЛДЕР 2 — правее zabor1, только лаптоп/десктоп -->
-      <div class="bottom-bar-extra-2"></div>
-    </div>
-    <button class="btn btn-end" id="jeetEndTurnBtn" onclick="endTurn()">End Turn</button>
-    <div class="bottom-bar-extra-4"></div>
-    <div class="bottom-slot">
-      <!-- ПЛЕЙСХОЛДЕР 3 — левее zabor2 (align-top), но сам прижат к низу бара, только лаптоп/десктоп -->
-      <div class="bottom-bar-extra-3"></div>
-      <!-- ПЛЕЙСХОЛДЕР — новый, левее счётчика колоды, прижат к верху бара -->
-      <div class="bottom-bar-extra align-top"></div>
-      <span class="stat-badge" id="jeetDeckBadge">0</span>
-      <div class="deck-placeholder-wrap">
-        <div class="btn-deck-placeholder" id="deckPlaceholderJ"></div>
-      </div>
-    </div>
-  </div>
 
-  
 <!-- GRAVEYARD MODAL -->
 <div class="modal-overlay hidden" id="graveModal" style="background:transparent;pointer-events:all;" onclick="closeGraveModal()">
  <div class="grave-modal" onclick="event.stopPropagation()">
@@ -1028,13 +1004,19 @@
  </div>
 </div>
 
-  <!-- LOG PANEL -->
-  <div class="log-panel" id="logPanel">
-    <div class="log-panel-header">
-      <span class="log-panel-title">Battle Log</span>
-      <button class="log-panel-close" onclick="toggleLog()" aria-label="Close log"></button>
+  <!-- LOG PANEL — overlay-обёртка (2026-08-03, по прямому запросу автора): раньше лог был
+       прибит fixed в угол и закрывался только по крестику; теперь центрируется как обычная
+       модалка (тот же .modal-overlay паттерн, что у GRAVEYARD MODAL выше) и закрывается
+       также кликом мимо. toggleLog() (ui.js) переключает .hidden на #logOverlay в паре с
+       .open на #logPanel. -->
+  <div class="modal-overlay hidden" id="logOverlay" style="background:transparent;pointer-events:all;" onclick="toggleLog()">
+    <div class="log-panel" id="logPanel" onclick="event.stopPropagation()">
+      <div class="log-panel-header">
+        <span class="log-panel-title">Battle Log</span>
+        <button class="log-panel-close" onclick="toggleLog()" aria-label="Close log"></button>
+      </div>
+      <div class="log" id="log"></div>
     </div>
-    <div class="log" id="log"></div>
   </div>
 
 </div>
