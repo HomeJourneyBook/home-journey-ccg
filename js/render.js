@@ -74,6 +74,16 @@ function render(){
   const cur=G[G.turn];
   document.getElementById('turnNum').textContent=G.turnNum;
   document.getElementById('turnPlayer').textContent=G.turn.toUpperCase();
+  // reorderZones() ПЕРВЫМ (2026-08-04, автор поймал живьём — см. её комментарий про
+  // _seenHandCardIds выше по файлу): переставляет oppFieldZone/playerFieldZone и
+  // oppHandZone/playerHandZone (кто сейчас "противник", а кто "игрок") ДО того, как
+  // rZone() ниже наполнит их картами и измерит позиции для анимации прилёта из колоды.
+  // Раньше reorderZones() стоял в конце render() — при передаче хода в хотсите рука
+  // нового игрока рендерилась (и её restRect мерялся) ПОКА её контейнер ещё физически
+  // сидел в СТАРОЙ зоне (там, где была видна как чужая свёрнутая рука) — клон улетал не
+  // в реальную конечную позицию карты, а туда, где эта позиция ошибочно измерилась в
+  // неправильном контейнере (визуально — "улетает наверх, к противнику").
+  reorderZones();
   ['tea','jeet'].forEach(f=>{
     const p=G[f];
     document.getElementById(f+'Hp').textContent=p.hp;
@@ -113,7 +123,6 @@ function render(){
     rHiddenHand('teaHand',G.tea.hand,'tea');
   }
   rPersist('teaPersist',G.tea);
-  reorderZones();
   rPersist('jeetPersist',G.jeet);
   ['teaHand','jeetHand'].forEach(hid=>{
     const hel=document.getElementById(hid);
@@ -1326,7 +1335,13 @@ function rZone(id,cards,zone){
       const cardEl=mkEl(c,zone);
       // New card in hand (just drawn from deck) — gets the card-drawn entrance
       // animation. Cards already in hand don't replay it on every re-render.
-      const isNew=zone==='hand'&&!existingIds.has(String(c.id));
+      // 2026-08-04: НЕ existingIds (DOM-based) — рука противника рисуется другими
+      // элементами (.card-mini, см. rHiddenHand), при раскрытии чужой руки на смене
+      // хода existingIds всегда пуст, и вся рука ложно считалась бы "новой" разом
+      // (см. комментарий у _seenHandCardIds выше по файлу). id-based Set переживает
+      // смену того, каким DOM-контейнером/элементом рисуется рука.
+      const isNew=zone==='hand'&&!_seenHandCardIds.has(String(c.id));
+      if(zone==='hand') _seenHandCardIds.add(String(c.id));
       el.appendChild(cardEl);
       if(isNew) newHandEls.push(cardEl);
     }
@@ -1587,6 +1602,22 @@ document.addEventListener('click',(e)=>{
 // проигрывалась заново. Глобальный Set не привязан к контейнеру — карта анимируется один раз за игру.
 const _seenPcardPids = new Set();
 
+// _seenHandCardIds — тот же принцип, что _seenPcardPids чуть выше, но для карт в руке
+// (2026-08-04, автор поймал живьём: при передаче хода в хотсите вся рука нового игрока
+// целиком проигрывала анимацию "прилетела из колоды", а не только реально добранная
+// карта). Раньше "новая карта или нет" в rZone() определялось по содержимому DOM
+// (querySelectorAll('.card')) — но рука ПРОТИВНИКА рисуется другой функцией (rHiddenHand,
+// см. ниже), другими элементами (.card-mini, не .card). Когда ход переходит и чужая
+// (скрытая) рука впервые раскрывается как своя, DOM-проверка находит 0 .card-элементов
+// (там были только .card-mini) — и ВСЕ карты руки, включая давно там лежащие, считаются
+// свежедобранными разом. Раньше это ни разу не было видно: колода-плейсхолдер
+// неактивного игрока была display:none внутри его bottom-bar (см. историю), и
+// _deckPlaceholderRect() возвращал null → полёт молча пропускался. Теперь плейсхолдеры
+// колод всегда на экране (см. ARENA SIDE COLUMNS в styles.css) — тот же баг стал видимым.
+// Глобальный Set по id карты (не по DOM) — карта анимируется максимум один раз за игру,
+// независимо от того, через какой контейнер её рука сейчас рисуется.
+const _seenHandCardIds = new Set();
+
 // Подмена кнопки End Turn на плейсхолдер ожидания (btn_wait.gif) во время хода ИИ
 // в режиме VS AI. Панель у человека при этом НЕ скрывается (см. render()/reorderZones()) —
 // меняется только сама кнопка, клик по ней недоступен на время хода ИИ.
@@ -1732,6 +1763,12 @@ function reorderZones(){
   // (кладбище/колода противника — новая фича, раньше её вообще нельзя было посмотреть),
   // так что вместо display:none/flex перевешиваем skin+onclick+data-faction на каждый
   // рендер, тот же приём, что уже работает для oppStats/playerStats выше в этой функции.
+  // .arena-pair-* (2026-08-04, по прямому запросу автора) — обёртка-бокс кнопка+каунтер
+  // тоже красится в tea/jeet (плейсхолдер-фон, см. .arena-pair.tea/.jeet в styles.css).
+  const gravePairOpp=document.getElementById('arenaGravePairOpp');
+  const gravePairPlayer=document.getElementById('arenaGravePairPlayer');
+  if(gravePairOpp) gravePairOpp.className='arena-pair '+(oppK==='jeet'?'jeet':'tea');
+  if(gravePairPlayer) gravePairPlayer.className='arena-pair '+(playerK==='jeet'?'jeet':'tea');
   const graveOppBtn=document.getElementById('arenaGraveOpp');
   const gravePlayerBtn=document.getElementById('arenaGravePlayer');
   if(graveOppBtn){
@@ -1755,6 +1792,10 @@ function reorderZones(){
     graveCounterPlayer.className='stat-badge '+(playerK==='jeet'?'jeet':'tea');
   }
 
+  const deckPairOpp=document.getElementById('arenaDeckPairOpp');
+  const deckPairPlayer=document.getElementById('arenaDeckPairPlayer');
+  if(deckPairOpp) deckPairOpp.className='arena-pair '+(oppK==='jeet'?'jeet':'tea');
+  if(deckPairPlayer) deckPairPlayer.className='arena-pair '+(playerK==='jeet'?'jeet':'tea');
   const deckOppEl=document.getElementById('arenaDeckOpp');
   const deckPlayerEl=document.getElementById('arenaDeckPlayer');
   if(deckOppEl) deckOppEl.className='arena-deck-slot '+(oppK==='jeet'?'jeet':'tea');
