@@ -911,7 +911,11 @@
   <button class="btn ham-item" onclick="playSfx('yellow_buttom');askMenu();toggleHamburger()">Menu</button>
 </div>
     </div>
-  <button class="header-collapse-handle" id="headerCollapseHandle" title="Collapse header" onclick="toggleHeaderCollapsed()"></button>
+  </div>
+
+  <!-- OPP HAND -->
+  <div class="opp-hand-zone" id="oppHandZone">
+    <div class="hand-mini" id="jeetHand"></div>
   </div>
 
   <!-- OPP STATS -->
@@ -920,11 +924,6 @@
     <span class="stat">🖤 <span class="stat-val hp-val" id="jeetHp">20</span>/20</span>
     <span class="stat">💠 <span class="ess-val" id="jeetEss">1</span></span>
     <span class="stat" sstyle="font-size:calc(4vh * 0.25);color:#555";color:#555">🃏<span id="jeetDeckCountStat">35</span> ☠<span id="jeetGraveCountStat">0</span></span>
-  </div>
-
-  <!-- OPP HAND -->
-  <div class="opp-hand-zone" id="oppHandZone">
-    <div class="hand-mini" id="jeetHand"></div>
   </div>
 
   <!-- OPP FIELD -->
@@ -939,6 +938,14 @@
     <div class="persist" id="teaPersist"></div>
   </div>
 
+
+  <!-- PLAYER STATS -->
+  <div class="stats-bar tea" id="playerStats" onclick="onBaseClick('tea')">
+    <span class="player-name tea">⬡ TAVERN</span>
+    <span class="stat">🤍 <span class="stat-val hp-val" id="teaHp">20</span>/20</span>
+    <span class="stat">💠 <span class="ess-val" id="teaEss">1</span></span>
+    <span class="stat" style="font-size:calc(4vh * 0.25);color:#555";color:#555">🃏<span id="teaDeckCountStat">35</span> ☠<span id="teaGraveCountStat">0</span></span>
+  </div>
 
   <!-- PLAYER HAND -->
   <div class="player-hand-zone" id="playerHandZone">
@@ -956,14 +963,6 @@
         <div class="target-prompt-sub">CLICK HERE TO CANCEL</div>
       </div>
     </div>
-  </div>
-  
-  <!-- PLAYER STATS -->
-  <div class="stats-bar tea" id="playerStats" onclick="onBaseClick('tea')">
-    <span class="player-name tea">⬡ TAVERN</span>
-    <span class="stat">🤍 <span class="stat-val hp-val" id="teaHp">20</span>/20</span>
-    <span class="stat">💠 <span class="ess-val" id="teaEss">1</span></span>
-    <span class="stat" style="font-size:calc(4vh * 0.25);color:#555";color:#555">🃏<span id="teaDeckCountStat">35</span> ☠<span id="teaGraveCountStat">0</span></span>
   </div>
   
   <!-- BOTTOM BARS -->
