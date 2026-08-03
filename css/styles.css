@@ -49,6 +49,14 @@
      Автор рисует новый арт под эту ширину — если понадобится другое число, менять только
      здесь. */
   --arena-col-w: clamp(56px, 8vh, 96px);
+  /* Отдельная переменная под кнопку лога (2026-08-04, по прямому запросу автора —
+     "верни размер для кнопки лог как был, его не надо было увеличивать"): --arena-col-w
+     в лендскейпе переопределяется на бОльшее число (см. @media(orientation:landscape)
+     ниже) — раньше кнопка лога считалась от неё же (calc(var(--arena-col-w)*0.85)) и
+     невольно росла вместе с колонкой. Эта переменная НИГДЕ не переопределяется по
+     ориентации — кнопка лога всегда одного размера, независимо от того, насколько шире
+     стала сама колонка под кладбище/деку. */
+  --arena-log-w: clamp(56px, 8vh, 96px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
 html{overflow-x:hidden;width:100%;}
@@ -1768,25 +1776,50 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    мешают друг другу). min-height:0 — стандартный fix для flex-column, чтобы дети с
    собственным flex:1 могли реально сжиматься/расти, а не упирались в auto-минимум. ──*/
 .arena{position:relative;display:flex;flex-direction:column;flex:1;min-height:0;}
-.arena-col{position:absolute;top:0;bottom:0;width:var(--arena-col-w);display:grid;
-  grid-template-rows:1fr 1fr 1fr;align-items:center;justify-items:center;
-  gap:2%;padding:2% 0;box-sizing:border-box;z-index:15;}
+/*── РАУНД 4 (2026-08-04, по прямому запросу автора):
+   1) .arena-col: с грида 1fr/1fr/1fr на flex+space-between — ВЕЗДЕ, не только в
+      лендскейпе (было landscape-only, теперь база). Верхняя/нижняя пара садится
+      вплотную к краю колонки (padding:0) — а край колонки И ЕСТЬ граница с
+      oppStats/playerStats (см. комментарий у .arena выше), так что "вплотную к
+      колонке" = "вплотную к статбару", zero gap, как просили.
+   2) .arena-pair: width:auto (была 100% колонки) — размер бокса теперь определяется
+      КОНТЕНТОМ (иконка+каунтер+паддинг), а не тянется на всю ширину колонки. Значит
+      если иконка уменьшится — бокс уменьшится вместе с ней, автоматически.
+   3) Иконки/паддинг/gap — везде calc(var(--arena-col-w) * X) вместо смеси %/фикс-px.
+      ПОЧЕМУ calc(), а не просто %: если бы .arena-grave-btn был в % от .arena-pair,
+      а .arena-pair сам auto (по контенту) — это циклическая зависимость (ширина
+      родителя зависит от ширины ребёнка, который сам в % от родителя), в CSS такое
+      не резолвится. calc() от --arena-col-w (у неё есть чёткое число) обходит это
+      напрямую, никаких вложенных % через auto-родителя. ──*/
+.arena-col{
+  position:absolute;top:0;bottom:0;width:var(--arena-col-w);
+  display:flex;flex-direction:column;justify-content:space-between;align-items:center;
+  padding:0;box-sizing:border-box;z-index:15;
+}
 .arena-col-left{left:0;}
 .arena-col-right{right:0;}
 
-/* Пара "кнопка + каунтер" в одну строку — ужимается по ширине колонки (min-width:0 на
-   обоих детях, иначе flex по умолчанию не даёт им сжаться меньше их контента и пара
-   вылезает за пределы узкой колонки на телефоне). */
+/* Пара "кнопка + каунтер" в одну строку, бокс-плейсхолдер под будущий кастомный фон
+   (автор: "как продолжение статус-бара") — Чай серый, Джит чёрный (.tea/.jeet,
+   выставляется в reorderZones()). Паддинг и gap — доля от ширины колонки, не фикс-px,
+   чтобы весь бокс масштабировался одной ручкой (--arena-col-w) вместе с иконкой. */
 .arena-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;
-  gap:6%;width:100%;min-width:0;}
-.arena-pair > *{min-width:0;flex-shrink:1;}
+  width:auto;flex-shrink:0;box-sizing:border-box;
+  background:#4a4a4a;
+  border-radius:8px;
+  padding: calc(var(--arena-col-w) * 0.06);
+  gap: calc(var(--arena-col-w) * 0.05);
+}
+.arena-pair.jeet{background:#000000;}
+.arena-pair > *{flex-shrink:0;}
 
 /* Кладбище (слева) — переиспользует существующий арт button_grav_*.png (был в
    bottom-bar, просто теперь на 2 динамических слота Opp/Player вместо статичных
    tea/jeet — см. reorderZones() в render.js, которая на каждый рендер решает, какая
    фракция сейчас "opp", а какая "player", и перевешивает className/onclick/data-faction
    на #arenaGraveOpp/#arenaGravePlayer соответственно). */
-.arena-grave-btn{width:58%;aspect-ratio:1/1;border:none;background-color:transparent;
+.arena-grave-btn{width:calc(var(--arena-col-w) * 0.58);aspect-ratio:1/1;border:none;
+  background-color:transparent;
   background-size:contain;background-repeat:no-repeat;background-position:center;
   padding:0;cursor:pointer;transition:transform .1s,filter .1s;flex-shrink:0;}
 .arena-grave-btn.tea{background-image:url('../img/button_grav_1.png');}
@@ -1800,7 +1833,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    раньше ID-скоуп #deckPlaceholderJ, теперь класс — позиция Opp/Player не привязана к
    фракции намертво). Чисто визуальный якорь + мишень для анимации добора карты
    (_deckPlaceholderRect() в render.js), не кликабелен. */
-.arena-deck-slot{width:58%;aspect-ratio:1/1;background-image:url('../img/deck.png');
+.arena-deck-slot{width:calc(var(--arena-col-w) * 0.58);aspect-ratio:1/1;
+  background-image:url('../img/deck.png');
   background-size:contain;background-repeat:no-repeat;background-position:center;
   pointer-events:none;flex-shrink:0;}
 .arena-deck-slot.jeet{background-image:url('../img/deck_jeet.png');}
@@ -1808,9 +1842,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* Каунтеры — переиспользуют .stat-badge (тот же ЛСД-вид/blink на пустой колоде, см.
    .stat-badge.deck-count-empty ниже по файлу), tea/jeet-скин раньше был приколочен к
    #teaBottomBar/#jeetBottomBar — теперь классы, т.к. позиция Opp/Player больше не
-   привязана намертво к фракции. min-width сброшен до 0 здесь — у самого .stat-badge
-   он 3.5vh (нужно для счётчиков в шапке, там места вагон), в узкой колонке арены на
-   телефоне это может не влезть в пару с кнопкой рядом. */
+   привязана намертво к фракции. min-width:0 — портретная колонка узкая, каунтер должен
+   уметь ужаться до размера своего текста, а не упираться в общий 3.5vh-минимум
+   .stat-badge (который посчитан для шапки, там места вагон). НЕ ТРОГАТЬ размер здесь
+   без отдельного запроса автора (2026-08-04: "каунтеры теперь уже не трогай"). */
 .arena-pair .stat-badge{min-width:0;}
 .stat-badge.tea{color:#4DB854;}
 .stat-badge.jeet{color:#b44fd4;background-color:#fff;background-image:url('../img/bg_counters_jeet.png');}
@@ -1819,8 +1854,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    плейсхолдер-конвенция как у .modal-icon-btn.placeholder (см. её комментарий выше по
    файлу) — url() прописан НЕкомментированным сразу под реальные три состояния, просто
    сейчас не грузится (файлов ещё нет), fallback-рамка+эмодзи поверх видны. Когда автор
-   положит btn_log1/H/2.png — достаточно убрать класс .placeholder в HTML. */
-.arena-log-btn{width:85%;aspect-ratio:1/1;border:none;background-color:transparent;
+   положит btn_log1/H/2.png — достаточно убрать класс .placeholder в HTML.
+   width — от --arena-log-w (см. её комментарий у :root), НЕ от --arena-col-w — кнопка
+   лога зафиксирована в одном размере независимо от ориентации/ширины колонки. */
+.arena-log-btn{width:calc(var(--arena-log-w) * 0.85);aspect-ratio:1/1;border:none;
+  background-color:transparent;
   background-size:contain;background-repeat:no-repeat;background-position:center;
   padding:0;cursor:pointer;position:relative;transition:transform .1s,filter .1s;
   background-image:url('../img/btn_log1.png');}
@@ -1828,7 +1866,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .arena-log-btn:active{background-image:url('../img/btn_log2.png');}
 .arena-log-btn.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
 .arena-log-btn.placeholder::after{content:'📋';position:absolute;inset:0;display:flex;
-  align-items:center;justify-content:center;font-size:calc(var(--arena-col-w) * 0.32);}
+  align-items:center;justify-content:center;font-size:calc(var(--arena-log-w) * 0.32);}
 .arena-log-btn.placeholder:hover{filter:brightness(1.25);}
 .arena-log-btn.placeholder:active{transform:scale(0.92) translateY(1px);}
 
@@ -1839,8 +1877,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    растягивается на весь квадрат (автор в курсе и сам нарисует новый, под квадратную
    форму — просто ничего не сломано, пока рисует). #teaEndTurnBtn/#jeetEndTurnBtn — те
    же 2 статичных элемента, что были в двух bottom-bar (id/логика показа активного не
-   менялась, см. render.js). */
-.arena-endturn-slot{width:85%;aspect-ratio:1/1;position:relative;}
+   менялась, см. render.js). Размер — от --arena-col-w (в отличие от лога, автор эту
+   кнопку увеличивать не просил обратно уменьшать — она и задумывалась расти вместе с
+   колонкой в лендскейпе). */
+.arena-endturn-slot{width:calc(var(--arena-col-w) * 0.85);aspect-ratio:1/1;position:relative;}
 .arena-endturn-slot .btn-end{position:absolute;inset:0;width:100%;height:100%;
   transform:none;background-size:100% 100%;}
 
@@ -1849,55 +1889,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    кнопок проекта) — не применяется по умолчанию ни к одному из элементов выше, кроме
    .arena-log-btn (см. её собственный .placeholder-блок выше), оставлено про запас. */
 
-/*═══════════════════════════════════════════════════════════════════════════
-   ARENA SIDE COLUMNS — ЛЕНДСКЕЙП-РЕДИЗАЙН (2026-08-04, по прямому запросу автора,
-   референс — присланный скрин с забитым 6v6 полем в горизонтальной ориентации на iPad).
-   Три вещи, только для landscape (в портрете колонка и так впритык, свободного места
-   нет — там всё остаётся как было):
-   1) Колонка шире (было общее --arena-col-w и на портрет, и на лендскейп — теперь
-      отдельная landscape-константа, посчитана и проверена живьём под живую мёртвую зону
-      после раунда 3, см. её комментарий у портретного/лендскейп-правила .battlefield
-      выше — там же обновлённые 19.5vh для лендскейпа дают мёртвую зону 169-259px на
-      разных экранах, самый тесный — iPad 1180×820 — 169px; взял с запасом).
-   2) Кнопки кладбища/плейсхолдеры деки — с 58% (портретный размер) до тех же 85%
-      ширины, что уже были у кнопки лога/конца хода — автору нравится их текущий
-      квадратный размер, кладбище/дека просто подтягиваются к нему, а не наоборот.
-   3) .arena-col — с грида 1fr/1fr/1fr (равные трети) на flex+space-between: верхняя и
-      нижняя пары (.arena-pair) больше НЕ растягиваются на треть колонки, а садятся
-      вплотную к краям (= вплотную к статбарам противника/игрока, т.к. .arena и так
-      начинается/заканчивается ровно на границе с oppStats/playerStats) и сами
-      определяют свою высоту по контенту; лог/конец хода остаются "посередине" —
-      space-between с ровно 3 детьми автоматически даёт им одинаковый отступ сверху и
-      снизу (= визуально по центру между двумя парами), без явных расчётов.
-   .arena-pair — получила фон-плейсхолдер (чёрный Джит / серый Чай, .tea/.jeet — та же
-   схема, что у кнопок/каунтеров, выставляется в reorderZones()) и паддинг, чтобы кнопка+
-   каунтер не липли к краям бокса — автор сам нарисует кастомный фон позже, пока плоская
-   заглушка "как продолжение статус-бара". ═══════════════════════════════════════════*/
+/*── ЛЕНДСКЕЙП — только два числа теперь переопределяются (2026-08-04, всё остальное уже
+   унифицировано в базовом правиле выше и работает на обеих ориентациях без дублирования):
+   1) --arena-col-w — шире (План Б, см. её комментарий у :root) — тянет за собой ВСЁ,
+      что считается через calc(var(--arena-col-w)*X): саму колонку, паддинг/gap бокса,
+      конец хода. Кладбище/дека и лог НЕ входят в этот список (см. п.2 и --arena-log-w).
+   2) Кладбище/плейсхолдеры деки — были 58%×(увеличенная колонка) = слишком крупно на
+      вкус автора ("давай сделаем их на 30% меньше") — 0.58*0.7≈0.42. Портретный 0.58
+      не трогаю (там их размер никогда не называли большим). ──*/
 @media(orientation:landscape){
-  .arena-col{
-    width: clamp(120px, 15vh, 155px);
-    display:flex;flex-direction:column;justify-content:space-between;align-items:center;
-    gap:0;padding:6px 0;box-sizing:border-box;
-  }
-  .arena-pair{
-    width:100%;box-sizing:border-box;flex-shrink:0;
-    background:#4a4a4a; /* плейсхолдер-фон Чая (серый) — Джит переопределяет ниже (.jeet) */
-    border-radius:8px;
-    padding:8px;
-    gap:6px;
-  }
-  .arena-pair.jeet{background:#000000;}
-  /* flex-grow вместо фиксированного % (2026-08-04): при жёстком % иконка и каунтер в
-     одной паре начинают конкурировать за место и либо вылезают за бокс, либо иконка
-     остаётся мельче, чем нужно, — вместо этого иконка растёт, чтобы занять ВСЁ, что
-     останется после каунтера/паддинга/gap (min-width:0 даёт ей право сжаться, если
-     места мало), но не больше потолка (max-width) — тот же порядок величины, что и
-     у кнопки лога/конца хода (см. их правило чуть ниже), чтобы визуально совпадали. */
-  .arena-grave-btn,.arena-deck-slot{
-    flex:1 1 auto;min-width:0;max-width:clamp(90px, 11vh, 130px);aspect-ratio:1/1;
-  }
+  :root{ --arena-col-w: clamp(120px, 15vh, 155px); }
+  .arena-grave-btn,.arena-deck-slot{width:calc(var(--arena-col-w) * 0.42);}
   .arena-pair .stat-badge{flex-shrink:0;min-width:28px;}
-  .arena-log-btn,.arena-endturn-slot{width:85%;}
 }
 
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
