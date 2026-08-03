@@ -1578,42 +1578,52 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cap-btn:active{transform:scale(0.95) translateY(2px);}
 .card-actions-popup:has(.cap-no-ess){width:var(--card-w);}
 .battlefield{min-height:60px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;flex:1;}
-/*── Поле боя — ТОЛЬКО портрет, раунд 3 (2026-08-03, по прямому запросу автора — убрали
-    bottom-bar (7vh) целиком, кнопки кладбища/колоды/лога/конца хода переехали в боковые
-    колонки арены (.arena-col, см. ниже), которые лежат ПОВЕРХ уже существующей "мёртвой
-    зоны" по краям .battlefield — сама раскладка карт (3 в ряд, до 2 рядов, макс 6/сторону)
-    не изменилась, подробный разбор форм improve см. в истории раунда 2 выше по файлу.
-    ЕДИНОЕ правило вместо двух с разрывом (2026-08-02 версия жила только в max-width:600
-    И 601-1024 — портретные окна ШИРЕ 1024px (напр. iPad Pro в вертикальной раскладке,
-    или просто высокое-но-широкое окно десктопа) проваливались в НЕограниченный дефолт
-    (плоские 18vh, без max-width) и реально уезжали в скролл на 6+6 картах — баг, пойманный
-    и подтверждённый живьём (Playwright, 1080×1400/1200×1800, scrollHeight>viewport),
-    существовавший независимо от bottom-bar. Убрали верхнюю границу диапазона совсем —
-    (orientation:portrait) без max-width покрывает всю портретную ширину разом.
-    ЧИСЛО (10.6vh вместо 10/10.5vh): формула та же (свободная высота под обе зоны /2/2),
-    просто теперь без 7vh bottom-bar в фиксированных секциях — НЕ наивные +1.75vh (это
-    давало реальный скролл на практике, см. живой замер), а перепроверенный бинарным
-    поиском по факту рендера потолок БЕЗ скролла на референсном iPhone13 390×844: 10.6vh.
-    Одно и то же число безопасно на ВСЁМ портретном диапазоне (не только на телефоне) —
-    короткие секции (шапка/руки/статы) все на vh, так что процент почти не плывёт с
-    ростом экрана, а на более высоких экранах (планшет и выше) фиксированный px-оверхед
-    (бордеры/паддинги/gap) съедает ещё МЕНЬШУЮ долю vh, чем на телефоне — т.е. 10.6vh
-    можно было бы даже чуть поднять отдельно для планшета, но автор попросил сначала
-    собрать лэйаут, тонкая подстройка — потом. Проверено живьём без скролла на 360×640,
-    390×844, 412×915, 744×1133, 1024×1366, 1080×1400, 1200×1800.
-    align-self:center — см. объяснение в истории раунда 2 (без этого max-width-обрезанный
-    .battlefield прилипает к левому краю вместо центра). ──*/
+/*── Поле боя — раунд 4 (2026-08-03, автор поймал живьём: на ПУСТОМ поле снизу экрана
+    висело ~7vh чёрного пространства — это был баг, не свободное место. .arena (см. её
+    комментарий ниже) была position:relative БЕЗ display:flex, так что flex:1 у
+    oppFieldZone/playerFieldZone молча игнорировался (родитель не flex — flex:1 не
+    работает), оба поля падали на min-height:20vh вместо реального растягивания. На
+    ЗАБИТОМ 6v6 поле разница не была видна (контент — 2 ряда карт — сам по себе близок
+    к нужной высоте), поэтому баг не поймался на предыдущих раундах правки, где всегда
+    тестировался забитый борт. После фикса .arena живой бинарный поиск ЗАНОВО (то же
+    самое 6v6, тот же метод) на референсном 390×844 дал НЕ 10.6vh, а 12.35vh безопасного
+    максимума — то есть раунд 3 был занижен из-за бага, реального места было больше.
+    Взял с тем же запасом, что и раньше (~0.3-0.35vh): 12.0vh.
+    ЛЕНДСКЕЙП (новое — раньше это был плоский НЕпроверенный --card-small-h:18vh из :root,
+    без спец-правила вообще): та же логика, что портрет, но БЕЗ деления на 2 ряда — в
+    лендскейпе места на ширину всегда хватает на 6 карт в один ряд (нет 3-карточного
+    max-width-капа), так что упирается высота только в "1 ряд на зону", а не "2 ряда на
+    зону" — отсюда и куда больший запас. Проверено бинарным поиском на 6 разных
+    лендскейп-экранах (телефон лёжа 844×390/896×414, iPad 1180×820/1366×1024, ноутбук
+    1440×900, широкий 1920×1080) — безопасный максимум на самом тесном из них (телефон
+    лёжа) — ~20vh, взял с запасом 19.5vh, единое число для всех, тем же принципом, что и
+    портретная константа (короткие секции все на vh, процент не плывёт с ростом экрана).
+    align-self:center — .field-zone{display:flex;flex-direction:column} по умолчанию
+    растягивает детей на всю ширину (align-items:stretch), без этого урезанный по
+    max-width .battlefield прилипает к левому краю вместо центра (актуально только для
+    портрета — в лендскейпе max-width не задан, стретчить нечего). ──*/
 @media(orientation:portrait){
   .battlefield{
-    --card-small-h: 10.6vh;
-    --card-small-w: calc(10.6vh * 0.856);
-    --card-small-art-h: calc(10.6vh * 0.622);
-    --card-small-name-h: calc(10.6vh * 0.133);
-    --card-small-stats-h: calc(10.6vh * 0.122);
-    --card-small-name-fs: calc(10.6vh * 0.1);
-    --card-small-stat-fs: calc(10.6vh * 0.15);
+    --card-small-h: 12vh;
+    --card-small-w: calc(12vh * 0.856);
+    --card-small-art-h: calc(12vh * 0.622);
+    --card-small-name-h: calc(12vh * 0.133);
+    --card-small-stats-h: calc(12vh * 0.122);
+    --card-small-name-fs: calc(12vh * 0.1);
+    --card-small-stat-fs: calc(12vh * 0.15);
     max-width: calc(3 * var(--card-small-w) + 8px);
     align-self: center;
+  }
+}
+@media(orientation:landscape){
+  .battlefield{
+    --card-small-h: 19.5vh;
+    --card-small-w: calc(19.5vh * 0.856);
+    --card-small-art-h: calc(19.5vh * 0.622);
+    --card-small-name-h: calc(19.5vh * 0.133);
+    --card-small-stats-h: calc(19.5vh * 0.122);
+    --card-small-name-fs: calc(19.5vh * 0.1);
+    --card-small-stat-fs: calc(19.5vh * 0.15);
   }
 }
 .stats-bar{position:relative;z-index:0;height:max(4vh, 2vw);font-size:max(calc(4vh * 0.38), calc(2vw * 0.38));display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;padding:0 10px;flex-wrap:wrap;border:none;outline:none;box-shadow:none;}
@@ -1739,25 +1749,46 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    position:absolute поверх "мёртвой зоны" по краям арены, на всю высоту ОБЕИХ полей
    разом (включая шов между ними), т.к. .arena сама растягивается на их суммарную высоту
    через обычный document flow (oppFieldZone/playerFieldZone внутри неё как и раньше).
-   Слоты — грид 1:1:2:1:1 (кнопка:каунтер:большая кнопка:кнопка:каунтер), по требованию
-   автора, с равными отступами на всю высоту (gap как % даёт то же "равноудалённо",
-   что map explicit space-between, но проще считается вместе с 2%-паддингом сверху/снизу).
+   РАУНД 2 (2026-08-03, автор прислал референс-скрин): кнопка+каунтер сведены В ОДНУ
+   строку (.arena-pair) вместо отдельных грид-ячеек — 3 равные строки вместо 1:1:2:1:1
+   на 5. Каунтеры "смотрят" на карты — у кладбища (слева) он справа от кнопки, у колоды
+   (справа) он слева от плейсхолдера — см. порядок детей .arena-pair в index.html.
    ═══════════════════════════════════════════════════════════════════════ */
-.arena{position:relative;}
+/*── БАГ (найден автором 2026-08-03 живьём — пустое поле, Turn 1, внизу экрана лишние
+   ~7vh чёрного пространства): .arena раньше был просто position:relative, БЕЗ display:flex.
+   oppFieldZone/playerFieldZone внутри него — со своим flex:1, но flex:1 работает ТОЛЬКО
+   если родитель сам display:flex — тут родитель им не был, так что flex:1 тихо
+   игнорировался, оба поля падали на min-height:20vh вместо реального растягивания на всю
+   доступную высоту. При забитом 6v6 поле разница почти не видна (контент — 2 ряда карт —
+   сам по себе близок к нужной высоте), но на пустом поле (мало контента) вылезает как
+   пустой хвост внизу экрана. Фикс: .arena сам становится flex-колонкой (и сам получает
+   flex:1 от .game, как раньше получали id напрямую oppFieldZone/playerFieldZone) —
+   position:relative остаётся (нужен как контекст для position:absolute колонок-кнопок,
+   которые НЕ flex-айтемы, т.к. abs-позиционирование выводит их из потока — friend не
+   мешают друг другу). min-height:0 — стандартный fix для flex-column, чтобы дети с
+   собственным flex:1 могли реально сжиматься/расти, а не упирались в auto-минимум. ──*/
+.arena{position:relative;display:flex;flex-direction:column;flex:1;min-height:0;}
 .arena-col{position:absolute;top:0;bottom:0;width:var(--arena-col-w);display:grid;
-  grid-template-rows:1fr 1fr 2fr 1fr 1fr;align-items:center;justify-items:center;
+  grid-template-rows:1fr 1fr 1fr;align-items:center;justify-items:center;
   gap:2%;padding:2% 0;box-sizing:border-box;z-index:15;}
 .arena-col-left{left:0;}
 .arena-col-right{right:0;}
+
+/* Пара "кнопка + каунтер" в одну строку — ужимается по ширине колонки (min-width:0 на
+   обоих детях, иначе flex по умолчанию не даёт им сжаться меньше их контента и пара
+   вылезает за пределы узкой колонки на телефоне). */
+.arena-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;
+  gap:6%;width:100%;min-width:0;}
+.arena-pair > *{min-width:0;flex-shrink:1;}
 
 /* Кладбище (слева) — переиспользует существующий арт button_grav_*.png (был в
    bottom-bar, просто теперь на 2 динамических слота Opp/Player вместо статичных
    tea/jeet — см. reorderZones() в render.js, которая на каждый рендер решает, какая
    фракция сейчас "opp", а какая "player", и перевешивает className/onclick/data-faction
    на #arenaGraveOpp/#arenaGravePlayer соответственно). */
-.arena-grave-btn{width:70%;aspect-ratio:1/1;border:none;background-color:transparent;
+.arena-grave-btn{width:58%;aspect-ratio:1/1;border:none;background-color:transparent;
   background-size:contain;background-repeat:no-repeat;background-position:center;
-  padding:0;cursor:pointer;transition:transform .1s,filter .1s;}
+  padding:0;cursor:pointer;transition:transform .1s,filter .1s;flex-shrink:0;}
 .arena-grave-btn.tea{background-image:url('../img/button_grav_1.png');}
 .arena-grave-btn.tea:hover{filter:brightness(1.2);}
 .arena-grave-btn.tea:active,.arena-grave-btn.tea.open{background-image:url('../img/button_grav_2.png');}
@@ -1769,15 +1800,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    раньше ID-скоуп #deckPlaceholderJ, теперь класс — позиция Opp/Player не привязана к
    фракции намертво). Чисто визуальный якорь + мишень для анимации добора карты
    (_deckPlaceholderRect() в render.js), не кликабелен. */
-.arena-deck-slot{width:70%;aspect-ratio:1/1;background-image:url('../img/deck.png');
+.arena-deck-slot{width:58%;aspect-ratio:1/1;background-image:url('../img/deck.png');
   background-size:contain;background-repeat:no-repeat;background-position:center;
-  pointer-events:none;}
+  pointer-events:none;flex-shrink:0;}
 .arena-deck-slot.jeet{background-image:url('../img/deck_jeet.png');}
 
 /* Каунтеры — переиспользуют .stat-badge (тот же ЛСД-вид/blink на пустой колоде, см.
    .stat-badge.deck-count-empty ниже по файлу), tea/jeet-скин раньше был приколочен к
    #teaBottomBar/#jeetBottomBar — теперь классы, т.к. позиция Opp/Player больше не
-   привязана намертво к фракции. */
+   привязана намертво к фракции. min-width сброшен до 0 здесь — у самого .stat-badge
+   он 3.5vh (нужно для счётчиков в шапке, там места вагон), в узкой колонке арены на
+   телефоне это может не влезть в пару с кнопкой рядом. */
+.arena-pair .stat-badge{min-width:0;}
 .stat-badge.tea{color:#4DB854;}
 .stat-badge.jeet{color:#b44fd4;background-color:#fff;background-image:url('../img/bg_counters_jeet.png');}
 
@@ -1786,7 +1820,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    файлу) — url() прописан НЕкомментированным сразу под реальные три состояния, просто
    сейчас не грузится (файлов ещё нет), fallback-рамка+эмодзи поверх видны. Когда автор
    положит btn_log1/H/2.png — достаточно убрать класс .placeholder в HTML. */
-.arena-log-btn{width:80%;aspect-ratio:1/1;border:none;background-color:transparent;
+.arena-log-btn{width:85%;aspect-ratio:1/1;border:none;background-color:transparent;
   background-size:contain;background-repeat:no-repeat;background-position:center;
   padding:0;cursor:pointer;position:relative;transition:transform .1s,filter .1s;
   background-image:url('../img/btn_log1.png');}
@@ -1798,15 +1832,17 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .arena-log-btn.placeholder:hover{filter:brightness(1.25);}
 .arena-log-btn.placeholder:active{transform:scale(0.92) translateY(1px);}
 
-/* Конец хода (справа, средний слот) — переиспользует существующий button_1.png/_jeet.png
-   (двойного набора idle/active, как в bottom-bar), просто раньше кнопка сама была
-   position:absolute-центрирована в широком горизонтальном баре (calc(6vh*4)×6vh) — здесь
-   вместо этого заполняет весь квадратный слот через inset, без искажений
-   (background-size:contain). #teaEndTurnBtn/#jeetEndTurnBtn — те же 2 статичных элемента,
-   что были в двух bottom-bar (id/логика показа активного не менялась, см. render.js). */
-.arena-endturn-slot{width:100%;height:100%;position:relative;}
-.arena-endturn-slot .btn-end{position:absolute;inset:4%;left:4%;top:4%;right:4%;bottom:4%;
-  width:auto;height:auto;transform:none;}
+/* Конец хода (справа, средний слот) — по прямому запросу автора (2026-08-03) СДЕЛАНА
+   КВАДРАТНОЙ: старый button_1.png/_jeet.png был широким (4:1, из горизонтального
+   bottom-bar) — раньше вписывался через contain БЕЗ искажений, но занимал только
+   узкую полоску квадратного слота. Теперь background-size:100% 100% — арт
+   растягивается на весь квадрат (автор в курсе и сам нарисует новый, под квадратную
+   форму — просто ничего не сломано, пока рисует). #teaEndTurnBtn/#jeetEndTurnBtn — те
+   же 2 статичных элемента, что были в двух bottom-bar (id/логика показа активного не
+   менялась, см. render.js). */
+.arena-endturn-slot{width:85%;aspect-ratio:1/1;position:relative;}
+.arena-endturn-slot .btn-end{position:absolute;inset:0;width:100%;height:100%;
+  transform:none;background-size:100% 100%;}
 
 /* Плейсхолдер-заглушка ПОКА нет реального арта под конкретный слот (используется, если
    автор захочет временно спрятать слот тем же .placeholder-конвеншном, что у остальных
