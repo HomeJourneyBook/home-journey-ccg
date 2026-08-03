@@ -937,12 +937,12 @@
   <div class="arena" id="arena">
     <!-- ARENA LEFT: кладбище противника / боевой лог / кладбище игрока -->
     <div class="arena-col arena-col-left" id="arenaColLeft">
-      <div class="arena-pair">
+      <div class="arena-pair" id="arenaGravePairOpp">
         <button class="arena-grave-btn" id="arenaGraveOpp" title="Graveyard"></button>
         <span class="stat-badge" id="arenaGraveCounterOpp">0</span>
       </div>
       <button class="arena-log-btn placeholder" id="arenaLogBtn" onclick="playSfx('yellow_buttom');toggleLog()" title="Battle Log"></button>
-      <div class="arena-pair">
+      <div class="arena-pair" id="arenaGravePairPlayer">
         <button class="arena-grave-btn" id="arenaGravePlayer" title="Graveyard"></button>
         <span class="stat-badge" id="arenaGraveCounterPlayer">0</span>
       </div>
@@ -962,7 +962,7 @@
 
     <!-- ARENA RIGHT: колода противника / конец хода / колода игрока -->
     <div class="arena-col arena-col-right" id="arenaColRight">
-      <div class="arena-pair">
+      <div class="arena-pair" id="arenaDeckPairOpp">
         <span class="stat-badge" id="arenaDeckCounterOpp">35</span>
         <div class="arena-deck-slot" id="arenaDeckOpp"></div>
       </div>
@@ -970,7 +970,7 @@
         <button class="btn btn-end" id="teaEndTurnBtn" onclick="endTurn()">End Turn</button>
         <button class="btn btn-end" id="jeetEndTurnBtn" onclick="endTurn()" style="display:none;">End Turn</button>
       </div>
-      <div class="arena-pair">
+      <div class="arena-pair" id="arenaDeckPairPlayer">
         <span class="stat-badge" id="arenaDeckCounterPlayer">35</span>
         <div class="arena-deck-slot" id="arenaDeckPlayer"></div>
       </div>
