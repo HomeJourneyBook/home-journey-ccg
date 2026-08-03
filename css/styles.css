@@ -59,11 +59,23 @@
   --arena-log-w: clamp(56px, 8vh, 96px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
-html{overflow-x:hidden;width:100%;}
-body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;min-height:100vh;overflow-x:hidden;touch-action:pan-y;}
+html{overflow:hidden;width:100%;height:100%;}
+body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;height:100%;overflow:hidden;touch-action:pan-y;}
 .stars{position:fixed; inset:0; background:#0a0a12; z-index:0;}
 .stars::after{content:''; position:absolute; inset:0; background:url('../img/space_bg.png') center center/cover no-repeat; opacity:0.5;}
-.game{position:relative;z-index:1;width:100%;padding:0;display:flex;flex-direction:column;gap:0;min-height:100vh;overflow-y:auto;overflow-x:hidden;}
+/*── Вертикальный скролл поля боя заблокирован (2026-08-04, по прямому запросу автора —
+   "карты на поле мы уже зафиксировали по рядам, скролл больше не нужен"). Раньше здесь
+   было min-height:100vh + overflow-y:auto — но min-height НИЧЕГО не ограничивает (контейнер
+   просто рос выше 100vh, если контенту нужно больше места), реальный скролл в итоге шёл на
+   уровне html/body (обычный поток документа), а не внутри .game — так что одного
+   overflow-y:hidden на .game было бы недостаточно. Теперь height:100vh (жёсткий потолок)
+   + overflow-y:hidden — если что-то всё же не влезет, обрежется, а не скроллится, что сразу
+   заметно (а не тихо доступно свайпом). html/body тоже на overflow:hidden — не мешает
+   .screen/.landing/#mulliganScreen (все они position:fixed с собственным overflow-y:auto,
+   скроллятся внутри себя независимо от html/body), но и не даёт странице скроллиться
+   через них, если .game вдруг переполнится. Внутренний скролл кладбища/лога/лора/каталога/
+   деках-билдера — не трогали, у них свой overflow-y:auto на других элементах. ──*/
+.game{position:relative;z-index:1;width:100%;padding:0;display:flex;flex-direction:column;gap:0;height:100vh;overflow-y:hidden;overflow-x:hidden;}
 html, body, body *{user-select: none;-webkit-user-select: none;}
 .card-small{width:var(--card-small-w);height:var(--card-small-h);border:1px solid;padding:2px;cursor:pointer;position:relative;background:transparent;background-size:cover;background-position:center;font-size:12px;border-radius:8%;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
 .btn:hover{filter:brightness(1.25) drop-shadow(0 0 4px #c8a84b88);}
@@ -1037,7 +1049,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    #logOverlay (.modal-overlay — тот же паттерн, что у GRAVEYARD MODAL: fixed+flex-центр
    на весь экран, klик по фону = закрыть) — сама панель просто блок нормального размера
    внутри центрированного оверлея, без своего fixed/z-index/top/right. ──*/
-.log-panel{width:320px; background:transparent; border-style:solid; border-width:20px; border-image-source:url('../img/log_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; filter:drop-shadow(0 4px 20px #000000aa);}
+.log-panel{width:min(calc(2 * var(--card-w) + 44px), 92vw); background:transparent; border-style:solid; border-width:20px; border-image-source:url('../img/log_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; filter:drop-shadow(0 4px 20px #000000aa);}
 .log-panel.open{display:block;}
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
