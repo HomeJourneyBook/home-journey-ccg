@@ -927,18 +927,25 @@
   <!-- ARENA — оба поля боя + боковые колонки-кнопки поверх "мёртвой зоны" по краям
        (2026-08-03, по прямому запросу автора, замена bottom-bar). Левая — кладбище
        противника/боевой лог/кладбище игрока, правая — колода противника/конец хода/
-       колода игрока. Кто сейчас "противник", а кто "игрок" — решает reorderZones()
-       (js/render.js), тот же принцип, что уже работает для oppStats/playerStats:
-       #arenaGraveOpp/#arenaGravePlayer/#arenaDeckOpp/#arenaDeckPlayer получают
-       className/onclick/data-faction и текст счётчика заново на каждый рендер. -->
+       колода игрока. Кнопка+каунтер сгруппированы в одну строку (.arena-pair) — каунтеры
+       всегда "смотрят" на карты (слева от кнопки кладбища они справа, у колоды — наоборот,
+       слева от плейсхолдера), 3 строки на колонку вместо 5. Кто сейчас "противник", а кто
+       "игрок" — решает reorderZones() (js/render.js), тот же принцип, что уже работает
+       для oppStats/playerStats: #arenaGraveOpp/#arenaGravePlayer/#arenaDeckOpp/
+       #arenaDeckPlayer получают className/onclick/data-faction и текст счётчика заново
+       на каждый рендер. -->
   <div class="arena" id="arena">
     <!-- ARENA LEFT: кладбище противника / боевой лог / кладбище игрока -->
     <div class="arena-col arena-col-left" id="arenaColLeft">
-      <button class="arena-grave-btn" id="arenaGraveOpp" title="Graveyard"></button>
-      <span class="stat-badge" id="arenaGraveCounterOpp">0</span>
+      <div class="arena-pair">
+        <button class="arena-grave-btn" id="arenaGraveOpp" title="Graveyard"></button>
+        <span class="stat-badge" id="arenaGraveCounterOpp">0</span>
+      </div>
       <button class="arena-log-btn placeholder" id="arenaLogBtn" onclick="playSfx('yellow_buttom');toggleLog()" title="Battle Log"></button>
-      <button class="arena-grave-btn" id="arenaGravePlayer" title="Graveyard"></button>
-      <span class="stat-badge" id="arenaGraveCounterPlayer">0</span>
+      <div class="arena-pair">
+        <button class="arena-grave-btn" id="arenaGravePlayer" title="Graveyard"></button>
+        <span class="stat-badge" id="arenaGraveCounterPlayer">0</span>
+      </div>
     </div>
 
     <!-- OPP FIELD -->
@@ -955,14 +962,18 @@
 
     <!-- ARENA RIGHT: колода противника / конец хода / колода игрока -->
     <div class="arena-col arena-col-right" id="arenaColRight">
-      <div class="arena-deck-slot" id="arenaDeckOpp"></div>
-      <span class="stat-badge" id="arenaDeckCounterOpp">35</span>
+      <div class="arena-pair">
+        <span class="stat-badge" id="arenaDeckCounterOpp">35</span>
+        <div class="arena-deck-slot" id="arenaDeckOpp"></div>
+      </div>
       <div class="arena-endturn-slot" id="arenaEndTurnSlot">
         <button class="btn btn-end" id="teaEndTurnBtn" onclick="endTurn()">End Turn</button>
         <button class="btn btn-end" id="jeetEndTurnBtn" onclick="endTurn()" style="display:none;">End Turn</button>
       </div>
-      <div class="arena-deck-slot" id="arenaDeckPlayer"></div>
-      <span class="stat-badge" id="arenaDeckCounterPlayer">35</span>
+      <div class="arena-pair">
+        <span class="stat-badge" id="arenaDeckCounterPlayer">35</span>
+        <div class="arena-deck-slot" id="arenaDeckPlayer"></div>
+      </div>
     </div>
   </div>
 
