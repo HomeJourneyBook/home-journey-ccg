@@ -92,14 +92,6 @@ function render(){
     }
     const gc=document.getElementById(f+'GraveCountStat');
     if(gc)gc.textContent=p.grave.length;
-    // Bottom bar badges
-    const graveBadge=document.getElementById(f+'GraveBadge');
-    if(graveBadge)graveBadge.textContent=p.grave.length;
-    const deckBadge=document.getElementById(f+'DeckBadge');
-    if(deckBadge){
-      deckBadge.textContent=p.deck.length;
-      deckBadge.classList.toggle('deck-count-empty', p.deck.length===0);
-    }
   });
   rZone('teaField',G.tea.field,'field');
   rZone('jeetField',G.jeet.field,'field');
@@ -137,18 +129,21 @@ function render(){
   const actSB=document.getElementById(G.turn+'SidebarBtns');
   if(actSB)actSB.style.display='flex';
 
+  // Показ активной кнопки End Turn (2026-08-03: раньше переключался целый bottom-bar,
+  // теперь оба #teaEndTurnBtn/#jeetEndTurnBtn сидят в одном слоте .arena-endturn-slot —
+  // видна только кнопка активного игрока, та же логика show/hide, что была у бара.
   if(G.mode==='vsai'){
-    const humanBB=document.getElementById(G.humanFaction+'BottomBar');
-    const aiBB=document.getElementById(G.aiFaction+'BottomBar');
-    if(aiBB)aiBB.style.display='none';
-    // Панель человека теперь видна ВСЕГДА в vsai, даже во время хода ИИ —
-    // на время хода ИИ у нее просто подменяется кнопка End Turn (см. updateEndTurnBtn ниже).
-    if(humanBB)humanBB.style.display='flex';
+    const humanBtn=document.getElementById(G.humanFaction+'EndTurnBtn');
+    const aiBtn=document.getElementById(G.aiFaction+'EndTurnBtn');
+    if(aiBtn)aiBtn.style.display='none';
+    // Кнопка человека видна ВСЕГДА в vsai, даже во время хода ИИ —
+    // на время хода ИИ у неё просто подменяется вид (см. updateEndTurnBtn ниже).
+    if(humanBtn)humanBtn.style.display='flex';
   } else {
-    const inactBB=document.getElementById((G.turn==='tea'?'jeet':'tea')+'BottomBar');
-    if(inactBB)inactBB.style.display='none';
-    const actBB=document.getElementById(G.turn+'BottomBar');
-    if(actBB)actBB.style.display='flex';
+    const inactBtn=document.getElementById((G.turn==='tea'?'jeet':'tea')+'EndTurnBtn');
+    if(inactBtn)inactBtn.style.display='none';
+    const actBtn=document.getElementById(G.turn+'EndTurnBtn');
+    if(actBtn)actBtn.style.display='flex';
   }
 
   const oppKey=G.mode==='vsai'?G.aiFaction:(G.turn==='tea'?'jeet':'tea');
@@ -1229,11 +1224,26 @@ const CARD_FLY_FADE_MS = 140; // длина окна кроссфейда — о
 // инлайн-стили/классы, и клон стартовал бы уже невидимым (opacity:0 от "from"
 // кейфрейма cardDrawn).
 
+// Возвращает 'Opp'/'Player' — в какой колонке арены СЕЙЧАС физически отображается
+// фракция faction (см. reorderZones() ниже) — тот же принцип, что _statsElIdForFaction
+// в game.js, только суффикс под id вида arenaDeckOpp/arenaDeckPlayer. Нужен и здесь
+// (render.js грузится раньше game.js, но вызывается уже после полной загрузки, так что
+// сама функция ниже переиспользуется прямым вызовом без проблем с порядком).
+function _arenaPosForFaction(faction){
+  if(G.mode==='vsai'){
+    return faction===G.humanFaction ? 'Player' : 'Opp';
+  }
+  return faction===G.turn ? 'Player' : 'Opp';
+}
+
 // Возвращает rect плейсхолдера колоды нужной фракции, ИЛИ null если он сейчас
 // не виден (например, скрыт под модалкой муллигана/деколадера) — в этом случае
 // полёт просто пропускается, карта появляется как раньше (обычный fade без клона).
+// 2026-08-03: раньше — статичные id по фракции (deckPlaceholderT/J) внутри её же
+// bottom-bar, который прятался целиком, если не её ход. Теперь колода противника ТОЖЕ
+// всегда на экране (см. ARENA COLUMNS) — ищем по текущей Opp/Player-роли, не по фракции.
 function _deckPlaceholderRect(faction){
-  const deckEl=document.getElementById(faction==='tea'?'deckPlaceholderT':'deckPlaceholderJ');
+  const deckEl=document.getElementById('arenaDeck'+_arenaPosForFaction(faction));
   if(!deckEl || deckEl.offsetParent===null) return null;
   const r=deckEl.getBoundingClientRect();
   if(!r.width || !r.height) return null;
@@ -1716,16 +1726,48 @@ function reorderZones(){
     }
   }
 
-  const teaBB=document.getElementById('teaBottomBar');
-  const jeetBB=document.getElementById('jeetBottomBar');
-  if(G.mode==='vsai'){
-    const humanBB=document.getElementById(G.humanFaction+'BottomBar');
-    const aiBB=document.getElementById(G.aiFaction+'BottomBar');
-    if(aiBB) aiBB.style.display='none';
-    if(humanBB) humanBB.style.display='flex';
-  } else {
-    if(teaBB) teaBB.style.display=G.turn==='tea'?'flex':'none';
-    if(jeetBB) jeetBB.style.display=G.turn==='jeet'?'flex':'none';
+  // ARENA COLUMNS — кладбище/колода противника и игрока (2026-08-03, по прямому запросу
+  // автора, замена bottom-bar). Те же 2 статичные кнопки на роль (Opp/Player), что раньше
+  // были #teaBottomBar/#jeetBottomBar целиком — только теперь ОБЕ роли видны одновременно
+  // (кладбище/колода противника — новая фича, раньше её вообще нельзя было посмотреть),
+  // так что вместо display:none/flex перевешиваем skin+onclick+data-faction на каждый
+  // рендер, тот же приём, что уже работает для oppStats/playerStats выше в этой функции.
+  const graveOppBtn=document.getElementById('arenaGraveOpp');
+  const gravePlayerBtn=document.getElementById('arenaGravePlayer');
+  if(graveOppBtn){
+    graveOppBtn.className='arena-grave-btn '+(oppK==='jeet'?'jeet':'tea');
+    graveOppBtn.dataset.faction=oppK;
+    graveOppBtn.onclick=()=>{playSfx('yellow_buttom');openGraveModal(oppK);};
+  }
+  if(gravePlayerBtn){
+    gravePlayerBtn.className='arena-grave-btn '+(playerK==='jeet'?'jeet':'tea');
+    gravePlayerBtn.dataset.faction=playerK;
+    gravePlayerBtn.onclick=()=>{playSfx('yellow_buttom');openGraveModal(playerK);};
+  }
+  const graveCounterOpp=document.getElementById('arenaGraveCounterOpp');
+  const graveCounterPlayer=document.getElementById('arenaGraveCounterPlayer');
+  if(graveCounterOpp){
+    graveCounterOpp.textContent=oppP.grave.length;
+    graveCounterOpp.className='stat-badge '+(oppK==='jeet'?'jeet':'tea');
+  }
+  if(graveCounterPlayer){
+    graveCounterPlayer.textContent=playerP.grave.length;
+    graveCounterPlayer.className='stat-badge '+(playerK==='jeet'?'jeet':'tea');
+  }
+
+  const deckOppEl=document.getElementById('arenaDeckOpp');
+  const deckPlayerEl=document.getElementById('arenaDeckPlayer');
+  if(deckOppEl) deckOppEl.className='arena-deck-slot '+(oppK==='jeet'?'jeet':'tea');
+  if(deckPlayerEl) deckPlayerEl.className='arena-deck-slot '+(playerK==='jeet'?'jeet':'tea');
+  const deckCounterOpp=document.getElementById('arenaDeckCounterOpp');
+  const deckCounterPlayer=document.getElementById('arenaDeckCounterPlayer');
+  if(deckCounterOpp){
+    deckCounterOpp.textContent=oppP.deck.length;
+    deckCounterOpp.className='stat-badge '+(oppK==='jeet'?'jeet':'tea')+(oppP.deck.length===0?' deck-count-empty':'');
+  }
+  if(deckCounterPlayer){
+    deckCounterPlayer.textContent=playerP.deck.length;
+    deckCounterPlayer.className='stat-badge '+(playerK==='jeet'?'jeet':'tea')+(playerP.deck.length===0?' deck-count-empty':'');
   }
 }
 
