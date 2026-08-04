@@ -466,6 +466,20 @@ function doPlay(card, afterResolve){
   if(wouldAddToField&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');if(typeof afterResolve==='function')afterResolve();return;}
   cur.ess-=card.cost;
 
+  // isPlainInstantSpell — поднято сюда, наверх doPlay() (2026-08-05), было объявлено ниже
+  // (см. старое место чуть дальше по функции, у spell-cast-out анимации) — понадобилось
+  // РАНЬШЕ needsReveal-ветки тоже, чтобы звук magic.wav срабатывал одинаково что для
+  // человека, что для спелла ИИ, раскрываемого через playSpellRevealAnimation() (см. ниже).
+  // "Простой" instant-спелл — эффект, разыгранный без фазы выбора цели через клик (draw/
+  // ess_add/aoe/discard/т.п.) — единственная категория, для которой звучит magic.wav.
+  const isPlainInstantSpell = card.spell && !TARGETED_SPELL_TAGS.some(t=>hasTag(card,t));
+  // magic.wav (2026-08-05, по прямому запросу автора) — играет в момент розыгрыша ЛЮБОГО
+  // не-таргетируемого спелла, до того как реально резолвится сам эффект (добор/эссенция/
+  // AOE/discard и т.п.) — единая точка входа что для анимированного сгорания карты в руке
+  // (см. spell-cast-out ниже), что для мгновенного пути (cardEl не найден/no-DOM резолв),
+  // что для скрытой руки ИИ (needsReveal).
+  if(isPlainInstantSpell) playSfx('magic');
+
   // Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора — брейншторм с прошлой
   // сессии доведён до кода): человек в VS AI режиме никогда не видит руку ИИ (см.
   // rHiddenHand() в render.js) — единственный сигнал о том, что там был спелл, раньше был
@@ -521,7 +535,6 @@ function doPlay(card, afterResolve){
   // настоящими DOM-элементами (не рубашками), так что querySelector ниже находит карту
   // и для них тоже; в VS AI (скрытая рука ИИ) селектор просто ничего не найдёт — см.
   // needsReveal-ветку выше, она уже обработала этот случай отдельно и сюда не доходит.
-  const isPlainInstantSpell = card.spell && !TARGETED_SPELL_TAGS.some(t=>hasTag(card,t));
   if(isPlainInstantSpell){
     const cardEl=document.querySelector(`.hand .card[data-id="${card.id}"]`);
     if(cardEl){
@@ -910,11 +923,16 @@ function doAttack(att,target){
   dmgCard(target,atk,oppK);
   // Foxy Trick (2026-07-27, по прямому запросу автора: "сначала проверка не промахнётся ли
   // атака вообще, потом уже абсорб урона") — звук решается ПОСЛЕ dmgCard(), а не до, потому
-  // что флаг промаха (_foxyDodgedThisHit) появляется только внутри неё. На промах — БЕЗ
-  // звука вообще (автор добавит отдельный SFX позже), только визуал (queueFieldFx 'MISSED!'
-  // уже отыгран самой dmgCard()). Иначе — прежняя логика: обычный звук атаки, если дебафф
-  // в итоге не наложится (Ward/Frost), иначе тишина — сыграет debaf-звук чуть ниже.
-  if(!target._foxyDodgedThisHit && !willFear && !willBurn && !willFrost) playAttackSfx(att);
+  // что флаг промаха (_foxyDodgedThisHit) появляется только внутри неё. На промах — свой
+  // отдельный звук (miss.wav, dmgCard()), не card_atack — см. проверку ниже. Иначе — прежняя
+  // логика: обычный звук атаки, если дебафф в итоге не наложится (Ward/Frost), иначе тишина —
+  // сыграет debaf-звук чуть ниже.
+  // _shieldBlockedThisHit (2026-08-05, багфикс по прямому запросу автора) — добавлена сюда,
+  // раньше её тут не было: Solana Shield абсорбирует удар целиком (dmgCard() уже играет свой
+  // absorb.wav и return'ится ДО HP-урона), но эта строка не проверяла флаг вообще, поэтому
+  // card_atack всё равно звучал ПОВЕРХ absorb.wav — ровно тот случай "не должен звучать
+  // никакой другой звук, кроме absorb", который автор попросил починить.
+  if(!target._foxyDodgedThisHit && !target._shieldBlockedThisHit && !willFear && !willBurn && !willFrost) playAttackSfx(att);
   // Math.max(0,target.hp) — если удар был лишним "оверкиллом" (hp ушло в минус), не даём
   // realDmgDealt раздуться сверх того, сколько у цели реально БЫЛО жизни (hpBefore).
   const realDmgDealt=Math.max(0, hpBefore-Math.max(0,target.hp));
@@ -1816,10 +1834,11 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   // используют `_shieldBlockedThisHit`/`_frostBlockedThisHit` — читается в abilities.js
   // case 'fear'/'burn'/'frost'/'taunt_break' и в doSpellFearTarget/doSpellBurnTarget/
   // doSpellProvokeBreakTarget/fear_all/burn_all, где у dmgCard() своего вызова нет вообще —
-  // там бросок кидается ЗАНОВО тем же способом, отдельно). Звука пока нет (по прямому
-  // запросу автора, добавит позже) — только визуал (queueFieldFx 'MISSED!').
+  // там бросок кидается ЗАНОВО тем же способом, отдельно). Звук miss.wav добавлен
+  // 2026-08-05 (по прямому запросу автора — раньше был только визуал, queueFieldFx 'MISSED!').
   if(hasTag(card,'foxy') && Math.random()<0.5){
     card._foxyDodgedThisHit=true;
+    playSfx('miss'); // (2026-08-05, по прямому запросу автора — раньше звука не было вообще)
     // queueFieldFxReplace (2026-07-27, автор поймал живьём) — почти каждый вызов dmgCard()
     // приходит от кода, который УЖЕ поставил в очередь свою плашку (DESTROYED/HIT!/BOLT!/
     // т.п.) ДО того, как выяснится, что удар вообще-то промазал мимо Foxy Trick — обычный
@@ -1864,6 +1883,13 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   if(hasTag(card,'shield') && !card.shieldConsumed){
     card.shieldConsumed=true;
     card._shieldBlockedThisHit=true;
+    // absorb.wav (2026-08-05, по прямому запросу автора) — ЕДИНСТВЕННЫЙ звук на этом ударе.
+    // Ничего дополнительно глушить не пришлось: playAttackSfx()/'card_spell_atack' и
+    // остальные "звук попадания" в doAttack()/doBoltTarget()/doShotTarget()/AOE/Shard уже
+    // все до одного проверяют `_shieldBlockedThisHit` (см. грep по флагу выше) ДО того, как
+    // сыграть свой звук — раз флаг выставлен здесь синхронно раньше их проверки, они сами
+    // молча не сработают, отдельно ничего гасить не нужно.
+    playSfx('absorb');
     requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
     // ABSORB-плашка (2026-07-27, по прямому запросу автора — была задумана раньше, потерялась
     // по пути) — queueFieldFxReplace() (см. выше) стирает любую уже поставленную звонящим
