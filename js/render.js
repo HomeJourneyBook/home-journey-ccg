@@ -1774,8 +1774,8 @@ function reorderZones(){
   // тоже красится в tea/jeet (плейсхолдер-фон, см. .arena-pair.tea/.jeet в styles.css).
   const gravePairOpp=document.getElementById('arenaGravePairOpp');
   const gravePairPlayer=document.getElementById('arenaGravePairPlayer');
-  if(gravePairOpp) gravePairOpp.className='arena-pair '+(oppK==='jeet'?'jeet':'tea');
-  if(gravePairPlayer) gravePairPlayer.className='arena-pair '+(playerK==='jeet'?'jeet':'tea');
+  if(gravePairOpp) gravePairOpp.className='arena-pair grave-pair '+(oppK==='jeet'?'jeet':'tea');
+  if(gravePairPlayer) gravePairPlayer.className='arena-pair grave-pair '+(playerK==='jeet'?'jeet':'tea');
   const graveOppBtn=document.getElementById('arenaGraveOpp');
   const gravePlayerBtn=document.getElementById('arenaGravePlayer');
   if(graveOppBtn){
@@ -1801,8 +1801,8 @@ function reorderZones(){
 
   const deckPairOpp=document.getElementById('arenaDeckPairOpp');
   const deckPairPlayer=document.getElementById('arenaDeckPairPlayer');
-  if(deckPairOpp) deckPairOpp.className='arena-pair '+(oppK==='jeet'?'jeet':'tea');
-  if(deckPairPlayer) deckPairPlayer.className='arena-pair '+(playerK==='jeet'?'jeet':'tea');
+  if(deckPairOpp) deckPairOpp.className='arena-pair deck-pair '+(oppK==='jeet'?'jeet':'tea');
+  if(deckPairPlayer) deckPairPlayer.className='arena-pair deck-pair '+(playerK==='jeet'?'jeet':'tea');
   const deckOppEl=document.getElementById('arenaDeckOpp');
   const deckPlayerEl=document.getElementById('arenaDeckPlayer');
   if(deckOppEl) deckOppEl.className='arena-deck-slot '+(oppK==='jeet'?'jeet':'tea');
@@ -1816,6 +1816,20 @@ function reorderZones(){
   if(deckCounterPlayer){
     deckCounterPlayer.textContent=playerP.deck.length;
     deckCounterPlayer.className='stat-badge '+(playerK==='jeet'?'jeet':'tea')+(playerP.deck.length===0?' deck-count-empty':'');
+  }
+
+  // Скин кнопки лога (2026-08-04, по прямому запросу автора — "повесь ассет
+  // btn_log1/H/2_tea/jeet.png") — кнопка одна на двоих (не Opp/Player-слот, сидит в
+  // среднем слоте), красится по G.turn (чей сейчас ход) — тот же принцип, что уже решает,
+  // какая из двух #teaEndTurnBtn/#jeetEndTurnBtn кнопок сейчас видна (см. render() выше
+  // по файлу). classList.toggle, НЕ className= — className перезаписал бы .placeholder
+  // класс из разметки на каждый рендер; когда автор positioned уберёт .placeholder из
+  // HTML (реальный ассет готов), это должно остаться убранным, а не вернуться обратно
+  // тут же на следующий рендер.
+  const logBtn=document.getElementById('arenaLogBtn');
+  if(logBtn){
+    logBtn.classList.toggle('jeet', G.turn==='jeet');
+    logBtn.classList.toggle('tea', G.turn!=='jeet');
   }
 }
 
