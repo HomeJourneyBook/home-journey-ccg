@@ -1901,10 +1901,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    в нём сидит), .tea/.jeet — динамические, как и раньше. */
 .arena-pair::before{content:'';position:absolute;inset:0;z-index:-1;
   background-size:100% 100%;background-repeat:no-repeat;background-position:center;}
-.arena-pair.grave-pair.tea::before{background-image:url('../img/bg_grav_tea.png');background-color:#4a4a4a;}
-.arena-pair.grave-pair.jeet::before{background-image:url('../img/bg_grav_jeet.png');background-color:#000000;}
-.arena-pair.deck-pair.tea::before{background-image:url('../img/bg_deck_tea.png');background-color:#4a4a4a;}
-.arena-pair.deck-pair.jeet::before{background-image:url('../img/bg_deck_jeet.png');background-color:#000000;}
+.arena-pair.grave-pair.tea::before{background-image:url('../img/bg_grav_tea.png');}
+.arena-pair.grave-pair.jeet::before{background-image:url('../img/bg_grav_jeet.png');}
+.arena-pair.deck-pair.tea::before{background-image:url('../img/bg_deck_tea.png');}
+.arena-pair.deck-pair.jeet::before{background-image:url('../img/bg_deck_jeet.png');}
 /* Отражение по X и Y (2026-08-04, по прямому запросу автора — "чтоб они тоже как
    статус-бар/база/плейсхолдеры зеркалились") — ТОЛЬКО у боксов ПРОТИВНИКА, тот же
    scale(-1,-1), что уже стоит на #oppStats и её содержимом. ID, не позиция в колонке —
