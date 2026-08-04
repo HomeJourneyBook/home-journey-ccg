@@ -131,12 +131,15 @@ const SFX_FILES = [
   '8bit_gunloop_explosion', // Mechird Shot — звук запуска (2026-08-04)
   'win', // модалка победы (2026-08-04)
   'iceattack', 'icebreake', // Frost Attack — заморозка/разбитие льда (2026-08-04)
+  'miss', // Foxy Trick — промах (dmgCard(), 2026-08-05)
+  'absorb', // Solana Shield — единственный звук на поглощённом ударе (dmgCard(), 2026-08-05)
+  'magic', // любой НЕ-таргетируемый инстант-спелл — в момент розыгрыша, до резолва эффекта (doPlay(), 2026-08-05)
 ];
 
 // Расширение файла по умолчанию — .wav. Пара новых SFX (iceattack/icebreake) пришли от
 // автора в .ogg — единственное исключение на сегодня, отсюда явная карта переопределений
 // вместо простого хардкода расширения в _loadSfxBuffer() (2026-08-04).
-const SFX_EXT = { 'iceattack':'ogg', 'icebreake':'ogg' };
+const SFX_EXT = { 'iceattack':'ogg', 'icebreake':'ogg', 'miss':'mp3' }; // absorb/magic — default .wav, автор кладёт как есть
 
 // Минимальный интервал между повторными вызовами одного и того же звука (мс).
 // card_navigation_cursor тротлим жёстко — иначе при движении по картам будет шторм вызовов.
