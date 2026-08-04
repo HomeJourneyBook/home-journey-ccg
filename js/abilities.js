@@ -88,6 +88,11 @@ function getAbilities(card){
       case 'necrophage':  ab.push({timing:'on_kill',effect:'necrophage'}); break;
       case 'aoe':        ab.push({timing:'active',effect:'aoe',val}); break;
       case 'bolt':       ab.push({timing:'active',effect:'bolt',val}); break;
+      // Mechird Shot (2026-08-04, Szarg<->Mechird archetype swap, по прямому запросу автора) —
+      // физический аналог Bolt: bypassArmor=false вместо true (застревает в Броне, зато МОЖЕТ
+      // выбрать целью Ward — Ward блокирует только bypassArmor=true урон, см. dmgCard() и
+      // doShotTarget() в game.js).
+      case 'shot':       ab.push({timing:'active',effect:'shot',val}); break;
       case 'enter_aoe':  ab.push({timing:'on_enter',effect:'aoe',val}); break;
       // enter_heal:N (2026-07-13, автор) — зеркало enter_aoe: тот же тайминг on_enter,
       // но во благо. Переиспользует ГОТОВЫЙ execution-путь hp_add/target:'all' (см. кейс
@@ -764,7 +769,7 @@ function triggerAbilities(card, timing, ctx={}){
             ctx.target.burning=false;
             ctx.target.frozen=true;
             ctx.target.frozenTurnsLeft=2;
-            playSfx('debaf');
+            playSfx('iceattack'); // (2026-08-04, по прямому запросу автора) — заменил общий 'debaf', звук атаки уже подавлен в doAttack() (willFrost)
             lg(`${card.name}: ${ctx.target.name} is Frozen!`,'imp');
             queueFieldFx(ctx.target.id,'FROZEN!','fx-fear');
           }
