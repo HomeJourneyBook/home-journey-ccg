@@ -1179,6 +1179,13 @@ function doShotTarget(card){
       playAttackSfx(shotC); // звук ПОПАДАНИЯ — тот же, что у обычной атаки (card_atack)
       lg(`${shotC.name}: ${targetC.name} takes ${dmg} physical damage!`,'dmg');
     }
+    // NANA (2026-08-05) — тот же хук, что у Bolt (doBoltTarget()) — Shot-носитель тоже может
+    // нести тег nana. bonusBypassArmor=false, т.к. сам Shot физический (bypassArmor=false,
+    // см. dmgCard() выше) — в отличие от Bolt (true). На практике сама функция всё равно
+    // жёстко бьёт bypassArmor=false в дамаг-ветке банана независимо от этого параметра (см.
+    // комментарий 2026-07-29 внутри resolveNanaEvent()), но передаём честное значение для
+    // консистентности сигнатуры с остальными вызовами (doAttack()/doBoltTarget()).
+    resolveNanaEvent(shotC, shotOwnerK, targetC, oppK, false);
     checkWin();
     render();
   },420);
