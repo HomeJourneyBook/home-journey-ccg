@@ -127,8 +127,16 @@ const SFX_FILES = [
   'open_door', 'yellow_buttom',
   'baf', 'debaf',
   'graveyard', 'screen_monitor', 'heal', 'new_card', 'base_atack',
-  'wind_card', 'card_select_traveler', 'rest'
+  'wind_card', 'card_select_traveler', 'rest',
+  '8bit_gunloop_explosion', // Mechird Shot — звук запуска (2026-08-04)
+  'win', // модалка победы (2026-08-04)
+  'iceattack', 'icebreake', // Frost Attack — заморозка/разбитие льда (2026-08-04)
 ];
+
+// Расширение файла по умолчанию — .wav. Пара новых SFX (iceattack/icebreake) пришли от
+// автора в .ogg — единственное исключение на сегодня, отсюда явная карта переопределений
+// вместо простого хардкода расширения в _loadSfxBuffer() (2026-08-04).
+const SFX_EXT = { 'iceattack':'ogg', 'icebreake':'ogg' };
 
 // Минимальный интервал между повторными вызовами одного и того же звука (мс).
 // card_navigation_cursor тротлим жёстко — иначе при движении по картам будет шторм вызовов.
@@ -143,7 +151,8 @@ function _getAudioCtx(){
 async function _loadSfxBuffer(name){
   try{
     const ctx = _getAudioCtx();
-    const res = await fetch(`audio/${name}.wav`);
+    const ext = SFX_EXT[name] || 'wav';
+    const res = await fetch(`audio/${name}.${ext}`);
     const raw = await res.arrayBuffer();
     _sfxBuffers[name] = await ctx.decodeAudioData(raw);
   }catch(e){ /* файл ещё не добавлен — тихо пропускаем */ }
@@ -407,13 +416,14 @@ function preloadAssets(){
     'img/ico_nana.png', // Nana (2026-07-29) — тот же превентивный фикс
     'img/nana.gif', // Nana — сам летящий банан-арт (throwBananaFx, game.js)
     'img/bolt.gif', // Umbasir Bolt — летящий снаряд-арт (throwBoltFx, game.js), 2026-07-30
+    'img/bullet.gif', // Mechird Shot — летящий снаряд-арт (throwShotFx, game.js), 2026-08-04
     'img/ico_dd.png', // DD Cleave (2026-07-29) — тот же превентивный фикс
     'img/ico_optic.png', // Optic Dope (2026-07-29) — тот же превентивный фикс
     'img/invis.png', // Invis/Stealth overlay (2026-07-27) — та же превентивная мера
     'img/ico_mek.png', 'img/mek.png', // MonoMEK (2026-07-30) — тот же превентивный фикс, что у Frost/Foxy/Nana выше (иконка + full-card оверлей метки)
 
     // ── Кнопки в игре ──
-    'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png',
+    'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png', 'img/btn_shot.png',
     'img/btn_zoom.png',
     'img/btn_heal.png', 'img/btn_spell_cncl.png',
     'img/button_1.png', 'img/button_2.png',
@@ -1478,6 +1488,7 @@ function readyFromMulligan(){
 // ── Navigation ────────────────────────────────────────────────
 
 function showWin(w){
+  playSfx('win'); // (2026-08-04, по прямому запросу автора)
   document.getElementById('winTitle').textContent=w.toUpperCase()+' WINS!';
   const text=w==='tea'?'The Tavern stands. The Great Return draws closer.':'Jeet consumes all. The cycle breaks.';
   const modal=document.getElementById('winModal');
