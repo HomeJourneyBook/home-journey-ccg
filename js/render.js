@@ -814,7 +814,7 @@ const tagIcons=(card.tags||[])
   d.innerHTML=`
     <div class="card-dim-overlay"></div>
     <div class="card-small-cost">${card.cost}</div>
-    ${armorDisp?`<div class="card-small-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-small-armor"><img src="./img/armor.png" class="stat-icon">${armorDisp.cur}</span></div>`:''}
+    ${armorDisp?`<div class="card-small-armor-box" data-armor="${armorDisp.cur}" data-maxarmor="${armorDisp.max}"><span class="card-small-armor">${armorDisp.cur}</span></div>`:''}
     <div class="card-type-dot" data-type="${getTypeDotLabel(card)}" style="background-image:url('${getTypeDotImg(card)}');background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
     ${tagIcons?`<div class="card-tag-icons">${tagIcons}</div>`:''}
     ${invisBoxHtml}
