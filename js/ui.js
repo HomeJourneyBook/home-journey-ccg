@@ -1271,9 +1271,10 @@ function playArenaRevealAnimation(){
   });
 
   // Длительность анимации задана в CSS (.arena-slide-*-in, .arena-header-fade-in) —
-  // 0.715s/0.455s. Косметическая уборка классов после завершения, чтобы анимационные
-  // правила не висели на элементах бесконечно (both и так держит финальный кадр).
-  const barsTotalMs = 715 + 50;
+  // 1.43s/0.91s (2026-08-04: в 2 раза медленнее по прямому запросу автора, было 0.715s/
+  // 0.455s). Косметическая уборка классов после завершения, чтобы анимационные правила
+  // не висели на элементах бесконечно (both и так держит финальный кадр).
+  const barsTotalMs = 1430 + 50;
   setTimeout(()=>{
     allEls.forEach(el=>{
       el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in',
@@ -1330,7 +1331,7 @@ function _playFieldStarsGrowIn(){
 // пульсирует 1с → уходит в fade.
 // Font-size подгоняется под ~40% ширины экрана измерением фактической ширины отрисованного
 // текста (на глаз в vw для произвольного шрифта 'MEK' — ненадёжно, ширина глифов неизвестна).
-function _playCenterBannerText(text){
+function _playCenterBannerText(text, durationScale=1){
   const wrap = document.getElementById('battleBeginsText');
   const inner = document.getElementById('battleBeginsInner');
   if(!wrap || !inner) return;
@@ -1363,9 +1364,14 @@ function _playCenterBannerText(text){
   void wrap.offsetWidth; // reflow, чтобы новый font-size/top применились до старта анимации
 
   inner.classList.add('battle-begins-in');
-  const growMs = 500;
-  const holdMs = 1000;
-  const fadeMs = 500;
+  // durationScale (2026-08-04, по прямому запросу автора — "чтоб в течение этого времени
+  // подстроилась и надпись баттл бегин", после того как арена-въезд стал в 2 раза
+  // медленнее): растягивает рост/паузу/затухание баннера тем же множителем, ТОЛЬКО когда
+  // явно передан — showDeckEmptyWarning() ниже вызывает без второго аргумента (=1), её
+  // тайминг не менялся и трогать не просили.
+  const growMs = 500*durationScale;
+  const holdMs = 1000*durationScale;
+  const fadeMs = 500*durationScale;
 
   setTimeout(()=>{
     inner.classList.remove('battle-begins-in');
@@ -1384,7 +1390,10 @@ function _playCenterBannerText(text){
   }, growMs+holdMs+fadeMs);
 }
 function _playBattleBeginsText(){
-  _playCenterBannerText('Battle begins!');
+  // 2x длительность (2026-08-04, по прямому запросу автора) — синхронизировано с тем, что
+  // .arena-slide-*-in выше тоже стали в 2 раза медленнее (0.715s→1.43s), чтобы надпись не
+  // "спешила" на фоне заметно замедлившегося въезда рук/статбаров/боксов.
+  _playCenterBannerText('Battle begins!', 2);
 }
 
 // Предупреждение о пустой колоде (2026-07-27, по прямому запросу автора — геймдизайн-нюанс:
