@@ -1865,13 +1865,34 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   width: calc(3 * var(--arena-box-pad) + var(--arena-box-icon) + var(--arena-box-counter-w));
   height: calc(var(--arena-box-icon) + 2 * var(--arena-box-pad));
   flex-shrink:0;box-sizing:border-box;
-  background:#4a4a4a;
+  position:relative;z-index:0;
   border-radius:8px;
   padding: 0 var(--arena-box-pad);
   gap: var(--arena-box-pad);
 }
-.arena-pair.jeet{background:#000000;}
-.arena-pair > *{flex-shrink:0;}
+/* Фон — на ::before, не напрямую на .arena-pair (2026-08-04, по прямому запросу автора —
+   ассеты bg_grav_tea/jeet.png, bg_deck_tea/jeet.png + отражение по X/Y для противника).
+   ПОЧЕМУ ::before, а не просто background на самом .arena-pair: зеркалить нужно ТОЛЬКО
+   фон, а не иконку/каунтер внутри (те должны остаться читаемыми) — тот же приём, что уже
+   применяется у #oppStats::before/.player-name-box и т.п. (см. их комментарий выше по
+   файлу) — реальный DOM-контент (кнопка+каунтер) не трогаем, крутим отдельный слой ПОД
+   ним. .grave-pair/.deck-pair — статичные маркеры, проставлены в разметке (не меняются
+   при reorderZones() — это какой СЛОТ, кладбище или колода, а не какая фракция сейчас
+   в нём сидит), .tea/.jeet — динамические, как и раньше. */
+.arena-pair::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:8px;
+  background-size:100% 100%;background-repeat:no-repeat;background-position:center;}
+.arena-pair.grave-pair.tea::before{background-image:url('../img/bg_grav_tea.png');background-color:#4a4a4a;}
+.arena-pair.grave-pair.jeet::before{background-image:url('../img/bg_grav_jeet.png');background-color:#000000;}
+.arena-pair.deck-pair.tea::before{background-image:url('../img/bg_deck_tea.png');background-color:#4a4a4a;}
+.arena-pair.deck-pair.jeet::before{background-image:url('../img/bg_deck_jeet.png');background-color:#000000;}
+/* Отражение по X и Y (2026-08-04, по прямому запросу автора — "чтоб они тоже как
+   статус-бар/база/плейсхолдеры зеркалились") — ТОЛЬКО у боксов ПРОТИВНИКА, тот же
+   scale(-1,-1), что уже стоит на #oppStats и её содержимом. ID, не позиция в колонке —
+   после того как оппонентские боксы поменялись местами между левой/правой колонкой
+   (см. разметку — arenaDeckPairOpp теперь слева, arenaGravePairOpp справа), только id
+   надёжно говорит "это бокс противника", left/right больше ни о чём не говорит. */
+#arenaGravePairOpp::before, #arenaDeckPairOpp::before{transform:scale(-1,-1);}
+.arena-pair > *{flex-shrink:0;position:relative;z-index:1;}
 
 /* Кладбище (слева) — переиспользует существующий арт button_grav_*.png (был в
    bottom-bar, просто теперь на 2 динамических слота Opp/Player вместо статичных
@@ -1912,20 +1933,29 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .stat-badge.tea{color:#4DB854;}
 .stat-badge.jeet{color:#b44fd4;background-color:#fff;background-image:url('../img/bg_counters_jeet.png');}
 
-/* Боевой лог (слева, средний слот) — НОВАЯ кнопка, ассета пока нет (автор рисует),
-   плейсхолдер-конвенция как у .modal-icon-btn.placeholder (см. её комментарий выше по
-   файлу) — url() прописан НЕкомментированным сразу под реальные три состояния, просто
+/* Боевой лог (слева, средний слот) — ассета пока нет (автор рисует), плейсхолдер-
+   конвенция как у .modal-icon-btn.placeholder (см. её комментарий выше по файлу) — url()
+   прописан НЕкомментированным сразу под реальные три состояния × 2 фракции, просто
    сейчас не грузится (файлов ещё нет), fallback-рамка+эмодзи поверх видны. Когда автор
-   положит btn_log1/H/2.png — достаточно убрать класс .placeholder в HTML.
+   положит btn_log1/H/2_tea/jeet.png — достаточно убрать класс .placeholder в HTML.
    width — от --arena-log-w (см. её комментарий у :root), НЕ от --arena-col-w — кнопка
-   лога зафиксирована в одном размере независимо от ориентации/ширины колонки. */
+   лога зафиксирована в одном размере независимо от ориентации/ширины колонки.
+   2026-08-04 (по прямому запросу автора — "повесь ассет btn_log1/H/2_tea/jeet.png"):
+   кнопка сама не привязана к opp/player (она одна на двоих, в среднем слоте) — скин
+   переключается по G.turn (чей сейчас ход), тем же принципом, что уже работает у
+   End Turn (см. .tea/.jeet-класс, выставляется в reorderZones(), js/render.js). Если
+   автор имел в виду другую логику переключения (например, по фракции игрока-человека
+   в VS AI, а не по активному ходу) — дать знать, поменять один if в JS. */
 .arena-log-btn{width:calc(var(--arena-log-w) * 0.85);aspect-ratio:1/1;border:none;
   background-color:transparent;
   background-size:contain;background-repeat:no-repeat;background-position:center;
-  padding:0;cursor:pointer;position:relative;transition:transform .1s,filter .1s;
-  background-image:url('../img/btn_log1.png');}
-.arena-log-btn:hover{background-image:url('../img/btn_logH.png');}
-.arena-log-btn:active{background-image:url('../img/btn_log2.png');}
+  padding:0;cursor:pointer;position:relative;transition:transform .1s,filter .1s;}
+.arena-log-btn.tea{background-image:url('../img/btn_log1_tea.png');}
+.arena-log-btn.tea:hover{background-image:url('../img/btn_logH_tea.png');}
+.arena-log-btn.tea:active{background-image:url('../img/btn_log2_tea.png');}
+.arena-log-btn.jeet{background-image:url('../img/btn_log1_jeet.png');}
+.arena-log-btn.jeet:hover{background-image:url('../img/btn_logH_jeet.png');}
+.arena-log-btn.jeet:active{background-image:url('../img/btn_log2_jeet.png');}
 .arena-log-btn.placeholder{border:1px solid #E8E0C8;background-color:#0d0d1a;}
 .arena-log-btn.placeholder::after{content:'📋';position:absolute;inset:0;display:flex;
   align-items:center;justify-content:center;font-size:calc(var(--arena-log-w) * 0.32);}
