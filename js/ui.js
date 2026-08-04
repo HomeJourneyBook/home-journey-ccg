@@ -1331,7 +1331,7 @@ function _playFieldStarsGrowIn(){
 // пульсирует 1с → уходит в fade.
 // Font-size подгоняется под ~40% ширины экрана измерением фактической ширины отрисованного
 // текста (на глаз в vw для произвольного шрифта 'MEK' — ненадёжно, ширина глифов неизвестна).
-function _playCenterBannerText(text, durationScale=1){
+function _playCenterBannerText(text, opts={}){
   const wrap = document.getElementById('battleBeginsText');
   const inner = document.getElementById('battleBeginsInner');
   if(!wrap || !inner) return;
@@ -1364,14 +1364,15 @@ function _playCenterBannerText(text, durationScale=1){
   void wrap.offsetWidth; // reflow, чтобы новый font-size/top применились до старта анимации
 
   inner.classList.add('battle-begins-in');
-  // durationScale (2026-08-04, по прямому запросу автора — "чтоб в течение этого времени
-  // подстроилась и надпись баттл бегин", после того как арена-въезд стал в 2 раза
-  // медленнее): растягивает рост/паузу/затухание баннера тем же множителем, ТОЛЬКО когда
-  // явно передан — showDeckEmptyWarning() ниже вызывает без второго аргумента (=1), её
-  // тайминг не менялся и трогать не просили.
-  const growMs = 500*durationScale;
-  const holdMs = 1000*durationScale;
-  const fadeMs = 500*durationScale;
+  // opts.growMs/holdMs/fadeMs (2026-08-04) — раньше был один множитель durationScale на
+  // все три фазы разом; автор попросил замедлить рост/затухание (синхронно с
+  // .arena-slide-*-in, ставшей 2x медленнее), но КОРОТКО подержать паузу (holdMs) —
+  // единым множителем оба сразу не подкрутить, разошлись на явные ms.
+  // showDeckEmptyWarning() ниже вызывает без opts вообще — её тайминг (500/1000/500)
+  // не менялся, трогать не просили.
+  const growMs = opts.growMs ?? 500;
+  const holdMs = opts.holdMs ?? 1000;
+  const fadeMs = opts.fadeMs ?? 500;
 
   setTimeout(()=>{
     inner.classList.remove('battle-begins-in');
@@ -1390,10 +1391,11 @@ function _playCenterBannerText(text, durationScale=1){
   }, growMs+holdMs+fadeMs);
 }
 function _playBattleBeginsText(){
-  // 2x длительность (2026-08-04, по прямому запросу автора) — синхронизировано с тем, что
-  // .arena-slide-*-in выше тоже стали в 2 раза медленнее (0.715s→1.43s), чтобы надпись не
-  // "спешила" на фоне заметно замедлившегося въезда рук/статбаров/боксов.
-  _playCenterBannerText('Battle begins!', 2);
+  // Рост/затухание — 2x (1000/1000мс), синхронизировано с .arena-slide-*-in (0.715s→1.43s,
+  // тот же множитель). Пауза (holdMs) — автор поймал живьём "надпись слишком долго
+  // держится" (было 2000мс, суммарно 4с) — сократил до 500мс, суммарно 2.5с (−1.5с,
+  // просили минимум −1с).
+  _playCenterBannerText('Battle begins!', {growMs:1000, holdMs:500, fadeMs:1000});
 }
 
 // Предупреждение о пустой колоде (2026-07-27, по прямому запросу автора — геймдизайн-нюанс:
