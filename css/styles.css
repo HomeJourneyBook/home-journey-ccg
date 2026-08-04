@@ -1638,6 +1638,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .cap-btn.zoom{width:var(--card-action-btn-w);height:var(--card-action-btn-w);background-image:url('../img/btn_zoom.png');}
 .fab-btn{display:block;width:calc(var(--card-small-w) * 0.65);height:calc(var(--card-small-w) * 0.65 * 44/122);border:none;background:transparent;background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;padding:0;transition:filter .1s, transform .1s;}
 .fab-btn.umbasir{background-image:url('../img/btn_spell.png');}
+.fab-btn.mechird{background-image:url('../img/btn_shot.png');} /* Mechird Shot (2026-08-04) — своя иконка, в отличие от Bolt пока не переиспользует btn_spell.png плейсхолдер */
 .fab-btn.vardan{background-image:url('../img/btn_spell.png');}
 .fab-btn.bounce_ally{background-image:url('../img/btn_spell.png');} /* TEANTIST "Return your ally" (2026-07-30) — тот же ассет */
 /*Плейсхолдер под btn_heal.png — файла пока нет, а background-image с несуществующим*/
@@ -2231,6 +2232,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    высота НЕ фиксируется числом, а считается через aspect-ratio (артборд 2:1, высокий) —
    так пропорция картинки не искажается, чем бы ни задавалась ширина. */
 .bolt-fly{position:fixed; z-index:5500; pointer-events:none; width:calc(var(--card-small-h) * 0.255); aspect-ratio:1/2; object-fit:contain; filter:drop-shadow(0 2px 4px #000000aa);}
+/* BULLET (Mechird Shot, 2026-08-04) — арт bullet.gif, летящий от карты-кастера к цели, см.
+   throwShotFx() в game.js. Точный клон .bolt-fly выше, только вдвое уже (0.255→0.1275) и
+   квадратный артборд (1:1, а не 1:2 как у bolt.gif — по прямому запросу автора). */
+.bullet-fly{position:fixed; z-index:5500; pointer-events:none; width:calc(var(--card-small-h) * 0.1275); aspect-ratio:1/1; object-fit:contain; filter:drop-shadow(0 2px 4px #000000aa);}
 /*── Раскрытие спелла ИИ (2026-07-19, по прямому запросу автора, VS AI режим ТОЛЬКО —
    см. playSpellRevealAnimation() в render.js) — клон реальной карты вылетает из центра
    скрытой руки ИИ (oppHandZone) к центру поля, зависает лицом кверху ~0.4с, затем
