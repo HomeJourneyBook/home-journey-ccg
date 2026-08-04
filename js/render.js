@@ -607,7 +607,14 @@ function _armorDisplay(card){
 // нет смысла пересоздавать литерал массива на каждый вызов mkSmallEl() (render() и так
 // пересобирает весь DOM каждый раз, лишняя работа множится на каждую карту на поле).
 const DEBUFF_TARGET_PHASES=['spellFearTarget','spellBurnTarget','spellProvokeBreakTarget'];
-const DMG_TARGET_PHASES=['spellDmgTarget','spellDmgTrampleTarget','spellExecuteHalfTarget','shardTarget','boltTarget','shotTarget'];
+const DMG_TARGET_PHASES=['spellDmgTarget','spellDmgTrampleTarget','spellExecuteHalfTarget','shardTarget','boltTarget'];
+// shotTarget НЕ входит сюда (2026-08-05, багфикс) — Shot физический (bypassArmor=false,
+// см. doShotTarget() в game.js), Ward блокирует только bypassArmor=true урон, так что Ward
+// не делает цель иммунной к Shot. Раньше shotTarget был включён по аналогии с boltTarget
+// (копипаста при заводе механики 2026-08-04) — из-за этого рядом с целью под Ward мигал
+// IMMUNE, хотя выстрел по ней бы прошёл: та же цель уже помечена 'targetable'/'aim-target'
+// чуть выше (см. отдельное shotTarget-условие БЕЗ ward-исключения), но тут же получала
+// противоречивый IMMUNE поверх — теперь immune-target для этой фазы не навешивается вовсе.
 
 const _frostSeenIds = new Set();
 
