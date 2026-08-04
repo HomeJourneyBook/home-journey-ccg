@@ -1144,11 +1144,7 @@ function startMulliganFor(faction){
   const container = document.getElementById('mulliganCards');
   container.innerHTML='';
   const scale = window.innerWidth < 600 ? 0.7 : 1;
-  const cardH = window.innerHeight * 0.24;
-  const cardW = cardH * 0.716;
-  const negH = -Math.floor(cardH * (1 - scale));
-  const negW = -Math.floor(cardW * (1 - scale));
-  G[faction].hand.forEach(card=>{
+  const cardEls = G[faction].hand.map(card=>{
     const el = mkEl(card,'hand');
     // Тот же голд-пульс, что у "affordable" карт в обычной руке (goldPulseWeak,
     // styles.css) — здесь чисто декоративно, не завязано на стоимость/эссенцию:
@@ -1162,15 +1158,41 @@ function startMulliganFor(faction){
     el.classList.add('affordable');
     el.style.cursor='default';
     el.style.pointerEvents='none';
-    el.style.transform=`scale(${scale})`;
-    el.style.transformOrigin='top left';
-    el.style.marginRight=negW+'px';
-    el.style.marginBottom=negH+'px';
     container.appendChild(el);
+    return el;
   });
+  // Модалку показываем ДО замера (2026-08-04, баг найден живьём сразу после первой
+  // версии этого фикса): getBoundingClientRect() на элементе внутри ещё display:none
+  // родителя (#mulliganScreen.hidden) всегда возвращает нули — раньше .hidden снимался
+  // ПОСЛЕ этого блока, так что r.width/r.height были 0, а значит и negH/negW тоже 0 —
+  // карты визуально ужимались через scale(0.7), но их layout-footprint (margin) не
+  // уменьшался вслед за этим, поэтому вместо компактного нахлёста получались большие
+  // пустые промежутки (флекс просто переносил каждую карту на новую строку/с большим
+  // зазором). Теперь .hidden снимается раньше — к моменту замера модалка уже реально
+  // в layout-дереве.
   document.getElementById('passScreen').classList.add('hidden');
   const mulliganEl = document.getElementById('mulliganScreen');
   mulliganEl.classList.remove('hidden');
+  // Компенсирующий отрицательный margin под transform:scale() (раньше cardH/cardW
+  // пересчитывались тут же по своей формуле window.innerHeight*0.24 — никак не связанной
+  // с --card-h/--card-w из styles.css. После того как #mulliganScreen получил свой
+  // clamp() на --card-h (см. её комментарий там), эта локальная формула осталась
+  // СТАРОЙ и разъехалась с реальным размером карты — отступы компенсировали не тот
+  // размер, что реально отрендерился. Теперь меряем ПЕРВУЮ уже отрендеренную карту
+  // напрямую (getBoundingClientRect, ДО transform — transform ставится ниже, после
+  // замера) — единственный надёжный источник истины, откуда бы ни пришёл реальный
+  // размер (CSS-переменные могут ещё не раз поменяться).
+  if(cardEls.length){
+    const r = cardEls[0].getBoundingClientRect();
+    const negH = -Math.floor(r.height * (1 - scale));
+    const negW = -Math.floor(r.width * (1 - scale));
+    cardEls.forEach(el=>{
+      el.style.transform=`scale(${scale})`;
+      el.style.transformOrigin='top left';
+      el.style.marginRight=negW+'px';
+      el.style.marginBottom=negH+'px';
+    });
+  }
   _modalPopIn(mulliganEl);
   const mulliganBtn = document.getElementById('mulliganBtn');
   if(mulliganBtn){
@@ -1194,18 +1216,31 @@ function startMulliganFor(faction){
 // ПОСЛЕ render(), чтобы руки уже лежали в верных зонах.
 function playArenaRevealAnimation(){
   const header = document.querySelector('#game .header');
-  const topEls = ['oppStats','oppHandZone']
+  // arenaGravePairOpp/arenaDeckPairOpp (2026-08-04, по прямому запросу автора — "бокс с
+  // кладбищем и декой выдвигался снизу как и зона руки игрока и статус бар, а у
+  // противника соответствующая сверху") — те же боксы, что сидят вплотную к oppStats/
+  // playerStats сверху/снизу колонки (см. их css), добавлены в ТЕ ЖЕ группы top/bottom —
+  // едут единым блоком с рукой+статбаром той же стороны, тем же --slide-dist (см.
+  // комментарий выше про "иначе группа тянется").
+  const topEls = ['oppStats','oppHandZone','arenaGravePairOpp','arenaDeckPairOpp']
     .map(id=>document.getElementById(id)).filter(Boolean);
-  const bottomEls = ['playerHandZone','playerStats']
+  const bottomEls = ['playerHandZone','playerStats','arenaGravePairPlayer','arenaDeckPairPlayer']
     .map(id=>document.getElementById(id)).filter(Boolean);
+  // Лог/конец хода — горизонтальный въезд слева/справа (2026-08-04, тот же запрос —
+  // "красиво будет"), отдельно от top/bottom групп (едут по X, не по Y, и каждый сам
+  // по себе, не парой — см. keyframes arenaSlideLeft/RightIn в styles.css).
+  const leftEls = [document.getElementById('arenaLogBtn')].filter(Boolean);
+  const rightEls = [document.getElementById('arenaEndTurnSlot')].filter(Boolean);
 
-  const allEls=[header,...topEls,...bottomEls].filter(Boolean);
+  const allEls=[header,...topEls,...bottomEls,...leftEls,...rightEls].filter(Boolean);
   // Сброс на случай повторного показа арены в той же вкладке (напр. Restart) — без
   // remove+reflow повторный add() на уже применённом классе анимацию не перезапустит.
   allEls.forEach(el=>{
-    el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in');
+    el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in',
+      'arena-slide-left-in','arena-slide-right-in');
     el.style.animationDelay='';
     el.style.removeProperty('--slide-dist');
+    el.style.removeProperty('--slide-dist-x');
   });
   void document.getElementById('game').offsetWidth;
 
@@ -1224,6 +1259,16 @@ function playArenaRevealAnimation(){
     el.style.setProperty('--slide-dist', bottomDist+'px');
     el.classList.add('arena-slide-up-in');
   });
+  // Лог/конец хода — каждый своей шириной (не групповая сумма, это одиночные элементы,
+  // не пара полос как рука+статбар).
+  leftEls.forEach(el=>{
+    el.style.setProperty('--slide-dist-x', (-el.offsetWidth)+'px');
+    el.classList.add('arena-slide-left-in');
+  });
+  rightEls.forEach(el=>{
+    el.style.setProperty('--slide-dist-x', el.offsetWidth+'px');
+    el.classList.add('arena-slide-right-in');
+  });
 
   // Длительность анимации задана в CSS (.arena-slide-*-in, .arena-header-fade-in) —
   // 0.715s/0.455s. Косметическая уборка классов после завершения, чтобы анимационные
@@ -1231,9 +1276,11 @@ function playArenaRevealAnimation(){
   const barsTotalMs = 715 + 50;
   setTimeout(()=>{
     allEls.forEach(el=>{
-      el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in');
+      el.classList.remove('arena-slide-down-in','arena-slide-up-in','arena-header-fade-in',
+        'arena-slide-left-in','arena-slide-right-in');
       el.style.animationDelay='';
       el.style.removeProperty('--slide-dist');
+      el.style.removeProperty('--slide-dist-x');
     });
   }, barsTotalMs);
 
