@@ -900,6 +900,66 @@ function aiTryUseBolt(){
   return used;
 }
 
+// ── АКТИВКА: SHOT (Mechird, точечный физический урон существом) ─
+// 2026-08-04, Szarg<->Mechird archetype swap, по прямому запросу автора. Клон
+// aiTryUseBolt() выше с двумя содержательными отличиями:
+//  (1) enemyField НЕ исключает Ward — Ward блокирует только магию (bypassArmor=true),
+//      Shot физический, так что Ward-цели ОСТАЮТСЯ валидными (это и есть весь смысл тега).
+//  (2) Armor цели вычитается из dmg при оценке килла/чипа — Shot режется Бронёй, в
+//      отличие от Bolt, который её полностью игнорирует.
+function aiTryUseShot(){
+  const me=G[G.aiFaction];
+  const humanF=G.humanFaction;
+  const oppField=G[humanF].field;
+  const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'shield')||c.shieldConsumed)&&isSpellTargetable(c,G[humanF].field));
+  if(enemyField.length===0) return false;
+  const shotCreatures=me.field.filter(c=>hasTag(c,'shot')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&!c.spell&&!c.world&&!c.artifact);
+  let used=false;
+  shotCreatures.forEach(shot=>{
+    if(shot.exhausted) return; // could've acted already earlier in this same pass
+    const baseDmg=(shot.squadParam&&shot.squadParam.shot)||getTagVal(shot,'shot')||1;
+    const withDmg=enemyField.map(c=>({c, dmg: Math.max(0, baseDmg-(c.armor||0))}));
+    const killable=withDmg.filter(x=>x.dmg>0 && x.dmg>=x.c.hp);
+    const forced = oppField.some(c=>hasTag(c,'bushido')) ||
+      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen);
+    // 0-ATK shot-тела — тот же принцип, что у Bolt: собственная атака ничего не даёт,
+    // Shot строго не хуже даже без гарантированного килла.
+    if(effAtk(shot)<=0){
+      if(enemyField.length===0) return;
+      const pool=(killable.length>0?killable:withDmg).filter(x=>x.dmg>0);
+      if(pool.length===0) return; // вся Броня на поле съедает Shot целиком — нечем бить
+      pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+      G.sel=shot.id;
+      doMchShot();
+      doShotTarget(pool[0].c);
+      used=true;
+      return;
+    }
+    if(killable.length===0){
+      const canHitBaseInstead = !forced && aiCanHitBase(shot, oppField);
+      const chipPool=withDmg.filter(x=>x.dmg>0); // Броня могла свести чип-урон в 0 — такие цели не годятся даже для чипа
+      if(effAtk(shot)<=baseDmg && chipPool.length>0 && !canHitBaseInstead){
+        chipPool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+        G.sel=shot.id;
+        doMchShot();
+        doShotTarget(chipPool[0].c);
+        used=true;
+      }
+      return;
+    }
+    killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+    const target=killable[0].c;
+    const normalWouldKillSameTarget = !forced && effAtk(shot)>=target.hp && !(target.armor>0);
+    if(!normalWouldKillSameTarget){
+      G.sel=shot.id;
+      doMchShot();
+      doShotTarget(target);
+      used=true;
+    }
+  });
+  return used;
+}
+
 // Раньше AOE и Shard активки, а следом первая атака в очереди — все три —
 // срабатывали в одном синхронном тике, без единой паузы между ними (в отличие
 // от паузы AI_STEP_DELAY, которая всегда стоит между розыгрышем карт и между
@@ -920,7 +980,10 @@ function aiRunActivesThenAttack(){
     setTimeout(()=>{
       const usedBolt=aiTryUseBolt();
       setTimeout(()=>{
-        aiAttackStep(getAiCreatureQueue(), 0);
+        const usedShot=aiTryUseShot(); // Mechird Shot (2026-08-04)
+        setTimeout(()=>{
+          aiAttackStep(getAiCreatureQueue(), 0);
+        }, usedShot?AI_STEP_DELAY:0);
       }, usedBolt?AI_STEP_DELAY:0);
     }, usedShard?AI_STEP_DELAY:0);
   }, usedAoe?AI_STEP_DELAY:0);
