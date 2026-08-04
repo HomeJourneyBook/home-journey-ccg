@@ -57,6 +57,14 @@
      ориентации — кнопка лога всегда одного размера, независимо от того, насколько шире
      стала сама колонка под кладбище/деку. */
   --arena-log-w: clamp(56px, 8vh, 96px);
+  /* Конец хода — заморожена на СЕГОДНЯШНЕМ размере --arena-col-w (2026-08-04, по прямому
+     запросу автора — боксы кладбища/деки увеличиваются вслед за увеличенной
+     --arena-col-w в лендскейпе, см. её отдельное правило ниже по файлу, а конец хода
+     расти дальше не должен, он и так уже отдельно зафиксирован по высоте раньше). Три
+     формулы здесь — те же самые три, что были у --arena-col-w ДО сегодняшнего
+     увеличения (root + landscape + phone-landscape), просто скопированы под новым
+     именем и больше не трогаются, когда --arena-col-w меняется. */
+  --arena-endturn-w: clamp(56px, 8vh, 96px);
   /* Боксы кладбища/деки (2026-08-04) — 4 фиксированных куска, из суммы которых считается
      сам размер .arena-pair (см. её комментарий в styles.css) — --arena-box-pad ОДНА
      переменная и для padding бокса, и для gap иконка↔каунтер, гарантированно одинаковый
@@ -1058,7 +1066,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    #logOverlay (.modal-overlay — тот же паттерн, что у GRAVEYARD MODAL: fixed+flex-центр
    на весь экран, klик по фону = закрыть) — сама панель просто блок нормального размера
    внутри центрированного оверлея, без своего fixed/z-index/top/right. ──*/
-.log-panel{width:min(calc(2 * var(--card-w) + 44px), 92vw); background:transparent; border-style:solid; border-width:20px; border-image-source:url('../img/log_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; filter:drop-shadow(0 4px 20px #000000aa);}
+.log-panel{width:min(max(calc(2 * var(--card-w) + 44px), 280px), 92vw); background:transparent; border-style:solid; border-width:20px; border-image-source:url('../img/log_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; filter:drop-shadow(0 4px 20px #000000aa);}
 .log-panel.open{display:block;}
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
@@ -1240,7 +1248,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /*── Бокс с кнопками модалок (confirm/win/mulligan/pass) ──────────────────*/
 .modal-footer{align-self:center; width:auto; background:transparent; border-style:solid; border-width:var(--modal-footer-border-w); border-image-source:url('../img/bg_jest2.png'); border-image-slice:14 fill; border-image-width:var(--modal-footer-border-w); border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; padding:0; display:flex; gap:var(--modal-footer-border-w); justify-content:center; align-items:center;}
 /*── Graveyard modal — рамка и хедер как у battle log ────────────────*/
-.grave-modal{position:relative; box-sizing:border-box; width:min(calc(2 * var(--card-w) + 44px), 92vw); max-height:65vh; overflow-y:hidden; background:#0a0a12; border-style:solid; border-width:20px; border-image-source:url('../img/grav_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; padding:0; pointer-events:all; z-index:650; display:flex; flex-direction:column; filter:drop-shadow(0 4px 20px #000000aa);}
+.grave-modal{position:relative; box-sizing:border-box; width:min(max(calc(2 * var(--card-w) + 44px), 280px), 92vw); max-height:65vh; overflow-y:hidden; background:#0a0a12; border-style:solid; border-width:20px; border-image-source:url('../img/grav_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; padding:0; pointer-events:all; z-index:650; display:flex; flex-direction:column; filter:drop-shadow(0 4px 20px #000000aa);}
 .grave-modal-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_grav.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex; justify-content:center; align-items:center; padding:0 8px; position:relative; flex-shrink:0;}
 .grave-close-btn{position:absolute; right:6px;top:50%;transform:translateY(-50%); background-image:url('../img/btn_X.png'); background-size:100% 100%; background-color:transparent; border:none;padding:0; width:max(calc(5vh * 0.798), calc(2.5vw * 0.798));height:max(calc(5vh * 0.798), calc(2.5vw * 0.798)); font-size:0;line-height:0; cursor:pointer;}
 .grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
@@ -1879,7 +1887,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   height: calc(var(--arena-box-icon) + 2 * var(--arena-box-pad));
   flex-shrink:0;box-sizing:border-box;
   position:relative;z-index:0;
-  border-radius:8px;
   padding: 0 var(--arena-box-pad);
   gap: var(--arena-box-pad);
 }
@@ -1892,7 +1899,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    ним. .grave-pair/.deck-pair — статичные маркеры, проставлены в разметке (не меняются
    при reorderZones() — это какой СЛОТ, кладбище или колода, а не какая фракция сейчас
    в нём сидит), .tea/.jeet — динамические, как и раньше. */
-.arena-pair::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:8px;
+.arena-pair::before{content:'';position:absolute;inset:0;z-index:-1;
   background-size:100% 100%;background-repeat:no-repeat;background-position:center;}
 .arena-pair.grave-pair.tea::before{background-image:url('../img/bg_grav_tea.png');background-color:#4a4a4a;}
 .arena-pair.grave-pair.jeet::before{background-image:url('../img/bg_grav_jeet.png');background-color:#000000;}
@@ -1972,7 +1979,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    Ширина — от --arena-col-w (в отличие от лога, автор эту кнопку увеличивать не
    просил обратно уменьшать — она и задумывалась расти вместе с колонкой в лендскейпе),
    высота — от ширины через aspect-ratio, поэтому её отдельно считать не нужно. */
-.arena-endturn-slot{width:calc(var(--arena-col-w) * 0.85);aspect-ratio:1/1.5;position:relative;}
+.arena-endturn-slot{width:calc(var(--arena-endturn-w) * 0.85);aspect-ratio:1/1.5;position:relative;}
 .arena-endturn-slot .btn-end{position:absolute;inset:0;width:100%;height:100%;
   transform:none;background-size:100% 100%;}
 
@@ -1989,11 +1996,26 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    ratio бокса остаётся тем же, просто меньше в пикселях. ──*/
 @media(orientation:landscape){
   :root{
-    --arena-col-w: clamp(120px, 15vh, 155px);
-    --arena-box-pad: calc(var(--arena-col-w) * 0.0365);
-    --arena-box-icon: calc(var(--arena-col-w) * 0.2555);
-    --arena-box-counter-w: calc(var(--arena-col-w) * 0.2847);
-    --arena-box-counter-h: calc(var(--arena-col-w) * 0.1789);
+    /* --arena-endturn-w заморожена ЗДЕСЬ на СТАРОЙ формуле --arena-col-w (та, что была
+       тут до сегодняшнего расширения, clamp(120px,15vh,155px)) — если её не переопределить
+       именно в этом блоке, она бы упала обратно на портретную формулу из :root
+       (clamp(56px,8vh,96px)), и конец хода в лендскейпе внезапно ужался бы, а не остался
+       прежним. --arena-col-w ниже теперь растёт только для колонки/боксов кладбища-деки. */
+    --arena-endturn-w: clamp(120px, 15vh, 155px);
+    --arena-col-w: clamp(120px, 20vh, 165px);
+    /* Доли бокса пересчитаны (2026-08-04, по прямому запросу автора — "боксы на
+       лаптопе... сделал бы крупнее... чтобы по длине было как у End Turn"): сумма долей
+       (3×pad+icon+counter-w) с 0.6497 поднята до ~0.93 (тем же коэффициентом ×1.4315
+       умножены ВСЕ 4 доли разом — соотношение между ними, а значит и ratio самого бокса
+       (по-прежнему ~1.98:1), не изменилось, "сохранили и ратио, и все внутренние
+       пропорции", как просили). 0.93, а не 1.0 — небольшой запас, чтобы бокс не упирался
+       ровно в край колонки. Итог не дотягивает ТОЧНО до высоты End Turn на самом тесном
+       экране (iPad-лендскейп, мёртвая зона всего 169px — жёстче, чем требует эта
+       формула) — там результат нужно будет сверить живьём отдельно, см. ответ в чате. */
+    --arena-box-pad: calc(var(--arena-col-w) * 0.05225);
+    --arena-box-icon: calc(var(--arena-col-w) * 0.36575);
+    --arena-box-counter-w: calc(var(--arena-col-w) * 0.40754);
+    --arena-box-counter-h: calc(var(--arena-col-w) * 0.25610);
   }
 }
 
@@ -2024,7 +2046,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
      End Turn 39.2% вместо 19%). Здесь оба ограничения снижены под именно этот диапазон
      экранов — то же соотношение к vh, что и у iPad/ноута, без непропорционального пола. ──*/
   .header{height:max(5vh, 2.5vw);}
-  :root{ --arena-col-w: clamp(56px, 15vh, 96px); }
+  .hamburger-btn{width:max(5vh, 2.5vw);height:max(5vh, 2.5vw);}
+  :root{
+    /* --arena-endturn-w заморожена на СТАРОЙ формуле именно этого брейкпоинта
+       (clamp(56px,15vh,96px), была тут до сегодняшнего расширения --arena-col-w) — тот
+       же принцип, что у общего лендскейп-блока выше по файлу (см. её комментарий там).
+       --arena-box-* (доли бокса) отдельно тут не переопределяем — уже унаследованы из
+       общего @media(orientation:landscape) блока выше (телефон лёжа тоже landscape,
+       оба блока применяются к :root, этот всего лишь more specific по max-height и
+       переопределяет только то, что явно указано). */
+    --arena-endturn-w: clamp(56px, 15vh, 96px);
+    --arena-col-w: clamp(56px, 20vh, 130px);
+  }
 }
 @media(min-width:601px){
   .player-hand-zone{padding:6px calc(var(--card-action-btn-w) + 8px);}
@@ -2463,7 +2496,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   70%{opacity:.4;}
   100%{opacity:0; transform:translateY(-55%) rotate(12deg);}
 }
-.cap-no-ess{display:flex; align-items:center; justify-content:center; gap:6px; font-family:'MEK',monospace; font-size:clamp(12px,2.2vw,17px); color:#E8E0C8; background:rgba(8,8,16,0.85); border:1px solid rgba(232,224,200,0.35); border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.5); padding:6px 10px; white-space:normal; text-align:center; width:100%; box-sizing:border-box; pointer-events:none; text-shadow:0 0 8px #8A7D62;}
+.cap-no-ess{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px; font-family:'MEK',monospace; font-size:clamp(9px, calc(var(--card-w) * 0.15), 17px); color:#E8E0C8; background:rgba(8,8,16,0.85); border:1px solid rgba(232,224,200,0.35); border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.5); padding:6px 8px; white-space:normal; text-align:center; width:100%; box-sizing:border-box; pointer-events:none; text-shadow:0 0 8px #8A7D62;}
 .cap-no-ess.cap-field-full{white-space:normal; text-align:center; line-height:1.15;}
 .cap-no-ess-icon{width:1.1em; height:1.1em; object-fit:contain; vertical-align:middle; filter:drop-shadow(0 0 3px #8A7D62);}
 .stat{display:flex;align-items:center;gap:4px;font-size:max(calc(4vh * 0.75), calc(2vw * 0.75));}
