@@ -176,6 +176,20 @@ function onClick(card,zone){
     }
     G.phase='action';G.sel=null;render();return; // cancel — клик мимо поля/не по существу
   }
+  if(G.phase==='shotTarget'){
+    if(zone==='field'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact){
+      // В отличие от boltTarget выше — НЕТ ward-гейта: Shot физический (bypassArmor=false),
+      // Ward блокирует только bypassArmor=true урон (см. dmgCard()), так что Ward-цели
+      // остаются полностью валидными для Shot (это и есть весь смысл тега — контра на Ward,
+      // по прямому запросу автора). Invisible/нераскрытый stealth — та же логика, что и
+      // везде (isSpellTargetable), клик по невидимой цели просто игнорируется.
+      if(isSpellTargetable(card,G[opp].field)){
+        doShotTarget(card);return;
+      }
+      return;
+    }
+    G.phase='action';G.sel=null;render();return; // cancel — клик мимо поля/не по существу
+  }
   if(G.phase==='sacrificeTarget'){
     if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
       doSacrifice_target(card);return;
@@ -854,6 +868,12 @@ function doAttack(att,target){
   const debuffBlocked = target.frozen || hasTag(target,'ward');
   const willFear = hasTag(att,'fear') && targetSurvives && !debuffBlocked;
   const willBurn = hasTag(att,'burn') && targetSurvives && !debuffBlocked;
+  // Frost Attack (2026-08-04, звук по прямому запросу автора) — та же логика "звук атаки
+  // замещается debuff-звуком", что у willFear/willBurn выше, НО не через debuffBlocked:
+  // Frost, в отличие от Fear/Burn, применяется ДАЖЕ на уже замороженную цель (просто
+  // обновляет длительность — см. case 'frost' в abilities.js, там нет ветки на
+  // ctx.target.frozen), единственное, что его блокирует — Ward.
+  const willFrost = hasTag(att,'frost') && targetSurvives && !hasTag(target,'ward');
   lg(`${att.name} attacks ${target.name}!`,'imp');
 
   // Снимок ДО on_attack-эффектов этого удара: fear, наложенный ИМЕННО этим ударом, не должен
@@ -894,7 +914,7 @@ function doAttack(att,target){
   // звука вообще (автор добавит отдельный SFX позже), только визуал (queueFieldFx 'MISSED!'
   // уже отыгран самой dmgCard()). Иначе — прежняя логика: обычный звук атаки, если дебафф
   // в итоге не наложится (Ward/Frost), иначе тишина — сыграет debaf-звук чуть ниже.
-  if(!target._foxyDodgedThisHit && !willFear && !willBurn) playAttackSfx(att);
+  if(!target._foxyDodgedThisHit && !willFear && !willBurn && !willFrost) playAttackSfx(att);
   // Math.max(0,target.hp) — если удар был лишним "оверкиллом" (hp ушло в минус), не даём
   // realDmgDealt раздуться сверх того, сколько у цели реально БЫЛО жизни (hpBefore).
   const realDmgDealt=Math.max(0, hpBefore-Math.max(0,target.hp));
@@ -1106,6 +1126,59 @@ function doBoltTarget(card){
     // NANA (2026-07-29) — тот же хук, что у Market чуть выше: bypassArmor=true для
     // дамаг-ветки, т.к. сам Bolt уже магический, бонус наследует ту же природу удара.
     resolveNanaEvent(boltC, boltOwnerK, targetC, oppK, true);
+    checkWin();
+    render();
+  },420);
+}
+
+// Mechird Shot (2026-08-04, Szarg<->Mechird archetype swap, по прямому запросу автора) —
+// физический близнец doUmbBolt()/doBoltTarget() выше: та же логика 1-в-1 (point-damage
+// активка, тот же полёт снаряда/тайминг 420мс), но:
+//  · dmgCard(...,false) — bypassArmor=false, застревает в Броне (в отличие от Bolt)
+//  · target-фильтр НЕ исключает Ward (Ward блокирует только bypassArmor=true урон)
+//  · арт снаряда — bullet.gif вместо bolt.gif (свой throwShotFx(), тот же приём, что throwBoltFx())
+//  · звук запуска — '8bit_gunloop_explosion' вместо 'wind_card'
+//  · звук попадания — 'card_atack' (тот же, что у обычной атаки, playAttackSfx()), а НЕ
+//    'card_spell_atack' (тот магический, что у Bolt) — Shot физический, не магический
+function doMchShot(){
+  const shot=findC(G.sel);
+  if(!shot||!hasTag(shot,'shot')){lg('Select a Shot card first.','hint');return;}
+  if(shot.exhausted||shot.frozen){lg(`${shot.name} already acted this turn.`,'dmg');return;}
+  if(G.phase==='shotTarget'){G.phase='action';G.sel=null;render();return;} // повторный клик — отмена
+  G.phase='shotTarget';
+  lg(`${shot.name}: select an enemy creature to deal ${(shot.squadParam&&shot.squadParam.shot)||getTagVal(shot,'shot')||1} physical damage.`,'hint');
+  render();
+}
+
+function doShotTarget(card){
+  const oppK=G.turn==='tea'?'jeet':'tea';
+  const shot=findC(G.sel);
+  if(!shot){G.phase='action';G.sel=null;render();return;}
+  if(card.f===G.turn||card.spell||card.world||card.artifact){
+    lg('Select an enemy creature.','hint');return;
+  }
+  playSfx('8bit_gunloop_explosion'); // звук на ЗАПУСК, тот же принцип что у Bolt (wind_card)
+  const dmg=(shot.squadParam&&shot.squadParam.shot)||getTagVal(shot,'shot')||1;
+  const shotOwnerK=G.turn;
+  const shotId=shot.id, targetId=card.id;
+
+  throwShotFx(shotId, targetId, null);
+
+  shot.exhausted=true;
+  G.phase='action';G.sel=null;
+  render();
+  activateCard(shotId);
+
+  setTimeout(()=>{
+    const shotC=G[shotOwnerK].field.find(c=>c.id===shotId);
+    const targetC=G[oppK].field.find(c=>c.id===targetId);
+    if(!shotC || !targetC) return; // носитель или цель успели уйти с поля за время полёта
+    queueFieldFx(targetC.id,'SHOT!','fx-shard'); // тот же плейсхолдер-эффект, что у Bolt/Shard — пока нет своего арта на импакт
+    dmgCard(targetC,dmg,oppK,false); // bypassArmor=false — физический урон, режется Бронёй, проходит по Варду
+    if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+      playAttackSfx(shotC); // звук ПОПАДАНИЯ — тот же, что у обычной атаки (card_atack)
+      lg(`${shotC.name}: ${targetC.name} takes ${dmg} physical damage!`,'dmg');
+    }
     checkWin();
     render();
   },420);
@@ -1647,6 +1720,37 @@ function throwBoltFx(fromId, toId, baseFaction, fromBaseFaction){
   setTimeout(()=>{ if(bolt.parentElement) bolt.remove(); },450);
 }
 
+// Mechird Shot (2026-08-04) — точный клон throwBoltFx() выше, отличается только классом/
+// артом снаряда (.bullet-fly / bullet.gif вместо .bolt-fly / bolt.gif, см. css/styles.css —
+// bullet-fly в 2 раза уже bolt-fly). Тайминг/угол/приземление — та же логика 1-в-1.
+function throwShotFx(fromId, toId, baseFaction, fromBaseFaction){
+  const fromEl = fromId ? document.querySelector(`.card-small[data-id="${fromId}"]`)
+                        : document.getElementById(_statsElIdForFaction(fromBaseFaction));
+  if(!fromEl) return;
+  const toEl = toId ? document.querySelector(`.card-small[data-id="${toId}"]`)
+                     : document.getElementById(_statsElIdForFaction(baseFaction));
+  if(!toEl) return;
+  const fromRect=fromEl.getBoundingClientRect();
+  const toRect=toEl.getBoundingClientRect();
+  const fromX=fromRect.left+fromRect.width/2, fromY=fromRect.top+fromRect.height/2;
+  const toX=toRect.left+toRect.width/2, toY=toRect.top+toRect.height/2;
+  const angle=Math.atan2(toY-fromY, toX-fromX)*180/Math.PI + 90;
+  const bullet=document.createElement('img');
+  bullet.className='bullet-fly';
+  bullet.src='img/bullet.gif';
+  bullet.alt='';
+  bullet.style.left=fromX+'px';
+  bullet.style.top=fromY+'px';
+  bullet.style.transform=`translate(-50%,-50%) rotate(${angle}deg) scale(1)`;
+  document.body.appendChild(bullet);
+  void bullet.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+  bullet.style.transition='left 420ms ease-in, top 420ms ease-in, transform 420ms ease-in';
+  bullet.style.left=toX+'px';
+  bullet.style.top=toY+'px';
+  bullet.style.transform=`translate(-50%,-50%) rotate(${angle}deg) scale(1.15)`;
+  setTimeout(()=>{ if(bullet.parentElement) bullet.remove(); },450);
+}
+
 // DD Cleave (2026-07-29, "DD's Signature", ультраредкий Mood-трейт, ico_dd.png, по
 // прямому запросу автора) — при ОБЫЧНОЙ атаке (НЕ Bolt — по прямому запросу автора,
 // в отличие от Market/Nana) носитель тега `dd` наносит 1 физический урон (bypassArmor=
@@ -1732,6 +1836,7 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   // просто останется замороженной как была, эта проверка её никак не снимает.
   if(card.frozen && !bypassFrost){
     card._frostBlockedThisHit=true;
+    playSfx('icebreake'); // (2026-08-04, по прямому запросу автора)
     requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
     lg(`${card.name}'s Frost absorbs the hit entirely and shatters.`,'dmg');
     scheduleFrostRemoval(card);
@@ -2332,10 +2437,10 @@ const ESS_CAP = 10;
 
 const SQUAD_DEFS = [
   {gtype:'drg', count:3, effect:'armor', val:1},
-  {gtype:'mch', count:3, effect:'atk',   val:1},
+  {gtype:'mch', count:3, effect:'param', param:'shot',   val:2}, // Szarg<->Mechird archetype swap (2026-08-04, по прямому запросу автора) — Mechird теряет старый +1 ATK squad-бонус, становится физическим аналогом Umbasir (Shot вместо Bolt, param-бонус вместо stat-бонуса)
   {gtype:'orb', count:3, effect:'armor', val:2},
   {gtype:'umb', count:3, effect:'param', param:'bolt',   val:2},
-  {gtype:'szg', count:3, effect:'maxhp', val:1},
+  {gtype:'szg', count:3, effect:'maxhp', val:1}, // Squad-бонус НЕ менялся при свопе (2026-08-04, по прямому запросу автора) — Szarg сохраняет +1 maxHP, меняются только базовые статы/pierce
   {gtype:'xui', count:3, effect:'atk',   val:1},
 ];
 
