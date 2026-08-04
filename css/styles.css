@@ -57,6 +57,15 @@
      ориентации — кнопка лога всегда одного размера, независимо от того, насколько шире
      стала сама колонка под кладбище/деку. */
   --arena-log-w: clamp(56px, 8vh, 96px);
+  /* Боксы кладбища/деки (2026-08-04) — 4 фиксированных куска, из суммы которых считается
+     сам размер .arena-pair (см. её комментарий в styles.css) — --arena-box-pad ОДНА
+     переменная и для padding бокса, и для gap иконка↔каунтер, гарантированно одинаковый
+     отступ с обеих сторон, как и просил автор. --arena-box-counter-w — вдвое больше
+     старого значения (было 0.75*0.26≈0.195 от --arena-col-w, стало 0.39). */
+  --arena-box-pad: calc(var(--arena-col-w) * 0.05);
+  --arena-box-icon: calc(var(--arena-col-w) * 0.35);
+  --arena-box-counter-w: calc(var(--arena-col-w) * 0.39);
+  --arena-box-counter-h: calc(var(--arena-col-w) * 0.245);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;-webkit-touch-callout: none;}
 html{overflow:hidden;width:100%;height:100%;}
@@ -1065,14 +1074,17 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
      окажется шрифт на каком-то экране. */
   max-width:calc(100% - 2 * max(calc(5vh * 0.798), calc(2.5vw * 0.798)) - 12px);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-/*── Вертикальный iPad — панель лога фиксированной ширины (320px), а формула шрифта заголовка
-    брала max() от vh И vw без верхней границы: на высоком узком экране vh-компонент
-    разрастается без привязки к этим 320px и раньше вылезал за пределы (safety-net выше уже не
-    даст залезть НА кнопку, но лучше не доводить до эллипсиса — оставляем заголовок читаемым
-    целиком, просто размер скромнее). Тот же порог "планшет-портрет", что и везде в проекте. ──*/
-@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
-  .log-panel-title{font-size:calc(2.5vw * 0.665);}
-}
+/*── БЫЛО: "Вертикальный iPad — панель лога фиксированной ширины (320px)..." — этот костыль
+   уменьшал шрифт заголовка лога специально на планшете-портрете, компенсируя то, что
+   .log-panel тогда был жёстко 320px и мог не вписать vh-формулу шрифта. С тех пор
+   .log-panel уже переехал на ту же responsive-формулу ширины, что у .grave-modal (см. её
+   правило выше по файлу) — сама причина костыля исчезла, а override остался и продолжал
+   резать шрифт заголовка лога именно на этом диапазоне экранов (601-1024px, портрет),
+   из-за чего "Battle Log" всё ещё выглядел мельче "Graveyard" даже после фикса ширины
+   панели (автор поймал это ЖИВЬЁМ на iPad, сравнил заголовки в упор — они физически
+   были разного размера, не показалось). Убрано целиком (2026-08-04) — теперь
+   .log-panel-title всегда считается той же безусловной max(5vh,2.5vw) формулой, что и
+   .grave-modal-title, без скидок под конкретный диапазон экранов. ──*/
 .log-panel-close{position:absolute;right:6px;top:50%;transform:translateY(-50%);background-image:url('../img/btn_X.png');background-size:100% 100%;background-color:transparent;width:max(calc(5vh * 0.798), calc(2.5vw * 0.798));height:max(calc(5vh * 0.798), calc(2.5vw * 0.798));cursor:pointer;border:none;padding:0;font-size:0;line-height:0;}
 .log-panel-close:hover{background-image:url('../img/btn_Xh.png');}
 .log-panel-close:active{background-image:url('../img/btn_X2.png');}
@@ -1835,17 +1847,28 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 
 /* Бокс "кнопка + каунтер" — плейсхолдер под будущий кастомный фон (автор: "как
    продолжение статус-бара") — Чай серый, Джит чёрный (.tea/.jeet, выставляется в
-   reorderZones()). Фиксированный ratio 8:5 — см. комментарий выше. Доля от
-   --arena-col-w — 0.75 портрет (база ниже), 0.55 лендскейп (@media в конце файла,
-   у колонки и так гораздо больше абсолютная ширина, поэтому меньшая доля). */
+   reorderZones()).
+   2026-08-04 (по прямому запросу автора — "какое расстояние между каунтером и кнопкой
+   кладбища/деки? Надо такой же отступ добавить слева и справа внутри бокса" + "фон
+   каунтера сделать в два раза шире"): раньше размер бокса задавался через aspect-ratio
+   от ширины, а иконка/каунтер — независимо друг от друга (иконка — от высоты бокса,
+   каунтер — своя формула) — при таком подходе нельзя было просто "сделать каунтер шире"
+   без риска вылезти за бокс, и гарантировать, что паддинг слева/справа РОВНО равен
+   зазору между иконкой и каунтером, тоже было не через что. Теперь наоборот: сначала
+   считаются 4 фиксированных куска (паддинг/иконка/каунтер-ширина/каунтер-высота) через
+   --arena-box-* переменные, а РАЗМЕР БОКСА — это их сумма (3 одинаковых зазора: левый
+   край→иконка, иконка→каунтер, каунтер→правый край + сама иконка + сам каунтер). Один
+   и тот же --arena-box-pad используется и как padding бокса, и как gap между иконкой и
+   каунтером — гарантированно один и тот же отступ с обеих сторон, буквально одна
+   переменная, а не "подогнанные вручную похожие числа". */
 .arena-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;
-  width: calc(var(--arena-col-w) * 0.75);
-  aspect-ratio: 8 / 5;
+  width: calc(3 * var(--arena-box-pad) + var(--arena-box-icon) + var(--arena-box-counter-w));
+  height: calc(var(--arena-box-icon) + 2 * var(--arena-box-pad));
   flex-shrink:0;box-sizing:border-box;
   background:#4a4a4a;
   border-radius:8px;
-  padding: calc(var(--arena-col-w) * 0.045);
-  gap: calc(var(--arena-col-w) * 0.04);
+  padding: 0 var(--arena-box-pad);
+  gap: var(--arena-box-pad);
 }
 .arena-pair.jeet{background:#000000;}
 .arena-pair > *{flex-shrink:0;}
@@ -1854,10 +1877,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    bottom-bar, просто теперь на 2 динамических слота Opp/Player вместо статичных
    tea/jeet — см. reorderZones() в render.js, которая на каждый рендер решает, какая
    фракция сейчас "opp", а какая "player", и перевешивает className/onclick/data-faction
-   на #arenaGraveOpp/#arenaGravePlayer соответственно). height:100% от контентной
-   высоты бокса (после паддинга) — раньше была % от ширины колонки, теперь бокс сам
-   фиксированного размера, так что просто заполняет его по высоте, ширина по aspect-ratio. */
-.arena-grave-btn{height:100%;aspect-ratio:1/1;width:auto;border:none;
+   на #arenaGraveOpp/#arenaGravePlayer соответственно). */
+.arena-grave-btn{width:var(--arena-box-icon);height:var(--arena-box-icon);border:none;
   background-color:transparent;
   background-size:contain;background-repeat:no-repeat;background-position:center;
   padding:0;cursor:pointer;transition:transform .1s,filter .1s;flex-shrink:0;}
@@ -1872,7 +1893,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    раньше ID-скоуп #deckPlaceholderJ, теперь класс — позиция Opp/Player не привязана к
    фракции намертво). Чисто визуальный якорь + мишень для анимации добора карты
    (_deckPlaceholderRect() в render.js), не кликабелен. */
-.arena-deck-slot{height:100%;aspect-ratio:1/1;width:auto;
+.arena-deck-slot{width:var(--arena-box-icon);height:var(--arena-box-icon);
   background-image:url('../img/deck.png');
   background-size:contain;background-repeat:no-repeat;background-position:center;
   pointer-events:none;flex-shrink:0;}
@@ -1884,9 +1905,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    привязана намертво к фракции. width/height ЯВНО заданы (не auto/min-width) — тот же
    приём, что у .stat-hp-box/.stat-ess-box чуть ниже по файлу — "1" и "35" внутри не
    меняют размер самого бокса, только своё положение внутри него (justify/align-center
-   у базового .stat-badge, см. её правило). */
-.arena-pair .stat-badge{width:calc(var(--arena-col-w) * 0.75 * 0.26);
-  height:calc(var(--arena-col-w) * 0.75 / 1.6 * 0.7);min-width:0;flex-shrink:0;}
+   у базового .stat-badge, см. её правило). Ширина — в 2 раза больше, чем была
+   (2026-08-04, по прямому запросу автора, см. --arena-box-counter-w). */
+.arena-pair .stat-badge{width:var(--arena-box-counter-w);height:var(--arena-box-counter-h);
+  min-width:0;flex-shrink:0;}
 .stat-badge.tea{color:#4DB854;}
 .stat-badge.jeet{color:#b44fd4;background-color:#fff;background-image:url('../img/bg_counters_jeet.png');}
 
@@ -1926,18 +1948,20 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    кнопок проекта) — не применяется по умолчанию ни к одному из элементов выше, кроме
    .arena-log-btn (см. её собственный .placeholder-блок выше), оставлено про запас. */
 
-/*── ЛЕНДСКЕЙП — только числа-доли теперь переопределяются (2026-08-04, форма/ratio
-   бокса и каунтера везде одна и та же, см. комментарий у .arena-pair выше — меняется
-   только МАСШТАБ, не форма): --arena-col-w сама по себе уже большая в лендскейпе (План Б),
-   поэтому доля от неё для бокса меньше (0.55 вместо портретных 0.75), чтобы абсолютный
-   размер не улетел слишком крупным — то же самое для конца хода и грейв/дек-иконок
-   (которые сами по себе всё ещё считаются через .arena-pair, просто зависят от её
-   width/aspect-ratio, отдельно их трогать не нужно). ──*/
+/*── ЛЕНДСКЕЙП — та же схема "сумма фиксированных кусков", просто своя (меньшая) доля от
+   --arena-col-w на каждый кусок (2026-08-04) — колонка сама по себе уже большая в
+   лендскейпе (План Б), поэтому абсолютный масштаб всех --arena-box-* меньше, но
+   ПРОПОРЦИИ между ними те же самые (все 4 числа домножены на один и тот же коэффициент
+   ~0.73 — тот же, что раньше отличал 0.55 от 0.75 у ширины бокса), так что итоговый
+   ratio бокса остаётся тем же, просто меньше в пикселях. ──*/
 @media(orientation:landscape){
-  :root{ --arena-col-w: clamp(120px, 15vh, 155px); }
-  .arena-pair{width: calc(var(--arena-col-w) * 0.55);}
-  .arena-pair .stat-badge{width:calc(var(--arena-col-w) * 0.55 * 0.26);
-    height:calc(var(--arena-col-w) * 0.55 / 1.6 * 0.7);flex-shrink:0;}
+  :root{
+    --arena-col-w: clamp(120px, 15vh, 155px);
+    --arena-box-pad: calc(var(--arena-col-w) * 0.0365);
+    --arena-box-icon: calc(var(--arena-col-w) * 0.2555);
+    --arena-box-counter-w: calc(var(--arena-col-w) * 0.2847);
+    --arena-box-counter-h: calc(var(--arena-col-w) * 0.1789);
+  }
 }
 
 .player-hand-zone{height:27vh;padding:6px 6px;border:none;position:relative;}
@@ -2032,9 +2056,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   from{transform: translateY(var(--slide-dist, -100%)); opacity: 0;}
   to{transform: translateY(0); opacity: 1;}
 }
-.arena-slide-down-in{animation: arenaSlideDownIn 0.715s cubic-bezier(0.22,0.68,0,1) both;}
-.arena-slide-up-in{animation: arenaSlideUpIn 0.715s cubic-bezier(0.22,0.68,0,1) both;}
-.arena-header-fade-in{animation: gameFieldFadeIn 0.455s ease-out both;}
+.arena-slide-down-in{animation: arenaSlideDownIn 1.43s cubic-bezier(0.22,0.68,0,1) both;}
+.arena-slide-up-in{animation: arenaSlideUpIn 1.43s cubic-bezier(0.22,0.68,0,1) both;}
+.arena-header-fade-in{animation: gameFieldFadeIn 0.91s ease-out both;}
 /*── Горизонтальный въезд лога/конца хода (2026-08-04, по прямому запросу автора —
    "красиво будет") — тот же принцип, что у arenaSlideDown/UpIn (translate по X вместо Y,
    свой --slide-dist-x на элемент, см. playArenaRevealAnimation() в ui.js). Лог и конец
@@ -2048,8 +2072,8 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   from{transform: translateX(var(--slide-dist-x, 100%)); opacity: 0;}
   to{transform: translateX(0); opacity: 1;}
 }
-.arena-slide-left-in{animation: arenaSlideLeftIn 0.715s cubic-bezier(0.22,0.68,0,1) both;}
-.arena-slide-right-in{animation: arenaSlideRightIn 0.715s cubic-bezier(0.22,0.68,0,1) both;}
+.arena-slide-left-in{animation: arenaSlideLeftIn 1.43s cubic-bezier(0.22,0.68,0,1) both;}
+.arena-slide-right-in{animation: arenaSlideRightIn 1.43s cubic-bezier(0.22,0.68,0,1) both;}
 .field-star.field-star-grow-in{animation-name: starGrowIn; animation-timing-function: cubic-bezier(0.34,1.56,0.64,1); animation-fill-mode: both; animation-iteration-count: 1;}
 .battle-begins-text{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; z-index:60; pointer-events:none;}
 .battle-begins-text.hidden{display:none;}
