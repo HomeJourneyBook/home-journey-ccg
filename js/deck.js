@@ -166,9 +166,9 @@ function shuffleArr(d){
 // (экспорт JSON из деккбилдера → развернуть qty в плоский массив → вставить сюда).
 const CLASSIC_TEA_DECK = [
   't_w1','t_a1','t_faeron','t_ogniv',
-  't_trvl18_w','t_trvl890_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl692_w', // t_trvl870_w(szg,был cost1→сейчас cost2)→t_trvl18_w(mch,cost1) — mirror-фикс кривой 2026-08-04, по прямому запросу автора; t_trvl890_w НЕ заменён — второй cost1-Mechird для Tea пока не существует (см. changelog в data.js)
+  't_trvl18_w','t_trvl34_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl692_w', // t_trvl870_w→t_trvl18_w (mirror-фикс, см. выше); t_trvl890_w(szg cost2)→t_trvl34_w(szg cost3) — 2026-08-04, по прямому запросу автора, уровняли кривую Szarg с Jeet (2:1 3:1 5:1 на обеих фракциях теперь)
   't_trvl31_w','t_trvl921_w','t_trvl972_w','t_trvl495_w','t_trvl1034_w','t_trvl6_w',
-  't_trvl250_w','t_trvl28_w','t_trvl39_w','t_trvl1015_w',
+  't_trvl250_w','t_trvl28_w','t_trvl26_w','t_trvl1015_w', // t_trvl39_w(xui cost2)→t_trvl26_w(xui cost3) — 2026-08-04, по прямому запросу автора, уровняли кривую Xuiqtr с Jeet (2:1 3:2 на обеих фракциях теперь)
   // ── ЭКСПЕРИМЕНТ 35→40, раунд 2 (2026-08-01, кандидат для сравнительного прогона
   // sim/headless.js, см. чат — НЕ синхронизировано с Rush-деккбилдером, НЕ финальное
   // решение). Раунд 1 (см. git-history/чат) добавлял t_trvl607_w (Mechird cost5,
