@@ -166,7 +166,7 @@ function shuffleArr(d){
 // (экспорт JSON из деккбилдера → развернуть qty в плоский массив → вставить сюда).
 const CLASSIC_TEA_DECK = [
   't_w1','t_a1','t_faeron','t_ogniv',
-  't_trvl870_w','t_trvl890_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl692_w',
+  't_trvl18_w','t_trvl890_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl692_w', // t_trvl870_w(szg,был cost1→сейчас cost2)→t_trvl18_w(mch,cost1) — mirror-фикс кривой 2026-08-04, по прямому запросу автора; t_trvl890_w НЕ заменён — второй cost1-Mechird для Tea пока не существует (см. changelog в data.js)
   't_trvl31_w','t_trvl921_w','t_trvl972_w','t_trvl495_w','t_trvl1034_w','t_trvl6_w',
   't_trvl250_w','t_trvl28_w','t_trvl39_w','t_trvl1015_w',
   // ── ЭКСПЕРИМЕНТ 35→40, раунд 2 (2026-08-01, кандидат для сравнительного прогона
@@ -192,7 +192,7 @@ const CLASSIC_TEA_DECK = [
 
 const CLASSIC_JEET_DECK = [
   'j_w1','j_a1','j_vard','j_terror',
-  'j_trvl971_w','j_trvl740_w','j_trvl41_w','j_trvl27_w','j_trvl50_w','j_trvl1008_w',
+  'j_trvl724_w','j_trvl740_w','j_trvl41_w','j_trvl27_w','j_trvl50_w','j_trvl1008_w', // j_trvl971_w(szg,был cost1→сейчас cost2)→j_trvl724_w(mch,cost1) — тот же mirror-фикс, что у Tea выше; j_trvl740_w НЕ заменён — второй cost1-Mechird для Jeet тоже пока не существует
   'j_trvl523_w','j_trvl579_w','j_trvl36_w','j_trvl434_w','j_trvl859_w','j_trvl663_w',
   'j_trvl578_w','j_trvl359_w','j_trvl53_w','j_trvl901_w',
   // ── ЭКСПЕРИМЕНТ 35→40, раунд 2 — та же логика, что у Tea выше, зеркально по слабым
