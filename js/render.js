@@ -1399,7 +1399,26 @@ function rZone(id,cards,zone){
           cardEl.style.animationDuration='';
           cardEl.style.animationFillMode='';
         }, CARD_FLY_MS);
-        _flyCardFromDeck(flyClone,deckRect,restRect,newHandCardIndex*90);
+        const idx=newHandCardIndex;
+        // Пропускаем сам полёт клона, если открыто окно муллигана (2026-08-04, автор
+        // поймал живьём — клон летящей карты рисовался ПОВЕРХ модалки муллигана,
+        // z-index:5500 у .card-fly-clone против z-index:650 у .modal-overlay). Окно
+        // муллигана показывает СВОЮ отдельную копию карт через mkEl() (см.
+        // startMulliganFor() в ui.js) — настоящей #teaHand/#jeetHand зоне, спрятанной
+        // под модалкой, никакой анимации входа сейчас видно не нужно.
+        // ПОЧЕМУ ПРОВЕРКА В setTimeout(0), А НЕ ПРЯМО ЗДЕСЬ: initState()->render() (тот
+        // самый вызов, что довёл выполнение досюда) и startMulliganFor() (который снимает
+        // .hidden с #mulliganScreen) вызываются синхронно один сразу за другим (см.
+        // js/ui.js) — на момент ЭТОЙ строки startMulliganFor() ЕЩЁ НЕ УСПЕЛ отработать,
+        // #mulliganScreen всё ещё .hidden, синхронная проверка тут всегда солгала бы
+        // "муллигана нет". setTimeout(fn,0) гарантированно выполнится ПОСЛЕ того, как весь
+        // текущий синхронный стек (включая тот самый startMulliganFor()) уже отработает —
+        // там проверка уже видит актуальное состояние модалки.
+        setTimeout(()=>{
+          const mulliganEl=document.getElementById('mulliganScreen');
+          const mulliganShowing = mulliganEl && !mulliganEl.classList.contains('hidden');
+          if(!mulliganShowing) _flyCardFromDeck(flyClone,deckRect,restRect,idx*90);
+        }, 0);
         newHandCardIndex++;
       }
     });
@@ -1820,16 +1839,21 @@ function reorderZones(){
 
   // Скин кнопки лога (2026-08-04, по прямому запросу автора — "повесь ассет
   // btn_log1/H/2_tea/jeet.png") — кнопка одна на двоих (не Opp/Player-слот, сидит в
-  // среднем слоте), красится по G.turn (чей сейчас ход) — тот же принцип, что уже решает,
-  // какая из двух #teaEndTurnBtn/#jeetEndTurnBtn кнопок сейчас видна (см. render() выше
-  // по файлу). classList.toggle, НЕ className= — className перезаписал бы .placeholder
-  // класс из разметки на каждый рендер; когда автор positioned уберёт .placeholder из
-  // HTML (реальный ассет готов), это должно остаться убранным, а не вернуться обратно
-  // тут же на следующий рендер.
+  // среднем слоте).
+  // БАГФИКС (2026-08-04, автор поймал живьём в VS AI — "конец хода корректно уходит в
+  // вейтинг, а лог почему-то переключается на фракцию противника, будто хотсит"): раньше
+  // красилась по G.turn — а G.turn каждый ход меняется ДАЖЕ в VS AI (это внутреннее
+  // состояние "чей ход", не то же самое, что "чей физически экран"). playerK — тот же
+  // флаг, что уже держит статбар/руку/грейв-дек игрока стабильными в VS AI (см. выше по
+  // функции — playerK=G.humanFaction фиксирован в VS AI, playerK=G.turn в хотсите, где
+  // фиксировать нечего, физически меняется, кто сейчас держит устройство).
+  // classList.toggle, НЕ className= — className перезаписал бы .placeholder класс из
+  // разметки на каждый рендер; когда автор уберёт .placeholder из HTML (реальный ассет
+  // готов), это должно остаться убранным, а не вернуться обратно тут же на следующий рендер.
   const logBtn=document.getElementById('arenaLogBtn');
   if(logBtn){
-    logBtn.classList.toggle('jeet', G.turn==='jeet');
-    logBtn.classList.toggle('tea', G.turn!=='jeet');
+    logBtn.classList.toggle('jeet', playerK==='jeet');
+    logBtn.classList.toggle('tea', playerK!=='jeet');
   }
 }
 
