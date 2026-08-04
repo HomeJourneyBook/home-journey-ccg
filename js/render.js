@@ -206,7 +206,7 @@ function render(){
       G.phase==='spellDmgTarget'||G.phase==='spellBuffTarget'||
       G.phase==='spellDispelTarget'||G.phase==='spellUntapTarget'||
       G.phase==='spellBounceTarget'||G.phase==='healTarget'||
-      G.phase==='shardTarget'||G.phase==='boltTarget'||
+      G.phase==='shardTarget'||G.phase==='boltTarget'||G.phase==='shotTarget'||
       G.phase==='spellProvokeBreakTarget'||G.phase==='spellDmgTrampleTarget'||
       G.phase==='spellArmorTarget'||G.phase==='spellDestroyTarget'||
       G.phase==='spellBurnTarget'||G.phase==='spellFearTarget'||
@@ -607,7 +607,7 @@ function _armorDisplay(card){
 // нет смысла пересоздавать литерал массива на каждый вызов mkSmallEl() (render() и так
 // пересобирает весь DOM каждый раз, лишняя работа множится на каждую карту на поле).
 const DEBUFF_TARGET_PHASES=['spellFearTarget','spellBurnTarget','spellProvokeBreakTarget'];
-const DMG_TARGET_PHASES=['spellDmgTarget','spellDmgTrampleTarget','spellExecuteHalfTarget','shardTarget','boltTarget'];
+const DMG_TARGET_PHASES=['spellDmgTarget','spellDmgTrampleTarget','spellExecuteHalfTarget','shardTarget','boltTarget','shotTarget'];
 
 const _frostSeenIds = new Set();
 
@@ -694,6 +694,9 @@ function mkSmallEl(card){
   // "все враги invisible → все становятся видимой целью", как и у обычной атаки.
   if(G.phase==='shardTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='boltTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
+  // Shot (2026-08-04) — та же подсветка, что у Bolt выше, но БЕЗ ward-исключения: Ward не
+  // блокирует физический (bypassArmor=false) урон, так что Ward-цели тоже подсвечиваются.
+  if(G.phase==='shotTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellDmgTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)){
     d.classList.add('targetable','aim-target');
     // Мишень-череп (2026-07-27) — VERDICT/DAMNATION (spell_dmg_target ≥ текущего HP цели,
@@ -836,6 +839,7 @@ ${!isSW?`<div class="card-small-stats">
     const isUmb=hasTag(card,'aoe')&&!card.unique;
     const isVard=hasTag(card,'aoe')&&card.unique;
     const isBolt=hasTag(card,'bolt'); // Umbasir v2 — точечный магический урон (см. doUmbBolt())
+    const isShot=hasTag(card,'shot'); // Mechird Shot (2026-08-04) — физический аналог Bolt, см. doMchShot()
     // Хилер: попап-кнопка "Heal" появляется, если есть кого хилить ИЛИ с кого снять
     // дебафф (burning/feared) — своя не-spell/world/artifact карта с hp<maxHp ИЛИ
     // дебаффом, та же проверка, что и у подсветки .healable ниже в healTarget (лечилка
@@ -851,7 +855,7 @@ ${!isSW?`<div class="card-small-stats">
     // только других союзников.
     const isBounceAlly=hasTag(card,'bounce_ally');
     const hasBounceTarget=isBounceAlly&&G[card.f].field.some(c=>c.id!==card.id&&!c.spell&&!c.world&&!c.artifact);
-    if(isUmb||isVard||isBolt||hasHealTarget||hasBounceTarget){
+    if(isUmb||isVard||isBolt||isShot||hasHealTarget||hasBounceTarget){
       const pop=document.createElement('div');
       pop.className='field-ability-popup';
       if(isUmb){
@@ -875,6 +879,18 @@ ${!isSW?`<div class="card-small-stats">
         } else {
           btn.className='fab-btn umbasir'; // переиспользуем существующий плейсхолдер-класс, пока нет своей иконки
           btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doUmbBolt();};
+        }
+        pop.appendChild(btn);
+      }
+      if(isShot){
+        const btn=document.createElement('button');
+        const isCancellingShot=G.phase==='shotTarget'&&G.sel===card.id;
+        if(isCancellingShot){
+          btn.className='fab-btn cancel';
+          btn.onclick=(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();};
+        } else {
+          btn.className='fab-btn mechird'; // своя иконка btn_shot.png (2026-08-04, по прямому запросу автора)
+          btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doMchShot();};
         }
         pop.appendChild(btn);
       }
