@@ -3900,6 +3900,20 @@ function showFloat(cardId, text, type){
   setTimeout(()=>num.remove(), 900);
 }
 function activateCard(cardId){
+  // Пропускаем пульс, если карта СЕЙЧАС ещё летит на поле (2026-08-05, багфикс по прямому
+  // запросу автора — "Vanguard-карта после розыгрыша+немедленной атаки приземляется не на
+  // свою позицию"). _cardsCurrentlyFlying (render.js) — тот же сет, что уже блокирует
+  // replaceWith() спрятанного элемента, пока летит его клон (см. её комментарий в rZone()).
+  // Vanguard может действовать в тот же ход, что и разыгран — быстрая AI/игрок-атака сразу
+  // после розыгрыша может вызвать activateCard() (пульс атакующего) на элементе, который
+  // ФИЗИЧЕСКИ ещё visibility:hidden (ждёт своего входного клона) — конкурирующая CSS-
+  // анимация (@keyframes cardActivate, тоже двигает transform) начинает играть параллельно
+  // с ожиданием, и в момент, когда карта наконец становится видимой, браузер может
+  // отрисовать её ПОСЕРЕДИНЕ chужой transform-анимации — ровно тот "не туда приземлилась,
+  // потом резко доехала" эффект. Раз карта всё равно невидима, а её собственная entrance-
+  // анимация уже даёт достаточно обратной связи "что-то произошло" — пульс просто не нужен
+  // в этом окне, безопаснее пропустить.
+  if(typeof _cardsCurrentlyFlying!=='undefined' && _cardsCurrentlyFlying.has(String(cardId))) return;
   const el = document.querySelector(`.card-small[data-id="${cardId}"]`);
   if(!el) return;
   el.classList.remove('activating');
@@ -3920,6 +3934,9 @@ function activateCard(cardId){
   }, 500);
 }
 function hitCard(cardId){
+  // См. подробный комментарий у того же чека в activateCard() выше — тот же класс бага,
+  // тот же фикс: не трогаем ещё невидимую, летящую на поле карту конкурирующей анимацией.
+  if(typeof _cardsCurrentlyFlying!=='undefined' && _cardsCurrentlyFlying.has(String(cardId))) return;
   const el = document.querySelector(`.card-small[data-id="${cardId}"]`);
   if(!el) return;
 
