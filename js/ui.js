@@ -1378,46 +1378,70 @@ function _playCenterBannerText(text, opts={}){
   }
   wrap.style.top = seamY+'px';
 
-  // Замер: временный крупный базовый размер, смотрим фактическую ширину, пересчитываем
-  // до 40% ширины окна, затем сразу перезаписываем — пользователь base-размер не видит,
-  // т.к. рост (scale от 0) стартует только после этого на следующем кадре.
-  // inline white-space:nowrap (2026-08-06, по прямому запросу автора — "откати всё как
-  // было на десктопе, правка нужна была строго для вертикального телефона") — раньше тут
-  // просто читался CSS whiteSpace, а на мобильном @media(max-width:600px) он теперь
-  // normal/wrap (см. styles.css) — при замере ПРИ PROBE_PX=200 это уже давало ПЕРЕНОС
-  // строки на узких экранах, measuredWidth получался заниженным (высота многострочного
-  // блока, не истинная однострочная ширина), и вся пропорция "PROBE_PX→targetWidth"
-  // считалась от неверного числа. Тут явно форсируем nowrap ТОЛЬКО на время замера
-  // (инлайн-стиль побеждает media query), а после подгонки размера снимаем инлайн —
-  // дальше решает CSS (nowrap на десктопе, wrap-предохранитель на мобильном).
-  const prevWhiteSpace = inner.style.whiteSpace;
-  inner.style.whiteSpace = 'nowrap';
-  const PROBE_PX = 200;
-  inner.style.fontSize = PROBE_PX+'px';
-  const measuredWidth = inner.getBoundingClientRect().width || 1;
-  const targetWidth = window.innerWidth * 0.4;
-  let fittedPx = Math.max(18, PROBE_PX * (targetWidth / measuredWidth));
+  // Подгонка через бинарный поиск по РЕАЛЬНЫМ замерам DOM (2026-08-06, переписано по
+  // прямому запросу автора — "просто сделай надпись меньше, чтоб она влезла", без
+  // какого-либо переноса строки). Раньше тут была алгебраическая формула (аффинная модель
+  // font-size→width) — она предполагает ГЛАДКОЕ непрерывное масштабирование ширины вместе с
+  // font-size, но шрифт 'MEK' рендерится СТУПЕНЬКАМИ (проверено вживую: 11px/12px оба дают
+  // ширину 200px, 13px/14px оба дают 240px — никакого промежуточного значения между ними не
+  // существует), поэтому решение формулы (например "12.9px") могло попасть ровно в ту же
+  // ступеньку, что и более крупный размер, и визуально ничего не менялось. Бинарный поиск
+  // не предполагает НИКАКОЙ модели — просто раз за разом реально меряет DOM и сужает
+  // диапазон, поэтому корректен для любого шрифта, ступенчатого или нет.
+  function fitFontSizeBinarySearch(maxWidth, lo, hi){
+    for(let i=0;i<22;i++){
+      const mid=(lo+hi)/2;
+      inner.style.fontSize=mid+'px';
+      if((inner.getBoundingClientRect().width||0) <= maxWidth) lo=mid; else hi=mid;
+    }
+    return lo;
+  }
+
+  const targetWidth = window.innerWidth * 0.4; // желаемый эстетический размер
+  // maxSafeWidth (2026-08-06, багфикс по прямому запросу автора — тот же баннер всё равно
+  // перекрывал иконку лога слева/кнопку END TURN справа даже после подгонки под 92% ширины
+  // ОКНА) — те боковые колонки (#arenaColLeft/#arenaColRight) сами по себе занимают
+  // заметную часть ширины экрана на узких телефонах, так что "92% от innerWidth" всё
+  // равно давало баннеру заехать под них. Теперь безопасный предел меряется по РЕАЛЬНОМУ
+  // зазору МЕЖДУ этими колонками (а не по ширине всего окна) — гарантированно не задевает
+  // их, на любом экране, без хардкода конкретных чисел под конкретное разрешение.
+  const leftCol = document.getElementById('arenaColLeft');
+  const rightCol = document.getElementById('arenaColRight');
+  let maxSafeWidth = window.innerWidth * 0.92;
+  if(leftCol && rightCol){
+    const gapWidth = rightCol.getBoundingClientRect().left - leftCol.getBoundingClientRect().right;
+    if(gapWidth > 0) maxSafeWidth = Math.min(maxSafeWidth, gapWidth * 0.94);
+  }
+  const MIN_FONT_PX = 14; // читаемый минимум — ниже уже не уменьшаем шрифт, вместо этого подрезаем letter-spacing (см. ниже)
+
+  inner.style.letterSpacing = ''; // сброс к CSS-значению (2px) перед замерами — предыдущий вызов мог его подрезать (см. ниже)
+  let fittedPx = fitFontSizeBinarySearch(Math.min(targetWidth, maxSafeWidth), 6, 200);
+  fittedPx = Math.max(MIN_FONT_PX, fittedPx);
   inner.style.fontSize = fittedPx+'px';
 
-  // Корректирующий второй проход (2026-08-05, багфикс по прямому запросу автора — на
-  // портретных телефонах длинные тексты типа "ENEMY OUT OF CARDS! They lose in 3 more
-  // turns!" обрезались по краям экрана). Причина: letter-spacing:2px (styles.css) —
-  // ФИКСИРОВАННЫЕ пиксели, которые НЕ уменьшаются вместе с font-size, так что пропорция
-  // "PROBE_PX → measuredWidth" не масштабируется линейно на итоговый маленький fittedPx —
-  // letter-spacing в сумме (особенно на длинных строках) занимает непропорционально
-  // бОльшую долю итоговой ширины, чем в замере на крупном PROBE_PX, и реальная
-  // отрисованная ширина превышает targetWidth. Тут перемеряем уже ПОСЛЕ применения
-  // fittedPx (всё ещё с форсированным nowrap выше) и, если всё равно вышли за безопасный
-  // предел экрана, ужимаем ещё раз — теперь уже без риска второй раз ошибиться на
-  // letter-spacing, т.к. измеряем по факту отрисованного, а не экстраполируем с другого
-  // font-size.
-  const actualWidth = inner.getBoundingClientRect().width || 1;
-  const maxSafeWidth = window.innerWidth * 0.92; // тот же запас, что у мобильного .battle-begins-text{max-width:92vw} в CSS
-  if(actualWidth > maxSafeWidth){
-    fittedPx = Math.max(14, fittedPx * (maxSafeWidth / actualWidth));
-    inner.style.fontSize = fittedPx+'px';
+  // Второй рычаг — letter-spacing (по прямому запросу автора: "просто сделай надпись
+  // меньше, чтоб она влезла", без переноса строки) — на экстремально узких экранах с очень
+  // длинным текстом даже MIN_FONT_PX может не уместиться в maxSafeWidth (letter-spacing:2px
+  // сам по себе уже занимает больше допустимой ширины). Вместо того чтобы давить fontSize
+  // ещё ниже (превращая надпись в нечитаемую кашу), сначала подрезаем сам letter-spacing —
+  // тем же бинарным поиском, по факту, без каких-либо формул.
+  if((inner.getBoundingClientRect().width||0) > maxSafeWidth){
+    let lo=0, hi=2;
+    for(let i=0;i<14;i++){
+      const mid=(lo+hi)/2;
+      inner.style.letterSpacing=mid+'px';
+      if((inner.getBoundingClientRect().width||0) <= maxSafeWidth) lo=mid; else hi=mid;
+    }
+    inner.style.letterSpacing = lo+'px';
+
+    // Третий, последний рычаг — если даже letter-spacing:0 не хватило (сам ГЛИФ-размер
+    // текста на MIN_FONT_PX всё ещё шире зазора), ужимаем fontSize ещё ниже MIN_FONT_PX —
+    // тем же бинарным поиском, теперь уже при урезанном letter-spacing.
+    if((inner.getBoundingClientRect().width||0) > maxSafeWidth){
+      fittedPx = fitFontSizeBinarySearch(maxSafeWidth, 1, MIN_FONT_PX);
+      inner.style.fontSize = fittedPx+'px';
+    }
   }
-  inner.style.whiteSpace = prevWhiteSpace; // возвращаем управление CSS/media query (см. комментарий выше)
 
   void wrap.offsetWidth; // reflow, чтобы новый font-size/top применились до старта анимации
 
