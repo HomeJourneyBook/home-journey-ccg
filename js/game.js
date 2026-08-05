@@ -577,6 +577,17 @@ function doPlay(card, afterResolve){
     // руки), падаем в обычный мгновенный путь ниже, чтобы ход точно не завис.
   }
 
+  // Полёт из руки на поле (2026-08-05, по прямому запросу автора) — снимок текущей позиции
+  // карты В РУКЕ, ДО того как она реально уйдёт оттуда. Только для существ (card.spell/
+  // world/artifact идут другими путями — Мир/Артефакт не встают в общий ряд поля, спеллы
+  // либо уже обработаны выше отдельными ветками, либо не летят вообще). rZone() (render.js)
+  // подхватит этот снимок на рендере зоны поля этим же вызовом render() внутри
+  // _resolvePlayedCard()→doCreature() — см. _pendingHandOriginRects/_playFieldFlyIfPending()
+  // там же, тот же приём, что и у _bounceOriginRects (полёт в обратную сторону).
+  if(!card.spell&&!card.world&&!card.artifact){
+    const handEl=document.querySelector(`.hand .card[data-id="${card.id}"]`);
+    if(handEl) _pendingHandOriginRects[card.id]=handEl.getBoundingClientRect();
+  }
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   _resolvePlayedCard(card);
   deferAfterResolve(afterResolve);
