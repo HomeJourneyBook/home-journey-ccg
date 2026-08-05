@@ -301,7 +301,7 @@ function _squadBonusText(card){
     if(sp.pierce) parts.push('Pierce');
     if(sp.regen) parts.push(`Regen ${sp.regen}`);
   }
-  return `Squad bonus active${parts.length?': '+parts.join(', '):''} — 3+ same-type Travelers on the field.`;
+  return `Squad bonus active${parts.length?': '+parts.join(', '):''}.`;
 }
 function _cardStatusEntries(card){
   const entries=[];
@@ -327,26 +327,26 @@ function _cardStatusEntries(card){
   }
   if(card.interceptUsed) entries.push({icon:'img/ico_intercept.png', text:'Intercept triggered — already redirected an attack this turn.'});
   if(hasTag(card,'shield')&&!card.shieldConsumed) entries.push({icon:'img/solana_shield.png', text:'Solana Shield — absorbs the next hit entirely from any source, one time only.'});
-  if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the field this turn, wakes up at the start of your next turn.'});
-  if(hasTag(card,'invisible')) entries.push({icon:'img/ico_invis.png', text:'Invisible — cannot be targeted by attacks or spells while a non-invisible ally is still on the field. Also deals no counter-attack damage when it is attacked.'});
-  if(hasTag(card,'stealth')&&!card.stealthBroken) entries.push({icon:'img/ico_stealth.png', text:'Stealth — cannot be targeted by attacks or spells until it attacks for the first time. That first attack deals no counter-damage. One-time only.'});
+  if(card.sleeping) entries.push({icon:'img/zzz.png', text:'Sleeping — entered the battleground this turn, wakes up at the start of your next turn.'});
+  if(hasTag(card,'invisible')) entries.push({icon:'img/ico_invis.png', text:'Invisible — cannot be targeted by attacks or spells while a non-invisible ally is still on the battleground.'});
+  if(hasTag(card,'stealth')&&!card.stealthBroken) entries.push({icon:'img/ico_stealth.png', text:'Stealth — cannot be targeted by attacks or spells until it attacks for the first time.'});
   // Инкарнация/Reborn — "уже сработало" статусы (2026-08-05, по прямому запросу автора).
   // Оба поля (incarnUsed/rememberUsed) одноразовые НА ВСЮ ИГРУ (см. killCard()/endTurn() —
   // "Инкарнация — тик по кладбищу" — и REMEMBER EVERYTHING блок в killCard() соответственно),
   // так что показываем их всегда, пока карта несёт тег и уже потратила заряд — независимо от
   // того, только что это случилось или было много ходов назад (нет отдельного таймера, в
   // отличие от Frost/Mek/Burn выше — тут просто константный факт "уже нельзя второй раз").
-  if(hasTag(card,'incarnation')&&card.incarnUsed) entries.push({icon:'img/ico_incarn.png', text:'Incarnation already used — already revived once this game via its delayed auto-revive. Will go straight to the Void on its next death (no second revive).'});
-  if(hasTag(card,'remember')&&card.rememberUsed) entries.push({icon:'img/ico_remember.png', text:'Remember Everything already used — already avoided death once this game by fully restoring instead. Will go straight to the Void on its next death (no second reprieve).'});
+  if(hasTag(card,'incarnation')&&card.incarnUsed) entries.push({icon:'img/ico_incarn.png', text:'Incarnation already used.'});
+  if(hasTag(card,'remember')&&card.rememberUsed) entries.push({icon:'img/ico_remember.png', text:'Reborn already used.'});
   // Бафы
-  if(card.atkBonus) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battlefield.`});
-  if(card.auraMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battlefield.`});
+  if(card.atkBonus) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battleground.`});
+  if(card.auraMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battleground.`});
   if(card.worldMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.worldMaxHpBonus} Max HP from the World card.`});
-  if(card.auraArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.auraArmorBonus} Armor from an aura on the battlefield.`});
+  if(card.auraArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.auraArmorBonus} Armor from an aura on the battleground.`});
   if(card.worldArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.worldArmorBonus} Armor from the World card.`});
-  if(card.spellArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.spellArmorBonus} Armor from a spell until gone from battlefield.`});
-  if(card.tempAtkBonus) entries.push({icon:'img/attack.png', text:`+${card.tempAtkBonus} ATK from a spell until gone from battlefield.`});
-  if(rageAtkBonus(card)) entries.push({icon:'img/ico_rage.png', text:`+${rageAtkBonus(card)} ATK from Rage — wounded to half HP or below (floor(maxHP/2)). Heals off once above the threshold.`});
+  if(card.spellArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.spellArmorBonus} Armor from a spell until gone from battleground.`});
+  if(card.tempAtkBonus) entries.push({icon:'img/attack.png', text:`+${card.tempAtkBonus} ATK from a spell until gone from battleground.`});
+  if(rageAtkBonus(card)) entries.push({icon:'img/ico_rage.png', text:`+${rageAtkBonus(card)} ATK from Rage.`});
   if(card.squadAtkBonus||card.squadMaxHpBonus||card.squadArmorBonus||card.squadParam) entries.push({icon:'img/armor.png', text:_squadBonusText(card)});
   return entries;
 }
