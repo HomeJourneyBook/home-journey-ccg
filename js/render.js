@@ -1470,21 +1470,16 @@ function _playFieldFlyIfPending(cardEl, faction){
   return true;
 }
 
-// Смерть на поле — пауза + полёт/сожжение (2026-08-05, по прямому запросу автора) ─────
-// Раньше карта пропадала с поля мгновенно (в тот же render(), где она уже выпала из
-// G[faction].field) — просто уменьшалась/таяла на месте (см. cardDie в styles.css).
-// Теперь она сперва ДЕРЖИТСЯ живой ещё DEATH_ANIM_DELAY_MS (тот же DOM-элемент, тот же
-// querySelector-таргет, просто с придавленной cardDie-анимацией — см. .dying-hold в
-// styles.css), чтобы шейк от урона (hitCard(), 250мс) и всплывающее число (-N, showFloat(),
-// оба зовутся из dmgCard() с задержкой в 2×requestAnimationFrame) успели доиграть НА ЖИВОЙ
-// карте — иначе они запускались бы уже на пропавшем/улетающем элементе. Только ПОСЛЕ паузы
-// решается, что дальше: обычная смерть (Grave) — клон улетает к иконке кладбища СВОЕЙ
-// фракции по прямой, уменьшаясь и растворяясь (_flyCardToGrave() ниже); уход в Войд
-// (Инкарнация/Remember уже потрачены, "сожжённое" заклинанием) — тот же визуальный приём,
-// что у сжигания карты из руки (burnCard/.burning-out), но в ЧЁРНО-СЕРЫХ тонах вместо
-// оранжевых (cardVoidBurn/.dying-void, см. styles.css) — карта никуда не летит, просто
-// гаснет на своём месте на поле.
-const DEATH_ANIM_DELAY_MS = 550;
+// Смерть на поле — мгновенный полёт/сожжение (2026-08-05, откат по прямому запросу автора —
+// раньше тут ЕЩЁ была пауза (DEATH_ANIM_DELAY_MS) перед стартом, чтобы шейк урона и
+// всплывающее число успевали доиграть на живой карте; автор попросил убрать — "карта
+// как-то слишком долго умирает". Теперь опять мгновенно, как до этой паузы: обычная смерть
+// (Grave) — клон улетает к иконке кладбища СВОЕЙ фракции по прямой, уменьшаясь и
+// растворяясь (_flyCardToGrave() ниже), сразу на этом же render(); уход в Войд (Инкарнация/
+// Remember уже потрачены, "сожжённое" заклинанием) — тот же визуальный приём, что у
+// сжигания карты из руки (burnCard/.burning-out), но в ЧЁРНО-СЕРЫХ тонах вместо оранжевых
+// (cardVoidBurn/.dying-void, см. styles.css) — карта никуда не летит, просто гаснет на
+// своём месте на поле, тоже сразу.
 const VOID_BURN_MS = 450; // держать в синхроне с длительностью .dying-void/cardVoidBurn (styles.css)
 const GRAVE_FLY_MS = 380; // длительность полёта клона карты к иконке кладбища (по прямой, без дуги — по прямому запросу автора)
 
@@ -1492,9 +1487,8 @@ const GRAVE_FLY_MS = 380; // длительность полёта клона к
 // в position:fixed + JS-driven transition, что у _flyCardFromDeck()/throwBoltFx() выше
 // (координаты кладбища динамические — конкретная кнопка меняет физическое положение между
 // Opp/Player колонками, см. _arenaPosForFaction(), так что нельзя обойтись статичными
-// @keyframes). Оригинальный элемент к этому моменту уже прошёл свою паузу-выдержку
-// (DEATH_ANIM_DELAY_MS в rZone() выше) — hitCard()/showFloat() на нём уже отработали,
-// можно смело убирать.
+// @keyframes). Убирает cardEl из DOM синхронно, первой же строкой — вызывающий код
+// (rZone()) больше не ждёт никакой паузы перед этим вызовом.
 function _flyCardToGrave(cardEl, faction){
   const rect=cardEl.getBoundingClientRect();
   const graveEl=document.getElementById('arenaGrave'+_arenaPosForFaction(faction));
@@ -1544,25 +1538,19 @@ function rZone(id,cards,zone){
       const wentVoid = G[faction].void.some(c=>String(c.id)===cid);
       const wentGrave = !wentVoid && G[faction].grave.some(c=>String(c.id)===cid);
       if(wentVoid||wentGrave){
-        // Настоящая смерть (2026-08-05, по прямому запросу автора) — см. подробный
-        // комментарий у DEATH_ANIM_DELAY_MS ниже по файлу. Гвард !classList.contains
-        // (dying-hold) — render() может вызваться НЕСКОЛЬКО раз за время паузы (обычная
-        // последовательность любой атаки: dmgCard()→render(), потом ещё render() от
-        // checkWin()/контрудара и т.п.) — без гварда каждый лишний вызов заново находил бы
-        // тот же ещё-не-убранный элемент в dying[] и повторно планировал бы вылет/сожжение,
-        // т.е. один и тот же клон улетал бы или сгорал НЕСКОЛЬКО раз подряд.
-        if(!cardEl.classList.contains('dying-hold')){
-          cardEl.classList.add('dying','dying-hold');
-          setTimeout(()=>{
-            if(!cardEl.parentElement) return; // уже убрана каким-то другим путём — не трогаем
-            if(wentVoid){
-              cardEl.classList.remove('dying-hold');
-              cardEl.classList.add('dying-void');
-              setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, VOID_BURN_MS);
-            } else {
-              _flyCardToGrave(cardEl, faction);
-            }
-          }, DEATH_ANIM_DELAY_MS);
+        // Мгновенная смерть, БЕЗ паузы (2026-08-05, откат по прямому запросу автора —
+        // "карта как-то слишком долго умирает" — DEATH_ANIM_DELAY_MS/dying-hold убраны
+        // целиком, тот же откат, что и у шейка в dmgCard()). Grave — клон сразу летит на
+        // кладбище (_flyCardToGrave() синхронно убирает cardEl из DOM в тот же момент, так
+        // что повторный render() эту карту тут больше не найдёт вообще). Void — чёрно-серое
+        // сожжение на месте (cardVoidBurn/.dying-void, styles.css), тоже без выдержки.
+        if(wentVoid){
+          if(!cardEl.classList.contains('dying-void')){
+            cardEl.classList.add('dying','dying-void');
+            setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, VOID_BURN_MS);
+          }
+        } else {
+          _flyCardToGrave(cardEl, faction);
         }
       } else if(_bounceOriginRects[cid]){
         // Bounce в руку (2026-08-05, по прямому запросу автора) — снимок позиции уже сделан
