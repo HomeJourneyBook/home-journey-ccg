@@ -3444,6 +3444,12 @@ function openGraveModal(faction){
   const innerModal = modal.querySelector('.grave-modal');
   modal.classList.remove('hidden');
   if(innerModal){
+    // .tea/.jeet (2026-08-06, по прямому запросу автора) — у джит теперь свой ассет для
+    // 9-слайса рамки модалки (grav_frame_jeet.png) и полоски костей снизу (bones_jeet.png),
+    // см. их подключение в CSS (.grave-modal.jeet/.grave-modal.jeet .grave-modal-footer).
+    // Раньше .grave-modal была общая для обеих фракций (без faction-класса вообще).
+    innerModal.classList.remove('tea','jeet');
+    innerModal.classList.add(faction);
     innerModal.classList.remove('modal-pop-in-fast','modal-pop-out-fast');
     void innerModal.offsetWidth;
     innerModal.classList.add('modal-pop-in-fast');
