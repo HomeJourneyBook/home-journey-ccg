@@ -819,7 +819,14 @@ function mkSmallEl(card){
   'mek': '<img src="img/ico_mek.png" style="width:60%;height:60%;">', // MonoMEK — ультраредкий World-трейт, 2026-07-30
 };
 const tagIcons=(card.tags||[])
-  .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
+  // val fallback '1', не '' (2026-08-05, багфикс по прямому запросу автора — тултип
+  // Regen показывал "?" вместо реального значения) — голый тег без :N (regen без числа —
+  // единственный такой в живых данных, см. data.js) реально лечит на 1 HP (getTagVal()
+  // возвращает JS-boolean true для голого тега, а true+число в арифметике ведёт себя как
+  // 1 — см. case 'regen' в abilities.js), но пустая строка ''||'?' в тултипе (ui.js) не
+  // знала об этой договорённости и просто показывала placeholder. '1' тут — не догадка, а
+  // тот же дефолт, что уже даёт голому тегу вся остальная игровая логика.
+  .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:'1'}))
   // 'shield' СОЗНАТЕЛЬНО дублируется тут (2026-07-18, по просьбе автора "эстетичнее") —
   // помимо тег-иконки в общем ряду ниже рисуется ЕЩЁ и подмена HP-бокса (shieldActive,
   // см. card-small-hp-box ниже). Тег-иконка при этом статична (по card.tags, не реагирует
@@ -1096,7 +1103,14 @@ function mkEl(card,zone){
 // списка только для zone==='grave' (на поле/в руке/превью — иконка остаётся как обычно,
 // там плашки нет и перекрывать нечего).
 const tagIcons = (card.tags||[])
-  .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:''}))
+  // val fallback '1', не '' (2026-08-05, багфикс по прямому запросу автора — тултип
+  // Regen показывал "?" вместо реального значения) — голый тег без :N (regen без числа —
+  // единственный такой в живых данных, см. data.js) реально лечит на 1 HP (getTagVal()
+  // возвращает JS-boolean true для голого тега, а true+число в арифметике ведёт себя как
+  // 1 — см. case 'regen' в abilities.js), но пустая строка ''||'?' в тултипе (ui.js) не
+  // знала об этой договорённости и просто показывала placeholder. '1' тут — не догадка, а
+  // тот же дефолт, что уже даёт голому тегу вся остальная игровая логика.
+  .map(t=>({full:t, base:t.split(':')[0], val:t.includes(':')?t.split(':')[1]:'1'}))
   .filter(t=>TAG_ICONS[t.base])
   .filter(t=>!(zone==='grave' && t.base==='incarnation' && card.incarnTimer!=null))
   .map(t=>`<div class="card-tag-icon" data-tag="${t.base}" data-tagval="${t.val}">${TAG_ICONS[t.base]}</div>`)
@@ -1495,13 +1509,18 @@ function _playFieldFlyIfPending(cardEl, faction){
 // своём месте на поле, тоже сразу.
 const VOID_BURN_MS = 450; // держать в синхроне с длительностью .dying-void/cardVoidBurn (styles.css)
 const GRAVE_FLY_MS = 380; // длительность полёта клона карты к иконке кладбища (по прямой, без дуги — по прямому запросу автора)
+const SHRINK_PULSE_MS = 140; // короткая пауза-"вздох" ПЕРЕД полётом на кладбище, см. .dying-pulse ниже
+const SHRINK_PULSE_SCALE = 0.82; // во сколько раз карта уже уменьшилась к концу паузы — отсюда клон в _flyCardToGrave() продолжает, а не начинает заново с 1
 
 // Полёт клона умершей карты к иконке кладбища своей фракции — та же техника клонирования
 // в position:fixed + JS-driven transition, что у _flyCardFromDeck()/throwBoltFx() выше
 // (координаты кладбища динамические — конкретная кнопка меняет физическое положение между
 // Opp/Player колонками, см. _arenaPosForFaction(), так что нельзя обойтись статичными
 // @keyframes). Убирает cardEl из DOM синхронно, первой же строкой — вызывающий код
-// (rZone()) больше не ждёт никакой паузы перед этим вызовом.
+// (rZone()) вызывает её уже ПОСЛЕ короткой паузы-"вздоха" на месте (.dying-pulse,
+// SHRINK_PULSE_MS — см. её комментарий в rZone()), поэтому клон стартует НЕ с полного
+// размера, а с того, на котором пауза остановилась (SHRINK_PULSE_SCALE) — иначе был бы
+// заметный "скачок" размера в момент передачи эстафеты от паузы к полёту.
 function _flyCardToGrave(cardEl, faction){
   const rect=cardEl.getBoundingClientRect();
   const graveEl=document.getElementById('arenaGrave'+_arenaPosForFaction(faction));
@@ -1509,13 +1528,13 @@ function _flyCardToGrave(cardEl, faction){
   if(!graveEl || graveEl.offsetParent===null) return; // кладбище сейчас не на экране (напр. под модалкой) — просто убрана, без полёта
   const gRect=graveEl.getBoundingClientRect();
   const clone=cardEl.cloneNode(true);
-  clone.classList.remove('selected','targetable','aim-target','aim-attack','hit','activating','entering','dying','dying-hold');
+  clone.classList.remove('selected','targetable','aim-target','aim-attack','hit','activating','entering','dying','dying-hold','dying-pulse');
   clone.classList.add('card-death-fly');
   clone.style.left=(rect.left+rect.width/2)+'px';
   clone.style.top=(rect.top+rect.height/2)+'px';
   clone.style.width=rect.width+'px';
   clone.style.height=rect.height+'px';
-  clone.style.transform='translate(-50%,-50%) scale(1)';
+  clone.style.transform=`translate(-50%,-50%) scale(${SHRINK_PULSE_SCALE})`;
   clone.style.opacity='1';
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
@@ -1551,19 +1570,25 @@ function rZone(id,cards,zone){
       const wentVoid = G[faction].void.some(c=>String(c.id)===cid);
       const wentGrave = !wentVoid && G[faction].grave.some(c=>String(c.id)===cid);
       if(wentVoid||wentGrave){
-        // Мгновенная смерть, БЕЗ паузы (2026-08-05, откат по прямому запросу автора —
-        // "карта как-то слишком долго умирает" — DEATH_ANIM_DELAY_MS/dying-hold убраны
-        // целиком, тот же откат, что и у шейка в dmgCard()). Grave — клон сразу летит на
-        // кладбище (_flyCardToGrave() синхронно убирает cardEl из DOM в тот же момент, так
-        // что повторный render() эту карту тут больше не найдёт вообще). Void — чёрно-серое
-        // сожжение на месте (cardVoidBurn/.dying-void, styles.css), тоже без выдержки.
+        // Мгновенный старт, но с коротким "вздохом" на месте у Grave (2026-08-05, по
+        // прямому запросу автора — "выглядит массивом, не успеваешь понять что карта
+        // умерла"; DEATH_ANIM_DELAY_MS/dying-hold, убранные раньше в этой сессии, сюда НЕ
+        // возвращаются — та пауза была про ожидание шейка/числа урона, это другое: чисто
+        // визуальный, короткий SHRINK_PULSE_MS (140мс) "вздох" на своём месте перед
+        // полётом). Void — чёрно-серое сожжение на месте (cardVoidBurn/.dying-void,
+        // styles.css) без изменений, тоже без выдержки — своя анимация уже достаточно
+        // читаема (0.45с, полностью на месте).
         if(wentVoid){
           if(!cardEl.classList.contains('dying-void')){
             cardEl.classList.add('dying','dying-void');
             setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, VOID_BURN_MS);
           }
-        } else {
-          _flyCardToGrave(cardEl, faction);
+        } else if(!cardEl.classList.contains('dying-pulse')){
+          cardEl.classList.add('dying','dying-pulse');
+          setTimeout(()=>{
+            if(!cardEl.parentElement) return; // уже убрана каким-то другим путём — не трогаем
+            _flyCardToGrave(cardEl, faction);
+          }, SHRINK_PULSE_MS);
         }
       } else if(_bounceOriginRects[cid]){
         // Bounce в руку (2026-08-05, по прямому запросу автора) — снимок позиции уже сделан
@@ -1586,18 +1611,31 @@ function rZone(id,cards,zone){
         existingMap[cardEl.dataset.id]=cardEl;
       });
       // Update live cards in-place (fixes targetable staying lit), add new ones with entering
+      const newFieldEls=[]; // копим новые карты поля — измеряем/запускаем полёт ПОСЛЕ того,
+      // как весь ряд уже отрисован (см. комментарий у newFieldEls.forEach ниже)
       cards.forEach(c=>{
         if(existingMap[String(c.id)]){
           existingMap[String(c.id)].replaceWith(mkSmallEl(c));
         } else {
           const cardEl=mkSmallEl(c);
           el.appendChild(cardEl);
-          // _reviveFlyIfPending (2026-08-05) — воскрешённая из кладбища карта летит оттуда и
-          // растёт на место, а не просто хлопком появляется; см. её комментарий выше. Только
-          // если она НЕ подошла (не revive, или кладбище сейчас не видно на экране), падаем в
-          // старый entering-pop.
-          if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
+          newFieldEls.push(cardEl);
         }
+      });
+      // Полёт/entering — ТОЛЬКО теперь, когда весь forEach выше уже отработал и flex-ряд
+      // полностью сформирован (2026-08-05, багфикс по прямому запросу автора — "карты
+      // иногда выходят на поле не на свою позицию, а чуть ниже"). Раньше
+      // _reviveFlyIfPending()/_playFieldFlyIfPending() мерили getBoundingClientRect() СРАЗУ
+      // по вставке КАЖДОЙ карты, ещё посреди этого же forEach — если следом в том же
+      // проходе появлялась/менялась ЕЩЁ одна карта в ряду (несколько одновременных
+      // revive/AOE-summon и т.п.), flex-раскладка могла сдвинуться ПОСЛЕ уже сделанного
+      // замера, и клон летел/приземлялся на уже устаревшую (не финальную) позицию.
+      newFieldEls.forEach(cardEl=>{
+        // _reviveFlyIfPending (2026-08-05) — воскрешённая из кладбища карта летит оттуда и
+        // растёт на место, а не просто хлопком появляется; см. её комментарий выше. Только
+        // если она НЕ подошла (не revive, или кладбище сейчас не видно на экране), падаем в
+        // старый entering-pop.
+        if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
       });
       return;
     }
@@ -1607,15 +1645,12 @@ function rZone(id,cards,zone){
   el.innerHTML='';
   const faction=id.startsWith('tea')?'tea':'jeet'; // для полёта карты из колоды, см. _flyCardFromDeck
   const newHandEls=[]; // копим новые карты руки — меряем rect и запускаем полёт ПОСЛЕ сжатия веера (ниже)
+  const newFieldEls=[]; // копим новые карты поля — та же причина, что и у newFieldEls в ветке dying.length>0 выше (меряем ПОСЛЕ того, как весь ряд отрисован)
   cards.forEach(c=>{
     if(zone==='field'){
       const cardEl=mkSmallEl(c);
       el.appendChild(cardEl);
-      if(!existingIds.has(String(c.id))){
-        // _reviveFlyIfPending (2026-08-05) — та же логика, что и в ветке выше (dying.length>0):
-        // воскрешённая карта летит из кладбища и растёт на место вместо обычного entering-pop.
-        if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
-      }
+      if(!existingIds.has(String(c.id))) newFieldEls.push(cardEl);
     } else {
       const cardEl=mkEl(c,zone);
       // New card in hand (just drawn from deck) — gets the card-drawn entrance
@@ -1640,6 +1675,15 @@ function rZone(id,cards,zone){
       }
     }
   });
+  // Полёт/entering для новых карт поля (2026-08-05, тот же багфикс, что и в ветке
+  // dying.length>0 выше — см. её подробный комментарий) — измеряем/запускаем ТОЛЬКО
+  // теперь, когда весь forEach выше уже отработал и flex-ряд поля полностью сформирован,
+  // а не посреди прохода по cards.
+  if(zone==='field'){
+    newFieldEls.forEach(cardEl=>{
+      if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
+    });
+  }
   // ВАЖНО: restRect для только что добранных карт меряем ТОЛЬКО после того, как веер руки
   // реально сжат (adjustHandOverlap ставит отрицательные margin-right по числу карт) —
   // иначе (см. requestAnimationFrame ниже в render()) при большой руке несжатая раскладка
