@@ -637,14 +637,17 @@ function aiResolvePendingSpellTarget(){
   }
   if(G.phase==='spellExecuteHalfTarget'){
     // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель уже не ограничена ≤50% maxHP (спелл сам
-    // решает, добивать или нет, ПОСЛЕ Bolt 1). Ward всё ещё исключаем — блокирует и болт, и
-    // добивание одинаково, каст на такую цель просто впустую тратит карту. Предпочитаем цель,
-    // которую добьём ПРЯМО СЕЙЧАС (hp-1<=floor(maxHp/2)) — если такая есть, среди них берём
+    // решает, добивать или Bolt 1, см. doSpellExecuteHalfTarget() в game.js). Ward всё ещё
+    // исключаем — блокирует и болт, и добивание одинаково, каст на такую цель просто впустую
+    // тратит карту. Предпочитаем цель, которая УЖЕ на исполняемом пороге ПРЯМО СЕЙЧАС
+    // (hp<=floor(maxHp/2), 2026-08-05 — исправлено с `hp-1<=...`, тот же баг и фикс, что и в
+    // самом doSpellExecuteHalfTarget()/render.js — порог смотрит на HP ДО каста, не на
+    // гипотетическое HP после ещё не нанесённого Bolt 1) — если такая есть, среди них берём
     // самую опасную (effAtk); если готовых к добиванию целей нет, ведём себя как обычный
     // spellDmgTarget — бьём на 1 самую опасную цель без килла.
     const legalTargets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
     if(legalTargets.length===0){ cancelPendingSpell(); return; }
-    const executable=legalTargets.filter(c=>(c.hp-1)<=Math.floor(c.maxHp/2));
+    const executable=legalTargets.filter(c=>c.hp<=Math.floor(c.maxHp/2));
     const pool=executable.length>0?executable:legalTargets;
     pool.sort((a,b)=>effAtk(b)-effAtk(a));
     doSpellExecuteHalfTarget(pool[0]);
@@ -1204,17 +1207,19 @@ function aiScoreCard(card, me){
     }
 
     // JUDGMENT/DEATHBLOW rework (2026-07-26) — цель уже не ограничена ≤50% maxHP: спелл
-    // сперва бьёт Bolt 1, и ТОЛЬКО если этого хватает довести цель до ≤50% maxHP (округление
-    // вниз) — добивает. Оценка теперь гибридная, тем же паттерном, что spell_dmg_target ниже:
-    // если среди легальных целей есть хоть одна, которую добьём (hp-1<=floor(maxHp/2)) —
-    // считаем это гарантированным removal (killBonus по effAtk лучшей такой цели); если нет —
-    // это просто чип-урон на 1, дешёвая ценность, чуть выше в невыгодной позиции (та же
-    // формула removalChipMult/removalChipBehindBonus, что у spell_dmg_target).
+    // либо бьёт Bolt 1, либо (если цель УЖЕ на пороге ≤50% maxHP ДО каста, округление вниз)
+    // добивает НАПРЯМУЮ — исключающее "или", не накопительно (2026-08-05, багфикс — см.
+    // подробный разбор в doSpellExecuteHalfTarget(), game.js). Оценка — тем же гибридным
+    // паттерном, что spell_dmg_target ниже: если среди легальных целей есть хоть одна, уже
+    // готовая к добиванию ПРЯМО СЕЙЧАС (hp<=floor(maxHp/2)) — считаем это гарантированным
+    // removal (killBonus по effAtk лучшей такой цели); если нет — это просто чип-урон на 1,
+    // дешёвая ценность, чуть выше в невыгодной позиции (та же формула removalChipMult/
+    // removalChipBehindBonus, что у spell_dmg_target).
     if(hasTag(card,'spell_execute_half')){
       const humanF=G.humanFaction;
       const targets=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
       if(targets.length===0) return -1;
-      const executable=targets.filter(t=>(t.hp-1)<=Math.floor(t.maxHp/2));
+      const executable=targets.filter(t=>t.hp<=Math.floor(t.maxHp/2));
       if(executable.length>0){
         const best=executable.reduce((a,b)=>effAtk(b)>effAtk(a)?b:a);
         return card.cost*w.spellBase + w.removalKillBonus + effAtk(best)*w.removalKillTargetAtkWeight;
