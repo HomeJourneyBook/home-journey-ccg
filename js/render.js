@@ -1268,6 +1268,19 @@ const tagIcons = (card.tags||[])
 // выглядит одним плавным перетеканием, а не двумя отдельными шагами.
 const CARD_FLY_MS = 300;
 const CARD_FLY_FADE_MS = 140; // длина окна кроссфейда — общая для клона (fade-out) и карты в руке (fade-in)
+// Bounce-в-руку (2026-08-05) — cardId → DOMRect полевой позиции карты В МОМЕНТ, когда она
+// покинула поле по bounce-эффекту (GUST/REVERSE/TEANTIST, см. doSpellBounceTarget()/
+// doGustAbility() в game.js — они пишут сюда СИНХРОННО, ДО того как карта реально уйдёт из
+// G[faction].field). rZone() читает и удаляет запись отсюда на рендере зоны руки того же
+// render()-прохода (см. её ветку ниже) — используется как origin для _flyCardToHand()
+// вместо обычного _deckPlaceholderRect().
+const _bounceOriginRects = {};
+// Revive-из-кладбища (2026-08-05) — cardId → фракция, ЧЬЁ кладбище было источником (обычно
+// совпадает с новым владельцем, но revive-эффект с тегом `any` может поднимать карту из
+// ЧУЖОГО кладбища — см. reviveCard()/case 'revive' в abilities.js, они пишут сюда СИНХРОННО
+// в момент воскрешения). rZone() читает и удаляет запись отсюда, когда решает анимацию
+// появления новой карты в zone==='field' — см. _reviveFlyIfPending() ниже.
+const _pendingReviveOrigins = {};
 // ВАЖНО: клон снимается в rZone ДО того, как на оригинал повесят card-drawn/
 // animation-delay (см. вызов ниже) — иначе cloneNode(true) скопировал бы и эти
 // инлайн-стили/классы, и клон стартовал бы уже невидимым (opacity:0 от "from"
@@ -1325,6 +1338,88 @@ function _flyCardFromDeck(cloneEl, deckRect, targetRect, delayMs){
     cloneEl.style.opacity='0';
     setTimeout(()=>{ if(cloneEl.parentElement) cloneEl.remove(); }, CARD_FLY_MS+40);
   }, delayMs);
+}
+
+// _flyCardToHand — bounce-полёт (2026-08-05, по прямому запросу автора): карта, снятая с
+// поля bounce-эффектом (GUST/REVERSE/TEANTIST-скилл), летит от своей ПОЛЕВОЙ позиции прямо
+// в руку. В отличие от _flyCardFromDeck() выше (которая нарочно СТАРТУЕТ с уменьшенного
+// масштаба scale(.35), имитируя "карту, вылетающую из маленькой стопки колоды") — тут автор
+// явно попросил БЕЗ эффекта уменьшения: клон держит свой РЕАЛЬНЫЙ размер (origin/target
+// width/height анимируются напрямую, не через transform:scale) — единственное движение это
+// позиция плюс плавный переход полевого размера в размер карты в руке, без искусственного
+// "нырка" вниз по масштабу по пути. Тот же кроссфейд в последние CARD_FLY_FADE_MS мс, что и
+// у deck-fly — настоящая карта в руке (уже добавлена в DOM с классом card-drawn, см. rZone())
+// проявляется в этом же окне, пока клон тает.
+function _flyCardToHand(cloneEl, originRect, targetRect, delayMs){
+  cloneEl.classList.remove('selected','previewed','affordable','entering','targetable','aim-attack','hit','activating','dying','dying-hold');
+  cloneEl.classList.add('card-fly-clone');
+  cloneEl.style.position='fixed';
+  cloneEl.style.margin='0';
+  cloneEl.style.width=originRect.width+'px';
+  cloneEl.style.height=originRect.height+'px';
+  cloneEl.style.left=(originRect.left+originRect.width/2)+'px';
+  cloneEl.style.top=(originRect.top+originRect.height/2)+'px';
+  cloneEl.style.transform='translate(-50%,-50%)';
+  cloneEl.style.opacity='1';
+  document.body.appendChild(cloneEl);
+  setTimeout(()=>{
+    if(!cloneEl.parentElement) return; // на случай если экран уже перерисован/сцена сменилась
+    void cloneEl.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+    cloneEl.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), width ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), height ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity ${CARD_FLY_FADE_MS}ms ease-in ${CARD_FLY_MS-CARD_FLY_FADE_MS}ms`;
+    cloneEl.style.left=(targetRect.left+targetRect.width/2)+'px';
+    cloneEl.style.top=(targetRect.top+targetRect.height/2)+'px';
+    cloneEl.style.width=targetRect.width+'px';
+    cloneEl.style.height=targetRect.height+'px';
+    cloneEl.style.opacity='0';
+    setTimeout(()=>{ if(cloneEl.parentElement) cloneEl.remove(); }, CARD_FLY_MS+40);
+  }, delayMs);
+}
+
+// _reviveFlyIfPending — воскрешение из кладбища (2026-08-05, по прямому запросу автора):
+// если у появившейся на поле карты (id) есть запись в _pendingReviveOrigins (см. её
+// комментарий выше — пишут reviveCard()/game.js), вместо обычного in-place entering-pop
+// запускаем клон, летящий ОТ иконки кладбища нужной фракции К реальному месту карты на
+// поле, УВЕЛИЧИВАЯСЬ по пути (growth-эффект, обратный deck-fly — там тоже растёт от .35 до
+// 1, тут делаем то же самое явно через scale, раз ни origin, ни target тут не связаны с
+// шириной руки/поля так тесно, как у _flyCardToHand). Настоящий элемент карты (cardEl) уже
+// вставлен вызывающим кодом на своё законное место в DOM/layout — просто прячем его на время
+// полёта (visibility, не opacity/display — не сбивает измеренный restRect) и возвращаем
+// видимым, когда клон долетает. Возвращает true, если анимация запущена (вызывающий код
+// тогда НЕ должен также навешивать обычный .entering), false — если нечего было поднимать
+// (не revive) или кладбище сейчас не видно на экране (под модалкой и т.п., тогда просто
+// используем старый entering-pop как fallback).
+function _reviveFlyIfPending(cardEl, faction){
+  const cid=cardEl.dataset.id;
+  const graveFaction=_pendingReviveOrigins[cid];
+  if(!graveFaction) return false;
+  delete _pendingReviveOrigins[cid];
+  const graveEl=document.getElementById('arenaGrave'+_arenaPosForFaction(graveFaction));
+  if(!graveEl || graveEl.offsetParent===null) return false; // кладбище не на экране — падаем в обычный entering
+  const graveRect=graveEl.getBoundingClientRect();
+  const restRect=cardEl.getBoundingClientRect(); // cardEl уже вставлен вызывающим кодом — форсит layout
+  const clone=cardEl.cloneNode(true);
+  clone.classList.remove('entering','selected','targetable','aim-attack','hit','activating','dying','dying-hold');
+  clone.classList.add('card-fly-clone');
+  clone.style.position='fixed';
+  clone.style.margin='0';
+  clone.style.width=restRect.width+'px';
+  clone.style.height=restRect.height+'px';
+  clone.style.left=(graveRect.left+graveRect.width/2)+'px';
+  clone.style.top=(graveRect.top+graveRect.height/2)+'px';
+  clone.style.transform='translate(-50%,-50%) scale(.3)';
+  clone.style.opacity='1';
+  cardEl.style.visibility='hidden';
+  document.body.appendChild(clone);
+  void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+  clone.style.transition=`left ${GRAVE_FLY_MS}ms ease-out, top ${GRAVE_FLY_MS}ms ease-out, transform ${GRAVE_FLY_MS}ms ease-out`;
+  clone.style.left=(restRect.left+restRect.width/2)+'px';
+  clone.style.top=(restRect.top+restRect.height/2)+'px';
+  clone.style.transform='translate(-50%,-50%) scale(1)';
+  setTimeout(()=>{
+    cardEl.style.visibility='';
+    if(clone.parentElement) clone.remove();
+  }, GRAVE_FLY_MS);
+  return true;
 }
 
 // Смерть на поле — пауза + полёт/сожжение (2026-08-05, по прямому запросу автора) ─────
@@ -1421,8 +1516,15 @@ function rZone(id,cards,zone){
             }
           }, DEATH_ANIM_DELAY_MS);
         }
+      } else if(_bounceOriginRects[cid]){
+        // Bounce в руку (2026-08-05, по прямому запросу автора) — снимок позиции уже сделан
+        // синхронно в doSpellBounceTarget()/doGustAbility() (game.js) ДО этого render(). Тут
+        // поле просто теряет карту мгновенно, без cardDie shrink-fade — сам полёт (клон от
+        // этого снимка до места в руке) запускает та же самая функция rZone() чуть ниже, на
+        // проходе по зоне 'hand' этого же render(), когда узнает финальную позицию карты.
+        if(cardEl.parentElement) cardEl.remove();
       } else if(!cardEl.classList.contains('dying')){
-        // Не смерть — карта покинула поле по другой причине (bounce обратно в руку и т.п.) —
+        // Не смерть и не bounce — карта покинула поле по какой-то другой причине —
         // старое мгновенное поведение (cardDie shrink-fade на месте), без паузы.
         cardEl.classList.add('dying');
         setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, 400);
@@ -1440,8 +1542,12 @@ function rZone(id,cards,zone){
           existingMap[String(c.id)].replaceWith(mkSmallEl(c));
         } else {
           const cardEl=mkSmallEl(c);
-          cardEl.classList.add('entering');
           el.appendChild(cardEl);
+          // _reviveFlyIfPending (2026-08-05) — воскрешённая из кладбища карта летит оттуда и
+          // растёт на место, а не просто хлопком появляется; см. её комментарий выше. Только
+          // если она НЕ подошла (не revive, или кладбище сейчас не видно на экране), падаем в
+          // старый entering-pop.
+          if(!_reviveFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
         }
       });
       return;
@@ -1455,8 +1561,12 @@ function rZone(id,cards,zone){
   cards.forEach(c=>{
     if(zone==='field'){
       const cardEl=mkSmallEl(c);
-      if(!existingIds.has(String(c.id))) cardEl.classList.add('entering');
       el.appendChild(cardEl);
+      if(!existingIds.has(String(c.id))){
+        // _reviveFlyIfPending (2026-08-05) — та же логика, что и в ветке выше (dying.length>0):
+        // воскрешённая карта летит из кладбища и растёт на место вместо обычного entering-pop.
+        if(!_reviveFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
+      }
     } else {
       const cardEl=mkEl(c,zone);
       // New card in hand (just drawn from deck) — gets the card-drawn entrance
@@ -1467,9 +1577,18 @@ function rZone(id,cards,zone){
       // (см. комментарий у _seenHandCardIds выше по файлу). id-based Set переживает
       // смену того, каким DOM-контейнером/элементом рисуется рука.
       const isNew=zone==='hand'&&!_seenHandCardIds.has(String(c.id));
+      // Bounce-в-руку (2026-08-05) — карта уже "видена" раньше (_seenHandCardIds), обычный
+      // isNew её не поймает, но она всё равно должна прилететь, а не тихо появиться. См.
+      // комментарий у _bounceOriginRects выше по файлу — запись пишут doSpellBounceTarget()/
+      // doGustAbility() (game.js) синхронно ДО этого render().
+      const bounceOriginRect = zone==='hand' ? _bounceOriginRects[String(c.id)] : null;
+      if(bounceOriginRect) delete _bounceOriginRects[String(c.id)]; // забираем один раз
       if(zone==='hand') _seenHandCardIds.add(String(c.id));
       el.appendChild(cardEl);
-      if(isNew) newHandEls.push(cardEl);
+      if(isNew||bounceOriginRect){
+        if(bounceOriginRect) cardEl._bounceOriginRect=bounceOriginRect;
+        newHandEls.push(cardEl);
+      }
     }
   });
   // ВАЖНО: restRect для только что добранных карт меряем ТОЛЬКО после того, как веер руки
@@ -1485,12 +1604,17 @@ function rZone(id,cards,zone){
     let newHandCardIndex=0;
     newHandEls.forEach(cardEl=>{
       const restRect=cardEl.getBoundingClientRect(); // финальная (уже сжатая) позиция ДО навешивания card-drawn
-      const deckRect=_deckPlaceholderRect(faction);
+      // bounceOriginRect (2026-08-05) — если карта прилетела bounce-эффектом (см.
+      // _bounceOriginRects выше по файлу), у неё уже есть origin — снимок её собственной
+      // полевой позиции, снятый в doSpellBounceTarget()/doGustAbility() (game.js). В этом
+      // случае НЕ используем _deckPlaceholderRect() — карта явно не из колоды.
+      const bounceOriginRect = cardEl._bounceOriginRect;
+      const deckRect = bounceOriginRect ? null : _deckPlaceholderRect(faction);
       // Клон снимаем СЕЙЧАС, пока cardEl ещё "чистая" (без card-drawn/animation-delay) —
       // см. комментарий у _flyCardFromDeck выше.
-      const flyClone = deckRect ? cardEl.cloneNode(true) : null;
+      const flyClone = (deckRect||bounceOriginRect) ? cardEl.cloneNode(true) : null;
       cardEl.classList.add('card-drawn');
-      if(deckRect){
+      if(deckRect||bounceOriginRect){
         // Окно проявления настоящей карты = то же окно, где гаснет клон
         // (CARD_FLY_MS-CARD_FLY_FADE_MS → CARD_FLY_MS) — см. комментарий у
         // _flyCardFromDeck выше про кроссфейд.
@@ -1536,7 +1660,10 @@ function rZone(id,cards,zone){
         setTimeout(()=>{
           const mulliganEl=document.getElementById('mulliganScreen');
           const mulliganShowing = mulliganEl && !mulliganEl.classList.contains('hidden');
-          if(!mulliganShowing) _flyCardFromDeck(flyClone,deckRect,restRect,idx*90);
+          if(!mulliganShowing){
+            if(bounceOriginRect) _flyCardToHand(flyClone,bounceOriginRect,restRect,idx*90);
+            else _flyCardFromDeck(flyClone,deckRect,restRect,idx*90);
+          }
         }, 0);
         newHandCardIndex++;
       }
