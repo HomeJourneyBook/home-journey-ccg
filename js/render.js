@@ -1301,6 +1301,14 @@ const _pendingReviveOrigins = {};
 // см. _playFieldFlyIfPending() ниже. Только для существ — Мир/Артефакт не встают в общий
 // ряд поля field-small карт, у них этой анимации не предусмотрено.
 const _pendingHandOriginRects = {};
+// Карты, у которых ПРЯМО СЕЙЧАС идёт play-fly/revive-fly полёт на поле (2026-08-05,
+// багфикс по прямому запросу автора — Vanguard-баг с "приземляется не туда, потом резко
+// доезжает"). Пока id карты в этом сете, rZone() НЕ трогает её существующий DOM-элемент на
+// повторных render() (не делает replaceWith) — он специально спрятан (visibility:hidden) и
+// заменяться на свежий видимый узел НЕ должен, пока клон ещё летит. См.
+// _playFieldFlyIfPending()/_reviveFlyIfPending() ниже (кладут id при старте полёта, убирают
+// в момент его завершения) и ветку `if(!_cardsCurrentlyFlying.has(cid))` внутри rZone().
+const _cardsCurrentlyFlying = new Set();
 // ВАЖНО: клон снимается в rZone ДО того, как на оригинал повесят card-drawn/
 // animation-delay (см. вызов ниже) — иначе cloneNode(true) скопировал бы и эти
 // инлайн-стили/классы, и клон стартовал бы уже невидимым (opacity:0 от "from"
@@ -1434,6 +1442,7 @@ function _reviveFlyIfPending(cardEl, faction){
   clone.style.transform='translate(-50%,-50%) scale(.3)';
   clone.style.opacity='1';
   cardEl.style.visibility='hidden';
+  _cardsCurrentlyFlying.add(cid); // см. её комментарий у объявления — блокирует replaceWith этого узла в rZone(), пока клон летит
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
   clone.style.transition=`left ${GRAVE_FLY_MS}ms ease-out, top ${GRAVE_FLY_MS}ms ease-out, transform ${GRAVE_FLY_MS}ms ease-out`;
@@ -1441,7 +1450,23 @@ function _reviveFlyIfPending(cardEl, faction){
   clone.style.top=(restRect.top+restRect.height/2)+'px';
   clone.style.transform='translate(-50%,-50%) scale(1)';
   setTimeout(()=>{
+    // Финальная точная синхронизация (2026-08-05, багфикс по прямому запросу автора —
+    // "финальный размер чуть-чуть отличается, деформация") — restRect измерен ОДИН раз в
+    // самом начале полёта; за GRAVE_FLY_MS реальная карта теоретически могла на пиксель-два
+    // сместиться (суб-пиксельное округление браузера при долгой transition-интерполяции,
+    // либо что-то в раскладке рядом реально шевельнулось) — снимаем СВЕЖИЙ rect прямо перед
+    // тем, как открыть настоящую карту, и одним кадром БЕЗ transition доводим клон до него
+    // — стык клон→настоящая карта становится незаметным, даже если было небольшое расхождение.
+    const freshRect=cardEl.getBoundingClientRect();
+    clone.style.transition='none';
+    clone.style.width=freshRect.width+'px';
+    clone.style.height=freshRect.height+'px';
+    clone.style.left=(freshRect.left+freshRect.width/2)+'px';
+    clone.style.top=(freshRect.top+freshRect.height/2)+'px';
+    clone.style.transform='translate(-50%,-50%) scale(1)';
+    void clone.offsetWidth; // форсируем применение стилей без transition, синхронно, до снятия видимости
     cardEl.style.visibility='';
+    _cardsCurrentlyFlying.delete(cid);
     if(clone.parentElement) clone.remove();
   }, GRAVE_FLY_MS);
   return true;
@@ -1484,6 +1509,7 @@ function _playFieldFlyIfPending(cardEl, faction){
   clone.style.transform=`translate(-50%,-50%) scale(${startScale})`;
   clone.style.opacity='1';
   cardEl.style.visibility='hidden';
+  _cardsCurrentlyFlying.add(cid); // см. её комментарий у объявления — блокирует replaceWith этого узла в rZone(), пока клон летит
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
   clone.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1)`;
@@ -1491,7 +1517,19 @@ function _playFieldFlyIfPending(cardEl, faction){
   clone.style.top=(restRect.top+restRect.height/2)+'px';
   clone.style.transform='translate(-50%,-50%) scale(1)';
   setTimeout(()=>{
+    // Финальная точная синхронизация — тот же приём, что у _reviveFlyIfPending() выше, см.
+    // её подробный комментарий (2026-08-05, багфикс по прямому запросу автора — "финальный
+    // размер чуть-чуть отличается, деформация").
+    const freshRect=cardEl.getBoundingClientRect();
+    clone.style.transition='none';
+    clone.style.width=freshRect.width+'px';
+    clone.style.height=freshRect.height+'px';
+    clone.style.left=(freshRect.left+freshRect.width/2)+'px';
+    clone.style.top=(freshRect.top+freshRect.height/2)+'px';
+    clone.style.transform='translate(-50%,-50%) scale(1)';
+    void clone.offsetWidth; // форсируем применение стилей без transition, синхронно, до снятия видимости
     cardEl.style.visibility='';
+    _cardsCurrentlyFlying.delete(cid);
     if(clone.parentElement) clone.remove();
   }, CARD_FLY_MS+40);
   return true;
@@ -1521,8 +1559,21 @@ const SHRINK_PULSE_SCALE = 0.82; // во сколько раз карта уже
 // SHRINK_PULSE_MS — см. её комментарий в rZone()), поэтому клон стартует НЕ с полного
 // размера, а с того, на котором пауза остановилась (SHRINK_PULSE_SCALE) — иначе был бы
 // заметный "скачок" размера в момент передачи эстафеты от паузы к полёту.
-function _flyCardToGrave(cardEl, faction){
-  const rect=cardEl.getBoundingClientRect();
+//
+// pulseOriginRect (2026-08-05, багфикс по прямому запросу автора — "иногда стартует лететь
+// ниже и левее своей позиции") — ОБЯЗАТЕЛЬНО передаётся вызывающим кодом, снятый ДО начала
+// паузы .dying-pulse, а не измеряется здесь заново через cardEl.getBoundingClientRect().
+// Причина: при НЕСКОЛЬКИХ одновременных смертях на кладбище (AOE-вайп/DD Cleave/burn-тик
+// сразу по нескольким горящим) каждая карта планирует свой СОБСТВЕННЫЙ setTimeout на
+// SHRINK_PULSE_MS — если у двух карт эти таймеры сработали не в один и тот же микротик (что
+// обычно так и есть), к моменту, когда ЭТА функция вызывается для карты B, карта A уже
+// могла быть удалена из flex-ряда своим собственным вызовом чуть раньше — ряд поля
+// реально сдвигается (justify-content-центрирование), и "живое" измерение rect карты B
+// В ЭТОТ момент уже отражает ЭТОТ сдвиг, а не то место, где карта B визуально сидела все
+// эти SHRINK_PULSE_MS во время своей собственной паузы. Со снимком "на входе в паузу" такого
+// рассинхрона нет — клон стартует ровно оттуда, где карта только что была видна.
+function _flyCardToGrave(cardEl, faction, pulseOriginRect){
+  const rect=pulseOriginRect||cardEl.getBoundingClientRect();
   const graveEl=document.getElementById('arenaGrave'+_arenaPosForFaction(faction));
   if(cardEl.parentElement) cardEl.remove();
   if(!graveEl || graveEl.offsetParent===null) return; // кладбище сейчас не на экране (напр. под модалкой) — просто убрана, без полёта
@@ -1584,10 +1635,15 @@ function rZone(id,cards,zone){
             setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, VOID_BURN_MS);
           }
         } else if(!cardEl.classList.contains('dying-pulse')){
+          // Снимок позиции ДО начала паузы (2026-08-05, багфикс — см. подробный
+          // комментарий у _flyCardToGrave()/pulseOriginRect выше) — передаётся в
+          // _flyCardToGrave() ниже вместо того, чтобы мерить заново в момент старта
+          // полёта, когда соседние одновременно умирающие карты уже могли сдвинуть ряд.
+          const pulseOriginRect=cardEl.getBoundingClientRect();
           cardEl.classList.add('dying','dying-pulse');
           setTimeout(()=>{
             if(!cardEl.parentElement) return; // уже убрана каким-то другим путём — не трогаем
-            _flyCardToGrave(cardEl, faction);
+            _flyCardToGrave(cardEl, faction, pulseOriginRect);
           }, SHRINK_PULSE_MS);
         }
       } else if(_bounceOriginRects[cid]){
@@ -1604,7 +1660,7 @@ function rZone(id,cards,zone){
         setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, 400);
       }
     });
-    if(dying.length>0){
+    if(true){ // всегда unified-путь для поля — dying.length>0 больше не является условием (см. комментарий ниже)
       // Build map of live (non-dying) existing elements
       const existingMap={};
       el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>{
@@ -1614,8 +1670,27 @@ function rZone(id,cards,zone){
       const newFieldEls=[]; // копим новые карты поля — измеряем/запускаем полёт ПОСЛЕ того,
       // как весь ряд уже отрисован (см. комментарий у newFieldEls.forEach ниже)
       cards.forEach(c=>{
-        if(existingMap[String(c.id)]){
-          existingMap[String(c.id)].replaceWith(mkSmallEl(c));
+        const cid=String(c.id);
+        if(existingMap[cid]){
+          // БАГФИКС (2026-08-05, по прямому запросу автора — "карты с Vanguard приземляются
+          // не на свою позицию, потом резко доезжают") — если у этой карты СЕЙЧАС идёт
+          // play-fly/revive-fly (см. _cardsCurrentlyFlying ниже по файлу), её реальный
+          // DOM-элемент временно спрятан (visibility:hidden) и НЕ должен трогаться этим
+          // render()'ом вообще — раньше тут раньше это применялось только когда dying.length>0
+          // (текущая ветка вообще не выполнялась при dying.length===0), а НЕ-dying render()
+          // (например: ход ИИ разыграл Vanguard-существо и тут же им же атаковал — атака
+          // сама по себе тоже зовёт render(), пока клон входа ещё летит, 300мс) шёл в СТАРЫЙ
+          // fallback ниже — тот делал el.innerHTML='' и пересобирал ВСЕ карты с нуля через
+          // mkSmallEl(c), в том числе эту — новый (видимый) узел подменял спрятанный старый,
+          // и настоящая карта "выскакивала" на своё место, пока клон-полёт ещё летел к
+          // прежней цели независимо от него (это отдельный overlay-элемент вне `el`, wipe
+          // его не задевал) — отсюда и видимый рассинхрон/скачок именно у Vanguard (только
+          // у него игра успевает дёрнуть render() второй раз ДО того, как 300мс полёта
+          // закончатся — обычная не-Vanguard карта спит и никаких доп.действий/render() в
+          // ближайшие 300мс не провоцирует).
+          if(!_cardsCurrentlyFlying.has(cid)){
+            existingMap[cid].replaceWith(mkSmallEl(c));
+          }
         } else {
           const cardEl=mkSmallEl(c);
           el.appendChild(cardEl);
@@ -1640,18 +1715,16 @@ function rZone(id,cards,zone){
       return;
     }
   }
-  const cardSelector=zone==='field'?'.card-small':'.card';
+  // Ниже — только zone==='hand' (zone==='field' теперь ВСЕГДА возвращается из блока выше,
+  // 2026-08-05 — см. его комментарий про Vanguard-баг; отдельная ветка "if(zone==='field')"
+  // внутри cards.forEach() тут больше не нужна и убрана как мёртвый код).
+  const cardSelector='.card';
   const existingIds=new Set([...el.querySelectorAll(cardSelector)].map(e=>e.dataset.id));
   el.innerHTML='';
   const faction=id.startsWith('tea')?'tea':'jeet'; // для полёта карты из колоды, см. _flyCardFromDeck
   const newHandEls=[]; // копим новые карты руки — меряем rect и запускаем полёт ПОСЛЕ сжатия веера (ниже)
-  const newFieldEls=[]; // копим новые карты поля — та же причина, что и у newFieldEls в ветке dying.length>0 выше (меряем ПОСЛЕ того, как весь ряд отрисован)
   cards.forEach(c=>{
-    if(zone==='field'){
-      const cardEl=mkSmallEl(c);
-      el.appendChild(cardEl);
-      if(!existingIds.has(String(c.id))) newFieldEls.push(cardEl);
-    } else {
+    {
       const cardEl=mkEl(c,zone);
       // New card in hand (just drawn from deck) — gets the card-drawn entrance
       // animation. Cards already in hand don't replay it on every re-render.
@@ -1675,15 +1748,9 @@ function rZone(id,cards,zone){
       }
     }
   });
-  // Полёт/entering для новых карт поля (2026-08-05, тот же багфикс, что и в ветке
-  // dying.length>0 выше — см. её подробный комментарий) — измеряем/запускаем ТОЛЬКО
-  // теперь, когда весь forEach выше уже отработал и flex-ряд поля полностью сформирован,
-  // а не посреди прохода по cards.
-  if(zone==='field'){
-    newFieldEls.forEach(cardEl=>{
-      if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
-    });
-  }
+  // Полёт/entering для новых карт поля больше не обрабатывается тут — zone==='field' всегда
+  // возвращается из блока выше (см. его комментарий), эта функция ниже видит только
+  // zone==='hand'.
   // ВАЖНО: restRect для только что добранных карт меряем ТОЛЬКО после того, как веер руки
   // реально сжат (adjustHandOverlap ставит отрицательные margin-right по числу карт) —
   // иначе (см. requestAnimationFrame ниже в render()) при большой руке несжатая раскладка
