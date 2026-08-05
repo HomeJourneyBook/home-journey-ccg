@@ -512,9 +512,10 @@ function triggerAbilities(card, timing, ctx={}){
                     // shake+лог у заморозки) — вторая плашка поверх была бы избыточной.
                     if(hasTag(t,'ward')){
                       queueFieldFx(t.id,'IMMUNE','fx-immune');
-                    } else if(!(t.frozen || (hasTag(t,'shield')&&!t.shieldConsumed))){
-                      queueFieldFx(t.id,'HIT!','fx-spell-dmg'); // тот же fx, что у JOURNEY/HEX (doSpellDmgTarget)
                     }
+                    // else-ветка queueFieldFx(t.id,'HIT!','fx-spell-dmg') убрана (2026-08-06,
+                    // по прямому запросу автора) — текстовый плейсхолдер больше не нужен,
+                    // Scattershot/Shrapnel уже кидают настоящие снаряды (throwBoltFx() выше).
                     dmgCard(t,1,oppK,true);
                   }
                   // Цель уже умерла/ушла с поля между расчётом и приземлением этого конкретного
