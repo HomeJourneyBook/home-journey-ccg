@@ -1197,6 +1197,12 @@ function doShotTarget(card){
       playAttackSfx(shotC); // звук ПОПАДАНИЯ — тот же, что у обычной атаки (card_atack)
       lg(`${shotC.name}: ${targetC.name} takes ${dmg} physical damage!`,'dmg');
     }
+    // Game of Market (2026-08-05, багфикс по прямому запросу автора) — этот хук просто
+    // забыли добавить при заводе Shot-механики (2026-08-04), в отличие от Nana чуть ниже,
+    // которую починили в прошлой сессии. Тот же паттерн, что у Bolt (doBoltTarget()) и
+    // обычной атаки (doAttack()): bonusBypassArmor=false, т.к. сам Shot физический
+    // (bypassArmor=false, см. dmgCard() выше), бонус наследует ту же природу удара.
+    resolveMarketEvent(shotC, shotOwnerK, targetC, oppK, false);
     // NANA (2026-08-05) — тот же хук, что у Bolt (doBoltTarget()) — Shot-носитель тоже может
     // нести тег nana. bonusBypassArmor=false, т.к. сам Shot физический (bypassArmor=false,
     // см. dmgCard() выше) — в отличие от Bolt (true). На практике сама функция всё равно
@@ -3198,7 +3204,11 @@ function doSpellExecuteHalfTarget(card){
   const willDestroy = card.hp<=Math.floor(card.maxHp/2);
 
   playSfx('wind_card');
-  throwBoltFx(null, targetId, null, casterFaction, willDestroy?'img/bolt2.gif':'img/bolt1.gif');
+  // Арт снаряда (2026-08-05, уточнено автором) — схема по урону: bolt.gif=1, bolt1.gif=2+,
+  // bolt2.gif=4+. Простой Bolt 1 (willDestroy=false) — это ровно 1 урона, значит дефолтный
+  // bolt.gif (throwBoltFx() сама подставит его без 5-го параметра); добивание — bolt2.gif
+  // (тематически "тяжёлый" удар, не про буквальный урон 4+, а про сам факт добивания).
+  throwBoltFx(null, targetId, null, casterFaction, willDestroy?'img/bolt2.gif':undefined);
   G[casterFaction].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
