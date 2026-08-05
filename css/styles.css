@@ -2220,6 +2220,19 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 /* card-death-fly — сам летящий клон (position:fixed выставляется инлайн в JS вместе с
    left/top/width/height под стартовую позицию — тут только базовые константы). */
 .card-small.card-death-fly{position:fixed; margin:0; pointer-events:none; z-index:1600;}
+/* dying-pulse (2026-08-05, по прямому запросу автора — "выглядит массивом, не успеваешь
+   понять что карта умерла") — короткий "вздох" НА СВОЁМ МЕСТЕ перед полётом на кладбище:
+   чистое уменьшение до SHRINK_PULSE_SCALE (render.js), БЕЗ фейда (opacity держится 1 всю
+   паузу — это не про "исчезновение", а про "вот эта карта сейчас умирает", читаемость).
+   Специфичность (3 класса) выше базового .card-small.dying (2 класса) — корректно
+   переопределяет cardDie на время паузы; после её конца JS сам убирает cardEl и подменяет
+   его летящим клоном (_flyCardToGrave(), который стартует ИМЕННО с этого же scale —
+   ноль видимого "скачка" между концом паузы и стартом полёта). */
+@keyframes cardShrinkPulse{
+  0%{transform:scale(1); opacity:1;}
+  100%{transform:scale(0.82); opacity:1;}
+}
+.card-small.dying.dying-pulse{animation:cardShrinkPulse 140ms ease-in forwards; pointer-events:none;}
 /* dying-void — уход в Войд: та же техника, что и .hand .card.burning-out (@keyframes
    burnCard выше по файлу), но в ЧЁРНО-СЕРЫХ тонах вместо оранжевых — см. cardVoidBurn.
    Специфичность та же, что у .card-small.dying (2 класса каждая) — побеждает по порядку в
