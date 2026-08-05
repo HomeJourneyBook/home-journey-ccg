@@ -755,12 +755,14 @@ function mkSmallEl(card){
   // решается внутри doSpellExecuteHalfTarget(), не на этапе выбора цели.
   if(G.phase==='spellExecuteHalfTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&(!hasTag(card,'ward')||(hasTag(card,'shield')&&!card.shieldConsumed))&&isSpellTargetable(card,G[card.f].field)){
     d.classList.add('targetable','aim-target');
-    // Мишень-череп (2026-07-27, по прямому запросу автора) — JUDGMENT/DEATHBLOW сперва
-    // наносит Bolt 1, добивает только если ЭТО опускает цель до ≤50% maxHP (округление
-    // вниз) — та же формула, что и в самом doSpellExecuteHalfTarget() (game.js). Если цель
-    // и так переживёт (останется выше половины после Bolt 1) — обычная красная мишень,
-    // "просто урон".
-    if((card.hp-1)<=Math.floor(card.maxHp/2)) d.classList.add('aim-target-kill');
+    // Мишень-череп (2026-08-05, багфикс по прямому запросу автора — заменяет старую формулу
+    // 2026-07-27) — JUDGMENT/DEATHBLOW либо наносит Bolt 1, ЛИБО добивает: порог "≤50% maxHP
+    // (округление вниз)" проверяется по ТЕКУЩЕМУ HP цели ПРЯМО СЕЙЧАС, до какого-либо урона —
+    // не по гипотетическому HP после ещё не нанесённого Bolt 1 (старая формула `card.hp-1`
+    // симулировала урон, которого могло вообще не случиться отдельно от добивания — см.
+    // doSpellExecuteHalfTarget() для того же исправления и разбора конкретного примера
+    // автора: 4/5 карта с текущим hp=3 НЕ должна считаться "уже на половине").
+    if(card.hp<=Math.floor(card.maxHp/2)) d.classList.add('aim-target-kill');
   }
   // IMMUNE-надпись (2026-07-27, по прямому запросу автора) — раньше карта, недоступная
   // целью конкретно из-за Ward/Frost/активного Shield, просто оставалась "пустой" (без
