@@ -1068,6 +1068,13 @@ function triggerAbilities(card, timing, ctx={}){
           if(def) r.maxHp=def.hp; // restore base maxHp
           r.hp=a.val||1; // raise at 1 HP, not full
           G[curK].field.push(r);
+          // Полёт из кладбища (2026-08-05, по прямому запросу автора) — этот raise-эффект НЕ
+          // идёт через reviveCard() (game.js) — своя копия логики, т.к. воскрешает на a.val
+          // HP, а не на полный (reviveCard() жёстко форсит full HP, тут так специально
+          // нельзя). Регистрируем origin для полёта вручную, той же записью, что делает сама
+          // reviveCard() — rZone() (render.js) не различает источник, просто читает
+          // _pendingReviveOrigins по id при следующем render().
+          _pendingReviveOrigins[r.id]=curK;
           // Apply auras and squad bonuses
           if(hasTag(r,'aura:atk')) G[curK]._auraAtkLog=r.id;
           if(hasTag(r,'aura:maxhp')) G[curK]._auraMaxLog=r.id;
