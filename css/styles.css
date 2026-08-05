@@ -2258,7 +2258,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   0%{transform:scale(1); opacity:1;}
   100%{transform:scale(0.82); opacity:1;}
 }
-.card-small.dying.dying-pulse{animation:cardShrinkPulse 140ms ease-in forwards; pointer-events:none;}
+/* z-index:1600 (2026-08-05, багфикс по прямому запросу автора, вместе с position:fixed-
+   "прибиванием" в render.js — см. её комментарий у rZone()/dying-pulse) — раз карта на время
+   паузы теперь position:fixed (вне flex-раскладки ряда), даём ей тот же z-index, что и у
+   последующего .card-death-fly клона (см. styles.css выше), чтобы не было провала/скачка
+   z-порядка в момент передачи эстафеты паузы клону. */
+.card-small.dying.dying-pulse{animation:cardShrinkPulse 140ms ease-in forwards; pointer-events:none; z-index:1600;}
 /* dying-void — уход в Войд: та же техника, что и .hand .card.burning-out (@keyframes
    burnCard выше по файлу), но в ЧЁРНО-СЕРЫХ тонах вместо оранжевых — см. cardVoidBurn.
    Специфичность та же, что у .card-small.dying (2 класса каждая) — побеждает по порядку в
