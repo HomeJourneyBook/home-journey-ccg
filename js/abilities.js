@@ -1011,12 +1011,16 @@ function triggerAbilities(card, timing, ctx={}){
           : cur.grave.filter(x=>!x.spell&&!x.world&&!x.artifact&&!x.voided);
         if(srcGrave.length>0){
           const r=srcGrave[srcGrave.length-1];
+          // graveFaction — с 'any' карта может подниматься из ЧУЖОГО кладбища (некромантия-
+          // стиль); reviveCard() (game.js) использует это, чтобы полёт-анимация вылетала из
+          // ПРАВИЛЬНОЙ иконки кладбища, а не всегда из своей (2026-08-05).
+          const graveFaction = cur.grave.includes(r) ? curK : oppK;
           cur.grave=cur.grave.filter(x=>x.id!==r.id);
           G[oppK].grave=G[oppK].grave.filter(x=>x.id!==r.id);
           const def=DEFS[r.key];
           if(a.val==='full'&&def){r.hp=def.hp;r.maxHp=def.hp;}
           else{r.hp=Math.min(a.val||1,r.maxHp);}
-          reviveCard(r,curK); // use reviveCard for proper aura/squad checks
+          reviveCard(r,curK,graveFaction); // use reviveCard for proper aura/squad checks
           playSfx('rest');
           lg(`${card.name}: revives ${r.name}!`,'imp');
         } else lg(`${card.name}: graveyard empty.`);} break;
