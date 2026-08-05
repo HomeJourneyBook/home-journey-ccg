@@ -1952,6 +1952,11 @@ function aiHeal(healer, target){
   const healAmt = (healer.squadParam && healer.squadParam.heal) || getTagVal(healer,'heal') || 1;
   target.hp = Math.min(target.maxHp, target.hp + healAmt);
   const healedId = target.id;
+  // playSfx('heal') (2026-08-05, багфикс по прямому запросу автора — "куда отвалился звук
+  // хила у Орбитона") — эта функция дублирует логику onClick()/case 'healTarget' (game.js)
+  // для АИ-хода, но при заводе кто-то забыл продублировать и сам звук — молчал только на
+  // ходу ИИ, у игрока (через клик) звук всегда был на месте.
+  playSfx('heal');
   setTimeout(() => showFloat(healedId, `+${healAmt}`, 'heal'), 50);
   const debuffs = [];
   if(target.burning){ target.burning = false; debuffs.push('fire'); }
