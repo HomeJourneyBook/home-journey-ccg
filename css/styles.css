@@ -1067,6 +1067,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    на весь экран, klик по фону = закрыть) — сама панель просто блок нормального размера
    внутри центрированного оверлея, без своего fixed/z-index/top/right. ──*/
 .log-panel{width:min(max(calc(2 * var(--card-w) + 44px), 280px), 92vw); background:transparent; border-style:solid; border-width:20px; border-image-source:url('../img/log_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; filter:drop-shadow(0 4px 20px #000000aa);}
+/* .jeet (2026-08-06, по прямому запросу автора) — тот же приём, что у .grave-modal.jeet
+   выше: свой ассет 9-слайса рамки для баттл-лога у джит (log_frame_jeet.png), те же
+   параметры border-image, что у общей .log-panel. Класс .jeet/.tea навешивается в
+   render.js (см. её комментарий у logPanelEl рядом с скином кнопки лога). */
+.log-panel.jeet{border-image-source:url('../img/log_frame_jeet.png');}
 .log-panel.open{display:block;}
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
