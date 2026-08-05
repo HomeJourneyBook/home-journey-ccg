@@ -586,7 +586,20 @@ function doPlay(card, afterResolve){
   // там же, тот же приём, что и у _bounceOriginRects (полёт в обратную сторону).
   if(!card.spell&&!card.world&&!card.artifact){
     const handEl=document.querySelector(`.hand .card[data-id="${card.id}"]`);
-    if(handEl) _pendingHandOriginRects[card.id]=handEl.getBoundingClientRect();
+    if(handEl){
+      _pendingHandOriginRects[card.id]=handEl.getBoundingClientRect();
+    } else {
+      // Скрытая рука (2026-08-05, багфикс по прямому запросу автора — "у противника из его
+      // руки карты тоже надо чтоб летели") — в VS AI режиме рука ИИ ВСЕГДА рисуется
+      // рубашками (rHiddenHand(), .card-mini, без реальных .card[data-id] элементов —
+      // querySelector выше в принципе не может найти карту ИИ), так что раньше для хода ИИ
+      // origin просто не находился, и существо тихо появлялось на поле без полёта вообще.
+      // Тот же фолбэк, что уже использует playSpellRevealAnimation() для AI-спеллов —
+      // вылет из ЦЕНТРА зоны скрытой руки нужной стороны, а не из конкретного слота (у
+      // рубашек нет привязки к id, только суммарное количество).
+      const handZoneEl=document.getElementById(_arenaPosForFaction(G.turn)==='Opp'?'oppHandZone':'playerHandZone');
+      if(handZoneEl) _pendingHandOriginRects[card.id]=handZoneEl.getBoundingClientRect();
+    }
   }
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
   _resolvePlayedCard(card);
