@@ -2313,6 +2313,14 @@ function reorderZones(){
     logBtn.classList.toggle('jeet', playerK==='jeet');
     logBtn.classList.toggle('tea', playerK!=='jeet');
   }
+  // .log-panel (2026-08-06, по прямому запросу автора — "свой кастомный фон для баттл
+  // лога у джит, всё так же как у чая, log_frame_jeet.png") — тот же playerK-флаг и тот
+  // же приём toggle, что у кнопки лога чуть выше (см. её комментарий про VS AI/G.turn).
+  const logPanelEl=document.getElementById('logPanel');
+  if(logPanelEl){
+    logPanelEl.classList.toggle('jeet', playerK==='jeet');
+    logPanelEl.classList.toggle('tea', playerK!=='jeet');
+  }
 }
 
 // Динамически считает отрицательный margin между картами в руке, чтобы они "веером" перекрывали друг
