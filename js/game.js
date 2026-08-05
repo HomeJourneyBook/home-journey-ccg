@@ -1842,6 +1842,41 @@ function throwShotFx(fromId, toId, baseFaction, fromBaseFaction){
   setTimeout(()=>{ if(bullet.parentElement) bullet.remove(); },450);
 }
 
+// throwIconFx — снаряд-иконка для death-триггеров с случайной целью (2026-08-05, по
+// прямому запросу автора — "как болт вылетает у Thunder Storm, только для Бамбука/Оптика/
+// Схемы"). Тот же приём position:fixed + left/top-transition, что у throwBoltFx()/
+// throwShotFx() выше, но БЕЗ поворота — иконки (сердце/кулак/щит, те же ассеты, что
+// рендерятся бэйджем прямо на карте, см. TAG_ICONS в render.js) не направленные "кометы"
+// как bolt.gif/bullet.gif, разворачивать их под угол незачем. Размер — тот же класс
+// .bullet-fly, что у выстрела Мехирда (по прямому запросу автора: "размером как у
+// bullet.gif ассета"). Без звука на вылет (только на приземление — его играет вызывающий
+// код внутри своего setTimeout, ПОСЛЕ того как этот полёт завершится, см. death_heal/
+// death_armor/death_atk в killCard() ниже).
+function throwIconFx(fromId, toId, iconSrc){
+  const fromEl = document.querySelector(`.card-small[data-id="${fromId}"]`);
+  if(!fromEl) return;
+  const toEl = document.querySelector(`.card-small[data-id="${toId}"]`);
+  if(!toEl) return;
+  const fromRect=fromEl.getBoundingClientRect();
+  const toRect=toEl.getBoundingClientRect();
+  const fromX=fromRect.left+fromRect.width/2, fromY=fromRect.top+fromRect.height/2;
+  const toX=toRect.left+toRect.width/2, toY=toRect.top+toRect.height/2;
+  const icon=document.createElement('img');
+  icon.className='bullet-fly';
+  icon.src=iconSrc;
+  icon.alt='';
+  icon.style.left=fromX+'px';
+  icon.style.top=fromY+'px';
+  icon.style.transform='translate(-50%,-50%) scale(1)';
+  document.body.appendChild(icon);
+  void icon.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+  icon.style.transition='left 420ms ease-in, top 420ms ease-in, transform 420ms ease-in';
+  icon.style.left=toX+'px';
+  icon.style.top=toY+'px';
+  icon.style.transform='translate(-50%,-50%) scale(1.15)';
+  setTimeout(()=>{ if(icon.parentElement) icon.remove(); },450);
+}
+
 // DD Cleave (2026-07-29, "DD's Signature", ультраредкий Mood-трейт, ico_dd.png, по
 // прямому запросу автора) — при ОБЫЧНОЙ атаке (НЕ Bolt — по прямому запросу автора,
 // в отличие от Market/Nana) носитель тега `dd` наносит 1 физический урон (bypassArmor=
@@ -2223,11 +2258,22 @@ function killCard(card,faction,toVoid=false){
       const woundedAllies=G[card.f].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.hp<c.maxHp);
       if(woundedAllies.length>0){
         const healTarget=woundedAllies[Math.floor(Math.random()*woundedAllies.length)];
-        healTarget.hp=Math.min(healTarget.maxHp,healTarget.hp+bambooHeal);
-        playSfx('heal');
-        lg(`${card.name}: dies — heals ${healTarget.name} +${bambooHeal} HP → ${healTarget.hp}/${healTarget.maxHp}.`,'hl');
-        const healTargetId=healTarget.id;
-        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(healTargetId,`+${bambooHeal}`,'heal')));
+        // Снаряд-иконка (2026-08-05, по прямому запросу автора — "как болт у Thunder Storm")
+        // — ico_bambo.png летит от умирающей карты к цели, размером как bullet.gif, БЕЗ
+        // звука на вылет (throwIconFx() ниже намеренно его не играет). Сам эффект (хил +
+        // звук + текст) теперь резолвится ТОЛЬКО по приземлении, тем же 420мс таймингом,
+        // что у Thunder Storm — см. её комментарий ниже за подробным разбором тайминга DOM.
+        const dyingId=card.id, dyingName=card.name, healTargetId=healTarget.id, healFaction=card.f;
+        throwIconFx(dyingId, healTargetId, 'img/ico_bambo.png');
+        setTimeout(()=>{
+          const t=G[healFaction].field.find(c=>c.id===healTargetId);
+          if(!t) return; // цель успела уйти с поля за время полёта — лечить некого
+          t.hp=Math.min(t.maxHp,t.hp+bambooHeal);
+          playSfx('heal');
+          lg(`${dyingName}: dies — heals ${t.name} +${bambooHeal} HP → ${t.hp}/${t.maxHp}.`,'hl');
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(healTargetId,`+${bambooHeal}`,'heal')));
+          render();
+        },420);
       }
     }
   }
@@ -2310,12 +2356,21 @@ function killCard(card,faction,toVoid=false){
       const allyField=G[card.f].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
       if(allyField.length>0){
         const armorTarget=allyField[Math.floor(Math.random()*allyField.length)];
-        armorTarget.spellArmorBonus=(armorTarget.spellArmorBonus||0)+schemeArmor;
-        recalcArmor(card.f);
-        playSfx('baf');
-        lg(`${card.name}: dies — ${armorTarget.name} +${schemeArmor} Armor.`,'hl');
-        const armorTargetId=armorTarget.id;
-        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(armorTargetId,'+Armor','armoraura')));
+        // Снаряд-иконка (2026-08-05, тот же приём/причина, что у death_heal выше) —
+        // ico_scheme.png летит к цели, эффект (Броня + звук + текст) резолвится по
+        // приземлении, 420мс.
+        const dyingId=card.id, dyingName=card.name, armorTargetId=armorTarget.id, armorFaction=card.f;
+        throwIconFx(dyingId, armorTargetId, 'img/ico_scheme.png');
+        setTimeout(()=>{
+          const t=G[armorFaction].field.find(c=>c.id===armorTargetId);
+          if(!t) return; // цель успела уйти с поля за время полёта — некому давать Броню
+          t.spellArmorBonus=(t.spellArmorBonus||0)+schemeArmor;
+          recalcArmor(armorFaction);
+          playSfx('baf');
+          lg(`${dyingName}: dies — ${t.name} +${schemeArmor} Armor.`,'hl');
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(armorTargetId,'+Armor','armoraura')));
+          render();
+        },420);
       }
     }
   }
@@ -2350,11 +2405,20 @@ function killCard(card,faction,toVoid=false){
       const allyField=G[card.f].field.filter(c=>!c.spell&&!c.world&&!c.artifact);
       if(allyField.length>0){
         const atkTarget=allyField[Math.floor(Math.random()*allyField.length)];
-        atkTarget.tempAtkBonus=(atkTarget.tempAtkBonus||0)+opticAtk;
-        playSfx('baf');
-        lg(`${card.name}: dies — ${atkTarget.name} +${opticAtk} ATK.`,'hl');
-        const atkTargetId=atkTarget.id;
-        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(atkTargetId,`+${opticAtk}`,'atk')));
+        // Снаряд-иконка (2026-08-05, тот же приём/причина, что у death_heal/death_armor
+        // выше) — ico_optic.png летит к цели, эффект (ATK + звук + текст) резолвится по
+        // приземлении, 420мс.
+        const dyingId=card.id, dyingName=card.name, atkTargetId=atkTarget.id, atkFaction=card.f;
+        throwIconFx(dyingId, atkTargetId, 'img/ico_optic.png');
+        setTimeout(()=>{
+          const t=G[atkFaction].field.find(c=>c.id===atkTargetId);
+          if(!t) return; // цель успела уйти с поля за время полёта — некому давать ATK
+          t.tempAtkBonus=(t.tempAtkBonus||0)+opticAtk;
+          playSfx('baf');
+          lg(`${dyingName}: dies — ${t.name} +${opticAtk} ATK.`,'hl');
+          requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(atkTargetId,`+${opticAtk}`,'atk')));
+          render();
+        },420);
       }
     }
   }
