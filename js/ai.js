@@ -910,57 +910,89 @@ function aiTryUseBolt(){
 //      Shot физический, так что Ward-цели ОСТАЮТСЯ валидными (это и есть весь смысл тега).
 //  (2) Armor цели вычитается из dmg при оценке килла/чипа — Shot режется Бронёй, в
 //      отличие от Bolt, который её полностью игнорирует.
-function aiTryUseShot(){
-  const me=G[G.aiFaction];
+//
+// БАГФИКС (2026-08-05, по прямому запросу автора — "стреляют по 2 одновременно и ещё одной
+// картой сразу бьёт") — раньше это была ОДНА синхронная forEach()-функция: если на поле
+// 2+ Mechird с shot одновременно, ВСЕ их выстрелы стартовали в один и тот же тик (снаряды
+// летели наложенные друг на друга), а следующий шаг ИИ (обычная атака, aiAttackStep())
+// стартовал сразу следом, даже не дождавшись, пока первый снаряд долетит (у Shot 420мс
+// полёта на удар, см. doShotTarget()/game.js). Та же "ИЗВЕСТНОЕ УПРОЩЕНИЕ" пометка,
+// что раньше стояла у aiTryUseAoe() (см. её комментарий в aiRunActivesThenAttack() ниже),
+// только для Shot оказалось куда заметнее — конкретно на нём автор и поймал баг. Теперь
+// это очередь: один выстрел за раз, каждый следующий — только через AI_STEP_DELAY (тот же
+// принцип, что уже даёт aiAttackStep() для обычных атак), а весь следующий шаг
+// (aiRunActivesThenAttack()) ждёт колбэк onDone(), а не синхронный return.
+//
+// _aiFireOneShot(shot) — решение и (если стреляем) сам выстрел ОДНОЙ конкретной Mechird-
+// карты; чистая логика без цикла, тело 1-в-1 то же, что раньше было внутри forEach().
+function _aiFireOneShot(shot){
   const humanF=G.humanFaction;
   const oppField=G[humanF].field;
   const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'shield')||c.shieldConsumed)&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
-  const shotCreatures=me.field.filter(c=>hasTag(c,'shot')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&!c.spell&&!c.world&&!c.artifact);
-  let used=false;
-  shotCreatures.forEach(shot=>{
-    if(shot.exhausted) return; // could've acted already earlier in this same pass
-    const baseDmg=(shot.squadParam&&shot.squadParam.shot)||getTagVal(shot,'shot')||1;
-    const withDmg=enemyField.map(c=>({c, dmg: Math.max(0, baseDmg-(c.armor||0))}));
-    const killable=withDmg.filter(x=>x.dmg>0 && x.dmg>=x.c.hp);
-    const forced = oppField.some(c=>hasTag(c,'bushido')) ||
-      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen);
-    // 0-ATK shot-тела — тот же принцип, что у Bolt: собственная атака ничего не даёт,
-    // Shot строго не хуже даже без гарантированного килла.
-    if(effAtk(shot)<=0){
-      if(enemyField.length===0) return;
-      const pool=(killable.length>0?killable:withDmg).filter(x=>x.dmg>0);
-      if(pool.length===0) return; // вся Броня на поле съедает Shot целиком — нечем бить
-      pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+  const baseDmg=(shot.squadParam&&shot.squadParam.shot)||getTagVal(shot,'shot')||1;
+  const withDmg=enemyField.map(c=>({c, dmg: Math.max(0, baseDmg-(c.armor||0))}));
+  const killable=withDmg.filter(x=>x.dmg>0 && x.dmg>=x.c.hp);
+  const forced = oppField.some(c=>hasTag(c,'bushido')) ||
+    oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen);
+  // 0-ATK shot-тела — тот же принцип, что у Bolt: собственная атака ничего не даёт,
+  // Shot строго не хуже даже без гарантированного килла.
+  if(effAtk(shot)<=0){
+    const pool=(killable.length>0?killable:withDmg).filter(x=>x.dmg>0);
+    if(pool.length===0) return false; // вся Броня на поле съедает Shot целиком — нечем бить
+    pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+    G.sel=shot.id;
+    doMchShot();
+    doShotTarget(pool[0].c);
+    return true;
+  }
+  if(killable.length===0){
+    const canHitBaseInstead = !forced && aiCanHitBase(shot, oppField);
+    const chipPool=withDmg.filter(x=>x.dmg>0); // Броня могла свести чип-урон в 0 — такие цели не годятся даже для чипа
+    if(effAtk(shot)<=baseDmg && chipPool.length>0 && !canHitBaseInstead){
+      chipPool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
       G.sel=shot.id;
       doMchShot();
-      doShotTarget(pool[0].c);
-      used=true;
-      return;
+      doShotTarget(chipPool[0].c);
+      return true;
     }
-    if(killable.length===0){
-      const canHitBaseInstead = !forced && aiCanHitBase(shot, oppField);
-      const chipPool=withDmg.filter(x=>x.dmg>0); // Броня могла свести чип-урон в 0 — такие цели не годятся даже для чипа
-      if(effAtk(shot)<=baseDmg && chipPool.length>0 && !canHitBaseInstead){
-        chipPool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
-        G.sel=shot.id;
-        doMchShot();
-        doShotTarget(chipPool[0].c);
-        used=true;
-      }
-      return;
-    }
-    killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
-    const target=killable[0].c;
-    const normalWouldKillSameTarget = !forced && effAtk(shot)>=target.hp && !(target.armor>0);
-    if(!normalWouldKillSameTarget){
-      G.sel=shot.id;
-      doMchShot();
-      doShotTarget(target);
-      used=true;
-    }
-  });
-  return used;
+    return false;
+  }
+  killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+  const target=killable[0].c;
+  const normalWouldKillSameTarget = !forced && effAtk(shot)>=target.hp && !(target.armor>0);
+  if(!normalWouldKillSameTarget){
+    G.sel=shot.id;
+    doMchShot();
+    doShotTarget(target);
+    return true;
+  }
+  return false;
+}
+
+// aiTryUseShotStep — очередь, тот же паттерн, что у aiAttackStep() ниже по файлу: один
+// Mechird за раз, следующий — только AI_STEP_DELAY спустя, и только если этот реально
+// выстрелил (не ждём просто так, если решение было "не стрелять"). queue — снимок id'шников
+// на момент вызова aiTryUseShot(); перечитываем карту заново из поля на каждом шаге (та же
+// защита, что у aiAttackStep() — карта могла уйти с поля/оглушиться между шагами).
+function aiTryUseShotStep(queue, idx, anyUsed, onDone){
+  if(idx>=queue.length){ onDone(anyUsed); return; }
+  const shot=G[G.aiFaction].field.find(c=>c.id===queue[idx]);
+  if(!shot || shot.exhausted || shot.sleeping || shot.feared || shot.frozen){
+    aiTryUseShotStep(queue, idx+1, anyUsed, onDone);
+    return;
+  }
+  const used=_aiFireOneShot(shot);
+  setTimeout(()=>aiTryUseShotStep(queue, idx+1, anyUsed||used, onDone), used?AI_STEP_DELAY:0);
+}
+
+// onDone(usedAny) — колбэк вместо синхронного return (см. багфикс-комментарий выше) —
+// вызывается после того, как ОЧЕРЕДЬ Mechird-карт полностью обработана (каждая — своим
+// отдельным, разнесённым по времени шагом), а не сразу после первой.
+function aiTryUseShot(onDone){
+  const me=G[G.aiFaction];
+  const shotCreatures=me.field.filter(c=>hasTag(c,'shot')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&!c.spell&&!c.world&&!c.artifact).map(c=>c.id);
+  aiTryUseShotStep(shotCreatures, 0, false, onDone);
 }
 
 // Раньше AOE и Shard активки, а следом первая атака в очереди — все три —
@@ -983,10 +1015,15 @@ function aiRunActivesThenAttack(){
     setTimeout(()=>{
       const usedBolt=aiTryUseBolt();
       setTimeout(()=>{
-        const usedShot=aiTryUseShot(); // Mechird Shot (2026-08-04)
-        setTimeout(()=>{
-          aiAttackStep(getAiCreatureQueue(), 0);
-        }, usedShot?AI_STEP_DELAY:0);
+        // aiTryUseShot() теперь колбэк-based, не синхронный return (2026-08-05, багфикс —
+        // см. её подробный комментарий выше) — сама себе разносит по времени выстрелы
+        // НЕСКОЛЬКИХ Mechird-карт, следующий общий шаг (обычная атака) стартует только
+        // после того, как ВСЯ очередь выстрелов реально отыграна.
+        aiTryUseShot((usedShot)=>{
+          setTimeout(()=>{
+            aiAttackStep(getAiCreatureQueue(), 0);
+          }, usedShot?AI_STEP_DELAY:0);
+        });
       }, usedBolt?AI_STEP_DELAY:0);
     }, usedShard?AI_STEP_DELAY:0);
   }, usedAoe?AI_STEP_DELAY:0);
