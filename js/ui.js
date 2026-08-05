@@ -419,6 +419,11 @@ function preloadAssets(){
     'img/ico_nana.png', // Nana (2026-07-29) — тот же превентивный фикс
     'img/nana.gif', // Nana — сам летящий банан-арт (throwBananaFx, game.js)
     'img/bolt.gif', // Umbasir Bolt — летящий снаряд-арт (throwBoltFx, game.js), 2026-07-30
+    'img/bolt1.gif', 'img/bolt2.gif', // спелл-варианты снаряда throwBoltFx (2026-08-05) —
+    // bolt1 = "лёгкий" удар (SPARK/MALICE без бонуса, EXECUTE/CULL, JUDGMENT/DEATHBLOW
+    // простой Bolt 1), bolt2 = "тяжёлый" (SPARK/MALICE с бонусом от Мира/Артефакта,
+    // JUDGMENT/DEATHBLOW добивание, BREACH/RUPTURE всегда) — см. doSpellDmgTarget()/
+    // doSpellExecuteHalfTarget()/doSpellDmgTrampleTarget() в game.js
     'img/bullet.gif', // Mechird Shot — летящий снаряд-арт (throwShotFx, game.js), 2026-08-04
     'img/ico_dd.png', // DD Cleave (2026-07-29) — тот же превентивный фикс
     'img/ico_optic.png', // Optic Dope (2026-07-29) — тот же превентивный фикс
