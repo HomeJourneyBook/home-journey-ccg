@@ -1327,22 +1327,108 @@ function _flyCardFromDeck(cloneEl, deckRect, targetRect, delayMs){
   }, delayMs);
 }
 
+// Смерть на поле — пауза + полёт/сожжение (2026-08-05, по прямому запросу автора) ─────
+// Раньше карта пропадала с поля мгновенно (в тот же render(), где она уже выпала из
+// G[faction].field) — просто уменьшалась/таяла на месте (см. cardDie в styles.css).
+// Теперь она сперва ДЕРЖИТСЯ живой ещё DEATH_ANIM_DELAY_MS (тот же DOM-элемент, тот же
+// querySelector-таргет, просто с придавленной cardDie-анимацией — см. .dying-hold в
+// styles.css), чтобы шейк от урона (hitCard(), 250мс) и всплывающее число (-N, showFloat(),
+// оба зовутся из dmgCard() с задержкой в 2×requestAnimationFrame) успели доиграть НА ЖИВОЙ
+// карте — иначе они запускались бы уже на пропавшем/улетающем элементе. Только ПОСЛЕ паузы
+// решается, что дальше: обычная смерть (Grave) — клон улетает к иконке кладбища СВОЕЙ
+// фракции по прямой, уменьшаясь и растворяясь (_flyCardToGrave() ниже); уход в Войд
+// (Инкарнация/Remember уже потрачены, "сожжённое" заклинанием) — тот же визуальный приём,
+// что у сжигания карты из руки (burnCard/.burning-out), но в ЧЁРНО-СЕРЫХ тонах вместо
+// оранжевых (cardVoidBurn/.dying-void, см. styles.css) — карта никуда не летит, просто
+// гаснет на своём месте на поле.
+const DEATH_ANIM_DELAY_MS = 550;
+const VOID_BURN_MS = 450; // держать в синхроне с длительностью .dying-void/cardVoidBurn (styles.css)
+const GRAVE_FLY_MS = 380; // длительность полёта клона карты к иконке кладбища (по прямой, без дуги — по прямому запросу автора)
+
+// Полёт клона умершей карты к иконке кладбища своей фракции — та же техника клонирования
+// в position:fixed + JS-driven transition, что у _flyCardFromDeck()/throwBoltFx() выше
+// (координаты кладбища динамические — конкретная кнопка меняет физическое положение между
+// Opp/Player колонками, см. _arenaPosForFaction(), так что нельзя обойтись статичными
+// @keyframes). Оригинальный элемент к этому моменту уже прошёл свою паузу-выдержку
+// (DEATH_ANIM_DELAY_MS в rZone() выше) — hitCard()/showFloat() на нём уже отработали,
+// можно смело убирать.
+function _flyCardToGrave(cardEl, faction){
+  const rect=cardEl.getBoundingClientRect();
+  const graveEl=document.getElementById('arenaGrave'+_arenaPosForFaction(faction));
+  if(cardEl.parentElement) cardEl.remove();
+  if(!graveEl || graveEl.offsetParent===null) return; // кладбище сейчас не на экране (напр. под модалкой) — просто убрана, без полёта
+  const gRect=graveEl.getBoundingClientRect();
+  const clone=cardEl.cloneNode(true);
+  clone.classList.remove('selected','targetable','aim-target','aim-attack','hit','activating','entering','dying','dying-hold');
+  clone.classList.add('card-death-fly');
+  clone.style.left=(rect.left+rect.width/2)+'px';
+  clone.style.top=(rect.top+rect.height/2)+'px';
+  clone.style.width=rect.width+'px';
+  clone.style.height=rect.height+'px';
+  clone.style.transform='translate(-50%,-50%) scale(1)';
+  clone.style.opacity='1';
+  document.body.appendChild(clone);
+  void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+  clone.style.transition=`left ${GRAVE_FLY_MS}ms ease-in, top ${GRAVE_FLY_MS}ms ease-in, transform ${GRAVE_FLY_MS}ms ease-in, opacity ${GRAVE_FLY_MS}ms ease-in`;
+  clone.style.left=(gRect.left+gRect.width/2)+'px';
+  clone.style.top=(gRect.top+gRect.height/2)+'px';
+  clone.style.transform='translate(-50%,-50%) scale(0.15)';
+  clone.style.opacity='0';
+  setTimeout(()=>{
+    // 'graveyard' — временно переиспользуем звук открытия модалки кладбища (по прямому
+    // запросу автора, 2026-08-05 — послушает вживую и решит, менять ли на отдельный ассет).
+    playSfx('graveyard');
+    if(clone.parentElement) clone.remove();
+  }, GRAVE_FLY_MS);
+}
+
 function rZone(id,cards,zone){
   const el=document.getElementById(id);
   if(zone==='field'){
+    // faction — из id зоны ('teaField'/'jeetField', см. вызовы rZone() выше в этом файле) —
+    // нужна, чтобы отличить настоящую смерть (карта реально в G[faction].grave/void прямо
+    // сейчас) от любого другого исчезновения с поля (bounce обратно в руку и т.п., которое
+    // по-прежнему получает старое мгновенное поведение — см. развилку ниже).
+    const faction = id==='teaField' ? 'tea' : 'jeet';
     const dying=[];
     el.querySelectorAll('.card-small').forEach(cardEl=>{
       const stillExists=cards.find(c=>String(c.id)===cardEl.dataset.id);
       if(!stillExists) dying.push(cardEl);
     });
     dying.forEach(cardEl=>{
-      cardEl.classList.add('dying');
+      const cid=cardEl.dataset.id;
       cardEl.style.pointerEvents='none';
+      const wentVoid = G[faction].void.some(c=>String(c.id)===cid);
+      const wentGrave = !wentVoid && G[faction].grave.some(c=>String(c.id)===cid);
+      if(wentVoid||wentGrave){
+        // Настоящая смерть (2026-08-05, по прямому запросу автора) — см. подробный
+        // комментарий у DEATH_ANIM_DELAY_MS ниже по файлу. Гвард !classList.contains
+        // (dying-hold) — render() может вызваться НЕСКОЛЬКО раз за время паузы (обычная
+        // последовательность любой атаки: dmgCard()→render(), потом ещё render() от
+        // checkWin()/контрудара и т.п.) — без гварда каждый лишний вызов заново находил бы
+        // тот же ещё-не-убранный элемент в dying[] и повторно планировал бы вылет/сожжение,
+        // т.е. один и тот же клон улетал бы или сгорал НЕСКОЛЬКО раз подряд.
+        if(!cardEl.classList.contains('dying-hold')){
+          cardEl.classList.add('dying','dying-hold');
+          setTimeout(()=>{
+            if(!cardEl.parentElement) return; // уже убрана каким-то другим путём — не трогаем
+            if(wentVoid){
+              cardEl.classList.remove('dying-hold');
+              cardEl.classList.add('dying-void');
+              setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, VOID_BURN_MS);
+            } else {
+              _flyCardToGrave(cardEl, faction);
+            }
+          }, DEATH_ANIM_DELAY_MS);
+        }
+      } else if(!cardEl.classList.contains('dying')){
+        // Не смерть — карта покинула поле по другой причине (bounce обратно в руку и т.п.) —
+        // старое мгновенное поведение (cardDie shrink-fade на месте), без паузы.
+        cardEl.classList.add('dying');
+        setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, 400);
+      }
     });
     if(dying.length>0){
-      setTimeout(()=>{
-        dying.forEach(cardEl=>{if(cardEl.parentElement)cardEl.remove();});
-      }, 400);
       // Build map of live (non-dying) existing elements
       const existingMap={};
       el.querySelectorAll('.card-small:not(.dying)').forEach(cardEl=>{
