@@ -998,9 +998,19 @@ function doAttack(att,target){
   triggerAbilities(att,'on_attack',{target,realDmgDealt});
   if(target.hp<=0) triggerAbilities(att,'on_kill',{target});
 
-  // Финальное разрешение смерти атакующего — только теперь, после того как vampiric/Erase
-  // уже успели его подлечить. Если он всё ещё <=0, вот тут он реально умирает.
-  if(att.hp<=0) killCard(att,curK);
+  // Финальное решение о смерти атакующего — только теперь, после того как vampiric/Erase
+  // уже успели его подлечить (через on_attack/on_kill выше). Сам killCard() ОТКЛАДЫВАЕМ до
+  // конца функции, после activateCard() (2026-08-05, багфикс по прямому запросу автора —
+  // "при смерти от контрудара карта перестала подниматься для удара"): раньше killCard()
+  // срабатывал прямо тут, СРАЗУ убирая атакующего с поля/запуская полёт на кладбище — так
+  // что к моменту activateCard(att.id) в конце функции элемента уже не было в DOM вообще
+  // (или, в промежуточной версии с паузой смерти, .dying-hold конфликтовал по CSS-
+  // специфичности с .activating и гасил cardActivate — тот же класс бага, что чинили у
+  // .hit). Теперь атакующий сначала честно доигрывает СВОЙ "подъём для удара" (0.5с,
+  // cardActivate) на живом элементе, и только потом реально умирает и улетает — это его
+  // СОБСТВЕННАЯ анимация действия, она не должна обрываться тем, что этим же ударом его
+  // достал контрудар.
+  const attDies = att.hp<=0;
 
   // Trample (2026-07-17, MTG-style pierce rework; widened same day per author feedback):
   // originally only fired when pierce was forced onto a Provoke creature (its one carve-out
@@ -1010,10 +1020,10 @@ function doAttack(att,target){
   // should still spill the rest into the base, same as it would against a taunt. So this is
   // now gated on attHasPierce alone, no Provoke check.
   // target.hp is deliberately left negative by dmgCard() on a lethal hit (see its comments)
-  // specifically so this can read the overkill back off it — killCard() above (called
-  // earlier, inside dmgCard()) doesn't touch the corpse's .hp field, so it's still there.
-  // A still-shielded target (Solana Shield) leaves target.hp untouched by the whole hit, so
-  // overflow is correctly 0 without any separate check.
+  // specifically so this can read the overkill back off it — killCard() for the TARGET
+  // already ran earlier, inside its own dmgCard() call, and doesn't touch the corpse's .hp
+  // field, so it's still there. A still-shielded target (Solana Shield) leaves target.hp
+  // untouched by the whole hit, so overflow is correctly 0 without any separate check.
   const attHasPierce=hasTag(att,'pierce')||(att.squadParam&&att.squadParam.pierce);
   if(attHasPierce){
     const overflow=Math.max(0,-target.hp);
@@ -1048,6 +1058,17 @@ function doAttack(att,target){
   checkWin();
   render();
   activateCard(att.id);
+  if(attDies){
+    // 500мс — держать в синхроне с длительностью cardActivate (.card-small.activating,
+    // styles.css). После неё атакующий реально уходит с поля — killCard() тут же запускает
+    // обычный полёт на кладбище/сожжение в Войд (см. rZone(), render.js), теперь мгновенный
+    // (без своей доп. паузы — см. её комментарий).
+    setTimeout(()=>{
+      killCard(att,curK);
+      checkWin();
+      render();
+    }, 500);
+  }
 }
 
 function doUmbAsir(){
@@ -1975,13 +1996,15 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   }
   card.hp-=dmg;
   const lethal=card.hp<=0;
-  // Шейк ТЕПЕРЬ играет и на летальном ударе (2026-08-05, по прямому запросу автора —
-  // раньше был намеренно пропущен здесь именно потому, что "умирание" стартовало СРАЗУ
-  // же, в тот же кадр, что и делало шейк+fade визуальным конфликтом). Теперь смерть на
-  // поле держит карту "на паузе" ещё DEATH_ANIM_DELAY_MS (см. rZone()/render.js), прежде
-  // чем реально её убрать — так что шейк успевает полностью доиграть на живом элементе
-  // ДО того, как тот превратится в улетающий на кладбище клон/сгорит в Войд.
-  requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+  // Шейк на летальном ударе УБРАН ОБРАТНО (2026-08-05, по прямому запросу автора — "как и
+  // раньше без шейка она просто улетела сразу", тот же откат, что и у DEATH_ANIM_DELAY_MS
+  // в rZone()/render.js, см. её комментарий: с паузой между уроном и полётом карта "слишком
+  // долго умирает"). Раньше (см. историю этого файла) шейк ненадолго вернули СПЕЦИАЛЬНО под
+  // эту паузу — без неё смысла в нём снова нет: смерть теперь опять мгновенная, шейк и fade
+  // играли бы поверх друг друга.
+  if(!lethal){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
+  }
   const cardId=card.id;
   const dmgAmt=dmg;
   // forceLabel (2026-07-24, по прямому запросу автора) — изначально задумывалось показывать
@@ -3574,15 +3597,18 @@ function _runTurnStartEffects(){
         // существо просто горит, не умирая — навязчиво).
         playSfx('card_fire_atack');
         const f=G[G.turn].field.includes(card)?G.turn:oppK;
-        // Сгоревшая карта уходит в войд, а не на кладбище — общий diff-механизм в rZone()
-        // не всегда успевал поймать её между этим циклом и render() в конце хода,
-        // поэтому анимацию смерти (dying + удаление через 400мс) вешаем явно здесь.
-        const cardEl=document.querySelector(`.card-small[data-id="${card.id}"]`);
-        if(cardEl){
-          cardEl.classList.add('dying');
-          cardEl.style.pointerEvents='none';
-          setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, 400);
-        }
+        // Анимация смерти (2026-08-05, багфикс по прямому запросу автора — "при смерти от
+        // поджога не было вообще никакой анимации") — раньше ТУТ был свой хардкод (.dying
+        // класс + ручной setTimeout(remove,400)), написанный ДО того, как в rZone()
+        // появилась общая логика смерти (полёт на кладбище/сожжение в Войд, см. её
+        // комментарий в render.js) — тот старый хардкод молча убивал элемент через 400мс,
+        // не дожидаясь общей анимации, из-за чего либо конфликтовал с ней (карта исчезала
+        // раньше, чем успевала долететь/сгореть), либо (в версии с паузой смерти) обрывал
+        // её на середине. Убрал полностью — killCard() ниже сам уводит карту в Войд
+        // (toVoid=true), а общий diff-механизм в rZone() САМ подхватывает пропажу карты из
+        // G[faction].field на ближайшем render() (endTurn() зовёт его чуть ниже по функции)
+        // и запускает нужную анимацию — тот же путь, что уже работает для ЛЮБОЙ другой
+        // смерти в игре (обычная атака/контрудар/Bolt/Shot/спеллы), без дублирования кода.
         killCard(card,f,true); // true = burned to death → void
       }
     }
