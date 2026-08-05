@@ -763,7 +763,7 @@ function doSpell(card){
   cur.void.push(card); 
 }
 
-function reviveCard(card,toF){
+function reviveCard(card,toF,graveFaction){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
   card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.frozen=false;card.frozenTurnsLeft=0;card._frostLeaving=false;card.mekMarked=false;card.mekMarkTurns=0;card.atkBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
@@ -775,8 +775,15 @@ function reviveCard(card,toF){
   // смерти (killCard()) она снова законно получит полноценный incarnTimer.
   card.incarnTimer=undefined;
   card.f=toF;
-  G[toF].field.push(card); 
+  G[toF].field.push(card);
   lg(`Revived ${card.name} at full HP.`,'hl');
+  // Полёт из кладбища (2026-08-05, по прямому запросу автора) — карта "вылетает" из иконки
+  // кладбища ТОЙ фракции, откуда реально была поднята (graveFaction — обычно совпадает с
+  // toF, но `revive`-спелл с тегом `any` может поднимать карту из ЧУЖОГО кладбища, отсюда
+  // отдельный параметр, а не всегда toF), увеличиваясь по пути до родного размера поля —
+  // rZone() (render.js) подхватывает это по dataset.id при следующем render(), когда решает,
+  // какую анимацию появления дать новому существу на поле (обычный entering-pop или полёт).
+  _pendingReviveOrigins[card.id]=graveFaction||toF;
 
   if(hasTag(card,'aura:atk')) G[toF]._auraAtkLog=card.id;
   if(hasTag(card,'aura:maxhp')) G[toF]._auraMaxLog=card.id;
@@ -3126,19 +3133,25 @@ function doSpellBounceTarget(card){
   const ownerK=card.f;
   playSfx('wind_card'); // тот же звук, что у полного bounce (UNSEEN) — тематически один жест
   lg(`${spell.name}: ${card.name} blown back to ${ownerK==='tea'?'Tea':'Jeet'}'s hand.`,'imp');
+  // Полёт в руку (2026-08-05, по прямому запросу автора) — снимок ТЕКУЩЕЙ полевой позиции
+  // карты, ДО того как она реально уйдёт с поля. rZone() (render.js) подхватит этот снимок
+  // на рендере зоны руки этим же вызовом render() ниже и погонит клон от него к месту в
+  // руке — БЕЗ эффекта уменьшения (клон растёт/сжимается плавно от родного полевого размера
+  // к размеру карты в руке, без искусственного "нырка" вниз по масштабу), крест-фейдится с
+  // настоящей картой в руке в конце — тот же приём, что у _flyCardFromDeck(), см.
+  // _flyCardToHand() в render.js. Раньше тут была искусственная пауза в 400мс между
+  // "картинка гаснет на поле" и "картинка появляется в руке" — с непрерывным полётом она
+  // больше не нужна, обе стороны укладываются в один и тот же render().
+  const fieldEl=document.querySelector(`.card-small[data-id="${card.id}"]`);
+  if(fieldEl) _bounceOriginRects[card.id]=fieldEl.getBoundingClientRect();
   G[ownerK].field=G[ownerK].field.filter(c=>c.id!==card.id);
+  resetC(card);
+  G[ownerK].hand.push(card);
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
   G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // см. фикс выше у doSpellDmgTarget
-  render(); // немедленный рендер — карта пропадает с поля, rZone(zone:'field') сам подхватывает
-            // "умирание" (класс dying + удаление через 400мс), см. комментарий там же в render.js
-  setTimeout(()=>{
-    resetC(card);
-    G[ownerK].hand.push(card);
-    render();
-  },400); // та же задержка, что у полного bounce — карта не появляется в руке ДО того,
-          // как её "призрак" на поле закончил гаснуть
+  render();
 }
 
 function doGustAbility(target){
@@ -3154,19 +3167,18 @@ function doGustAbility(target){
   const ownerK=target.f;
   playSfx('wind_card'); // тот же звук, что у GUST/REVERSE/UNSEEN — тематически один жест
   lg(`${caster.name}: ${target.name} blown back to ${ownerK==='tea'?'Tea':'Jeet'}'s hand.`,'imp');
+  // Полёт в руку — тот же приём и та же причина отказа от 400мс-паузы, что у
+  // doSpellBounceTarget() выше (см. её комментарий).
+  const fieldEl=document.querySelector(`.card-small[data-id="${target.id}"]`);
+  if(fieldEl) _bounceOriginRects[target.id]=fieldEl.getBoundingClientRect();
   G[ownerK].field=G[ownerK].field.filter(c=>c.id!==target.id);
+  resetC(target);
+  G[ownerK].hand.push(target);
   caster.exhausted=true;
   G.phase='action';G.sel=null;
   G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // тот же паттерн, что у doSpellBounceTarget/doSpellDmgTarget — пересчёт Squad-бонусов после ухода карты с поля
-  render(); // немедленный рендер — цель пропадает с поля, rZone(zone:'field') сам подхватывает
-            // "умирание" (класс dying + удаление через 400мс), см. комментарий в render.js
+  render();
   activateCard(caster.id); // TEANTIST визуально "приподнимается", как и другие активки
-  setTimeout(()=>{
-    resetC(target);
-    G[ownerK].hand.push(target);
-    render();
-  },400); // та же задержка, что у doSpellBounceTarget — карта не появляется в руке ДО того,
-          // как её "призрак" на поле закончил гаснуть
 }
 
 function doSpellExecuteHalfTarget(card){
