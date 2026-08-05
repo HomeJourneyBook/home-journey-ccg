@@ -495,8 +495,10 @@ function triggerAbilities(card, timing, ctx={}){
               // гарантирует, что цепочка ВСЕГДА продолжится к следующему выстрелу, даже если
               // конкретно этот выстрел упал с ошибкой (та ошибка уйдёт в консоль, очередь — нет).
               try{
-                playSfx('card_spell_atack');
                 if(shot.isBase){
+                  // По базе промахнуться/поглотить нечем (нет Foxy/Shield/Frost у базы) —
+                  // звук остаётся безусловным, как и раньше.
+                  playSfx('card_spell_atack');
                   baseHits++;
                   G[oppK].hp=Math.max(0,G[oppK].hp-1);
                   flashBase(oppK,'dmg',1);
@@ -517,6 +519,15 @@ function triggerAbilities(card, timing, ctx={}){
                     // по прямому запросу автора) — текстовый плейсхолдер больше не нужен,
                     // Scattershot/Shrapnel уже кидают настоящие снаряды (throwBoltFx() выше).
                     dmgCard(t,1,oppK,true);
+                    // Звук — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-08-06,
+                    // багфикс по прямому запросу автора — "лишний звук срабатывает при
+                    // промахе по Foxy Trick") — раньше card_spell_atack играл БЕЗУСЛОВНО до
+                    // dmgCard() для КАЖДОГО отдельного выстрела в очереди, так что при
+                    // Foxy-уклонении/Frost-поглощении/Solana Shield на конкретной цели
+                    // играли ДВА звука разом.
+                    if(!t._foxyDodgedThisHit && !t._shieldBlockedThisHit && !t._frostBlockedThisHit){
+                      playSfx('card_spell_atack');
+                    }
                   }
                   // Цель уже умерла/ушла с поля между расчётом и приземлением этого конкретного
                   // снаряда — молча пропускаем (тот же принцип, что у остальных отложенных
