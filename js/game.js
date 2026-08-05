@@ -594,11 +594,26 @@ function doPlay(card, afterResolve){
       // рубашками (rHiddenHand(), .card-mini, без реальных .card[data-id] элементов —
       // querySelector выше в принципе не может найти карту ИИ), так что раньше для хода ИИ
       // origin просто не находился, и существо тихо появлялось на поле без полёта вообще.
-      // Тот же фолбэк, что уже использует playSpellRevealAnimation() для AI-спеллов —
-      // вылет из ЦЕНТРА зоны скрытой руки нужной стороны, а не из конкретного слота (у
-      // рубашек нет привязки к id, только суммарное количество).
+      //
+      // БАГФИКС (2026-08-05, повторный заход по прямому запросу автора — "летит откуда-то
+      // сверху, а не из руки") — первая версия фолбэка брала rect ВСЕЙ зоны руки целиком
+      // (`handZoneEl.getBoundingClientRect()`), а зона руки — это на всю ширину экрана
+      // (~1280×50px), совсем не размера карты. _playFieldFlyIfPending() (render.js) считает
+      // стартовый scale как `originRect.width/restRect.width` — при origin-width~1280px и
+      // restRect (маленькая карта на поле) ~120px это давало startScale≈10 — гигантский
+      // клон, схлопывающийся до нормального размера за 300мс, визуально совсем не похоже на
+      // "вылет из руки", скорее на "что-то падает откуда-то сверху". Теперь вместо всей зоны
+      // берём rect РЕАЛЬНОЙ рубашки (`.card-mini`, тот же элемент, что уже использует
+      // playSpellRevealAnimation() для scale-референса при раскрытии AI-спеллов) — она
+      // физически card-sized, так что startScale получается в разумных пределах (~1), а сам
+      // вылет визуально стартует именно оттуда, где нарисованы рубашки скрытой руки.
+      // Рубашек может не быть вообще (рука пуста) — тогда используем прежний
+      // whole-zone-rect фолбэк (лучше кривой старт, чем вообще без анимации).
       const handZoneEl=document.getElementById(_arenaPosForFaction(G.turn)==='Opp'?'oppHandZone':'playerHandZone');
-      if(handZoneEl) _pendingHandOriginRects[card.id]=handZoneEl.getBoundingClientRect();
+      if(handZoneEl){
+        const miniEl=handZoneEl.querySelector('.card-mini');
+        _pendingHandOriginRects[card.id]=(miniEl||handZoneEl).getBoundingClientRect();
+      }
     }
   }
   cur.hand=cur.hand.filter(c=>c.id!==card.id);
@@ -1845,9 +1860,11 @@ function throwShotFx(fromId, toId, baseFaction, fromBaseFaction){
 // throwIconFx — снаряд-иконка для death-триггеров с случайной целью (2026-08-05, по
 // прямому запросу автора — "как болт вылетает у Thunder Storm, только для Бамбука/Оптика/
 // Схемы"). Тот же приём position:fixed + left/top-transition, что у throwBoltFx()/
-// throwShotFx() выше, но БЕЗ поворота — иконки (сердце/кулак/щит, те же ассеты, что
-// рендерятся бэйджем прямо на карте, см. TAG_ICONS в render.js) не направленные "кометы"
-// как bolt.gif/bullet.gif, разворачивать их под угол незачем. Размер — тот же класс
+// throwShotFx() выше, но БЕЗ поворота — иконки статов (attack.png/heart.png/armor.png —
+// ИМЕННО тот стат, который реально получит цель, а не иконка самого трейта/тега, см.
+// багфикс 2026-08-05: раньше тут летели ico_bambo/ico_optic/ico_scheme — иконки способности
+// автор попросил заменить на иконки конкретного бонуса) не направленные "кометы", как
+// bolt.gif/bullet.gif, разворачивать их под угол незачем. Размер — тот же класс
 // .bullet-fly, что у выстрела Мехирда (по прямому запросу автора: "размером как у
 // bullet.gif ассета"). Без звука на вылет (только на приземление — его играет вызывающий
 // код внутри своего setTimeout, ПОСЛЕ того как этот полёт завершится, см. death_heal/
@@ -2264,7 +2281,7 @@ function killCard(card,faction,toVoid=false){
         // звук + текст) теперь резолвится ТОЛЬКО по приземлении, тем же 420мс таймингом,
         // что у Thunder Storm — см. её комментарий ниже за подробным разбором тайминга DOM.
         const dyingId=card.id, dyingName=card.name, healTargetId=healTarget.id, healFaction=card.f;
-        throwIconFx(dyingId, healTargetId, 'img/ico_bambo.png');
+        throwIconFx(dyingId, healTargetId, 'img/heart.png');
         setTimeout(()=>{
           const t=G[healFaction].field.find(c=>c.id===healTargetId);
           if(!t) return; // цель успела уйти с поля за время полёта — лечить некого
@@ -2360,7 +2377,7 @@ function killCard(card,faction,toVoid=false){
         // ico_scheme.png летит к цели, эффект (Броня + звук + текст) резолвится по
         // приземлении, 420мс.
         const dyingId=card.id, dyingName=card.name, armorTargetId=armorTarget.id, armorFaction=card.f;
-        throwIconFx(dyingId, armorTargetId, 'img/ico_scheme.png');
+        throwIconFx(dyingId, armorTargetId, 'img/armor.png');
         setTimeout(()=>{
           const t=G[armorFaction].field.find(c=>c.id===armorTargetId);
           if(!t) return; // цель успела уйти с поля за время полёта — некому давать Броню
@@ -2409,7 +2426,7 @@ function killCard(card,faction,toVoid=false){
         // выше) — ico_optic.png летит к цели, эффект (ATK + звук + текст) резолвится по
         // приземлении, 420мс.
         const dyingId=card.id, dyingName=card.name, atkTargetId=atkTarget.id, atkFaction=card.f;
-        throwIconFx(dyingId, atkTargetId, 'img/ico_optic.png');
+        throwIconFx(dyingId, atkTargetId, 'img/attack.png');
         setTimeout(()=>{
           const t=G[atkFaction].field.find(c=>c.id===atkTargetId);
           if(!t) return; // цель успела уйти с поля за время полёта — некому давать ATK
