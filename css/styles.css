@@ -1249,6 +1249,11 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .modal-footer{align-self:center; width:auto; background:transparent; border-style:solid; border-width:var(--modal-footer-border-w); border-image-source:url('../img/bg_jest2.png'); border-image-slice:14 fill; border-image-width:var(--modal-footer-border-w); border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; padding:0; display:flex; gap:var(--modal-footer-border-w); justify-content:center; align-items:center;}
 /*── Graveyard modal — рамка и хедер как у battle log ────────────────*/
 .grave-modal{position:relative; box-sizing:border-box; width:min(max(calc(2 * var(--card-w) + 44px), 280px), 92vw); max-height:65vh; overflow-y:hidden; background:#0a0a12; border-style:solid; border-width:20px; border-image-source:url('../img/grav_frame.png'); border-image-slice:40 fill; border-image-width:20px; border-image-outset:0; border-image-repeat:stretch; padding:0; pointer-events:all; z-index:650; display:flex; flex-direction:column; filter:drop-shadow(0 4px 20px #000000aa);}
+/* .jeet (2026-08-06, по прямому запросу автора) — свой ассет 9-слайса рамки для кладбища
+   джит, те же параметры border-image, что у общей .grave-modal выше, просто другой файл
+   (grav_frame_jeet.png). Класс .jeet/.tea навешивается в openGraveModal() (game.js) по
+   тому, чью именно фракцию открыли. */
+.grave-modal.jeet{border-image-source:url('../img/grav_frame_jeet.png');}
 .grave-modal-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_grav.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex; justify-content:center; align-items:center; padding:0 8px; position:relative; flex-shrink:0;}
 .grave-close-btn{position:absolute; right:6px;top:50%;transform:translateY(-50%); background-image:url('../img/btn_X.png'); background-size:100% 100%; background-color:transparent; border:none;padding:0; width:max(calc(5vh * 0.798), calc(2.5vw * 0.798));height:max(calc(5vh * 0.798), calc(2.5vw * 0.798)); font-size:0;line-height:0; cursor:pointer;}
 .grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
@@ -1289,6 +1294,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .grave-modal-body::-webkit-scrollbar-thumb{background:#E8E0C888;border-radius:0;}
 .grave-modal-body::-webkit-scrollbar-thumb:hover{background:#E8E0C8;}
 .grave-modal-footer{position:absolute; left:0;right:0;bottom:0; background-image:url('../img/bones.png'); background-size:auto 100%; background-repeat:repeat-x; background-position:left center; height:34px; pointer-events:none; z-index:5;}
+/* .jeet (2026-08-06, по прямому запросу автора) — тот же приём, что у .grave-modal.jeet
+   выше: свой ассет для полоски костей снизу (bones_jeet.png), остальные параметры те же. */
+.grave-modal.jeet .grave-modal-footer{background-image:url('../img/bones_jeet.png');}
 /* ═══════════════════════════════════════════════════════════════════════
    HEADER — шапка игрового экрана
    ═══════════════════════════════════════════════════════════════════════ */
