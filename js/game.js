@@ -978,7 +978,11 @@ function doAttack(att,target){
   // absorb.wav и return'ится ДО HP-урона), но эта строка не проверяла флаг вообще, поэтому
   // card_atack всё равно звучал ПОВЕРХ absorb.wav — ровно тот случай "не должен звучать
   // никакой другой звук, кроме absorb", который автор попросил починить.
-  if(!target._foxyDodgedThisHit && !target._shieldBlockedThisHit && !willFear && !willBurn && !willFrost) playAttackSfx(att);
+  // _frostBlockedThisHit (2026-08-06, тот же класс бага, автор поймал живьём отдельно —
+  // "при разбивании заморозки должен быть звук только один") — раньше не проверялась и
+  // тут: замороженная цель поглощает удар целиком (dmgCard() уже играет свой icebreake.wav
+  // и return'ится ДО HP-урона), но card_atack всё равно звучал следом поверх него.
+  if(!target._foxyDodgedThisHit && !target._shieldBlockedThisHit && !target._frostBlockedThisHit && !willFear && !willBurn && !willFrost) playAttackSfx(att);
   // Math.max(0,target.hp) — если удар был лишним "оверкиллом" (hp ушло в минус), не даём
   // realDmgDealt раздуться сверх того, сколько у цели реально БЫЛО жизни (hpBefore).
   const realDmgDealt=Math.max(0, hpBefore-Math.max(0,target.hp));
@@ -1193,16 +1197,18 @@ function doBoltTarget(card){
     // Звук на ПРИЗЕМЛЕНИЕ (2026-07-30, по прямому запросу автора) — "магический" звук,
     // который раньше играл сразу при нажатии кнопки, теперь звучит именно в момент
     // нанесения урона, когда снаряд визуально долетел до цели.
-    playSfx('card_spell_atack');
     // queueFieldFx(targetC.id,'BOLT!','fx-shard') убран (2026-08-06, по прямому запросу
     // автора) — текстовый плейсхолдер больше не нужен, у Bolt Умбасира уже есть свой
     // визуал снаряда (throwBoltFx() выше, bolt.gif).
     dmgCard(targetC,dmg,oppK,true);
-    // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
-    // паттерн что у Market/Nana — см. их комментарии выше): раньше "takes N damage!" писался
-    // ДО вызова dmgCard(), поэтому при Foxy/Shield/Frost на цели в лог противоречиво улетали
-    // ОБЕ строки подряд — наша и следом своя у dmgCard() (MISSED!/ABSORB/Frost-shatter).
+    // Звук и лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-08-06, багфикс по
+    // прямому запросу автора — "лишний звук срабатывает при промахе по Foxy Trick") —
+    // раньше card_spell_atack игрался БЕЗУСЛОВНО до dmgCard(), так что при Foxy-уклонении/
+    // Frost-поглощении/Solana Shield играли ДВА звука разом (свой + miss.wav/icebreake.wav/
+    // absorb.wav изнутри dmgCard()). Тот же паттерн, что уже есть у лога чуть ниже
+    // (MISSED!/ABSORB/Frost-shatter уже логируют/озвучивают себя сами внутри dmgCard()).
     if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+      playSfx('card_spell_atack');
       lg(`${boltC.name}: ${targetC.name} takes ${dmg} damage!`,'dmg');
     }
     // Game of Market (2026-07-28) — Umbasir-болтер тоже может нести этот тег (по прямому
@@ -2343,15 +2349,16 @@ function killCard(card,faction,toVoid=false){
         setTimeout(()=>{
           const t=G[enemyFaction].field.find(c=>c.id===targetId);
           if(!t) return; // цель успела уйти с поля за время полёта — бить нечем
-          playSfx('card_spell_atack');
           // queueFieldFx(t.id,'HIT!','fx-spell-dmg') убран (2026-08-06, по прямому запросу
           // автора) — текстовый плейсхолдер больше не нужен, Thunder Storm уже кидает
           // настоящий снаряд (throwBoltFx() выше).
           dmgCard(t,stormBolt,enemyFaction,true);
-          // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (тот же баг-фикс, что у
-          // Market/Nana/Bolt/spell_dmg_target — см. их комментарии): раньше "dies — Bolt N
-          // to X!" писался ДО вызова dmgCard(), без этой проверки вообще.
+          // Звук и лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-08-06,
+          // тот же класс бага, что у Bolt/spell_dmg_target — см. их комментарии, "лишний
+          // звук срабатывает при промахе по Foxy Trick"): раньше card_spell_atack играл
+          // БЕЗУСЛОВНО до dmgCard().
           if(!t._foxyDodgedThisHit && !t._shieldBlockedThisHit && !t._frostBlockedThisHit){
+            playSfx('card_spell_atack');
             lg(`${dyingName}: dies — Bolt ${stormBolt} to ${t.name}!`,'imp');
           }
           checkWin();
@@ -2944,15 +2951,19 @@ function doSpellDmgTarget(card){
     try{
       const targetC=G[oppK].field.find(c=>c.id===targetId);
       if(!targetC) return; // цель успела уйти с поля за время полёта — бить нечем
-      playSfx('card_spell_atack');
       // queueFieldFx(targetC.id,'HIT!','fx-spell-dmg') убран (2026-08-06, по прямому
       // запросу автора) — текстовый плейсхолдер больше не нужен, у этих спеллов уже есть
       // свой визуал снаряда (throwBoltFx() выше).
       const hpBefore=targetC.hp;
       dmgCard(targetC,dmg,oppK,true);
-      // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот
-      // же паттерн что у Market/Nana/Bolt — см. их комментарии).
+      // Звук и лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-08-06, багфикс
+      // по прямому запросу автора — "лишний звук срабатывает при промахе по Foxy Trick") —
+      // раньше card_spell_atack игрался БЕЗУСЛОВНО до dmgCard(), так что при Foxy-уклонении/
+      // Frost-поглощении/Solana Shield играли ДВА звука разом. Тот же паттерн, что уже есть
+      // у лога чуть ниже (MISSED!/ABSORB/Frost-shatter уже логируют/озвучивают себя сами
+      // внутри dmgCard()).
       if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+        playSfx('card_spell_atack');
         lg(`${spell.name}: ${targetC.name} takes ${dmg} damage!`,'dmg');
       }
       // draw_on_kill (2026-07-24, "EXECUTE"/"CULL", по прямому запросу автора) — если этот
@@ -3219,14 +3230,16 @@ function doSpellDmgTrampleTarget(card){
     try{
       const targetC=G[oppK].field.find(c=>c.id===targetId);
       if(!targetC) return; // цель успела уйти с поля за время полёта — бить нечем
-      playSfx('card_spell_atack');
-      queueFieldFx(targetC.id,'HIT!','fx-spell-dmg');
+      // queueFieldFx(targetC.id,'HIT!','fx-spell-dmg') убран (2026-08-06, по прямому
+      // запросу автора) — текстовый плейсхолдер больше не нужен, у BREACH/RUPTURE уже есть
+      // свой визуал снаряда (throwBoltFx() выше).
       dmgCard(targetC,dmg,oppK,true);
-      // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
-      // паттерн что у Market/Nana/Bolt/spell_dmg_target — см. их комментарии выше): раньше
-      // "takes N damage!" писался ДО вызова dmgCard(), поэтому при Foxy/Shield/Frost на цели в
-      // лог противоречиво улетали ОБЕ строки подряд.
+      // Звук и лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-08-06, багфикс
+      // по прямому запросу автора — "лишний звук срабатывает при промахе по Foxy Trick") —
+      // раньше card_spell_atack игрался БЕЗУСЛОВНО до dmgCard(), так что при Foxy-уклонении/
+      // Frost-поглощении/Solana Shield играли ДВА звука разом.
       if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+        playSfx('card_spell_atack');
         lg(`${spell.name}: ${targetC.name} takes ${dmg} damage!`,'dmg');
       }
       const overflow=Math.max(0,-targetC.hp);
@@ -3374,21 +3387,28 @@ function doSpellExecuteHalfTarget(card){
         // либо-либо, не накопительно). bypassFrost=true — тот же targeted-DESTROY
         // принцип, что у VERDICT/DAMNATION/CATACLYSM: Frost не спасает, только Ward/
         // активный Shield (уже проверены на этапе выбора цели).
-        playSfx('card_spell_atack');
         queueFieldFx(targetC.id,'DESTROYED','fx-spell-dmg');
         dmgCard(targetC,999,oppK,true,false,'DESTROYED',true);
+        // Звук и лог — ПОСЛЕ dmgCard() (2026-08-06, багфикс по прямому запросу автора —
+        // "лишний звук срабатывает при промахе по Foxy Trick") — раньше card_spell_atack
+        // играл БЕЗУСЛОВНО до dmgCard(), так что при Foxy-уклонении/Solana Shield играли
+        // ДВА звука разом (Frost тут физически не может сработать — bypassFrost=true — но
+        // Foxy/Shield всё ещё могут).
         if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+          playSfx('card_spell_atack');
           lg(`${spell.name}: ${targetC.name} was already at half HP or below — destroyed outright!`,'dmg');
         }
       } else {
-        playSfx('card_spell_atack');
         // queueFieldFx(targetC.id,'BOLT!','fx-shard') убран (2026-08-06, по прямому
         // запросу автора) — текстовый плейсхолдер больше не нужен, JUDGMENT/DEATHBLOW уже
         // кидают настоящий снаряд (throwBoltFx() выше).
         // bypassFrost=true — тот же принцип, что и у ветки добивания выше: Frost не должна
         // просто поглотить Bolt 1 без последствий на эту targeted-механику.
         dmgCard(targetC,1,oppK,true,false,undefined,true);
+        // Звук и лог — ПОСЛЕ dmgCard() (2026-08-06, багфикс по прямому запросу автора —
+        // тот же класс бага, что у ветки добивания выше).
         if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+          playSfx('card_spell_atack');
           lg(`${spell.name}: Bolt 1 to ${targetC.name}!`,'dmg');
         }
       }
@@ -3404,7 +3424,6 @@ function doShardTarget(card){
   if(card.f===G.turn||card.spell||card.world||card.artifact){
     lg('Select an enemy creature.','hint');return;
   }
-  playSfx('card_spell_atack');
   const artifact=G[G.turn].artifacts.find(a=>hasTag(a,'shard'));
   // 2026-07-17: the old "+1 dmg if THIS target is feared" bonus is gone — folded into
   // shard_fear_scale's count-based scaling instead (which already counts this very target
@@ -3412,12 +3431,21 @@ function doShardTarget(card){
   // symmetric: base value, scaled purely by their own family's live board count, no extra
   // per-target-condition bonus on top.
   const dmg=shardBaseDmg(artifact,oppK);
-  lg(`${artifact.name}: ${card.name} takes ${dmg} damage!`,'dmg');
   // THE BOOK gets its own fx label (thematically "burned by the page") — same fx-shard
   // visual system as SHARD itself, per author request ("сделать всё как у Шард").
   const fxLabel=hasTag(artifact,'shard_burn_scale')?'SCORCH!':'SHARD!';
   queueFieldFx(card.id,fxLabel,'fx-shard'); // плейсхолдер — позже заменится на гифку
   dmgCard(card,dmg,oppK,true);
+  // Звук и лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-08-06, багфикс по
+  // прямому запросу автора — "лишний звук срабатывает при промахе по Foxy Trick", тот же
+  // класс бага, что у Bolt/spell_dmg_target — см. их комментарии) — раньше card_spell_atack
+  // и лог играли/писались БЕЗУСЛОВНО ДО dmgCard(), так что при Foxy-уклонении/Frost-
+  // поглощении/Solana Shield на цели играли ДВА звука разом (свой + miss.wav/icebreake.wav/
+  // absorb.wav изнутри dmgCard()).
+  if(!card._foxyDodgedThisHit && !card._shieldBlockedThisHit && !card._frostBlockedThisHit){
+    playSfx('card_spell_atack');
+    lg(`${artifact.name}: ${card.name} takes ${dmg} damage!`,'dmg');
+  }
   if(artifact) artifact.exhausted=true;
   G.phase='action';G.sel=null;
   checkWin();render();
