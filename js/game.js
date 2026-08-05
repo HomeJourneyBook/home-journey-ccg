@@ -4090,11 +4090,24 @@ function _applyPendingFlash(){
     }
     // Floating +N/-N over the base's HP box — same look as the creature heal/dmg
     // popups (showFloat), just anchored to .stat-hp-box instead of a card.
+    // 2026-08-05, багфикс по прямому запросу автора — раньше плашка добавлялась ВНУТРЬ
+    // hpBox, потомка .stats-bar (position:relative;z-index:0 — свой локальный stacking
+    // context). Хотя у самой плашки z-index:9999, это сравнение оставалось ЛОКАЛЬНЫМ
+    // внутри контекста .stats-bar — соседняя зона руки (.opp-hand-zone/.player-hand-zone)
+    // всё равно перекрывала плашку, когда та улетала вверх анимацией floatUp (цифра урона
+    // визуально уходила ПОД карты в руке соперника вместо того чтобы подняться над ними и
+    // исчезнуть). Теперь плашка — position:fixed на реальных экранных координатах hpBox
+    // (getBoundingClientRect()) и крепится напрямую к <body>, минуя чужой stacking
+    // context между ней и её собственным z-index:9999 целиком.
     if(amount&&hpBox){
       const num=document.createElement('div');
       num.className=`float-number float-number-base ${type==='dmg'?'fnb-dmg':'fnb-heal'}`;
       num.textContent=`${type==='dmg'?'-':'+'}${amount}`;
-      hpBox.appendChild(num);
+      const hpRect=hpBox.getBoundingClientRect();
+      num.style.position='fixed';
+      num.style.left=(hpRect.left+hpRect.width/2)+'px';
+      num.style.top=hpRect.top+'px';
+      document.body.appendChild(num);
       setTimeout(()=>num.remove(),900);
     }
   });
