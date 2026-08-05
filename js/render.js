@@ -1348,34 +1348,39 @@ function _flyCardFromDeck(cloneEl, deckRect, targetRect, delayMs){
 
 // _flyCardToHand — bounce-полёт (2026-08-05, по прямому запросу автора): карта, снятая с
 // поля bounce-эффектом (GUST/REVERSE/TEANTIST-скилл), летит от своей ПОЛЕВОЙ позиции прямо
-// в руку. В отличие от _flyCardFromDeck() выше (которая нарочно СТАРТУЕТ с уменьшенного
-// масштаба scale(.35), имитируя "карту, вылетающую из маленькой стопки колоды") — тут автор
-// явно попросил БЕЗ эффекта уменьшения: клон держит свой РЕАЛЬНЫЙ размер (origin/target
-// width/height анимируются напрямую, не через transform:scale) — единственное движение это
-// позиция плюс плавный переход полевого размера в размер карты в руке, без искусственного
-// "нырка" вниз по масштабу по пути. Тот же кроссфейд в последние CARD_FLY_FADE_MS мс, что и
-// у deck-fly — настоящая карта в руке (уже добавлена в DOM с классом card-drawn, см. rZone())
-// проявляется в этом же окне, пока клон тает.
+// в руку. БАГФИКС (2026-08-05, по прямому запросу автора — "странная трансформация из card
+// в small card") — раньше width/height анимировались НАПРЯМУЮ (от полевого размера к
+// размеру карты в руке), а разметка клона (mkEl, полноразмерная карта) вся завязана на
+// CSS-переменные --card-w/--card-h, а не на реальный px-размер контейнера — при насильном
+// сжатии контейнера до полевых пропорций внутренние элементы (арт/шрифты/иконки) не
+// сжимались вместе с ним, только сам контейнер — получался "плывущий"/перекошенный вид.
+// Теперь контейнер клона ВСЮ дорогу держит ЦЕЛЕВОЙ (рука) размер намертво, а масштаб —
+// через transform:scale() (тот же приём, что и у _flyCardFromDeck() выше, просто без
+// искусственного "нырка" ниже реального стартового масштаба — стартовый scale считается
+// от РЕАЛЬНОГО соотношения полевого/ручного размера, не от произвольной константы). Тот же
+// кроссфейд в последние CARD_FLY_FADE_MS мс, что и у deck-fly — настоящая карта в руке (уже
+// добавлена в DOM с классом card-drawn, см. rZone()) проявляется в этом же окне, пока клон
+// тает.
 function _flyCardToHand(cloneEl, originRect, targetRect, delayMs){
   cloneEl.classList.remove('selected','previewed','affordable','entering','targetable','aim-attack','hit','activating','dying','dying-hold');
   cloneEl.classList.add('card-fly-clone');
   cloneEl.style.position='fixed';
   cloneEl.style.margin='0';
-  cloneEl.style.width=originRect.width+'px';
-  cloneEl.style.height=originRect.height+'px';
+  cloneEl.style.width=targetRect.width+'px';
+  cloneEl.style.height=targetRect.height+'px';
   cloneEl.style.left=(originRect.left+originRect.width/2)+'px';
   cloneEl.style.top=(originRect.top+originRect.height/2)+'px';
-  cloneEl.style.transform='translate(-50%,-50%)';
+  const startScale=originRect.width/targetRect.width;
+  cloneEl.style.transform=`translate(-50%,-50%) scale(${startScale})`;
   cloneEl.style.opacity='1';
   document.body.appendChild(cloneEl);
   setTimeout(()=>{
     if(!cloneEl.parentElement) return; // на случай если экран уже перерисован/сцена сменилась
     void cloneEl.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
-    cloneEl.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), width ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), height ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity ${CARD_FLY_FADE_MS}ms ease-in ${CARD_FLY_MS-CARD_FLY_FADE_MS}ms`;
+    cloneEl.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity ${CARD_FLY_FADE_MS}ms ease-in ${CARD_FLY_MS-CARD_FLY_FADE_MS}ms`;
     cloneEl.style.left=(targetRect.left+targetRect.width/2)+'px';
     cloneEl.style.top=(targetRect.top+targetRect.height/2)+'px';
-    cloneEl.style.width=targetRect.width+'px';
-    cloneEl.style.height=targetRect.height+'px';
+    cloneEl.style.transform='translate(-50%,-50%) scale(1)';
     cloneEl.style.opacity='0';
     setTimeout(()=>{ if(cloneEl.parentElement) cloneEl.remove(); }, CARD_FLY_MS+40);
   }, delayMs);
@@ -1429,15 +1434,23 @@ function _reviveFlyIfPending(cardEl, faction){
 }
 
 // _playFieldFlyIfPending — розыгрыш существа из руки (2026-08-05, по прямому запросу
-// автора): та же техника, что у _reviveFlyIfPending() выше, но в обратную сторону — клон
-// летит ОТ позиции карты в руке (снимок сделан в doPlay(), game.js, см. комментарий у
-// _pendingHandOriginRects выше по файлу) К месту существа на поле. Размер интерполируется
-// напрямую (width/height), без scale-трюка — карта в руке физически больше карты на поле,
-// так что естественно "сжимается" по пути, но без искусственного "нырка", тот же принцип,
-// что у _flyCardToHand() (обратный процесс, bounce). cardEl уже вставлен вызывающим кодом
-// на своё законное место в DOM/layout — прячем его на время полёта (visibility), возвращаем
-// видимым, когда клон долетает. Возвращает true, если анимация запущена (вызывающий код
-// тогда НЕ должен также навешивать обычный .entering).
+// автора): та же техника, что у _reviveFlyIfPending() выше — клон летит ОТ позиции карты
+// в руке (снимок сделан в doPlay(), game.js, см. комментарий у _pendingHandOriginRects выше
+// по файлу) К месту существа на поле. БАГФИКС (2026-08-05, по прямому запросу автора —
+// "странная трансформация из card в small card") — раньше width/height анимировались
+// НАПРЯМУЮ (от размера в руке к полевому), контейнер клона физически сжимался, но
+// внутренняя разметка (та же mkSmallEl, что и у финальной карты на поле) завязана на
+// CSS-переменные --card-small-*, не на реальный px-размер контейнера — при насильном
+// раздутии контейнера ДО стартового (ручного) размера содержимое оставалось в своих
+// исходных мелких полевых пропорциях и "плавало"/съезжало внутри слишком большого
+// контейнера. Теперь контейнер клона ВСЮ дорогу держит ЦЕЛЕВОЙ (полевой) размер намертво, а
+// масштаб — через transform:scale() (тот же приём, что у _reviveFlyIfPending()/
+// _flyCardFromDeck() выше, просто стартовый scale считается от РЕАЛЬНОГО соотношения
+// ручного/полевого размера, не от произвольной константы, и без искусственного "нырка" —
+// та же идея, что и у _flyCardToHand() в обратную сторону). cardEl уже вставлен вызывающим
+// кодом на своё законное место в DOM/layout — прячем его на время полёта (visibility),
+// возвращаем видимым, когда клон долетает. Возвращает true, если анимация запущена
+// (вызывающий код тогда НЕ должен также навешивать обычный .entering).
 function _playFieldFlyIfPending(cardEl, faction){
   const cid=cardEl.dataset.id;
   const originRect=_pendingHandOriginRects[cid];
@@ -1449,20 +1462,20 @@ function _playFieldFlyIfPending(cardEl, faction){
   clone.classList.add('card-fly-clone');
   clone.style.position='fixed';
   clone.style.margin='0';
-  clone.style.width=originRect.width+'px';
-  clone.style.height=originRect.height+'px';
+  clone.style.width=restRect.width+'px';
+  clone.style.height=restRect.height+'px';
   clone.style.left=(originRect.left+originRect.width/2)+'px';
   clone.style.top=(originRect.top+originRect.height/2)+'px';
-  clone.style.transform='translate(-50%,-50%)';
+  const startScale=originRect.width/restRect.width;
+  clone.style.transform=`translate(-50%,-50%) scale(${startScale})`;
   clone.style.opacity='1';
   cardEl.style.visibility='hidden';
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
-  clone.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), width ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), height ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1)`;
+  clone.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1)`;
   clone.style.left=(restRect.left+restRect.width/2)+'px';
   clone.style.top=(restRect.top+restRect.height/2)+'px';
-  clone.style.width=restRect.width+'px';
-  clone.style.height=restRect.height+'px';
+  clone.style.transform='translate(-50%,-50%) scale(1)';
   setTimeout(()=>{
     cardEl.style.visibility='';
     if(clone.parentElement) clone.remove();
