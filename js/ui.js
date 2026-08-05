@@ -1381,6 +1381,17 @@ function _playCenterBannerText(text, opts={}){
   // Замер: временный крупный базовый размер, смотрим фактическую ширину, пересчитываем
   // до 40% ширины окна, затем сразу перезаписываем — пользователь base-размер не видит,
   // т.к. рост (scale от 0) стартует только после этого на следующем кадре.
+  // inline white-space:nowrap (2026-08-06, по прямому запросу автора — "откати всё как
+  // было на десктопе, правка нужна была строго для вертикального телефона") — раньше тут
+  // просто читался CSS whiteSpace, а на мобильном @media(max-width:600px) он теперь
+  // normal/wrap (см. styles.css) — при замере ПРИ PROBE_PX=200 это уже давало ПЕРЕНОС
+  // строки на узких экранах, measuredWidth получался заниженным (высота многострочного
+  // блока, не истинная однострочная ширина), и вся пропорция "PROBE_PX→targetWidth"
+  // считалась от неверного числа. Тут явно форсируем nowrap ТОЛЬКО на время замера
+  // (инлайн-стиль побеждает media query), а после подгонки размера снимаем инлайн —
+  // дальше решает CSS (nowrap на десктопе, wrap-предохранитель на мобильном).
+  const prevWhiteSpace = inner.style.whiteSpace;
+  inner.style.whiteSpace = 'nowrap';
   const PROBE_PX = 200;
   inner.style.fontSize = PROBE_PX+'px';
   const measuredWidth = inner.getBoundingClientRect().width || 1;
@@ -1396,15 +1407,17 @@ function _playCenterBannerText(text, opts={}){
   // letter-spacing в сумме (особенно на длинных строках) занимает непропорционально
   // бОльшую долю итоговой ширины, чем в замере на крупном PROBE_PX, и реальная
   // отрисованная ширина превышает targetWidth. Тут перемеряем уже ПОСЛЕ применения
-  // fittedPx и, если всё равно вышли за безопасный предел экрана, ужимаем ещё раз —
-  // теперь уже без риска второй раз ошибиться на letter-spacing, т.к. измеряем по факту
-  // отрисованного, а не экстраполируем с другого font-size.
+  // fittedPx (всё ещё с форсированным nowrap выше) и, если всё равно вышли за безопасный
+  // предел экрана, ужимаем ещё раз — теперь уже без риска второй раз ошибиться на
+  // letter-spacing, т.к. измеряем по факту отрисованного, а не экстраполируем с другого
+  // font-size.
   const actualWidth = inner.getBoundingClientRect().width || 1;
-  const maxSafeWidth = window.innerWidth * 0.92; // тот же запас, что у .battle-begins-text{max-width:92vw} в CSS
+  const maxSafeWidth = window.innerWidth * 0.92; // тот же запас, что у мобильного .battle-begins-text{max-width:92vw} в CSS
   if(actualWidth > maxSafeWidth){
     fittedPx = Math.max(14, fittedPx * (maxSafeWidth / actualWidth));
     inner.style.fontSize = fittedPx+'px';
   }
+  inner.style.whiteSpace = prevWhiteSpace; // возвращаем управление CSS/media query (см. комментарий выше)
 
   void wrap.offsetWidth; // reflow, чтобы новый font-size/top применились до старта анимации
 
