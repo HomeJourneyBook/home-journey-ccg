@@ -1194,7 +1194,9 @@ function doBoltTarget(card){
     // который раньше играл сразу при нажатии кнопки, теперь звучит именно в момент
     // нанесения урона, когда снаряд визуально долетел до цели.
     playSfx('card_spell_atack');
-    queueFieldFx(targetC.id,'BOLT!','fx-shard'); // тот же плейсхолдер-эффект, что у Shard — переиспользуем, пока нет своего арта на сам импакт
+    // queueFieldFx(targetC.id,'BOLT!','fx-shard') убран (2026-08-06, по прямому запросу
+    // автора) — текстовый плейсхолдер больше не нужен, у Bolt Умбасира уже есть свой
+    // визуал снаряда (throwBoltFx() выше, bolt.gif).
     dmgCard(targetC,dmg,oppK,true);
     // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот же
     // паттерн что у Market/Nana — см. их комментарии выше): раньше "takes N damage!" писался
@@ -1258,7 +1260,9 @@ function doShotTarget(card){
     const shotC=G[shotOwnerK].field.find(c=>c.id===shotId);
     const targetC=G[oppK].field.find(c=>c.id===targetId);
     if(!shotC || !targetC) return; // носитель или цель успели уйти с поля за время полёта
-    queueFieldFx(targetC.id,'SHOT!','fx-shard'); // тот же плейсхолдер-эффект, что у Bolt/Shard — пока нет своего арта на импакт
+    // queueFieldFx(targetC.id,'SHOT!','fx-shard') убран (2026-08-06, по прямому запросу
+    // автора) — текстовый плейсхолдер больше не нужен, у выстрела Мехирда уже есть свой
+    // визуал снаряда (throwShotFx()/bullet-fly выше).
     dmgCard(targetC,dmg,oppK,false); // bypassArmor=false — физический урон, режется Бронёй, проходит по Варду
     if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
       playAttackSfx(shotC); // звук ПОПАДАНИЯ — тот же, что у обычной атаки (card_atack)
@@ -2340,7 +2344,9 @@ function killCard(card,faction,toVoid=false){
           const t=G[enemyFaction].field.find(c=>c.id===targetId);
           if(!t) return; // цель успела уйти с поля за время полёта — бить нечем
           playSfx('card_spell_atack');
-          queueFieldFx(t.id,'HIT!','fx-spell-dmg');
+          // queueFieldFx(t.id,'HIT!','fx-spell-dmg') убран (2026-08-06, по прямому запросу
+          // автора) — текстовый плейсхолдер больше не нужен, Thunder Storm уже кидает
+          // настоящий снаряд (throwBoltFx() выше).
           dmgCard(t,stormBolt,enemyFaction,true);
           // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (тот же баг-фикс, что у
           // Market/Nana/Bolt/spell_dmg_target — см. их комментарии): раньше "dies — Bolt N
@@ -2939,7 +2945,9 @@ function doSpellDmgTarget(card){
       const targetC=G[oppK].field.find(c=>c.id===targetId);
       if(!targetC) return; // цель успела уйти с поля за время полёта — бить нечем
       playSfx('card_spell_atack');
-      queueFieldFx(targetC.id,'HIT!','fx-spell-dmg'); // плейсхолдер — позже заменится на гифку
+      // queueFieldFx(targetC.id,'HIT!','fx-spell-dmg') убран (2026-08-06, по прямому
+      // запросу автора) — текстовый плейсхолдер больше не нужен, у этих спеллов уже есть
+      // свой визуал снаряда (throwBoltFx() выше).
       const hpBefore=targetC.hp;
       dmgCard(targetC,dmg,oppK,true);
       // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-29, баг-фикс, тот
@@ -3374,7 +3382,9 @@ function doSpellExecuteHalfTarget(card){
         }
       } else {
         playSfx('card_spell_atack');
-        queueFieldFx(targetC.id,'BOLT!','fx-shard');
+        // queueFieldFx(targetC.id,'BOLT!','fx-shard') убран (2026-08-06, по прямому
+        // запросу автора) — текстовый плейсхолдер больше не нужен, JUDGMENT/DEATHBLOW уже
+        // кидают настоящий снаряд (throwBoltFx() выше).
         // bypassFrost=true — тот же принцип, что и у ветки добивания выше: Frost не должна
         // просто поглотить Bolt 1 без последствий на эту targeted-механику.
         dmgCard(targetC,1,oppK,true,false,undefined,true);
