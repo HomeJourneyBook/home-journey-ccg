@@ -698,7 +698,7 @@ function mkSmallEl(card){
     const oppField=G[card.f].field;
     const attS=G.sel?findC(G.sel):null;
     const targetableS=getTargetableCards(oppField,attS);
-    if(targetableS.includes(card.id))d.classList.add('targetable'); // обычная атака — без мишени, только красная подсветка (см. aim-target ниже)
+    if(targetableS.includes(card.id))d.classList.add('targetable','aim-attack'); // обычная атака — та же красная подсветка, что и у спеллов, + свой оверлей-мишень (swords.png, 2026-08-05, по прямому запросу автора — раньше тут была ТОЛЬКО подсветка, без иконки, см. aim-target у спеллов ниже)
   }
   // Видимость (invisible/нераскрытый stealth, 2026-07-19) — раньше эти четыре подсветки
   // вообще не фильтровали по isSpellTargetable(), то есть на invisible/скрытой stealth-
