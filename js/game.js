@@ -135,7 +135,7 @@ function onClick(card,zone){
         const targetable=getTargetableCards(oppField,healer);
         if(!targetable.includes(card.id)){
           const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
-          lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Provoke card first!`,'hint');
+          lg(bushido?`Must attack ${bushido.name} (Bushido) first!`:`Must attack the Tree Wall card first!`,'hint');
           return;
         }
         doAttack(healer,card);
@@ -400,7 +400,7 @@ function onClick(card,zone){
         const bushido=oppField.find(c=>c.tags&&c.tags.includes('bushido'));
         if(bushido) lg(`Must attack ${bushido.name} (Bushido) first!`,'hint');
         else if(hasTag(card,'invisible')) lg(`${card.name} is invisible — pick another target.`,'hint');
-        else lg(`Must attack the Provoke card first!`,'hint');
+        else lg(`Must attack the Tree Wall card first!`,'hint');
         return;
       }
       doAttack(att,card);
@@ -663,7 +663,7 @@ function _resolvePlayedCard(card){
     lg(`${card.name}: select an enemy creature at half HP or less.`,'hint');
   } else if(card.spell&&hasTag(card,'spell_provoke_break_target')){
     G.pendingSpell=card;G.phase='spellProvokeBreakTarget';
-    lg(`${card.name}: select an enemy Provoke creature.`,'hint');
+    lg(`${card.name}: select an enemy Tree Wall creature.`,'hint');
   } else if(card.spell&&hasTag(card,'spell_dmg_trample_target')){
     G.pendingSpell=card;G.phase='spellDmgTrampleTarget';
     lg(`${card.name}: select an enemy creature.`,'hint');
@@ -1389,7 +1389,7 @@ function tryAttackBase(){
   // "Открытая карта" (2026-07-24, по прямому запросу автора) — тот же !c.exhausted, что
   // везде выше. + !c.feared (2026-07-25).
   const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared&&!c.frozen);
-  if(provoke){lg(`${provoke.name} has Provoke — attack it first!`,'hint');return;}
+  if(provoke){lg(`${provoke.name} has Tree Wall — attack it first!`,'hint');return;}
   // Intercept (2026-07-17, Xuiqtr) — третий слой, ниже Bushido/Provoke (оба уже проверены
   // и не сработали выше, раз мы досюда дошли). Игрок кликнул по базе — но если есть
   // непотраченный перехватчик, удар вместо базы улетает в него, полноценным разменом
@@ -3174,7 +3174,7 @@ function doSpellProvokeBreakTarget(card){
   // фолбэк (click-хендлер уже фильтрует эти случаи выше, см. onClick()) — та же логика,
   // что в doSpellFearTarget/doSpellBurnTarget.
   if(card.frozen){
-    lg(`${card.name} is frozen — immune to Provoke-break.`,'dmg');
+    lg(`${card.name} is frozen — immune to Taunt Break.`,'dmg');
   } else if(hasTag(card,'shield') && !card.shieldConsumed){
     lg(`${card.name}'s Solana Shield blocks the effect entirely.`,'dmg');
   } else if(hasTag(card,'ward')){
@@ -3187,7 +3187,7 @@ function doSpellProvokeBreakTarget(card){
   } else {
     playSfx('debaf');
     card.provokeBroken=true;
-    lg(`${spell.name}: ${card.name}'s Provoke is suppressed!`,'imp');
+    lg(`${spell.name}: ${card.name}'s Tree Wall is suppressed!`,'imp');
     queueFieldFx(card.id,'EXPOSED!','fx-fear'); // тот же fx, что у taunt_break на существах
   }
   G[G.turn].void.push(spell);
