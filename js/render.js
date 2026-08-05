@@ -1301,6 +1301,32 @@ const _pendingReviveOrigins = {};
 // см. _playFieldFlyIfPending() ниже. Только для существ — Мир/Артефакт не встают в общий
 // ряд поля field-small карт, у них этой анимации не предусмотрено.
 const _pendingHandOriginRects = {};
+
+// _copyCardSmallVars (2026-08-05, багфикс по прямому запросу автора — "ассеты внутри карты
+// сплющены в последний кадр полёта, потом расширяются"). Причина: --card-small-w/-art-h/
+// -name-h/-stats-h/-name-fs/-stat-fs заданы И в :root (базовые/фолбэк-значения), И
+// ПОВТОРНО внутри .battlefield{...} (media query для portrait/landscape — см. styles.css) —
+// у РЕАЛЬНОЙ карты на поле в силе именно battlefield-версия (она ближе по дереву, побеждает
+// :root). Клоны для полёта (_reviveFlyIfPending/_playFieldFlyIfPending/_flyCardToGrave)
+// физически переезжают в document.body (position:fixed, чтобы лететь поверх всего интерфейса
+// по экранным координатам) — а там в силе уже ДРУГОЕ значение (:root или другой media-query
+// уровень, см. например :root{--card-small-h:11.52vh} на некоторых брейкпоинтах) — сам
+// контейнер клона держит ТОЧНЫЙ px-размер настоящей карты (инлайн style.width/height), но
+// его ДЕТИ (арт/имя/статы) считают себя через calc(var(--card-small-*)) от ЭТОГО другого,
+// battlefield-НЕсвязанного значения — рассинхрон в несколько процентов между контейнером и
+// содержимым и даёт видимый "сплющенный" контент на время полёта. Фикс — скопировать
+// вычисленные (уже разрешённые до конкретных px) значения этих переменных с ЖИВОЙ карты
+// (пока она ещё физически внутри .battlefield, до клонирования) прямо на сам клон как
+// inline custom properties — они перебивают И :root, И любой другой контекст, где клон
+// окажется дальше.
+const CARD_SMALL_VARS=['--card-small-w','--card-small-h','--card-small-art-h','--card-small-name-h','--card-small-stats-h','--card-small-stats-w','--card-small-name-fs','--card-small-stat-fs'];
+function _copyCardSmallVars(sourceEl, clone){
+  const cs=getComputedStyle(sourceEl);
+  CARD_SMALL_VARS.forEach(v=>{
+    const val=cs.getPropertyValue(v);
+    if(val) clone.style.setProperty(v, val.trim());
+  });
+}
 // Карты, у которых ПРЯМО СЕЙЧАС идёт play-fly/revive-fly полёт на поле (2026-08-05,
 // багфикс по прямому запросу автора — Vanguard-баг с "приземляется не туда, потом резко
 // доезжает"). Пока id карты в этом сете, rZone() НЕ трогает её существующий DOM-элемент на
@@ -1431,6 +1457,7 @@ function _reviveFlyIfPending(cardEl, faction){
   const graveRect=graveEl.getBoundingClientRect();
   const restRect=cardEl.getBoundingClientRect(); // cardEl уже вставлен вызывающим кодом — форсит layout
   const clone=cardEl.cloneNode(true);
+  _copyCardSmallVars(cardEl, clone); // см. её комментарий выше — без этого контент клона "сплющивается" в document.body
   clone.classList.remove('entering','selected','targetable','aim-attack','hit','activating','dying','dying-hold');
   clone.classList.add('card-fly-clone');
   clone.style.position='fixed';
@@ -1497,6 +1524,7 @@ function _playFieldFlyIfPending(cardEl, faction){
   delete _pendingHandOriginRects[cid];
   const restRect=cardEl.getBoundingClientRect(); // cardEl уже вставлен вызывающим кодом — форсит layout
   const clone=cardEl.cloneNode(true);
+  _copyCardSmallVars(cardEl, clone); // см. её комментарий выше — без этого контент клона "сплющивается" в document.body
   clone.classList.remove('entering','selected','targetable','aim-attack','hit','activating','dying','dying-hold','affordable','previewed');
   clone.classList.add('card-fly-clone');
   clone.style.position='fixed';
@@ -1554,8 +1582,9 @@ const SHRINK_PULSE_SCALE = 0.82; // во сколько раз карта уже
 // в position:fixed + JS-driven transition, что у _flyCardFromDeck()/throwBoltFx() выше
 // (координаты кладбища динамические — конкретная кнопка меняет физическое положение между
 // Opp/Player колонками, см. _arenaPosForFaction(), так что нельзя обойтись статичными
-// @keyframes). Убирает cardEl из DOM синхронно, первой же строкой — вызывающий код
-// (rZone()) вызывает её уже ПОСЛЕ короткой паузы-"вздоха" на месте (.dying-pulse,
+// @keyframes). Клонирует cardEl (см. _copyCardSmallVars() выше — снимает вычисленные
+// --card-small-* ПОКА cardEl ещё живой в DOM/.battlefield) и только ПОСЛЕ этого убирает
+// cardEl из DOM — вызывающий код (rZone()) вызывает её уже ПОСЛЕ короткой паузы-"вздоха" на месте (.dying-pulse,
 // SHRINK_PULSE_MS — см. её комментарий в rZone()), поэтому клон стартует НЕ с полного
 // размера, а с того, на котором пауза остановилась (SHRINK_PULSE_SCALE) — иначе был бы
 // заметный "скачок" размера в момент передачи эстафеты от паузы к полёту.
@@ -1575,10 +1604,11 @@ const SHRINK_PULSE_SCALE = 0.82; // во сколько раз карта уже
 function _flyCardToGrave(cardEl, faction, pulseOriginRect){
   const rect=pulseOriginRect||cardEl.getBoundingClientRect();
   const graveEl=document.getElementById('arenaGrave'+_arenaPosForFaction(faction));
-  if(cardEl.parentElement) cardEl.remove();
-  if(!graveEl || graveEl.offsetParent===null) return; // кладбище сейчас не на экране (напр. под модалкой) — просто убрана, без полёта
+  if(!graveEl || graveEl.offsetParent===null){ if(cardEl.parentElement) cardEl.remove(); return; } // кладбище сейчас не на экране (напр. под модалкой) — просто убрана, без полёта
   const gRect=graveEl.getBoundingClientRect();
   const clone=cardEl.cloneNode(true);
+  _copyCardSmallVars(cardEl, clone); // см. её комментарий выше — без этого контент клона "сплющивается" в document.body
+  if(cardEl.parentElement) cardEl.remove();
   clone.classList.remove('selected','targetable','aim-target','aim-attack','hit','activating','entering','dying','dying-hold','dying-pulse');
   clone.classList.add('card-death-fly');
   clone.style.left=(rect.left+rect.width/2)+'px';
