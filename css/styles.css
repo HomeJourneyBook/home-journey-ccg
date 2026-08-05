@@ -1384,9 +1384,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .empty-persist{font-size:14px;color:#2a2a2a;}
 .hand-mini{display:flex;flex-wrap:nowrap;min-height:0;padding:4px 4px;background:transparent;border:none;justify-content:center;overflow:hidden;align-items:center;}
 .hand-mini .card-mini{flex-shrink:0;min-width:calc(6vh * 0.9);width:calc(6vh * 0.9);}
-.card-mini{width:calc(6vh * 0.9);height:6vh;border:1px solid #ffffff11;background:#0d0d1a;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:calc(6vh * 0.5);overflow:hidden;flex-shrink:0;}
-.card-mini.tea-mini{border-color:#c8a84b22;background:linear-gradient(180deg,#1a1200,#0d0d1a);}
-.card-mini.jeet-mini{border-color:#7b2d8b22;background:linear-gradient(180deg,#1a001a,#0d0d1a);}
+/* border:none/background:transparent (2026-08-05, багфикс по прямому запросу автора) —
+   раньше тут были border:1px solid + сплошной/градиентный фон — сама рубашка (кастомный
+   арт runaha.png, ставится инлайново через backgroundImage в rHiddenHand()/render.js) уже
+   содержит СВОЮ рамку/фон, нарисованные прямо в картинке — CSS-рамка/фон поверх неё
+   давали лишний дублирующийся контур/подложку вокруг арта. Сам арт (background-image)
+   не трогаем — только убираем то, что рисовал CSS ДО/ПОД ним.  */
+.card-mini{width:calc(6vh * 0.9);height:6vh;border:none;background:transparent;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:calc(6vh * 0.5);overflow:hidden;flex-shrink:0;}
+.card-mini.tea-mini{border:none;background:transparent;}
+.card-mini.jeet-mini{border:none;background:transparent;}
 .card-mini.entering{animation:cardEnter 0.35s ease-out forwards;}
 .card-back.tea-back{border-color:#c8a84b22;background:linear-gradient(135deg,#0d0d1a,#1a1200);}
 .card-back.jeet-back{border-color:#7b2d8b22;background:linear-gradient(135deg,#0d0d1a,#1a001a);}
@@ -1405,7 +1411,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-small.tea-card{border-color:transparent;}
 .card-small.jeet-card{border-color:transparent;}
 .card-small:hover{transform:translateY(-2px);}
-.card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);}
+/* z-index:30 (2026-08-05, багфикс по прямому запросу автора) — попап способности карты
+   (.field-ability-popup/.card-actions-popup*, z-index:2001) — потомок ЭТОЙ карты, но без
+   собственного z-index у самой .card-small их сравнение с соседними картами по стеку решает
+   не z-index попапа (он локален внутри своего же контекста), а порядок в DOM/стекинг самих
+   .card-small — на поле в 2 ряда попап карты из 2-го ряда мог визуально уйти ПОД
+   .card-dim-overlay соседней карты 1-го ряда. Тот же приём, что уже есть у .hand
+   .card.previewed{z-index:2000} для попапов в руке — поднимаем весь стекинг-контекст
+   выбранной карты целиком, так что её попап гарантированно выше любых соседей, независимо
+   от DOM-порядка. 30 — с запасом выше .card-dim-overlay(4)/card-small-feared и т.п.(5)/
+   frost-overlay(20)/aim-target mishen(25), но далеко ниже настоящих полноэкранных слоёв
+   (модалки от 650, previewed-рука 2000+). */
+.card-small.selected{box-shadow:0 0 6px #c8a84b;border-color:#c8a84b;transform:translateY(-4px);z-index:30;}
 .card-small.targetable{box-shadow:0 0 6px #e05555;border-color:#e05555;animation:pulse .8s infinite alternate;}
 /*── Мишень поверх карты-цели для точечных заклинаний/кнопок-активок/артефактов
    (см. комментарий у mkSmallEl в render.js — aim-target/aim-heal). Размер — половина
@@ -2163,9 +2180,18 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .arena-slide-left-in{animation: arenaSlideLeftIn 1.43s cubic-bezier(0.22,0.68,0,1) both;}
 .arena-slide-right-in{animation: arenaSlideRightIn 1.43s cubic-bezier(0.22,0.68,0,1) both;}
 .field-star.field-star-grow-in{animation-name: starGrowIn; animation-timing-function: cubic-bezier(0.34,1.56,0.64,1); animation-fill-mode: both; animation-iteration-count: 1;}
-.battle-begins-text{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; z-index:60; pointer-events:none;}
+.battle-begins-text{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; z-index:60; pointer-events:none; max-width:92vw; box-sizing:border-box;}
 .battle-begins-text.hidden{display:none;}
-.battle-begins-inner{font-family:'MEK',monospace; color:#e14c43; text-shadow:0 0 12px #e14c4399, 0 0 28px #e14c4355; text-align:center; letter-spacing:2px; white-space:nowrap; display:inline-block;}
+/* 2026-08-05, багфикс по прямому запросу автора — на портретных телефонах длинный текст
+   предупреждения о пустой колоде ("ENEMY OUT OF CARDS! They lose in N more turns!") обрезался
+   по краям экрана. Причина — _playCenterBannerText() (ui.js) подгоняет font-size под фактически
+   измеренную ширину текста, но letter-spacing:2px ниже — это ФИКСИРОВАННЫЕ пиксели, которые НЕ
+   уменьшаются вместе с font-size, так что при сильном уменьшении шрифта (длинный текст на узком
+   экране) letter-spacing начинает занимать непропорционально большую долю ширины, и реальная
+   отрисованная ширина превышает то, что посчитал JS. JS-часть фикса (ui.js) добавляет
+   корректирующий второй проход; тут — CSS-подстраховка на случай если что-то всё равно не
+   поместится: перенос строки вместо обрезания за пределы экрана.  */
+.battle-begins-inner{font-family:'MEK',monospace; color:#e14c43; text-shadow:0 0 12px #e14c4399, 0 0 28px #e14c4355; text-align:center; letter-spacing:2px; white-space:normal; overflow-wrap:break-word; max-width:100%; display:inline-block;}
 .battle-begins-inner.battle-begins-in{animation: battleBeginsIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
 .battle-begins-inner.battle-begins-pulse{animation: battleBeginsPulse 1s ease-in-out infinite;}
 .battle-begins-inner.battle-begins-out{animation: battleBeginsOut 0.5s ease-in forwards;}
