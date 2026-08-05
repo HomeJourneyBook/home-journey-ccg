@@ -1714,7 +1714,15 @@ function throwBananaFx(fromId, toId, baseFaction){
 // точно на угол `angle`, нужно добавить +90° (rotate(angle+90deg) переводит вектор из -90°
 // ровно в angle) — если МЫ (или следующий человек) поменяем арт на "голова вниз", это
 // смещение надо будет заменить на angle-90 (или добавить rotate(180deg) поверх текущего).
-function throwBoltFx(fromId, toId, baseFaction, fromBaseFaction){
+// asset (2026-08-05, по прямому запросу автора) — опциональный 5-й параметр, путь к
+// картинке снаряда. Раньше был жёстко захардкожен 'img/bolt.gif' для ЛЮБОГО вызова; теперь
+// часть спеллов различает арт по силе/типу удара (SPARK/MALICE — bolt1.gif/bolt2.gif в
+// зависимости от того, сработал ли бонус-урон от Мира/Артефакта; EXECUTE/CULL — bolt1.gif;
+// JUDGMENT/DEATHBLOW — bolt1.gif на простой Bolt 1, bolt2.gif на добивающий выстрел;
+// BREACH/RUPTURE — всегда bolt2.gif, см. их вызовы в doSpellDmgTarget()/
+// doSpellExecuteHalfTarget()/doSpellDmgTrampleTarget()). Остальные вызовы (JAB/STING/
+// VERDICT/DAMNATION/Umbasir Bolt) продолжают получать дефолт — их арт не трогали.
+function throwBoltFx(fromId, toId, baseFaction, fromBaseFaction, asset){
   const fromEl = fromId ? document.querySelector(`.card-small[data-id="${fromId}"]`)
                         : document.getElementById(_statsElIdForFaction(fromBaseFaction));
   if(!fromEl) return;
@@ -1728,7 +1736,7 @@ function throwBoltFx(fromId, toId, baseFaction, fromBaseFaction){
   const angle=Math.atan2(toY-fromY, toX-fromX)*180/Math.PI + 90;
   const bolt=document.createElement('img');
   bolt.className='bolt-fly';
-  bolt.src='img/bolt.gif';
+  bolt.src=asset||'img/bolt.gif';
   bolt.alt='';
   bolt.style.left=fromX+'px';
   bolt.style.top=fromY+'px';
@@ -2719,11 +2727,11 @@ function doSpellDmgTarget(card){
   // у существ (atk_vs_burning/atk_vs_feared), не у спеллов. Реюз того же getTagVal-паттерна,
   // что и у draw_on_kill/draw_on_no_kill — отдельный тег-модификатор поверх базового
   // spell_dmg_target, а не отдельная ветка эффекта.
+  let sparkBonusApplied=false;
   if(hasTag(spell,'spell_dmg_bonus_world_artifact')){
     const cur=G[G.turn];
-    if(cur.world || cur.artifacts.length>0) dmg+=getTagVal(spell,'spell_dmg_bonus_world_artifact')||0;
-  }
-  // VERDICT/DAMNATION (2026-07-24, по прямому запросу автора) — используют этот же путь
+    if(cur.world || cur.artifacts.length>0){ dmg+=getTagVal(spell,'spell_dmg_bonus_world_artifact')||0; sparkBonusApplied=true; }
+  }  // VERDICT/DAMNATION (2026-07-24, по прямому запросу автора) — используют этот же путь
   // с dmg=999 как условность "безусловное убийство". Игрок не должен видеть голое число —
   // ни в логе, ни во всплывающей надписи над картой, ни в плавающем "-999".
   const isInstaKill=dmg>=999;
@@ -2765,7 +2773,14 @@ function doSpellDmgTarget(card){
   // нужды в отдельном таймере на это.
   const targetId=card.id;
   playSfx('wind_card');
-  throwBoltFx(null, targetId, null, casterFaction);
+  // Арт снаряда (2026-08-05, по прямому запросу автора) — SPARK/MALICE: bolt2.gif, когда
+  // сработал бонус-урон от Мира/Артефакта (реально летит на 4, не на 2), иначе bolt1.gif;
+  // EXECUTE/CULL (draw_on_kill): всегда bolt1.gif. Остальные (JAB/STING/VERDICT/DAMNATION)
+  // не тронуты — throwBoltFx() без 5-го параметра сама подставит дефолтный 'img/bolt.gif'.
+  let dmgSpellAsset;
+  if(hasTag(spell,'spell_dmg_bonus_world_artifact')) dmgSpellAsset = sparkBonusApplied ? 'img/bolt2.gif' : 'img/bolt1.gif';
+  else if(hasTag(spell,'draw_on_kill')) dmgSpellAsset = 'img/bolt1.gif';
+  throwBoltFx(null, targetId, null, casterFaction, dmgSpellAsset);
   G[casterFaction].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
@@ -3036,11 +3051,13 @@ function doSpellDmgTrampleTarget(card){
   const targetId=card.id;
 
   // Снаряд (2026-07-30, по прямому запросу автора — тот же паттерн, что у
-  // doSpellDmgTarget()/Bolt Умбасира, см. её подробный комментарий): bolt.gif, вылетает из
+  // doSpellDmgTarget()/Bolt Умбасира, см. её подробный комментарий): вылетает из
   // БАЗЫ кастера, полёт стартует сразу по входу в функцию (после того, как карта уже
-  // сгорела/раскрылась — см. doPlay()).
+  // сгорела/раскрылась — см. doPlay()). Арт — bolt2.gif (2026-08-05, по прямому запросу
+  // автора: BREACH/RUPTURE — самый тяжёлый point-damage удар в этой семье, всегда 5 урона +
+  // overkill-trample, так что всегда "тяжёлый" снаряд, без условной ветки на bolt1.gif).
   playSfx('wind_card');
-  throwBoltFx(null, targetId, null, casterFaction);
+  throwBoltFx(null, targetId, null, casterFaction, 'img/bolt2.gif');
   G[casterFaction].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
@@ -3148,31 +3165,40 @@ function doGustAbility(target){
 function doSpellExecuteHalfTarget(card){
   // JUDGMENT/DEATHBLOW rework (2026-07-26, по прямому запросу автора) — раньше это был
   // условный insta-kill (999 dmg), доступный ТОЛЬКО если цель уже была ≤50% maxHP (гейт на
-  // этапе выбора цели). Теперь цель — ЛЮБОЕ вражеское существо: спелл сперва наносит Bolt 1
-  // (магический урон, тот же dmgCard(...,true), что у doBoltTarget() — bypassArmor,
-  // блокируется Ward), и ТОЛЬКО ЕСЛИ у цели после этого удара осталось ≤50% maxHP
-  // (округление ВНИЗ, Math.floor — с 5 maxHP умирает уже на 2 HP, не на 2.5/3) — добивает
-  // (999 dmg, тот же bypassArmor+forceLabel 'DESTROYED', что и раньше). Если цель осталась
-  // выше половины — спелл просто наносит 1 урона, никакого килла.
-  // deferDeath=true на болте — если ОН САМ оказался смертельным (низкий maxHP), не резолвим
-  // смерть тут же: добиваем условие ниже по актуальному hp (которое dmgCard() намеренно
-  // оставляет отрицательным на летальном попадании, см. её комментарии), killCard() вызывается
-  // явно один раз, без риска дважды прогнать одну и ту же карту через смерть.
+  // этапе выбора цели). Теперь цель — ЛЮБОЕ вражеское существо: спелл либо наносит Bolt 1,
+  // ЛИБО добивает — исключительно одно из двух, не оба сразу.
   //
-  // Снаряд (2026-07-30, по прямому запросу автора) — тот же паттерн, что у
-  // doSpellDmgTarget()/Bolt Умбасира: bolt.gif летит из БАЗЫ кастера, это именно Bolt 1
-  // (первый удар). Финальное добивание (999, если сработал порог ≤50%) — НЕ отдельный
-  // снаряд, а мгновенный "спавн разрушения на карте" сразу по приземлении болта (та же
-  // категория, что у VERDICT/DAMNATION в doSpellDmgTarget() — см. её комментарий) —
-  // тематически это одно продолжающееся действие ("добил тем же ударом"), не второй бросок.
+  // БАГФИКС (2026-08-05, по прямому запросу автора) — старая версия ошибочно решала между
+  // "просто Bolt 1" и "добивание" ПОСЛЕ уже нанесённого Bolt 1 (т.е. фактически считала
+  // условие ≤50% с учётом урона, которого могло не быть отдельно от добивания — пример
+  // автора: карта 4/5 с текущим hp=4 получала Bolt 1 → hp=3 → 3<=floor(5/2)=2 было FALSE,
+  // так что баг был не в этом примере, а в обратную сторону: карта уже НЕ на половине (hp=3
+  // из 5, что ВЫШЕ floor(5/2)=2) добивалась бы, если бы hp было 3 ДО удара — 3-1=2<=2 TRUE,
+  // хотя 3 из 5 ещё не считается "половиной" сама по себе). Верная механика: смотрим на
+  // ТЕКУЩЕЕ hp цели ДО какого-либо действия этого каста — если оно УЖЕ ≤floor(maxHP/2),
+  // спелл добивает НАПРЯМУЮ (без отдельного Bolt 1 поверх); если ещё выше половины — спелл
+  // просто наносит Bolt 1, добивания в этом случае не происходит вообще, даже если Bolt 1
+  // опускает цель до/ниже половины по итогу. Округление — ВНИЗ (Math.floor): 5 maxHP →
+  // порог 2 (не 2.5/3), 4 maxHP → порог 2, 3 maxHP → порог 1.
+  //
+  // Решение "будет ли это добивание" принимается СРАЗУ (по card.hp/card.maxHp на момент
+  // клика — ДО каких-либо изменений), чтобы синхронно выбрать арт снаряда (bolt2.gif на
+  // добивание, bolt1.gif на простой Bolt 1) — сам полёт стартует ДО setTimeout-резолва,
+  // так что later-вычисленное решение было бы уже поздно для выбора спрайта.
+  //
+  // Снаряд (2026-07-30) — тот же паттерн, что у doSpellDmgTarget()/Bolt Умбасира: летит из
+  // БАЗЫ кастера, это единственный снаряд на весь каст — финальное добивание (999, если
+  // сработал порог) НЕ отдельный снаряд, а мгновенный "спавн разрушения на карте" сразу по
+  // приземлении (та же категория, что у VERDICT/DAMNATION в doSpellDmgTarget()).
   const spell=G.pendingSpell;
   if(!spell) return;
   const oppK=card.f;
   const casterFaction=G.turn;
   const targetId=card.id;
+  const willDestroy = card.hp<=Math.floor(card.maxHp/2);
 
   playSfx('wind_card');
-  throwBoltFx(null, targetId, null, casterFaction);
+  throwBoltFx(null, targetId, null, casterFaction, willDestroy?'img/bolt2.gif':'img/bolt1.gif');
   G[casterFaction].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
@@ -3184,26 +3210,26 @@ function doSpellExecuteHalfTarget(card){
     try{
       const targetC=G[oppK].field.find(c=>c.id===targetId);
       if(!targetC) return; // цель успела уйти с поля за время полёта — бить нечем
-      playSfx('card_spell_atack');
-      queueFieldFx(targetC.id,'BOLT!','fx-shard');
-      // bypassFrost=true (2026-07-27, по прямому запросу автора) — JUDGMENT/DEATHBLOW это
-      // targeted-DESTROY эффект, Frost её не спасает вообще (только Shield-активный/Ward,
-      // они и так уже проверены на этапе выбора цели — см. click-хендлер выше). На обоих
-      // ударах (Bolt 1 и финальный добивающий), иначе замороженная цель просто поглотила
-      // бы Bolt 1, не получила урона и никогда не дошла бы до порога добивания.
-      dmgCard(targetC,1,oppK,true,true,undefined,true);
-      // Лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-07-30, тот же баг-фикс,
-      // что у Market/Nana/Bolt/spell_dmg_target — см. их комментарии; раньше "Bolt 1 to X!"
-      // писался ДО вызова dmgCard() тут, без этой проверки вообще).
-      if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
-        lg(`${spell.name}: Bolt 1 to ${targetC.name}!`,'dmg');
-      }
-      if(targetC.hp<=0){
-        killCard(targetC,oppK);
-      } else if(targetC.hp<=Math.floor(targetC.maxHp/2)){
-        lg(`${spell.name} destroys ${targetC.name}!`,'dmg');
+      if(willDestroy){
+        // Добивание НАПРЯМУЮ — БЕЗ отдельного Bolt 1 поверх (см. комментарий выше:
+        // либо-либо, не накопительно). bypassFrost=true — тот же targeted-DESTROY
+        // принцип, что у VERDICT/DAMNATION/CATACLYSM: Frost не спасает, только Ward/
+        // активный Shield (уже проверены на этапе выбора цели).
+        playSfx('card_spell_atack');
         queueFieldFx(targetC.id,'DESTROYED','fx-spell-dmg');
         dmgCard(targetC,999,oppK,true,false,'DESTROYED',true);
+        if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+          lg(`${spell.name}: ${targetC.name} was already at half HP or below — destroyed outright!`,'dmg');
+        }
+      } else {
+        playSfx('card_spell_atack');
+        queueFieldFx(targetC.id,'BOLT!','fx-shard');
+        // bypassFrost=true — тот же принцип, что и у ветки добивания выше: Frost не должна
+        // просто поглотить Bolt 1 без последствий на эту targeted-механику.
+        dmgCard(targetC,1,oppK,true,false,undefined,true);
+        if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
+          lg(`${spell.name}: Bolt 1 to ${targetC.name}!`,'dmg');
+        }
       }
       render();
     } finally {
