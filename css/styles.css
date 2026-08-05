@@ -2213,19 +2213,17 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .field-fx-popup.fx-market-up{color:#4caf50;} /* Game of Market (2026-07-28) — рынок вверх, бонус-урон по цели — зелёный */
 .field-fx-popup.fx-market-down{color:#e05555;} /* Game of Market (2026-07-28) — рынок вниз, самоурон — тот же красный, что fx-spell-dmg */
 .card-small.dying{animation: cardDie 0.4s ease-in forwards; pointer-events:none;}
-/*── Смерть с паузой — полёт на кладбище / сожжение в Войд (2026-08-05, по прямому запросу
-   автора, см. подробный комментарий у DEATH_ANIM_DELAY_MS в render.js) ──*/
-/* dying-hold — держим карту "живой" (без cardDie) на время паузы, пока шейк/число урона
-   доигрывают. Специфичность (3 класса) выше базового .card-small.dying (2 класса) — гасит
-   его animation:cardDie. НО если в этот момент по карте ЕЩЁ играет .hit (шейк, hitShake) —
-   следующее правило ниже (4 класса) специфичнее и побеждает уже этот — шейк не глушится. */
-.card-small.dying.dying-hold{animation:none;}
-.card-small.dying.dying-hold.hit{animation: hitShake .25s ease;}
+/*── Смерть — полёт на кладбище / сожжение в Войд (2026-08-05, по прямому запросу автора)
+   Оба варианта запускаются МГНОВЕННО, без паузы — dying-hold (пауза + шейк-совместимость),
+   которая тут раньше стояла, убрана целиком (см. историю правок render.js/game.js — автор
+   попросил откатить, "карта слишком долго умирает"). ──*/
 /* card-death-fly — сам летящий клон (position:fixed выставляется инлайн в JS вместе с
    left/top/width/height под стартовую позицию — тут только базовые константы). */
 .card-small.card-death-fly{position:fixed; margin:0; pointer-events:none; z-index:1600;}
 /* dying-void — уход в Войд: та же техника, что и .hand .card.burning-out (@keyframes
-   burnCard выше по файлу), но в ЧЁРНО-СЕРЫХ тонах вместо оранжевых — см. cardVoidBurn. */
+   burnCard выше по файлу), но в ЧЁРНО-СЕРЫХ тонах вместо оранжевых — см. cardVoidBurn.
+   Специфичность та же, что у .card-small.dying (2 класса каждая) — побеждает по порядку в
+   файле (эта ниже), так что cardVoidBurn корректно переопределяет cardDie без доп. классов. */
 @keyframes cardVoidBurn{
   0%{opacity:1; transform:scale(1); filter:brightness(1) saturate(1) grayscale(0); box-shadow:none;}
   20%{opacity:1; transform:scale(1.03); filter:brightness(1.6) saturate(0) grayscale(1); box-shadow:0 0 6px #999, 0 0 16px #000;}
