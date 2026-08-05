@@ -395,6 +395,7 @@ function preloadAssets(){
     'img/ico_burn.png', 'img/ico_rage.png', 'img/ico_provoke.png', 'img/ico_vanguard.png',
     'img/zzz.png',
     'img/mishen_red.png', 'img/mishen_green.png', 'img/mishen_red2.png',
+    'img/swords.png', // оверлей-мишень для обычной атаки (aim-attack, 2026-08-05, по прямому запросу автора) — см. styles.css/.card-small.aim-attack::after и render.js/mkSmallEl()
     'img/ico_tb.png', 'img/solana_shield.png',
     'img/ico_vamp.png', 'img/ico_erase.png',
     // Полная сверка (2026-07-27, автор поймал живьём на Thunder Storm) — список TAG_ICONS
