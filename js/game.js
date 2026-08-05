@@ -1957,12 +1957,13 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   }
   card.hp-=dmg;
   const lethal=card.hp<=0;
-  // Lethal hits skip the shake — the death fade (added by rZone's diff / the
-  // explicit burn-death handling below) is the only animation that should play.
-  // Otherwise shake+fade run at the same time and look janky.
-  if(!lethal){
-    requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
-  }
+  // Шейк ТЕПЕРЬ играет и на летальном ударе (2026-08-05, по прямому запросу автора —
+  // раньше был намеренно пропущен здесь именно потому, что "умирание" стартовало СРАЗУ
+  // же, в тот же кадр, что и делало шейк+fade визуальным конфликтом). Теперь смерть на
+  // поле держит карту "на паузе" ещё DEATH_ANIM_DELAY_MS (см. rZone()/render.js), прежде
+  // чем реально её убрать — так что шейк успевает полностью доиграть на живом элементе
+  // ДО того, как тот превратится в улетающий на кладбище клон/сгорит в Войд.
+  requestAnimationFrame(()=>requestAnimationFrame(()=>hitCard(card.id)));
   const cardId=card.id;
   const dmgAmt=dmg;
   // forceLabel (2026-07-24, по прямому запросу автора) — изначально задумывалось показывать
