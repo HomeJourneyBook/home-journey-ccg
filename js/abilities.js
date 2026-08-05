@@ -810,7 +810,7 @@ function triggerAbilities(card, timing, ctx={}){
         if(ctx.target&&ctx.target.hp>0&&!ctx.target.voided&&!ctx.target._shieldBlockedThisHit&&!ctx.target._frostBlockedThisHit&&!ctx.target._foxyDodgedThisHit&&hasTag(ctx.target,'provoke')){
           ctx.target.provokeBroken=true;
           playSfx('debaf');
-          lg(`${card.name}: ${ctx.target.name}'s Provoke is suppressed!`,'imp');
+          lg(`${card.name}: ${ctx.target.name}'s Tree Wall is suppressed!`,'imp');
           queueFieldFx(ctx.target.id,'EXPOSED!','fx-fear'); // переиспользуем готовый fx-класс fear — тот же "красный всплеск"
         } break;
 
