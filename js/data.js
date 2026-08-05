@@ -187,7 +187,7 @@ const DEFS = {
   t_sp5:       {name:"GUST",        cost:1,hp:0,atk:0,art:"💨", img:"1_windy.png",   f:"tea",tags:["spell","spell_bounce_ally_target"], ab:"Return 1 target ally creature to hand.",spell:true}, // РЕДИЗАЙН (2026-07-24, по прямому запросу автора) — cost 2→1, теперь только СВОЯ карта (спасти от размена/повторно разыграть enter-эффект); универсальный баунс (любая сторона) выделен в отдельный спелл — см. TEMPEST (t_sp25)
   t_sp6:       {name:"RECKONING",   cost:4,hp:0,atk:0,art:"⚖️", img:"1_Reckoning.png", f:"tea",tags:["spell","spell_aoe_count"], ab:"AOE equal to how many creatures are on the battleground.",spell:true},
   t_sp7:       {name:"FORGET-ME-NOT", cost:4,hp:0,atk:0,art:"🥀", img:"1_ForgetMeNot.png", f:"tea",tags:["spell","lose:2"], ab:"Lose 2.",spell:true},
-  t_sp8:       {name:"EXPOSE",     cost:1,hp:0,atk:0,art:"👁️", img:"1_Expose.png", f:"tea",tags:["spell","spell_provoke_break_target"], ab:"Taunt Breake to enemy Provoke creature.",spell:true},
+  t_sp8:       {name:"EXPOSE",     cost:1,hp:0,atk:0,art:"👁️", img:"1_Expose.png", f:"tea",tags:["spell","spell_provoke_break_target"], ab:"Taunt Breake to enemy Tree Wall creature.",spell:true},
   t_sp9:       {name:"BREACH",     cost:5,hp:0,atk:0,art:"💥", img:"1_Breach.png", f:"tea",tags:["spell","spell_dmg_trample_target:5"], ab:"Bolt 5. If creature dies, overkill damage carries over to the enemy Base.",spell:true},
   t_sp10:      {name:"WILDFIRE",  cost:5,hp:0,atk:0,art:"🔥", img:"1_Wildfire.png", f:"tea",tags:["spell","spell_burn_all"], ab:"All enemy creatures are Burned.",spell:true},
   t_sp11:      {name:"ELIXIRS",   cost:2,hp:0,atk:0,art:"🕯️", img:"1_Rekindle.png", f:"tea",tags:["spell","spell_untap"], ab:"Target ally creature becomes active.",spell:true},
@@ -335,7 +335,7 @@ const DEFS = {
   j_sp5:       {name:"REVERSE",    cost:1,hp:0,atk:0,art:"🔄", img:"1_revers.png",    f:"jeet",tags:["spell","spell_bounce_ally_target"], ab:"Return 1 target ally creature to hand.",spell:true}, // РЕДИЗАЙН (2026-07-24, по прямому запросу автора) — зеркало GUST, универсальный баунс — см. MAELSTROM (j_sp25)
   j_sp6:       {name:"SWARM CULL", cost:4,hp:0,atk:0,art:"🩸", img:"1_SwarmCull.png", f:"jeet",tags:["spell","spell_aoe_count"], ab:"AOE equal to how many creatures are on the battleground.",spell:true},
   j_sp7:       {name:"MINDROT",    cost:4,hp:0,atk:0,art:"🧠", img:"1_Mindrot.png", f:"jeet",tags:["spell","lose:2"], ab:"Lose 2.",spell:true},
-  j_sp8:       {name:"UNMASK",     cost:1,hp:0,atk:0,art:"🎭", img:"1_Unmask.png", f:"jeet",tags:["spell","spell_provoke_break_target"], ab:"Taunt Breake to enemy Provoke creature.",spell:true},
+  j_sp8:       {name:"UNMASK",     cost:1,hp:0,atk:0,art:"🎭", img:"1_Unmask.png", f:"jeet",tags:["spell","spell_provoke_break_target"], ab:"Taunt Breake to enemy Tree Wall creature.",spell:true},
   j_sp9:       {name:"RUPTURE",    cost:5,hp:0,atk:0,art:"🗡️", img:"1_Rupture.png", f:"jeet",tags:["spell","spell_dmg_trample_target:5"], ab:"Bolt 5. If creature dies, overkill damage carries over to the enemy Base.",spell:true},
   j_sp10:      {name:"NIGHTMARE",  cost:5,hp:0,atk:0,art:"👹", img:"1_Nightmare.png", f:"jeet",tags:["spell","spell_fear_all"], ab:"All enemy creatures are Feared.",spell:true},
   j_sp11:      {name:"FRENZY",     cost:1,hp:0,atk:0,art:"😤", img:"1_Frenzy.png", f:"jeet",tags:["spell","spell_buff_temp:1"], ab:"Target ally: +1 ATK until end of battle.",spell:true}, // cost 2→1 (2026-07-24, по прямому запросу автора) — зеркало ARCHIVE
