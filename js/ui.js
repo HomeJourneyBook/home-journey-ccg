@@ -439,6 +439,14 @@ function preloadAssets(){
     'img/button_1_jeet.png', 'img/button_2_jeet.png',
     'img/button_grav_1.png', 'img/button_grav_2.png',
     'img/button_grav_1_jeet.png', 'img/button_grav_2_jeet.png',
+    // btn_log1/H/2_tea/jeet.png (2026-08-06, по прямому запросу автора — "глянь в
+    // предзагрузки кнопки для открытия лога, кажись их надо добавить тоже") — их тут
+    // раньше не было вообще, хотя кнопка лога (.arena-log-btn.tea/.jeet, см. styles.css)
+    // ссылается на них с 2026-08-04 — тот же класс пропуска, что уже был у grav_frame_jeet/
+    // bones_jeet до прошлого фикса.
+    'img/btn_log1_tea.png', 'img/btn_logH_tea.png', 'img/btn_log2_tea.png',
+    'img/btn_log1_jeet.png', 'img/btn_logH_jeet.png', 'img/btn_log2_jeet.png',
+    'img/log_frame_jeet.png',
   ];
   criticalImages.forEach(src => { const img = new Image(); img.src = src; _preloadedImageRefs.push(img); });
 
