@@ -1377,8 +1377,26 @@ function _playCenterBannerText(text, opts={}){
   inner.style.fontSize = PROBE_PX+'px';
   const measuredWidth = inner.getBoundingClientRect().width || 1;
   const targetWidth = window.innerWidth * 0.4;
-  const fittedPx = Math.max(18, PROBE_PX * (targetWidth / measuredWidth));
+  let fittedPx = Math.max(18, PROBE_PX * (targetWidth / measuredWidth));
   inner.style.fontSize = fittedPx+'px';
+
+  // Корректирующий второй проход (2026-08-05, багфикс по прямому запросу автора — на
+  // портретных телефонах длинные тексты типа "ENEMY OUT OF CARDS! They lose in 3 more
+  // turns!" обрезались по краям экрана). Причина: letter-spacing:2px (styles.css) —
+  // ФИКСИРОВАННЫЕ пиксели, которые НЕ уменьшаются вместе с font-size, так что пропорция
+  // "PROBE_PX → measuredWidth" не масштабируется линейно на итоговый маленький fittedPx —
+  // letter-spacing в сумме (особенно на длинных строках) занимает непропорционально
+  // бОльшую долю итоговой ширины, чем в замере на крупном PROBE_PX, и реальная
+  // отрисованная ширина превышает targetWidth. Тут перемеряем уже ПОСЛЕ применения
+  // fittedPx и, если всё равно вышли за безопасный предел экрана, ужимаем ещё раз —
+  // теперь уже без риска второй раз ошибиться на letter-spacing, т.к. измеряем по факту
+  // отрисованного, а не экстраполируем с другого font-size.
+  const actualWidth = inner.getBoundingClientRect().width || 1;
+  const maxSafeWidth = window.innerWidth * 0.92; // тот же запас, что у .battle-begins-text{max-width:92vw} в CSS
+  if(actualWidth > maxSafeWidth){
+    fittedPx = Math.max(14, fittedPx * (maxSafeWidth / actualWidth));
+    inner.style.fontSize = fittedPx+'px';
+  }
 
   void wrap.offsetWidth; // reflow, чтобы новый font-size/top применились до старта анимации
 
