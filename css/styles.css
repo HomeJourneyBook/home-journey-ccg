@@ -1121,7 +1121,15 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .le.hl{color:#5BDF7A;}
 .le.die{color:#ff6666;}
 .le.trn{color:#BFCBFF;border-top:1px solid #ffffff11;padding-top:3px;margin-top:3px;}
-.modal-overlay{position:fixed;inset:0;background:#000000;z-index:650;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+/* z-index:10000 (2026-08-06, багфикс по прямому запросу автора — "победная модалка на
+   чёрном фоне, а сквозь неё видно оставшиеся цифры финального урона по базе"). Раньше было
+   650 — этого хватало против обычного игрового UI, но .float-number-base (см. flashBase()
+   в game.js) с 2026-08-05 живёт как position:fixed на document.body с z-index:9999 (см.
+   .float-number в styles.css) — чтобы гарантированно не потеряться под соседними
+   элементами интерфейса, а не потому что должен быть ВЫШЕ модалок. Модалка по своей роли
+   обязана перекрывать вообще всё, включая любые количество переходных игровых эффектов
+   (текущий максимум в проекте — 9999 у float-number) — 10000 держит это с запасом. */
+.modal-overlay{position:fixed;inset:0;background:#000000;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 /*── Размер карт муллигана "пляшет" от экрана к экрану (2026-08-04, автор попросил
    "лекарство" из соседнего разговора про --card-h) — они используют тот же .card, что и
    рука/кладбище, а у него --card-h чистый 25vh БЕЗ min/max, в отличие от аккуратно
@@ -2193,7 +2201,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .arena-slide-left-in{animation: arenaSlideLeftIn 1.43s cubic-bezier(0.22,0.68,0,1) both;}
 .arena-slide-right-in{animation: arenaSlideRightIn 1.43s cubic-bezier(0.22,0.68,0,1) both;}
 .field-star.field-star-grow-in{animation-name: starGrowIn; animation-timing-function: cubic-bezier(0.34,1.56,0.64,1); animation-fill-mode: both; animation-iteration-count: 1;}
-.battle-begins-text{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; z-index:60; pointer-events:none; max-width:92vw; box-sizing:border-box;}
+.battle-begins-text{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; z-index:60; pointer-events:none;}
 .battle-begins-text.hidden{display:none;}
 /* 2026-08-05, багфикс по прямому запросу автора — на портретных телефонах длинный текст
    предупреждения о пустой колоде ("ENEMY OUT OF CARDS! They lose in N more turns!") обрезался
@@ -2202,9 +2210,17 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    уменьшаются вместе с font-size, так что при сильном уменьшении шрифта (длинный текст на узком
    экране) letter-spacing начинает занимать непропорционально большую долю ширины, и реальная
    отрисованная ширина превышает то, что посчитал JS. JS-часть фикса (ui.js) добавляет
-   корректирующий второй проход; тут — CSS-подстраховка на случай если что-то всё равно не
-   поместится: перенос строки вместо обрезания за пределы экрана.  */
-.battle-begins-inner{font-family:'MEK',monospace; color:#e14c43; text-shadow:0 0 12px #e14c4399, 0 0 28px #e14c4355; text-align:center; letter-spacing:2px; white-space:normal; overflow-wrap:break-word; max-width:100%; display:inline-block;}
+   корректирующий второй проход — это работает на ЛЮБОМ размере экрана и ничего тут не трогает.
+   CSS-подстраховка (перенос строки вместо обрезания, на случай если что-то всё равно не
+   поместится) — ТОЛЬКО у мобильного @media(max-width:600px) ниже по файлу (тот же брейкпоинт,
+   что и у остальных portrait-переопределений в этом файле) — по прямому запросу автора
+   правка нужна была строго для вертикального телефона; на десктопе/лендскейпе баннер (в т.ч.
+   "Battle begins!") остаётся ровно как было — nowrap, без ограничения ширины. */
+.battle-begins-inner{font-family:'MEK',monospace; color:#e14c43; text-shadow:0 0 12px #e14c4399, 0 0 28px #e14c4355; text-align:center; letter-spacing:2px; white-space:nowrap; display:inline-block;}
+@media(max-width:600px){
+  .battle-begins-text{max-width:92vw; box-sizing:border-box;}
+  .battle-begins-inner{white-space:normal; overflow-wrap:break-word; max-width:100%;}
+}
 .battle-begins-inner.battle-begins-in{animation: battleBeginsIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
 .battle-begins-inner.battle-begins-pulse{animation: battleBeginsPulse 1s ease-in-out infinite;}
 .battle-begins-inner.battle-begins-out{animation: battleBeginsOut 0.5s ease-in forwards;}
