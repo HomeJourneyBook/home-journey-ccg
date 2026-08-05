@@ -1281,6 +1281,12 @@ const _bounceOriginRects = {};
 // в момент воскрешения). rZone() читает и удаляет запись отсюда, когда решает анимацию
 // появления новой карты в zone==='field' — см. _reviveFlyIfPending() ниже.
 const _pendingReviveOrigins = {};
+// Полёт из руки на поле (2026-08-05) — cardId → DOMRect позиции карты В РУКЕ, снятый
+// doPlay() (game.js) СИНХРОННО, ДО того как карта реально уйдёт из cur.hand. rZone() читает
+// и удаляет запись отсюда, когда решает анимацию появления новой карты-существа на поле —
+// см. _playFieldFlyIfPending() ниже. Только для существ — Мир/Артефакт не встают в общий
+// ряд поля field-small карт, у них этой анимации не предусмотрено.
+const _pendingHandOriginRects = {};
 // ВАЖНО: клон снимается в rZone ДО того, как на оригинал повесят card-drawn/
 // animation-delay (см. вызов ниже) — иначе cloneNode(true) скопировал бы и эти
 // инлайн-стили/классы, и клон стартовал бы уже невидимым (opacity:0 от "from"
@@ -1422,6 +1428,48 @@ function _reviveFlyIfPending(cardEl, faction){
   return true;
 }
 
+// _playFieldFlyIfPending — розыгрыш существа из руки (2026-08-05, по прямому запросу
+// автора): та же техника, что у _reviveFlyIfPending() выше, но в обратную сторону — клон
+// летит ОТ позиции карты в руке (снимок сделан в doPlay(), game.js, см. комментарий у
+// _pendingHandOriginRects выше по файлу) К месту существа на поле. Размер интерполируется
+// напрямую (width/height), без scale-трюка — карта в руке физически больше карты на поле,
+// так что естественно "сжимается" по пути, но без искусственного "нырка", тот же принцип,
+// что у _flyCardToHand() (обратный процесс, bounce). cardEl уже вставлен вызывающим кодом
+// на своё законное место в DOM/layout — прячем его на время полёта (visibility), возвращаем
+// видимым, когда клон долетает. Возвращает true, если анимация запущена (вызывающий код
+// тогда НЕ должен также навешивать обычный .entering).
+function _playFieldFlyIfPending(cardEl, faction){
+  const cid=cardEl.dataset.id;
+  const originRect=_pendingHandOriginRects[cid];
+  if(!originRect) return false;
+  delete _pendingHandOriginRects[cid];
+  const restRect=cardEl.getBoundingClientRect(); // cardEl уже вставлен вызывающим кодом — форсит layout
+  const clone=cardEl.cloneNode(true);
+  clone.classList.remove('entering','selected','targetable','aim-attack','hit','activating','dying','dying-hold','affordable','previewed');
+  clone.classList.add('card-fly-clone');
+  clone.style.position='fixed';
+  clone.style.margin='0';
+  clone.style.width=originRect.width+'px';
+  clone.style.height=originRect.height+'px';
+  clone.style.left=(originRect.left+originRect.width/2)+'px';
+  clone.style.top=(originRect.top+originRect.height/2)+'px';
+  clone.style.transform='translate(-50%,-50%)';
+  clone.style.opacity='1';
+  cardEl.style.visibility='hidden';
+  document.body.appendChild(clone);
+  void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
+  clone.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), width ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), height ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1)`;
+  clone.style.left=(restRect.left+restRect.width/2)+'px';
+  clone.style.top=(restRect.top+restRect.height/2)+'px';
+  clone.style.width=restRect.width+'px';
+  clone.style.height=restRect.height+'px';
+  setTimeout(()=>{
+    cardEl.style.visibility='';
+    if(clone.parentElement) clone.remove();
+  }, CARD_FLY_MS+40);
+  return true;
+}
+
 // Смерть на поле — пауза + полёт/сожжение (2026-08-05, по прямому запросу автора) ─────
 // Раньше карта пропадала с поля мгновенно (в тот же render(), где она уже выпала из
 // G[faction].field) — просто уменьшалась/таяла на месте (см. cardDie в styles.css).
@@ -1547,7 +1595,7 @@ function rZone(id,cards,zone){
           // растёт на место, а не просто хлопком появляется; см. её комментарий выше. Только
           // если она НЕ подошла (не revive, или кладбище сейчас не видно на экране), падаем в
           // старый entering-pop.
-          if(!_reviveFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
+          if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
         }
       });
       return;
@@ -1565,7 +1613,7 @@ function rZone(id,cards,zone){
       if(!existingIds.has(String(c.id))){
         // _reviveFlyIfPending (2026-08-05) — та же логика, что и в ветке выше (dying.length>0):
         // воскрешённая карта летит из кладбища и растёт на место вместо обычного entering-pop.
-        if(!_reviveFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
+        if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
       }
     } else {
       const cardEl=mkEl(c,zone);
