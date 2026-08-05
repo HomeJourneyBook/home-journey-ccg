@@ -1852,14 +1852,14 @@ const TAG_TOOLTIPS = {
   'regen':   { name: 'Regen',   desc: 'Restores {val} HP to itself at the start of each of your turns.' },
   'burn':    { name: 'Burn',    desc: 'On attack: Burns the target for 2 of its own turns — while Burned, target loses 1 HP at the start of each of its turns.' },
   'rage':    { name: 'Rage',    desc: '+2 ATK while wounded to half its max HP.' },
-  'provoke': { name: 'Provoke', desc: 'While this creature is not exhausted, all enemy attacks must target it.' },
+  'provoke': { name: 'Tree Wall', desc: 'While this creature is not exhausted, all enemy attacks must target it.' }, // переименован из Provoke в Tree Wall (2026-08-06, по прямому запросу автора, тот же приём, что у vanguard→Swiftness выше) — тег/иконка (ico_provoke.png) не менялись, только отображаемое имя
   'intercept': { name: 'Intercept', desc: 'While not exhausted and if nothing forces all attacks onto itself, one enemy attack per turn is automatically redirected onto this creature.' },
   'vanguard':{ name: 'Swiftness', desc: 'Enters the battleground without sleeping.' }, // переименован из Vanguard в Swiftness/Стремительность (2026-07-27, по прямому запросу автора) — тег и иконка (ico_vanguard.png) не менялись, только отображаемое имя
   'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked. Also deals +1 ATK when it attacks an already-Feared target.' },
   'untamed': { name: 'Untamed', desc: "Clears exhausted at the start of the opponent's turn." },
   'ward':    { name: 'Ward', desc: 'Immune to magic damage and debuffs.' },
   'incarnation': { name: 'Incarnation', desc: 'When this creature dies, it revives from the Graveyard on its own one time, after a set number of its owner\'s turns.' },
-  'taunt_break': { name: 'Taunt Break', desc: 'On attack: suppresses Provoke on the target — it can be freely attacked past this turn, ignoring Provoke. Wears off at the start of its own owner\'s next turn.' },
+  'taunt_break': { name: 'Taunt Break', desc: 'On attack: suppresses Tree Wall on the target — it can be freely attacked past this turn, ignoring Tree Wall. Wears off at the start of its own owner\'s next turn.' },
   'vampiric': { name: 'Vampiric', desc: 'On attack: heals for exactly the HP it actually removes from the target.' },
   'necrophage': { name: 'Erase', desc: 'On attack, if the hit is lethal: erases the fallen creature from its owner\'s graveyard for the Void, fully restores this creature\'s HP, and cleanses its own Burning.' },
   'remember': { name: 'Remember Everything', desc: 'The first time this creature dies, it fully restores its HP and stays on the battleground. All buffs and debuffs are reset.' },
@@ -1870,7 +1870,7 @@ const TAG_TOOLTIPS = {
   'death_heal': { name: 'Bamboo', desc: 'When this creature dies, heals a random wounded ally for {val} HP.' },
   'death_bolt': { name: 'Thunder Storm', desc: 'When this creature dies, deals Bolt {val} to a random enemy creature.' }, // переехал с трейта Scheme на Pink Clouds (2026-07-27, по прямому запросу автора) — сам тег/эффект не менялся, только трейт-привязка/имя/иконка (ico_cloud.png)
   'death_armor': { name: 'Scheme', desc: 'When this creature dies, gives {val} Armor to a random ally (permanent, until that ally leaves the Battleground).' }, // новый тег (2026-07-27, по прямому запросу автора) — занял трейт-слот Scheme после переезда death_bolt на Pink Clouds, использует прежнюю иконку (ico_scheme.png)
-  'frost': { name: 'Frost Attack', desc: 'On attack: Freezes the target for 2 of its own turns — while Freezed, it cannot act at all and no longer forces Provoke/Intercept. Freezing clears any Fear/Burn on the target and grants immunity to new Fear/Burn while frozen. Frost is shattered by the next hit the target takes from any sources.' }, // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
+  'frost': { name: 'Frost Attack', desc: 'On attack: Freezes the target for 2 of its own turns — while Freezed, it cannot act at all and no longer forces Tree Wall/Intercept. Freezing clears any Fear/Burn on the target and grants immunity to new Fear/Burn while frozen. Frost is shattered by the next hit the target takes from any sources.' }, // FROST ATTACK — Winter from RGB, ультраредкий Mood-трейт, 2026-07-27
   'foxy': { name: 'Foxy Trick', desc: '50% chance to simply miss: any incoming damage, or any attempt to apply a debuff to this card.' }, // FOXY TRICK — Orange from FFF, ультраредкий Mood-трейт, 2026-07-27
   'market': { name: 'Game of Market', desc: 'On attack (including Bolt and Shot): 50/50 — either 2 bonus damage to the target, or 2 damage to itself.' }, // GAME OF MARKET — To the Moon with DHD, ультраредкий Mood-трейт, 2026-07-28
   'nana': { name: 'Nana', desc: 'On attack (including Bolt and Shot): 50/50 — either throws a banana at a random enemy (not the one just hit) or enemy Base for 2 physical damage, or at a random wounded ally for 2 healing (falls back to its own base if no wounded ally, or to the enemy if there\'s nothing to heal).' }, // NANA — Nanas from SMB, ультраредкий Mood-трейт, 2026-07-29
