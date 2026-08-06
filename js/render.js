@@ -1863,7 +1863,10 @@ function rZone(id,cards,zone){
         // растёт на место, а не просто хлопком появляется; см. её комментарий выше. Только
         // если она НЕ подошла (не revive, или кладбище сейчас не видно на экране), падаем в
         // старый entering-pop.
-        if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)) cardEl.classList.add('entering');
+        if(!_reviveFlyIfPending(cardEl, faction) && !_playFieldFlyIfPending(cardEl, faction)){
+          cardEl.classList.add('entering');
+          _flyDebugLog('FALLBACK entering (no tracked flight)', cardEl.dataset.id, '<- if the visual bug happens right after this line in the log, the bug is in the plain CSS pop-in path, not the clone-flight path');
+        }
       });
       return;
     }
