@@ -42,6 +42,16 @@ function initState(opts){
   if(typeof _flyingClones!=='undefined') Object.keys(_flyingClones).forEach(k=>delete _flyingClones[k]);
   if(typeof _pendingHandOriginRects!=='undefined') Object.keys(_pendingHandOriginRects).forEach(k=>delete _pendingHandOriginRects[k]);
   if(typeof _pendingReviveOrigins!=='undefined') Object.keys(_pendingReviveOrigins).forEach(k=>delete _pendingReviveOrigins[k]);
+  // БАГФИКС (2026-08-06, найдено по факту репорта автора — "после рестарта карты не летят
+  // из деки в руку"). Это была НЕ та же причина, что у остального в этом блоке (тот сброс
+  // выше не помог, автор подтвердил) — реальный виновник: `_seenHandCardIds` (render.js),
+  // отдельный global Set, отслеживающий, какие id карт УЖЕ БЫЛИ в руке хоть раз за всю
+  // сессию браузера. `isNew` (условие показа полёта из колоды) считается именно по нему:
+  // `!_seenHandCardIds.has(id)`. Раз UID выше сбрасывается в 0 и id карт переиспользуются
+  // между партиями — только что добранная карта в НОВОЙ игре может получить id, который
+  // уже "засветился" в СТАРОЙ игре, и полёт молча не покажется, хотя карта разыгрывается
+  // впервые в этой партии.
+  if(typeof _seenHandCardIds!=='undefined') _seenHandCardIds.clear();
   // Заодно убрать любые ФИЗИЧЕСКИ оставшиеся в DOM клоны от прошлой партии (document.body,
   // не входят в обычную перерисовку экрана — переживают смену G/render()).
   document.querySelectorAll('.card-fly-clone, .card-death-fly').forEach(el=>el.remove());
