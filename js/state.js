@@ -10,7 +10,7 @@ function newPlayer(f, deckConfig, customList){
     field:[],deck:d.map(k=>mkCard(k)),grave:[],void:[],
     world:null,artifacts:[],extraDraw:0,burned:false,emptyDrawCount:0};
 }
-
+ 
 // opts (необязательно) — конфиг режима игры:
 //   { mode:'vsai', humanFaction:'tea'|'jeet', deckConfig:'classic'|'rush',
 //     rushDecks:{tea:[...keys],jeet:[...keys]}, firstFaction:'tea'|'jeet',
