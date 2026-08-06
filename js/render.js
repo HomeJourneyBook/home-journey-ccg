@@ -1335,6 +1335,37 @@ function _copyCardSmallVars(sourceEl, clone){
 // _playFieldFlyIfPending()/_reviveFlyIfPending() ниже (кладут id при старте полёта, убирают
 // в момент его завершения) и ветку `if(!_cardsCurrentlyFlying.has(cid))` внутри rZone().
 const _cardsCurrentlyFlying = new Set();
+// cid → летящий клон (2026-08-06, багфикс по прямому запросу автора — старый Vanguard-баг
+// "приземляется не туда, потом резко доезжает" ВЕРНУЛСЯ). Разбор первопричины: guard выше
+// (_cardsCurrentlyFlying, добавлен 2026-08-05) не даёт rZone() ЗАМЕНИТЬ спрятанный
+// (visibility:hidden) реальный cardEl, пока клон летит — но НЕ защищает от того, что этот
+// самый cardEl всё ещё обычный flex-элемент ряда (просто невидимый) и МОЖЕТ физически
+// сдвинуться, если за время полёта клона (CARD_FLY_MS+40 ≈ 340мс) в ТОМ ЖЕ ряду что-то ещё
+// меняется — типичный случай именно для Vanguard: он не спит и может тем же ходом атаковать,
+// а если от этой атаки кто-то умирает (или влетает ещё один Revive/AOE-summon), ряд
+// пересчитывает центрирование, и невидимый cardEl реально переезжает на новую позицию — а
+// клон при этом продолжает лететь к СТАРОЙ, один раз посчитанной в момент старта, координате
+// (`clone.style.left/top` уже закоммичены в transition). Финальная синхронизация
+// (freshRect-снап без transition) наступает только через фиксированные 340мс — до этого
+// момента клон явно виден в неверном месте, потом резко доезжает. У обычных (спящих) карт
+// это не воспроизводится, потому что они физически не могут ничего сделать/спровоцировать
+// изменения того же ряда в первые же 340мс своей жизни на поле.
+// Фикс: вместо того чтобы просто игнорировать летящую карту на повторных render()
+// (см. rZone() ниже), ДОГОНЯЕМ клон — на каждом render(), пока карта ещё летит, берём
+// СВЕЖИЙ getBoundingClientRect() спрятанного оригинала (он показывает АКТУАЛЬНУЮ позицию
+// с учётом любого пересчёта ряда) и обновляем left/top/width/height клона. Т.к. CSS
+// transition уже запущен, браузер сам плавно перенацеливает движение с текущей
+// интерполированной точки на новую — без рывка, в отличие от финального жёсткого снапа.
+const _flyingClones = {};
+function _resyncFlyingCardTarget(cid, cardEl){
+  const clone=_flyingClones[cid];
+  if(!clone||!cardEl) return;
+  const r=cardEl.getBoundingClientRect();
+  clone.style.width=r.width+'px';
+  clone.style.height=r.height+'px';
+  clone.style.left=(r.left+r.width/2)+'px';
+  clone.style.top=(r.top+r.height/2)+'px';
+}
 // ВАЖНО: клон снимается в rZone ДО того, как на оригинал повесят card-drawn/
 // animation-delay (см. вызов ниже) — иначе cloneNode(true) скопировал бы и эти
 // инлайн-стили/классы, и клон стартовал бы уже невидимым (opacity:0 от "from"
@@ -1470,6 +1501,7 @@ function _reviveFlyIfPending(cardEl, faction){
   clone.style.opacity='1';
   cardEl.style.visibility='hidden';
   _cardsCurrentlyFlying.add(cid); // см. её комментарий у объявления — блокирует replaceWith этого узла в rZone(), пока клон летит
+  _flyingClones[cid]=clone; // см. комментарий у _flyingClones выше — позволяет rZone() догонять клон, если ряд сдвинется, пока он летит
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
   clone.style.transition=`left ${GRAVE_FLY_MS}ms ease-out, top ${GRAVE_FLY_MS}ms ease-out, transform ${GRAVE_FLY_MS}ms ease-out`;
@@ -1494,6 +1526,7 @@ function _reviveFlyIfPending(cardEl, faction){
     void clone.offsetWidth; // форсируем применение стилей без transition, синхронно, до снятия видимости
     cardEl.style.visibility='';
     _cardsCurrentlyFlying.delete(cid);
+    delete _flyingClones[cid];
     if(clone.parentElement) clone.remove();
   }, GRAVE_FLY_MS);
   return true;
@@ -1538,6 +1571,7 @@ function _playFieldFlyIfPending(cardEl, faction){
   clone.style.opacity='1';
   cardEl.style.visibility='hidden';
   _cardsCurrentlyFlying.add(cid); // см. её комментарий у объявления — блокирует replaceWith этого узла в rZone(), пока клон летит
+  _flyingClones[cid]=clone; // см. комментарий у _flyingClones выше — позволяет rZone() догонять клон, если ряд сдвинется, пока он летит (Vanguard-баг)
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
   clone.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1)`;
@@ -1558,6 +1592,7 @@ function _playFieldFlyIfPending(cardEl, faction){
     void clone.offsetWidth; // форсируем применение стилей без transition, синхронно, до снятия видимости
     cardEl.style.visibility='';
     _cardsCurrentlyFlying.delete(cid);
+    delete _flyingClones[cid];
     if(clone.parentElement) clone.remove();
   }, CARD_FLY_MS+40);
   return true;
@@ -1742,6 +1777,16 @@ function rZone(id,cards,zone){
           // ближайшие 300мс не провоцирует).
           if(!_cardsCurrentlyFlying.has(cid)){
             existingMap[cid].replaceWith(mkSmallEl(c));
+          } else {
+            // Карта ещё летит (play-fly/revive-fly) — сам DOM-узел не трогаем (см. комментарий
+            // у _cardsCurrentlyFlying выше), но ДОГОНЯЕМ клон до его АКТУАЛЬНОЙ (только что
+            // пересчитанной этим же render()) позиции — см. подробный разбор у _flyingClones/
+            // _resyncFlyingCardTarget() выше по файлу. Без этого клон долетал бы до координаты,
+            // посчитанной один раз в момент старта полёта, и "зависал" бы не в том месте, если
+            // ряд успевал сдвинуться (например, что-то ещё умерло на этом же поле), пока
+            // Vanguard-карта, только что вошедшая НЕ спящей, тем же ходом уже успела что-то
+            // спровоцировать.
+            _resyncFlyingCardTarget(cid, existingMap[cid]);
           }
         } else {
           const cardEl=mkSmallEl(c);
