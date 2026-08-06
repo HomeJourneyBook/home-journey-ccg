@@ -1638,6 +1638,19 @@ function _playFieldFlyIfPending(cardEl, faction){
     clone.style.transform='translate(-50%,-50%) scale(1)';
     void clone.offsetWidth; // форсируем применение стилей без transition, синхронно, до снятия видимости
     cardEl.style.visibility='';
+    // БАГФИКС (2026-08-06, гипотеза автора — "у Vanguard единственное отличие в том, что она
+    // не спит с рождения, копай в эту сторону"). Реальная находка: idle-анимация покачивания
+    // поля (.card-small:not(.sleeping):nth-child(4n+N){animation:cardFloatB/C/D...}, см.
+    // css/styles.css) матчит карту СРАЗУ, как только снимается visibility:hidden выше — а у
+    // 3 из 4 позиций там отрицательный animation-delay (-0.8s/-1.5s/-2.2s), то есть анимация
+    // не начинается с нуля, а стартует СРАЗУ с середины цикла. Обычная (спящая) карта этого
+    // не получает вообще, пока не проснётся следующим ходом — то самое единственное отличие
+    // Vanguard, о котором и была гипотеза. Амплитуда маленькая (2-4px, не объясняет весь
+    // масштаб бага из скриншотов), но лишняя, ничем не оправданная здесь — глушим на 1 кадр
+    // после появления, чтобы карта успела визуально "осесть" на своей реальной позиции,
+    // прежде чем в неё вмешается idle-покачивание.
+    cardEl.style.animation='none';
+    requestAnimationFrame(()=>{ cardEl.style.animation=''; });
     _cardsCurrentlyFlying.delete(cid);
     delete _flyingClones[cid];
     if(clone.parentElement) clone.remove();
