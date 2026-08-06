@@ -1010,6 +1010,17 @@ function doAttack(att,target){
     dmgCard(att,thornsVal,curK,true,true); // bypassArmor=true ("огонь" игнорирует броню), deferDeath=true
     lg(`${target.name}'s Fire Shield burns ${att.name} for ${thornsVal}!`,'dmg');
   }
+  // shadow_shield:N (2026-08-06, KEZARION, по прямому запросу автора — "зеркальная копия
+  // Fire Shield, только тег/иконка другие") — ТОЧНО та же логика, что thorns выше (те же 3
+  // гейт-проверки: полностью поглощённый/промазанный удар шипы бить не должны), просто
+  // отдельный тег/иконка (ico_shadow.png) + свой лог-текст. Наступательная часть ("+1 урона
+  // по фир-целям") НЕ отдельный тег — переиспользует уже существующий atk_vs_feared (тот же
+  // паттерн, что у FAERON: thorns+atk_vs_burning — см. её комментарий/тултип).
+  if(hasTag(target,'shadow_shield') && !target._shieldBlockedThisHit && !target._frostBlockedThisHit && !target._foxyDodgedThisHit){
+    const shadowVal=getTagVal(target,'shadow_shield')||1;
+    dmgCard(att,shadowVal,curK,true,true); // bypassArmor=true, deferDeath=true — тот же принцип, что thorns
+    lg(`${target.name}'s Cloak of Shadows strikes ${att.name} for ${shadowVal}!`,'dmg');
+  }
 
   // Game of Market (2026-07-28, "To the Moon with DHD", ультраредкий Mood-трейт,
   // ico_market.png) — та же гейтинг-логика, что у Thorns чуть выше: пропускается, если
