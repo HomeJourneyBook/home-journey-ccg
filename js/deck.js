@@ -168,7 +168,7 @@ const CLASSIC_TEA_DECK = [
   't_w1','t_a1','t_faeron','t_ogniv',
   't_trvl18_w','t_trvl34_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl692_w', // t_trvl870_w→t_trvl18_w (mirror-фикс, см. выше); t_trvl890_w(szg cost2)→t_trvl34_w(szg cost3) — 2026-08-04, по прямому запросу автора, уровняли кривую Szarg с Jeet (2:1 3:1 5:1 на обеих фракциях теперь)
   't_trvl31_w','t_trvl921_w','t_trvl972_w','t_trvl495_w','t_trvl1034_w','t_trvl6_w',
-  't_trvl250_w','t_trvl28_w','t_trvl26_w','t_trvl1015_w', // t_trvl39_w(xui cost2)→t_trvl26_w(xui cost3) — 2026-08-04, по прямому запросу автора, уровняли кривую Xuiqtr с Jeet (2:1 3:2 на обеих фракциях теперь)
+  't_trvl250_w','t_trvl28_w','t_trvl26_w','t_trvl533_w', // t_trvl39_w(xui cost2)→t_trvl26_w(xui cost3) — 2026-08-04, по прямому запросу автора, уровняли кривую Xuiqtr с Jeet (2:1 3:2 на обеих фракциях теперь); t_trvl1015_w(drg cost4, vanguard)→t_trvl533_w(drg cost5, untamed) — 2026-08-06, по прямому запросу автора: у Tea был всего 1 cost5-тело против 3 у Jeet, кривая маны поджата, сдвинули один Dreegan с 4 на 5
   // ── ЭКСПЕРИМЕНТ 35→40, раунд 2 (2026-08-01, кандидат для сравнительного прогона
   // sim/headless.js, см. чат — НЕ синхронизировано с Rush-деккбилдером, НЕ финальное
   // решение). Раунд 1 (см. git-history/чат) добавлял t_trvl607_w (Mechird cost5,
@@ -184,14 +184,14 @@ const CLASSIC_TEA_DECK = [
   't_trvl45_w',  // Umbasir cost2 (bolt:1, ваниль) — Umbasir 1→2, дешёвый filler
   't_trvl583_w', // Umbasir cost4 (bolt:1+regen+death_heal:4) — Umbasir 2→3, sustain-пик вместо снятого cost5 burn (#387, тоже был тёплый 59.9% WWP в раунде 1)
   't_trvl218_w', // Orbiton cost2 (heal:2) — Orbiton 2→3, уже в струю (Orbiton и так heal-архетип)
-  't_trvl38_w',  // Mechird cost3 (pierce+vampiric) — Mechird 2→3, первая vampiric-карта в Tea Classic вообще
+  't_trvl150_w', // Mechird cost1 (shot:1) — 2026-08-06, по прямому запросу автора: заменён t_trvl38_w (Mechird cost3, shot+vampiric) — кривая маны Tea была поджата на cost1 (всего 2 карты), cost3 был раздут (8 карт); Xuiqtr и Burn-карты (сигнатура фракции) намеренно не трогались как доноры
   't_nab',       // NABUNAGI (unique, bushido+armor:1, cost8) — 5-й слот, не было в Classic. ВНИМАНИЕ: у карты своя история балансировки (56-66% WWP на разных срезах статов до текущей atk2/hp8/armor:1) — эта версия последняя протестированная, но не факт что холодная именно в ЭТОЙ колоде, сверить по прогону.
   't_sp23','t_sp10','t_sp20','t_sp17',
   't_sp14','t_sp14','t_sp13','t_sp16','t_sp24','t_sp6','t_sp12','t_sp26','t_sp22','t_sp18','t_sp27',
 ];
 
 const CLASSIC_JEET_DECK = [
-  'j_w1','j_a1','j_vard','j_terror',
+  'j_w1','j_a1','j_kezarion','j_terror', // j_vard(SEEKER)→j_kezarion(KEZARION) — 2026-08-06, по прямому запросу автора, новый уник (см. data.js)
   'j_trvl724_w','j_trvl740_w','j_trvl41_w','j_trvl27_w','j_trvl50_w','j_trvl1008_w', // j_trvl971_w(szg,был cost1→сейчас cost2)→j_trvl724_w(mch,cost1) — тот же mirror-фикс, что у Tea выше; j_trvl740_w НЕ заменён — второй cost1-Mechird для Jeet тоже пока не существует
   'j_trvl523_w','j_trvl579_w','j_trvl36_w','j_trvl434_w','j_trvl859_w','j_trvl663_w',
   'j_trvl578_w','j_trvl359_w','j_trvl53_w','j_trvl901_w',
@@ -201,7 +201,7 @@ const CLASSIC_JEET_DECK = [
   // парой ради симметрии решения (не потому что сама по себе была вне коридора).
   'j_trvl934_w', // Umbasir cost2 (bolt:1, ваниль) — Umbasir 1→2, дешёвый filler
   'j_trvl133_w', // Umbasir cost4 (bolt:1+mek+regen) — Umbasir 2→3, sustain-пик вместо снятого cost5 shield/ward (#248)
-  'j_trvl804_w', // Mechird cost3 (pierce+regen) — Mechird 2→3, первая regen-карта в Jeet Classic вообще (вместо cost2 #724 ваниль из раунда 1)
+  'j_trvl178_w', // Mechird cost1 (shot:1) — 2026-08-06, по прямому запросу автора: заменён j_trvl804_w (Mechird cost3, shot+regen) — тот же curve-фикс, что у Tea (см. t_trvl38_w→t_trvl150_w выше), зеркально по фракции
   'j_trvl3_w',   // Xuiqtr cost3 (intercept+vampiric) — Xuiqtr 2→3, не менялось с раунда 1 — уже был лучший sustain-пик в архетипе
   'j_phleg',     // PHLEGMOR (unique, raise:1 — некромантия/воскрешение, cost8) — 5-й слот, не было в Classic. Та же оговорка про историю балансировки, что у NABUNAGI — последний срез (atk2/hp8) в изолированных тестах всё ещё держался 56-59.7% WWP, не факт что холодная.
   'j_sp23','j_sp10','j_sp20','j_sp17',
