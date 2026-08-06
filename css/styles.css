@@ -4,8 +4,8 @@
   src: url('../fonts/MEK.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
-}   
-:root{   
+}
+:root{  
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716);
   --cat-card-w: calc(var(--card-h) * 0.716);
@@ -2268,6 +2268,12 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .field-fx-popup.fx-market-up{color:#4caf50;} /* Game of Market (2026-07-28) — рынок вверх, бонус-урон по цели — зелёный */
 .field-fx-popup.fx-market-down{color:#e05555;} /* Game of Market (2026-07-28) — рынок вниз, самоурон — тот же красный, что fx-spell-dmg */
 .card-small.dying{animation: cardDie 0.4s ease-in forwards; pointer-events:none;}
+/* dying-hit (2026-08-06, смена подхода — см. подробный комментарий в render.js/rZone() —
+   вместо dying-pulse теперь используем обычный hitShake перед полётом на кладбище).
+   Специфичность (3 класса: card-small+dying+dying-hit) выше базового .card-small.dying
+   (2 класса) — нужно явно перебить cardDie, иначе с .hit была бы ничья по специфичности
+   (тоже 2 класса) и побеждал бы cardDie как объявленный ниже в файле. */
+.card-small.dying.dying-hit{animation: hitShake .25s ease; pointer-events:none;}
 /*── Смерть — полёт на кладбище / сожжение в Войд (2026-08-05, по прямому запросу автора)
    Оба варианта запускаются МГНОВЕННО, без паузы — dying-hold (пауза + шейк-совместимость),
    которая тут раньше стояла, убрана целиком (см. историю правок render.js/game.js — автор
