@@ -1760,78 +1760,28 @@ function rZone(id,cards,zone){
             cardEl.classList.add('dying','dying-void');
             setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, VOID_BURN_MS);
           }
-        } else if(!cardEl.classList.contains('dying-pulse')){
-          // БАГФИКС (2026-08-06, по прямому запросу автора — "клон смерти спавнится со
-          // смещением в ~80% случаев, без явного паттерна от карты/причины смерти").
-          // Разбор первопричины: pulseOriginRect ниже раньше мерился СРАЗУ, без всякой
-          // подготовки — но у карты в момент смерти совершенно нормально может ещё идти
-          // ОДНА из нескольких transform-анимаций собственного действия: `.activating`
-          // (@keyframes cardActivate, 500мс "подъём" при атаке/Bolt/Shot/Vardan/Market/
-          // Nana-пульсах — см. activateCard()) или `.hit` (@keyframes hitShake, 250мс, при
-          // НЕлетальном уроне чуть раньше по этой же карте). Атака-с-контрударом уже
-          // отдельно защищена (killCard() атакующего откладывается на 500мс, чтобы его
-          // СОБСТВЕННЫЙ cardActivate успел доиграть — см. doAttack()), но это НЕ
-          // единственный путь к смерти: самоурон Game of Market (resolveMarketEvent,
-          // задержка 1.2с), Nana-банан, DD Cleave, burn-тик, AOE/Shard/spell-урон — у
-          // каждого своё собственное расписание setTimeout, и ни один явно не проверяет,
-          // не застал ли он карту ПОСЕРЕДИНЕ её же cardActivate/hitShake. Раз
-          // getBoundingClientRect() ниже возвращает АКТУАЛЬНЫЙ (уже трансформированный)
-          // бокс — если в этот момент активен translateY-подъём или shake-сдвиг, снимок
-          // получается смещённым, и это смещение потом "прибивается" на всю паузу+полёт
-          // (см. комментарий про pulseOriginRect ниже) — отсюда рандомность "~80% случаев,
-          // без явного паттерна": совпадёт по таймингу с чьей-то ещё animation или нет.
-          // Фикс — тот же принцип, что уже применяют classList.remove('hit')-подобные места
-          // в hitCard()/activateCard() (см. их комментарии про _cardsCurrentlyFlying): перед
-          // замером снимаем оба класса и жёстко глушим CSS-анимацию (animation:'none' +
-          // синхронный reflow через offsetWidth), чтобы getBoundingClientRect() гарантированно
-          // видел карту в состоянии покоя, БЕЗ какого-либо остаточного transform.
-          const _dirtyRect=cardEl.getBoundingClientRect(); // ДО очистки — позиция карты В МОМЕНТ, когда игра обнаружила, что она умерла (ещё flex-элемент ряда)
-          cardEl.classList.remove('activating','hit');
-          cardEl.style.animation='none';
-          void cardEl.offsetWidth; // форсируем применение animation:none синхронно, до замера ниже
-          cardEl.style.animation=''; // возвращаем обычное поведение — dying/dying-pulse ниже сами пропишут свою анимацию
-          // Снимок позиции ДО начала паузы (2026-08-05, багфикс — см. подробный
-          // комментарий у _flyCardToGrave()/pulseOriginRect выше) — передаётся в
-          // _flyCardToGrave() ниже вместо того, чтобы мерить заново в момент старта
-          // полёта, когда соседние одновременно умирающие карты уже могли сдвинуть ряд.
-          const pulseOriginRect=cardEl.getBoundingClientRect();
-          {
-            const dx=Math.round(_dirtyRect.left-pulseOriginRect.left), dy=Math.round(_dirtyRect.top-pulseOriginRect.top);
-            _flyDebugLog('DEATH 1-detected (raw, before any cleanup)', cardEl.dataset.id, {x:Math.round(_dirtyRect.left),y:Math.round(_dirtyRect.top),w:Math.round(_dirtyRect.width),h:Math.round(_dirtyRect.height)});
-            if(dx!==0||dy!==0) _flyDebugLog('DEATH residual transform found+cleaned', cardEl.dataset.id, {dx,dy});
-            _flyDebugLog('DEATH 2-pulse-pin (frozen here for '+SHRINK_PULSE_MS+'ms)', cardEl.dataset.id, {x:Math.round(pulseOriginRect.left),y:Math.round(pulseOriginRect.top),w:Math.round(pulseOriginRect.width),h:Math.round(pulseOriginRect.height)});
-          }
-          cardEl.classList.add('dying','dying-pulse');
-          // "Прибиваем" карту к её текущим экранным координатам (2026-08-05, багфикс по
-          // прямому запросу автора — "после смертельного урона от спелла карта смещается
-          // ниже и правее вместо того, чтобы улетать со своего места"). Раньше карта на
-          // время dying-pulse ОСТАВАЛАСЬ обычным flex-элементом ряда — если между этим
-          // моментом и стартом полёта (SHRINK_PULSE_MS позже) хоть что-то меняло состав/
-          // ширину соседей в том же ряду (напр. другая карта тоже покидает ряд, или
-          // соседние карты только что закончили свою entering-анимацию и выросли до
-          // финального размера — именно так и происходит у Bolt/спеллов: урон прилетает
-          // отложенно через setTimeout, к этому моменту соседи уже могли доиграть entering
-          // и пересчитать раскладку ряда), flex просто пересчитывал центрирование ряда —
-          // и умирающую карту физически сдвигало в сторону ДО того, как клон успевал
-          // подхватить эстафету. Теперь карта переводится в position:fixed на СВОИХ ЖЕ
-          // текущих координатах СРАЗУ, как только начинается dying-pulse — полностью
-          // выходит из flex-раскладки ряда, и никакой пересчёт соседей её больше не
-          // касается: она гарантированно улетает именно с того места, где действительно
-          // умерла.
-          cardEl.style.position='fixed';
-          cardEl.style.margin='0';
-          cardEl.style.left=pulseOriginRect.left+'px';
-          cardEl.style.top=pulseOriginRect.top+'px';
-          cardEl.style.width=pulseOriginRect.width+'px';
-          cardEl.style.height=pulseOriginRect.height+'px';
+        } else if(!cardEl.classList.contains('dying-hit')){
+          // СМЕНА ПОДХОДА (2026-08-06, по прямому запросу автора — "пульс(dying-pulse) нам
+          // всё ломает, пусть карта просто делает шейк как от урона и потом улетает").
+          // Раньше тут был dying-pulse: 140мс scale(1→0.82) через ручной position:fixed на
+          // застывших координатах (pulseOriginRect) — несмотря на несколько раундов фиксов
+          // (снятие activating/hit ПЕРЕД замером, "прибивание" к текущим координатам), в
+          // реальной игре карта всё равно периодически дрейфовала на несколько px за эти
+          // 140мс (см. подробный разбор в CLAUDE.md, "Баг с анимациями карт"). Новый подход:
+          // используем УЖЕ СУЩЕСТВУЮЩИЙ, годами проверенный hitShake (.card-small.hit,
+          // @keyframes hitShake, 250мс) — та же тряска, что при обычном уроне. У неё
+          // конечная точка ВСЕГДА translate(0) scale(1) — то есть карта гарантированно
+          // возвращается в СВОЮ настоящую позицию к концу анимации, никакого ручного
+          // position:fixed/pinning не требуется вообще: карта остаётся нормальным flex-
+          // элементом ряда до самого конца тряски, затем _flyCardToGrave() сама меряет
+          // getBoundingClientRect() (никакого заранее снятого/протухающего rect).
+          cardEl.classList.add('dying','dying-hit');
+          _flyDebugLog('DEATH 1-shake-start', cardEl.dataset.id, {});
           setTimeout(()=>{
             if(!cardEl.parentElement) return; // уже убрана каким-то другим путём — не трогаем
-            {
-              const liveRect=cardEl.getBoundingClientRect();
-              _flyDebugLog('DEATH 3-pulse-ended (live position right before flight starts)', cardEl.dataset.id, {x:Math.round(liveRect.left),y:Math.round(liveRect.top)});
-            }
-            _flyCardToGrave(cardEl, faction, pulseOriginRect);
-          }, SHRINK_PULSE_MS);
+            _flyDebugLog('DEATH 2-shake-ended (about to measure fresh rect, no pinning was used)', cardEl.dataset.id, {});
+            _flyCardToGrave(cardEl, faction, null); // null — пусть сама измерит текущую (настоящую) позицию
+          }, 250); // длительность hitShake (.25s, styles.css) — ждём её полного отыгрыша
         }
       } else if(_bounceOriginRects[cid]){
         // Bounce в руку (2026-08-05, по прямому запросу автора) — снимок позиции уже сделан
