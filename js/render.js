@@ -1385,22 +1385,17 @@ function _resyncFlyingCardTarget(cid, cardEl){
   const clone=_flyingClones[cid];
   if(!clone||!cardEl) return;
   const r=cardEl.getBoundingClientRect();
-  const newCenterX=r.left+r.width/2, newCenterY=r.top+r.height/2;
-  const origin=clone._flyOriginCenter; // {x,y} — статичный якорь left/top, задан один раз при старте полёта
-  const dx=Math.round(newCenterX-origin.x), dy=Math.round(newCenterY-origin.y);
-  const prevDx=clone._flyLastTargetDelta ? Math.round(clone._flyLastTargetDelta.dx) : null;
-  if(prevDx===null || dx!==prevDx || dy!==Math.round(clone._flyLastTargetDelta.dy)){
-    _flyDebugLog('RESYNC (row reflowed mid-flight, retargeting)', cid, {newTarget:{x:Math.round(newCenterX),y:Math.round(newCenterY)}});
-  }
-  clone._flyLastTargetDelta={dx,dy};
+  const prevLeft=parseFloat(clone.style.left)||0, prevTop=parseFloat(clone.style.top)||0;
+  const newLeft=r.left+r.width/2, newTop=r.top+r.height/2;
+  const dx=Math.round(newLeft-prevLeft), dy=Math.round(newTop-prevTop);
+  if(dx!==0||dy!==0) _flyDebugLog('RESYNC (row reflowed mid-flight, retargeting)', cid, {dx,dy,newTarget:{x:Math.round(newLeft),y:Math.round(newTop)}});
   clone.style.width=r.width+'px';
   clone.style.height=r.height+'px';
   // transform, НЕ left/top (2026-08-06, см. подробный разбор у _playFieldFlyIfPending) —
   // left/top у клона больше вообще не трогаются после старта полёта, статичны на якоре
   // ОТПРАВНОЙ точки; всё движение — через translate() внутри transform, композитится
-  // отдельным потоком, ресинк тут просто меняет ЦЕЛЬ transition (браузер сам плавно
-  // переведёт текущую интерполированную точку на новую), left/top оставлены в покое.
-  clone.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1)`;
+  clone.style.left=newLeft+'px';
+  clone.style.top=newTop+'px';
 }
 // ВАЖНО: клон снимается в rZone ДО того, как на оригинал повесят card-drawn/
 // animation-delay (см. вызов ниже) — иначе cloneNode(true) скопировал бы и эти
@@ -1528,18 +1523,12 @@ function _reviveFlyIfPending(cardEl, faction){
   _copyCardSmallVars(cardEl, clone); // см. её комментарий выше — без этого контент клона "сплющивается" в document.body
   clone.classList.remove('entering','selected','targetable','aim-attack','hit','activating','dying','dying-hold');
   clone.classList.add('card-fly-clone');
-  clone.style.willChange='transform'; // 2026-08-06 — подсказка браузеру вынести клон на отдельный composite-слой, чтобы transform-анимация гарантированно шла на GPU-потоке независимо от загрузки главного потока (см. подробный разбор у _playFieldFlyIfPending)
   clone.style.position='fixed';
   clone.style.margin='0';
   clone.style.width=restRect.width+'px';
   clone.style.height=restRect.height+'px';
-  // transform-only (2026-08-06, тот же фикс, что у _playFieldFlyIfPending — см. её подробный
-  // комментарий) — left/top больше не анимируются, статичный якорь на ОТПРАВНОЙ точке.
-  const originCenterX=graveRect.left+graveRect.width/2, originCenterY=graveRect.top+graveRect.height/2;
-  const destCenterX=restRect.left+restRect.width/2, destCenterY=restRect.top+restRect.height/2;
-  clone.style.left=originCenterX+'px';
-  clone.style.top=originCenterY+'px';
-  clone._flyOriginCenter={x:originCenterX,y:originCenterY};
+  clone.style.left=(graveRect.left+graveRect.width/2)+'px';
+  clone.style.top=(graveRect.top+graveRect.height/2)+'px';
   clone.style.transform='translate(-50%,-50%) scale(.3)';
   clone.style.opacity='1';
   cardEl.style.visibility='hidden';
@@ -1547,10 +1536,10 @@ function _reviveFlyIfPending(cardEl, faction){
   _flyingClones[cid]=clone; // см. комментарий у _flyingClones выше — позволяет rZone() догонять клон, если ряд сдвинется, пока он летит
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
-  clone.style.transition=`transform ${GRAVE_FLY_MS}ms ease-out`;
-  const dx0=Math.round(destCenterX-originCenterX), dy0=Math.round(destCenterY-originCenterY);
-  clone._flyLastTargetDelta={dx:dx0,dy:dy0};
-  clone.style.transform=`translate(calc(-50% + ${dx0}px), calc(-50% + ${dy0}px)) scale(1)`;
+  clone.style.transition=`left ${GRAVE_FLY_MS}ms ease-out, top ${GRAVE_FLY_MS}ms ease-out, transform ${GRAVE_FLY_MS}ms ease-out`;
+  clone.style.left=(restRect.left+restRect.width/2)+'px';
+  clone.style.top=(restRect.top+restRect.height/2)+'px';
+  clone.style.transform='translate(-50%,-50%) scale(1)';
   setTimeout(()=>{
     // Финальная точная синхронизация (2026-08-05, багфикс по прямому запросу автора —
     // "финальный размер чуть-чуть отличается, деформация") — restRect измерен ОДИН раз в
@@ -1610,29 +1599,12 @@ function _playFieldFlyIfPending(cardEl, faction){
   _copyCardSmallVars(cardEl, clone); // см. её комментарий выше — без этого контент клона "сплющивается" в document.body
   clone.classList.remove('entering','selected','targetable','aim-attack','hit','activating','dying','dying-hold','affordable','previewed');
   clone.classList.add('card-fly-clone');
-  clone.style.willChange='transform'; // 2026-08-06 — подсказка браузеру вынести клон на отдельный composite-слой, чтобы transform-анимация гарантированно шла на GPU-потоке независимо от загрузки главного потока (см. подробный разбор у _playFieldFlyIfPending)
   clone.style.position='fixed';
   clone.style.margin='0';
   clone.style.width=restRect.width+'px';
   clone.style.height=restRect.height+'px';
-  // БАГФИКС (2026-08-06, по факту разбора [FLYDEBUG]-лога от автора — "клон летел, но не
-  // долетел за отведённое время, потом рывком доезжал") — раньше тут анимировались `left`/
-  // `top`. Это LAYOUT-свойства: браузер обязан на КАЖДЫЙ кадр анимации synchronно пересчитать
-  // раскладку на главном потоке — если главный поток занят чем угодно ещё (ход ИИ, счёт
-  // способностей, да хоть эта же debug-инструментация), кадры анимации проседают/пропускаются,
-  // а setTimeout ниже всё равно срабатывает строго по настенным часам (CARD_FLY_MS+40) —
-  // реальный прогресс transition в этот момент мог отстать. `transform` в отличие от left/top
-  // композитится браузером на ОТДЕЛЬНОМ потоке (GPU) — не зависит от загрузки главного потока
-  // вообще. Теперь left/top у клона выставляются ОДИН РАЗ (якорь = центр ОТПРАВНОЙ точки,
-  // origin) и больше никогда не трогаются — всё движение (и позиция, и масштаб) едет через
-  // translate()/scale() внутри transform. `clone._flyOriginCenter` запоминается на самом
-  // клоне — по нему же ресинк (_resyncFlyingCardTarget выше) пересчитывает новую цель, если
-  // ряд сдвинулся, не трогая left/top.
-  const originCenterX=originRect.left+originRect.width/2, originCenterY=originRect.top+originRect.height/2;
-  const destCenterX=restRect.left+restRect.width/2, destCenterY=restRect.top+restRect.height/2;
-  clone.style.left=originCenterX+'px';
-  clone.style.top=originCenterY+'px';
-  clone._flyOriginCenter={x:originCenterX,y:originCenterY};
+  clone.style.left=(originRect.left+originRect.width/2)+'px';
+  clone.style.top=(originRect.top+originRect.height/2)+'px';
   const startScale=originRect.width/restRect.width;
   clone.style.transform=`translate(-50%,-50%) scale(${startScale})`;
   clone.style.opacity='1';
@@ -1641,10 +1613,10 @@ function _playFieldFlyIfPending(cardEl, faction){
   _flyingClones[cid]=clone; // см. комментарий у _flyingClones выше — позволяет rZone() догонять клон, если ряд сдвинется, пока он летит (Vanguard-баг)
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
-  clone.style.transition=`transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1)`; // ТОЛЬКО transform — см. комментарий выше
-  const dx0=Math.round(destCenterX-originCenterX), dy0=Math.round(destCenterY-originCenterY);
-  clone._flyLastTargetDelta={dx:dx0,dy:dy0};
-  clone.style.transform=`translate(calc(-50% + ${dx0}px), calc(-50% + ${dy0}px)) scale(1)`;
+  clone.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1)`;
+  clone.style.left=(restRect.left+restRect.width/2)+'px';
+  clone.style.top=(restRect.top+restRect.height/2)+'px';
+  clone.style.transform='translate(-50%,-50%) scale(1)';
   setTimeout(()=>{
     // Финальная точная синхронизация — тот же приём, что у _reviveFlyIfPending() выше, см.
     // её подробный комментарий (2026-08-05, багфикс по прямому запросу автора — "финальный
@@ -1722,23 +1694,18 @@ function _flyCardToGrave(cardEl, faction, pulseOriginRect){
   if(cardEl.parentElement) cardEl.remove();
   clone.classList.remove('selected','targetable','aim-target','aim-attack','hit','activating','entering','dying','dying-hold','dying-pulse');
   clone.classList.add('card-death-fly');
-  clone.style.willChange='transform';
-  // transform-only (2026-08-06, тот же фикс, что у остальных полётов — см. подробный
-  // комментарий у _playFieldFlyIfPending) — left/top статичны на отправной точке, всё
-  // движение через translate()/scale() в transform, не зависит от загрузки главного потока.
-  const originCenterX=rect.left+rect.width/2, originCenterY=rect.top+rect.height/2;
-  const destCenterX=gRect.left+gRect.width/2, destCenterY=gRect.top+gRect.height/2;
-  clone.style.left=originCenterX+'px';
-  clone.style.top=originCenterY+'px';
+  clone.style.left=(rect.left+rect.width/2)+'px';
+  clone.style.top=(rect.top+rect.height/2)+'px';
   clone.style.width=rect.width+'px';
   clone.style.height=rect.height+'px';
   clone.style.transform=`translate(-50%,-50%) scale(${SHRINK_PULSE_SCALE})`;
   clone.style.opacity='1';
   document.body.appendChild(clone);
   void clone.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
-  clone.style.transition=`transform ${GRAVE_FLY_MS}ms ease-in, opacity ${GRAVE_FLY_MS}ms ease-in`;
-  const dx0=Math.round(destCenterX-originCenterX), dy0=Math.round(destCenterY-originCenterY);
-  clone.style.transform=`translate(calc(-50% + ${dx0}px), calc(-50% + ${dy0}px)) scale(0.05)`; // 2026-08-06, по прямому запросу автора — было 0.15 (почти не уменьшалось к моменту прилёта на кладбище), уменьшил ещё в 3 раза
+  clone.style.transition=`left ${GRAVE_FLY_MS}ms ease-in, top ${GRAVE_FLY_MS}ms ease-in, transform ${GRAVE_FLY_MS}ms ease-in, opacity ${GRAVE_FLY_MS}ms ease-in`;
+  clone.style.left=(gRect.left+gRect.width/2)+'px';
+  clone.style.top=(gRect.top+gRect.height/2)+'px';
+  clone.style.transform='translate(-50%,-50%) scale(0.05)'; // 2026-08-06, по прямому запросу автора — было 0.15 (почти не уменьшалось к моменту прилёта на кладбище), уменьшил ещё в 3 раза
   clone.style.opacity='0';
   setTimeout(()=>{
     // 'graveyard' — временно переиспользуем звук открытия модалки кладбища (по прямому
