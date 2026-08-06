@@ -7,7 +7,7 @@ function getTagVal(card, tagName){
   const valStr=rest.startsWith(':')?rest.slice(1):rest;
   const num=parseInt(valStr);
   return isNaN(num)?valStr:num;
-}
+} 
 function hasTag(card, tagName){ return getTagVal(card,tagName)!==null; }
 
 // Rage (переработано 2026-07-20, по прямому запросу автора) — раньше это был on_attack-триггер,
