@@ -2363,10 +2363,19 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .screen-edge-flash.flash-green{animation: screenFlashGreen 0.5s ease-out forwards;}
 .zone-shake{animation: zoneShakeImpact 0.35s ease-out;}
 .zone-shake-up{animation: zoneShakeImpactUp 0.35s ease-out;}
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):nth-child(4n+1){animation:cardFloatA 3s ease-in-out infinite;}
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):nth-child(4n+2){animation:cardFloatB 3.4s ease-in-out -0.8s infinite;}
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):nth-child(4n+3){animation:cardFloatC 2.7s ease-in-out -1.5s infinite;}
-.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):nth-child(4n+4){animation:cardFloatD 3.8s ease-in-out -2.2s infinite;}
+/* БАГФИКС (2026-08-06, найдено при расследовании смещения Vanguard/death-анимаций) —
+   добавлен :not(.activating) в цепочку исключений у всех 4 позиций ряда. Раньше .activating
+   (рывок "подъёма для удара", @keyframes cardActivate, 500мс, translateY до -15px) тут не
+   исключался — а специфичность этого селектора (9 :not()-условий + nth-child = 10
+   селекторов уровня класса) НАМНОГО выше .card-small.activating (2 класса), поэтому
+   idle-покачивание (cardFloatA-D, амплитуда 2-4px) ВСЕГДА выигрывало и полностью
+   перекрывало анимацию рывка атаки — она тихо ни разу не отыгрывала визуально, что бы ни
+   стояло в activateCard()/JS. Обнаружено эмпирически (getComputedStyle().animationName
+   показывал cardFloatB вместо cardActivate на карте с классом activating). */
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):not(.activating):nth-child(4n+1){animation:cardFloatA 3s ease-in-out infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):not(.activating):nth-child(4n+2){animation:cardFloatB 3.4s ease-in-out -0.8s infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):not(.activating):nth-child(4n+3){animation:cardFloatC 2.7s ease-in-out -1.5s infinite;}
+.card-small:not(.exhausted):not(.sleeping):not(.selected):not(.targetable):not(.healable):not(.hit):not(.entering):not(.dying):not(.activating):nth-child(4n+4){animation:cardFloatD 3.8s ease-in-out -2.2s infinite;}
 .field-nebula{position: absolute; width: 200px; height: 100px; border-radius: 50%; filter: blur(40px); opacity: 0.08; pointer-events: none; z-index: -1; animation: nebulaDrift 20s ease-in-out infinite;}
 .field-nebula.tea{background: #4DB854;}
 .field-nebula.jeet{background: #B44FD4;}
