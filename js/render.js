@@ -1776,10 +1776,14 @@ function rZone(id,cards,zone){
           // элементом ряда до самого конца тряски, затем _flyCardToGrave() сама меряет
           // getBoundingClientRect() (никакого заранее снятого/протухающего rect).
           cardEl.classList.add('dying','dying-hit');
-          _flyDebugLog('DEATH 1-shake-start', cardEl.dataset.id, {});
+          {
+            const r0=cardEl.getBoundingClientRect();
+            _flyDebugLog('DEATH 1-shake-start', cardEl.dataset.id, {x:Math.round(r0.left),y:Math.round(r0.top),w:Math.round(r0.width),h:Math.round(r0.height)});
+          }
           setTimeout(()=>{
             if(!cardEl.parentElement) return; // уже убрана каким-то другим путём — не трогаем
-            _flyDebugLog('DEATH 2-shake-ended (about to measure fresh rect, no pinning was used)', cardEl.dataset.id, {});
+            const r1=cardEl.getBoundingClientRect();
+            _flyDebugLog('DEATH 2-shake-ended (about to measure fresh rect, no pinning was used)', cardEl.dataset.id, {x:Math.round(r1.left),y:Math.round(r1.top),w:Math.round(r1.width),h:Math.round(r1.height)});
             _flyCardToGrave(cardEl, faction, null); // null — пусть сама измерит текущую (настоящую) позицию
           }, 250); // длительность hitShake (.25s, styles.css) — ждём её полного отыгрыша
         }
