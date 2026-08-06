@@ -1335,6 +1335,19 @@ function _copyCardSmallVars(sourceEl, clone){
 // _playFieldFlyIfPending()/_reviveFlyIfPending() ниже (кладут id при старте полёта, убирают
 // в момент его завершения) и ветку `if(!_cardsCurrentlyFlying.has(cid))` внутри rZone().
 const _cardsCurrentlyFlying = new Set();
+// ── ДИАГНОСТИКА (2026-08-06) ──────────────────────────────────────────────
+// Включается вручную в консоли браузера: localStorage.setItem('flyDebug','1') и
+// перезагрузить страницу (или просто localStorage.flyDebug='1' и играть дальше —
+// проверка идёт при каждом вызове, перезагрузка не обязательна). Пока флаг не
+// включён — НИЧЕГО не логирует и не тормозит игру, полностью no-op. Цель — когда
+// баг со смещением клона (розыгрыш Vanguard / смерть карты) поймается живьём,
+// не нужны скриншоты пары кадров: открыть DevTools → Console, включить флаг,
+// повторить баг, скопировать оттуда все строки с префиксом [FLYDEBUG] и прислать
+// их текстом — там будут точные координаты старта/цели/финальной синхронизации
+// и величина любой коррекции на лету, по которым можно точно понять, что именно
+// произошло, вместо гадания по паре скриншотов с разницей в доли секунды.
+function _flyDebugOn(){ try{ return localStorage.getItem('flyDebug')==='1'; }catch(e){ return false; } }
+function _flyDebugLog(...args){ if(_flyDebugOn()) console.log('[FLYDEBUG]', Math.round(performance.now())+'ms', ...args); }
 // cid → летящий клон (2026-08-06, багфикс по прямому запросу автора — старый Vanguard-баг
 // "приземляется не туда, потом резко доезжает" ВЕРНУЛСЯ). Разбор первопричины: guard выше
 // (_cardsCurrentlyFlying, добавлен 2026-08-05) не даёт rZone() ЗАМЕНИТЬ спрятанный
@@ -1361,10 +1374,14 @@ function _resyncFlyingCardTarget(cid, cardEl){
   const clone=_flyingClones[cid];
   if(!clone||!cardEl) return;
   const r=cardEl.getBoundingClientRect();
+  const prevLeft=parseFloat(clone.style.left)||0, prevTop=parseFloat(clone.style.top)||0;
+  const newLeft=r.left+r.width/2, newTop=r.top+r.height/2;
+  const dx=Math.round(newLeft-prevLeft), dy=Math.round(newTop-prevTop);
+  if(dx!==0||dy!==0) _flyDebugLog('RESYNC', cid, 'target moved by', {dx,dy}, 'row reflowed mid-flight');
   clone.style.width=r.width+'px';
   clone.style.height=r.height+'px';
-  clone.style.left=(r.left+r.width/2)+'px';
-  clone.style.top=(r.top+r.height/2)+'px';
+  clone.style.left=newLeft+'px';
+  clone.style.top=newTop+'px';
 }
 // ВАЖНО: клон снимается в rZone ДО того, как на оригинал повесят card-drawn/
 // animation-delay (см. вызов ниже) — иначе cloneNode(true) скопировал бы и эти
@@ -1487,6 +1504,7 @@ function _reviveFlyIfPending(cardEl, faction){
   if(!graveEl || graveEl.offsetParent===null) return false; // кладбище не на экране — падаем в обычный entering
   const graveRect=graveEl.getBoundingClientRect();
   const restRect=cardEl.getBoundingClientRect(); // cardEl уже вставлен вызывающим кодом — форсит layout
+  _flyDebugLog('REVIVE start', cid, {from:{x:Math.round(graveRect.left),y:Math.round(graveRect.top)}, to:{x:Math.round(restRect.left),y:Math.round(restRect.top),w:Math.round(restRect.width),h:Math.round(restRect.height)}});
   const clone=cardEl.cloneNode(true);
   _copyCardSmallVars(cardEl, clone); // см. её комментарий выше — без этого контент клона "сплющивается" в document.body
   clone.classList.remove('entering','selected','targetable','aim-attack','hit','activating','dying','dying-hold');
@@ -1556,6 +1574,7 @@ function _playFieldFlyIfPending(cardEl, faction){
   if(!originRect) return false;
   delete _pendingHandOriginRects[cid];
   const restRect=cardEl.getBoundingClientRect(); // cardEl уже вставлен вызывающим кодом — форсит layout
+  _flyDebugLog('PLAY start', cid, {from:{x:Math.round(originRect.left),y:Math.round(originRect.top)}, to:{x:Math.round(restRect.left),y:Math.round(restRect.top),w:Math.round(restRect.width),h:Math.round(restRect.height)}});
   const clone=cardEl.cloneNode(true);
   _copyCardSmallVars(cardEl, clone); // см. её комментарий выше — без этого контент клона "сплющивается" в document.body
   clone.classList.remove('entering','selected','targetable','aim-attack','hit','activating','dying','dying-hold','affordable','previewed');
@@ -1583,6 +1602,8 @@ function _playFieldFlyIfPending(cardEl, faction){
     // её подробный комментарий (2026-08-05, багфикс по прямому запросу автора — "финальный
     // размер чуть-чуть отличается, деформация").
     const freshRect=cardEl.getBoundingClientRect();
+    const dxFinal=Math.round(freshRect.left-restRect.left), dyFinal=Math.round(freshRect.top-restRect.top);
+    if(dxFinal!==0||dyFinal!==0) _flyDebugLog('PLAY final-sync JUMP', cid, {dxFinal,dyFinal}, '<- this is the visible snap, if any');
     clone.style.transition='none';
     clone.style.width=freshRect.width+'px';
     clone.style.height=freshRect.height+'px';
@@ -1638,6 +1659,7 @@ const SHRINK_PULSE_SCALE = 0.82; // во сколько раз карта уже
 // рассинхрона нет — клон стартует ровно оттуда, где карта только что была видна.
 function _flyCardToGrave(cardEl, faction, pulseOriginRect){
   const rect=pulseOriginRect||cardEl.getBoundingClientRect();
+  _flyDebugLog('DEATH-FLY start', cardEl.dataset.id, {usedPulseOriginRect:!!pulseOriginRect, x:Math.round(rect.left), y:Math.round(rect.top), w:Math.round(rect.width), h:Math.round(rect.height)});
   const graveEl=document.getElementById('arenaGrave'+_arenaPosForFaction(faction));
   if(!graveEl || graveEl.offsetParent===null){ if(cardEl.parentElement) cardEl.remove(); return; } // кладбище сейчас не на экране (напр. под модалкой) — просто убрана, без полёта
   const gRect=graveEl.getBoundingClientRect();
@@ -1724,6 +1746,7 @@ function rZone(id,cards,zone){
           // замером снимаем оба класса и жёстко глушим CSS-анимацию (animation:'none' +
           // синхронный reflow через offsetWidth), чтобы getBoundingClientRect() гарантированно
           // видел карту в состоянии покоя, БЕЗ какого-либо остаточного transform.
+          const _dirtyRect=cardEl.getBoundingClientRect(); // ДО очистки — для диагностики ниже
           cardEl.classList.remove('activating','hit');
           cardEl.style.animation='none';
           void cardEl.offsetWidth; // форсируем применение animation:none синхронно, до замера ниже
@@ -1733,6 +1756,11 @@ function rZone(id,cards,zone){
           // _flyCardToGrave() ниже вместо того, чтобы мерить заново в момент старта
           // полёта, когда соседние одновременно умирающие карты уже могли сдвинуть ряд.
           const pulseOriginRect=cardEl.getBoundingClientRect();
+          {
+            const dx=Math.round(_dirtyRect.left-pulseOriginRect.left), dy=Math.round(_dirtyRect.top-pulseOriginRect.top);
+            if(dx!==0||dy!==0) _flyDebugLog('DEATH pre-clean had residual transform', cardEl.dataset.id, {dx,dy}, '<- this much offset would have leaked into pulseOriginRect without the fix');
+            _flyDebugLog('DEATH pulseOriginRect', cardEl.dataset.id, {x:Math.round(pulseOriginRect.left),y:Math.round(pulseOriginRect.top)});
+          }
           cardEl.classList.add('dying','dying-pulse');
           // "Прибиваем" карту к её текущим экранным координатам (2026-08-05, багфикс по
           // прямому запросу автора — "после смертельного урона от спелла карта смещается
