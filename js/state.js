@@ -29,6 +29,22 @@ function newPlayer(f, deckConfig, customList){
 // Без opts — обычный Hot Seat, поведение полностью как раньше (deckConfig='classic').
 function initState(opts){
   UID=0;
+  // БАГФИКС (2026-08-06, по прямому запросу автора — "после рестарта партии в этой же
+  // сессии анимации карт (авангард/смерть/раздача) либо пропадают, либо летят не туда").
+  // UID выше сбрасывается в 0 при каждом рестарте — значит id карт (c1, c2, c3...)
+  // ПЕРЕИСПОЛЬЗУЮТСЯ между партиями. А глобальные карты полётов в render.js
+  // (_cardsCurrentlyFlying, _flyingClones, _pendingHandOriginRects, _pendingReviveOrigins)
+  // никогда не чистились между играми — если в старой партии там оставался "мусор" под
+  // id, скажем, c5 (полёт, не успевший корректно завершиться до рестарта), новая карта с
+  // ТЕМ ЖЕ id c5 в новой партии наследует эти протухшие ссылки/координаты/detached-клоны.
+  // Отсюда и пропавшие анимации, и "улетает будто в руку прошлой игры".
+  if(typeof _cardsCurrentlyFlying!=='undefined') _cardsCurrentlyFlying.clear();
+  if(typeof _flyingClones!=='undefined') Object.keys(_flyingClones).forEach(k=>delete _flyingClones[k]);
+  if(typeof _pendingHandOriginRects!=='undefined') Object.keys(_pendingHandOriginRects).forEach(k=>delete _pendingHandOriginRects[k]);
+  if(typeof _pendingReviveOrigins!=='undefined') Object.keys(_pendingReviveOrigins).forEach(k=>delete _pendingReviveOrigins[k]);
+  // Заодно убрать любые ФИЗИЧЕСКИ оставшиеся в DOM клоны от прошлой партии (document.body,
+  // не входят в обычную перерисовку экрана — переживают смену G/render()).
+  document.querySelectorAll('.card-fly-clone, .card-death-fly').forEach(el=>el.remove());
   if(typeof _seenPcardPids!=='undefined') _seenPcardPids.clear(); // сброс между партиями, см. render.js/reorderZones
   // Очистка DOM-панели лога (2026-07-27) — раньше lg() перестраивал innerHTML панели
   // ЦЕЛИКОМ из G.logs на КАЖДЫЙ вызов, так что сброс G.logs=[] ниже автоматически
