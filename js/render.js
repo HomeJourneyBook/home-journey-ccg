@@ -1657,7 +1657,7 @@ function _flyCardToGrave(cardEl, faction, pulseOriginRect){
   clone.style.transition=`left ${GRAVE_FLY_MS}ms ease-in, top ${GRAVE_FLY_MS}ms ease-in, transform ${GRAVE_FLY_MS}ms ease-in, opacity ${GRAVE_FLY_MS}ms ease-in`;
   clone.style.left=(gRect.left+gRect.width/2)+'px';
   clone.style.top=(gRect.top+gRect.height/2)+'px';
-  clone.style.transform='translate(-50%,-50%) scale(0.15)';
+  clone.style.transform='translate(-50%,-50%) scale(0.05)'; // 2026-08-06, по прямому запросу автора — было 0.15 (почти не уменьшалось к моменту прилёта на кладбище), уменьшил ещё в 3 раза
   clone.style.opacity='0';
   setTimeout(()=>{
     // 'graveyard' — временно переиспользуем звук открытия модалки кладбища (по прямому
@@ -1700,6 +1700,34 @@ function rZone(id,cards,zone){
             setTimeout(()=>{ if(cardEl.parentElement) cardEl.remove(); }, VOID_BURN_MS);
           }
         } else if(!cardEl.classList.contains('dying-pulse')){
+          // БАГФИКС (2026-08-06, по прямому запросу автора — "клон смерти спавнится со
+          // смещением в ~80% случаев, без явного паттерна от карты/причины смерти").
+          // Разбор первопричины: pulseOriginRect ниже раньше мерился СРАЗУ, без всякой
+          // подготовки — но у карты в момент смерти совершенно нормально может ещё идти
+          // ОДНА из нескольких transform-анимаций собственного действия: `.activating`
+          // (@keyframes cardActivate, 500мс "подъём" при атаке/Bolt/Shot/Vardan/Market/
+          // Nana-пульсах — см. activateCard()) или `.hit` (@keyframes hitShake, 250мс, при
+          // НЕлетальном уроне чуть раньше по этой же карте). Атака-с-контрударом уже
+          // отдельно защищена (killCard() атакующего откладывается на 500мс, чтобы его
+          // СОБСТВЕННЫЙ cardActivate успел доиграть — см. doAttack()), но это НЕ
+          // единственный путь к смерти: самоурон Game of Market (resolveMarketEvent,
+          // задержка 1.2с), Nana-банан, DD Cleave, burn-тик, AOE/Shard/spell-урон — у
+          // каждого своё собственное расписание setTimeout, и ни один явно не проверяет,
+          // не застал ли он карту ПОСЕРЕДИНЕ её же cardActivate/hitShake. Раз
+          // getBoundingClientRect() ниже возвращает АКТУАЛЬНЫЙ (уже трансформированный)
+          // бокс — если в этот момент активен translateY-подъём или shake-сдвиг, снимок
+          // получается смещённым, и это смещение потом "прибивается" на всю паузу+полёт
+          // (см. комментарий про pulseOriginRect ниже) — отсюда рандомность "~80% случаев,
+          // без явного паттерна": совпадёт по таймингу с чьей-то ещё animation или нет.
+          // Фикс — тот же принцип, что уже применяют classList.remove('hit')-подобные места
+          // в hitCard()/activateCard() (см. их комментарии про _cardsCurrentlyFlying): перед
+          // замером снимаем оба класса и жёстко глушим CSS-анимацию (animation:'none' +
+          // синхронный reflow через offsetWidth), чтобы getBoundingClientRect() гарантированно
+          // видел карту в состоянии покоя, БЕЗ какого-либо остаточного transform.
+          cardEl.classList.remove('activating','hit');
+          cardEl.style.animation='none';
+          void cardEl.offsetWidth; // форсируем применение animation:none синхронно, до замера ниже
+          cardEl.style.animation=''; // возвращаем обычное поведение — dying/dying-pulse ниже сами пропишут свою анимацию
           // Снимок позиции ДО начала паузы (2026-08-05, багфикс — см. подробный
           // комментарий у _flyCardToGrave()/pulseOriginRect выше) — передаётся в
           // _flyCardToGrave() ниже вместо того, чтобы мерить заново в момент старта
