@@ -173,6 +173,7 @@ function resetC(c){
   c.rememberUsed=undefined; // Remember Everything — та же одноразовость, тот же сброс при возврате в руку (2026-07-26, по прямому запросу автора)
   c.raisedByPhlegmor=undefined; // тот же принцип (2026-08-06, по прямому запросу автора) — bounce в руку "стирает" прошлое карты, свежий чистый лист
   c.mekMarked=false;c.mekMarkTurns=undefined; // MonoMEK Метка (2026-07-30) — не должна пережить возврат в руку
+  c.sagaStage=0;c.sagaArmorBonus=0;c.sagaAtkBonus=0; // Saga (2026-08-06) — прогресс сгорает при возврате в руку, тот же принцип, что squad-бонусы выше
   const def=DEFS[c.key];if(def){c.hp=def.hp;c.maxHp=def.hp;}
 }
 
