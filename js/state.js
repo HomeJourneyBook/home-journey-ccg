@@ -10,7 +10,7 @@ function newPlayer(f, deckConfig, customList){
     field:[],deck:d.map(k=>mkCard(k)),grave:[],void:[],
     world:null,artifacts:[],extraDraw:0,burned:false,emptyDrawCount:0};
 }
- 
+
 // opts (необязательно) — конфиг режима игры:
 //   { mode:'vsai', humanFaction:'tea'|'jeet', deckConfig:'classic'|'rush',
 //     rushDecks:{tea:[...keys],jeet:[...keys]}, firstFaction:'tea'|'jeet',
@@ -171,6 +171,7 @@ function resetC(c){
   c.incarnTimer=undefined; // Инкарнация: если карта покидает grave не через revive-тик (см. endTurn()), таймер не должен тащиться дальше
   c.incarnUsed=undefined; // одноразовость — сброс, если карта когда-нибудь вернётся в колоду/руку (bounce и т.п.)
   c.rememberUsed=undefined; // Remember Everything — та же одноразовость, тот же сброс при возврате в руку (2026-07-26, по прямому запросу автора)
+  c.raisedByPhlegmor=undefined; // тот же принцип (2026-08-06, по прямому запросу автора) — bounce в руку "стирает" прошлое карты, свежий чистый лист
   c.mekMarked=false;c.mekMarkTurns=undefined; // MonoMEK Метка (2026-07-30) — не должна пережить возврат в руку
   const def=DEFS[c.key];if(def){c.hp=def.hp;c.maxHp=def.hp;}
 }
