@@ -2228,7 +2228,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .card-actions-popup-right{animation: popupSlideRight 0.18s ease-out forwards;}
 .card-actions-popup-left{animation: popupSlideLeft 0.18s ease-out forwards;}
 .float-number{position:absolute; font-family:'MEK',monospace; font-weight:bold; font-size:20px; pointer-events:none; z-index:9999; animation: floatUp 1.5s ease-out forwards;}
-.float-number.dmg{color:#e05555; left:28%; top:81%; transform:translate(-50%,-50%);}
+.float-number.dmg{color:#e05555; left:calc(28% + var(--dmg-jitter-x, 0px)); top:calc(74% + var(--dmg-jitter-y, 0px)); transform:translate(-50%,-50%);}
 .float-number.heal{color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%);}
 .float-number.atk{color:#55aaff; left:76%; top:81%; transform:translate(-50%,-50%);}
 .float-number.maxhp{color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%);}
