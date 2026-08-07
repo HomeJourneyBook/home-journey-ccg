@@ -349,6 +349,17 @@ function _cardStatusEntries(card){
   // отсутствие соседей вообще, generic-текст был бы вводящим в заблуждение).
   const aloneSamuraiActive=hasTag(card,'alone_samurai')&&G[card.f].field.filter(c=>c.id!==card.id&&!c.spell&&!c.world&&!c.artifact).length===0;
   if(aloneSamuraiActive) entries.push({icon:'img/ico_samurai.png', text:'Alone Samurai — no other allies on the battleground: +2 ATK.'});
+  // Saga (2026-08-06, по прямому запросу автора — "в тултипе просто Сага и описание без
+  // перечисления бонусов, а в статусе уже Сага 0-3 и какой бонус действует сейчас").
+  // Тултип (см. ui.js) намеренно общий, вся конкретика — только тут, в статус-панели.
+  if(hasTag(card,'saga')){
+    const stage=card.sagaStage||0;
+    const stageBonusText=stage===0?'no bonus yet'
+      :stage===1?'+1 Max HP'
+      :stage===2?'+1 Max HP, +1 Armor'
+      :'+1 Max HP, +1 Armor, +1 ATK';
+    entries.push({icon:'img/ico_saga.png', text:`Saga ${stage} — ${stageBonusText}.`});
+  }
   // Бафы
   if(card.atkBonus&&!aloneSamuraiActive) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battleground.`});
   if(card.auraMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battleground.`});
@@ -818,6 +829,7 @@ function mkSmallEl(card){
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shadow_shield': '<img src="img/ico_shadow.png" style="width:60%;height:60%;">',
   'alone_samurai': '<img src="img/ico_samurai.png" style="width:60%;height:60%;">',
+  'saga': '<img src="img/ico_saga.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
@@ -1098,6 +1110,7 @@ function mkEl(card,zone){
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shadow_shield': '<img src="img/ico_shadow.png" style="width:60%;height:60%;">',
   'alone_samurai': '<img src="img/ico_samurai.png" style="width:60%;height:60%;">',
+  'saga': '<img src="img/ico_saga.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
