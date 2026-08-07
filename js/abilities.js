@@ -671,6 +671,7 @@ function triggerAbilities(card, timing, ctx={}){
             playSfx('debaf');
             if(fearTargets.length>0) lg(`${card.name}: all enemy creatures are Feared!`,'imp');
             else lg(`${card.name}: fizzles — every enemy creature is immune.`,'hint');
+            let anyFoxyDodged=false;
             allEnemies.forEach(t=>{
               if(!fearTargets.includes(t)){
                 queueFieldFx(t.id,'IMMUNE','fx-immune');
@@ -682,10 +683,17 @@ function triggerAbilities(card, timing, ctx={}){
               // ВНУТРИ forEach, а не в общем фильтре списка целей.
               if(hasTag(t,'foxy') && Math.random()<0.5){
                 queueFieldFx(t.id,'MISSED!','fx-miss');
+                anyFoxyDodged=true;
                 return;
               }
               t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');
             });
+            // БАГФИКС (2026-08-06, по прямому запросу автора) — та же пропущенная miss.wav,
+            // что у точечных Fear/Burn/Provoke-break спеллов выше по файлу. ОДИН звук на
+            // весь AOE-каст (не по каждой уклонившейся цели отдельно) — иначе несколько
+            // Foxy-карт в одном fear_all задробили бы один и тот же звук подряд несколько
+            // раз за долю секунды.
+            if(anyFoxyDodged) playSfx('miss');
           }
         } break;
 
@@ -713,6 +721,7 @@ function triggerAbilities(card, timing, ctx={}){
             playSfx('card_fire_atack');
             if(burnTargets.length>0) lg(`${card.name}: all enemy creatures are on fire!`,'imp');
             else lg(`${card.name}: fizzles — every enemy creature is immune.`,'hint');
+            let anyFoxyDodged=false;
             allEnemies.forEach(t=>{
               if(!burnTargets.includes(t)){
                 queueFieldFx(t.id,'IMMUNE','fx-immune');
@@ -722,11 +731,15 @@ function triggerAbilities(card, timing, ctx={}){
               // принцип: каждая цель кидает свою монетку 50/50 отдельно.
               if(hasTag(t,'foxy') && Math.random()<0.5){
                 queueFieldFx(t.id,'MISSED!','fx-miss');
+                anyFoxyDodged=true;
                 return;
               }
               t.burning=true;
               t.burnTurns=BURN_DURATION;
             });
+            // БАГФИКС (2026-08-06, по прямому запросу автора) — та же пропущенная miss.wav,
+            // что у fear_all выше. Один звук на весь AOE-каст, не по каждой цели отдельно.
+            if(anyFoxyDodged) playSfx('miss');
           }
         } break;
 
