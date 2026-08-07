@@ -354,11 +354,14 @@ function _cardStatusEntries(card){
   // Тултип (см. ui.js) намеренно общий, вся конкретика — только тут, в статус-панели.
   if(hasTag(card,'saga')){
     const stage=card.sagaStage||0;
-    const stageBonusText=stage===0?'no bonus yet'
-      :stage===1?'+1 Max HP'
-      :stage===2?'+1 Max HP, +1 Armor'
-      :'+1 Max HP, +1 Armor, +1 ATK';
-    entries.push({icon:'img/ico_saga.png', text:`Saga ${stage} — ${stageBonusText}.`});
+    if(stage===0){
+      entries.push({icon:'img/ico_saga.png', text:`Saga hasn't started yet.`});
+    } else {
+      const stageBonusText=stage===1?'+1 Max HP'
+        :stage===2?'+1 Max HP, +1 Armor'
+        :'+1 Max HP, +1 Armor, +1 ATK';
+      entries.push({icon:'img/ico_saga.png', text:`Saga ${stage}: ${stageBonusText}.`});
+    }
   }
   // Бафы
   if(card.atkBonus&&!aloneSamuraiActive) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battleground.`});
