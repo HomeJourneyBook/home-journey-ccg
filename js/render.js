@@ -751,7 +751,12 @@ function mkSmallEl(card){
   if(G.phase==='spellDispelTarget'&&card.f!==G.turn&&!card.spell&&!card.world&&!card.artifact&&isSpellTargetable(card,G[card.f].field)) d.classList.add('targetable','aim-target');
   if(G.phase==='spellBuffTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
   if(G.phase==='spellArmorTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact) d.classList.add('healable','aim-heal');
-  if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&(card.sleeping||card.exhausted)) d.classList.add('healable','aim-heal');
+  // БАГФИКС (2026-08-06, по прямому запросу автора — "можно выбрать карту с дебаффом для
+  // Clean, но зелёная мишень не рендерится"). Раньше здесь стояла ДОПРЕДИЗАЙНОВАЯ проверка
+  // (card.sleeping||card.exhausted) — клик-гейт в onClick()/game.js уже расширили под Clean
+  // (сон/усталость ИЛИ burning/feared/provokeBroken, минус frozen), а эту, отдельную,
+  // подсветку-копию забыли обновить тем же самым условием.
+  if(G.phase==='spellUntapTarget'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen&&(card.sleeping||card.exhausted||card.burning||card.feared||card.provokeBroken)) d.classList.add('healable','aim-heal');
   // spellProvokeBreakTarget (EXPOSE/UNMASK) — только реальные Provoke-цели подсвечиваются
   // как валидные, как и у spellUntapTarget выше (нет смысла подсвечивать то, по чему клик
   // всё равно молча проигнорируется — см. click-хендлер в game.js).
