@@ -2852,20 +2852,20 @@ function doSacrifice_target(card){
 // Tea прикладывает Burn — обе надбавки вознаграждают за то, что игрок уже вложился в
 // профильный debuff своей фракции). Оба тега взаимоисключающие на практике (по одному
 // артефакту на карту), но код не мешает случайно повесить оба сразу — просто сложатся.
-function shardBaseDmg(artifact, oppK){
-  // 2026-07-23 (по прямому запросу автора, fix): раньше тут был фолбэк `||1`, который
-  // тихо превращал shard:0 обратно в 1 (0 — falsy в JS). getTagVal() возвращает null
-  // только если тега вообще нет — тогда и подставляем 1 по умолчанию; если тег есть со
-  // значением 0, используем именно 0.
-  const tagVal=getTagVal(artifact,'shard');
-  let dmg=(tagVal===null)?1:tagVal;
+// БАГФИКС/РЕДИЗАЙН (2026-08-06, по прямому запросу автора — упростили механику): раньше
+// урон был 0 базой + N (кол-во горящих/испуганных ВРАГОВ НА ВСЁМ ПОЛЕ). Теперь: 1 базовый
+// магический урон ВСЕГДА, +1 (не масштабируется дальше), если у КОНКРЕТНОЙ выбранной цели
+// уже есть debuff своей семьи (burning для shard_burn_scale/THE BOOK, feared для
+// shard_fear_scale/SHARD) — не по всему полю противника, только по самой цели. target
+// опционален (undefined до выбора цели) — тогда возвращается голая база (1), для превью-
+// текста в doShard() до клика по карте; финальный расчёт в doShardTarget() ниже всегда
+// вызывает с реальной целью.
+function shardBaseDmg(artifact, oppK, target){
+  let dmg=1;
   if(!artifact) return dmg;
-  if(hasTag(artifact,'shard_burn_scale')){
-    dmg+=G[oppK].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.burning).length;
-  }
-  if(hasTag(artifact,'shard_fear_scale')){
-    dmg+=G[oppK].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&c.feared).length;
-  }
+  if(!target) return dmg; // цель ещё не выбрана — превью базового значения без бонуса
+  if(hasTag(artifact,'shard_burn_scale') && target.burning) dmg+=1;
+  if(hasTag(artifact,'shard_fear_scale') && target.feared) dmg+=1;
   return dmg;
 }
 
@@ -2876,7 +2876,7 @@ function doShard(artifact){
   G.phase='shardTarget';
   G.sel=artifact.id;
   const oppK=G.turn==='tea'?'jeet':'tea';
-  lg(`${artifact.name}: select an enemy creature to deal ${shardBaseDmg(artifact,oppK)} damage.`,'hint');
+  lg(`${artifact.name}: select an enemy creature to deal ${shardBaseDmg(artifact,oppK)} damage (+1 if it's already burning/feared).`,'hint');
   render();
 }
 
@@ -3447,12 +3447,10 @@ function doShardTarget(card){
     lg('Select an enemy creature.','hint');return;
   }
   const artifact=G[G.turn].artifacts.find(a=>hasTag(a,'shard'));
-  // 2026-07-17: the old "+1 dmg if THIS target is feared" bonus is gone — folded into
-  // shard_fear_scale's count-based scaling instead (which already counts this very target
-  // if it's feared), so keeping both would have double-counted. Keeps SHARD and THE BOOK
-  // symmetric: base value, scaled purely by their own family's live board count, no extra
-  // per-target-condition bonus on top.
-  const dmg=shardBaseDmg(artifact,oppK);
+  // 2026-08-06 (по прямому запросу автора, редизайн — см. подробный комментарий у
+  // shardBaseDmg() выше): бонус снова завязан именно на ЭТУ цель (burning/feared у неё
+  // самой), а не на подсчёт по всему полю противника, как было раньше (2026-07-17→08-06).
+  const dmg=shardBaseDmg(artifact,oppK,card);
   // THE BOOK gets its own fx label (thematically "burned by the page") — same fx-shard
   // visual system as SHARD itself, per author request ("сделать всё как у Шард").
   const fxLabel=hasTag(artifact,'shard_burn_scale')?'SCORCH!':'SHARD!';
