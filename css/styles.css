@@ -2233,7 +2233,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .float-number.atk{color:#55aaff; left:76%; top:81%; transform:translate(-50%,-50%);}
 .float-number.maxhp{color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%);}
 .float-number.armoraura{color:var(--color-cream); left:28%; top:81%; transform:translate(-50%,-50%);}
-.float-number.sagaup{color:#ffffff; left:50%; top:60%; transform:translate(-50%,-50%); font-size:16px;}
 .float-number.armorloss{color:var(--color-cream);
   left:calc(var(--card-small-w)*0.048 + var(--card-small-h)*0.13);
   top:calc(2px + var(--card-small-art-h) - (var(--card-small-h)*0.065));
@@ -2267,6 +2266,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .field-fx-popup.fx-immune{color:#5be3ff;} /* Ward-иммунитет (2026-07-27, по прямому запросу автора) — тот же голубой, что у fx-cleaned, читается как "защитный", не как урон/дебафф */
 .field-fx-popup.fx-absorb{color:#ffd700;} /* Solana Shield поглощает удар (2026-07-27, по прямому запросу автора) — золотой, как fx-squad, читается как "мощная защитная реакция" */
 .field-fx-popup.fx-market-up{color:#4caf50;} /* Game of Market (2026-07-28) — рынок вверх, бонус-урон по цели — зелёный */
+.field-fx-popup.fx-sagaup{color:#ffffff;} /* Saga Up / Stand Alone (2026-08-06, по прямому запросу автора) — тот же field-fx-popup стиль/позиция, что у fx-market-up, просто белый цвет */
 .field-fx-popup.fx-market-down{color:#e05555;} /* Game of Market (2026-07-28) — рынок вниз, самоурон — тот же красный, что fx-spell-dmg */
 .card-small.dying{animation: cardDie 0.4s ease-in forwards; pointer-events:none;}
 /* dying-hit (2026-08-06, смена подхода — см. подробный комментарий в render.js/rZone() —
