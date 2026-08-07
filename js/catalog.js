@@ -135,6 +135,7 @@ function renderCatalog(){
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shadow_shield': '<img src="img/ico_shadow.png" style="width:60%;height:60%;">',
   'alone_samurai': '<img src="img/ico_samurai.png" style="width:60%;height:60%;">',
+  'saga': '<img src="img/ico_saga.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
@@ -217,6 +218,7 @@ function openCardDetail(def){
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shadow_shield': '<img src="img/ico_shadow.png" style="width:60%;height:60%;">',
   'alone_samurai': '<img src="img/ico_samurai.png" style="width:60%;height:60%;">',
+  'saga': '<img src="img/ico_saga.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
