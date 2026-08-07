@@ -7,7 +7,7 @@ function getTagVal(card, tagName){
   const valStr=rest.startsWith(':')?rest.slice(1):rest;
   const num=parseInt(valStr);
   return isNaN(num)?valStr:num;
-} 
+}
 function hasTag(card, tagName){ return getTagVal(card,tagName)!==null; }
 
 // Rage (переработано 2026-07-20, по прямому запросу автора) — раньше это был on_attack-триггер,
@@ -1075,6 +1075,17 @@ function triggerAbilities(card, timing, ctx={}){
           // карта была на середине своего собственного incarnTimer-отсчёта, этот отсчёт
           // прерван (карта больше не в grave) — гасим поле явно, incarnUsed не трогаем.
           r.incarnTimer=undefined;
+          // raisedByPhlegmor (2026-08-06, по прямому запросу автора — "Плегмор может по кругу
+          // раскапывать одну и ту же карту, надо это ограничить") — тот же паттерн, что уже
+          // есть у incarnUsed/rememberUsed: одноразовая метка, проверяется в killCard()
+          // (game.js) — при СЛЕДУЮЩЕЙ смерти этой карты toVoid форсируется, минуя кладбище,
+          // независимо от того, жив ли ещё сам Плегмор на поле (метка — прошлое самой карты,
+          // не завязана на присутствие раскопавшего её существа). НЕ сбрасывается на второй
+          // проверке (в отличие от incarnUsed) — карта уходит в Войд гарантированно, никакого
+          // "второго использования" тут нет. Сбрасывается только если карту вернут в руку
+          // (resetC(), state.js), тем же принципом, что incarnUsed/rememberUsed там же —
+          // "забывает" своё прошлое и получает свежий чистый лист.
+          r.raisedByPhlegmor=true;
           r.f=curK;
           const def=DEFS[r.key];
           if(def) r.maxHp=def.hp; // restore base maxHp
