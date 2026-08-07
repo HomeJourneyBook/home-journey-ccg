@@ -2172,11 +2172,22 @@ function killCard(card,faction,toVoid=false){
     toVoid=true;
     _incarnSpent=true;
   }
+  // raisedByPhlegmor (2026-08-06, по прямому запросу автора) — тот же принцип, что incarnUsed
+  // чуть выше: карта, однажды раскопанная Плегмором (см. abilities.js, case 'raise'), при
+  // ЛЮБОЙ следующей смерти уходит СРАЗУ в Войд, минуя кладбище — не даёт бесконечно гонять
+  // одну и ту же карту по кругу raise→смерть→raise. Не завязано на то, жив ли сам Плегмор.
+  let _phlegmorSpent=false;
+  if(!toVoid && card.raisedByPhlegmor){
+    toVoid=true;
+    _phlegmorSpent=true;
+  }
   if(toVoid){
     card.voided=true;
     G[faction].void.push(card);
     if(_incarnSpent){
       lg(`${card.name}: Incarnation already spent — exiled for good.`,'die');
+    } else if(_phlegmorSpent){
+      lg(`${card.name}: raised by Phlegmor once already — exiled for good.`,'die');
     } else {
       lg(`${card.name} burned to ash — lost forever.`,'die');
     }
