@@ -684,6 +684,13 @@ function triggerAbilities(card, timing, ctx={}){
               if(hasTag(t,'foxy') && Math.random()<0.5){
                 queueFieldFx(t.id,'MISSED!','fx-miss');
                 anyFoxyDodged=true;
+                // avenge_foxy_miss (2026-08-06, по прямому запросу автора) — этот же
+                // 'fear_all' case переиспользуется ДВУМЯ путями: NIGHTMARE-спелл (card.spell
+                // true — не применяется, спелл не существо) и enter_fear_all у LORD OF
+                // TERROR/OGNIVEN (card — сама карта-существо, только что вошедшая — тут
+                // ДОЛЖНО применяться, это и есть "AOE-поджог/фир при входе", про который
+                // явно просил автор).
+                if(!card.spell) _triggerFoxyAvenge(t,card);
                 return;
               }
               t.feared=true;queueFieldFx(t.id,'FEARED!','fx-fear');
@@ -732,6 +739,11 @@ function triggerAbilities(card, timing, ctx={}){
               if(hasTag(t,'foxy') && Math.random()<0.5){
                 queueFieldFx(t.id,'MISSED!','fx-miss');
                 anyFoxyDodged=true;
+                // avenge_foxy_miss (2026-08-06) — тот же принцип, что у fear_all выше: этот
+                // 'burn_all' case реюзается WILDFIRE-спеллом (card.spell true — не
+                // применяется) и enter_burn_all у OGNIVEN (card — существо — применяется,
+                // это и есть "AOE-поджог при входе").
+                if(!card.spell) _triggerFoxyAvenge(t,card);
                 return;
               }
               t.burning=true;
