@@ -3112,6 +3112,9 @@ function doSpellBurnTarget(card){
     // Foxy Trick (2026-07-27) — не идёт через dmgCard() вообще (чистое навешивание
     // статуса, не урон), поэтому бросок кидается ЗДЕСЬ отдельно, тем же способом,
     // что и в dmgCard()/fear_all/burn_all.
+    playSfx('miss'); // БАГФИКС (2026-08-06, по прямому запросу автора) — забыт при первой
+    // реализации 2026-07-27; dmgCard() получил этот же звук на день позже (2026-08-05), но
+    // сюда его тогда не перенесли, хотя комментарий и предупреждал "не идёт через dmgCard()".
     queueFieldFx(card.id,'MISSED!','fx-miss');
     lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
@@ -3140,6 +3143,7 @@ function doSpellFearTarget(card){
     lg(`${card.name}'s Ward blocks the fear entirely.`,'dmg');
   } else if(hasTag(card,'foxy') && Math.random()<0.5){
     // Foxy Trick (2026-07-27) — см. комментарий в doSpellBurnTarget() выше.
+    playSfx('miss'); // БАГФИКС (2026-08-06, по прямому запросу автора) — тот же пропуск, что у doSpellBurnTarget выше
     queueFieldFx(card.id,'MISSED!','fx-miss');
     lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
@@ -3284,6 +3288,7 @@ function doSpellProvokeBreakTarget(card){
   } else if(hasTag(card,'foxy') && Math.random()<0.5){
     // Foxy Trick (2026-07-27, по прямому запросу автора — Provoke-break тоже считается
     // дебаффом под уклонение) — та же логика, что в doSpellFearTarget/doSpellBurnTarget.
+    playSfx('miss'); // БАГФИКС (2026-08-06, по прямому запросу автора) — тот же пропуск, что у остальных point-таргет спеллов
     queueFieldFx(card.id,'MISSED!','fx-miss');
     lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
