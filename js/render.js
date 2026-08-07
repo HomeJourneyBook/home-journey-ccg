@@ -338,6 +338,10 @@ function _cardStatusEntries(card){
   // отличие от Frost/Mek/Burn выше — тут просто константный факт "уже нельзя второй раз").
   if(hasTag(card,'incarnation')&&card.incarnUsed) entries.push({icon:'img/ico_incarn.png', text:'Incarnation already used.'});
   if(hasTag(card,'remember')&&card.rememberUsed) entries.push({icon:'img/ico_remember.png', text:'Reborn already used.'});
+  // Raised by Phlegmor (2026-08-06, по прямому запросу автора) — тот же принцип, что
+  // incarnUsed/rememberUsed чуть выше: константный факт, показывается всегда, пока флаг
+  // стоит на карте, не завязан на присутствие Плегмора на поле (см. killCard(), game.js).
+  if(card.raisedByPhlegmor) entries.push({icon:'img/ico_incarn.png', text:'Raised by Phlegmor — will go to the Void on death.'});
   // Бафы
   if(card.atkBonus) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battleground.`});
   if(card.auraMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battleground.`});
