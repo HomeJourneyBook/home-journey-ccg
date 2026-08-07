@@ -168,7 +168,7 @@ const CLASSIC_TEA_DECK = [
   't_w1','t_a1','t_faeron','t_ogniv',
   't_trvl18_w','t_trvl34_w','t_trvl14_w','t_trvl58_w','t_trvl42_w','t_trvl692_w', // t_trvl870_w→t_trvl18_w (mirror-фикс, см. выше); t_trvl890_w(szg cost2)→t_trvl34_w(szg cost3) — 2026-08-04, по прямому запросу автора, уровняли кривую Szarg с Jeet (2:1 3:1 5:1 на обеих фракциях теперь)
   't_trvl31_w','t_trvl921_w','t_trvl972_w','t_trvl495_w','t_trvl1034_w','t_trvl6_w',
-  't_trvl250_w','t_trvl28_w','t_trvl26_w','t_trvl533_w', // t_trvl39_w(xui cost2)→t_trvl26_w(xui cost3) — 2026-08-04, по прямому запросу автора, уровняли кривую Xuiqtr с Jeet (2:1 3:2 на обеих фракциях теперь); t_trvl1015_w(drg cost4, vanguard)→t_trvl533_w(drg cost5, untamed) — 2026-08-06, по прямому запросу автора: у Tea был всего 1 cost5-тело против 3 у Jeet, кривая маны поджата, сдвинули один Dreegan с 4 на 5
+  't_trvl250_w','t_trvl28_w','t_trvl26_w','t_trvl1015_w', // t_trvl39_w(xui cost2)→t_trvl26_w(xui cost3) — 2026-08-04, по прямому запросу автора, уровняли кривую Xuiqtr с Jeet (2:1 3:2 на обеих фракциях теперь); t_trvl533_w(drg, cost5→4 обратно)↔t_trvl1015_w(drg, cost4→5, пересчитан на hp10/atk2) — 2026-08-06, по прямому запросу автора: поменяли местами ещё раз, теперь #1015 (vanguard) занимает cost5-слот, #533 (untamed) вернулся на cost4 (см. data.js)
   // ── ЭКСПЕРИМЕНТ 35→40, раунд 2 (2026-08-01, кандидат для сравнительного прогона
   // sim/headless.js, см. чат — НЕ синхронизировано с Rush-деккбилдером, НЕ финальное
   // решение). Раунд 1 (см. git-history/чат) добавлял t_trvl607_w (Mechird cost5,
@@ -202,7 +202,7 @@ const CLASSIC_JEET_DECK = [
   'j_trvl934_w', // Umbasir cost2 (bolt:1, ваниль) — Umbasir 1→2, дешёвый filler
   'j_trvl133_w', // Umbasir cost4 (bolt:1+mek+regen) — Umbasir 2→3, sustain-пик вместо снятого cost5 shield/ward (#248)
   'j_trvl178_w', // Mechird cost1 (shot:1) — 2026-08-06, по прямому запросу автора: заменён j_trvl804_w (Mechird cost3, shot+regen) — тот же curve-фикс, что у Tea (см. t_trvl38_w→t_trvl150_w выше), зеркально по фракции
-  'j_trvl3_w',   // Xuiqtr cost3 (intercept+vampiric) — Xuiqtr 2→3, не менялось с раунда 1 — уже был лучший sustain-пик в архетипе
+  'j_trvl76_w',  // Xuiqtr cost3 (intercept+death_atk:1) — 2026-08-06, по прямому запросу автора: заменён j_trvl3_w (intercept+vampiric) — vampiric лечит на КАЖДОЙ успешной атаке (постоянный ресурс), заметно сильнее разового death_atk/death_armor-паттерна у остальных cost3-пиров; подозревается как один из вкладчиков в перекос винрейта Jeet (43-45%/55-57% на нескольких N=1500 прогонах после свежих правок кривой маны)
   'j_phleg',     // PHLEGMOR (unique, raise:1 — некромантия/воскрешение, cost8) — 5-й слот, не было в Classic. Та же оговорка про историю балансировки, что у NABUNAGI — последний срез (atk2/hp8) в изолированных тестах всё ещё держался 56-59.7% WWP, не факт что холодная.
   'j_sp23','j_sp10','j_sp20','j_sp17',
   'j_sp14','j_sp14','j_sp1','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp2','j_sp27','j_sp22',
