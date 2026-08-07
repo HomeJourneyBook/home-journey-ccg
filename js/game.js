@@ -278,14 +278,23 @@ function onClick(card,zone){
     cancelPendingSpell();return;
   }
   if(G.phase==='spellUntapTarget'){
-    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact){
-      if(card.sleeping||card.exhausted){
+    // РЕДИЗАЙН (2026-08-06, по прямому запросу автора — ELIXIRS/OBLIVION cost2→3, теперь
+    // помимо активации ещё и Clean, тем же набором, что снимает Orbiton-хил (burning/
+    // feared/provokeBroken), НЕ трогает mekMarked). Раньше цель была валидна ТОЛЬКО если
+    // card.sleeping||card.exhausted — теперь ДОПОЛНИТЕЛЬНО валидна карта с дебаффом для
+    // очистки, даже если она уже активна (не спит и не устала). frozen — явное
+    // исключение по прямому запросу автора: замороженную карту выбрать нельзя вообще,
+    // даже если она параллельно ещё и sleeping/exhausted/дебаффнута — тот же паттерн, что
+    // уже используется для других own-creature target-фаз в этом файле (см. активацию
+    // способности чуть ниже, card.frozen блокирует её точно так же).
+    if(zone==='field'&&card.f===G.turn&&!card.spell&&!card.world&&!card.artifact&&!card.frozen){
+      if(card.sleeping||card.exhausted||card.burning||card.feared||card.provokeBroken){
         doSpellUntapTarget(card);return;
       }
-      // Клик по своей карте, которая и так уже активна — заклинанию нечего снимать.
-      // По просьбе автора это больше НЕ считается отменой (раньше любой такой клик
-      // отменял заклинание с рефандом) — просто игнорируем клик и ждём валидную цель,
-      // чтобы случайный тап не по той карте не срывал применение.
+      // Клик по своей карте, которая и так уже активна и ничего не несёт для очистки —
+      // заклинанию нечего делать. По просьбе автора это НЕ считается отменой (раньше любой
+      // такой клик отменял заклинание с рефандом) — просто игнорируем клик и ждём валидную
+      // цель, чтобы случайный тап не по той карте не срывал применение.
       return;
     }
     cancelPendingSpell();return;
@@ -3284,7 +3293,16 @@ function doSpellUntapTarget(card){
   playSfx('baf');
   const wasReady=!card.sleeping&&!card.exhausted;
   card.sleeping=false;card.exhausted=false;
-  lg(`${spell.name}: ${card.name} is active${wasReady?' (was already active)':''}!`,'hl');
+  // Clean (2026-08-06, по прямому запросу автора — тот же набор, что снимает Orbiton-хил,
+  // см. onClick()/healTarget выше: burning/feared/provokeBroken). НЕ трогает mekMarked —
+  // по прямому запросу автора это исключение специально оставлено недостижимым для этого
+  // спелла, ровно как оно уже недостижимо для heal.
+  const debuffs=[];
+  if(card.burning){card.burning=false;debuffs.push('fire');}
+  if(card.feared){card.feared=false;debuffs.push('fear');}
+  if(card.provokeBroken){card.provokeBroken=false;debuffs.push('provoke suppression');}
+  if(debuffs.length) queueFieldFx(card.id,'CLEANED','fx-cleaned');
+  lg(`${spell.name}: ${card.name} is active${wasReady?' (was already active)':''}!${debuffs.length?' Removes '+debuffs.join(' & ')+'.':''}`,'hl');
   queueFieldFx(card.id,'AWAKENED!','fx-untap'); // плейсхолдер — позже заменится на гифку
   G[G.turn].void.push(spell);
   spell.voided=true;
