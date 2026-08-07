@@ -589,10 +589,18 @@ function aiResolvePendingSpellTarget(){
     return;
   }
   if(G.phase==='spellUntapTarget'){
-    const candidates=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
+    // РЕДИЗАЙН (2026-08-06, по прямому запросу автора — см. подробный комментарий у
+    // onClick()/doSpellUntapTarget() в game.js): теперь валидна не только неактивная
+    // карта (sleeping/exhausted), но и уже активная с дебаффом для Clean (burning/feared/
+    // provokeBroken). frozen исключена явно — тот же гейт, что и у человека.
+    const candidates=G[G.aiFaction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.frozen&&(c.sleeping||c.exhausted||c.burning||c.feared||c.provokeBroken));
     if(candidates.length===0){ cancelPendingSpell(); return; }
-    candidates.sort((a,b)=>effAtk(b)-effAtk(a)); // reactivate the hardest hitter
-    doSpellUntapTarget(candidates[0]);
+    // Приоритет: сперва реально неактивная карта (даёт лишнее действие ходом), иначе —
+    // просто самая сильная по effAtk среди тех, у кого есть что почистить.
+    const inactive=candidates.filter(c=>c.sleeping||c.exhausted);
+    const pool=inactive.length>0?inactive:candidates;
+    pool.sort((a,b)=>effAtk(b)-effAtk(a)); // reactivate/clean the hardest hitter
+    doSpellUntapTarget(pool[0]);
     return;
   }
   if(G.phase==='spellBounceTarget'){
@@ -1095,7 +1103,10 @@ function aiSpellHasValidTarget(card){
     return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.feared&&!c.frozen);
   }
   if(hasTag(card,'spell_untap')){
-    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&(c.sleeping||c.exhausted));
+    // РЕДИЗАЙН (2026-08-06, по прямому запросу автора) — та же расширенная валидность, что
+    // и у candidates-фильтра в aiRunActivesThenAttack() выше: неактивная карта ИЛИ активная
+    // с дебаффом для Clean, frozen исключена.
+    return G[G.aiFaction].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.frozen&&(c.sleeping||c.exhausted||c.burning||c.feared||c.provokeBroken));
   }
   if(hasTag(card,'spell_bounce_target')){
     // Цель любая сторона — но СВОЮ карту бaунсить валидно только если это реально того
