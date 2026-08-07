@@ -3681,41 +3681,6 @@ function endTurn(){
       if(c.mekMarkTurns<=0) c.mekMarked=false;
     }
     if(hasTag(c,'untamed')) c.exhausted=false;
-    // Saga (2026-08-06, по прямому запросу автора — тег from Krtv, Tea-эксклюзив, зеркалит
-    // Foxy Trick на Jeet стороне). Тикает РОВНО здесь — начало КАЖДОГО собственного хода
-    // владельца, тот же момент, что уже снимает sleeping/feared выше в этом же forEach —
-    // "карта на поле пережила ещё один свой ход". c.sagaStage растёт 0→1→2→3, останавливаясь
-    // на потолке (не откатывается само по себе, только явный сброс при смерти/bounce —
-    // см. killCard()/resetC()). Бонусы КУМУЛЯТИВНЫ (не заменяют друг друга): Saga1 даёт
-    // +1 maxHP (постоянное приращение, тем же паттерном, что squad/ETB-баффы — НЕ через
-    // aura-пересчёт с нуля, см. applyAuras()), Saga2 добавляет +1 Armor поверх (через
-    // sagaArmorBonus, см. recalcArmor() ниже), Saga3 добавляет +1 ATK поверх обоих
-    // (sagaAtkBonus, отдельное поле от atkBonus/squadAtkBonus — та же логика, что
-    // squadAtkBonus уже держит свой персистентный кусок отдельно от ауры).
-    if(hasTag(c,'saga') && (c.sagaStage||0)<3){
-      c.sagaStage=(c.sagaStage||0)+1;
-      let bonusText='';
-      if(c.sagaStage===1){
-        c.maxHp+=1; c.hp+=1;
-        bonusText='+1 Max HP';
-      } else if(c.sagaStage===2){
-        c.sagaArmorBonus=(c.sagaArmorBonus||0)+1;
-        recalcArmor(c.f);
-        bonusText='+1 Armor';
-      } else if(c.sagaStage===3){
-        c.sagaAtkBonus=(c.sagaAtkBonus||0)+1;
-        bonusText='+1 ATK';
-      }
-      lg(`${c.name}: Saga ${c.sagaStage} — ${bonusText}.`,'hl');
-      const sagaId=c.id;
-      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,bonusText,'atk')));
-      // "Saga Up" (2026-08-06, по прямому запросу автора) — отдельная белая плашка ЧУТЬ
-      // ВЫШЕ на карте (см. .float-number.sagaup, css/styles.css), чтобы не конкурировать
-      // визуально с плашкой конкретного бонуса (+1 Max HP/+1 Armor/+1 ATK) чуть выше —
-      // та же самая логика срабатывания, что и у KREATIV-форса (см. _forceSagaMax() ниже
-      // по файлу), общий сигнал "стадия Саги выросла", независимо от того, каким путём.
-      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,'Saga Up','sagaup')));
-    }
   });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
   G.turn=next;
@@ -3771,6 +3736,37 @@ function _runTurnStartEffects(){
     // сбрасывается здесь же, в начале хода владельца перехватчика — готов перехватывать
     // снова с первой же вражеской атаки в их следующий ход.
     c.interceptUsed=false;
+    // Saga (2026-08-06, тег from Krtv, Tea-эксклюзив) — БАГФИКС той же даты (по прямому
+    // запросу автора, живой репорт: "тикает на ходу противника вместо своего, и Saga3
+    // бонус не долетает"). Раньше этот блок ошибочно сидел в endTurn() у ВЫХОДЯЩЕГО
+    // игрока (тот же forEach, что снимает sleeping/feared там) — по факту это НЕ "начало
+    // моего хода", а "конец моего хода/подготовка соперника". Корректное место — именно
+    // здесь, в _runTurnStartEffects(): `cur=G[G.turn]` уже флипнут на игрока, чей ход
+    // РЕАЛЬНО начинается (см. комментарий у exhausted=false чуть выше в этой же функции).
+    // Таймлайн, подтверждённый автором: карта разыграна → sagaStage=0 ("Сага ещё не
+    // началась", status-текст см. render.js) → проходит ход соперника, ничего не меняется
+    // → на СВОЁМ следующем ходу владельца (вот этот момент) → sagaStage=1, "Saga 1: +1
+    // Max HP" → и так далее до потолка на 3. Двоеточие в тексте, не тире (тоже фикс по
+    // прямому запросу автора).
+    if(hasTag(c,'saga') && (c.sagaStage||0)<3){
+      c.sagaStage=(c.sagaStage||0)+1;
+      let bonusText='';
+      if(c.sagaStage===1){
+        c.maxHp+=1; c.hp+=1;
+        bonusText='+1 Max HP';
+      } else if(c.sagaStage===2){
+        c.sagaArmorBonus=(c.sagaArmorBonus||0)+1;
+        recalcArmor(c.f);
+        bonusText='+1 Armor';
+      } else if(c.sagaStage===3){
+        c.sagaAtkBonus=(c.sagaAtkBonus||0)+1;
+        bonusText='+1 ATK';
+      }
+      lg(`${c.name}: Saga ${c.sagaStage}: ${bonusText}.`,'hl');
+      const sagaId=c.id;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,bonusText,'atk')));
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,'Saga Up','sagaup')));
+    }
     // tempAtkBonus (ARCHIVE и т.п.) — НЕ сбрасываем здесь. Автор уточнил: баф должен
     // быть постоянным (живёт, пока существо не умрёт), а не "переживает один ход
     // соперника и гаснет к следующему своему ходу" — предыдущая версия сбрасывала
