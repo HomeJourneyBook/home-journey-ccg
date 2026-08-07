@@ -889,7 +889,7 @@ const tagIcons=(card.tags||[])
 ${!isSW?`<div class="card-small-stats">
   <div class="card-small-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}">${shieldActive?'<img src="img/solana_shield.png" class="card-small-shield-icon" alt="Shield">':`<span class="card-small-hp">${card.hp}</span>`}</div>
 <img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
-  <div class="card-small-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
+  <div class="card-small-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)+(card.sagaAtkBonus||0)}"><span class="card-small-atk">${card.atk+(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)+(card.sagaAtkBonus||0)}</span></div>
 </div>`
 :`<div class="card-small-stats" style="justify-content:center;"><img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div></div>`}`;
   if(card.id===G.sel&&card.f===G.turn&&!card.exhausted&&!card.sleeping&&!card.feared){
@@ -1227,7 +1227,7 @@ const tagIcons = (card.tags||[])
     ${!isSW?`<div class="card-stats">
       <div class="card-hp-box" data-hp="${card.hp}" data-maxhp="${card.maxHp}"><span class="card-hp"><img src="./img/heart.png" class="stat-icon">${card.maxHp}</span></div>
 <img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon">
-      <div class="card-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)}</span></div>
+      <div class="card-atk-box" data-base="${card.atk}" data-bonus="${(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)+(card.sagaAtkBonus||0)}"><span class="card-atk"><img src="./img/attack.png" class="stat-icon">${card.atk+(card.atkBonus||0)+rageAtkBonus(card)+(card.squadAtkBonus||0)+(card.tempAtkBonus||0)+(card.sagaAtkBonus||0)}</span></div>
     </div>`
       :`<div class="card-stats" style="justify-content:center;"><img src="img/${card.f==='jeet'?'chel2':'chel'}.png" class="card-stats-icon"></div>`}
     <div class="card-ability-box">${gateLabelHtml(card)}<div class="card-ability">${formatAbilityText(card.ab)}</div></div>`;
