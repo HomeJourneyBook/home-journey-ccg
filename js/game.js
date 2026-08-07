@@ -2676,9 +2676,21 @@ function applyAuras(faction){
     if(a.spell||a.world||a.artifact) return;
     if(!hasTag(a,'alone_samurai')) return;
     const others=cur.field.filter(c=>c.id!==a.id&&!c.spell&&!c.world&&!c.artifact);
-    if(others.length===0){
+    const wasActive=!!a._aloneSamuraiWasActive;
+    const isActive=others.length===0;
+    if(isActive){
       a.atkBonus=(a.atkBonus||0)+2;
+      // "Stand Alone" (2026-08-06, по прямому запросу автора) — всплывающий текст, только
+      // на ПЕРЕХОДЕ неактивен→активен (не на каждом вызове applyAuras(), который срабатывает
+      // очень часто и без этого флага спамил бы текст даже когда состояние не менялось
+      // вообще). Тот же "sagaup"-стиль плашки (белый цвет, чуть выше карты), что уже есть у
+      // Saga — переиспользуем ту же CSS-запись (.float-number.sagaup), текст просто другой.
+      if(!wasActive){
+        const aId=a.id;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,'Stand Alone','sagaup')));
+      }
     }
+    a._aloneSamuraiWasActive=isActive;
   }); 
 
 
@@ -3451,6 +3463,15 @@ function doSpellBounceTarget(card){
   G[ownerK].field=G[ownerK].field.filter(c=>c.id!==card.id);
   resetC(card);
   G[ownerK].hand.push(card);
+  // БАГФИКС (2026-08-06, по прямому запросу автора — "у LAST KIIRO бонус атаки не
+  // пересчитался сразу после того, как сдули союзную карту"). killCard()/reviveCard()/
+  // doCreature() уже вызывают applyAuras()+recalcArmor() после любого изменения состава
+  // поля — эта функция единственная не вызывала, оставляя alone_samurai (и вообще ЛЮБую
+  // aura-зависимую карту) с устаревшим числом до следующего естественного триггера
+  // пересчёта (следующий ход/смерть/розыгрыш). Тот же принцип "поле изменилось — сразу
+  // пересчитать", что уже применяется везде в этом файле.
+  applyAuras(ownerK);
+  recalcArmor(ownerK);
   G[G.turn].void.push(spell);
   spell.voided=true;
   G.pendingSpell=null;G.phase='action';G.sel=null;
@@ -3478,6 +3499,10 @@ function doGustAbility(target){
   G[ownerK].field=G[ownerK].field.filter(c=>c.id!==target.id);
   resetC(target);
   G[ownerK].hand.push(target);
+  // БАГФИКС (2026-08-06) — тот же пропуск, что у doSpellBounceTarget() выше, см. её
+  // подробный комментарий.
+  applyAuras(ownerK);
+  recalcArmor(ownerK);
   caster.exhausted=true;
   G.phase='action';G.sel=null;
   G[G.turn].field.forEach(c=>triggerAbilities(c,'on_play_creature')); // тот же паттерн, что у doSpellBounceTarget/doSpellDmgTarget — пересчёт Squad-бонусов после ухода карты с поля
