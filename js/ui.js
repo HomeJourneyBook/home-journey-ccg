@@ -1867,6 +1867,7 @@ const TAG_TOOLTIPS = {
   'shadow_shield': { name: 'Cloak of Shadows', desc: 'Whoever attacks this creature takes {val} damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-feared target (see atk_vs_feared).' },
   'alone_samurai': { name: 'Alone Samurai', desc: '+2 ATK while there are no other allied creatures on the battleground.' },
   'saga': { name: 'Saga', desc: 'Bonuses grow the longer this card stays on the battleground.' },
+  'founder_of_saga': { name: 'Founder of Saga', desc: 'Aura: all cards with Saga have maximum effect.' },
   'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage and draws 3 cards.' },
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit from any source.' },
   'draw_attack': { name: 'Haunt', desc: 'Draws {val} card{plural} whenever this creature attacks.' },
