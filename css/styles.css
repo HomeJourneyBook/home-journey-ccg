@@ -4,8 +4,8 @@
   src: url('../fonts/MEK.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
-} 
-:root{    
+}
+:root{  
   --card-h: 25vh;
   --card-w: calc(var(--card-h) * 0.716);
   --cat-card-w: calc(var(--card-h) * 0.716);
@@ -2233,6 +2233,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .float-number.atk{color:#55aaff; left:76%; top:81%; transform:translate(-50%,-50%);}
 .float-number.maxhp{color:#44ff88; left:28%; top:81%; transform:translate(-50%,-50%);}
 .float-number.armoraura{color:var(--color-cream); left:28%; top:81%; transform:translate(-50%,-50%);}
+.float-number.sagaup{color:#ffffff; left:50%; top:60%; transform:translate(-50%,-50%); font-size:16px;}
 .float-number.armorloss{color:var(--color-cream);
   left:calc(var(--card-small-w)*0.048 + var(--card-small-h)*0.13);
   top:calc(2px + var(--card-small-art-h) - (var(--card-small-h)*0.065));
