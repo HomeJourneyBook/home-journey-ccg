@@ -918,7 +918,7 @@ function doAttack(att,target){
   const curWorld=G[curK].world;
   const worldBurnBonus=(curWorld && hasTag(curWorld,'world_atk_vs_burning') && target.burning) ? (getTagVal(curWorld,'world_atk_vs_burning')||0) : 0;
   const worldFearBonus=(curWorld && hasTag(curWorld,'world_atk_vs_feared') && target.feared) ? (getTagVal(curWorld,'world_atk_vs_feared')||0) : 0;
-  const atk=att.atk+(att.atkBonus||0)+rageAtkBonus(att)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0)+burnBonus+fearBonus+worldBurnBonus+worldFearBonus;
+  const atk=att.atk+(att.atkBonus||0)+rageAtkBonus(att)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0)+(att.sagaAtkBonus||0)+burnBonus+fearBonus+worldBurnBonus+worldFearBonus;
 
   // Fear и Burn полностью замещают звук атаки — если этот удар реально применит
   // один из этих эффектов (цель выживает после урона), звук самой атаки не играем.
@@ -972,7 +972,7 @@ function doAttack(att,target){
   // момент боя", а не по очереди, squadAtkBonus та же логика — killCard() обнуляет её у мёртвой
   // карты).
   const targetCounterAtk = target.atk + (target.atkBonus||0) + (target.tempAtkBonus||0) +
-                            rageAtkBonus(target) + (target.squadAtkBonus||0);
+                            rageAtkBonus(target) + (target.squadAtkBonus||0) + (target.sagaAtkBonus||0);
 
   const hpBefore=target.hp;
   dmgCard(target,atk,oppK);
@@ -1398,7 +1398,7 @@ function tryAttackBase(){
   if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.','hint');return;}
   const att=findC(G.sel);if(!att)return;
   const oppK=G.turn==='tea'?'jeet':'tea';const opp=G[oppK];
-  const atk=att.atk+(att.atkBonus||0)+rageAtkBonus(att)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0);
+  const atk=att.atk+(att.atkBonus||0)+rageAtkBonus(att)+(att.squadAtkBonus||0)+(att.tempAtkBonus||0)+(att.sagaAtkBonus||0);
   const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
   if(bushido){lg(`${bushido.name} (Bushido) blocks — must attack it first!`,'hint');return;}
   // Provoke rework (2026-07-17): absolute for everyone now, no pierce exception — see
@@ -2164,6 +2164,13 @@ function killCard(card,faction,toVoid=false){
   card.squadAtkBonus=0;
   card.squadArmorBonus=0;
   card.spellArmorBonus=0;
+  // Saga (2026-08-06, по прямому запросу автора) — умирая, карта теряет весь накопленный
+  // прогресс, тот же принцип "смерть стирает временные накопления", что у squad-бонусов
+  // выше — Saga не переживает смерть/воскрешение, начинается заново с sagaStage=0, если
+  // карта снова окажется на поле (revive/raise/bounce+replay).
+  card.sagaStage=0;
+  card.sagaArmorBonus=0;
+  card.sagaAtkBonus=0;
   card.interceptUsed=false;
   card.stealthBroken=false;
   card.armor=0;
@@ -2794,7 +2801,7 @@ function recalcArmor(faction){
     // in killCard()/reviveCard()/resetC() same as every other armor component — "until end
     // of battle" in practice means "until this creature's current life ends," same
     // semantics ARCHIVE's tempAtkBonus already uses for the ATK version of this idea.
-    const newMax=(getTagVal(a,'armor')||0)+(a.squadArmorBonus||0)+(a.spellArmorBonus||0)+worldArmorVal+auraBonus;
+    const newMax=(getTagVal(a,'armor')||0)+(a.squadArmorBonus||0)+(a.spellArmorBonus||0)+(a.sagaArmorBonus||0)+worldArmorVal+auraBonus;
     if(a.armorMax===undefined){
       // First time this card has ever been through this function (just entered the field,
       // was revived/raised, etc) — no previous partial state to preserve, start at full,
@@ -3630,6 +3637,35 @@ function endTurn(){
       if(c.mekMarkTurns<=0) c.mekMarked=false;
     }
     if(hasTag(c,'untamed')) c.exhausted=false;
+    // Saga (2026-08-06, по прямому запросу автора — тег from Krtv, Tea-эксклюзив, зеркалит
+    // Foxy Trick на Jeet стороне). Тикает РОВНО здесь — начало КАЖДОГО собственного хода
+    // владельца, тот же момент, что уже снимает sleeping/feared выше в этом же forEach —
+    // "карта на поле пережила ещё один свой ход". c.sagaStage растёт 0→1→2→3, останавливаясь
+    // на потолке (не откатывается само по себе, только явный сброс при смерти/bounce —
+    // см. killCard()/resetC()). Бонусы КУМУЛЯТИВНЫ (не заменяют друг друга): Saga1 даёт
+    // +1 maxHP (постоянное приращение, тем же паттерном, что squad/ETB-баффы — НЕ через
+    // aura-пересчёт с нуля, см. applyAuras()), Saga2 добавляет +1 Armor поверх (через
+    // sagaArmorBonus, см. recalcArmor() ниже), Saga3 добавляет +1 ATK поверх обоих
+    // (sagaAtkBonus, отдельное поле от atkBonus/squadAtkBonus — та же логика, что
+    // squadAtkBonus уже держит свой персистентный кусок отдельно от ауры).
+    if(hasTag(c,'saga') && (c.sagaStage||0)<3){
+      c.sagaStage=(c.sagaStage||0)+1;
+      let bonusText='';
+      if(c.sagaStage===1){
+        c.maxHp+=1; c.hp+=1;
+        bonusText='+1 Max HP';
+      } else if(c.sagaStage===2){
+        c.sagaArmorBonus=(c.sagaArmorBonus||0)+1;
+        recalcArmor(c.f);
+        bonusText='+1 Armor';
+      } else if(c.sagaStage===3){
+        c.sagaAtkBonus=(c.sagaAtkBonus||0)+1;
+        bonusText='+1 ATK';
+      }
+      lg(`${c.name}: Saga ${c.sagaStage} — ${bonusText}.`,'hl');
+      const sagaId=c.id;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,bonusText,'atk')));
+    }
   });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
   G.turn=next;
