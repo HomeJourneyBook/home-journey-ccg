@@ -1019,7 +1019,7 @@ function doAttack(att,target){
                             rageAtkBonus(target) + (target.squadAtkBonus||0) + (target.sagaAtkBonus||0);
 
   const hpBefore=target.hp;
-  dmgCard(target,atk,oppK);
+  dmgCard(target,atk,oppK,undefined,undefined,undefined,undefined,att);
   // Foxy Trick (2026-07-27, по прямому запросу автора: "сначала проверка не промахнётся ли
   // атака вообще, потом уже абсорб урона") — звук решается ПОСЛЕ dmgCard(), а не до, потому
   // что флаг промаха (_foxyDodgedThisHit) появляется только внутри неё. На промах — свой
@@ -1043,7 +1043,7 @@ function doAttack(att,target){
   // Контрудар — deferDeath=true: HP атакующего может уйти в минус, но killCard() для него
   // пока НЕ вызывается — vampiric/Erase ниже ещё могут его спасти (см. шапку файла выше).
   if(!hasTag(att,'invisible') && !wasFearedBefore && !wasExhaustedBefore && !stealthFirstStrike && !wasFrozenBefore)
-  dmgCard(att, targetCounterAtk, curK, false, true);
+  dmgCard(att, targetCounterAtk, curK, false, true, undefined, undefined, target);
 
   // Thorns / "Огненный Щит" (2026-07-17, FAERON) — анти-invisible пара: вместо того чтобы
   // быть недостижимой (Seeker/invisible), эта карта наказывает того, кто до неё дотянулся.
@@ -1264,7 +1264,7 @@ function doBoltTarget(card){
     // queueFieldFx(targetC.id,'BOLT!','fx-shard') убран (2026-08-06, по прямому запросу
     // автора) — текстовый плейсхолдер больше не нужен, у Bolt Умбасира уже есть свой
     // визуал снаряда (throwBoltFx() выше, bolt.gif).
-    dmgCard(targetC,dmg,oppK,true);
+    dmgCard(targetC,dmg,oppK,true,undefined,undefined,undefined,boltC);
     // Звук и лог — ПОСЛЕ dmgCard() и только если удар реально дошёл (2026-08-06, багфикс по
     // прямому запросу автора — "лишний звук срабатывает при промахе по Foxy Trick") —
     // раньше card_spell_atack игрался БЕЗУСЛОВНО до dmgCard(), так что при Foxy-уклонении/
@@ -1333,7 +1333,7 @@ function doShotTarget(card){
     // queueFieldFx(targetC.id,'SHOT!','fx-shard') убран (2026-08-06, по прямому запросу
     // автора) — текстовый плейсхолдер больше не нужен, у выстрела Мехирда уже есть свой
     // визуал снаряда (throwShotFx()/bullet-fly выше).
-    dmgCard(targetC,dmg,oppK,false); // bypassArmor=false — физический урон, режется Бронёй, проходит по Варду
+    dmgCard(targetC,dmg,oppK,false,undefined,undefined,undefined,shotC); // bypassArmor=false — физический урон, режется Бронёй, проходит по Варду
     if(!targetC._foxyDodgedThisHit && !targetC._shieldBlockedThisHit && !targetC._frostBlockedThisHit){
       playAttackSfx(shotC); // звук ПОПАДАНИЯ — тот же, что у обычной атаки (card_atack)
       lg(`${shotC.name}: ${targetC.name} takes ${dmg} physical damage!`,'dmg');
@@ -1759,7 +1759,7 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
             // и на Bolt-триггере (Umbasir #151, несёт и bolt:1, и nana сразу) банан внезапно
             // становился "магическим", и Ward начинал его блокировать целиком, хотя дизайн
             // прямо требовал "Ward банан не блокирует никогда, при любом раскладе".
-            dmgCard(t,2,oppFaction,false);
+            dmgCard(t,2,oppFaction,false,undefined,undefined,undefined,nc2);
             // Лог + звук — ПОСЛЕ dmgCard() и только если реально не промах/не поглощение
             // (2026-07-30, звук добавлен по прямому запросу автора — раньше банан бил по
             // существу вообще беззвучно; 'card_atack' — тот же звук, что у обычной атаки по
@@ -1996,10 +1996,45 @@ function resolveDdCleave(ddCard, ddFaction, hitTargetCard, hitTargetFaction, tar
   const others=G[oppFaction].field.filter(c=>c.id!==hitId);
   if(others.length===0) return;
   lg(`${ddCard.name}: DD Cleave — 1 dmg to all other enemies!`,'imp');
-  others.forEach(c=>dmgCard(c,1,oppFaction,false));
+  others.forEach(c=>dmgCard(c,1,oppFaction,false,undefined,undefined,undefined,ddCard));
 }
 
-function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost){
+// avenge_foxy_miss (2026-08-06, по прямому запросу автора — второй Jeet-уник, синергия с
+// Foxy Trick) — "пока эта карта на поле, при каждом промахе (уклонении) Foxy Trick
+// противник получает 1 урон по базе". Централизованный хук: Foxy-бросок кидается в 6
+// РАЗНЫХ независимых местах по кодовой базе (dmgCard() — обычный урон; doSpellBurnTarget/
+// doSpellFearTarget/doSpellProvokeBreakTarget — точечные дебафф-спеллы; fear_all/burn_all
+// в abilities.js — массовые), и раньше не было ни одной общей точки для "что-то произошло
+// на факте промаха" — каждое место просто ставило свой queueFieldFx('MISSED!') отдельно.
+// Эта функция вызывается ИЗ КАЖДОГО из этих 6 мест сразу после подтверждённого промаха.
+// dodgedCard — та самая Foxy-карта, что увернулась; ищем уника с avenge_foxy_miss на ЕЁ ЖЕ
+// фракции (уник и Foxy-карта — союзники), бьём по базе ПРОТИВНИКА (той стороны, что
+// пыталась атаковать/дебаффнуть и промазала).
+// avenge_foxy_miss (2026-08-06, ПЕРЕСМОТРЕНО по прямому запросу автора — исходная версия
+// била по БАЗЕ противника, автор уточнил: должна бить по САМОЙ КАРТЕ-АТАКУЮЩЕМУ, той что
+// промазала. "Thug Asteanaut" — второй Jeet-уник, синергия с Foxy Trick: "пока эта карта на
+// поле, промазавший по Foxy-цели противник получает 1 урон". Требует attackerCard —
+// конкретную карту-источник урона (атака/контратака/Bolt/Shot/Nana-банан/DD Cleave/AOE-
+// поджог-при-входе — ВСЁ, что реально исходит от существа на поле). НЕ применяется к
+// спеллам, разыгранным из руки (CINDER/DREAD/EXPOSE-UNMASK/WILDFIRE/NIGHTMARE) — по прямому
+// решению автора: спелл не карта-существо, бить там физически нечего, attackerCard для этих
+// путей просто не передаётся (undefined), функция тихо не делает ничего.
+// bypassArmor=true — тот же принцип, что thorns/shadow_shield (урон-в-ответ), броня
+// атакующего не должна спасать его от собственного промаха. deferDeath=true — тот же
+// принцип, что контрудар/thorns чуть ниже по файлу: резолвится независимо от исхода
+// основной атаки, реальная смерть атакующего (если "мстительный" урон её вызовет)
+// разрешится один раз в общем потоке doAttack(), не тут же на месте.
+function _triggerFoxyAvenge(dodgedCard, attackerCard){
+  if(!attackerCard) return;
+  const ownerF=dodgedCard.f;
+  const avenger=G[ownerF].field.find(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'avenge_foxy_miss'));
+  if(!avenger) return;
+  const attackerF=attackerCard.f;
+  lg(`${avenger.name}: ${dodgedCard.name}'s dodge punishes ${attackerCard.name} for 1!`,'dmg');
+  dmgCard(attackerCard,1,ownerF,true,true);
+}
+
+function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost,attackerCard){
   // Сбрасываем ПЕРЕД любым ранним return (включая dmg<=0 ниже) — иначе устаревший true с
   // прошлого удара мог бы утечь в проверку fear/burn/taunt_break этого хода (см. ниже).
   card._shieldBlockedThisHit=false;
@@ -2031,7 +2066,7 @@ function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost)
   if(hasTag(card,'foxy') && Math.random()<0.5){
     card._foxyDodgedThisHit=true;
     playSfx('miss'); // (2026-08-05, по прямому запросу автора — раньше звука не было вообще)
-    // queueFieldFxReplace (2026-07-27, автор поймал живьём) — почти каждый вызов dmgCard()
+    _triggerFoxyAvenge(card,attackerCard);
     // приходит от кода, который УЖЕ поставил в очередь свою плашку (DESTROYED/HIT!/BOLT!/
     // т.п.) ДО того, как выяснится, что удар вообще-то промазал мимо Foxy Trick — обычный
     // queueFieldFx() тут дал бы ДВЕ наложенные друг на друга надписи. Та же самая функция,
@@ -3115,6 +3150,8 @@ function doSpellBurnTarget(card){
     playSfx('miss'); // БАГФИКС (2026-08-06, по прямому запросу автора) — забыт при первой
     // реализации 2026-07-27; dmgCard() получил этот же звук на день позже (2026-08-05), но
     // сюда его тогда не перенесли, хотя комментарий и предупреждал "не идёт через dmgCard()".
+    // avenge_foxy_miss (Thug Asteanaut) НЕ применяется здесь — спелл, разыгранный из руки,
+    // не карта-существо, бить в ответ физически нечего (по прямому решению автора).
     queueFieldFx(card.id,'MISSED!','fx-miss');
     lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
@@ -3144,6 +3181,7 @@ function doSpellFearTarget(card){
   } else if(hasTag(card,'foxy') && Math.random()<0.5){
     // Foxy Trick (2026-07-27) — см. комментарий в doSpellBurnTarget() выше.
     playSfx('miss'); // БАГФИКС (2026-08-06, по прямому запросу автора) — тот же пропуск, что у doSpellBurnTarget выше
+    // avenge_foxy_miss НЕ применяется — тот же принцип, что у CINDER выше (спелл, не существо).
     queueFieldFx(card.id,'MISSED!','fx-miss');
     lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
@@ -3289,6 +3327,7 @@ function doSpellProvokeBreakTarget(card){
     // Foxy Trick (2026-07-27, по прямому запросу автора — Provoke-break тоже считается
     // дебаффом под уклонение) — та же логика, что в doSpellFearTarget/doSpellBurnTarget.
     playSfx('miss'); // БАГФИКС (2026-08-06, по прямому запросу автора) — тот же пропуск, что у остальных point-таргет спеллов
+    // avenge_foxy_miss НЕ применяется — тот же принцип, что у CINDER/DREAD выше.
     queueFieldFx(card.id,'MISSED!','fx-miss');
     lg(`${card.name}'s Foxy Trick makes it miss entirely!`,'imp');
   } else {
