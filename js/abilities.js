@@ -823,7 +823,9 @@ function triggerAbilities(card, timing, ctx={}){
           ctx.target.mekMarkTurns=2;
           playSfx('debaf');
           lg(`${card.name}: ${ctx.target.name} is Marked!`,'imp');
-          queueFieldFx(ctx.target.id,'MARKED!','fx-fear');
+          // queueFieldFx('MARKED!') убран (2026-08-06, по прямому запросу автора) — у Метки
+          // уже есть свой визуальный ассет на карте (mek-overlay, см. render.js), текстовая
+          // плашка поверх него избыточна.
         } break;
 
       case 'taunt_break':
