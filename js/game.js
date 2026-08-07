@@ -856,7 +856,7 @@ function doSpell(card){
 function reviveCard(card,toF,graveFaction){
   const def=DEFS[card.key];
   if(def){card.hp=def.hp;card.maxHp=def.hp;}
-  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.frozen=false;card.frozenTurnsLeft=0;card._frostLeaving=false;card.mekMarked=false;card.mekMarkTurns=0;card.atkBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
+  card.sleeping=true;card.exhausted=false;card.feared=false;card.burning=false;card.provokeBroken=false;card.interceptUsed=false;card.stealthBroken=false;card.shieldConsumed=false;card.frozen=false;card.frozenTurnsLeft=0;card._frostLeaving=false;card.mekMarked=false;card.mekMarkTurns=0;card.atkBonus=0;card.tempAtkBonus=0;card.maxHpBonus=0;card.baseMaxHp=null;card.synergyMaxHpBonus=0;card.auraMaxHpBonus=0;card.worldMaxHpBonus=0;card.worldMaxHpSet=false;card.squadParam=null;card.squadAtkBonus=0;card.squadMaxHpBonus=0;card.squadArmorBonus=0;card.spellArmorBonus=0;card.armorMax=undefined;card.auraArmorBonus=0;card.worldArmorBonus=0;
   // Инкарнация: если эта карта была пересена рано (spell revive:full / raise:N),
   // ПОКА её собственный incarnTimer ещё тикал в кладбище — тот тик так и не завершился
   // (endTurn()'s incarnTimer-loop его больше не увидит, карта уже не в grave), поэтому
@@ -2716,7 +2716,6 @@ function applyAuras(faction){
     a._aloneSamuraiWasActive=isActive;
   }); 
 
-
   {
     const totalMaxHpBonus=auraSources.reduce((sum,src)=>{
       if(!hasTag(src,'aura:maxhp')) return sum;
@@ -2791,6 +2790,34 @@ function applyAuras(faction){
       });
     }
   }
+
+  // BAN'KAI / COPE GUARDIAN (2026-08-06, по прямому запросу автора — БАГФИКС того же дня:
+  // первая версия жила в СЕРЕДИНЕ этой функции и переиспользовала baseMaxHp — тот же кусок
+  // состояния, что чуть выше безусловно обнуляет "if(!auraSources.some(aura:maxhp))
+  // {baseMaxHp=null}", если на поле нет классической aura:maxhp-карты. Моя правка
+  // срабатывала раньше в файле, тот сброс — позже, в ТОМ ЖЕ вызове applyAuras() — бонус
+  // выставлялся и тут же стирался несуществующей на первый взгляд связью. Теперь: (1) стоит
+  // в самом конце функции, ПОСЛЕ вообще всех остальных пересчётов maxHp; (2) использует
+  // СВОЁ отдельное поле synergyMaxHpBonus, никем больше не тронутое — сначала явно снимаем
+  // СВОЙ прошлый вклад с maxHp/hp, потом считаем заново и применяем целиком).
+  cur.field.forEach(a=>{
+    if(a.spell||a.world||a.artifact) return;
+    const prevBonus=a.synergyMaxHpBonus||0;
+    if(prevBonus){
+      a.maxHp-=prevBonus;
+      a.hp=Math.min(a.hp,a.maxHp);
+      a.synergyMaxHpBonus=0;
+    }
+    let countTag=null;
+    if(hasTag(a,'synergy_saga_count')) countTag='saga';
+    else if(hasTag(a,'synergy_foxy_count')) countTag='foxy';
+    if(!countTag) return;
+    const n=Math.min(3, cur.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,countTag)).length);
+    if(n<=0) return;
+    a.maxHp+=n;
+    a.synergyMaxHpBonus=n;
+    a.atkBonus=(a.atkBonus||0)+n;
+  });
 }
 
 // Szarg's squad bonus was Pierce (param) before 2026-07-10 — shelved by author request,
