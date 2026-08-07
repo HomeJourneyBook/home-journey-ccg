@@ -145,7 +145,7 @@ function logTurnSnapshot(faction){
       faction,
       ess:{cur:p.ess,max:p.essMax},
       hand:p.hand.map(c=>c.name),
-      field:p.field.map(c=>`${c.name} (${c.hp}/${c.maxHp} HP, ${c.atk+(c.atkBonus||0)+rageAtkBonus(c)+(c.squadAtkBonus||0)+(c.tempAtkBonus||0)} ATK${c.armor?`, ${c.armor} Armor`:''})`),
+      field:p.field.map(c=>`${c.name} (${c.hp}/${c.maxHp} HP, ${c.atk+(c.atkBonus||0)+rageAtkBonus(c)+(c.squadAtkBonus||0)+(c.tempAtkBonus||0)+(c.sagaAtkBonus||0)} ATK${c.armor?`, ${c.armor} Armor`:''})`),
       deckLeft:p.deck.length,
     }
   });
