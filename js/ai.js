@@ -744,11 +744,13 @@ function aiTryUseAoe(){
 // AI никогда этим не пользовался. Бьём, если можем добить существо (учитывая
 // +1 урона от feared), иначе — самую опасную цель по эффективному ATK.
 // aiShardWouldBenefitFromAttackingFirst (2026-07-24, по прямому запросу автора, поймано
-// живьём: ИИ юзнул Shard первым — 0 урона (shard_fear_scale считает 0 feared врагов на
-// тот момент) — а ПОТОМ атаковал Seeker'ом (тег 'fear', вешает страх при ударе), упустив
-// тот самый бонус, ради которого Shard вообще стоило приберечь. shardBaseDmg()/
-// doShardTarget() (game.js) считают feared/burning ТЕКУЩИМ снимком на момент резолва —
-// если нужный статус ещё не навешен, бонус просто теряется навсегда в этот ход.
+// живьём: ИИ юзнул Shard первым, промахнувшись мимо потенциального бонуса — а ПОТОМ
+// атаковал Seeker'ом (тег 'fear', вешает страх при ударе), упустив тот самый бонус, ради
+// которого Shard вообще стоило приберечь. shardBaseDmg()/doShardTarget() (game.js)
+// считают burning/feared у КОНКРЕТНОЙ цели ТЕКУЩИМ снимком на момент резолва (см.
+// редизайн 2026-08-06 — раньше считался общий флэт-номер по всему полю противника,
+// теперь per-target: +1, только если у выбранной карты debuff уже стоит) — если нужный
+// статус на кандидате ещё не навешен, бонус на неё просто теряется в этот ход.
 function aiShardWouldBenefitFromAttackingFirst(shard){
   let wantTag=null;
   if(hasTag(shard,'shard_fear_scale')) wantTag='fear';
@@ -779,19 +781,14 @@ function aiTryUseShard(forceNow){
   // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
   const enemyField=G[humanF].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
-  const baseDmg=shardBaseDmg(shard,humanF);
-  // 2026-07-25 (по прямому запросу автора — найдено в реальных логах симуляции: SHARD/
-  // SCORCH активировались КАЖДЫЙ ход, даже когда baseDmg=0, т.е. ни одного горящего/
-  // испуганного врага на тот момент нет — "SHARD: X takes 0 damage!" раз за разом без
-  // всякого эффекта). Активка не даёт вообще ничего, кроме exhausted-статуса артефакту —
-  // нет смысла её жать впустую, если полезного урона всё равно 0.
-  if(baseDmg<=0) return false;
-  // 2026-07-17: no more per-target feared bonus on top — shardBaseDmg() already folds
-  // that into shard_fear_scale's count (see game.js comment on doShardTarget). dmg is now
-  // the SAME flat number for every candidate, so this is really just picking the most
-  // dangerous killable target — kept as a map for minimal diff against the pre-existing
-  // killable/sort logic below.
-  const withDmg=enemyField.map(c=>({c, dmg: baseDmg}));
+  // 2026-08-06 (по прямому запросу автора, редизайн — см. подробный комментарий у
+  // shardBaseDmg()/doShardTarget() в game.js): урон больше НЕ один и тот же флэт-номер на
+  // весь ход — 1 база гарантированно, +1 персонально по КАЖДОЙ конкретной цели, если у
+  // НЕЁ САМОЙ уже стоит burning/feared. Считаем per-target, а не один общий baseDmg.
+  // Минимум теперь всегда 1 (никогда не 0), так что старая отсечка "не жать впустую при
+  // baseDmg<=0" больше не применима — но ИИ всё ещё должен ПРЕДПОЧИТАТЬ уже дебаффнутые
+  // цели (2 урона) добитым/самым опасным, а не бить наугад первую попавшуюся за голую 1.
+  const withDmg=enemyField.map(c=>({c, dmg: shardBaseDmg(shard,humanF,c)}));
   const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
   let target;
   if(killable.length>0){
