@@ -1456,6 +1456,21 @@ function _arenaPosForFaction(faction){
 // 2026-08-03: раньше — статичные id по фракции (deckPlaceholderT/J) внутри её же
 // bottom-bar, который прятался целиком, если не её ход. Теперь колода противника ТОЖЕ
 // всегда на экране (см. ARENA COLUMNS) — ищем по текущей Opp/Player-роли, не по фракции.
+// _hiddenHandPlaceholderRect (2026-08-06, по прямому запросу автора — "полёт как у выхода
+// в скрытую руку, только обратный эффект") — тот же принцип, что _deckPlaceholderRect()
+// ниже: контейнер скрытой руки (.hand-mini, id="teaHand"/"jeetHand" — тот же id, что и у
+// ВИДИМОЙ руки, просто rHiddenHand() рисует его иначе, см. её комментарий) не содержит
+// индивидуальных data-id-элементов на каждую карту (только универсальные рубашки .card-
+// mini, синхронизируемые по количеству) — значит цель полёта не "эта конкретная карта в
+// руке", а сам контейнер целиком, ровно как placeholder колоды.
+function _hiddenHandPlaceholderRect(faction){
+  const handEl=document.getElementById(faction+'Hand');
+  if(!handEl || handEl.offsetParent===null) return null;
+  const r=handEl.getBoundingClientRect();
+  if(!r.width || !r.height) return null;
+  return r;
+}
+
 function _deckPlaceholderRect(faction){
   const deckEl=document.getElementById('arenaDeck'+_arenaPosForFaction(faction));
   if(!deckEl || deckEl.offsetParent===null) return null;
@@ -1467,7 +1482,7 @@ function _deckPlaceholderRect(faction){
 // cloneEl — уже готовый cloneNode(true) реальной карты (см. вызов в rZone), ЕЩЁ
 // не вставленный в DOM и без card-drawn/selected/previewed — этой функции он
 // передаётся "чистым", целиком её забота вставить/анимировать/убрать.
-function _flyCardFromDeck(cloneEl, deckRect, targetRect, delayMs){
+function _flyCardFromDeck(cloneEl, deckRect, targetRect, delayMs, skipSound){
   cloneEl.classList.remove('selected','previewed','affordable','entering');
   cloneEl.classList.add('card-fly-clone');
   cloneEl.style.position='fixed';
@@ -1481,7 +1496,7 @@ function _flyCardFromDeck(cloneEl, deckRect, targetRect, delayMs){
   document.body.appendChild(cloneEl);
   setTimeout(()=>{
     if(!cloneEl.parentElement) return; // на случай если экран уже перерисован/сцена сменилась
-    playSfx('new_card');
+    if(!skipSound) playSfx('new_card'); // 2026-08-06 — bounce-в-скрытую-руку зовёт этот же движок полёта со skipSound=true, звук у него уже свой (wind_card), см. rHiddenHand()
     void cloneEl.offsetWidth; // форсируем reflow — иначе старт и финиш анимации склеятся в один кадр
     cloneEl.style.transition=`left ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), top ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), transform ${CARD_FLY_MS}ms cubic-bezier(.25,.85,.35,1), opacity ${CARD_FLY_FADE_MS}ms ease-in ${CARD_FLY_MS-CARD_FLY_FADE_MS}ms`;
     cloneEl.style.left=(targetRect.left+targetRect.width/2)+'px';
@@ -2045,6 +2060,30 @@ function rHiddenHand(id,cards,faction){
   }
   const have=el.children.length;
   const need=cards.length;
+  // Bounce-в-скрытую-руку (2026-08-06, по прямому запросу автора — "полёт как из колоды в
+  // руку, только обратный эффект") — та же идея, что уже есть для СВОЕЙ видимой руки
+  // (_bounceOriginRects, doSpellBounceTarget()/doGustAbility() в game.js), но раньше эта
+  // запись просто повисала неиспользованной, если сдутая карта улетала в ЧУЖУЮ (скрытую)
+  // руку — rHiddenHand() ниже синхронизировала только КОЛИЧЕСТВО рубашек, без всякого учёта
+  // id. Теперь: если среди входящих cards есть хоть одна с записью в _bounceOriginRects —
+  // значит эта карта только что физически была на поле и улетела именно сюда; запускаем
+  // клон-полёт от её полевой позиции к контейнеру этой скрытой руки (placeholder целиком,
+  // не конкретная рубашка — тот же принцип, что deck-fly к _deckPlaceholderRect()), и уже
+  // ПОСЛЕ добавляем настоящую новую рубашку в DOM.
+  const bouncedCard = cards.find(c=>_bounceOriginRects[String(c.id)]);
+  if(bouncedCard){
+    const originRect=_bounceOriginRects[String(bouncedCard.id)];
+    delete _bounceOriginRects[String(bouncedCard.id)];
+    const targetRect=_hiddenHandPlaceholderRect(faction);
+    if(originRect && targetRect){
+      const flyClone=document.createElement('div');
+      flyClone.className=`card-mini ${faction}-mini`;
+      flyClone.style.backgroundImage="url('img/runaha.png')";
+      flyClone.style.backgroundSize='cover';
+      flyClone.style.backgroundPosition='bottom';
+      _flyCardFromDeck(flyClone, originRect, targetRect, 0, true); // тот же движок полёта, что у deck-fly — просто старт/финиш переставлены по смыслу вызова (летит ОТ поля К руке, не от колоды); skipSound=true — wind_card уже сыгран при самом bounce
+    }
+  }
   if(have>need){
     for(let i=0;i<have-need;i++) el.lastElementChild.remove();
   } else if(need>have){
