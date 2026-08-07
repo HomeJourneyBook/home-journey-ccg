@@ -2023,13 +2023,29 @@ function resolveDdCleave(ddCard, ddFaction, hitTargetCard, hitTargetFaction, tar
 // основной атаки, реальная смерть атакующего (если "мстительный" урон её вызовет)
 // разрешится один раз в общем потоке doAttack(), не тут же на месте.
 function _triggerFoxyAvenge(dodgedCard, attackerCard){
+  if(typeof _flyDebugLog==='function') _flyDebugLog('FOXY-AVENGE called', dodgedCard?dodgedCard.id:'?', {dodgedCardF:dodgedCard?dodgedCard.f:'?', hasAttackerCard:!!attackerCard, attackerCardId:attackerCard?attackerCard.id:null, attackerCardF:attackerCard?attackerCard.f:null});
   if(!attackerCard) return;
   const ownerF=dodgedCard.f;
   const avenger=G[ownerF].field.find(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,'avenge_foxy_miss'));
+  if(typeof _flyDebugLog==='function') _flyDebugLog('FOXY-AVENGE avenger search', dodgedCard.id, {ownerF, avengerFound:!!avenger, avengerId:avenger?avenger.id:null, fieldOnOwnerF:G[ownerF].field.map(c=>({id:c.id,name:c.name,tags:c.tags}))});
   if(!avenger) return;
   const attackerF=attackerCard.f;
-  lg(`${avenger.name}: ${dodgedCard.name}'s dodge punishes ${attackerCard.name} for 1!`,'dmg');
-  dmgCard(attackerCard,1,attackerF,true,true);
+  // bypassArmor=false (2026-08-06, по прямому запросу автора — "это физический урон, броня
+  // должна принимать его первой, Ward не должен блокировать") — было true (магический
+  // стиль, игнорирует Armor, блокируется Ward). Теперь ровно наоборот: Armor поглощает как
+  // обычно, Ward НЕ блокирует (dmgCard() блокирует Ward'ом только bypassArmor=true урон —
+  // тот же принцип, что уже у Shot/банана/DD Cleave в этом файле). Solana Shield всё ещё
+  // может поглотить целиком — это не зависит от bypassArmor, щит блокирует любой урон.
+  dmgCard(attackerCard,1,attackerF,false,true);
+  // Звук + лог — ПОСЛЕ dmgCard() и только на подтверждённом попадании (не промах/не щит/
+  // не заморозка У ATTACKERCARD — это ОН тут получатель урона, не dodgedCard), тот же
+  // паттерн, что уже применяют Shot/Bolt/Nana/DD Cleave в этом файле (2026-08-06, по
+  // прямому запросу автора — "звук как при обычной атаке" + "в логе чтоб писалось, что
+  // Астронавт именно задамажил карту").
+  if(!attackerCard._foxyDodgedThisHit && !attackerCard._shieldBlockedThisHit && !attackerCard._frostBlockedThisHit){
+    playAttackSfx(avenger);
+    lg(`${avenger.name} damages ${attackerCard.name} for 1!`,'dmg');
+  }
   // Визуальный "подъём" (2026-08-06, по прямому запросу автора — "чтобы Thug Asteanaut
   // приподнимался в этот момент, как будто это он ранит карту") — тот же activateCard()
   // пульс, что уже используют атака/Bolt/Shot при действии. Отложено через
