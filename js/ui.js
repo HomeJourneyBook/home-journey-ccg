@@ -403,7 +403,7 @@ function preloadAssets(){
     // (ico_snow/ico_fff ниже), обнаружено ЕЩЁ 13 давно существующих тег-иконок, которые
     // никогда не были в preload вообще (гэп появился до этой сессии, не из-за неё) — та же
     // "невидимая анимация/задержка при первом использовании" потенциально касалась и их.
-    'img/ico_bambo.png', 'img/ico_cloud.png', 'img/ico_fire_shield.png', 'img/ico_shadow.png', 'img/ico_haunt.png',
+    'img/ico_bambo.png', 'img/ico_cloud.png', 'img/ico_fire_shield.png', 'img/ico_shadow.png', 'img/ico_samurai.png', 'img/ico_haunt.png',
     'img/ico_incarn.png', 'img/ico_intercept.png', 'img/ico_invis.png', 'img/ico_remember.png',
     'img/ico_scheme.png', 'img/ico_solana_shield.png', 'img/ico_stealth.png',
     'img/ico_untamed.png', 'img/ico_ward.png',
@@ -1855,7 +1855,7 @@ const TAG_TOOLTIPS = {
   'provoke': { name: 'Tree Wall', desc: 'While this creature is not exhausted, all enemy attacks must target it.' }, // переименован из Provoke в Tree Wall (2026-08-06, по прямому запросу автора, тот же приём, что у vanguard→Swiftness выше) — тег/иконка (ico_provoke.png) не менялись, только отображаемое имя
   'intercept': { name: 'Intercept', desc: 'While not exhausted and if nothing forces all attacks onto itself, one enemy attack per turn is automatically redirected onto this creature.' },
   'vanguard':{ name: 'Swiftness', desc: 'Enters the battleground without sleeping.' }, // переименован из Vanguard в Swiftness/Стремительность (2026-07-27, по прямому запросу автора) — тег и иконка (ico_vanguard.png) не менялись, только отображаемое имя
-  'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked. Also deals +1 ATK when it attacks an already-Feared target.' },
+  'invisible':{ name: 'Invisible', desc: 'Cannot be targeted while allies exist. No counter-attack when it is attacked.' },
   'untamed': { name: 'Untamed', desc: "Clears exhausted at the start of the opponent's turn." },
   'ward':    { name: 'Ward', desc: 'Immune to magic damage and debuffs.' },
   'incarnation': { name: 'Incarnation', desc: 'When this creature dies, it revives from the Graveyard on its own one time, after a set number of its owner\'s turns.' },
@@ -1865,6 +1865,7 @@ const TAG_TOOLTIPS = {
   'remember': { name: 'Remember Everything', desc: 'The first time this creature dies, it fully restores its HP and stays on the battleground. All buffs and debuffs are reset.' },
   'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes {val} damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-burning target (see atk_vs_burning).' },
   'shadow_shield': { name: 'Cloak of Shadows', desc: 'Whoever attacks this creature takes {val} damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-feared target (see atk_vs_feared).' },
+  'alone_samurai': { name: 'Alone Samurai', desc: '+2 ATK while there are no other allied creatures on the battleground.' },
   'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage and draws 3 cards.' },
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit from any source.' },
   'draw_attack': { name: 'Haunt', desc: 'Draws {val} card{plural} whenever this creature attacks.' },
