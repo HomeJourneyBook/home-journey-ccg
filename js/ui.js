@@ -403,7 +403,7 @@ function preloadAssets(){
     // (ico_snow/ico_fff ниже), обнаружено ЕЩЁ 13 давно существующих тег-иконок, которые
     // никогда не были в preload вообще (гэп появился до этой сессии, не из-за неё) — та же
     // "невидимая анимация/задержка при первом использовании" потенциально касалась и их.
-    'img/ico_bambo.png', 'img/ico_cloud.png', 'img/ico_fire_shield.png', 'img/ico_shadow.png', 'img/ico_samurai.png', 'img/ico_haunt.png',
+    'img/ico_bambo.png', 'img/ico_cloud.png', 'img/ico_fire_shield.png', 'img/ico_shadow.png', 'img/ico_samurai.png', 'img/ico_saga.png', 'img/ico_haunt.png',
     'img/ico_incarn.png', 'img/ico_intercept.png', 'img/ico_invis.png', 'img/ico_remember.png',
     'img/ico_scheme.png', 'img/ico_solana_shield.png', 'img/ico_stealth.png',
     'img/ico_untamed.png', 'img/ico_ward.png',
@@ -1866,6 +1866,7 @@ const TAG_TOOLTIPS = {
   'thorns': { name: 'Fire Shield', desc: 'Whoever attacks this creature takes {val} damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-burning target (see atk_vs_burning).' },
   'shadow_shield': { name: 'Cloak of Shadows', desc: 'Whoever attacks this creature takes {val} damage back, regardless of whether this creature survives the hit. Also deals +1 ATK when it attacks an already-feared target (see atk_vs_feared).' },
   'alone_samurai': { name: 'Alone Samurai', desc: '+2 ATK while there are no other allied creatures on the battleground.' },
+  'saga': { name: 'Saga', desc: 'Bonuses grow the longer this card stays on the battleground.' },
   'stealth': { name: 'Stealth', desc: 'Cannot be targeted by attacks until it attacks for the first time. That first attack deals no counter-damage and draws 3 cards.' },
   'shield': { name: 'Solana Shield', desc: 'A protective layer on top of health — fully absorbs the first incoming hit from any source.' },
   'draw_attack': { name: 'Haunt', desc: 'Draws {val} card{plural} whenever this creature attacks.' },
