@@ -342,8 +342,15 @@ function _cardStatusEntries(card){
   // incarnUsed/rememberUsed чуть выше: константный факт, показывается всегда, пока флаг
   // стоит на карте, не завязан на присутствие Плегмора на поле (см. killCard(), game.js).
   if(card.raisedByPhlegmor) entries.push({icon:'img/ico_incarn.png', text:'Raised by Phlegmor — will go to the Void on death.'});
+  // Alone Samurai (LAST KIIRO, 2026-08-06, по прямому запросу автора — "надо чтобы в
+  // статусе карты при зуме было написано, что мол Один на поле +2 атк") — отдельная,
+  // более точная строка вместо generic "+N ATK from an aura" ниже (bonus здесь ПОЛНОСТЬЮ
+  // живёт в card.atkBonus, см. applyAuras()/game.js, но источник — не соседняя карта, а
+  // отсутствие соседей вообще, generic-текст был бы вводящим в заблуждение).
+  const aloneSamuraiActive=hasTag(card,'alone_samurai')&&G[card.f].field.filter(c=>c.id!==card.id&&!c.spell&&!c.world&&!c.artifact).length===0;
+  if(aloneSamuraiActive) entries.push({icon:'img/ico_samurai.png', text:'Alone Samurai — no other allies on the battleground: +2 ATK.'});
   // Бафы
-  if(card.atkBonus) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battleground.`});
+  if(card.atkBonus&&!aloneSamuraiActive) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battleground.`});
   if(card.auraMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battleground.`});
   if(card.worldMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.worldMaxHpBonus} Max HP from the World card.`});
   if(card.auraArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.auraArmorBonus} Armor from an aura on the battleground.`});
@@ -810,6 +817,7 @@ function mkSmallEl(card){
   'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shadow_shield': '<img src="img/ico_shadow.png" style="width:60%;height:60%;">',
+  'alone_samurai': '<img src="img/ico_samurai.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
@@ -1089,6 +1097,7 @@ function mkEl(card,zone){
   'stealth': '<img src="img/ico_stealth.png" style="width:60%;height:60%;">',
   'thorns': '<img src="img/ico_fire_shield.png" style="width:60%;height:60%;">',
   'shadow_shield': '<img src="img/ico_shadow.png" style="width:60%;height:60%;">',
+  'alone_samurai': '<img src="img/ico_samurai.png" style="width:60%;height:60%;">',
   'shield': '<img src="img/ico_solana_shield.png" style="width:60%;height:60%;">',
   'draw_attack': '<img src="img/ico_haunt.png" style="width:60%;height:60%;">', // HAUNT — переехал с atk_vs_feared на draw_attack, 2026-07-26
   'death_heal': '<img src="img/ico_bambo.png" style="width:60%;height:60%;">', // BAMBOO — death_heal:N, 2026-07-26
