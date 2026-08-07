@@ -713,12 +713,56 @@ function _resolvePlayedCard(card){
   if(G.pendingSpell && isAiTurn()) aiResolvePendingSpellTarget();
 }
 
+// Founder of Saga (KREATIV, 2026-08-06, по прямому запросу автора) — "все карты с Saga
+// имеют максимальный эффект", пока KREATIV жив. РЕАЛИЗОВАНО как мгновенный, ПОСТОЯННЫЙ
+// форс до sagaStage=3 (не временный визуальный оверрайд) — по прямому решению автора:
+// карта физически не может быть на поле одновременно с KREATIV и стоять на промежуточной
+// стадии, поэтому эффект просто СРАЗУ доначисляет карте недостающие бонусы вплоть до 3 и
+// запоминает это в её собственных полях (sagaStage/sagaArmorBonus/sagaAtkBonus) — теми же
+// путями, что и обычный по-ходовой тик (см. wake-up блок в endTurn() ниже). Если KREATIV
+// потом умирает — ничего физически не откатывается, потому что бонусы уже реально
+// начислены на карте, а не просто "показывались как 3" поверх настоящего меньшего числа.
+// Идемпотентна — безопасно звать повторно на карте, уже стоящей на 3 (no-op).
+function _forceSagaMax(card){
+  if(!hasTag(card,'saga')) return;
+  while((card.sagaStage||0)<3){
+    card.sagaStage=(card.sagaStage||0)+1;
+    if(card.sagaStage===1){ card.maxHp+=1; card.hp+=1; }
+    else if(card.sagaStage===2){ card.sagaArmorBonus=(card.sagaArmorBonus||0)+1; recalcArmor(card.f); }
+    else if(card.sagaStage===3){ card.sagaAtkBonus=(card.sagaAtkBonus||0)+1; }
+  }
+}
+
 function doCreature(card){
   const cur=G[G.turn];
   card.sleeping=!card.tags.includes('vanguard');
   card.exhausted=false;
   cur.field.push(card);
   lg(`${G.turn.toUpperCase()} plays ${card.name}.`,'imp');
+
+  // Founder of Saga (KREATIV) — см. подробный комментарий у _forceSagaMax() выше. Две
+  // стороны одного правила: (1) эта карта САМА несёт Saga, а на поле уже стоит KREATIV —
+  // форсим сразу; (2) эта карта — САМ KREATIV — форсим ВСЕХ, кто уже на поле с Saga.
+  // Логируем ОДИН раз на карту (не по стадиям, как обычный по-ходовой тик выше в
+  // endTurn()) — тот же принцип, что уже применяют обычные aura:atk/aura:maxhp при входе
+  // источника: "аура появилась на поле, залогировали факт, без пошагового спама".
+  if(hasTag(card,'saga') && cur.field.some(c=>c.id!==card.id&&hasTag(c,'founder_of_saga'))){
+    _forceSagaMax(card);
+    lg(`${card.name}: Founder of Saga — instantly at Saga 3.`,'hl');
+    const fid=card.id;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(fid,'Saga Up','sagaup')));
+  }
+  if(hasTag(card,'founder_of_saga')){
+    const affected=cur.field.filter(c=>c.id!==card.id&&hasTag(c,'saga')&&(c.sagaStage||0)<3);
+    if(affected.length>0){
+      affected.forEach(c=>_forceSagaMax(c));
+      lg(`${card.name}: Founder of Saga — ${affected.map(a=>a.name).join(', ')} instantly at Saga 3.`,'hl');
+      affected.forEach(a=>{
+        const aId=a.id;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,'Saga Up','sagaup')));
+      });
+    }
+  }
 
   // on_play_creature is now triggered centrally in doPlay() for every card type.
   triggerAbilities(card,'on_enter');
@@ -3665,6 +3709,12 @@ function endTurn(){
       lg(`${c.name}: Saga ${c.sagaStage} — ${bonusText}.`,'hl');
       const sagaId=c.id;
       requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,bonusText,'atk')));
+      // "Saga Up" (2026-08-06, по прямому запросу автора) — отдельная белая плашка ЧУТЬ
+      // ВЫШЕ на карте (см. .float-number.sagaup, css/styles.css), чтобы не конкурировать
+      // визуально с плашкой конкретного бонуса (+1 Max HP/+1 Armor/+1 ATK) чуть выше —
+      // та же самая логика срабатывания, что и у KREATIV-форса (см. _forceSagaMax() ниже
+      // по файлу), общий сигнал "стадия Саги выросла", независимо от того, каким путём.
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,'Saga Up','sagaup')));
     }
   });
   G[G.turn].artifacts.forEach(a=>{a.sleeping=false;});
