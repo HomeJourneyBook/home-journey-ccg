@@ -4177,6 +4177,18 @@ function showFloat(cardId, text, type){
   const num = document.createElement('div');
   num.className = `float-number ${type}`;
   num.textContent = text;
+  // Джиттер для 'dmg' (2026-08-06, по прямому запросу автора — "две цифры урона в кашу,
+  // например контрудар + месть Thug Asteanaut почти одновременно") — небольшой случайный
+  // сдвиг через CSS-переменные (см. .float-number.dmg, css/styles.css), позиция базы
+  // перенесена ближе к HP (между уже существующими опорными точками armorloss), чтобы не
+  // попасть в кашу и с минус-бронёй тоже. Другие типы (heal/atk/maxhp/armoraura) обычно не
+  // спавнятся по двое почти одновременно на одной карте — джиттер им не нужен, не трогаем.
+  if(type==='dmg'){
+    const jx=Math.round((Math.random()-0.5)*24); // ±12px по горизонтали
+    const jy=Math.round((Math.random()-0.5)*14); // ±7px по вертикали
+    num.style.setProperty('--dmg-jitter-x', jx+'px');
+    num.style.setProperty('--dmg-jitter-y', jy+'px');
+  }
   el.appendChild(num);
   setTimeout(()=>num.remove(), 900);
 }
