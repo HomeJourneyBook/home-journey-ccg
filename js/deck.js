@@ -128,6 +128,10 @@ const DECK_CONFIGS = {
   // разбор в CLAUDE.md "Рефактор классик-колоды под тему Врат". Итог: по 18 рядовых
   // существ на фракцию (полный симметричный расклад 4+4+4+2+2+2 против 2+2+2+4+4+4).
   classic: {},
+  // saga_foxy (2026-08-06, по прямому запросу автора) — вторая полноценная предустановленная
+  // колода, построена с нуля вокруг сегодняшних синергия-механик Saga (Tea) / Foxy Trick
+  // (Jeet). См. SAGA_TEA_DECK/FOXY_JEET_DECK ниже за полный расклад и обоснование кривой.
+  saga_foxy: {},
 };
 
 function shuffleArr(d){
@@ -208,14 +212,64 @@ const CLASSIC_JEET_DECK = [
   'j_sp14','j_sp14','j_sp1','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp2','j_sp27','j_sp9', // j_sp22(EXTINCTION, aoe-снос поля)→j_sp9(RUPTURE, Bolt5+trample) — 2026-08-06, по прямому запросу автора, тот же фикс, что у Tea (см. её комментарий в CLASSIC_TEA_DECK выше)
 ];
 
+// SAGA_TEA_DECK / FOXY_JEET_DECK (2026-08-06, по прямому запросу автора) — две новые
+// сбалансированные 40-карточные колоды вокруг сегодняшних синергия-механик (Saga/Foxy
+// Trick), спроектированы с нуля по канону CCG-деккостроения: гладкая горка с пиком на
+// cost3 (10 карт), плавное сужение к топ-энду (1 уник на cost7), та же общая структура,
+// что уже доказала коридор 45-55% в CLASSIC (23 существа + 15 спеллов + 1 мир + 1
+// артефакт = 40). НЕ прогонялись через симулятор — новый контент, нет исторических
+// sim-данных по конкретным винрейтам отдельных карт, в отличие от CLASSIC. Рекомендуется
+// прогнать headless-симулятор перед тем, как считать баланс подтверждённым, а не просто
+// спроектированным на бумаге.
+const SAGA_TEA_DECK = [
+  // cost1 (3 существа + 5 спеллов = 8)
+  't_trvl18_w','t_trvl91_w','t_trvl52_w',
+  't_sp17','t_sp14','t_sp14','t_sp12','t_sp5',
+  // cost2 (6 существ + 2 спелла = 8)
+  't_trvl28_w','t_trvl870_w','t_trvl45_w','t_trvl868_w','t_trvl218_w','t_trvl39_w',
+  't_sp23','t_sp13',
+  // cost3 (7 существ, включая 2 Saga + 3 спелла = 10)
+  't_trvl102_w','t_trvl100_w','t_trvl34_w','t_trvl10_w','t_trvl1_w','t_trvl6_w','t_trvl26_w',
+  't_sp11','t_sp20','t_sp16',
+  // cost4 (2 существа + WILDFIRE + STATUE(артефакт) = 4)
+  't_trvl583_w','t_trvl495_w','t_sp10','t_a2',
+  // cost5 (5 существ, включая BAN'KAI+3 Saga+LAST KIIRO + 2 спелла = 7)
+  't_bankai','t_trvl93_w','t_trvl60_w','t_trvl84_w','t_kiiro','t_sp9','t_sp6',
+  // cost6 (ASLEX + DOMUS(мир) = 2)
+  't_aslex','t_w2',
+  // cost7 (KREATIV = 1)
+  't_kreativ',
+];
+
+const FOXY_JEET_DECK = [
+  // cost1 (3 существа + 5 спеллов = 8)
+  'j_trvl724_w','j_trvl347_w','j_trvl54_w',
+  'j_sp17','j_sp14','j_sp14','j_sp12','j_sp5',
+  // cost2 (6 существ + 2 спелла = 8)
+  'j_trvl7_w','j_trvl12_w','j_trvl934_w','j_trvl457_w','j_trvl359_w','j_trvl50_w',
+  'j_sp23','j_sp1',
+  // cost3 (7 существ, включая 2 Foxy + 3 спелла = 10)
+  't_trvl13_w','t_trvl51_w','j_trvl25_w','j_trvl454_w','j_trvl36_w','j_trvl53_w','j_trvl76_w',
+  'j_sp2','j_sp20','j_sp16',
+  // cost4 (2 существа, включая 1 Foxy + NIGHTMARE + ALTAR(артефакт) = 4)
+  't_trvl24_w','j_trvl663_w','j_sp10','j_a2',
+  // cost5 (5 существ, включая COPE GUARDIAN+2 Foxy+SEEKER + 2 спелла = 7)
+  'j_cope','j_trvl15_w','j_trvl48_w','j_trvl434_w','j_seek','j_sp9','j_sp6',
+  // cost6 (REAPER + NORRIA(мир) = 2)
+  'j_reap','j_w2',
+  // cost7 (THUG ASTEANAUT = 1)
+  'j_asteanaut',
+];
+
 
 function _composeDeckList(f, cfg){
+  if(cfg==='saga_foxy') return (f==='tea' ? SAGA_TEA_DECK : FOXY_JEET_DECK).slice();
   return (f==='tea' ? CLASSIC_TEA_DECK : CLASSIC_JEET_DECK).slice();
 }
 
 function buildDeck(f, configKey) {
   const cfg = DECK_CONFIGS[configKey] || DECK_CONFIGS.classic;
-  let d = _composeDeckList(f, cfg);
+  let d = _composeDeckList(f, configKey);
   // Unseen (2nd-player bonus card) is NOT part of the deck — it's granted
   // directly to whichever faction the dice-roll made the 2nd player, straight
   // into their hand right after the mulligan ends (grantUnseenBonus() in
