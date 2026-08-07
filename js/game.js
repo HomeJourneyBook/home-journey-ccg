@@ -749,8 +749,7 @@ function doCreature(card){
   if(hasTag(card,'saga') && cur.field.some(c=>c.id!==card.id&&hasTag(c,'founder_of_saga'))){
     _forceSagaMax(card);
     lg(`${card.name}: Founder of Saga — instantly at Saga 3.`,'hl');
-    const fid=card.id;
-    requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(fid,'Saga Up','sagaup')));
+    queueFieldFx(card.id,'Saga Up','fx-sagaup');
   }
   if(hasTag(card,'founder_of_saga')){
     const affected=cur.field.filter(c=>c.id!==card.id&&hasTag(c,'saga')&&(c.sagaStage||0)<3);
@@ -758,8 +757,7 @@ function doCreature(card){
       affected.forEach(c=>_forceSagaMax(c));
       lg(`${card.name}: Founder of Saga — ${affected.map(a=>a.name).join(', ')} instantly at Saga 3.`,'hl');
       affected.forEach(a=>{
-        const aId=a.id;
-        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,'Saga Up','sagaup')));
+        queueFieldFx(a.id,'Saga Up','fx-sagaup');
       });
     }
   }
@@ -1578,7 +1576,7 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
             // (2026-07-29, тот же баг-фикс, что и у Nana — см. её комментарий): раньше
             // "takes 2 bonus dmg!" писался ДО вызова dmgCard(), поэтому при Foxy/Shield/
             // Frost на цели в лог противоречиво улетали ОБЕ строки подряд.
-            dmgCard(tc,2,targetFaction,bonusBypassArmor);
+            dmgCard(tc,2,targetFaction,bonusBypassArmor,undefined,undefined,undefined,mc2);
             if(!tc._foxyDodgedThisHit && !tc._shieldBlockedThisHit && !tc._frostBlockedThisHit){
               lg(`${mc2.name}: Game of Market rolls UP — ${tc.name} takes 2 bonus dmg!`,'imp');
             }
@@ -2031,7 +2029,17 @@ function _triggerFoxyAvenge(dodgedCard, attackerCard){
   if(!avenger) return;
   const attackerF=attackerCard.f;
   lg(`${avenger.name}: ${dodgedCard.name}'s dodge punishes ${attackerCard.name} for 1!`,'dmg');
-  dmgCard(attackerCard,1,ownerF,true,true);
+  dmgCard(attackerCard,1,attackerF,true,true);
+  // Визуальный "подъём" (2026-08-06, по прямому запросу автора — "чтобы Thug Asteanaut
+  // приподнимался в этот момент, как будто это он ранит карту") — тот же activateCard()
+  // пульс, что уже используют атака/Bolt/Shot при действии. Отложено через
+  // requestAnimationFrame — эта функция срабатывает ГЛУБОКО внутри dmgCard(), ДО render()
+  // этого хода; звать activateCard() синхронно здесь означало бы повесить класс на узел,
+  // который вот-вот перестроит ближайший render() — класс стёрся бы раньше, чем браузер
+  // успел бы нарисовать хоть один кадр (тот же класс бага, что уже описан у
+  // doBoltTarget()/doShotTarget() в этом файле).
+  const avengerId=avenger.id;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>activateCard(avengerId)));
 }
 
 function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost,attackerCard){
@@ -2683,11 +2691,10 @@ function applyAuras(faction){
       // "Stand Alone" (2026-08-06, по прямому запросу автора) — всплывающий текст, только
       // на ПЕРЕХОДЕ неактивен→активен (не на каждом вызове applyAuras(), который срабатывает
       // очень часто и без этого флага спамил бы текст даже когда состояние не менялось
-      // вообще). Тот же "sagaup"-стиль плашки (белый цвет, чуть выше карты), что уже есть у
-      // Saga — переиспользуем ту же CSS-запись (.float-number.sagaup), текст просто другой.
+      // вообще). field-fx-popup стиль (позиция/размер как у MARKET UP), белый цвет — см.
+      // .fx-sagaup, css/styles.css.
       if(!wasActive){
-        const aId=a.id;
-        requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(aId,'Stand Alone','sagaup')));
+        queueFieldFx(a.id,'Stand Alone','fx-sagaup');
       }
     }
     a._aloneSamuraiWasActive=isActive;
@@ -3819,22 +3826,27 @@ function _runTurnStartEffects(){
     // прямому запросу автора).
     if(hasTag(c,'saga') && (c.sagaStage||0)<3){
       c.sagaStage=(c.sagaStage||0)+1;
-      let bonusText='';
+      let bonusText='', bonusFloatType='';
       if(c.sagaStage===1){
         c.maxHp+=1; c.hp+=1;
         bonusText='+1 Max HP';
+        bonusFloatType='maxhp'; // тот же тип, что у +N maxHP от аур/World (см. showFloat() ниже по файлу)
       } else if(c.sagaStage===2){
         c.sagaArmorBonus=(c.sagaArmorBonus||0)+1;
         recalcArmor(c.f);
         bonusText='+1 Armor';
+        bonusFloatType='armoraura'; // тот же тип, что у +Armor от аур/BULWARK/CARAPACE
       } else if(c.sagaStage===3){
         c.sagaAtkBonus=(c.sagaAtkBonus||0)+1;
         bonusText='+1 ATK';
+        bonusFloatType='atk'; // тот же тип, что у +N ATK от аур/ARCHIVE
       }
       lg(`${c.name}: Saga ${c.sagaStage}: ${bonusText}.`,'hl');
       const sagaId=c.id;
-      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,bonusText,'atk')));
-      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,'Saga Up','sagaup')));
+      requestAnimationFrame(()=>requestAnimationFrame(()=>showFloat(sagaId,bonusText,bonusFloatType)));
+      // "Saga Up" — field-fx-popup стиль/позиция как у MARKET UP, белый цвет (по прямому
+      // запросу автора, 2026-08-06) — см. .fx-sagaup, css/styles.css.
+      queueFieldFx(sagaId,'Saga Up','fx-sagaup');
     }
     // tempAtkBonus (ARCHIVE и т.п.) — НЕ сбрасываем здесь. Автор уточнил: баф должен
     // быть постоянным (живёт, пока существо не умрёт), а не "переживает один ход
