@@ -70,6 +70,13 @@ const AI_WEIGHTS = {
                       // effAtk()/effAtkVsTarget() (ai.js) уже видят реальный card.atkBonus напрямую (тот
                       // же паттерн, что и обычная aura:atk), так что tagBonus тут не про сам урон, а про
                       // общую ценность карты при выборе, что разыграть/атаковать из руки.
+    saga:0.5,         // LAST KIIRO-парные уники + рядовые Tea-путешественники (2026-08-06) —
+                      // при розыгрыше карта ещё "голая" (sagaStage=0, бонуса нет вообще), но
+                      // копит ПОСТОЯННЫЙ прирост статов за каждый прожитый свой ход (+1maxHP →
+                      // +1Armor → +1ATK, см. endTurn()/game.js), потолок на 3-й стадии.
+                      // Вес выше thorns/shadow_shield(0.3) — тот же принцип, что incarnation
+                      // (0.5): карта дороже, чем видно по голым статам в момент розыгрыша,
+                      // просто ценность реализуется НЕ сразу, а за счёт времени на поле.
     // Четвёртый проход того же аудита — ETB-триггеры (on_enter, срабатывают ОДИН раз при
     // розыгрыше, не оценивались вообще при выборе карты из руки, хотя цикл ниже уже
     // применяет tagBonus к ЛЮБОМУ тегу карты автоматически — просто не было записи):
@@ -1783,7 +1790,7 @@ function aiCanHitBase(creature, oppField){
 }
 
 function effAtk(c){
-  return c.atk + (c.atkBonus||0) + rageAtkBonus(c) + (c.squadAtkBonus||0) + (c.tempAtkBonus||0);
+  return c.atk + (c.atkBonus||0) + rageAtkBonus(c) + (c.squadAtkBonus||0) + (c.tempAtkBonus||0) + (c.sagaAtkBonus||0);
 }
 
 // effAtkVsTarget — 2026-07-24 аудит: effAtk() выше не видит atk_vs_burning:N/atk_vs_feared:N
