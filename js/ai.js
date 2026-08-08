@@ -566,6 +566,15 @@ function aiTryBurnCard(){
 
 // ── ФАЗА 1: розыгрыш карт из руки ────────────────────────────────
 function aiPlayCardsStep(iter){
+  // БАГФИКС (2026-08-08, по прямому запросу автора — "когда заканчивается игра, ИИ
+  // продолжает на фоне ещё использовать артефакты, спеллы, активки карт, надо чтоб он прям
+  // всё прекращал делать раз игра уже закончилась") — isAiTurn() (state.js) НЕ проверяет
+  // G.gameOver сам по себе (только mode/aiFaction), так что если база противника умерла
+  // ПОСРЕДИ уже запланированной AI-цепочки (setTimeout-шаги ниже), isAiTurn() продолжает
+  // отвечать true и цикл идёт дальше как ни в чём не бывало, разыгрывая карты на уже
+  // мёртвой базе. Явная проверка G.gameOver в начале каждого шага — самая надёжная точка,
+  // она видна на КАЖДОМ шаге цепочки, а не только на входе в неё.
+  if(G.gameOver) return;
   if(!isAiTurn()){ showAiBanner(false); return; }
   if(iter > 20){ // защита от бесконечного цикла (не должно происходить)
     aiTryUseSacrifice();
@@ -884,8 +893,22 @@ function aiTryUseShard(forceNow){
 // этим же существом не даёт того же килла — либо потому что Provoke/Bushido
 // заставили бы бить другую цель, либо потому что собственного ATK не хватает
 // там, где хватает Bolt-урона.
-function aiTryUseBolt(){
-  const me=G[G.aiFaction];
+//
+// БАГФИКС (2026-08-08, по прямому запросу автора — "когда ИИ кастует болт Умбасиром, нет
+// задержки на его действия для ожидания с завершением анимации, кидает по два болта за
+// раз") — раньше это была ОДНА синхронная forEach()-функция: если на поле 2+ Umbasir с
+// bolt одновременно, ВСЕ их снаряды стартовали в один и тот же тик (throwBoltFx() в
+// doBoltTarget(), game.js — снаряд летит своим ВНУТРЕННИМ setTimeout, но сама
+// doBoltTarget() возвращается немедленно, не дожидаясь приземления), тот же класс бага,
+// что уже был у Shot/Mechird и починен 2026-08-05 (см. подробный комментарий у
+// _aiFireOneShot()/aiTryUseShotStep() ниже по файлу — тот же паттерн очереди применён
+// здесь один-в-один). Теперь это очередь: один Bolt за раз, каждый следующий — только
+// через AI_STEP_DELAY (и только если этот реально выстрелил), а весь следующий шаг
+// (aiRunActivesThenAttack()) ждёт колбэк onDone(usedAny), а не синхронный return.
+//
+// _aiFireOneBolt(bolt) — решение и (если бьём) сам удар ОДНОЙ конкретной Umbasir-карты;
+// тело 1-в-1 то же, что раньше было внутри forEach() у старой aiTryUseBolt().
+function _aiFireOneBolt(bolt){
   const humanF=G.humanFaction;
   const oppField=G[humanF].field;
   // Ward/Frost/активный Solana Shield блокируют Bolt целиком (тоже bypassArmor=true) —
@@ -893,83 +916,105 @@ function aiTryUseBolt(){
   // Видимость (2026-07-18): invisible/нераскрытый stealth тоже нельзя выбрать целью.
   const enemyField=oppField.filter(c=>!c.spell&&!c.world&&!c.artifact&&(!hasTag(c,'ward')||(hasTag(c,'shield')&&!c.shieldConsumed))&&isSpellTargetable(c,G[humanF].field));
   if(enemyField.length===0) return false;
-  const boltCreatures=me.field.filter(c=>hasTag(c,'bolt')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&!c.spell&&!c.world&&!c.artifact);
-  let used=false;
-  boltCreatures.forEach(bolt=>{
-    if(bolt.exhausted) return; // could've acted already earlier in this same pass
-    const baseDmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
-    const withDmg=enemyField.map(c=>({c, dmg: baseDmg}));
-    const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
-    // Provoke rework (2026-07-17): pierce no longer exempt from forced-target (see
-    // canAttackBase()/getTargetableCards() in game.js) — the `!hasTag(bolt,'pierce')`
-    // exception here was leftover from before that rework and never updated, same bug
-    // class as the provokeBroken miss just below (found + fixed together, 2026-07-17).
-    // Поднято ВЫШЕ (2026-07-20) — раньше объявлялось только внутри killable.length>0 ветки,
-    // а теперь нужно ОБЕИМ веткам (chip-без-килла тоже проверяет forced, см. ниже).
-    // "Открытая карта" (2026-07-24, по прямому запросу автора) — Provoke форсит только
-    // пока не exhausted, тот же принцип везде в этом файле/game.js.
-    const forced = oppField.some(c=>hasTag(c,'bushido')) ||
-      oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen); // +!c.feared (2026-07-25), +!c.frozen (2026-07-27)
-    // 0-ATK bolt bodies (e.g. TRAVELER #52/#6/#54 — pure Umbasir utility, atk:0):
-    // a normal attack from these does NOTHING (0 dmg, and a full counter-attack
-    // eaten for free if Provoke/Bushido forces a creature fight) — Bolt's chip
-    // damage is strictly better even without a guaranteed kill, so these don't
-    // need the "killable" gate at all.
-    if(effAtk(bolt)<=0){
-      if(enemyField.length===0) return;
-      const pool=killable.length>0?killable:withDmg;
+  const baseDmg=(bolt.squadParam&&bolt.squadParam.bolt)||getTagVal(bolt,'bolt')||1;
+  const withDmg=enemyField.map(c=>({c, dmg: baseDmg}));
+  const killable=withDmg.filter(x=>x.dmg>=x.c.hp);
+  // Provoke rework (2026-07-17): pierce no longer exempt from forced-target (see
+  // canAttackBase()/getTargetableCards() in game.js) — the `!hasTag(bolt,'pierce')`
+  // exception here was leftover from before that rework and never updated, same bug
+  // class as the provokeBroken miss just below (found + fixed together, 2026-07-17).
+  // Поднято ВЫШЕ (2026-07-20) — раньше объявлялось только внутри killable.length>0 ветки,
+  // а теперь нужно ОБЕИМ веткам (chip-без-килла тоже проверяет forced, см. ниже).
+  // "Открытая карта" (2026-07-24, по прямому запросу автора) — Provoke форсит только
+  // пока не exhausted, тот же принцип везде в этом файле/game.js.
+  const forced = oppField.some(c=>hasTag(c,'bushido')) ||
+    oppField.some(c=>c.tags.includes('provoke') && !c.provokeBroken && !c.exhausted && !c.feared && !c.frozen); // +!c.feared (2026-07-25), +!c.frozen (2026-07-27)
+  // 0-ATK bolt bodies (e.g. TRAVELER #52/#6/#54 — pure Umbasir utility, atk:0):
+  // a normal attack from these does NOTHING (0 dmg, and a full counter-attack
+  // eaten for free if Provoke/Bushido forces a creature fight) — Bolt's chip
+  // damage is strictly better even without a guaranteed kill, so these don't
+  // need the "killable" gate at all.
+  if(effAtk(bolt)<=0){
+    if(enemyField.length===0) return false;
+    const pool=killable.length>0?killable:withDmg;
+    pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+    G.sel=bolt.id;
+    doUmbBolt();
+    doBoltTarget(pool[0].c);
+    return true;
+  }
+  if(killable.length===0){
+    // Чиповый Bolt без килла (2026-07-18, по просьбе автора) — раньше функция
+    // тут просто выходила, и существо шло в обычную атаку через aiAttackStep().
+    // Но если ATK этого Umbasir'а НЕ БОЛЬШЕ урона от Bolt — обычная атака не
+    // дала бы никакого преимущества в уроне (то же самое 1 dmg, или меньше),
+    // зато ловит контратаку на ровном месте — Bolt магический, ответки не
+    // бывает в принципе. В этом случае лучше потыкать Bolt'ом самую опасную
+    // вражескую карту (сортировка по effAtk, тот же принцип, что и в killable-
+    // ветке ниже), вместо бессмысленного размена жизнью. Если ATK строго
+    // БОЛЬШЕ baseDmg — оставляем как было (return ниже, ничего не делаем
+    // здесь) — там обычная атака реально сильнее и Bolt лучше поберечь.
+    //
+    // 2026-07-20 (по прямому запросу автора, найдено в логах — существо чип-болтало
+    // вражескую карту сразу ПОСЛЕ того, как этим же ходом taunt_break-спелл освободил
+    // ему прямой путь к лицу, впустую тратя и спелл, и это же действие): если существо
+    // прямо сейчас МОЖЕТ ударить по лицу (!forced && aiCanHitBase — тот же провок/бушидо
+    // чек, что и в aiActWithCreature) — лицо строго не хуже чипа по существу (оба дают
+    // тот же 1 dmg "прогресса", но лицо ведёт прямо к победе, а чип по толстой карте вроде
+    // TEANTIST — почти ничего не решает), поэтому в этом случае Bolt НЕ используем и
+    // отдаём существо в обычный шаг атаки — конкретно чтобы taunt_break/EXPOSE-UNMASK не
+    // пропадали впустую. Использовать Bolt вместо лица оправдано, только если баланс дамага
+    // строго в пользу болта (baseDmg>effAtk(bolt) — самого этого блока ветвление уже гарантирует
+    // baseDmg>=effAtk, а не строго больше здесь).
+    const canHitBaseInstead = !forced && aiCanHitBase(bolt, oppField);
+    if(effAtk(bolt)<=baseDmg && enemyField.length>0 && !canHitBaseInstead){
+      const pool=[...withDmg];
       pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
       G.sel=bolt.id;
       doUmbBolt();
       doBoltTarget(pool[0].c);
-      used=true;
-      return;
+      return true;
     }
-    if(killable.length===0){
-      // Чиповый Bolt без килла (2026-07-18, по просьбе автора) — раньше функция
-      // тут просто выходила, и существо шло в обычную атаку через aiAttackStep().
-      // Но если ATK этого Umbasir'а НЕ БОЛЬШЕ урона от Bolt — обычная атака не
-      // дала бы никакого преимущества в уроне (то же самое 1 dmg, или меньше),
-      // зато ловит контратаку на ровном месте — Bolt магический, ответки не
-      // бывает в принципе. В этом случае лучше потыкать Bolt'ом самую опасную
-      // вражескую карту (сортировка по effAtk, тот же принцип, что и в killable-
-      // ветке ниже), вместо бессмысленного размена жизнью. Если ATK строго
-      // БОЛЬШЕ baseDmg — оставляем как было (return ниже, ничего не делаем
-      // здесь) — там обычная атака реально сильнее и Bolt лучше поберечь.
-      //
-      // 2026-07-20 (по прямому запросу автора, найдено в логах — существо чип-болтало
-      // вражескую карту сразу ПОСЛЕ того, как этим же ходом taunt_break-спелл освободил
-      // ему прямой путь к лицу, впустую тратя и спелл, и это же действие): если существо
-      // прямо сейчас МОЖЕТ ударить по лицу (!forced && aiCanHitBase — тот же провок/бушидо
-      // чек, что и в aiActWithCreature) — лицо строго не хуже чипа по существу (оба дают
-      // тот же 1 dmg "прогресса", но лицо ведёт прямо к победе, а чип по толстой карте вроде
-      // TEANTIST — почти ничего не решает), поэтому в этом случае Bolt НЕ используем и
-      // отдаём существо в обычный шаг атаки — конкретно чтобы taunt_break/EXPOSE-UNMASK не
-      // пропадали впустую. Использовать Bolt вместо лица оправдано, только если баланс дамага
-      // строго в пользу болта (baseDmg>effAtk(bolt) — самого этого блока ветвление уже гарантирует
-      // baseDmg>=effAtk, а не строго больше здесь).
-      const canHitBaseInstead = !forced && aiCanHitBase(bolt, oppField);
-      if(effAtk(bolt)<=baseDmg && enemyField.length>0 && !canHitBaseInstead){
-        const pool=[...withDmg];
-        pool.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
-        G.sel=bolt.id;
-        doUmbBolt();
-        doBoltTarget(pool[0].c);
-        used=true;
-      }
-      return; // не тратим ход на чип-урон, когда атака и так была бы сильнее (или доступно лицо)
-    }
-    killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
-    const target=killable[0].c;
-    const normalWouldKillSameTarget = !forced && effAtk(bolt)>=target.hp;
-    if(!normalWouldKillSameTarget){
-      G.sel=bolt.id;
-      doUmbBolt();
-      doBoltTarget(target);
-      used=true;
-    }
-  });
-  return used;
+    return false; // не тратим ход на чип-урон, когда атака и так была бы сильнее (или доступно лицо)
+  }
+  killable.sort((a,b)=>effAtk(b.c)-effAtk(a.c));
+  const target=killable[0].c;
+  const normalWouldKillSameTarget = !forced && effAtk(bolt)>=target.hp;
+  if(!normalWouldKillSameTarget){
+    G.sel=bolt.id;
+    doUmbBolt();
+    doBoltTarget(target);
+    return true;
+  }
+  return false;
+}
+
+// aiTryUseBoltStep — очередь, тот же паттерн, что у aiTryUseShotStep() ниже по файлу: один
+// Umbasir за раз, следующий — только AI_STEP_DELAY спустя, и только если этот реально
+// выстрелил (не ждём просто так, если решение было "не бить"). queue — снимок id'шников на
+// момент вызова aiTryUseBolt(); перечитываем карту заново из поля на каждом шаге (та же
+// защита, что у aiTryUseShotStep() — карта могла уйти с поля/оглушиться между шагами).
+function aiTryUseBoltStep(queue, idx, anyUsed, onDone){
+  if(G.gameOver) return;
+  if(idx>=queue.length){ onDone(anyUsed); return; }
+  const bolt=G[G.aiFaction].field.find(c=>c.id===queue[idx]);
+  if(!bolt || bolt.exhausted || bolt.sleeping || bolt.feared || bolt.frozen){
+    aiTryUseBoltStep(queue, idx+1, anyUsed, onDone);
+    return;
+  }
+  const used=_aiFireOneBolt(bolt);
+  setTimeout(()=>aiTryUseBoltStep(queue, idx+1, anyUsed||used, onDone), used?AI_STEP_DELAY:0);
+}
+
+// onDone(usedAny) — колбэк вместо синхронного return, тот же паттерн, что у aiTryUseShot()
+// ниже по файлу — вызывается после того, как ОЧЕРЕДЬ Umbasir-карт полностью обработана
+// (каждая — своим отдельным, разнесённым по времени шагом), а не сразу после первой.
+function aiTryUseBolt(onDone){
+  const me=G[G.aiFaction];
+  const boltCreatures=me.field.filter(c=>hasTag(c,'bolt')&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen&&!c.spell&&!c.world&&!c.artifact);
+  if(boltCreatures.length===0){ onDone(false); return; }
+  const queue=boltCreatures.map(c=>c.id);
+  aiTryUseBoltStep(queue, 0, false, onDone);
 }
 
 // ── АКТИВКА: SHOT (Mechird, точечный физический урон существом) ─
@@ -1045,6 +1090,9 @@ function _aiFireOneShot(shot){
 // на момент вызова aiTryUseShot(); перечитываем карту заново из поля на каждом шаге (та же
 // защита, что у aiAttackStep() — карта могла уйти с поля/оглушиться между шагами).
 function aiTryUseShotStep(queue, idx, anyUsed, onDone){
+  // БАГФИКС (2026-08-08, по прямому запросу автора) — та же G.gameOver-проверка, что и в
+  // aiPlayCardsStep()/aiAttackStep() выше/ниже по файлу, см. её комментарий.
+  if(G.gameOver) return;
   if(idx>=queue.length){ onDone(anyUsed); return; }
   const shot=G[G.aiFaction].field.find(c=>c.id===queue[idx]);
   if(!shot || shot.exhausted || shot.sleeping || shot.feared || shot.frozen){
@@ -1078,22 +1126,37 @@ function aiTryUseShot(onDone){
 // forEach) — это редкий кейс (нужно 2+ Umbasir одновременно), не покрыт этим
 // фиксом, оставлен как есть.
 function aiRunActivesThenAttack(){
+  // БАГФИКС (2026-08-08, по прямому запросу автора) — G.gameOver-проверка на каждом
+  // вложенном шаге этой цепочки (та же причина, что у aiPlayCardsStep()/aiAttackStep(),
+  // см. их комментарий): AOE/Shard/Bolt/Shot каждый сам может нанести смертельный урон по
+  // базе — если это случилось, следующий вложенный setTimeout не должен продолжать
+  // разыгрывать оставшиеся активки на уже завершённой игре.
   const usedAoe=aiTryUseAoe();
   setTimeout(()=>{
+    if(G.gameOver) return;
     const usedShard=aiTryUseShard();
     setTimeout(()=>{
-      const usedBolt=aiTryUseBolt();
-      setTimeout(()=>{
-        // aiTryUseShot() теперь колбэк-based, не синхронный return (2026-08-05, багфикс —
-        // см. её подробный комментарий выше) — сама себе разносит по времени выстрелы
-        // НЕСКОЛЬКИХ Mechird-карт, следующий общий шаг (обычная атака) стартует только
-        // после того, как ВСЯ очередь выстрелов реально отыграна.
-        aiTryUseShot((usedShot)=>{
-          setTimeout(()=>{
-            aiAttackStep(getAiCreatureQueue(), 0);
-          }, usedShot?AI_STEP_DELAY:0);
-        });
-      }, usedBolt?AI_STEP_DELAY:0);
+      if(G.gameOver) return;
+      // aiTryUseBolt() теперь колбэк-based, не синхронный return (2026-08-08, багфикс —
+      // см. её подробный комментарий выше, тот же паттерн, что уже применён к Shot ниже) —
+      // сама себе разносит по времени удары НЕСКОЛЬКИХ Umbasir-карт, следующий общий шаг
+      // (Shot, затем обычная атака) стартует только после того, как ВСЯ очередь болтов
+      // реально отыграна.
+      aiTryUseBolt((usedBolt)=>{
+        setTimeout(()=>{
+          if(G.gameOver) return;
+          // aiTryUseShot() теперь колбэк-based, не синхронный return (2026-08-05, багфикс —
+          // см. её подробный комментарий выше) — сама себе разносит по времени выстрелы
+          // НЕСКОЛЬКИХ Mechird-карт, следующий общий шаг (обычная атака) стартует только
+          // после того, как ВСЯ очередь выстрелов реально отыграна.
+          aiTryUseShot((usedShot)=>{
+            setTimeout(()=>{
+              if(G.gameOver) return;
+              aiAttackStep(getAiCreatureQueue(), 0);
+            }, usedShot?AI_STEP_DELAY:0);
+          });
+        }, usedBolt?AI_STEP_DELAY:0);
+      });
     }, usedShard?AI_STEP_DELAY:0);
   }, usedAoe?AI_STEP_DELAY:0);
 }
@@ -1766,6 +1829,9 @@ function getAiCreatureQueue(){
 }
 
 function aiAttackStep(queue, idx){
+  // БАГФИКС (2026-08-08, по прямому запросу автора) — та же G.gameOver-проверка, что и в
+  // aiPlayCardsStep() выше по файлу, см. её комментарий.
+  if(G.gameOver) return;
   if(!isAiTurn()){ showAiBanner(false); return; }
   if(idx >= queue.length){
     // Догоняющая попытка Shard (2026-07-24, по прямому запросу автора) — если
