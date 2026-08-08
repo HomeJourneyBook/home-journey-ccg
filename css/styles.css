@@ -79,6 +79,7 @@
 html{overflow:hidden;width:100%;height:100%;}
 body{background:#0a0a12;color:#E8E0C8;font-family:'MEK',monospace;height:100%;overflow:hidden;touch-action:pan-y;}
 .stars{position:fixed; inset:0; background:#0a0a12; z-index:0;}
+.stars::after{content:''; position:absolute; inset:0; background:url('../img/space_bg.png') center center/cover no-repeat; opacity:0.5;}
 /*── Вертикальный скролл поля боя заблокирован (2026-08-04, по прямому запросу автора —
    "карты на поле мы уже зафиксировали по рядам, скролл больше не нужен"). Раньше здесь
    было min-height:100vh + overflow-y:auto — но min-height НИЧЕГО не ограничивает (контейнер
@@ -1902,15 +1903,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    мешают друг другу). min-height:0 — стандартный fix для flex-column, чтобы дети с
    собственным flex:1 могли реально сжиматься/расти, а не упирались в auto-минимум. ──*/
 .arena{position:relative;display:flex;flex-direction:column;flex:1;min-height:0;}
-/* space_bg.png (2026-08-08, по прямому запросу автора) — раньше этот фон растягивался на
-   ВСЮ страницу через .stars::after (лендинг, деккбилдер, все модалки), хотя реально виден
-   только за ареной (обе половины поля боя, от статбара соперника до статбара игрока).
-   Перенесено сюда через ::before (z-index:0, ПОД содержимым .arena — battlefield/persist/
-   arena-col-left/right все уже позиционируются выше по потоку/через z-index в своих
-   правилах) — тот же cover/center, что был у .stars::after, просто заскоуплено на .arena.
-   .stars теперь просто сплошная тёмная заливка #0a0a12 без картинки — видна на лендинге/
-   везде, где раньше был space_bg, по прямому запросу автора. */
-.arena::before{content:''; position:absolute; inset:0; z-index:0; background:url('../img/space_bg.png') center center/cover no-repeat; opacity:0.5; pointer-events:none;}
 /*── РАУНД 5 (2026-08-04, по прямому запросу автора — "нужен фикс с понятным ратио, чтобы
    я мог точно нарисовать ассет" + "каунтеры не резиновые, как у ХП/эссенции"):
    1) .arena-pair больше НЕ auto/content-fit (раунд 4) — теперь ФИКСИРОВАННЫЙ width +
