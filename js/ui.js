@@ -736,13 +736,23 @@ function openDeckPicker(flow){
   _pendingModeFlow=flow;
   _showDeckPickerModal();
 }
-// Кнопка "назад" — самый первый шаг цепочки, дальше отступать некуда, кроме как на
-// landing. Раньше просто прятали модалку, предполагая, что landing и так виден под ней —
-// но это могло не срабатывать (репорт автора: "ведёт в никуда", чёрный экран). Теперь
-// явно возвращаем landing в видимое состояние (display:flex, без .exit-center), не полагаясь
-// на то, что он "и так там был" — надёжнее при любом предыдущем состоянии.
-function backFromDeckPicker(){
+// Кнопка "назад" в углу модалки — теперь ОДНА обслуживает оба уровня (2026-08-08, по
+// прямому запросу автора — "я думал ты перенастроить кнопку назад в нижнем левом углу
+// модалки", не заводить отдельную кнопку рядом с квадратными story-кнопками). Проверяет,
+// какой footer сейчас виден: если открыт under-экран историй (#deckPickerStoriesFooter
+// без .hidden) — просто возвращает на верхний уровень (Story/Custom) той же модалки, без
+// закрытия. Если уже на верхнем уровне — старое поведение backFromDeckPicker(): закрывает
+// модалку и возвращает landing. Явно возвращаем landing в видимое состояние
+// (display:flex, без .exit-center), не полагаясь на то, что он "и так там был" —
+// надёжнее при любом предыдущем состоянии (репорт автора: "ведёт в никуда", чёрный экран).
+function backFromDeckPickerSmart(){
   playSfx('yellow_buttom');
+  const storiesFooter=document.getElementById('deckPickerStoriesFooter');
+  if(storiesFooter && !storiesFooter.classList.contains('hidden')){
+    _resetDeckPickerToMain();
+    _playDeckPickerTyping();
+    return;
+  }
   const modal=document.getElementById('deckPickerModal');
   _modalPopOut(modal, ()=>{
     modal.classList.add('hidden');
@@ -775,14 +785,6 @@ function showStoryPicker(){
   document.getElementById('deckPickerMainFooter').classList.add('hidden');
   document.getElementById('deckPickerStoriesFooter').classList.remove('hidden');
   _playStoryPickerTyping();
-}
-// Кнопка "назад" НА под-экране историй — не закрывает модалку/не уходит на landing
-// (та роль остаётся у corner-back/backFromDeckPicker(), она видна и тут, т.к. это тот же
-// #deckPickerModal), а просто возвращает на верхний уровень (Story/Custom) той же модалки.
-function backFromStoryPicker(){
-  playSfx('yellow_buttom');
-  _resetDeckPickerToMain();
-  _playDeckPickerTyping();
 }
 function chooseDeckConfig(configKey){
   const modal=document.getElementById('deckPickerModal');
@@ -1174,7 +1176,16 @@ function confirmOrderRoll(){
     _orderRollFirstFaction=null;
     if(ctx.mode==='hotseat'){
       if(ctx.deckConfig==='rush') startRushBuild('hotseat',{firstFaction});
-      else startGame('classic',firstFaction);
+      // БАГФИКС (2026-08-08, найдено по прямому запросу автора — "проверь что в хот сит
+      // режиме кнопки выбора истории работают правильно"): раньше тут стоял хардкод
+      // startGame('classic',firstFaction) — Hot Seat ИГНОРИРОВАЛ реальный ctx.deckConfig и
+      // всегда запускал Classic-колоду, даже если игрок выбрал Saga vs Foxy на Story-экране.
+      // Баг не проявлялся раньше, пока deckConfig принимал только 'classic'/'rush' (оба
+      // обработаны явно) — с появлением saga_foxy (2026-08-06) эта ветка осталась не
+      // обновлена. VS AI-ветка ниже уже использовала реальный ctx.deckConfig правильно
+      // (через _pendingVsAiDeckConfig, см. startGameVsAI()) — асимметрия между двумя
+      // ветками и выдавала баг только в Hot Seat.
+      else startGame(ctx.deckConfig,firstFaction);
     } else {
       const landing=document.getElementById('landing');
       landing.style.display='none';
