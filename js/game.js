@@ -2038,6 +2038,7 @@ function _triggerFoxyAvenge(dodgedCard, attackerCard){
   // тот же принцип, что уже у Shot/банана/DD Cleave в этом файле). Solana Shield всё ещё
   // может поглотить целиком — это не зависит от bypassArmor, щит блокирует любой урон.
   // Урон 1→2 (2026-08-08, по прямому запросу автора — "усилить наказание за промах")
+  const hpBeforeAvenge=attackerCard.hp;
   dmgCard(attackerCard,2,attackerF,false,true);
   // Звук + лог — ПОСЛЕ dmgCard() и только на подтверждённом попадании (не промах/не щит/
   // не заморозка У ATTACKERCARD — это ОН тут получатель урона, не dodgedCard), тот же
@@ -2058,6 +2059,24 @@ function _triggerFoxyAvenge(dodgedCard, attackerCard){
   // doBoltTarget()/doShotTarget() в этом файле).
   const avengerId=avenger.id;
   requestAnimationFrame(()=>requestAnimationFrame(()=>activateCard(avengerId)));
+  // БАГФИКС (2026-08-08, найдено по прямому запросу автора — "наказывая за промах двумя
+  // урона, этот дамаг не может быть смертельным, там не внедрена проверка на смерть") —
+  // dmgCard() тут вызывается с deferDeath=true (та же семантика, что у контрудара в
+  // doAttack(): HP может уйти в минус, но killCard() ВЫЗЫВАЮЩИЙ КОД обязан резолвить сам,
+  // не dmgCard() автоматически — см. её комментарий у lethal&&!deferDeath). Раньше эта
+  // функция НИКОГДА не резолвила отложенную смерть — карта застревала на поле с
+  // отрицательным HP навсегда (видно на скриншотах автора: "TRAVELER #420 -1/4 HP",
+  // "TRAVELER #60 -1/6 HP"). Тот же паттерн, что уже использует doAttack() для контрудара
+  // (500мс — синхронно с длительностью cardActivate, .card-small.activating, styles.css —
+  // тот самый пульс activateCard() чуть выше): если урон оказался летальным, резолвим
+  // смерть с той же задержкой, что и остальные подобные "побочные" смерти в игре.
+  if(hpBeforeAvenge>0 && attackerCard.hp<=0){
+    setTimeout(()=>{
+      if(G[attackerF].field.includes(attackerCard)) killCard(attackerCard,attackerF);
+      checkWin();
+      render();
+    }, 500);
+  }
 }
 
 function dmgCard(card,dmg,faction,bypassArmor,deferDeath,forceLabel,bypassFrost,attackerCard){
