@@ -86,7 +86,7 @@ function makeSandbox(){
     requestAnimationFrame(fn){ queue.push(fn); },
     setTimeout(fn){ queue.push(fn); return queue.length; },
     clearTimeout(){},
-    // ── 7 UI-заглушек (полный список внешних зависимостей движка+ИИ) ──
+    // ── UI-заглушки (полный список внешних зависимостей движка+ИИ) ──
     render(){},
     mkEl(){ return makeStubEl(); },
     playSfx(){},
@@ -97,6 +97,21 @@ function makeSandbox(){
     playSpellRevealAnimation(_card, onDone){ if(typeof onDone==='function') queue.push(onDone); },
     showWin(w){ sandbox.__winner = w; },
     __winner: null,
+    // Origin-rect переменные (2026-08-08, багфикс) — модульные переменные из render.js,
+    // в которые game.js пишет НАПРЯМУЮ (без функции-сеттера) как часть card-fly-анимаций
+    // (полёт из руки на поле, воскрешение с кладбища, bounce обратно в руку — все три
+    // добавлялись отдельными сессиями 2026-08-05/06, см. их комментарии в js/game.js/
+    // render.js). render.js сознательно НЕ входит в ENGINE_FILES выше (headless безголовый,
+    // сама анимация тут не нужна и никем не читается) — без этих заглушек каждая запись в
+    // них была ReferenceError: у _pendingHandOriginRects (doPlay()) она перехватывалась
+    // try/catch в aiPlayCardsStep (партия продолжалась, но с шумным логом), а у
+    // _pendingReviveOrigins (reviveCard(), вызывается из _runTurnStartEffects()/endTurn() —
+    // ВНЕ try/catch) она валила ВСЮ партию как error-результат. Пустые объекты — этого
+    // достаточно, ничего из headless-контекста эти записи не читает (читатели —
+    // _playFieldFlyIfPending()/_reviveFlyIfPending() в render.js, недостижимы здесь).
+    _pendingHandOriginRects: {},
+    _pendingReviveOrigins: {},
+    _bounceOriginRects: {},
   };
   sandbox.globalThis = sandbox;
   vm.createContext(sandbox);
