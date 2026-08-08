@@ -3001,8 +3001,24 @@ function recalcArmor(faction){
       // Merchirds — sitting at a legitimate 0/0 from their own earlier first-time pass —
       // failed this check (0>0 is false) and got clamped to 0/1 instead of growing to 1/1.
       const wasFull=(a.armor||0)===a.armorMax;
-      a.armorMax=newMax;
-      a.armor=wasFull?newMax:Math.min(a.armor||0,newMax);
+      // Delta-based armor grant (2026-08-08, по прямому запросу автора — геймдизайн-решение):
+      // раньше рост armorMax НЕ поднимал текущую armor, если она уже была частично/полностью
+      // потрачена (например существо атаковало и стало 0/1, затем баф +1 давал 0/2, а не 1/2)
+      // — новый max честно отражал потолок, но фактическая защита прямо сейчас не менялась.
+      // Теперь ЛЮБОЙ рост armorMax (аура/сквад/мир/спелл — без разбора источника, единое
+      // правило по прямому запросу автора) добавляет ТУ ЖЕ дельту к текущей armor, а не
+      // только к потолку — 0/1 существо после +1 Armor становится 1/2, а не 0/2. Падение
+      // armorMax (аура/сквад/мир пропали) — прежнее поведение без изменений: полная броня
+      // просто следует за новым (меньшим) потолком, частичная — клэмпится сверху, ничего
+      // не восстанавливается и не отнимается сверх падения потолка.
+      if(newMax>a.armorMax){
+        const delta=newMax-a.armorMax;
+        a.armorMax=newMax;
+        a.armor=wasFull?newMax:Math.min((a.armor||0)+delta,newMax);
+      } else {
+        a.armorMax=newMax;
+        a.armor=wasFull?newMax:Math.min(a.armor||0,newMax);
+      }
     }
   });
   // Логи — только для карт, у которых явно взведён флаг "залогировать этот пересчёт"
