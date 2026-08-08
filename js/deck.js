@@ -225,40 +225,71 @@ const SAGA_TEA_DECK = [
   // cost1 (3 существа + 5 спеллов = 8)
   't_trvl18_w','t_trvl91_w','t_trvl52_w',
   't_sp17','t_sp14','t_sp14','t_sp12','t_sp5',
-  // cost2 (6 существ + 2 спелла = 8)
-  't_trvl28_w','t_trvl870_w','t_trvl45_w','t_trvl868_w','t_trvl218_w','t_trvl39_w',
-  't_sp23','t_sp13',
+  // cost2 (5 существ + 3 спелла = 8) — 2026-08-08, по прямому запросу автора: t_trvl45_w
+  // (4-й Umbasir на cost1-4, единственный "лишний" архетип сверх ровного 3:3:3:3:3:3) убран
+  // целиком, JUDGMENT добавлен взамен, чтобы вернуть 40 карт в деке.
+  't_trvl28_w','t_trvl870_w','t_trvl868_w','t_trvl218_w','t_trvl39_w',
+  't_sp15','t_sp13','t_sp26',
   // cost3 (7 существ, включая 2 Saga + 3 спелла = 10)
-  't_trvl102_w','t_trvl100_w','t_trvl34_w','t_trvl10_w','t_trvl1_w','t_trvl6_w','t_trvl26_w',
+  't_trvl102_w','t_trvl100_w','t_trvl34_w','t_trvl420_w','t_trvl1_w','t_trvl6_w','t_trvl26_w',
   't_sp11','t_sp20','t_sp16',
-  // cost4 (2 существа + WILDFIRE + STATUE(артефакт) = 4)
-  't_trvl583_w','t_trvl495_w','t_sp10','t_a2',
-  // cost5 (5 существ, включая BAN'KAI+3 Saga+LAST KIIRO + 2 спелла = 7)
-  't_bankai','t_trvl93_w','t_trvl60_w','t_trvl84_w','t_kiiro','t_sp9','t_sp6',
-  // cost6 (ASLEX + DOMUS(мир) = 2)
-  't_aslex','t_w2',
-  // cost7 (KREATIV = 1)
-  't_kreativ',
+  // cost4 (3 существа, включая новый Xuiqtr #847 (закрывает единственную дыру в 6-архетипной
+  // симметрии cost1-4, см. deck.js-комментарий у FOXY_JEET_DECK ниже за парную карту) +
+  // MULTITUDE + STATUE(артефакт) = 5
+  't_trvl583_w','t_trvl495_w','t_trvl847_w','t_sp19','t_a2',
+  // cost5 (3 существа, все три Saga + 2 спелла = 5) — 2026-08-08, по прямому запросу автора
+  // ("разгрузить цену 5"): BAN'KAI переехал на cost6 (см. её блок ниже), t_trvl402_w
+  // (единственный НЕ-Saga Xuiqtr на этом costs) убран целиком — оставлены ровно 3 Saga-
+  // существа, симметрично Jeet-стороне (3 Foxy на cost5, см. FOXY_JEET_DECK).
+  't_trvl93_w','t_trvl60_w','t_trvl84_w','t_sp9','t_sp6',
+  // cost6 (DOMUS(мир) + BAN'KAI = 2) — BAN'KAI переехал сюда с cost5 (2026-08-08, по прямому
+  // запросу автора), cost 5→6 + HP 6→7 (см. её карточку в data.js).
+  't_w2','t_bankai',
+  // cost7 (NABUNAGI + KREATIV = 2)
+  't_nab','t_kreativ',
 ];
 
 const FOXY_JEET_DECK = [
   // cost1 (3 существа + 5 спеллов = 8)
   'j_trvl724_w','j_trvl347_w','j_trvl54_w',
   'j_sp17','j_sp14','j_sp14','j_sp12','j_sp5',
-  // cost2 (6 существ + 2 спелла = 8)
-  'j_trvl7_w','j_trvl12_w','j_trvl934_w','j_trvl457_w','j_trvl359_w','j_trvl50_w',
-  'j_sp23','j_sp1',
-  // cost3 (7 существ, включая 2 Foxy + 3 спелла = 10)
-  't_trvl13_w','t_trvl51_w','j_trvl25_w','j_trvl454_w','j_trvl36_w','j_trvl53_w','j_trvl76_w',
-  'j_sp2','j_sp20','j_sp16',
-  // cost4 (2 существа, включая 1 Foxy + NIGHTMARE + ALTAR(артефакт) = 4)
-  't_trvl24_w','j_trvl663_w','j_sp10','j_a2',
-  // cost5 (5 существ, включая COPE GUARDIAN+2 Foxy+SEEKER + 2 спелла = 7)
-  'j_cope','j_trvl15_w','j_trvl48_w','j_trvl434_w','j_seek','j_sp9','j_sp6',
-  // cost6 (REAPER + NORRIA(мир) = 2)
-  'j_reap','j_w2',
-  // cost7 (THUG ASTEANAUT = 1)
-  'j_asteanaut',
+  // cost2 (5 существ + 3 спелла = 8) — 2026-08-08, по прямому запросу автора: j_trvl12_w
+  // (4-й Szarg на cost1-4, единственный "лишний" архетип сверх ровного 3:3:3:3:3:3) убран
+  // целиком (j_trvl7_w — идентичный близнец по статам/тегам, оставлен), DEATHBLOW добавлен
+  // взамен, чтобы вернуть 40 карт в деке. БАГФИКС того же дня: первая версия ошибочно убрала
+  // j_trvl934_w — это Umbasir (bolt:1), не Szarg, из-за чего Umbasir просел до 2 карт вместо
+  // 3, а Szarg остался на 4 — теперь возвращён j_trvl934_w, убран реальный лишний Szarg.
+  'j_trvl7_w','j_trvl934_w','j_trvl457_w','j_trvl359_w','j_trvl50_w',
+  'j_sp15','j_sp1','j_sp26',
+  // cost3 (6 существ, включая 2 Foxy + 3 спелла + ALTAR(артефакт) = 10) — 2026-08-08, по
+  // прямому запросу автора: ALTAR переехал сюда с cost4 (cost 4→3, см. её карточку в
+  // data.js) — sim показал структурную слабость жертвенной механики против бесплатного
+  // STATUE-аналога у Tea (38.2% vs 49.3% winrate-when-played). j_trvl53_w (Umbasir) убран
+  // отсюда, перенесён на cost4 как j_trvl133_w (см. её комментарий ниже) — прямая замена
+  // travelers cost3→cost4 внутри одного архетипа, чтобы освободить место под ALTAR здесь.
+  't_trvl13_w','t_trvl51_w','j_trvl25_w','j_trvl454_w','j_trvl36_w','j_trvl76_w',
+  'j_sp2','j_sp20','j_sp16','j_a2',
+  // cost4 (4 существа, включая новый Xuiqtr #806 (см. её комментарий ниже) + Umbasir #133
+  // (2026-08-08, по прямому запросу автора — прямая замена j_trvl53_w с cost3 на этот
+  // cost4-Umbasir: sim показал суммарный ATK Umbasir-линии Jeet на cost5 заметно ниже
+  // Tea-аналога (7 vs 9 на равном HP=16), regen на #133 добавляет устойчивости в среднюю
+  // игру, ту самую зону, где Jeet системно проседал) + MAELSTROM = 5.
+  // Xuiqtr #806 (2026-08-08, по прямому запросу автора — "заполнить цены 1-4 так, чтобы
+  // количество архетипов было в балансе": до этой правки Xuiqtr был представлен только на
+  // cost2/cost3 у обеих фракций — единственный из 6 Gate без cost4-карты, при том что
+  // Umbasir/Szarg были представлены НА ОДНУ карту больше остальных архетипов на cost1-4
+  // (4 против 3) — теперь все 6 архетипов ровно по 3 существа на cost1-4 у каждой фракции.
+  't_trvl24_w','j_trvl320_w','j_trvl806_w','j_trvl133_w','j_sp25',
+  // cost5 (3 существа, все три Foxy + 2 спелла = 5) — 2026-08-08, по прямому запросу автора
+  // ("разгрузить цену 5"): COPE GUARDIAN переехала на cost6 (см. её блок ниже), j_trvl1029_w
+  // (единственный НЕ-Foxy Szarg на этом costs) убран целиком — оставлены ровно 3 Foxy-
+  // существа, симметрично Tea-стороне (3 Saga на cost5, см. SAGA_TEA_DECK).
+  'j_trvl15_w','j_trvl48_w','j_trvl1032_w','j_sp9','j_sp6',
+  // cost6 (NORRIA(мир) + COPE GUARDIAN = 2) — COPE GUARDIAN переехала сюда с cost5
+  // (2026-08-08, по прямому запросу автора), cost 5→6 + HP 6→7 (см. её карточку в data.js).
+  'j_w2','j_cope',
+  // cost7 (PHLEGMOR + THUG ASTEANAUT = 2)
+  'j_phleg','j_asteanaut',
 ];
 
 
