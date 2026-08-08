@@ -4252,6 +4252,24 @@ function showFloat(cardId, text, type){
   }
   el.appendChild(num);
   setTimeout(()=>num.remove(), 900);
+  // Глитч-переход на самой циферке (2026-08-08, по прямому запросу автора) — ТОЛЬКО для
+  // бафов/аур (atk/armoraura/maxhp — те же 3 типа плашек, что уже летают выше), НЕ для
+  // урона/хила (dmg/heal) — те уже несут свою собственную обратную связь (шейк/цвет) и не
+  // должны её терять. Переиспользуем ГОТОВЫЙ CSS-класс .glitch-text/@keyframes textGlitch
+  // (тот же, что уже применяется случайным образом на .hp-val/.ess-val в статус-баре, см.
+  // triggerStatGlitch()/scheduleStatGlitch() ниже по файлу) — тут же триггерим его целенаправленно,
+  // синхронно с моментом, когда число реально меняется в DOM (следующий render()).
+  const GLITCH_SELECTOR = { atk:'.card-small-atk', armoraura:'.card-small-armor', maxhp:'.card-small-hp' };
+  const sel = GLITCH_SELECTOR[type];
+  if(sel){
+    const numEl = el.querySelector(sel);
+    if(numEl){
+      numEl.classList.remove('glitch-text');
+      void numEl.offsetWidth;
+      numEl.classList.add('glitch-text');
+      setTimeout(()=>numEl.classList.remove('glitch-text'), 250);
+    }
+  }
 }
 function activateCard(cardId){
   // Пропускаем пульс, если карта СЕЙЧАС ещё летит на поле (2026-08-05, багфикс по прямому
