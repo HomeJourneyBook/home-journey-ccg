@@ -280,12 +280,21 @@ function _renderDeckBuilder(faction){
     const def=DEFS[key];
     const qty=_db.picks[faction][key]||0;
     const remaining=max-qty;
-    // Пул (справа) — фильтруется кнопками сверху; выбранные (слева) — всегда все, без фильтра,
-    // это же "твоя колода", её не прячем.
+    // Пул (справа) — фильтруется кнопками сверху, отсортирован по цене (как и раньше).
     if(remaining>0 && activeFilter.test(def)){
       poolGrid.appendChild(_dbStackEl(faction,key,def,remaining,(el)=>dbSetQty(faction,key,qty+1,el)));
     }
+  });
+  // Выбранные (слева, "твоя колода") — НЕ по цене, а в порядке добавления: последняя
+  // добавленная НОВАЯ карта (стопка) встаёт в конец, а не улетает туда, где она была бы
+  // по стоимости (запрос автора, 2026-08-08). Порядок берём из ключей самого _db.picks —
+  // обычный JS-объект сохраняет порядок ПЕРВОЙ вставки строкового ключа и не переставляет
+  // его при последующих присвоениях того же ключа (добор 2й/3й копии карты не двигает
+  // стопку), так что Object.keys() тут и есть нужный "порядок добавления".
+  Object.keys(_db.picks[faction]).forEach(key=>{
+    const qty=_db.picks[faction][key]||0;
     if(qty>0){
+      const def=DEFS[key];
       chosenGrid.appendChild(_dbStackEl(faction,key,def,qty,(el)=>dbSetQty(faction,key,qty-1,el)));
     }
   });
