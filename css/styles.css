@@ -1104,6 +1104,9 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
      окажется шрифт на каком-то экране. */
   max-width:calc(100% - 2 * max(calc(5vh * 0.798), calc(2.5vw * 0.798)) - 12px);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* .jeet (2026-08-08, по прямому запросу автора) — заголовок баттл-лога джит кремовым
+   (--color-cream), тот же принцип, что у .grave-modal.jeet .grave-modal-title выше. */
+.log-panel.jeet .log-panel-title{color:var(--color-cream);}
 /*── БЫЛО: "Вертикальный iPad — панель лога фиксированной ширины (320px)..." — этот костыль
    уменьшал шрифт заголовка лога специально на планшете-портрете, компенсируя то, что
    .log-panel тогда был жёстко 320px и мог не вписать vh-формулу шрифта. С тех пор
@@ -1322,6 +1325,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
   to{opacity:0; transform:scale(0.9);}
 }
 .grave-modal-title{font-family:'MEK',monospace; font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665)); color:#0c1013; text-align:center;}
+/* .jeet (2026-08-08, по прямому запросу автора) — заголовок кладбища джит кремовым
+   (--color-cream), тот же принцип, что у остальных .jeet-переопределений этой модалки
+   выше (рамка/хидер/футер) — просто тут меняется color текста, а не фоновый ассет. */
+.grave-modal.jeet .grave-modal-title{color:var(--color-cream);}
 .grave-modal-body{padding:10px 4px 34px; overflow-y:auto; flex:1; display:flex; flex-wrap:wrap; gap:4px; justify-content:center; align-content:flex-start;}
 .grave-modal-body::-webkit-scrollbar{width:4px;}
 .grave-modal-body::-webkit-scrollbar-track{background:#020d02;}
