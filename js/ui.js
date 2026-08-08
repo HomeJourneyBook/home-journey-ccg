@@ -1326,7 +1326,7 @@ function playArenaRevealAnimation(){
   // Лог/конец хода — горизонтальный въезд слева/справа (2026-08-04, тот же запрос —
   // "красиво будет"), отдельно от top/bottom групп (едут по X, не по Y, и каждый сам
   // по себе, не парой — см. keyframes arenaSlideLeft/RightIn в styles.css).
-  const leftEls = [document.getElementById('arenaLogBtn')].filter(Boolean);
+  const leftEls = ['arenaLogBtn','arenaRushBtn'].map(id=>document.getElementById(id)).filter(Boolean);
   const rightEls = [document.getElementById('arenaEndTurnSlot')].filter(Boolean);
 
   const allEls=[header,...topEls,...bottomEls,...leftEls,...rightEls].filter(Boolean);
