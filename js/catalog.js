@@ -102,7 +102,10 @@ function renderCatalog(){
   });
   cards.sort(([,a],[,b])=>{
     const dir=catalogFilters.dir||1;
-    if(catalogFilters.sort==='name') return a.name.localeCompare(b.name)*dir;
+    // numeric:true — "natural sort": цифровые хвосты в имени (Traveler 2, Traveler 10, ...)
+    // сравниваются как числа, а не посимвольно, иначе "10" встаёт раньше "2" (лексикографически
+    // '1' < '2'). Без этой опции A-Z давал 1,10,100,...,2,20,... вместо 1,2,3,...,100.
+    if(catalogFilters.sort==='name') return a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'})*dir;
     if(catalogFilters.sort==='cost') return (a.cost-b.cost)*dir;
     if(catalogFilters.sort==='hp') return (b.hp-a.hp)*dir;
     if(catalogFilters.sort==='atk') return (b.atk-a.atk)*dir;
