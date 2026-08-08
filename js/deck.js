@@ -189,7 +189,7 @@ const CLASSIC_TEA_DECK = [
   't_trvl583_w', // Umbasir cost4 (bolt:1+regen+death_heal:4) — Umbasir 2→3, sustain-пик вместо снятого cost5 burn (#387, тоже был тёплый 59.9% WWP в раунде 1)
   't_trvl218_w', // Orbiton cost2 (heal:2) — Orbiton 2→3, уже в струю (Orbiton и так heal-архетип)
   't_trvl150_w', // Mechird cost1 (shot:1) — 2026-08-06, по прямому запросу автора: заменён t_trvl38_w (Mechird cost3, shot+vampiric) — кривая маны Tea была поджата на cost1 (всего 2 карты), cost3 был раздут (8 карт); Xuiqtr и Burn-карты (сигнатура фракции) намеренно не трогались как доноры
-  't_nab',       // NABUNAGI (unique, bushido+armor:1, cost8) — 5-й слот, не было в Classic. ВНИМАНИЕ: у карты своя история балансировки (56-66% WWP на разных срезах статов до текущей atk2/hp8/armor:1) — эта версия последняя протестированная, но не факт что холодная именно в ЭТОЙ колоде, сверить по прогону.
+  't_aslex',     // ASLEX (unique, on_own_death_base:1 "Elegy", cost6) — 2026-08-08, по прямому запросу автора: заменил t_nab (NABUNAGI). Своя история балансировки (см. data.js) — последний изолированный sim-тест (N=3000, карта одна в проверенной Classic-деке) держал 52.0% WWP, в коридоре 45-55, но НЕ факт что холодная именно в ЭТОЙ колоде после замены — сверить по прогону.
   't_sp23','t_sp10','t_sp20','t_sp17',
   't_sp14','t_sp14','t_sp13','t_sp16','t_sp11','t_sp6','t_sp12','t_sp26','t_sp9','t_sp18','t_sp27', // t_sp22(CATACLYSM, aoe-снос поля)→t_sp9(BREACH, Bolt5+trample) — 2026-08-06, по прямому запросу автора: "игра сводится к тому, кто счистит поле и по новой" — убрали AOE-wipe, дали точечный тяжёлый Bolt5 вместо него; t_sp24(RENEWAL)→t_sp11(ELIXIRS) — 2026-08-06, по прямому запросу автора, ELIXIRS теперь активирует+чистит (см. data.js), был вообще не в Classic до этого
 ];
@@ -207,7 +207,7 @@ const CLASSIC_JEET_DECK = [
   'j_trvl133_w', // Umbasir cost4 (bolt:1+mek+regen) — Umbasir 2→3, sustain-пик вместо снятого cost5 shield/ward (#248)
   'j_trvl178_w', // Mechird cost1 (shot:1) — 2026-08-06, по прямому запросу автора: заменён j_trvl804_w (Mechird cost3, shot+regen) — тот же curve-фикс, что у Tea (см. t_trvl38_w→t_trvl150_w выше), зеркально по фракции
   'j_trvl76_w',  // Xuiqtr cost3 (intercept+death_atk:1) — 2026-08-06, по прямому запросу автора: заменён j_trvl3_w (intercept+vampiric) — vampiric лечит на КАЖДОЙ успешной атаке (постоянный ресурс), заметно сильнее разового death_atk/death_armor-паттерна у остальных cost3-пиров; подозревается как один из вкладчиков в перекос винрейта Jeet (43-45%/55-57% на нескольких N=1500 прогонах после свежих правок кривой маны)
-  'j_phleg',     // PHLEGMOR (unique, raise:1 — некромантия/воскрешение, cost8) — 5-й слот, не было в Classic. Та же оговорка про историю балансировки, что у NABUNAGI — последний срез (atk2/hp8) в изолированных тестах всё ещё держался 56-59.7% WWP, не факт что холодная.
+  'j_reap',      // REAPER (unique, on_own_death_base:1 "Harvest", cost6) — 2026-08-08, по прямому запросу автора: заменил j_phleg (PHLEGMOR), зеркало ASLEX-замены выше по Tea. Своя история балансировки (см. data.js) — НЕ факт что холодная именно в ЭТОЙ колоде после замены, сверить по прогону.
   'j_sp23','j_sp10','j_sp20','j_sp17',
   'j_sp14','j_sp14','j_sp1','j_sp16','j_sp18','j_sp6','j_sp15','j_sp12','j_sp2','j_sp27','j_sp9', // j_sp22(EXTINCTION, aoe-снос поля)→j_sp9(RUPTURE, Bolt5+trample) — 2026-08-06, по прямому запросу автора, тот же фикс, что у Tea (см. её комментарий в CLASSIC_TEA_DECK выше)
 ];
