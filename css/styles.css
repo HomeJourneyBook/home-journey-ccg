@@ -674,7 +674,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 }
 .lore-archive-btn:hover{background-image:url('../img/btn_lore_archiveH.png');}
 .lore-archive-btn:active{background-image:url('../img/btn_lore_archive2.png');}
-.lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-color:transparent; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:50 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
+.lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-color:transparent; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:100 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
 .lore-page:nth-of-type(1){--r:-1.6deg;}
 .lore-page:nth-of-type(2){--r:1.1deg;}
 .lore-page:nth-of-type(3){--r:-0.9deg;}
