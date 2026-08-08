@@ -245,7 +245,7 @@ const SAGA_TEA_DECK = [
   // cost6 (DOMUS(мир) + BAN'KAI = 2) — BAN'KAI переехал сюда с cost5 (2026-08-08, по прямому
   // запросу автора), cost 5→6 + HP 6→7 (см. её карточку в data.js).
   't_w2','t_bankai',
-  // cost7 (NABUNAGI + KREATIV = 2)
+  // cost8 (NABUNAGI + KREATIV = 2) — NABUNAGI cost 7→8 (2026-08-08, по прямому запросу автора)
   't_nab','t_kreativ',
 ];
 
@@ -288,7 +288,7 @@ const FOXY_JEET_DECK = [
   // cost6 (NORRIA(мир) + COPE GUARDIAN = 2) — COPE GUARDIAN переехала сюда с cost5
   // (2026-08-08, по прямому запросу автора), cost 5→6 + HP 6→7 (см. её карточку в data.js).
   'j_w2','j_cope',
-  // cost7 (PHLEGMOR + THUG ASTEANAUT = 2)
+  // cost8 (PHLEGMOR + THUG ASTEANAUT = 2) — PHLEGMOR cost 7→8 (2026-08-08, по прямому запросу автора)
   'j_phleg','j_asteanaut',
 ];
 
