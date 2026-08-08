@@ -476,6 +476,16 @@ function doPlay(card, afterResolve){
   if(wouldAddToField&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');if(typeof afterResolve==='function')afterResolve();return;}
   cur.ess-=card.cost;
 
+  // enter_card.wav (2026-08-08, по прямому запросу автора — "звук поздно срабатывает",
+  // перенесено из конца анимации полёта клона в render.js) — единая точка входа для ЛЮБОГО
+  // существа независимо от того, кто его играет: человек (playBtn.onclick, render.js —
+  // звук оттуда убран, чтобы не звучал дважды) или ИИ (aiPlayCardsStep→doPlay(), ai.js, у
+  // которого вообще нет playBtn/клика). Здесь же, а не позже в _resolvePlayedCard() —
+  // раньше (сразу на нажатие/на вызов doPlay()), а не в конце самой анимации прилёта.
+  // Только "чистые" существа — та же формула wouldAddToField чуть выше, без ветки revive
+  // (воскрешение спеллом уже озвучено своим путём, см. её комментарий в render.js).
+  if(!card.spell&&!card.world&&!card.artifact) playSfx('enter_card');
+
   // isPlainInstantSpell — поднято сюда, наверх doPlay() (2026-08-05), было объявлено ниже
   // (см. старое место чуть дальше по функции, у spell-cast-out анимации) — понадобилось
   // РАНЬШЕ needsReveal-ветки тоже, чтобы звук magic.wav срабатывал одинаково что для
