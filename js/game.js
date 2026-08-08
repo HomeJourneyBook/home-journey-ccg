@@ -476,16 +476,6 @@ function doPlay(card, afterResolve){
   if(wouldAddToField&&cur.field.length>=6){lg('Battleground is full — max 6 creatures.','hint');if(typeof afterResolve==='function')afterResolve();return;}
   cur.ess-=card.cost;
 
-  // enter_card.wav (2026-08-08, по прямому запросу автора — "звук поздно срабатывает",
-  // перенесено из конца анимации полёта клона в render.js) — единая точка входа для ЛЮБОГО
-  // существа независимо от того, кто его играет: человек (playBtn.onclick, render.js —
-  // звук оттуда убран, чтобы не звучал дважды) или ИИ (aiPlayCardsStep→doPlay(), ai.js, у
-  // которого вообще нет playBtn/клика). Здесь же, а не позже в _resolvePlayedCard() —
-  // раньше (сразу на нажатие/на вызов doPlay()), а не в конце самой анимации прилёта.
-  // Только "чистые" существа — та же формула wouldAddToField чуть выше, без ветки revive
-  // (воскрешение спеллом уже озвучено своим путём, см. её комментарий в render.js).
-  if(!card.spell&&!card.world&&!card.artifact) playSfx('enter_card');
-
   // isPlainInstantSpell — поднято сюда, наверх doPlay() (2026-08-05), было объявлено ниже
   // (см. старое место чуть дальше по функции, у spell-cast-out анимации) — понадобилось
   // РАНЬШЕ needsReveal-ветки тоже, чтобы звук magic.wav срабатывал одинаково что для
@@ -1134,7 +1124,6 @@ function doAttack(att,target){
     const overflow=Math.max(0,-target.hp);
     if(overflow>0){
       G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
-      playSfx(oppK==='jeet'?'jeetbase':'base_atack'); // 2026-08-08, по прямому запросу автора — trample-overflow раньше бил по базе вообще беззвучно; та же Jeet-развилка, что у прямого удара по базе
       lg(`${att.name} tramples through ${target.name} — ${overflow} overflow dmg to ${oppK.toUpperCase()} base!`,'dmg');
       flashBase('opp','dmg',overflow);
     }
@@ -1447,6 +1436,25 @@ function canAttackBase(){
   return true;
 }
 
+// Attack Rush (2026-08-08, "Атаковать базу всеми", по прямому запросу автора) — путь до
+// базы считается ПОЛНОСТЬЮ свободным, только если И bushido/provoke не блокируют (та же
+// проверка, что у canAttackBase(), но БЕЗ привязки к конкретной выбранной карте — эта
+// функция не читает G.sel вообще, зовётся только с oppK), И нет непотраченного
+// Intercept-перехватчика (getInterceptor() без target — общая проверка "есть ли вообще
+// кандидат", та же, что использует tryAttackBase() перед прямым ударом по базе). Именно
+// это сочетание автор описал как "выбрав карту можно бить базу напрямую, и при этом атака
+// не будет перехвачена кситром" — если это условие держится, все готовые карты гарантированно
+// бьют базу напрямую, ни одна не размениется на существо по пути.
+function isBaseFullyOpen(oppK){
+  const opp=G[oppK];
+  const bushido=opp.field.find(c=>c.tags&&c.tags.includes('bushido'));
+  if(bushido) return false;
+  const provoke=opp.field.find(c=>c.tags.includes('provoke')&&!c.provokeBroken&&!c.exhausted&&!c.feared&&!c.frozen);
+  if(provoke) return false;
+  if(getInterceptor(opp.field)) return false;
+  return true;
+}
+
 function tryAttackBase(){
   if(G.gameOver) return;
   if(G.phase!=='selectTarget'&&G.phase!=='healTarget'){lg('Select a card to attack with first.','hint');return;}
@@ -1479,7 +1487,7 @@ function tryAttackBase(){
     doAttack(att,interceptor);
     return;
   }
-  playSfx(oppK==='jeet'?'jeetbase':'base_atack'); // 2026-08-08, по прямому запросу автора — отдельный звук конкретно при ударе по базе Jeet, Tea-база оставлена на общем base_atack
+  playSfx('base_atack');
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
   // Market/Nana (2026-07-29, баг-фикс по прямому запросу автора) — раньше прямой удар по
@@ -1501,6 +1509,58 @@ function tryAttackBase(){
   flashBase('opp', 'dmg', atk);
   checkWin();render();
   activateCard(att.id); 
+}
+
+// Attack Rush — "Атаковать базу всеми" (2026-08-08, по прямому запросу автора). Кнопка
+// активна, только когда isBaseFullyOpen() уже подтвердил, что путь до базы свободен для
+// ВСЕХ (см. её комментарий) — эта функция просто прогоняет каждую готовую свою карту через
+// ОБЫЧНЫЙ tryAttackBase(), один в один как если бы игрок кликал по каждой карте и потом по
+// базе вручную, по очереди. Никакой отдельной/упрощённой логики урона — bushido/provoke/
+// intercept-проверки, Market/Nana/DD Cleave хуки и triggerAbilities('on_attack') внутри
+// tryAttackBase() отрабатывают для каждого удара точно так же, как при ручном клике.
+// Список готовых атакующих снимается ОДИН РАЗ в начале (тот же порядок, что на поле) — не
+// перечитывается на лету, чтобы кнопка била именно тех, кто был готов в момент клика, а не
+// гонялась за постоянно меняющимся списком. Перед каждым конкретным ударом карта всё равно
+// перепроверяется (exhausted/sleeping/feared/frozen/ещё жива) — на случай, если что-то
+// всё же успело её задеть по пути (например AoE-хук от одного из предыдущих ударов), тогда
+// эта карта просто пропускается, остальные в очереди бьют дальше как ни в чём не бывало.
+// 500мс между ударами — синхронно с длительностью cardActivate (.card-small.activating,
+// css/styles.css), тем же тайминг-принципом, что уже используется у Nana/других serial-
+// эффектов в этом файле (см. их комментарии про "500мс — держать в синхроне").
+let _attackRushInProgress=false;
+function isAttackRushInProgress(){ return _attackRushInProgress; }
+function attackBaseWithAll(){
+  if(isAiTurn()||G.gameOver||_attackRushInProgress) return;
+  if(G.phase!=='action') return; // кнопка и так disabled в этом случае — доп. защита от гонки
+  const faction=G.turn;
+  const oppK=faction==='tea'?'jeet':'tea';
+  if(!isBaseFullyOpen(oppK)) return;
+  const attackers=G[faction].field.filter(c=>!c.spell&&!c.world&&!c.artifact&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen).map(c=>c.id);
+  if(attackers.length===0) return;
+  // Звук клика — только ЗДЕСЬ, после всех проверок готовности (2026-08-08) — кнопка технически
+  // остаётся кликабельной в DOM даже в .disabled-состоянии (см. комментарий у .arena-rush-btn,
+  // styles.css, про то, почему тут нет нативного disabled), так что playSfx() в onclick сыграл
+  // бы звук даже на пустой клик. Тот же принцип, что и у остальных условно-disabled кнопок
+  // проекта — звук должен подтверждать РЕАЛЬНОЕ действие, а не просто нажатие пальцем.
+  playSfx('yellow_buttom');
+  cancelAction(); // сброс любого текущего выбора/pending-состояния перед стартом серии
+  _attackRushInProgress=true;
+  render(); // кнопка сразу перекрашивается в disabled-скин на время серии
+  let i=0;
+  function step(){
+    if(G.gameOver || i>=attackers.length){ _attackRushInProgress=false; render(); return; }
+    const id=attackers[i]; i++;
+    const c=findC(id);
+    // Повторная проверка "всё ещё готова" — см. комментарий функции выше. Если карта уже
+    // не на поле (умерла/была отправлена в руку каким-то эффектом) или больше не готова —
+    // просто пропускаем её без удара и идём к следующей в очереди.
+    if(c && G[faction].field.includes(c) && !c.exhausted && !c.sleeping && !c.feared && !c.frozen){
+      G.sel=id;G.phase='selectTarget';
+      tryAttackBase();
+    }
+    setTimeout(step, 500);
+  }
+  step();
 }
 
 // Frost (2026-07-27, "Frost Attack", ultra-rare Mood trait Winter from RGB) — снятие статуса
@@ -1571,7 +1631,6 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
     const mc=G[marketFaction].field.find(c=>c.id===marketId);
     if(!mc) return; // носитель тега уже не на поле — розыгрыш рынка не состоится
     const up=Math.random()<0.5;
-    playSfx(up?'marketUp':'marketDown'); // 2026-08-08, по прямому запросу автора — звучит в тот же момент, что и появление плашки MARKET UP/MARKET DOWN, не в момент реального урона/самоурона (тот резолвится ещё одним setTimeout ниже)
     queueFieldFxReplace(marketId, up?'MARKET UP':'MARKET DOWN', up?'fx-market-up':'fx-market-down');
     render();
     setTimeout(()=>{
@@ -1796,7 +1855,7 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
           setTimeout(()=>{
             const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
             if(!nc2) return;
-            playSfx(oppFaction==='jeet'?'jeetbase':'base_atack'); // 2026-08-08, по прямому запросу автора — та же Jeet-развилка, что и у обычного удара по базе (tryAttackBase())
+            playSfx('base_atack'); // 2026-07-30, по прямому запросу автора — тот же звук, что у обычного удара по базе
             lg(`${nc2.name}: 🍌 hits the ${oppFaction} base for 2 dmg!`,'imp');
             G[oppFaction].hp=Math.max(0,G[oppFaction].hp-2);
             flashBase(oppFaction,'dmg',2);
@@ -3001,24 +3060,8 @@ function recalcArmor(faction){
       // Merchirds — sitting at a legitimate 0/0 from their own earlier first-time pass —
       // failed this check (0>0 is false) and got clamped to 0/1 instead of growing to 1/1.
       const wasFull=(a.armor||0)===a.armorMax;
-      // Delta-based armor grant (2026-08-08, по прямому запросу автора — геймдизайн-решение):
-      // раньше рост armorMax НЕ поднимал текущую armor, если она уже была частично/полностью
-      // потрачена (например существо атаковало и стало 0/1, затем баф +1 давал 0/2, а не 1/2)
-      // — новый max честно отражал потолок, но фактическая защита прямо сейчас не менялась.
-      // Теперь ЛЮБОЙ рост armorMax (аура/сквад/мир/спелл — без разбора источника, единое
-      // правило по прямому запросу автора) добавляет ТУ ЖЕ дельту к текущей armor, а не
-      // только к потолку — 0/1 существо после +1 Armor становится 1/2, а не 0/2. Падение
-      // armorMax (аура/сквад/мир пропали) — прежнее поведение без изменений: полная броня
-      // просто следует за новым (меньшим) потолком, частичная — клэмпится сверху, ничего
-      // не восстанавливается и не отнимается сверх падения потолка.
-      if(newMax>a.armorMax){
-        const delta=newMax-a.armorMax;
-        a.armorMax=newMax;
-        a.armor=wasFull?newMax:Math.min((a.armor||0)+delta,newMax);
-      } else {
-        a.armorMax=newMax;
-        a.armor=wasFull?newMax:Math.min(a.armor||0,newMax);
-      }
+      a.armorMax=newMax;
+      a.armor=wasFull?newMax:Math.min(a.armor||0,newMax);
     }
   });
   // Логи — только для карт, у которых явно взведён флаг "залогировать этот пересчёт"
@@ -3512,7 +3555,6 @@ function doSpellDmgTrampleTarget(card){
       const overflow=Math.max(0,-targetC.hp);
       if(overflow>0){
         G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
-        playSfx(oppK==='jeet'?'jeetbase':'base_atack'); // 2026-08-08, по прямому запросу автора — тот же фикс, что у Pierce trample выше: overflow-урон от BREACH/RUPTURE через убитое существо раньше бил по базе беззвучно
         lg(`${spell.name}: overkill carries ${overflow} dmg into the ${oppK.toUpperCase()} base!`,'dmg');
         flashBase(oppK,'dmg',overflow);
       }
@@ -4243,12 +4285,21 @@ document.addEventListener('keydown',(e)=>{
 function cancelAction(){G.previewCard=null;clearPreview();G.sel=null;G.phase='action';render();}
 
 function handleGameClick(e){
-  if(G.phase==='sacrificeTarget'&&!e.target.closest('.card')&&!e.target.closest('.pcard')){
-    G.phase='action';G.sel=null;render();return;
-  }
-  // добавить:
-  if(G.phase==='selectTarget'&&!e.target.closest('.card-small')&&!e.target.closest('.stats-bar')){
-    G.phase='action';G.sel=null;render();return;
+  // Общее правило отмены (2026-08-08, по прямому запросу автора — баг-репорт "клик по
+  // кладбищу/логу/бургер-меню не сбрасывает выбранную карту"). Раньше здесь было ДВА
+  // точечных условия (только под 'sacrificeTarget' и 'selectTarget' — см. историю в git),
+  // остальные "ожидающие цель" фазы (boltTarget/shotTarget/spellDmgTarget/
+  // spellBuffTarget/... — полный список см. в комментарии перед их объявлением в game.js)
+  // просто не попадали ни под одно условие и оставались висеть до следующего валидного
+  // клика по карте. Теперь — ЕДИНОЕ правило: любая НЕ-'action' фаза (какая бы она ни была,
+  // включая любые будущие) сбрасывается любым кликом, который не попал по интерактивной
+  // части игры (карта на поле/в руке, персистент-карта, статбар — оттуда клик либо валиден
+  // для текущей фазы, либо сам вызывает onBaseClick()/своё stopPropagation()). Кнопки типа
+  // .arena-grave-btn/.arena-log-btn/#hamburgerBtn НЕ вызывают stopPropagation(), поэтому их
+  // клик всплывает сюда, до этой правки — просто не матчился ни одним из двух старых if.
+  if(G.phase!=='action' && !e.target.closest('.card') && !e.target.closest('.card-small') && !e.target.closest('.pcard') && !e.target.closest('.stats-bar')){
+    cancelAction();
+    return;
   }
   if(!e.target.closest('.card')&&G.previewCard){
     G.previewCard=null;clearPreview();render();
@@ -4278,24 +4329,6 @@ function showFloat(cardId, text, type){
   }
   el.appendChild(num);
   setTimeout(()=>num.remove(), 900);
-  // Глитч-переход на самой циферке (2026-08-08, по прямому запросу автора) — ТОЛЬКО для
-  // бафов/аур (atk/armoraura/maxhp — те же 3 типа плашек, что уже летают выше), НЕ для
-  // урона/хила (dmg/heal) — те уже несут свою собственную обратную связь (шейк/цвет) и не
-  // должны её терять. Переиспользуем ГОТОВЫЙ CSS-класс .glitch-text/@keyframes textGlitch
-  // (тот же, что уже применяется случайным образом на .hp-val/.ess-val в статус-баре, см.
-  // triggerStatGlitch()/scheduleStatGlitch() ниже по файлу) — тут же триггерим его целенаправленно,
-  // синхронно с моментом, когда число реально меняется в DOM (следующий render()).
-  const GLITCH_SELECTOR = { atk:'.card-small-atk', armoraura:'.card-small-armor', maxhp:'.card-small-hp' };
-  const sel = GLITCH_SELECTOR[type];
-  if(sel){
-    const numEl = el.querySelector(sel);
-    if(numEl){
-      numEl.classList.remove('glitch-text');
-      void numEl.offsetWidth;
-      numEl.classList.add('glitch-text');
-      setTimeout(()=>numEl.classList.remove('glitch-text'), 250);
-    }
-  }
 }
 function activateCard(cardId){
   // Пропускаем пульс, если карта СЕЙЧАС ещё летит на поле (2026-08-05, багфикс по прямому
