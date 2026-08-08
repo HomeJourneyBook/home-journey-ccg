@@ -1797,15 +1797,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    выше (2026-08-08, по прямому запросу автора — "у ассетов аналогичных у Джит
    соответственно тоже"). left_tea_jeet.png — новый ассет, аналог left_tea.png для Jeet. */
 .stats-bar.jeet .statbar-edge-left{top:0; bottom:0; left:0; height:100%; transform:none; width:calc(var(--card-action-btn-w) + 2px); background-color:transparent; background-image:url('../img/left_tea_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
-/* Jeet-only: ещё один квадратный плейсхолдер левее расширенного правого края. Белый фон —
-   временный, пока не пришёл реальный арт (statbar_edge_right2_jeet.png). Эта позиция
-   считалась от старой ширины trubi1_jeet (2/3*2) — теперь что trubi1_jeet, что left_tea_jeet
-   имеют новую ширину (var(--card-action-btn-w) + 2px, см. выше), формула отступа обновлена
-   вместе с ней, чтобы плейсхолдер не наехал на новый (более узкий) правый край. */
-.statbar-edge-right-2{display:none; position:absolute; right:calc(6px + (var(--card-action-btn-w) + 2px) + 6px); top:50%; transform:translateY(-50%); width:calc(max(4vh, 2vw) * 0.5); height:calc(max(4vh, 2vw) * 0.5); background-color:transparent; background-image:url('../img/statbar_edge_right2_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
-@media(min-width:601px){
-  .statbar-edge-right-2{display:block;}
-}
 /* Jeet-only: квадратный плейсхолдер у левого края — зеркало правого. Белый фон — временный,
    пока не пришёл реальный арт (statbar_edge_left_jeet.png). */
 .statbar-edge-left{display:none; position:absolute; left:6px;top:50%; transform:translateY(-50%); width:calc(max(4vh, 2vw) * 0.5); height:calc(max(4vh, 2vw) * 0.5); background-color:transparent; background-image:url('../img/statbar_edge_left_jeet.png'); background-size:100% 100%; background-repeat:no-repeat; background-position:center;}
@@ -1838,7 +1829,6 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    двумя строками ниже, теперь единообразно для обеих фракций.*/
 #oppStats .statbar-edge-left{left:auto; right:0; top:auto; bottom:0; transform:scale(-1,-1);}
 #oppStats .statbar-edge-right{right:auto; left:0; top:auto; bottom:0; transform:scale(-1,-1);}
-#oppStats .statbar-edge-right-2{right:auto; left:calc(6px + (max(4vh, 2vw) * 2 / 3 * 2) + 6px); transform:translateY(-50%) scale(-1,-1);}
 .stat-val{font-weight:bold;}
 .stats-bar .stat-icon{width:0.65em;height:0.65em;}
 .player-name-box.flash-red, .stat-hp-box.flash-red{animation: flashRed 0.5s ease-out forwards;}
@@ -1853,18 +1843,21 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .stat-ess-box{background-image:url('../img/bg_statbar_hp.png');}
 .stats-bar.jeet .stat-hp-box, .stats-bar.jeet .stat-ess-box{background-color:#fff; background-image:url('../img/bg_counters_jeet.png');}
 /* Плейсхолдер слева от HP-индикатора — Tea использует существующий boltik.png, Jeet —
-   свой новый файл (белый фон временно, пока арт не пришёл). Размер — квадрат, сторона =
-   половина высоты .stat-hp-box (та же формула × 0.5). */
+   свой файл boltik_jeet.png. Размер — квадрат, сторона = половина высоты .stat-hp-box
+   (та же формула × 0.5). */
 .hp-placeholder{display:none; width:max(calc(4vh * 0.25), calc(2vw * 0.25)); height:max(calc(4vh * 0.25), calc(2vw * 0.25)); background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
 .stats-bar.tea .hp-placeholder{background-image:url('../img/boltik.png');}
-.stats-bar.jeet .hp-placeholder{background-color:transparent; background-image:url('../img/boltik_jeet.png');}
+.stats-bar.jeet .hp-placeholder{background-image:url('../img/boltik_jeet.png');}
 @media(min-width:601px){
   .hp-placeholder{display:block;}
 }
 /* ПЛЕЙСХОЛДЕРЫ по бокам от pcard-слотов (world/artifact) в статус-барах — 4:1,
    высота = половина высоты .stats-bar (та же формула × 0.5, откуда и высота
    у .hp-placeholder выше). Только лаптоп/десктоп — на телефоне не показываем.
-   Разведены по фракциям — Tea пока остаётся чёрным (свой файл на будущее), Jeet — белый. */
+   Jeet — свой готовый арт (statbar_extra_jeet.png, 2026-08-08 — CSS-заглушка
+   background-color убрана, ассет уже в репо). Tea — пока остаётся на drill.png
+   (statbar_extra_tea.png ещё не пришёл), background-color:#000 у базового правила ниже —
+   это фон САМОГО drill.png (не заглушка на будущее, реальный фон текущего ассета Tea). */
 .statbar-extra{display:none; width:calc(max(4vh, 2vw) * 0.5 * 4); height:calc(max(4vh, 2vw) * 0.5); background-color:#000; background-size:100% 100%; background-repeat:no-repeat; flex-shrink:0;}
 .stats-bar.tea .statbar-extra{background-image:url('../img/drill.png');}
 .stats-bar.jeet .statbar-extra{background-color:transparent; background-image:url('../img/statbar_extra_jeet.png');}
