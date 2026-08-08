@@ -2044,6 +2044,29 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .arena-log-btn.jeet:hover{background-image:url('../img/btn_logH_jeet.png');}
 .arena-log-btn.jeet:active{background-image:url('../img/btn_log2_jeet.png');}
 
+/* Attack Rush — "Атаковать базу всеми" (2026-08-08, по прямому запросу автора). Тот же
+   паттерн, что arena-log-btn (кастомные арт-ассеты на все состояния, CSS ничего поверх не
+   подмешивает — ни filter, ни transform) — просто у этой кнопки ЕЩЁ и 4-е состояние,
+   .disabled, свой отдельный ассет (btn_allrushD.png), а не просто приглушённый idle.
+   Тот же --arena-log-w-размер, что у лога (автор попросил "размер такой же"). Disabled —
+   через класс, не через атрибут disabled на <button> (кнопка ВСЁ РАВНО должна быть
+   кликабельна с точки зрения DOM, чтобы playSfx/attackBaseWithAll() успели проверить
+   актуальные условия и молча выйти, а не полагаться на браузерный disabled — тот же
+   принцип, по которому в проекте нигде не используется нативный disabled на игровых
+   кнопках, см. .btn-end/.modal-art-btn). */
+.arena-rush-btn{width:calc(var(--arena-log-w) * 0.85);aspect-ratio:1/1;border:none;
+  background-color:transparent;
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+  padding:0;cursor:pointer;position:relative;}
+.arena-rush-btn.tea{background-image:url('../img/btn_allrush_tea1.png');}
+.arena-rush-btn.tea:hover{background-image:url('../img/btn_allrush_teaH.png');}
+.arena-rush-btn.tea:active{background-image:url('../img/btn_allrush_tea2.png');}
+.arena-rush-btn.tea.disabled{background-image:url('../img/btn_allrush_teaD.png');cursor:default;}
+.arena-rush-btn.jeet{background-image:url('../img/btn_allrush_jeet1.png');}
+.arena-rush-btn.jeet:hover{background-image:url('../img/btn_allrush_jeetH.png');}
+.arena-rush-btn.jeet:active{background-image:url('../img/btn_allrush_jeet2.png');}
+.arena-rush-btn.jeet.disabled{background-image:url('../img/btn_allrush_jeetD.png');cursor:default;}
+
 /* Конец хода (справа, средний слот) — КВАДРАТНОЙ была по запросу автора 2026-08-03,
    2026-08-04 автор попросил ВЫСОКУЮ 1:1.5 (ширина:высота) вместо квадрата — старый
    button_1.png/_jeet.png и так растягивается без сохранения пропорций
