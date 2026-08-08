@@ -1195,7 +1195,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -1266,7 +1266,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else if(fieldFull){
@@ -1708,11 +1708,6 @@ function _playFieldFlyIfPending(cardEl, faction){
     clone.style.transform='translate(-50%,-50%) scale(1)';
     void clone.offsetWidth; // форсируем применение стилей без transition, синхронно, до снятия видимости
     cardEl.style.visibility='';
-    // enter_card ПЕРЕЕХАЛ отсюда на клик по кнопке Play (2026-08-08, по прямому запросу
-    // автора — "звук выставления карт на поле поздно срабатывает"): раньше звучал именно
-    // ЗДЕСЬ, в конце полёта клона (~CARD_FLY_MS позже самого клика), теперь — сразу на
-    // playBtn.onclick в mkEl()/mkPreviewEl() (только для чистых существ, НЕ спеллов/миров/
-    // артефактов), синхронно с моментом нажатия, а не с моментом приземления анимации.
     // БАГФИКС (2026-08-06, гипотеза автора — "у Vanguard единственное отличие в том, что она
     // не спит с рождения, копай в эту сторону"). Реальная находка: idle-анимация покачивания
     // поля (.card-small:not(.sleeping):nth-child(4n+N){animation:cardFloatB/C/D...}, см.
@@ -2060,8 +2055,9 @@ function rZone(id,cards,zone){
   }
 }
 
-// Рисует ЧУЖУЮ руку — карты рубашкой вверх (картинка runaha.png), без данных о содержимом.
-// Количество "рубашек" = реальное количество карт у оппонента, сами карты не раскрываются.
+// Рисует ЧУЖУЮ руку — карты рубашкой вверх (runaha.png у Tea, rubaha_jeet.png у Jeet —
+// разведено по фракциям 2026-08-08), без данных о содержимом. Количество "рубашек" =
+// реальное количество карт у оппонента, сами карты не раскрываются.
 // ВАЖНО: id контейнера (#teaHand/#jeetHand) переиспользуется и под открытую руку (через rZone/.card),
 // и под скрытую (через эту функцию/.card-mini) — в зависимости от того, чей сейчас ход.
 // Поэтому сначала проверяем, что внутри уже лежат корректные .card-mini (а не "осиротевшие" .card
@@ -2114,7 +2110,9 @@ function rHiddenHand(id,cards,faction){
     if(originRect && targetRect){
       const flyClone=document.createElement('div');
       flyClone.className=`card-mini ${faction}-mini`;
-      flyClone.style.backgroundImage="url('img/runaha.png')";
+      // rubaha_jeet.png (2026-08-08, по прямому запросу автора) — у Jeet теперь свой
+      // индивидуальный арт рубашки в скрытой руке, у Tea без изменений (runaha.png).
+      flyClone.style.backgroundImage=faction==='jeet' ? "url('img/rubaha_jeet.png')" : "url('img/runaha.png')";
       flyClone.style.backgroundSize='cover';
       flyClone.style.backgroundPosition='bottom';
       _flyCardFromDeck(flyClone, originRect, targetRect, 0, true); // тот же движок полёта, что у deck-fly — просто старт/финиш переставлены по смыслу вызова (летит ОТ поля К руке, не от колоды); skipSound=true — wind_card уже сыгран при самом bounce
@@ -2126,7 +2124,9 @@ function rHiddenHand(id,cards,faction){
     for(let i=0;i<need-have;i++){
       const d=document.createElement('div');
       d.className=`card-mini ${faction}-mini`;
-      d.style.backgroundImage="url('img/runaha.png')";
+      // rubaha_jeet.png (2026-08-08, по прямому запросу автора) — у Jeet теперь свой
+      // индивидуальный арт рубашки в скрытой руке, у Tea без изменений (runaha.png).
+      d.style.backgroundImage=faction==='jeet' ? "url('img/rubaha_jeet.png')" : "url('img/runaha.png')";
       d.style.backgroundSize='cover';
       d.style.backgroundPosition='bottom';
       el.appendChild(d);
