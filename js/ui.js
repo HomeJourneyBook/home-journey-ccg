@@ -728,6 +728,7 @@ let _pendingModeFlow=null; // 'hotseat' | 'vsai'
 function _showDeckPickerModal(){
   const modal=document.getElementById('deckPickerModal');
   modal.classList.remove('hidden');
+  _resetDeckPickerToMain(); // всегда открываемся на верхнем уровне (Story/Custom), не на under-экране историй, даже если прошлый визит закончился на нём (см. её комментарий)
   _modalPopIn(modal);
   _playDeckPickerTyping();
 }
@@ -752,6 +753,36 @@ function backFromDeckPicker(){
       landing.classList.remove('exit-center');
     }
   }, 250);
+}
+
+// Story под-экран (2026-08-08, по прямому запросу автора) — "Story" на верхнем уровне
+// deckPickerModal (экран 1: выбор РЕЖИМА игры — готовая история vs собери свою колоду)
+// больше не выбирает деку напрямую: вместо этого подменяет текст (заголовок+typing-строки)
+// и footer (main story/custom-кнопки → пара готовых историй) БЕЗ переоткрытия/попапа самой
+// модалки — тот же #deckPickerModal, то же окно, просто другое "под-состояние" внутри него
+// (экран 2: выбор КОНКРЕТНОЙ деки из уже существующих историй — Burn vs Fear / Saga vs
+// Foxy). Сами story-кнопки вызывают chooseDeckConfig() с уже существующими внутренними
+// ключами ('classic'/'saga_foxy', см. DECK_CONFIGS в deck.js — ключ 'classic' остаётся как
+// есть в коде, переименовано только то, что видит игрок на экране) — игровая логика выбора
+// деки не тронута вообще, поменялся только путь ДО неё в UI.
+function _resetDeckPickerToMain(){
+  document.getElementById('deckPickerTitle').textContent='CHOOSE YOUR MODE';
+  document.getElementById('deckPickerMainFooter').classList.remove('hidden');
+  document.getElementById('deckPickerStoriesFooter').classList.add('hidden');
+}
+function showStoryPicker(){
+  document.getElementById('deckPickerTitle').textContent='CHOOSE YOUR DECK';
+  document.getElementById('deckPickerMainFooter').classList.add('hidden');
+  document.getElementById('deckPickerStoriesFooter').classList.remove('hidden');
+  _playStoryPickerTyping();
+}
+// Кнопка "назад" НА под-экране историй — не закрывает модалку/не уходит на landing
+// (та роль остаётся у corner-back/backFromDeckPicker(), она видна и тут, т.к. это тот же
+// #deckPickerModal), а просто возвращает на верхний уровень (Story/Custom) той же модалки.
+function backFromStoryPicker(){
+  playSfx('yellow_buttom');
+  _resetDeckPickerToMain();
+  _playDeckPickerTyping();
 }
 function chooseDeckConfig(configKey){
   const modal=document.getElementById('deckPickerModal');
@@ -1095,11 +1126,29 @@ function _playDeckPickerTyping(){
   const l2=document.getElementById('deckPickerLine2');
   l1.classList.add('typing-hidden'); l1.textContent='';
   l2.classList.add('typing-hidden'); l2.textContent='';
-  const t1=_typeHtmlLine(l1,[{text:'Classic',bold:true},{text:' — ready deck'}],26,()=>{
-    const t2=_typeHtmlLine(l2,[{text:'Rush',bold:true},{text:' — build your own deck'}],26);
+  // "Classic"→"Story"/"Rush"→"Custom" (2026-08-08, по прямому запросу автора) — никакого
+  // перечисления конкретных сценариев тут (список со временем будет расти, см. showStoryPicker()
+  // выше), только жанровое объяснение самой кнопки.
+  const t1=_typeHtmlLine(l1,[{text:'Story',bold:true},{text:' — a ready-made deck'}],26,()=>{
+    const t2=_typeHtmlLine(l2,[{text:'Custom',bold:true},{text:' — build your own deck'}],26);
     _deckPickerTypeCancel=t2.cancel;
   });
   _deckPickerTypeCancel=t1.cancel;
+}
+
+// Story под-экран (2026-08-08) — своя короткая typing-строка вместо двух main-строк выше;
+// переиспользует те же #deckPickerLine1/2 элементы (l2 просто остаётся пустым/нетронутым —
+// _resetDeckPickerToMain()/следующий _playDeckPickerTyping() перезапишет оба заново).
+let _storyPickerTypeCancel=null;
+function _playStoryPickerTyping(){
+  if(_deckPickerTypeCancel) _deckPickerTypeCancel();
+  if(_storyPickerTypeCancel) _storyPickerTypeCancel();
+  const l1=document.getElementById('deckPickerLine1');
+  const l2=document.getElementById('deckPickerLine2');
+  l1.classList.add('typing-hidden'); l1.textContent='';
+  l2.classList.add('typing-hidden'); l2.textContent='';
+  const t1=_typeText(l1,'Pick a story to play.',26);
+  _storyPickerTypeCancel=t1.cancel;
 }
 
 // vsAiPickerModal — single line, same cadence as the rest.
