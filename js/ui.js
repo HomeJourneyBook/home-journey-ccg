@@ -325,7 +325,7 @@ function preloadAssets(){
     'img/ico_ward.png',
     'img/ico_incarn.png',
     'img/trubi1.png',
-    /* 'img/trubi1_jeet.png', */ // пока не в репо (404 на деплое, закомментить попросил автор, 2026-07-27)
+    'img/trubi1_jeet.png', // Jeet-скин правого края статбара (2026-08-08, автор подтвердил — ассет теперь в репо; раньше закомментировано как 404, см. историю 2026-07-27)
 
     // ── Книга правил (обложка, страницы, кнопки навигации) ──
     'img/rules_cover.png', 'img/rules_pages.png', 'img/rules_pages1.png', 'img/rules_pages2.png', 'img/rules_pages3.png', 'img/rules_navigation_box.png', 'img/rules_title_bg.png', 'img/rules_bg.png',
@@ -358,6 +358,7 @@ function preloadAssets(){
     'img/dat4ik_small.gif', /* 'img/bottom_extra3_jeet.png', */
     'img/boltics.png', /* 'img/bottom_extra4_jeet.png', */
     'img/drill.png', 'img/left_tea.png',
+    'img/left_tea_jeet.png', // Jeet-аналог left_tea.png (2026-08-08, по прямому запросу автора — растяжка edge-ассетов статбара на полную высоту + свой левый край у Jeet) — см. .stats-bar.jeet .statbar-edge-left в styles.css
 
     // ── Дайс-модалка (order-roll, выбор первого хода) — арт граней ──
     'img/dice_1.png', 'img/dice_2.png', 'img/dice_3.png',
