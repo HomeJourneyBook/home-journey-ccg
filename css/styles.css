@@ -674,7 +674,7 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 }
 .lore-archive-btn:hover{background-image:url('../img/btn_lore_archiveH.png');}
 .lore-archive-btn:active{background-image:url('../img/btn_lore_archive2.png');}
-.lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-color:transparent; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:100 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
+.lore-page{--r: 0deg; position:relative; margin:0 0 7.5vw; padding:0; border-style:solid; border-color:transparent; border-width:25px; border-image-source:url('../img/lore_pages.png'); border-image-slice:50 fill; border-image-width:25px; border-image-outset:0; border-image-repeat:repeat; opacity:0; transform:rotate(var(--r)) translateY(14px);}
 .lore-page:nth-of-type(1){--r:-1.6deg;}
 .lore-page:nth-of-type(2){--r:1.1deg;}
 .lore-page:nth-of-type(3){--r:-0.9deg;}
@@ -1281,6 +1281,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
    тому, чью именно фракцию открыли. */
 .grave-modal.jeet{border-image-source:url('../img/grav_frame_jeet.png');}
 .grave-modal-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_grav.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex; justify-content:center; align-items:center; padding:0 8px; position:relative; flex-shrink:0;}
+/* .jeet (2026-08-08, по прямому запросу автора) — тот же приём, что у .grave-modal.jeet/
+   .grave-modal.jeet .grave-modal-footer выше: свой ассет для хидера кладбища джит
+   (bg_jest_grav_jeet.png), остальные border-image-параметры те же. */
+.grave-modal.jeet .grave-modal-header{border-image-source:url('../img/bg_jest_grav_jeet.png');}
 .grave-close-btn{position:absolute; right:6px;top:50%;transform:translateY(-50%); background-image:url('../img/btn_X.png'); background-size:100% 100%; background-color:transparent; border:none;padding:0; width:max(calc(5vh * 0.798), calc(2.5vw * 0.798));height:max(calc(5vh * 0.798), calc(2.5vw * 0.798)); font-size:0;line-height:0; cursor:pointer;}
 .grave-close-btn:hover{background-image:url('../img/btn_Xh.png');}
 .grave-close-btn:active{background-image:url('../img/btn_X2.png');}
