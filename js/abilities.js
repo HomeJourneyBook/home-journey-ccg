@@ -1134,6 +1134,18 @@ function triggerAbilities(card, timing, ctx={}){
           recalcArmor(curK);
           playSfx('rest');
           lg(`${card.name} raises ${r.name} at ${r.hp} HP!`,'imp');
+          // Визуальный "подъём" самого Плегмора (2026-08-08, по прямому запросу автора —
+          // "чтобы было визуально понятно, что это ОН поднялся и воскресил", не просто карта
+          // молча появилась на кладбище) — тот же activateCard() пульс, что уже используют
+          // атака/Bolt/Shot/TEANTIST при действии. Только в ЭТОЙ ветке (реальный raise
+          // случился), не в ветке "both graveyards empty" ниже — там Плегмор физически
+          // ничего не сделал, пульс был бы вводящим в заблуждение. requestAnimationFrame×2 —
+          // тот же приём, что у avenge_foxy_miss чуть выше по файлу (см. её комментарий):
+          // this fires deep inside triggerAbilities('on_turn'), BEFORE this turn's render()
+          // — calling activateCard() synchronously here would set the class on a DOM node
+          // that render() is about to rebuild, erasing it before a single frame draws.
+          const phlegmorId=card.id;
+          requestAnimationFrame(()=>requestAnimationFrame(()=>activateCard(phlegmorId)));
         } else {
           lg(`${card.name}: both graveyards empty.`,'die');
         }} break;
