@@ -1195,7 +1195,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else {
@@ -1266,7 +1266,7 @@ const tagIcons = (card.tags||[])
       popup.className='card-actions-popup';
       const playBtn=document.createElement('button');
       playBtn.className='cap-btn play';
-      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');else if(!card.spell&&!card.world&&!card.artifact)playSfx('yellow_buttom');G.previewCard=null;doPlay(card);};
+      playBtn.onclick=(e)=>{e.stopPropagation();if(card.spell&&!_isTargetedSpell(card)&&!_spellHasOwnSfx(card))playSfx('card_spell_atack');G.previewCard=null;doPlay(card);};
       popup.appendChild(playBtn);
       d.appendChild(popup);
     } else if(fieldFull){
@@ -1708,7 +1708,11 @@ function _playFieldFlyIfPending(cardEl, faction){
     clone.style.transform='translate(-50%,-50%) scale(1)';
     void clone.offsetWidth; // форсируем применение стилей без transition, синхронно, до снятия видимости
     cardEl.style.visibility='';
-    playSfx('enter_card'); // 2026-08-08, по прямому запросу автора — звучит именно ЗДЕСЬ, в конце полёта из руки (клон долетел, карта фактически появилась на поле), не в момент клика "разыграть карту". НЕ трогаем воскрешение через Incarnation/Remember (_reviveFlyIfPending выше) — у него уже свой звук ('rest', см. _runTurnStartEffects()/game.js).
+    // enter_card ПЕРЕЕХАЛ отсюда на клик по кнопке Play (2026-08-08, по прямому запросу
+    // автора — "звук выставления карт на поле поздно срабатывает"): раньше звучал именно
+    // ЗДЕСЬ, в конце полёта клона (~CARD_FLY_MS позже самого клика), теперь — сразу на
+    // playBtn.onclick в mkEl()/mkPreviewEl() (только для чистых существ, НЕ спеллов/миров/
+    // артефактов), синхронно с моментом нажатия, а не с моментом приземления анимации.
     // БАГФИКС (2026-08-06, гипотеза автора — "у Vanguard единственное отличие в том, что она
     // не спит с рождения, копай в эту сторону"). Реальная находка: idle-анимация покачивания
     // поля (.card-small:not(.sleeping):nth-child(4n+N){animation:cardFloatB/C/D...}, см.
