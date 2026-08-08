@@ -1124,6 +1124,7 @@ function doAttack(att,target){
     const overflow=Math.max(0,-target.hp);
     if(overflow>0){
       G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
+      playSfx(oppK==='jeet'?'jeetbase':'base_atack'); // 2026-08-08, по прямому запросу автора — trample-overflow раньше бил по базе вообще беззвучно; та же Jeet-развилка, что у прямого удара по базе
       lg(`${att.name} tramples through ${target.name} — ${overflow} overflow dmg to ${oppK.toUpperCase()} base!`,'dmg');
       flashBase('opp','dmg',overflow);
     }
@@ -1468,7 +1469,7 @@ function tryAttackBase(){
     doAttack(att,interceptor);
     return;
   }
-  playSfx('base_atack');
+  playSfx(oppK==='jeet'?'jeetbase':'base_atack'); // 2026-08-08, по прямому запросу автора — отдельный звук конкретно при ударе по базе Jeet, Tea-база оставлена на общем base_atack
   lg(`${att.name} hits ${oppK.toUpperCase()} base for ${atk} dmg!`,'dmg');
   opp.hp=Math.max(0,opp.hp-atk);
   // Market/Nana (2026-07-29, баг-фикс по прямому запросу автора) — раньше прямой удар по
@@ -1560,6 +1561,7 @@ function resolveMarketEvent(marketCard, marketFaction, targetCard, targetFaction
     const mc=G[marketFaction].field.find(c=>c.id===marketId);
     if(!mc) return; // носитель тега уже не на поле — розыгрыш рынка не состоится
     const up=Math.random()<0.5;
+    playSfx(up?'marketUp':'marketDown'); // 2026-08-08, по прямому запросу автора — звучит в тот же момент, что и появление плашки MARKET UP/MARKET DOWN, не в момент реального урона/самоурона (тот резолвится ещё одним setTimeout ниже)
     queueFieldFxReplace(marketId, up?'MARKET UP':'MARKET DOWN', up?'fx-market-up':'fx-market-down');
     render();
     setTimeout(()=>{
@@ -1784,7 +1786,7 @@ function resolveNanaEvent(nanaCard, nanaFaction, hitTargetCard, hitTargetFaction
           setTimeout(()=>{
             const nc2=G[nanaFaction].field.find(c=>c.id===nanaId);
             if(!nc2) return;
-            playSfx('base_atack'); // 2026-07-30, по прямому запросу автора — тот же звук, что у обычного удара по базе
+            playSfx(oppFaction==='jeet'?'jeetbase':'base_atack'); // 2026-08-08, по прямому запросу автора — та же Jeet-развилка, что и у обычного удара по базе (tryAttackBase())
             lg(`${nc2.name}: 🍌 hits the ${oppFaction} base for 2 dmg!`,'imp');
             G[oppFaction].hp=Math.max(0,G[oppFaction].hp-2);
             flashBase(oppFaction,'dmg',2);
@@ -3484,6 +3486,7 @@ function doSpellDmgTrampleTarget(card){
       const overflow=Math.max(0,-targetC.hp);
       if(overflow>0){
         G[oppK].hp=Math.max(0,G[oppK].hp-overflow);
+        playSfx(oppK==='jeet'?'jeetbase':'base_atack'); // 2026-08-08, по прямому запросу автора — тот же фикс, что у Pierce trample выше: overflow-урон от BREACH/RUPTURE через убитое существо раньше бил по базе беззвучно
         lg(`${spell.name}: overkill carries ${overflow} dmg into the ${oppK.toUpperCase()} base!`,'dmg');
         flashBase(oppK,'dmg',overflow);
       }
