@@ -262,6 +262,10 @@ function preloadAssets(){
     'img/land_left_wall.gif', 'img/land_right_wall.gif',
     'img/land_left_left_table.gif', 'img/land_right_right_table.gif',
     'img/land_left_dno.gif', 'img/land_right_dno.gif', 'img/land_dno.gif',
+    // Плейсхолдеры стола ряда Rules (2026-08-08, по прямому запросу автора — CSS уже
+    // честно ссылается на них через url(), файлы есть на диске, просто пропущены в
+    // preload, тот же класс гэпа, что у btn_log*/ico_bambo и т.п. выше).
+    'img/stolL.gif', 'img/stolR.gif',
 
     // ── Ящик Lore/Catalog (добавлено 2026-07-13) ──
     'img/bg_lore_modal.png',
@@ -299,6 +303,11 @@ function preloadAssets(){
     'img/btn_save1.png', 'img/btn_save2.png', 'img/btn_saveH.png',
     'img/btn_repeat1.png', 'img/btn_repeat2.png', 'img/btn_repeatH.png',
     'img/btn_back_corner1.png', 'img/btn_back_corner2.png', 'img/btn_back_cornerH.png',
+    // Кнопки выбора Story-пары (Classic → Burn vs Fear / Saga vs Foxy) — btn-story-burnfear/
+    // btn-story-sagafoxy в styles.css (2026-08-08, по прямому запросу автора — были подключены
+    // в CSS/HTML, но пропущены в preload, тот же класс гэпа, что раньше находили у btn_log*).
+    'img/btn_burnfear1.png', 'img/btn_burnfearH.png', 'img/btn_burnfear2.png',
+    'img/btn_sagafoxy1.png', 'img/btn_sagafoxyH.png', 'img/btn_sagafoxy2.png',
     // ── Кнопки футера деккбилдера (Back/Clear/Import/Export/OK) — арт подключен 2026-07-09 ──
     'img/btn_back1.png', 'img/btn_back2.png', 'img/btn_backH.png',
     'img/btn_clean1.png', 'img/btn_clean2.png', 'img/btn_cleanH.png',
@@ -430,6 +439,12 @@ function preloadAssets(){
     'img/ico_optic.png', // Optic Dope (2026-07-29) — тот же превентивный фикс
     'img/invis.png', // Invis/Stealth overlay (2026-07-27) — та же превентивная мера
     'img/ico_mek.png', 'img/mek.png', // MonoMEK (2026-07-30) — тот же превентивный фикс, что у Frost/Foxy/Nana выше (иконка + full-card оверлей метки)
+    // Иконки-триггеры способностей в тексте карт (formatAbilityText(), data.js) — "On play"/
+    // "On turn"/"On attack"/"Active"/"Squad" заменяются на эти картинки прямо в тексте карты.
+    // 2026-08-08, по прямому запросу автора — были подключены в data.js, но пропущены в
+    // preload (тот же класс гэпа, что уже находили у ico_bambo/ico_cloud и т.п. выше).
+    'img/ico_on_play.png', 'img/ico_on_turn.png', 'img/ico_on_attack.png',
+    'img/ico_active.png', 'img/ico_squad.png',
 
     // ── Кнопки в игре ──
     'img/btn_play.png', 'img/btn_burn.png', 'img/btn_spell.png', 'img/btn_shot.png',
@@ -1909,7 +1924,7 @@ const IS_TOUCH_DEVICE = ('ontouchstart' in window) || (navigator.maxTouchPoints 
 const TAG_TOOLTIPS = {
   'fear':    { name: 'Fear',    desc: 'On attack: Fears the target for 1 of its own turn — while Feared, target skips its next turn and deals no counter-damage.' },
   'pierce':  { name: 'Pierce',  desc: 'After attacking an enemy creature card, if it dies from the hit, any remaining excess damage carries over to the enemy Base.' },
-  'regen':   { name: 'Regen',   desc: 'Restores {val} HP to itself at the start of each of your turns.' },
+  'regen':   { name: 'Regen',   desc: '{val}' },
   'burn':    { name: 'Burn',    desc: 'On attack: Burns the target for 2 of its own turns — while Burned, target loses 1 HP at the start of each of its turns.' },
   'rage':    { name: 'Rage',    desc: '+2 ATK while wounded to half its max HP.' },
   'provoke': { name: 'Tree Wall', desc: 'While this creature is not exhausted, all enemy attacks must target it.' }, // переименован из Provoke в Tree Wall (2026-08-06, по прямому запросу автора, тот же приём, что у vanguard→Swiftness выше) — тег/иконка (ico_provoke.png) не менялись, только отображаемое имя
@@ -1964,13 +1979,15 @@ function _tooltipDataFor(el){
   if(el.classList.contains('card-tag-icon')){
     const base=TAG_TOOLTIPS[el.dataset.tag];
     if(!base) return null;
-    // Инкарнация — единственный тег-иконка, у которой число живёт в НАЗВАНИИ (живой
-    // счётчик оставшихся ходов на возрождение, см. card-incarn-badge ниже — там то же
-    // число меняется по ходу партии, это НЕ статичное описание способности).
-    if(el.dataset.tag==='incarnation' && el.dataset.tagval){
-      return { name: `Incarnation ${el.dataset.tagval}`, desc: base.desc };
+    // Инкарнация и Regen — теги, у которых число живёт в НАЗВАНИИ, а не в тексте (тот же
+    // приём для Regen добавлен 2026-08-08, по прямому запросу автора — раньше desc был
+    // "Restores {val} HP to itself...", теперь заголовок "Regen X" + голый "{val}" в тексте,
+    // тем же паттерном, что уже был у Incarnation ниже. Инкарнация — живой счётчик оставшихся
+    // ходов на возрождение (card-incarn-badge ниже — то же число меняется по ходу партии).
+    if((el.dataset.tag==='incarnation'||el.dataset.tag==='regen') && el.dataset.tagval){
+      return { name: `${base.name} ${el.dataset.tagval}`, desc: base.desc.replace('{val}', el.dataset.tagval) };
     }
-    // Остальные варьирующиеся по значению теги (regen/thorns/draw_attack/death_heal/
+    // Остальные варьирующиеся по значению теги (thorns/draw_attack/death_heal/
     // death_bolt/death_armor/death_atk, 2026-07-30 — автор поймал живьём: Scheme на
     // голден-Кситре #310 показывал старый хардкод "2 Armor" вместо реальных death_armor:4)
     // — название остаётся ЧИСТЫМ (без числа), а число подставляется в САМ ТЕКСТ описания
