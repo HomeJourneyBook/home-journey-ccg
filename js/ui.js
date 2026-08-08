@@ -345,11 +345,19 @@ function preloadAssets(){
     'img/ico_tea.png', 'img/ico_jeet.png', 'img/ico_mulligan.png',
 
     // ── Декоративные плейсхолдеры статус-бара и боттом-бара — разведены tea/jeet в этой сессии ──
-    // Jeet-версии этих декоративных плейсхолдеров пока не в репо (пока прозрачные заглушки,
-    // 404 на деплое — автор попросил закомментить, 2026-07-27; вернуть, когда появятся ассеты).
-    /* 'img/statbar_edge_right2_jeet.png', 'img/statbar_edge_left_jeet.png', */
-    /* 'img/boltik_jeet.png', */
-    /* 'img/statbar_extra_tea.png', 'img/statbar_extra_jeet.png', */
+    // statbar_edge_right2_jeet.png — ассет и весь элемент (.statbar-edge-right-2) удалены
+    // целиком (2026-08-08, по прямому запросу автора — "не надо этой асимметрии", у Tea
+    // такого элемента никогда не было). statbar_edge_left_jeet.png — старый ОБЩИЙ
+    // (нефракционный) плейсхолдер .statbar-edge-left, полностью перекрыт более специфичным
+    // .stats-bar.jeet .statbar-edge-left (left_tea_jeet.png, см. styles.css) — реально
+    // никогда не отображается, преloadить нечего.
+    // boltik_jeet.png/statbar_extra_jeet.png (2026-08-08, автор подтвердил — уже в репо) —
+    // раскомментированы, CSS-заглушка background-color тоже убрана (см. .hp-placeholder/
+    // .statbar-extra в styles.css). statbar_extra_tea.png ЕЩЁ не готов — Tea остаётся на
+    // drill.png, эта строка по-прежнему закомментирована.
+    'img/boltik_jeet.png',
+    'img/statbar_extra_jeet.png',
+    /* 'img/statbar_extra_tea.png', */
     'img/bg_counters_jeet.png',
     'img/armor_bg.png',
     /* 'img/dat4ik_jeet.gif', */
