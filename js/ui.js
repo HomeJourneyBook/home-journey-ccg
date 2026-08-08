@@ -449,6 +449,11 @@ function preloadAssets(){
     // bones_jeet до прошлого фикса.
     'img/btn_log1_tea.png', 'img/btn_logH_tea.png', 'img/btn_log2_tea.png',
     'img/btn_log1_jeet.png', 'img/btn_logH_jeet.png', 'img/btn_log2_jeet.png',
+    // Attack Rush — "Атаковать базу всеми" (2026-08-08, по прямому запросу автора) —
+    // 4 состояния (idle/hover/active/disabled) x 2 фракции, тот же слот-сосед, что у
+    // btn_log*_tea/jeet чуть выше (см. .arena-rush-btn в styles.css).
+    'img/btn_allrush_tea1.png', 'img/btn_allrush_teaH.png', 'img/btn_allrush_tea2.png', 'img/btn_allrush_teaD.png',
+    'img/btn_allrush_jeet1.png', 'img/btn_allrush_jeetH.png', 'img/btn_allrush_jeet2.png', 'img/btn_allrush_jeetD.png',
     'img/log_frame_jeet.png',
   ];
   criticalImages.forEach(src => { const img = new Image(); img.src = src; _preloadedImageRefs.push(img); });
