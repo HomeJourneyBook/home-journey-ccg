@@ -1089,6 +1089,10 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .log-panel.open .log{animation:crtFlicker 6s ease-in-out infinite;}
 /*── Хедер лог-панели ─────────────────────────────────────────────────────────*/
 .log-panel-header{background:transparent; border-style:solid; border-width:10px; border-image-source:url('../img/bg_jest_log.png'); border-image-slice:20 fill; border-image-width:10px; border-image-outset:0; border-image-repeat:stretch; box-sizing:border-box; display:flex;justify-content:center;align-items:center; padding:0 6px; position:relative;}
+/* .jeet (2026-08-08, по прямому запросу автора) — тот же приём, что у .log-panel.jeet
+   (рамка) и .grave-modal.jeet .grave-modal-header (хидер кладбища) выше: свой ассет для
+   хидера баттл-лога джит (bg_jest_log_jeet.png), остальные border-image-параметры те же. */
+.log-panel.jeet .log-panel-header{border-image-source:url('../img/bg_jest_log_jeet.png');}
 .log-panel-title{font-size:max(calc(5vh * 0.665), calc(2.5vw * 0.665));color:#0c1013;font-family:'MEK',monospace;text-align:center;
   /* 2026-07-17 (баг, автор — крестик наезжает на заголовок на вертикальном iPad): .log-panel-close
      позиционируется absolute и выпадает из flex-потока, поэтому центрированный текст заголовка
