@@ -394,6 +394,7 @@ function onClick(card,zone){
       // ТОЛЬКО клик по этой кнопке переводит в healTarget с подсветкой целей.
       // Обычная атака враг/база работает как у любого другого существа через selectTarget.
       G.sel=card.id;G.phase='selectTarget';
+      playSfx('card_select_traveler'); // 2026-08-08, по прямому запросу автора — тот же звук, что при выборе/превью карты в руке (см. zone==='hand' на 3 строки выше), теперь и при выборе своей карты на поле для действия
       lg(`Selected ${card.name} — click enemy to attack, or tap base.`,'hint');
       render();return;
     }
@@ -2036,7 +2037,8 @@ function _triggerFoxyAvenge(dodgedCard, attackerCard){
   // обычно, Ward НЕ блокирует (dmgCard() блокирует Ward'ом только bypassArmor=true урон —
   // тот же принцип, что уже у Shot/банана/DD Cleave в этом файле). Solana Shield всё ещё
   // может поглотить целиком — это не зависит от bypassArmor, щит блокирует любой урон.
-  dmgCard(attackerCard,1,attackerF,false,true);
+  // Урон 1→2 (2026-08-08, по прямому запросу автора — "усилить наказание за промах")
+  dmgCard(attackerCard,2,attackerF,false,true);
   // Звук + лог — ПОСЛЕ dmgCard() и только на подтверждённом попадании (не промах/не щит/
   // не заморозка У ATTACKERCARD — это ОН тут получатель урона, не dodgedCard), тот же
   // паттерн, что уже применяют Shot/Bolt/Nana/DD Cleave в этом файле (2026-08-06, по
@@ -2044,7 +2046,7 @@ function _triggerFoxyAvenge(dodgedCard, attackerCard){
   // Астронавт именно задамажил карту").
   if(!attackerCard._foxyDodgedThisHit && !attackerCard._shieldBlockedThisHit && !attackerCard._frostBlockedThisHit){
     playAttackSfx(avenger);
-    lg(`${avenger.name} damages ${attackerCard.name} for 1!`,'dmg');
+    lg(`${avenger.name} damages ${attackerCard.name} for 2!`,'dmg');
   }
   // Визуальный "подъём" (2026-08-06, по прямому запросу автора — "чтобы Thug Asteanaut
   // приподнимался в этот момент, как будто это он ранит карту") — тот же activateCard()
@@ -2814,7 +2816,17 @@ function applyAuras(faction){
     if(!countTag) return;
     const n=Math.min(3, cur.field.filter(c=>!c.spell&&!c.world&&!c.artifact&&hasTag(c,countTag)).length);
     if(n<=0) return;
+    // БАГФИКС (2026-08-08, по прямому запросу автора — "было 5/5, стало 5/6, должно
+    // стать 6/6") — та же проверка, что уже есть у обычного Squad maxHP-бонуса чуть выше
+    // (checkSquadBonuses(), effect==='maxhp': "if(card.hp===card.maxHp-squad.val) card.hp+=
+    // squad.val"): если карта ещё НЕ была ранена (текущий hp всё ещё равен старому maxHp,
+    // до добавления n), рост maxHp тоже поднимает текущий hp на ту же величину — иначе
+    // maxHp растёт, а сам hp остаётся прежним, будто карта уже потеряла эту разницу.
+    // Раненой карте (hp < старый maxHp) бонус НЕ доливает недостающее — только увеличивает
+    // потолок, как и должно быть.
+    const wasFullHp=(a.hp===a.maxHp);
     a.maxHp+=n;
+    if(wasFullHp) a.hp+=n;
     a.synergyMaxHpBonus=n;
     a.atkBonus=(a.atkBonus||0)+n;
   });
