@@ -1044,6 +1044,19 @@ img{-webkit-user-drag:none; user-select:none; -webkit-user-select:none; pointer-
 .modal-icon-btn.btn-rush{background-image:url('../img/btn_rush1.png');}
 .modal-icon-btn.btn-rush:hover{background-image:url('../img/btn_rushH.png');filter:brightness(1);}
 .modal-icon-btn.btn-rush:active{background-image:url('../img/btn_rush2.png');filter:brightness(1);transform:none;}
+/* Story под-экран (2026-08-08) — .modal-faction-btn, тот же класс/размер, что и кнопки
+   выбора фракции в vsAiPickerModal (см. .modal-faction-btn выше по файлу), по прямому
+   запросу автора. Ассеты автор кладёт в img/ локально — три состояния idle/hover/active
+   на каждую, тот же btn_XXX1/XXXH/XXX2 конвеншн, что и у остальных кастомных кнопок выше
+   (btn-classic/btn-rush/btn-home и т.д.) — простая смена background-image, без
+   filter/transform на hover/active (тут .modal-faction-btn и так transition:none по
+   умолчанию, в отличие от .modal-icon-btn — ничего гасить не требуется).*/
+.modal-faction-btn.btn-story-burnfear{background-image:url('../img/btn_burnfear1.png');}
+.modal-faction-btn.btn-story-burnfear:hover{background-image:url('../img/btn_burnfearH.png');}
+.modal-faction-btn.btn-story-burnfear:active{background-image:url('../img/btn_burnfear2.png');}
+.modal-faction-btn.btn-story-sagafoxy{background-image:url('../img/btn_sagafoxy1.png');}
+.modal-faction-btn.btn-story-sagafoxy:hover{background-image:url('../img/btn_sagafoxyH.png');}
+.modal-faction-btn.btn-story-sagafoxy:active{background-image:url('../img/btn_sagafoxy2.png');}
 .modal-icon-btn.btn-imp{background-image:url('../img/btn_imp1.png');}
 .modal-icon-btn.btn-imp:hover{background-image:url('../img/btn_impH.png');filter:brightness(1);}
 .modal-icon-btn.btn-imp:active{background-image:url('../img/btn_imp2.png');filter:brightness(1);transform:none;}
