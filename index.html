@@ -949,6 +949,11 @@
         <span class="stat-badge" id="arenaDeckCounterOpp">35</span>
       </div>
       <button class="arena-log-btn" id="arenaLogBtn" onclick="playSfx('yellow_buttom');toggleLog()" title="Battle Log"></button>
+      <!-- Attack Rush — "Атаковать базу всеми" (2026-08-08, по прямому запросу автора).
+           Тот же паттерн, что arena-log-btn (idle/hover/active — только тут ЕЩЁ и disabled,
+           см. .arena-rush-btn в styles.css), tea/jeet-скин по playerK, тот же приём
+           classList.toggle, что у arena-log-btn (см. reorderZones(), render.js). -->
+      <button class="arena-rush-btn" id="arenaRushBtn" onclick="attackBaseWithAll()" title="Attack Base With All"></button>
       <div class="arena-pair grave-pair" id="arenaGravePairPlayer">
         <button class="arena-grave-btn" id="arenaGravePlayer" title="Graveyard"></button>
         <span class="stat-badge" id="arenaGraveCounterPlayer">0</span>
@@ -1185,7 +1190,7 @@
          chooseDeckConfig('rush') (сборка своей колоды), никакого under-экрана. -->
     <div class="modal-footer modal-footer-plate" id="deckPickerMainFooter">
       <button class="modal-icon-btn wide btn-classic" onclick="playSfx('yellow_buttom');showStoryPicker()" title="Story"></button>
-      <button class="modal-icon-btn wide btn-rush" onclick="playSfx('yellow_buttom');chooseDeckConfig('rush')" title="Custom"></button>
+      <button class="modal-icon-btn wide btn-rush" onclick="playSfx('yellow_buttom');chooseDeckConfig('rush')" title="Custom (28+ cards)"></button>
     </div>
     <!-- Под-экран выбора конкретной Story-пары — скрыт по умолчанию (.hidden), показывается
          showStoryPicker()/скрывается backFromDeckPickerSmart() вместо main-footer выше, сама
