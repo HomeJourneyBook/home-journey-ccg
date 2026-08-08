@@ -2349,7 +2349,7 @@ function updateEndTurnBtn(){
 // НЕ зеркалятся по контенту (иначе стали бы нечитаемы); зато порядок HP/база/Essence ВНУТРИ
 // statbar-core флипается отдельно (mirrored ? ess-name-hp : hp-name-ess), т.к. reverse()
 // всего ряда не заглядывает внутрь одной строки-блока.
-// Декоративные edge-элементы (statbar-edge-left/right/right-2) вне потока — position:absolute,
+// Декоративные edge-элементы (statbar-edge-left/right) вне потока — position:absolute,
 // на них .reverse() не действует (порядок в DOM для absolute неважен), поэтому их зеркальные
 // координаты прописаны явно в styles.css (#oppStats .statbar-edge-*), см. комментарий там.
 // isPlayerSide — как раньше у _mkPcardSlotHtml: включает onclick для активации
@@ -2357,7 +2357,6 @@ function updateEndTurnBtn(){
 function _mkStatsBarHtml(faction, mirrored, isPlayerSide){
   const p=G[faction];
   const edgeLeft='<span class="statbar-edge-left"></span>';
-  const edgeRight2=faction==='jeet'?'<span class="statbar-edge-right-2"></span>':'';
   const worldSlot=_mkPcardSlotHtml(p.world, faction, false);
   const artifactSlot=_mkPcardSlotHtml(p.artifacts[0]||null, faction, isPlayerSide);
   const hpBox=`<span class="stat stat-hp-box ${faction}-hp-box"><img src="./img/hp_${faction}.png" class="stat-icon"> <span class="stat-val hp-val" id="${faction}Hp">${p.hp}</span></span>`;
@@ -2378,7 +2377,6 @@ function _mkStatsBarHtml(faction, mirrored, isPlayerSide){
   return `
   ${edgeLeft}
   ${orderedInFlow}
-  ${edgeRight2}
   <span class="statbar-edge-right"></span>`;
 }
 
