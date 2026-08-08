@@ -1708,6 +1708,7 @@ function _playFieldFlyIfPending(cardEl, faction){
     clone.style.transform='translate(-50%,-50%) scale(1)';
     void clone.offsetWidth; // форсируем применение стилей без transition, синхронно, до снятия видимости
     cardEl.style.visibility='';
+    playSfx('enter_card'); // 2026-08-08, по прямому запросу автора — звучит именно ЗДЕСЬ, в конце полёта из руки (клон долетел, карта фактически появилась на поле), не в момент клика "разыграть карту". НЕ трогаем воскрешение через Incarnation/Remember (_reviveFlyIfPending выше) — у него уже свой звук ('rest', см. _runTurnStartEffects()/game.js).
     // БАГФИКС (2026-08-06, гипотеза автора — "у Vanguard единственное отличие в том, что она
     // не спит с рождения, копай в эту сторону"). Реальная находка: idle-анимация покачивания
     // поля (.card-small:not(.sleeping):nth-child(4n+N){animation:cardFloatB/C/D...}, см.
