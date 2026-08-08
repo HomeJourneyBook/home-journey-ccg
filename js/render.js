@@ -2526,6 +2526,29 @@ function reorderZones(){
     logBtn.classList.toggle('jeet', playerK==='jeet');
     logBtn.classList.toggle('tea', playerK!=='jeet');
   }
+  // Attack Rush — "Атаковать базу всеми" (2026-08-08, по прямому запросу автора). Скин —
+  // тот же playerK-приём, что у кнопки лога чуть выше (сидит в той же колонке, тот же
+  // принцип "чья позиция сейчас снизу"). .disabled — ОТДЕЛЬНОЕ условие, завязанное на
+  // G.turn (не playerK — playerK это "чья позиция", G.turn это "чей сейчас ход"; в
+  // хотсите они совпадают почти всегда, но кнопка обязана быть disabled в любом случае,
+  // когда сейчас НЕ ход владельца этой позиции — иначе игрок увидит активную кнопку в
+  // чужой ход и она либо ничего не сделает, либо (хуже) сработает не для той стороны).
+  // Активна, только когда ОДНОВРЕМЕННО: сейчас реально ход этого игрока (не AI-ход), фаза
+  // строго 'action' (нет выбранной карты/pending-спелла/таргета — та же логика, что автор
+  // подтвердил явно), путь до базы полностью свободен (isBaseFullyOpen(), game.js — те же
+  // bushido/provoke/intercept-проверки, что использует и сам tryAttackBase()), есть хотя
+  // бы 1 своя готовая карта на поле, и прямо сейчас не идёт уже запущенная серия ударов
+  // (isAttackRushInProgress(), game.js — блокирует повторный клик, как автор попросил).
+  const rushBtn=document.getElementById('arenaRushBtn');
+  if(rushBtn){
+    rushBtn.classList.toggle('jeet', playerK==='jeet');
+    rushBtn.classList.toggle('tea', playerK!=='jeet');
+    const isOwnerTurn = !isAiTurn() && G.turn===playerK;
+    const oppKForRush = playerK==='tea'?'jeet':'tea';
+    const hasReadyAttacker = G[playerK].field.some(c=>!c.spell&&!c.world&&!c.artifact&&!c.exhausted&&!c.sleeping&&!c.feared&&!c.frozen);
+    const rushReady = isOwnerTurn && G.phase==='action' && !isAttackRushInProgress() && hasReadyAttacker && isBaseFullyOpen(oppKForRush);
+    rushBtn.classList.toggle('disabled', !rushReady);
+  }
   // .log-panel (2026-08-06, по прямому запросу автора — "свой кастомный фон для баттл
   // лога у джит, всё так же как у чая, log_frame_jeet.png") — тот же playerK-флаг и тот
   // же приём toggle, что у кнопки лога чуть выше (см. её комментарий про VS AI/G.turn).
