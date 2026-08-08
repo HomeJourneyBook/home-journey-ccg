@@ -1166,7 +1166,7 @@
 
 <div class="modal-overlay hidden" id="deckPickerModal">
   <div class="modal-stack">
-    <button class="modal-icon-btn corner-back btn-back-corner" onclick="backFromDeckPicker()" title="Back"></button>
+    <button class="modal-icon-btn corner-back btn-back-corner" onclick="backFromDeckPickerSmart()" title="Back"></button>
     <div class="modal">
       <div class="modal-body">
         <div class="modal-crt-screen">
@@ -1188,12 +1188,14 @@
       <button class="modal-icon-btn wide btn-rush" onclick="playSfx('yellow_buttom');chooseDeckConfig('rush')" title="Custom (28+ cards)"></button>
     </div>
     <!-- Под-экран выбора конкретной Story-пары — скрыт по умолчанию (.hidden), показывается
-         showStoryPicker()/скрывается backFromStoryPicker() вместо main-footer выше, сама
+         showStoryPicker()/скрывается backFromDeckPickerSmart() вместо main-footer выше, сама
          модалка/попап НЕ переоткрывается. Квадратные кнопки — тот же .modal-faction-btn
          класс/размер, что и на экране выбора фракции (vsAiPickerModal), по прямому запросу
-         автора ("по размеру как когда мы выбираем фракцию"). -->
+         автора ("по размеру как когда мы выбираем фракцию"). Отдельной кнопки "назад" тут
+         больше НЕТ (2026-08-08, по прямому запросу автора — "я думал ты перенастроить
+         использование кнопки назад в нижнем левом углу модалки") — угловая corner-back
+         (см. верх файла) теперь одна отвечает за оба уровня, см. backFromDeckPickerSmart(). -->
     <div class="modal-footer modal-footer-plate hidden" id="deckPickerStoriesFooter">
-      <button class="modal-icon-btn sq btn-back placeholder" onclick="backFromStoryPicker()" title="Back"></button>
       <button class="modal-faction-btn btn-story-burnfear" onclick="playSfx('yellow_buttom');chooseDeckConfig('classic')" title="Burn vs Fear"></button>
       <button class="modal-faction-btn btn-story-sagafoxy" onclick="playSfx('yellow_buttom');chooseDeckConfig('saga_foxy')" title="Saga vs Foxy"></button>
     </div>
