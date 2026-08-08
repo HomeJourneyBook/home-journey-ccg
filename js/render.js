@@ -364,7 +364,26 @@ function _cardStatusEntries(card){
     }
   }
   // Бафы
-  if(card.atkBonus&&!aloneSamuraiActive) entries.push({icon:'img/attack.png', text:`+${card.atkBonus} ATK from an aura on the battleground.`});
+  // BAN'KAI / COPE GUARDIAN (2026-08-08, по прямому запросу автора — "должна писаться
+  // своя строка и про хп, и про атаку, не общий '+N ATK from an aura'") — тот же приём,
+  // что у Alone Samurai выше: бонус физически живёт в тех же общих полях
+  // (atkBonus/synergyMaxHpBonus, см. applyAuras()/game.js — BAN'KAI/COPE GUARDIAN блок в
+  // самом конце функции), но источник — счётчик союзников с тегом Saga/Foxy Trick, а не
+  // обычная aura:atk-карта, так что generic-текст ниже вводил бы в заблуждение (упоминал
+  // только ATK, хотя карта получает И maxHP, И ATK поровну). Считаем ДО generic-ветки и
+  // ВЫЧИТАЕМ synergy-часть из числа, что покажет generic-ветка — если на карте ОДНОВРЕМЕННО
+  // есть ещё и обычная aura:atk (редкий edge-case, но atkBonus — общее накопительное поле,
+  // см. applyAuras()), тот "лишний" вклад всё равно останется виден отдельной строкой, а не
+  // тихо потеряется.
+  const synergyBonusN=card.synergyMaxHpBonus||0;
+  const synergyBonusActive=synergyBonusN>0&&(hasTag(card,'synergy_saga_count')||hasTag(card,'synergy_foxy_count'));
+  if(synergyBonusActive){
+    const isSaga=hasTag(card,'synergy_saga_count');
+    entries.push({icon:isSaga?'img/ico_saga.png':'img/ico_fff.png',
+      text:`+${synergyBonusN} Max HP, +${synergyBonusN} ATK from ${isSaga?'Saga':'Foxy Trick'} allies on the battleground.`});
+  }
+  const genericAtkBonus=(card.atkBonus||0)-(synergyBonusActive?synergyBonusN:0);
+  if(genericAtkBonus>0&&!aloneSamuraiActive) entries.push({icon:'img/attack.png', text:`+${genericAtkBonus} ATK from an aura on the battleground.`});
   if(card.auraMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.auraMaxHpBonus} Max HP from an aura on the battleground.`});
   if(card.worldMaxHpBonus) entries.push({icon:'img/heart.png', text:`+${card.worldMaxHpBonus} Max HP from the World card.`});
   if(card.auraArmorBonus) entries.push({icon:'img/armor.png', text:`+${card.auraArmorBonus} Armor from an aura on the battleground.`});
@@ -918,13 +937,13 @@ ${!isSW?`<div class="card-small-stats">
       if(isUmb){
         const btn=document.createElement('button');
         btn.className='fab-btn umbasir';
-        btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doUmbAsir();};
+        btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.sel=card.id;doUmbAsir();};
         pop.appendChild(btn);
       }
       if(isVard){
         const btn=document.createElement('button');
         btn.className='fab-btn vardan';
-        btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doVardan();};
+        btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.sel=card.id;doVardan();};
         pop.appendChild(btn);
       }
       if(isBolt){
@@ -932,10 +951,10 @@ ${!isSW?`<div class="card-small-stats">
         const isCancellingBolt=G.phase==='boltTarget'&&G.sel===card.id;
         if(isCancellingBolt){
           btn.className='fab-btn cancel'; // тот же красный крестик, что и у Heal при отмене
-          btn.onclick=(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();};
+          btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.phase='action';G.sel=null;render();};
         } else {
           btn.className='fab-btn umbasir'; // переиспользуем существующий плейсхолдер-класс, пока нет своей иконки
-          btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doUmbBolt();};
+          btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.sel=card.id;doUmbBolt();};
         }
         pop.appendChild(btn);
       }
@@ -944,10 +963,10 @@ ${!isSW?`<div class="card-small-stats">
         const isCancellingShot=G.phase==='shotTarget'&&G.sel===card.id;
         if(isCancellingShot){
           btn.className='fab-btn cancel';
-          btn.onclick=(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();};
+          btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.phase='action';G.sel=null;render();};
         } else {
           btn.className='fab-btn mechird'; // своя иконка btn_shot.png (2026-08-04, по прямому запросу автора)
-          btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;doMchShot();};
+          btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.sel=card.id;doMchShot();};
         }
         pop.appendChild(btn);
       }
@@ -960,10 +979,10 @@ ${!isSW?`<div class="card-small-stats">
         const isCancelling=G.phase==='healTarget'&&G.sel===card.id;
         if(isCancelling){
           btn.className='fab-btn cancel';
-          btn.onclick=(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();};
+          btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.phase='action';G.sel=null;render();};
         } else {
           btn.className='fab-btn heal'; // плейсхолдер img/btn_heal.png — автор подключит свою картинку позже
-          btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;G.phase='healTarget';render();};
+          btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.sel=card.id;G.phase='healTarget';render();};
         }
         pop.appendChild(btn);
       }
@@ -973,10 +992,10 @@ ${!isSW?`<div class="card-small-stats">
         const isCancellingBounce=G.phase==='gustAllyTarget'&&G.sel===card.id;
         if(isCancellingBounce){
           btn.className='fab-btn cancel';
-          btn.onclick=(e)=>{e.stopPropagation();G.phase='action';G.sel=null;render();};
+          btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.phase='action';G.sel=null;render();};
         } else {
           btn.className='fab-btn bounce_ally'; // тот же ассет btn_spell.png, что у Umbasir/Vardan выше
-          btn.onclick=(e)=>{e.stopPropagation();G.sel=card.id;G.phase='gustAllyTarget';render();};
+          btn.onclick=(e)=>{e.stopPropagation();playSfx('yellow_buttom');G.sel=card.id;G.phase='gustAllyTarget';render();};
         }
         pop.appendChild(btn);
       }
@@ -2074,7 +2093,19 @@ function rHiddenHand(id,cards,faction){
   if(bouncedCard){
     const originRect=_bounceOriginRects[String(bouncedCard.id)];
     delete _bounceOriginRects[String(bouncedCard.id)];
-    const targetRect=_hiddenHandPlaceholderRect(faction);
+    // БАГФИКС (2026-08-08, по прямому запросу автора — "карта очень большая когда летит
+    // обратно"): _hiddenHandPlaceholderRect() возвращает bounding rect ВСЕГО контейнера
+    // .hand-mini (целый ряд рубашек), не одной рубашки — _flyCardFromDeck() ставит ширину/
+    // высоту клона РОВНО в targetRect (см. её комментарий), так что клон раздувался до
+    // размера всего ряда. Берём размер одной РЕАЛЬНОЙ рубашки в этой руке, если она уже
+    // есть в DOM (have>0 — почти всегда так, кроме самого первого bounce на пустую руку);
+    // сам fallback-контейнер (originRect для позиции полёта) остаётся прежним — направление
+    // и так верное, дело было только в масштабе.
+    const miniEl=el.querySelector('.card-mini');
+    const singleMiniRect=miniEl?miniEl.getBoundingClientRect():null;
+    const targetRect=(singleMiniRect&&singleMiniRect.width&&singleMiniRect.height)
+      ? singleMiniRect
+      : _hiddenHandPlaceholderRect(faction);
     if(originRect && targetRect){
       const flyClone=document.createElement('div');
       flyClone.className=`card-mini ${faction}-mini`;
